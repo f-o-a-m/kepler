@@ -1,8 +1,9 @@
 module Network.ABCI.Types.Messages.Request where
 
 import Control.Lens (Iso', iso, (^.), (.~), (&))
-import Data.ProtoLens.Message (defMessage)
+import Data.ProtoLens.Message (Message (defMessage, unknownFields), FieldSet)
 import Data.Text (Text)
+import Data.Word (Word64)
 import qualified Proto.Types as PT
 import qualified Proto.Types_Fields as PT
 
@@ -50,6 +51,33 @@ data Echo =
 echo :: Iso' Echo PT.RequestEcho
 echo = iso to from
   where
-    to (Echo {echoMessage}) = defMessage & PT.message .~ echoMessage
+    to Echo{..} = defMessage & PT.message .~ echoMessage
     from requestEcho = Echo { echoMessage = requestEcho ^. PT.message
+                            }
+
+data Flush =
+  Flush { flushUnknownFields :: FieldSet }
+
+flush :: Iso' Flush PT.RequestFlush
+flush = iso to from
+  where
+    to Flush{..} = defMessage & unknownFields .~ flushUnknownFields
+    from requestFlush = Flush { flushUnknownFields = requestFlush ^. unknownFields
+                              }
+
+data Info =
+  Info { infoVersion :: Text
+       , infoBlockVersion :: Word64
+       , infoP2pVersion :: Word64
+       }
+
+info :: Iso' Info PT.RequestInfo
+info = iso to from
+  where
+    to Info{..} = defMessage & PT.version .~ infoVersion
+                             & PT.blockVersion .~ infoBlockVersion
+                             & PT.p2pVersion .~ infoP2pVersion
+    from requestInfo = Info { infoVersion = requestInfo ^. PT.version
+                            , infoBlockVersion = requestInfo ^. PT.blockVersion
+                            , infoP2pVersion = requestInfo ^. PT.p2pVersion
                             }

@@ -28,6 +28,7 @@ custom-setup:
 
 default-extensions:
 - NamedFieldPuns
+- RecordWildCards
 - FlexibleContexts
 
 
