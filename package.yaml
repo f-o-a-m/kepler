@@ -9,6 +9,7 @@ copyright:           "2019 Author name here"
 extra-source-files:
 - README.md
 - ChangeLog.md
+- protos/**/*.proto
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -19,11 +20,31 @@ extra-source-files:
 # common to point users to the README.md file.
 description:         Please see the README on GitHub at <https://github.com/githubuser/hs-abci-server#readme>
 
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-setup
+
+
 dependencies:
 - base >= 4.7 && < 5
+- proto-lens
+- proto-lens-runtime
 
 library:
   source-dirs: src
+  other-modules:
+  - Proto.Types
+  - Proto.Types_Fields
+  - Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo
+  - Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo_Fields
+  - Proto.Vendored.Google.Protobuf.Timestamp
+  - Proto.Vendored.Google.Protobuf.Timestamp_Fields
+  - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle
+  - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
+  - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types
+  - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields
 
 executables:
   hs-abci-server-exe:
