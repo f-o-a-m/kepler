@@ -1,11 +1,12 @@
 module Network.ABCI.Types.Messages.Request where
 
-import Control.Lens (Iso', iso, (^.), (.~), (&))
-import Data.ProtoLens.Message (Message (defMessage, unknownFields), FieldSet)
-import Data.Text (Text)
-import Data.Word (Word64)
-import qualified Proto.Types as PT
-import qualified Proto.Types_Fields as PT
+import           Control.Lens           (Iso', iso, (&), (.~), (^.))
+import           Data.ByteString        (ByteString)
+import           Data.ProtoLens.Message (Message (defMessage))
+import           Data.Text              (Text)
+import           Data.Word              (Word64)
+import qualified Proto.Types            as PT
+import qualified Proto.Types_Fields     as PT
 
 {-
        (ABCIApplication(..), BlockID(), BlockSizeParams(),
@@ -55,20 +56,18 @@ echo = iso to from
     from requestEcho = Echo { echoMessage = requestEcho ^. PT.message
                             }
 
-data Flush =
-  Flush { flushUnknownFields :: FieldSet }
+data Flush = Flush
 
 flush :: Iso' Flush PT.RequestFlush
 flush = iso to from
   where
-    to Flush{..} = defMessage & unknownFields .~ flushUnknownFields
-    from requestFlush = Flush { flushUnknownFields = requestFlush ^. unknownFields
-                              }
+    to = const defMessage
+    from = const Flush
 
 data Info =
-  Info { infoVersion :: Text
+  Info { infoVersion      :: Text
        , infoBlockVersion :: Word64
-       , infoP2pVersion :: Word64
+       , infoP2pVersion   :: Word64
        }
 
 info :: Iso' Info PT.RequestInfo
@@ -81,3 +80,25 @@ info = iso to from
                             , infoBlockVersion = requestInfo ^. PT.blockVersion
                             , infoP2pVersion = requestInfo ^. PT.p2pVersion
                             }
+
+data SetOption =
+  SetOption { setOptionKey   :: Text
+            , setOptionValue :: Text
+            }
+
+setOption :: Iso' SetOption PT.RequestSetOption
+setOption = iso to from
+  where
+    to SetOption{..} = defMessage & PT.key .~ setOptionKey
+                                  & PT.value .~ setOptionValue
+    from requestSetOption = SetOption { setOptionKey = requestSetOption ^. PT.key
+                                      , setOptionValue = requestSetOption ^. PT.value
+                                      }
+
+data InitChain =
+  InitChain { initChainTime            :: Maybe ()
+            , initChainChainId         :: Text
+            , initChainConsensusParams :: Maybe ()
+            , initChainValidators      :: [()]
+            , initChainAppState        :: ByteString
+            }
