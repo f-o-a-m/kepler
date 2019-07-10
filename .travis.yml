@@ -1,0 +1,19 @@
+language: haskell
+ghc:
+  - "8.6.1"
+cabal: "2.4"
+sudo: required
+# Cache .stack for build_times--
+cache:
+  directories:
+  - $HOME/.stack
+before_install:
+# Download and unpack the stack executable
+- mkdir -p ~/.local/bin
+- export PATH=$HOME/.local/bin:$PATH
+- travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+install:
+- travis_wait stack --skip-ghc-check setup
+- travis_wait stack --skip-ghc-check install hlint-2.1.10
+script:
+- make hlint
