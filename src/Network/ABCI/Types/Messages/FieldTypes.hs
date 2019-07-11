@@ -2,7 +2,8 @@ module Network.ABCI.Types.Messages.FieldTypes where
 
 import           Control.Lens                                    (Iso', iso,
                                                                   (&), (.~),
-                                                                  (^.))
+                                                                  (^.), mapped)
+import qualified Control.Lens                                    as Lens
 import           Data.Int                                        (Int64)
 import           Data.ProtoLens.Message                          (Message (defMessage))
 import           Data.Text                                       (Text)
@@ -46,8 +47,6 @@ blockSizeParams = iso to from
                                     , blockSizeParamsMaxGas = bsParams ^. PT.maxGas
                                     }
 
-
-
 data EvidenceParams =
   EvidenceParams { evidenceParamsMaxAge :: Int64
                  }
@@ -59,7 +58,6 @@ evidenceParams = iso to from
     from eParams = EvidenceParams { evidenceParamsMaxAge = eParams ^. PT.maxAge
                                   }
 
-
 data ValidatorParams =
   ValidatorParams { validatorParamsPubKeyTypes :: [Text]
                   }
@@ -70,3 +68,20 @@ validatorParams = iso to from
     to ValidatorParams{..} = defMessage & PT.pubKeyTypes .~ validatorParamsPubKeyTypes
     from vParams = ValidatorParams { validatorParamsPubKeyTypes = vParams ^. PT.pubKeyTypes
                                    }
+
+data ConsensusParams =
+  ConsensusParams { consensusParamsBlockSize :: Maybe BlockSizeParams
+                  , consensusParamsEvidence :: Maybe EvidenceParams
+                  , consensusParamsValidator :: Maybe ValidatorParams
+                  }
+
+consensusParams :: Iso' ConsensusParams PT.ConsensusParams
+consensusParams = iso to undefined --from
+  where
+    to ConsensusParams{..} = defMessage & PT.maybe'blockSize . mapped .~ consensusParamsBlockSize ^. blockSizeParams
+--                                        & PT.maybe'evidence .~ consensusParamsEvidence ^. mapped . evidenceParams
+--                                        & PT.maybe'validator .~ (consensusParamsValidator ^. mapped . validatorParams)
+    --from cParams = ConsensusParams { consensusParamsBlockSize = cParams ^. mapped . Lens.from PT.maybe'blockSize
+    --                               , consensusParamsEvidence = cParams ^. mapped . Lens.from PT.maybe'evidence
+    --                               , consensusParamsValidator = cParams ^. mapped . Lens.from PT.maybe'validator
+    --                               }
