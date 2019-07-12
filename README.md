@@ -10,3 +10,14 @@ generated modules, you can run
 ``` 
 
 to find the root directory.
+
+
+## Building documentation
+You can build the haddocks for the library code only using
+
+```bash
+make build-docs-local
+```
+
+This does not build and link documentation for dependencies, useful mostly for testing
+documentation formatting.

@@ -26,11 +26,21 @@ custom-setup:
     - Cabal
     - proto-lens-setup
 
+default-extensions:
+- NamedFieldPuns
+- RecordWildCards
+- FlexibleContexts
+- DeriveGeneric
+
 
 dependencies:
 - base >= 4.7 && < 5
+- bytestring
+- lens
 - proto-lens
 - proto-lens-runtime
+- text
+- time
 
 library:
   source-dirs: src
