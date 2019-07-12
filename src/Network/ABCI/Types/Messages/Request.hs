@@ -1,12 +1,24 @@
 module Network.ABCI.Types.Messages.Request where
 
-import           Control.Lens           (Iso', iso, (&), (.~), (^.))
-import           Data.ByteString        (ByteString)
-import           Data.ProtoLens.Message (Message (defMessage))
-import           Data.Text              (Text)
-import           Data.Word              (Word64)
-import qualified Proto.Types            as PT
-import qualified Proto.Types_Fields     as PT
+import           Control.Lens                           (Iso', iso, (&), (.~), traverse,
+                                                         (^.), _Just, (^?), (^..))
+import qualified Control.Lens                           as Lens
+import           Data.ByteString                        (ByteString)
+import           Data.Int                               (Int64)
+import           Data.ProtoLens.Message                 (Message (defMessage))
+import           Data.Text                              (Text)
+import           Data.Word                              (Word64)
+import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams,
+                                                         Evidence, Header,
+                                                         LastCommitInfo,
+                                                         Timestamp,
+                                                         ValidatorUpdate,
+                                                         consensusParams,
+                                                         evidence, header,
+                                                         lastCommitInfo,
+                                                         timestamp)
+import qualified Proto.Types                            as PT
+import qualified Proto.Types_Fields                     as PT
 
 {-
        (ABCIApplication(..), BlockID(), BlockSizeParams(),
@@ -96,9 +108,51 @@ setOption = iso to from
                                       }
 
 data InitChain =
-  InitChain { initChainTime            :: Maybe ()
+  InitChain { initChainTime            :: Maybe Timestamp
             , initChainChainId         :: Text
-            , initChainConsensusParams :: Maybe ()
-            , initChainValidators      :: [()]
+            , initChainConsensusParams :: Maybe ConsensusParams
+            , initChainValidators      :: [ValidatorUpdate]
             , initChainAppState        :: ByteString
             }
+
+data Query =
+  Query { queryData   :: ByteString
+        , queryPath   :: Text
+        , queryHeight :: Int64
+        , queryProve  :: Bool
+        }
+
+query :: Iso' Query PT.RequestQuery
+query = iso to from
+  where
+    to Query{..} = defMessage & PT.data' .~ queryData
+                              & PT.path .~ queryPath
+                              & PT.height .~ queryHeight
+                              & PT.prove .~ queryProve
+    from requestQuery = Query { queryData = requestQuery ^. PT.data'
+                              , queryPath = requestQuery ^. PT.path
+                              , queryHeight = requestQuery ^. PT.height
+                              , queryProve = requestQuery ^. PT.prove
+                              }
+
+data BeginBlock =
+  BeginBlock { beginBlockHash                :: ByteString
+             , beginBlockHeader              :: Maybe Header
+             , beginBlockLastCommitInfo      :: Maybe LastCommitInfo
+             , beginBlockByzantineValidators :: [Evidence]
+             }
+
+beginBlock :: Iso' BeginBlock PT.RequestBeginBlock
+beginBlock = iso to from
+  where
+    to BeginBlock{..} =
+      defMessage & PT.hash .~ beginBlockHash
+                 & PT.maybe'header .~ beginBlockHeader ^? _Just . header
+                 & PT.maybe'lastCommitInfo .~ beginBlockLastCommitInfo ^? _Just . lastCommitInfo
+                 & PT.byzantineValidators .~ beginBlockByzantineValidators ^.. traverse . evidence
+    from requestBeginBlock =
+      BeginBlock { beginBlockHash = requestBeginBlock ^. PT.hash
+                 , beginBlockHeader = requestBeginBlock ^? PT.maybe'header . _Just . Lens.from header
+                 , beginBlockLastCommitInfo = requestBeginBlock ^? PT.maybe'lastCommitInfo . _Just . Lens.from lastCommitInfo
+                 , beginBlockByzantineValidators = requestBeginBlock ^.. PT.byzantineValidators . traverse . Lens.from evidence
+                 }
