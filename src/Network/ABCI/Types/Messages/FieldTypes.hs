@@ -1,24 +1,43 @@
 module Network.ABCI.Types.Messages.FieldTypes where
 
-import           Control.Lens                                    (Iso', iso,
-                                                                  mapped, over,
-                                                                  traverse,
-                                                                  view, (%~),
-                                                                  (&), (.~),
-                                                                  (^.), (^..),
-                                                                  (^?), _Just)
-import qualified Control.Lens                                    as Lens
-import           Data.ByteString                                 (ByteString)
-import           Data.Int                                        (Int32, Int64)
-import           Data.ProtoLens.Message                          (Message (defMessage))
-import           Data.Text                                       (Text)
-import           Data.Time.Clock                                 (DiffTime, diffTimeToPicoseconds,
-                                                                  picosecondsToDiffTime)
-import           Data.Word                                       (Word64)
-import qualified Proto.Types                                     as PT
-import qualified Proto.Types_Fields                              as PT
-import qualified Proto.Vendored.Google.Protobuf.Timestamp        as T
-import qualified Proto.Vendored.Google.Protobuf.Timestamp_Fields as T
+import           Control.Lens
+                                                                                   (Iso',
+                                                                                   iso,
+                                                                                   mapped,
+                                                                                   over,
+                                                                                   traverse,
+                                                                                   view,
+                                                                                   (%~),
+                                                                                   (&),
+                                                                                   (.~),
+                                                                                   (^.),
+                                                                                   (^..),
+                                                                                   (^?),
+                                                                                   _Just)
+import qualified Control.Lens                                                     as Lens
+import           Data.ByteString
+                                                                                   (ByteString)
+import           Data.Int
+                                                                                   (Int32,
+                                                                                   Int64)
+import           Data.ProtoLens.Message
+                                                                                   (Message (defMessage))
+import           Data.Text
+                                                                                   (Text)
+import           Data.Time.Clock
+                                                                                   (DiffTime,
+                                                                                   diffTimeToPicoseconds,
+                                                                                   picosecondsToDiffTime)
+import           Data.Word
+                                                                                   (Word64)
+import qualified Proto.Types                                                      as PT
+import qualified Proto.Types_Fields                                               as PT
+import qualified Proto.Vendored.Google.Protobuf.Timestamp                         as T
+import qualified Proto.Vendored.Google.Protobuf.Timestamp_Fields                  as T
+import qualified Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle        as MT
+import qualified Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields as MT
+import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types           as CT
+import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields    as CT
 
 data Timestamp =
   Timestamp DiffTime deriving (Eq, Show)
@@ -196,7 +215,7 @@ blockID = iso to from
 
 data Version =
   Version { versionBlock :: Word64
-          , versionApp :: Word64
+          , versionApp   :: Word64
           }
 
 version :: Iso' Version PT.Version
@@ -266,10 +285,10 @@ header = iso to from
                          }
 
 data Evidence =
-  Evidence { evidenceType :: Text
-           , evidenceValidator :: Maybe Validator
-           , evidenceHeight :: Int64
-           , evidenceTime :: Maybe Timestamp
+  Evidence { evidenceType             :: Text
+           , evidenceValidator        :: Maybe Validator
+           , evidenceHeight           :: Int64
+           , evidenceTime             :: Maybe Timestamp
            , evidenceTotalVotingPower :: Int64
            }
 
@@ -288,3 +307,60 @@ evidence = iso to from
                , evidenceTime = evidence ^? PT.maybe'time . _Just . Lens.from timestamp
                , evidenceTotalVotingPower = evidence ^. PT.totalVotingPower
                }
+
+
+data KVPair = KVPair
+  { kVPairKey   :: ByteString
+  , kVPairValue :: ByteString
+  }
+kVPair :: Iso' KVPair CT.KVPair
+kVPair = iso to from
+  where
+    to KVPair{..} =
+      defMessage
+        & CT.key .~ kVPairKey
+        & CT.value .~ kVPairValue
+    from kVPair =
+      KVPair
+        { kVPairKey = kVPair ^. CT.key
+        , kVPairValue = kVPair ^. CT.value
+        }
+
+
+data Proof = Proof
+  { proofOps :: [ProofOp]
+  }
+
+proof :: Iso' Proof MT.Proof
+proof = iso to from
+  where
+    to Proof{..} =
+      defMessage
+        & MT.ops .~ proofOps ^.. traverse . proofOp
+    from proof =
+      Proof
+        { proofOps = proof ^.. MT.ops . traverse . Lens.from proofOp
+        }
+
+
+data ProofOp = ProofOp
+  { proofOpType :: Text
+  , proofOpKey  :: ByteString
+  , proofOpData :: ByteString
+  }
+
+proofOp :: Iso' ProofOp MT.ProofOp
+proofOp = iso to from
+  where
+    to ProofOp{..} =
+      defMessage
+        & MT.type' .~ proofOpType
+        & MT.key .~ proofOpKey
+        & MT.data' .~ proofOpData
+    from proofOp =
+      ProofOp
+        { proofOpType = proofOp ^. MT.type'
+        , proofOpKey = proofOp ^. MT.key
+        , proofOpData = proofOp ^. MT.data'
+        }
+
