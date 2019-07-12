@@ -30,6 +30,7 @@ import           Data.Time.Clock
                                                                                    picosecondsToDiffTime)
 import           Data.Word
                                                                                    (Word64)
+import GHC.Generics (Generic)
 import qualified Proto.Types                                                      as PT
 import qualified Proto.Types_Fields                                               as PT
 import qualified Proto.Vendored.Google.Protobuf.Timestamp                         as T
@@ -40,7 +41,7 @@ import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types         
 import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields    as CT
 
 data Timestamp =
-  Timestamp DiffTime deriving (Eq, Show)
+  Timestamp DiffTime deriving (Eq, Show, Generic)
 
 timestamp :: Iso' Timestamp T.Timestamp
 timestamp = iso to from
@@ -61,7 +62,7 @@ timestamp = iso to from
 data BlockSizeParams =
   BlockSizeParams { blockSizeParamsMaxBytes :: Int64
                   , blockSizeParamsMaxGas   :: Int64
-                  }
+                  } deriving (Eq, Show, Generic)
 
 blockSizeParams :: Iso' BlockSizeParams PT.BlockSizeParams
 blockSizeParams = iso to from
@@ -74,7 +75,7 @@ blockSizeParams = iso to from
 
 data EvidenceParams =
   EvidenceParams { evidenceParamsMaxAge :: Int64
-                 }
+                 } deriving (Eq, Show, Generic)
 
 evidenceParams :: Iso' EvidenceParams PT.EvidenceParams
 evidenceParams = iso to from
@@ -85,7 +86,7 @@ evidenceParams = iso to from
 
 data ValidatorParams =
   ValidatorParams { validatorParamsPubKeyTypes :: [Text]
-                  }
+                  } deriving (Eq, Show, Generic)
 
 validatorParams :: Iso' ValidatorParams PT.ValidatorParams
 validatorParams = iso to from
@@ -98,7 +99,7 @@ data ConsensusParams =
   ConsensusParams { consensusParamsBlockSize :: Maybe BlockSizeParams
                   , consensusParamsEvidence  :: Maybe EvidenceParams
                   , consensusParamsValidator :: Maybe ValidatorParams
-                  }
+                  } deriving (Eq, Show, Generic)
 
 consensusParams :: Iso' ConsensusParams PT.ConsensusParams
 consensusParams = iso to from
@@ -114,7 +115,7 @@ consensusParams = iso to from
 data PubKey =
   PubKey { pubKeyType :: Text
          , pubKeyData :: ByteString
-         }
+         } deriving (Eq, Show, Generic)
 
 pubKey :: Iso' PubKey PT.PubKey
 pubKey = iso to from
@@ -129,7 +130,7 @@ pubKey = iso to from
 data ValidatorUpdate =
   ValidatorUpdate { validatorUpdatePubKey :: Maybe PubKey
                   , validatorUpdatePower  :: Int64
-                  }
+                  } deriving (Eq, Show, Generic)
 
 validatorUpdate :: Iso' ValidatorUpdate PT.ValidatorUpdate
 validatorUpdate = iso to from
@@ -143,7 +144,7 @@ validatorUpdate = iso to from
 data Validator =
   Validator { validatorAddress :: ByteString
             , validatorPower   :: Int64
-            }
+            } deriving (Eq, Show, Generic)
 
 validator :: Iso' Validator PT.Validator
 validator = iso to from
@@ -157,7 +158,7 @@ validator = iso to from
 data VoteInfo =
   VoteInfo { voteInfoValidator       :: Maybe Validator
            , voteInfoSignedLastBlock :: Bool
-           }
+           } deriving (Eq, Show, Generic)
 
 voteInfo :: Iso' VoteInfo PT.VoteInfo
 voteInfo = iso to from
@@ -171,7 +172,7 @@ voteInfo = iso to from
 data LastCommitInfo =
   LastCommitInfo { lastCommitInfoRound :: Int32
                  , lastCommitInfoVotes :: [VoteInfo]
-                 }
+                 } deriving (Eq, Show, Generic)
 
 lastCommitInfo :: Iso' LastCommitInfo PT.LastCommitInfo
 lastCommitInfo = iso to from
@@ -186,7 +187,7 @@ lastCommitInfo = iso to from
 data PartSetHeader =
   PartSetHeader { partSetHeaderTotal :: Int32
                 , partSetHeaderHash  :: ByteString
-                }
+                } deriving (Eq, Show, Generic)
 
 partSetHeader :: Iso' PartSetHeader PT.PartSetHeader
 partSetHeader = iso to from
@@ -201,7 +202,7 @@ partSetHeader = iso to from
 data BlockID =
   BlockID { blockIDHash        :: ByteString
           , blockIDPartsHeader :: Maybe PartSetHeader
-          }
+          } deriving (Eq, Show, Generic)
 
 blockID :: Iso' BlockID PT.BlockID
 blockID = iso to from
@@ -216,7 +217,7 @@ blockID = iso to from
 data Version =
   Version { versionBlock :: Word64
           , versionApp   :: Word64
-          }
+          } deriving (Eq, Show, Generic)
 
 version :: Iso' Version PT.Version
 version = iso to from
@@ -244,7 +245,7 @@ data Header =
          , headerLastResultsHash    :: ByteString
          , headerEvidenceHash       :: ByteString
          , headerProposerAddress    :: ByteString
-         }
+         } deriving (Eq, Show, Generic)
 
 
 header :: Iso' Header PT.Header
@@ -290,7 +291,7 @@ data Evidence =
            , evidenceHeight           :: Int64
            , evidenceTime             :: Maybe Timestamp
            , evidenceTotalVotingPower :: Int64
-           }
+           } deriving (Eq, Show, Generic)
 
 evidence :: Iso' Evidence PT.Evidence
 evidence = iso to from
@@ -312,7 +313,8 @@ evidence = iso to from
 data KVPair = KVPair
   { kVPairKey   :: ByteString
   , kVPairValue :: ByteString
-  }
+  } deriving (Eq, Show, Generic)
+
 kVPair :: Iso' KVPair CT.KVPair
 kVPair = iso to from
   where
@@ -329,7 +331,7 @@ kVPair = iso to from
 
 data Proof = Proof
   { proofOps :: [ProofOp]
-  }
+  } deriving (Eq, Show, Generic)
 
 proof :: Iso' Proof MT.Proof
 proof = iso to from
@@ -347,7 +349,7 @@ data ProofOp = ProofOp
   { proofOpType :: Text
   , proofOpKey  :: ByteString
   , proofOpData :: ByteString
-  }
+  } deriving (Eq, Show, Generic)
 
 proofOp :: Iso' ProofOp MT.ProofOp
 proofOp = iso to from

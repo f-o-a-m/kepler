@@ -9,6 +9,7 @@ import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word64)
+import           GHC.Generics                           (Generic)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams,
                                                          Evidence, Header,
                                                          LastCommitInfo,
@@ -39,7 +40,8 @@ data MessageType =
 -}
 
 data Echo =
-  Echo { echoMessage :: Text }
+  Echo { echoMessage :: Text
+       } deriving (Eq, Show, Generic)
 
 echo :: Iso' Echo PT.RequestEcho
 echo = iso to from
@@ -48,7 +50,8 @@ echo = iso to from
     from requestEcho = Echo { echoMessage = requestEcho ^. PT.message
                             }
 
-data Flush = Flush
+data Flush =
+  Flush deriving (Eq, Show, Generic)
 
 flush :: Iso' Flush PT.RequestFlush
 flush = iso to from
@@ -60,7 +63,7 @@ data Info =
   Info { infoVersion      :: Text
        , infoBlockVersion :: Word64
        , infoP2pVersion   :: Word64
-       }
+       } deriving (Eq, Show, Generic)
 
 info :: Iso' Info PT.RequestInfo
 info = iso to from
@@ -76,7 +79,7 @@ info = iso to from
 data SetOption =
   SetOption { setOptionKey   :: Text
             , setOptionValue :: Text
-            }
+            } deriving (Eq, Show, Generic)
 
 setOption :: Iso' SetOption PT.RequestSetOption
 setOption = iso to from
@@ -93,7 +96,7 @@ data InitChain =
             , initChainConsensusParams :: Maybe ConsensusParams
             , initChainValidators      :: [ValidatorUpdate]
             , initChainAppState        :: ByteString
-            }
+            } deriving (Eq, Show, Generic)
 
 initChain :: Iso' InitChain PT.RequestInitChain
 initChain = iso to from
@@ -117,7 +120,7 @@ data Query =
         , queryPath   :: Text
         , queryHeight :: Int64
         , queryProve  :: Bool
-        }
+        } deriving (Eq, Show, Generic)
 
 query :: Iso' Query PT.RequestQuery
 query = iso to from
@@ -137,7 +140,7 @@ data BeginBlock =
              , beginBlockHeader              :: Maybe Header
              , beginBlockLastCommitInfo      :: Maybe LastCommitInfo
              , beginBlockByzantineValidators :: [Evidence]
-             }
+             } deriving (Eq, Show, Generic)
 
 beginBlock :: Iso' BeginBlock PT.RequestBeginBlock
 beginBlock = iso to from
@@ -158,7 +161,8 @@ beginBlock = iso to from
 data CheckTx =
   CheckTx
     { checkTxTx :: ByteString
-    }
+    } deriving (Eq, Show, Generic)
+
 checkTx :: Iso' CheckTx PT.RequestCheckTx
 checkTx = iso to from
   where
@@ -172,7 +176,7 @@ checkTx = iso to from
         }
 
 data Commit =
-  Commit
+  Commit deriving (Eq, Show, Generic)
 
 commit :: Iso' Commit PT.RequestCommit
 commit = iso to from
@@ -186,7 +190,7 @@ commit = iso to from
 data DeliverTx =
   DeliverTx
     { deliverTxTx :: ByteString
-    }
+    } deriving (Eq, Show, Generic)
 
 deliverTx :: Iso' DeliverTx PT.RequestDeliverTx
 deliverTx = iso to from
@@ -200,10 +204,9 @@ deliverTx = iso to from
         { deliverTxTx = requestDeliverTx ^. PT.tx
         }
 
-
 data EndBlock  = EndBlock
     { endBlockHeight :: Int64
-    }
+    } deriving (Eq, Show, Generic)
 
 endBlock :: Iso' EndBlock PT.RequestEndBlock
 endBlock = iso to from

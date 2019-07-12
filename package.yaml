@@ -30,6 +30,7 @@ default-extensions:
 - NamedFieldPuns
 - RecordWildCards
 - FlexibleContexts
+- DeriveGeneric
 
 
 dependencies:

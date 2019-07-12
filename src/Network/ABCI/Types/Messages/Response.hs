@@ -9,6 +9,7 @@ import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word32, Word64)
+import           GHC.Generics                           (Generic)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams,
                                                          Evidence, Header,
                                                          KVPair, LastCommitInfo,
@@ -41,7 +42,7 @@ data MessageType =
 data Echo =
   Echo
     { echoMessage :: Text
-    }
+    } deriving (Eq, Show, Generic)
 
 echo :: Iso' Echo PT.ResponseEcho
 echo = iso to from
@@ -55,7 +56,7 @@ echo = iso to from
         }
 
 data Flush =
-  Flush
+  Flush deriving (Eq, Show, Generic)
 
 flush :: Iso' Flush PT.ResponseFlush
 flush = iso to from
@@ -72,7 +73,7 @@ data Info =
     , infoAppVersion       :: Word64
     , infoLastBlockHeight  :: Int64
     , infoLastBlockAppHash :: ByteString
-    }
+    } deriving (Eq, Show, Generic)
 
 info :: Iso' Info PT.ResponseInfo
 info = iso to from
@@ -98,7 +99,7 @@ data SetOption =
     { setOptionCode :: Word32
     , setOptionLog  :: Text
     , setOptionInfo :: Text
-    }
+    } deriving (Eq, Show, Generic)
 
 setOption :: Iso' SetOption PT.ResponseSetOption
 setOption = iso to from
@@ -119,7 +120,7 @@ data InitChain =
   InitChain
     { initChainConsensusParams :: Maybe ConsensusParams
     , initChainValidators      :: [ValidatorUpdate]
-    }
+    } deriving (Eq, Show, Generic)
 
 initChain :: Iso' InitChain PT.ResponseInitChain
 initChain = iso to from
@@ -145,7 +146,7 @@ data Query =
     , queryProof     :: Maybe Proof
     , queryHeight    :: Int64
     , queryCodespace :: Text
-    }
+    } deriving (Eq, Show, Generic)
 
 query :: Iso' Query PT.ResponseQuery
 query = iso to from
@@ -177,7 +178,7 @@ query = iso to from
 data BeginBlock =
   BeginBlock
     { beginBlockTags :: [KVPair]
-    }
+    } deriving (Eq, Show, Generic)
 
 beginBlock :: Iso' BeginBlock PT.ResponseBeginBlock
 beginBlock = iso to from
@@ -200,7 +201,7 @@ data CheckTx =
     , checkTxGasUsed   :: Int64
     , checkTxTags      :: [KVPair]
     , checkTxCodespace :: Text
-    }
+    } deriving (Eq, Show, Generic)
 
 checkTx :: Iso' CheckTx PT.ResponseCheckTx
 checkTx = iso to from
@@ -237,7 +238,7 @@ data DeliverTx =
     , deliverTxGasUsed   :: Int64
     , deliverTxTags      :: [KVPair]
     , deliverTxCodespace :: Text
-    }
+    } deriving (Eq, Show, Generic)
 
 deliverTx :: Iso' DeliverTx PT.ResponseDeliverTx
 deliverTx = iso to from
@@ -269,7 +270,7 @@ data EndBlock =
     { endBlockValidatorUpdates      :: [ValidatorUpdate]
     , endBlockConsensusParamUpdates :: Maybe ConsensusParams
     , endBlockTags                  :: [KVPair]
-    }
+    } deriving (Eq, Show, Generic)
 
 endBlock :: Iso' EndBlock PT.ResponseEndBlock
 endBlock = iso to from
@@ -289,7 +290,7 @@ endBlock = iso to from
 data Commit =
   Commit
     { commitData :: ByteString
-    }
+    } deriving (Eq, Show, Generic)
 
 commit :: Iso' Commit PT.ResponseCommit
 commit = iso to from
@@ -305,7 +306,7 @@ commit = iso to from
 data Exception =
   Exception
     { exceptionError :: Text
-    }
+    } deriving (Eq, Show, Generic)
 
 exception :: Iso' Exception PT.ResponseException
 exception = iso to from
