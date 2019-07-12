@@ -61,7 +61,9 @@ timestamp = iso to from
 
 data BlockSizeParams =
   BlockSizeParams { blockSizeParamsMaxBytes :: Int64
+                  -- ^ Max size of a block, in bytes.
                   , blockSizeParamsMaxGas   :: Int64
+                  -- ^ Max sum of GasWanted in a proposed block.
                   } deriving (Eq, Show, Generic)
 
 blockSizeParams :: Iso' BlockSizeParams PT.BlockSizeParams
@@ -75,6 +77,7 @@ blockSizeParams = iso to from
 
 data EvidenceParams =
   EvidenceParams { evidenceParamsMaxAge :: Int64
+                 -- ^ Max age of evidence, in blocks.
                  } deriving (Eq, Show, Generic)
 
 evidenceParams :: Iso' EvidenceParams PT.EvidenceParams
@@ -86,6 +89,7 @@ evidenceParams = iso to from
 
 data ValidatorParams =
   ValidatorParams { validatorParamsPubKeyTypes :: [Text]
+                  -- ^ List of accepted pubkey types
                   } deriving (Eq, Show, Generic)
 
 validatorParams :: Iso' ValidatorParams PT.ValidatorParams
@@ -97,8 +101,11 @@ validatorParams = iso to from
 
 data ConsensusParams =
   ConsensusParams { consensusParamsBlockSize :: Maybe BlockSizeParams
+                  --  ^ Parameters limiting the size of a block and time between consecutive blocks.
                   , consensusParamsEvidence  :: Maybe EvidenceParams
+                  -- ^ Parameters limiting the validity of evidence of byzantine behaviour.
                   , consensusParamsValidator :: Maybe ValidatorParams
+                  -- ^ Parameters limitng the types of pubkeys validators can use.
                   } deriving (Eq, Show, Generic)
 
 consensusParams :: Iso' ConsensusParams PT.ConsensusParams
@@ -114,7 +121,9 @@ consensusParams = iso to from
 
 data PubKey =
   PubKey { pubKeyType :: Text
+         -- ^ Type of the public key.
          , pubKeyData :: ByteString
+         -- ^ Public key data.
          } deriving (Eq, Show, Generic)
 
 pubKey :: Iso' PubKey PT.PubKey
@@ -129,7 +138,9 @@ pubKey = iso to from
 
 data ValidatorUpdate =
   ValidatorUpdate { validatorUpdatePubKey :: Maybe PubKey
+                  -- ^ Public key of the validator
                   , validatorUpdatePower  :: Int64
+                  -- ^ Voting power of the validator
                   } deriving (Eq, Show, Generic)
 
 validatorUpdate :: Iso' ValidatorUpdate PT.ValidatorUpdate
@@ -143,7 +154,9 @@ validatorUpdate = iso to from
 
 data Validator =
   Validator { validatorAddress :: ByteString
+            -- ^ Address of the validator (hash of the public key)
             , validatorPower   :: Int64
+            -- ^ Voting power of the validator
             } deriving (Eq, Show, Generic)
 
 validator :: Iso' Validator PT.Validator
@@ -157,7 +170,9 @@ validator = iso to from
 
 data VoteInfo =
   VoteInfo { voteInfoValidator       :: Maybe Validator
+           -- ^ A validator
            , voteInfoSignedLastBlock :: Bool
+           -- ^ Indicates whether or not the validator signed the last block
            } deriving (Eq, Show, Generic)
 
 voteInfo :: Iso' VoteInfo PT.VoteInfo
@@ -171,7 +186,10 @@ voteInfo = iso to from
 
 data LastCommitInfo =
   LastCommitInfo { lastCommitInfoRound :: Int32
+                 -- ^ Commit round.
                  , lastCommitInfoVotes :: [VoteInfo]
+                 -- ^ List of validators addresses in the last validator set with their voting
+                 -- power and whether or not they signed a vote.
                  } deriving (Eq, Show, Generic)
 
 lastCommitInfo :: Iso' LastCommitInfo PT.LastCommitInfo
@@ -186,7 +204,9 @@ lastCommitInfo = iso to from
 
 data PartSetHeader =
   PartSetHeader { partSetHeaderTotal :: Int32
+                -- ^ total number of pieces in a PartSet
                 , partSetHeaderHash  :: ByteString
+                -- ^ Merkle root hash of those pieces
                 } deriving (Eq, Show, Generic)
 
 partSetHeader :: Iso' PartSetHeader PT.PartSetHeader
@@ -201,7 +221,9 @@ partSetHeader = iso to from
 
 data BlockID =
   BlockID { blockIDHash        :: ByteString
+          -- ^ Hash of the block header
           , blockIDPartsHeader :: Maybe PartSetHeader
+          -- ^ PartSetHeader (used internally, for clients this is basically opaque).
           } deriving (Eq, Show, Generic)
 
 blockID :: Iso' BlockID PT.BlockID
@@ -216,7 +238,9 @@ blockID = iso to from
 
 data Version =
   Version { versionBlock :: Word64
+          -- ^ Protocol version of the blockchain data structures.
           , versionApp   :: Word64
+          -- ^ Protocol version of the application.
           } deriving (Eq, Show, Generic)
 
 version :: Iso' Version PT.Version
@@ -230,21 +254,37 @@ version = iso to from
 
 data Header =
   Header { headerVersion            :: Maybe Version
+         -- ^ Version of the blockchain and the application
          , headerChainId            :: Text
+         -- ^ ID of the blockchain
          , headerHeight             :: Int64
+         -- ^ Height of the block in the chain
          , headerTime               :: Maybe Timestamp
+         -- ^ Time of the previous block
          , headerNumTxs             :: Int64
+         -- ^ Number of transactions in the block
          , headerTotalTxs           :: Int64
+         -- ^ Total number of transactions in the blockchain until now
          , headerLastBlockId        :: BlockID
+         -- ^ Hash of the previous (parent) block
          , headerLastCommitHash     :: ByteString
+         -- ^ Hash of the previous block's commit
          , headerDataHash           :: ByteString
+         -- ^ Hash of the validator set for this block
          , headerValidatorsHash     :: ByteString
+         -- ^ Hash of the validator set for the next block
          , headerNextValidatorsHash :: ByteString
+         -- ^ Hash of the consensus parameters for this block
          , headerConsensusHash      :: ByteString
+         -- ^ Hash of the consensus parameters for this block
          , headerAppHash            :: ByteString
+         -- ^ Data returned by the last call to Commit
          , headerLastResultsHash    :: ByteString
+         -- ^ Hash of the ABCI results returned by the last block
          , headerEvidenceHash       :: ByteString
+         -- ^ Hash of the evidence included in this block
          , headerProposerAddress    :: ByteString
+         -- ^ Original proposer for the block
          } deriving (Eq, Show, Generic)
 
 
@@ -287,10 +327,15 @@ header = iso to from
 
 data Evidence =
   Evidence { evidenceType             :: Text
+           -- ^ Type of the evidence.
            , evidenceValidator        :: Maybe Validator
+           -- ^ The offending validator
            , evidenceHeight           :: Int64
+           -- ^ Height when the offense was committed
            , evidenceTime             :: Maybe Timestamp
+           -- ^ Time of the block at height Height.
            , evidenceTotalVotingPower :: Int64
+           -- ^ Total voting power of the validator set at height Height
            } deriving (Eq, Show, Generic)
 
 evidence :: Iso' Evidence PT.Evidence
@@ -312,7 +357,9 @@ evidence = iso to from
 
 data KVPair = KVPair
   { kVPairKey   :: ByteString
+  -- ^ key
   , kVPairValue :: ByteString
+  -- ^ value
   } deriving (Eq, Show, Generic)
 
 kVPair :: Iso' KVPair CT.KVPair
@@ -331,6 +378,7 @@ kVPair = iso to from
 
 data Proof = Proof
   { proofOps :: [ProofOp]
+  -- ^ List of chained Merkle proofs, of possibly different types
   } deriving (Eq, Show, Generic)
 
 proof :: Iso' Proof MT.Proof
@@ -347,8 +395,11 @@ proof = iso to from
 
 data ProofOp = ProofOp
   { proofOpType :: Text
+  -- ^ Type of Merkle proof and how it's encoded.
   , proofOpKey  :: ByteString
+  -- ^ Key in the Merkle tree that this proof is for.
   , proofOpData :: ByteString
+  -- ^ Encoded Merkle proof for the key.
   } deriving (Eq, Show, Generic)
 
 proofOp :: Iso' ProofOp MT.ProofOp

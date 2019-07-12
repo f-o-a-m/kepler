@@ -39,9 +39,14 @@ data MessageType =
   | Commit
 -}
 
+--------------------------------------------------------------------------------
+-- Echo
+--------------------------------------------------------------------------------
+
 data Echo =
   Echo
     { echoMessage :: Text
+    -- ^ The input string
     } deriving (Eq, Show, Generic)
 
 echo :: Iso' Echo PT.ResponseEcho
@@ -55,6 +60,10 @@ echo = iso to from
         { echoMessage = responseEcho ^. PT.message
         }
 
+--------------------------------------------------------------------------------
+-- Flush
+--------------------------------------------------------------------------------
+
 data Flush =
   Flush deriving (Eq, Show, Generic)
 
@@ -66,13 +75,22 @@ flush = iso to from
     from responseFlush =
       Flush
 
+--------------------------------------------------------------------------------
+-- Info
+--------------------------------------------------------------------------------
+
 data Info =
   Info
     { infoData             :: Text
+    -- ^ Some arbitrary information
     , infoVersion          :: Text
+    -- ^ The application software semantic version
     , infoAppVersion       :: Word64
+    -- ^ The application protocol version
     , infoLastBlockHeight  :: Int64
+    -- ^  Latest block for which the app has called Commit
     , infoLastBlockAppHash :: ByteString
+    -- ^  Latest result of Commit
     } deriving (Eq, Show, Generic)
 
 info :: Iso' Info PT.ResponseInfo
@@ -94,11 +112,18 @@ info = iso to from
         , infoLastBlockAppHash = responseInfo ^. PT.lastBlockAppHash
         }
 
+--------------------------------------------------------------------------------
+-- SetOption
+--------------------------------------------------------------------------------
+
 data SetOption =
   SetOption
     { setOptionCode :: Word32
+    -- ^ Response code
     , setOptionLog  :: Text
+    -- ^ The output of the application's logger. May be non-deterministic.
     , setOptionInfo :: Text
+    -- ^ Additional information. May be non-deterministic.
     } deriving (Eq, Show, Generic)
 
 setOption :: Iso' SetOption PT.ResponseSetOption
@@ -116,10 +141,16 @@ setOption = iso to from
         , setOptionInfo = responseSetOption ^. PT.info
         }
 
+--------------------------------------------------------------------------------
+-- InitChain
+--------------------------------------------------------------------------------
+
 data InitChain =
   InitChain
     { initChainConsensusParams :: Maybe ConsensusParams
+    -- ^ Initial consensus-critical parameters.
     , initChainValidators      :: [ValidatorUpdate]
+    -- ^ Initial validator set (if non empty).
     } deriving (Eq, Show, Generic)
 
 initChain :: Iso' InitChain PT.ResponseInitChain
@@ -135,17 +166,31 @@ initChain = iso to from
         , initChainValidators = responseInitChain ^.. PT.validators . traverse . Lens.from validatorUpdate
         }
 
+--------------------------------------------------------------------------------
+-- Query
+--------------------------------------------------------------------------------
+
 data Query =
   Query
     { queryCode      :: Word32
+    -- ^ Response code.
     , queryLog       :: Text
+    -- ^ The output of the application's logger. May be non-deterministic.
     , queryInfo      :: Text
+    -- ^ Additional information. May be non-deterministic.
     , queryIndex     :: Int64
+    -- ^ The index of the key in the tree.
     , queryKey       :: ByteString
+    -- ^ The key of the matching data.
     , queryValue     :: ByteString
+    -- ^ The value of the matching data.
     , queryProof     :: Maybe Proof
+    -- ^ Serialized proof for the value data, if requested, to be verified against
+    -- the AppHash for the given Height.
     , queryHeight    :: Int64
+    -- ^ The block height from which data was derived.
     , queryCodespace :: Text
+    -- ^ Namespace for the Code.
     } deriving (Eq, Show, Generic)
 
 query :: Iso' Query PT.ResponseQuery
@@ -175,9 +220,14 @@ query = iso to from
         , queryCodespace = responseQuery ^. PT.codespace
         }
 
+--------------------------------------------------------------------------------
+-- BeginBlock
+--------------------------------------------------------------------------------
+
 data BeginBlock =
   BeginBlock
     { beginBlockTags :: [KVPair]
+    -- ^ Key-Value tags for filtering and indexing
     } deriving (Eq, Show, Generic)
 
 beginBlock :: Iso' BeginBlock PT.ResponseBeginBlock
@@ -191,16 +241,28 @@ beginBlock = iso to from
         { beginBlockTags = responseBeginBlock ^.. PT.tags . traverse . Lens.from kVPair
         }
 
+--------------------------------------------------------------------------------
+-- CheckTx
+--------------------------------------------------------------------------------
+
 data CheckTx =
   CheckTx
     { checkTxCode      :: Word32
+    -- ^ Response code
     , checkTxData      :: ByteString
+    -- ^ Result bytes, if any.
     , checkTxLog       :: Text
+    -- ^ The output of the application's logger.
     , checkTxInfo      :: Text
+    -- ^ Additional information.
     , checkTxGasWanted :: Int64
+    -- ^ Amount of gas requested for transaction.
     , checkTxGasUsed   :: Int64
+    -- ^ Amount of gas consumed by transaction.
     , checkTxTags      :: [KVPair]
+    -- ^ Key-Value tags for filtering and indexing transactions (eg. by account).
     , checkTxCodespace :: Text
+    -- ^ Namespace for the Code.
     } deriving (Eq, Show, Generic)
 
 checkTx :: Iso' CheckTx PT.ResponseCheckTx
@@ -228,16 +290,28 @@ checkTx = iso to from
         , checkTxCodespace = responseCheckTx ^. PT.codespace
         }
 
+--------------------------------------------------------------------------------
+-- DeliverTx
+--------------------------------------------------------------------------------
+
 data DeliverTx =
   DeliverTx
     { deliverTxCode      :: Word32
+    -- ^ Response code.
     , deliverTxData      :: ByteString
+    -- ^ Result bytes, if any.
     , deliverTxLog       :: Text
+    -- ^ The output of the application's logger. May be non-deterministic.
     , deliverTxInfo      :: Text
+    -- ^ Additional information.
     , deliverTxGasWanted :: Int64
+    -- ^ Amount of gas requested for transaction.
     , deliverTxGasUsed   :: Int64
+    -- ^ Amount of gas consumed by transaction.
     , deliverTxTags      :: [KVPair]
+    -- ^  Key-Value tags for filtering and indexing transactions (eg. by account).
     , deliverTxCodespace :: Text
+    -- ^ Namespace for the Code.
     } deriving (Eq, Show, Generic)
 
 deliverTx :: Iso' DeliverTx PT.ResponseDeliverTx
@@ -265,11 +339,18 @@ deliverTx = iso to from
         , deliverTxCodespace = responseDeliverTx ^. PT.codespace
         }
 
+--------------------------------------------------------------------------------
+-- EndBlock
+--------------------------------------------------------------------------------
+
 data EndBlock =
   EndBlock
     { endBlockValidatorUpdates      :: [ValidatorUpdate]
+    -- ^ Changes to validator set (set voting power to 0 to remove).
     , endBlockConsensusParamUpdates :: Maybe ConsensusParams
+    -- ^ Changes to consensus-critical time, size, and other parameters.
     , endBlockTags                  :: [KVPair]
+    -- ^ Key-Value tags for filtering and indexing
     } deriving (Eq, Show, Generic)
 
 endBlock :: Iso' EndBlock PT.ResponseEndBlock
@@ -290,7 +371,12 @@ endBlock = iso to from
 data Commit =
   Commit
     { commitData :: ByteString
+    -- ^ The Merkle root hash of the application state
     } deriving (Eq, Show, Generic)
+
+--------------------------------------------------------------------------------
+-- Commit
+--------------------------------------------------------------------------------
 
 commit :: Iso' Commit PT.ResponseCommit
 commit = iso to from
@@ -302,6 +388,10 @@ commit = iso to from
       Commit
         { commitData = responseCommit ^. PT.data'
         }
+
+--------------------------------------------------------------------------------
+-- Exception
+--------------------------------------------------------------------------------
 
 data Exception =
   Exception

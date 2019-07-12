@@ -39,8 +39,13 @@ data MessageType =
   | Commit
 -}
 
+--------------------------------------------------------------------------------
+-- Echo
+--------------------------------------------------------------------------------
+
 data Echo =
   Echo { echoMessage :: Text
+       -- ^ A string to echo back
        } deriving (Eq, Show, Generic)
 
 echo :: Iso' Echo PT.RequestEcho
@@ -49,6 +54,10 @@ echo = iso to from
     to Echo{..} = defMessage & PT.message .~ echoMessage
     from requestEcho = Echo { echoMessage = requestEcho ^. PT.message
                             }
+
+--------------------------------------------------------------------------------
+-- Flush
+--------------------------------------------------------------------------------
 
 data Flush =
   Flush deriving (Eq, Show, Generic)
@@ -59,10 +68,17 @@ flush = iso to from
     to = const defMessage
     from = const Flush
 
+--------------------------------------------------------------------------------
+-- Info
+--------------------------------------------------------------------------------
+
 data Info =
   Info { infoVersion      :: Text
+       -- ^ The Tendermint software semantic version
        , infoBlockVersion :: Word64
+       -- ^ The Tendermint Block Protocol version
        , infoP2pVersion   :: Word64
+       -- ^ The Tendermint P2P Protocol version
        } deriving (Eq, Show, Generic)
 
 info :: Iso' Info PT.RequestInfo
@@ -76,9 +92,15 @@ info = iso to from
                             , infoP2pVersion = requestInfo ^. PT.p2pVersion
                             }
 
+--------------------------------------------------------------------------------
+-- SetOption
+--------------------------------------------------------------------------------
+
 data SetOption =
   SetOption { setOptionKey   :: Text
+            -- ^ Key to set
             , setOptionValue :: Text
+            -- ^ Value to set for key
             } deriving (Eq, Show, Generic)
 
 setOption :: Iso' SetOption PT.RequestSetOption
@@ -90,12 +112,21 @@ setOption = iso to from
                                       , setOptionValue = requestSetOption ^. PT.value
                                       }
 
+--------------------------------------------------------------------------------
+-- InitChain
+--------------------------------------------------------------------------------
+
 data InitChain =
   InitChain { initChainTime            :: Maybe Timestamp
+            -- ^ Genesis time
             , initChainChainId         :: Text
+            -- ^ ID of the blockchain.
             , initChainConsensusParams :: Maybe ConsensusParams
+            -- ^ Initial consensus-critical parameters.
             , initChainValidators      :: [ValidatorUpdate]
+            -- ^ Initial genesis validators.
             , initChainAppState        :: ByteString
+            -- ^ Serialized initial application state. Amino-encoded JSON bytes.
             } deriving (Eq, Show, Generic)
 
 initChain :: Iso' InitChain PT.RequestInitChain
@@ -115,11 +146,19 @@ initChain = iso to from
                  , initChainAppState = requestInitChain ^. PT.appStateBytes
                  }
 
+--------------------------------------------------------------------------------
+-- Query
+--------------------------------------------------------------------------------
+
 data Query =
   Query { queryData   :: ByteString
+        -- ^  Raw query bytes. Can be used with or in lieu of Path.
         , queryPath   :: Text
+        -- ^ Path of request, like an HTTP GET path. Can be used with or in liue of Data.
         , queryHeight :: Int64
+        -- ^ The block height for which you want the query
         , queryProve  :: Bool
+        -- ^ Return Merkle proof with response if possible
         } deriving (Eq, Show, Generic)
 
 query :: Iso' Query PT.RequestQuery
@@ -135,11 +174,20 @@ query = iso to from
                               , queryProve = requestQuery ^. PT.prove
                               }
 
+--------------------------------------------------------------------------------
+-- BeginBlock
+--------------------------------------------------------------------------------
+
 data BeginBlock =
   BeginBlock { beginBlockHash                :: ByteString
+             -- ^ The block's hash. This can be derived from the block header.
              , beginBlockHeader              :: Maybe Header
+             -- ^ The block header.
              , beginBlockLastCommitInfo      :: Maybe LastCommitInfo
+             -- ^ Info about the last commit, including the round, and the list of
+             -- validators and which ones signed the last block.
              , beginBlockByzantineValidators :: [Evidence]
+             -- ^ List of evidence of validators that acted maliciously.
              } deriving (Eq, Show, Generic)
 
 beginBlock :: Iso' BeginBlock PT.RequestBeginBlock
@@ -157,10 +205,15 @@ beginBlock = iso to from
                  , beginBlockByzantineValidators = requestBeginBlock ^.. PT.byzantineValidators . traverse . Lens.from evidence
                  }
 
+--------------------------------------------------------------------------------
+-- CheckTx
+--------------------------------------------------------------------------------
 
+-- TODO: figure out what happened to Type CheckTxType field
 data CheckTx =
   CheckTx
     { checkTxTx :: ByteString
+    -- ^ The request transaction bytes
     } deriving (Eq, Show, Generic)
 
 checkTx :: Iso' CheckTx PT.RequestCheckTx
@@ -175,21 +228,14 @@ checkTx = iso to from
         { checkTxTx = requestCheckTx ^. PT.tx
         }
 
-data Commit =
-  Commit deriving (Eq, Show, Generic)
-
-commit :: Iso' Commit PT.RequestCommit
-commit = iso to from
-  where
-    to Commit =
-      defMessage
-
-    from requestCommit =
-      Commit
+--------------------------------------------------------------------------------
+-- DeliverTx
+--------------------------------------------------------------------------------
 
 data DeliverTx =
   DeliverTx
     { deliverTxTx :: ByteString
+    -- ^ The request transaction bytes.
     } deriving (Eq, Show, Generic)
 
 deliverTx :: Iso' DeliverTx PT.RequestDeliverTx
@@ -204,8 +250,13 @@ deliverTx = iso to from
         { deliverTxTx = requestDeliverTx ^. PT.tx
         }
 
+--------------------------------------------------------------------------------
+-- EndBlock
+--------------------------------------------------------------------------------
+
 data EndBlock  = EndBlock
     { endBlockHeight :: Int64
+    -- ^ Height of the block just executed.
     } deriving (Eq, Show, Generic)
 
 endBlock :: Iso' EndBlock PT.RequestEndBlock
@@ -219,3 +270,19 @@ endBlock = iso to from
       EndBlock
         { endBlockHeight = requestEndBlock ^. PT.height
         }
+
+--------------------------------------------------------------------------------
+-- Commit
+--------------------------------------------------------------------------------
+
+data Commit =
+  Commit deriving (Eq, Show, Generic)
+
+commit :: Iso' Commit PT.RequestCommit
+commit = iso to from
+  where
+    to Commit =
+      defMessage
+
+    from requestCommit =
+      Commit
