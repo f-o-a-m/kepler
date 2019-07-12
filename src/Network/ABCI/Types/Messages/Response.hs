@@ -22,28 +22,6 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams,
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
-{-
-       (ABCIApplication(..), BlockID(), BlockSizeParams(),
-        ConsensusParams(), Evidence(), EvidenceParams(), Header(),
-        LastCommitInfo(), PartSetHeader(), PubKey(), Request(),
-        Request'Value(..), _Request'Echo, _Request'Flush, _Request'Info,
-        _Request'SetOption, _Request'InitChain, _Request'Query,
-        _Request'BeginBlock, _Request'CheckTx, _Request'DeliverTx,
-        _Request'EndBlock, _Request'Commit, RequestBeginBlock(),
-        RequestCheckTx(), RequestCommit(), RequestDeliverTx(),
-        RequestEcho(), RequestEndBlock(), RequestFlush(), RequestInfo(),
-        RequestInitChain(), RequestQuery(), RequestSetOption(), Response(),
-        Response'Value(..), _Response'Exception, _Response'Echo,
-        _Response'Flush, _Response'Info, _Response'SetOption,
-        _Response'InitChain, _Response'Query, _Response'BeginBlock,
-        _Response'CheckTx, _Response'DeliverTx, _Response'EndBlock,
-        _Response'Commit, ResponseBeginBlock(), ResponseCheckTx(),
-        ResponseCommit(), ResponseDeliverTx(), ResponseEcho(),
-        ResponseEndBlock(), ResponseException(), ResponseFlush(),
-        ResponseInfo(), ResponseInitChain(), ResponseQuery(),
-        ResponseSetOption(), Validator(), ValidatorParams(),
-        ValidatorUpdate(), Version(), VoteInfo())
--}
 
 {-
 data MessageType =
@@ -60,116 +38,6 @@ data MessageType =
   | Commit
 -}
 
-
-data BeginBlock =
-  BeginBlock
-    { beginBlockTags :: [KVPair]
-    }
-
-beginBlock :: Iso' BeginBlock PT.ResponseBeginBlock
-beginBlock = iso to from
-  where
-    to BeginBlock{..} =
-      defMessage
-        & PT.tags .~ beginBlockTags ^.. traverse . kVPair
-    from responseBeginBlock =
-      BeginBlock
-        { beginBlockTags = responseBeginBlock ^.. PT.tags . traverse . Lens.from kVPair
-        }
-
-
-
-
-data CheckTx =
-  CheckTx
-    { checkTxCode      :: Word32
-    , checkTxData      :: ByteString
-    , checkTxLog       :: Text
-    , checkTxInfo      :: Text
-    , checkTxGasWanted :: Int64
-    , checkTxGasUsed   :: Int64
-    , checkTxTags      :: [KVPair]
-    , checkTxCodespace :: Text
-    }
-
-checkTx :: Iso' CheckTx PT.ResponseCheckTx
-checkTx = iso to from
-  where
-    to CheckTx{..} =
-      defMessage
-        & PT.code .~ checkTxCode
-        & PT.data' .~ checkTxData
-        & PT.log .~ checkTxLog
-        & PT.info .~ checkTxInfo
-        & PT.gasWanted .~ checkTxGasWanted
-        & PT.gasUsed .~ checkTxGasUsed
-        & PT.tags .~ checkTxTags ^.. traverse . kVPair
-        & PT.codespace .~ checkTxCodespace
-    from responseCheckTx =
-      CheckTx
-        { checkTxCode = responseCheckTx ^. PT.code
-        , checkTxData = responseCheckTx ^. PT.data'
-        , checkTxLog = responseCheckTx ^. PT.log
-        , checkTxInfo = responseCheckTx ^. PT.info
-        , checkTxGasWanted = responseCheckTx ^. PT.gasWanted
-        , checkTxGasUsed = responseCheckTx ^. PT.gasUsed
-        , checkTxTags = responseCheckTx ^.. PT.tags . traverse . Lens.from kVPair
-        , checkTxCodespace = responseCheckTx ^. PT.codespace
-        }
-
-data Commit =
-  Commit
-    { commitData :: ByteString
-    }
-
-commit :: Iso' Commit PT.ResponseCommit
-commit = iso to from
-  where
-    to Commit{..} =
-      defMessage
-        & PT.data' .~ commitData
-    from responseCommit =
-      Commit
-        { commitData = responseCommit ^. PT.data'
-        }
-
-data DeliverTx =
-  DeliverTx
-    { deliverTxCode      :: Word32
-    , deliverTxData      :: ByteString
-    , deliverTxLog       :: Text
-    , deliverTxInfo      :: Text
-    , deliverTxGasWanted :: Int64
-    , deliverTxGasUsed   :: Int64
-    , deliverTxTags      :: [KVPair]
-    , deliverTxCodespace :: Text
-    }
-
-deliverTx :: Iso' DeliverTx PT.ResponseDeliverTx
-deliverTx = iso to from
-  where
-    to DeliverTx{..} =
-      defMessage
-        & PT.code .~ deliverTxCode
-        & PT.data' .~ deliverTxData
-        & PT.log .~ deliverTxLog
-        & PT.info .~ deliverTxInfo
-        & PT.gasWanted .~ deliverTxGasWanted
-        & PT.gasUsed .~ deliverTxGasUsed
-        & PT.tags .~ deliverTxTags ^.. traverse . kVPair
-        & PT.codespace .~ deliverTxCodespace
-    from responseDeliverTx =
-      DeliverTx
-        { deliverTxCode = responseDeliverTx ^. PT.code
-        , deliverTxData = responseDeliverTx ^. PT.data'
-        , deliverTxLog = responseDeliverTx ^. PT.log
-        , deliverTxInfo = responseDeliverTx ^. PT.info
-        , deliverTxGasWanted = responseDeliverTx ^. PT.gasWanted
-        , deliverTxGasUsed = responseDeliverTx ^. PT.gasUsed
-        , deliverTxTags = responseDeliverTx ^.. PT.tags . traverse . Lens.from kVPair
-        , deliverTxCodespace = responseDeliverTx ^. PT.codespace
-        }
-
 data Echo =
   Echo
     { echoMessage :: Text
@@ -184,44 +52,6 @@ echo = iso to from
     from responseEcho =
       Echo
         { echoMessage = responseEcho ^. PT.message
-        }
-
-data EndBlock =
-  EndBlock
-    { endBlockValidatorUpdates      :: [ValidatorUpdate]
-    , endBlockConsensusParamUpdates :: Maybe ConsensusParams
-    , endBlockTags                  :: [KVPair]
-    }
-
-endBlock :: Iso' EndBlock PT.ResponseEndBlock
-endBlock = iso to from
-  where
-    to EndBlock{..} =
-      defMessage
-        & PT.validatorUpdates .~ endBlockValidatorUpdates ^.. traverse . validatorUpdate
-        & PT.maybe'consensusParamUpdates .~ endBlockConsensusParamUpdates ^? _Just . consensusParams
-        & PT.tags .~ endBlockTags ^.. traverse . kVPair
-    from responseEndBlock =
-      EndBlock
-        { endBlockValidatorUpdates = responseEndBlock ^.. PT.validatorUpdates . traverse . Lens.from validatorUpdate
-        , endBlockConsensusParamUpdates = responseEndBlock ^? PT.maybe'consensusParamUpdates . _Just . Lens.from consensusParams
-        , endBlockTags = responseEndBlock ^.. PT.tags . traverse . Lens.from kVPair
-        }
-
-data Exception =
-  Exception
-    { exceptionError :: Text
-    }
-
-exception :: Iso' Exception PT.ResponseException
-exception = iso to from
-  where
-    to Exception{..} =
-      defMessage
-        & PT.error .~ exceptionError
-    from responseException =
-      Exception
-        { exceptionError = responseException ^. PT.error
         }
 
 data Flush =
@@ -261,6 +91,28 @@ info = iso to from
         , infoAppVersion = responseInfo ^. PT.appVersion
         , infoLastBlockHeight = responseInfo ^. PT.lastBlockHeight
         , infoLastBlockAppHash = responseInfo ^. PT.lastBlockAppHash
+        }
+
+data SetOption =
+  SetOption
+    { setOptionCode :: Word32
+    , setOptionLog  :: Text
+    , setOptionInfo :: Text
+    }
+
+setOption :: Iso' SetOption PT.ResponseSetOption
+setOption = iso to from
+  where
+    to SetOption{..} =
+      defMessage
+        & PT.code .~ setOptionCode
+        & PT.log .~ setOptionLog
+        & PT.info .~ setOptionInfo
+    from responseSetOption =
+      SetOption
+        { setOptionCode = responseSetOption ^. PT.code
+        , setOptionLog = responseSetOption ^. PT.log
+        , setOptionInfo = responseSetOption ^. PT.info
         }
 
 data InitChain =
@@ -322,24 +174,146 @@ query = iso to from
         , queryCodespace = responseQuery ^. PT.codespace
         }
 
-data SetOption =
-  SetOption
-    { setOptionCode :: Word32
-    , setOptionLog  :: Text
-    , setOptionInfo :: Text
+data BeginBlock =
+  BeginBlock
+    { beginBlockTags :: [KVPair]
     }
 
-setOption :: Iso' SetOption PT.ResponseSetOption
-setOption = iso to from
+beginBlock :: Iso' BeginBlock PT.ResponseBeginBlock
+beginBlock = iso to from
   where
-    to SetOption{..} =
+    to BeginBlock{..} =
       defMessage
-        & PT.code .~ setOptionCode
-        & PT.log .~ setOptionLog
-        & PT.info .~ setOptionInfo
-    from responseSetOption =
-      SetOption
-        { setOptionCode = responseSetOption ^. PT.code
-        , setOptionLog = responseSetOption ^. PT.log
-        , setOptionInfo = responseSetOption ^. PT.info
+        & PT.tags .~ beginBlockTags ^.. traverse . kVPair
+    from responseBeginBlock =
+      BeginBlock
+        { beginBlockTags = responseBeginBlock ^.. PT.tags . traverse . Lens.from kVPair
+        }
+
+data CheckTx =
+  CheckTx
+    { checkTxCode      :: Word32
+    , checkTxData      :: ByteString
+    , checkTxLog       :: Text
+    , checkTxInfo      :: Text
+    , checkTxGasWanted :: Int64
+    , checkTxGasUsed   :: Int64
+    , checkTxTags      :: [KVPair]
+    , checkTxCodespace :: Text
+    }
+
+checkTx :: Iso' CheckTx PT.ResponseCheckTx
+checkTx = iso to from
+  where
+    to CheckTx{..} =
+      defMessage
+        & PT.code .~ checkTxCode
+        & PT.data' .~ checkTxData
+        & PT.log .~ checkTxLog
+        & PT.info .~ checkTxInfo
+        & PT.gasWanted .~ checkTxGasWanted
+        & PT.gasUsed .~ checkTxGasUsed
+        & PT.tags .~ checkTxTags ^.. traverse . kVPair
+        & PT.codespace .~ checkTxCodespace
+    from responseCheckTx =
+      CheckTx
+        { checkTxCode = responseCheckTx ^. PT.code
+        , checkTxData = responseCheckTx ^. PT.data'
+        , checkTxLog = responseCheckTx ^. PT.log
+        , checkTxInfo = responseCheckTx ^. PT.info
+        , checkTxGasWanted = responseCheckTx ^. PT.gasWanted
+        , checkTxGasUsed = responseCheckTx ^. PT.gasUsed
+        , checkTxTags = responseCheckTx ^.. PT.tags . traverse . Lens.from kVPair
+        , checkTxCodespace = responseCheckTx ^. PT.codespace
+        }
+
+data DeliverTx =
+  DeliverTx
+    { deliverTxCode      :: Word32
+    , deliverTxData      :: ByteString
+    , deliverTxLog       :: Text
+    , deliverTxInfo      :: Text
+    , deliverTxGasWanted :: Int64
+    , deliverTxGasUsed   :: Int64
+    , deliverTxTags      :: [KVPair]
+    , deliverTxCodespace :: Text
+    }
+
+deliverTx :: Iso' DeliverTx PT.ResponseDeliverTx
+deliverTx = iso to from
+  where
+    to DeliverTx{..} =
+      defMessage
+        & PT.code .~ deliverTxCode
+        & PT.data' .~ deliverTxData
+        & PT.log .~ deliverTxLog
+        & PT.info .~ deliverTxInfo
+        & PT.gasWanted .~ deliverTxGasWanted
+        & PT.gasUsed .~ deliverTxGasUsed
+        & PT.tags .~ deliverTxTags ^.. traverse . kVPair
+        & PT.codespace .~ deliverTxCodespace
+    from responseDeliverTx =
+      DeliverTx
+        { deliverTxCode = responseDeliverTx ^. PT.code
+        , deliverTxData = responseDeliverTx ^. PT.data'
+        , deliverTxLog = responseDeliverTx ^. PT.log
+        , deliverTxInfo = responseDeliverTx ^. PT.info
+        , deliverTxGasWanted = responseDeliverTx ^. PT.gasWanted
+        , deliverTxGasUsed = responseDeliverTx ^. PT.gasUsed
+        , deliverTxTags = responseDeliverTx ^.. PT.tags . traverse . Lens.from kVPair
+        , deliverTxCodespace = responseDeliverTx ^. PT.codespace
+        }
+
+data EndBlock =
+  EndBlock
+    { endBlockValidatorUpdates      :: [ValidatorUpdate]
+    , endBlockConsensusParamUpdates :: Maybe ConsensusParams
+    , endBlockTags                  :: [KVPair]
+    }
+
+endBlock :: Iso' EndBlock PT.ResponseEndBlock
+endBlock = iso to from
+  where
+    to EndBlock{..} =
+      defMessage
+        & PT.validatorUpdates .~ endBlockValidatorUpdates ^.. traverse . validatorUpdate
+        & PT.maybe'consensusParamUpdates .~ endBlockConsensusParamUpdates ^? _Just . consensusParams
+        & PT.tags .~ endBlockTags ^.. traverse . kVPair
+    from responseEndBlock =
+      EndBlock
+        { endBlockValidatorUpdates = responseEndBlock ^.. PT.validatorUpdates . traverse . Lens.from validatorUpdate
+        , endBlockConsensusParamUpdates = responseEndBlock ^? PT.maybe'consensusParamUpdates . _Just . Lens.from consensusParams
+        , endBlockTags = responseEndBlock ^.. PT.tags . traverse . Lens.from kVPair
+        }
+
+data Commit =
+  Commit
+    { commitData :: ByteString
+    }
+
+commit :: Iso' Commit PT.ResponseCommit
+commit = iso to from
+  where
+    to Commit{..} =
+      defMessage
+        & PT.data' .~ commitData
+    from responseCommit =
+      Commit
+        { commitData = responseCommit ^. PT.data'
+        }
+
+data Exception =
+  Exception
+    { exceptionError :: Text
+    }
+
+exception :: Iso' Exception PT.ResponseException
+exception = iso to from
+  where
+    to Exception{..} =
+      defMessage
+        & PT.error .~ exceptionError
+    from responseException =
+      Exception
+        { exceptionError = responseException ^. PT.error
         }
