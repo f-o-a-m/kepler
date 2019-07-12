@@ -1,7 +1,8 @@
 module Network.ABCI.Types.Messages.Request where
 
-import           Control.Lens                           (Iso', iso, (&), (.~), traverse,
-                                                         (^.), _Just, (^?), (^..))
+import           Control.Lens                           (Iso', iso, traverse,
+                                                         (&), (.~), (^.), (^..),
+                                                         (^?), _Just)
 import qualified Control.Lens                           as Lens
 import           Data.ByteString                        (ByteString)
 import           Data.Int                               (Int64)
@@ -16,7 +17,8 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams,
                                                          consensusParams,
                                                          evidence, header,
                                                          lastCommitInfo,
-                                                         timestamp)
+                                                         timestamp,
+                                                         validatorUpdate)
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
@@ -115,6 +117,23 @@ data InitChain =
             , initChainAppState        :: ByteString
             }
 
+initChain :: Iso' InitChain PT.RequestInitChain
+initChain = iso to from
+  where
+    to InitChain{..} =
+      defMessage & PT.maybe'time .~ initChainTime ^? _Just . timestamp
+                 & PT.chainId .~ initChainChainId
+                 & PT.maybe'consensusParams .~ initChainConsensusParams ^? _Just . consensusParams
+                 & PT.validators .~ initChainValidators ^.. traverse . validatorUpdate
+                 & PT.appStateBytes .~ initChainAppState
+    from requestInitChain =
+      InitChain  { initChainTime = requestInitChain ^? PT.maybe'time . _Just . Lens.from timestamp
+                 , initChainChainId = requestInitChain ^. PT.chainId
+                 , initChainConsensusParams = requestInitChain ^? PT.maybe'consensusParams . _Just . Lens.from consensusParams
+                 , initChainValidators = requestInitChain ^.. PT.validators . traverse . Lens.from validatorUpdate
+                 , initChainAppState = requestInitChain ^. PT.appStateBytes
+                 }
+
 data Query =
   Query { queryData   :: ByteString
         , queryPath   :: Text
@@ -156,3 +175,66 @@ beginBlock = iso to from
                  , beginBlockLastCommitInfo = requestBeginBlock ^? PT.maybe'lastCommitInfo . _Just . Lens.from lastCommitInfo
                  , beginBlockByzantineValidators = requestBeginBlock ^.. PT.byzantineValidators . traverse . Lens.from evidence
                  }
+
+
+data CheckTx =
+  CheckTx
+    { checkTxTx :: ByteString
+    }
+checkTx :: Iso' CheckTx PT.RequestCheckTx
+checkTx = iso to from
+  where
+    to CheckTx{..} =
+      defMessage
+        & PT.tx .~ checkTxTx
+
+    from requestCheckTx =
+      CheckTx
+        { checkTxTx = requestCheckTx ^. PT.tx
+        }
+
+data Commit =
+  Commit
+
+commit :: Iso' Commit PT.RequestCommit
+commit = iso to from
+  where
+    to Commit =
+      defMessage
+
+    from requestCommit =
+      Commit
+
+data DeliverTx =
+  DeliverTx
+    { deliverTxTx :: ByteString
+    }
+
+deliverTx :: Iso' DeliverTx PT.RequestDeliverTx
+deliverTx = iso to from
+  where
+    to DeliverTx{..} =
+      defMessage
+        & PT.tx .~ deliverTxTx
+
+    from requestDeliverTx =
+      DeliverTx
+        { deliverTxTx = requestDeliverTx ^. PT.tx
+        }
+
+
+data EndBlock  = EndBlock
+    { endBlockHeight :: Int64
+    }
+
+endBlock :: Iso' EndBlock PT.RequestEndBlock
+endBlock = iso to from
+  where
+    to EndBlock{..} =
+      defMessage
+        & PT.height .~ endBlockHeight
+
+    from requestEndBlock =
+      EndBlock
+        { endBlockHeight = requestEndBlock ^. PT.height
+        }
