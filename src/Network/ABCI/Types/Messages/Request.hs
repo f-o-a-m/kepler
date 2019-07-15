@@ -58,9 +58,9 @@ data Request (m :: MessageType) :: * where
 --------------------------------------------------------------------------------
 
 data Echo = Echo
- { echoMessage :: Text
- -- ^ A string to echo back
- } deriving (Eq, Show, Generic)
+  { echoMessage :: Text
+  -- ^ A string to echo back
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped Echo where
   type Unwrapped Echo = PT.RequestEcho
@@ -330,11 +330,13 @@ instance Wrapped EndBlock where
 data Commit =
   Commit deriving (Eq, Show, Generic)
 
-commit :: Iso' Commit PT.RequestCommit
-commit = iso t f
-  where
-    t Commit =
-      defMessage
+instance Wrapped Commit where
+  type Unwrapped Commit = PT.RequestCommit
 
-    f requestCommit =
-      Commit
+  _Wrapped' = iso t f
+    where
+      t Commit =
+        defMessage
+
+      f requestCommit =
+        Commit

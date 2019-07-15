@@ -58,9 +58,9 @@ data Response (m :: MessageType) :: * where
 --------------------------------------------------------------------------------
 
 data Echo = Echo
- { echoMessage :: Text
- -- ^ The input string
- } deriving (Eq, Show, Generic)
+  { echoMessage :: Text
+  -- ^ The input string
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped Echo where
   type Unwrapped Echo = PT.ResponseEcho
@@ -96,19 +96,18 @@ instance Wrapped Flush where
 -- Info
 --------------------------------------------------------------------------------
 
-data Info =
-  Info
-    { infoData             :: Text
-    -- ^ Some arbitrary information
-    , infoVersion          :: Text
-    -- ^ The application software semantic version
-    , infoAppVersion       :: Word64
-    -- ^ The application protocol version
-    , infoLastBlockHeight  :: Int64
-    -- ^  Latest block for which the app has called Commit
-    , infoLastBlockAppHash :: ByteString
-    -- ^  Latest result of Commit
-    } deriving (Eq, Show, Generic)
+data Info = Info
+  { infoData             :: Text
+  -- ^ Some arbitrary information
+  , infoVersion          :: Text
+  -- ^ The application software semantic version
+  , infoAppVersion       :: Word64
+  -- ^ The application protocol version
+  , infoLastBlockHeight  :: Int64
+  -- ^  Latest block for which the app has called Commit
+  , infoLastBlockAppHash :: ByteString
+  -- ^  Latest result of Commit
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped Info where
   type Unwrapped Info = PT.ResponseInfo
@@ -424,13 +423,15 @@ data Exception = Exception
   { exceptionError :: Text
   } deriving (Eq, Show, Generic)
 
-exception :: Iso' Exception PT.ResponseException
-exception = iso t f
-  where
-    t Exception{..} =
-      defMessage
-        & PT.error .~ exceptionError
-    f responseException =
-      Exception
-        { exceptionError = responseException ^. PT.error
-        }
+instance Wrapped Exception where
+  type Unwrapped Exception = PT.ResponseException
+
+  _Wrapped' = iso t f
+    where
+      t Exception{..} =
+        defMessage
+          & PT.error .~ exceptionError
+      f responseException =
+        Exception
+          { exceptionError = responseException ^. PT.error
+          }
