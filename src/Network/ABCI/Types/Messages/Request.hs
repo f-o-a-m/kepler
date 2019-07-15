@@ -11,6 +11,9 @@ module Network.ABCI.Types.Messages.Request
   , DeliverTx(..)
   , EndBlock(..)
   , Commit(..)
+
+  -- * ReExports
+  , MessageType(..)
   ) where
 
 import           Control.Lens                           (Iso', iso, traverse,
@@ -37,6 +40,9 @@ import           Network.ABCI.Types.Messages.Types      (MessageType(..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
+--------------------------------------------------------------------------------
+-- Request
+--------------------------------------------------------------------------------
 
 data Request (m :: MessageType) :: * where
   RequestEcho :: Echo -> Request 'MTEcho

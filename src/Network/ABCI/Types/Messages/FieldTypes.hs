@@ -5,6 +5,7 @@ import           Control.Lens
                                                                                    iso,
                                                                                    mapped,
                                                                                    over,
+                                                                                   from,
                                                                                    traverse,
                                                                                    view,
                                                                                    (%~),
@@ -14,7 +15,6 @@ import           Control.Lens
                                                                                    (^..),
                                                                                    (^?),
                                                                                    _Just)
-import qualified Control.Lens                                                     as Lens
 import           Data.ByteString
                                                                                    (ByteString)
 import           Data.Int
@@ -127,9 +127,9 @@ consensusParams = iso t f
                  & PT.maybe'validator .~ consensusParamsValidator ^? _Just . validatorParams
     f a =
       ConsensusParams
-        { consensusParamsBlockSize = a ^? PT.maybe'blockSize . _Just . Lens.from blockSizeParams
-        , consensusParamsEvidence =  a ^? PT.maybe'evidence . _Just . Lens.from evidenceParams
-        , consensusParamsValidator =  a ^? PT.maybe'validator . _Just . Lens.from validatorParams
+        { consensusParamsBlockSize = a ^? PT.maybe'blockSize . _Just . from blockSizeParams
+        , consensusParamsEvidence =  a ^? PT.maybe'evidence . _Just . from evidenceParams
+        , consensusParamsValidator =  a ^? PT.maybe'validator . _Just . from validatorParams
         }
 
 data PubKey = PubKey
@@ -166,7 +166,7 @@ validatorUpdate = iso t f
                  & PT.power .~ validatorUpdatePower
     f a =
       ValidatorUpdate
-        { validatorUpdatePubKey = a ^? PT.maybe'pubKey . _Just . Lens.from pubKey
+        { validatorUpdatePubKey = a ^? PT.maybe'pubKey . _Just . from pubKey
         , validatorUpdatePower = a ^. PT.power
         }
 
@@ -204,7 +204,7 @@ voteInfo = iso t f
                  & PT.signedLastBlock .~ voteInfoSignedLastBlock
     f voteInfo =
       VoteInfo
-        { voteInfoValidator = voteInfo ^? PT.maybe'validator . _Just . Lens.from validator
+        { voteInfoValidator = voteInfo ^? PT.maybe'validator . _Just . from validator
         , voteInfoSignedLastBlock = voteInfo ^. PT.signedLastBlock
         }
 
@@ -225,7 +225,7 @@ lastCommitInfo = iso t f
     f a =
       LastCommitInfo
         { lastCommitInfoRound = a ^. PT.round
-        , lastCommitInfoVotes = a ^.. PT.votes . traverse . Lens.from voteInfo
+        , lastCommitInfoVotes = a ^.. PT.votes . traverse . from voteInfo
         }
 
 data PartSetHeader = PartSetHeader
@@ -262,7 +262,7 @@ blockID = iso t f
     f a =
       BlockID
         { blockIDHash = a ^. PT.hash
-        , blockIDPartsHeader = a ^? PT.maybe'partsHeader . _Just . Lens.from partSetHeader
+        , blockIDPartsHeader = a ^? PT.maybe'partsHeader . _Just . from partSetHeader
         }
 
 data Version = Version
@@ -342,13 +342,13 @@ header = iso t f
                  & PT.proposerAddress .~ headerProposerAddress
     f a =
       Header
-        { headerVersion = a ^? PT.maybe'version . _Just . Lens.from version
+        { headerVersion = a ^? PT.maybe'version . _Just . from version
         , headerChainId = a ^. PT.chainId
         , headerHeight = a ^. PT.height
-        , headerTime = a ^? PT.maybe'time . _Just . Lens.from timestamp
+        , headerTime = a ^? PT.maybe'time . _Just . from timestamp
         , headerNumTxs = a ^. PT.numTxs
         , headerTotalTxs = a ^. PT.totalTxs
-        , headerLastBlockId = a ^. PT.lastBlockId. Lens.from blockID
+        , headerLastBlockId = a ^. PT.lastBlockId. from blockID
         , headerLastCommitHash = a ^. PT.lastCommitHash
         , headerDataHash = a ^. PT.dataHash
         , headerValidatorsHash = a ^. PT.validatorsHash
@@ -385,9 +385,9 @@ evidence = iso t f
     f a =
       Evidence
         { evidenceType = a ^. PT.type'
-        , evidenceValidator = a ^? PT.maybe'validator . _Just . Lens.from validator
+        , evidenceValidator = a ^? PT.maybe'validator . _Just . from validator
         , evidenceHeight = a ^. PT.height
-        , evidenceTime = a ^? PT.maybe'time . _Just . Lens.from timestamp
+        , evidenceTime = a ^? PT.maybe'time . _Just . from timestamp
         , evidenceTotalVotingPower = a ^. PT.totalVotingPower
         }
 
@@ -426,7 +426,7 @@ proof = iso t f
         & MT.ops .~ proofOps ^.. traverse . proofOp
     f a =
       Proof
-        { proofOps = a ^.. MT.ops . traverse . Lens.from proofOp
+        { proofOps = a ^.. MT.ops . traverse . from proofOp
         }
 
 

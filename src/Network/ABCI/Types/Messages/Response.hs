@@ -2,8 +2,7 @@ module Network.ABCI.Types.Messages.Response where
 
 import           Control.Lens                           (Iso', iso, traverse,
                                                          (&), (.~), (^.), (^..),
-                                                         (^?), _Just)
-import qualified Control.Lens                           as Lens
+                                                         (^?), _Just, from)
 import           Control.Lens.Wrapped                   (Wrapped(..))
 import           Data.ByteString                        (ByteString)
 import           Data.Int                               (Int64)
@@ -11,6 +10,7 @@ import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word32, Word64)
 import           GHC.Generics                           (Generic)
+import           Network.ABCI.Types.Messages.Types      (MessageType(..))
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams,
                                                          Evidence, Header,
                                                          KVPair, LastCommitInfo,
@@ -24,6 +24,22 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams,
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
+
+--------------------------------------------------------------------------------
+-- Response
+--------------------------------------------------------------------------------
+
+data Response (m :: MessageType) :: * where
+  ResponseEcho :: Echo -> Response 'MTEcho
+  ResponseFlush :: Flush -> Response 'MTFlush
+  ResponseInfo :: Info -> Response 'MTInfo
+  ResponseSetOption :: SetOption -> Response 'MTSetOption
+  ResponseInitChain :: InitChain -> Response 'MTInitChain
+  ResponseQuery :: Query -> Response 'MTQuery
+  ResponseBeginBlock :: BeginBlock -> Response 'MTBeginBlock
+  ResponseCheckTx :: CheckTx -> Response 'MTCheckTx
+  ResponseDeliverTx :: DeliverTx -> Response 'MTDeliverTx
+  ResponseEndBlock :: EndBlock -> Response 'MTEndBlock
 
 --------------------------------------------------------------------------------
 -- Echo
@@ -155,8 +171,8 @@ instance Wrapped InitChain where
           & PT.validators .~ initChainValidators ^.. traverse . validatorUpdate
       f message =
         InitChain
-          { initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . Lens.from consensusParams
-          , initChainValidators = message ^.. PT.validators . traverse . Lens.from validatorUpdate
+          { initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . from consensusParams
+          , initChainValidators = message ^.. PT.validators . traverse . from validatorUpdate
           }
 
 --------------------------------------------------------------------------------
@@ -209,7 +225,7 @@ instance Wrapped Query where
           , queryIndex = message ^. PT.index
           , queryKey = message ^. PT.key
           , queryValue = message ^. PT.value
-          , queryProof = message ^? PT.maybe'proof . _Just . Lens.from proof
+          , queryProof = message ^? PT.maybe'proof . _Just . from proof
           , queryHeight = message ^. PT.height
           , queryCodespace = message ^. PT.codespace
           }
@@ -233,7 +249,7 @@ instance Wrapped BeginBlock where
           & PT.tags .~ beginBlockTags ^.. traverse . kVPair
       f message =
         BeginBlock
-          { beginBlockTags = message ^.. PT.tags . traverse . Lens.from kVPair
+          { beginBlockTags = message ^.. PT.tags . traverse . from kVPair
           }
 
 --------------------------------------------------------------------------------
@@ -282,7 +298,7 @@ instance Wrapped CheckTx where
           , checkTxInfo = message ^. PT.info
           , checkTxGasWanted = message ^. PT.gasWanted
           , checkTxGasUsed = message ^. PT.gasUsed
-          , checkTxTags = message ^.. PT.tags . traverse . Lens.from kVPair
+          , checkTxTags = message ^.. PT.tags . traverse . from kVPair
           , checkTxCodespace = message ^. PT.codespace
           }
 
@@ -332,7 +348,7 @@ instance Wrapped DeliverTx where
           , deliverTxInfo = responseDeliverTx ^. PT.info
           , deliverTxGasWanted = responseDeliverTx ^. PT.gasWanted
           , deliverTxGasUsed = responseDeliverTx ^. PT.gasUsed
-          , deliverTxTags = responseDeliverTx ^.. PT.tags . traverse . Lens.from kVPair
+          , deliverTxTags = responseDeliverTx ^.. PT.tags . traverse . from kVPair
           , deliverTxCodespace = responseDeliverTx ^. PT.codespace
           }
 
@@ -361,9 +377,9 @@ instance Wrapped EndBlock where
           & PT.tags .~ endBlockTags ^.. traverse . kVPair
       f message =
         EndBlock
-          { endBlockValidatorUpdates = message ^.. PT.validatorUpdates . traverse . Lens.from validatorUpdate
-          , endBlockConsensusParamUpdates = message ^? PT.maybe'consensusParamUpdates . _Just . Lens.from consensusParams
-          , endBlockTags = message ^.. PT.tags . traverse . Lens.from kVPair
+          { endBlockValidatorUpdates = message ^.. PT.validatorUpdates . traverse . from validatorUpdate
+          , endBlockConsensusParamUpdates = message ^? PT.maybe'consensusParamUpdates . _Just . from consensusParams
+          , endBlockTags = message ^.. PT.tags . traverse . from kVPair
           }
 
 --------------------------------------------------------------------------------
