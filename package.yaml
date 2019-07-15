@@ -41,6 +41,12 @@ dependencies:
 - proto-lens-runtime
 - text
 - time
+- hspec
+- hspec-core
+- proto-lens-arbitrary
+- QuickCheck
+- generic-arbitrary
+- quickcheck-instances
 
 library:
   source-dirs: src
@@ -75,5 +81,11 @@ tests:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+
+    default-extensions:
+    # - OverloadedStrings
+      - RankNTypes
     dependencies:
-    - hs-abci-server
+      - hspec
+      - hspec-discover
+      - hs-abci-server

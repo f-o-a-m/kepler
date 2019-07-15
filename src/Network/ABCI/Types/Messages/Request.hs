@@ -129,6 +129,7 @@ data InitChain =
             -- ^ Serialized initial application state. Amino-encoded JSON bytes.
             } deriving (Eq, Show, Generic)
 
+
 initChain :: Iso' InitChain PT.RequestInitChain
 initChain = iso to from
   where
