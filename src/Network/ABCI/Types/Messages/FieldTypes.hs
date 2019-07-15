@@ -278,7 +278,7 @@ version = iso t f
     t Version{..} =
       defMessage & PT.block .~ versionBlock
                  & PT.app .~ versionApp
-    f version =
+    f a =
       Version
         { versionBlock = a ^. PT.block
         , versionApp = a ^. PT.app
@@ -376,13 +376,13 @@ data Evidence = Evidence
 evidence :: Iso' Evidence PT.Evidence
 evidence = iso t f
   where
-    to Evidence{..} =
+    t Evidence{..} =
       defMessage & PT.type' .~ evidenceType
                  & PT.maybe'validator .~ evidenceValidator ^? _Just . validator
                  & PT.height .~ evidenceHeight
                  & PT.maybe'time .~ evidenceTime ^? _Just . timestamp
                  & PT.totalVotingPower .~ evidenceTotalVotingPower
-    from a =
+    f a =
       Evidence
         { evidenceType = a ^. PT.type'
         , evidenceValidator = a ^? PT.maybe'validator . _Just . Lens.from validator
@@ -421,7 +421,7 @@ data Proof = Proof
 proof :: Iso' Proof MT.Proof
 proof = iso t f
   where
-    to Proof{..} =
+    t Proof{..} =
       defMessage
         & MT.ops .~ proofOps ^.. traverse . proofOp
     f a =
@@ -442,12 +442,12 @@ data ProofOp = ProofOp
 proofOp :: Iso' ProofOp MT.ProofOp
 proofOp = iso t f
   where
-    to ProofOp{..} =
+    t ProofOp{..} =
       defMessage
         & MT.type' .~ proofOpType
         & MT.key .~ proofOpKey
         & MT.data' .~ proofOpData
-    from a =
+    f a =
       ProofOp
         { proofOpType = a ^. MT.type'
         , proofOpKey = a ^. MT.key
