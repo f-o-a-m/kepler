@@ -29,11 +29,10 @@ import qualified Proto.Types_Fields                     as PT
 -- Echo
 --------------------------------------------------------------------------------
 
-data Echo =
-  Echo
-    { echoMessage :: Text
-    -- ^ The input string
-    } deriving (Eq, Show, Generic)
+data Echo = Echo
+ { echoMessage :: Text
+ -- ^ The input string
+ } deriving (Eq, Show, Generic)
 
 instance Wrapped Echo where
   type Unwrapped Echo = PT.ResponseEcho
@@ -108,15 +107,14 @@ instance Wrapped Info where
 -- SetOption
 --------------------------------------------------------------------------------
 
-data SetOption =
-  SetOption
-    { setOptionCode :: Word32
-    -- ^ Response code
-    , setOptionLog  :: Text
-    -- ^ The output of the application's logger. May be non-deterministic.
-    , setOptionInfo :: Text
-    -- ^ Additional information. May be non-deterministic.
-    } deriving (Eq, Show, Generic)
+data SetOption = SetOption
+  { setOptionCode :: Word32
+  -- ^ Response code
+  , setOptionLog  :: Text
+  -- ^ The output of the application's logger. May be non-deterministic.
+  , setOptionInfo :: Text
+  -- ^ Additional information. May be non-deterministic.
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped SetOption where
   type Unwrapped SetOption = PT.ResponseSetOption
@@ -139,13 +137,12 @@ instance Wrapped SetOption where
 -- InitChain
 --------------------------------------------------------------------------------
 
-data InitChain =
-  InitChain
-    { initChainConsensusParams :: Maybe ConsensusParams
-    -- ^ Initial consensus-critical parameters.
-    , initChainValidators      :: [ValidatorUpdate]
-    -- ^ Initial validator set (if non empty).
-    } deriving (Eq, Show, Generic)
+data InitChain = InitChain
+  { initChainConsensusParams :: Maybe ConsensusParams
+  -- ^ Initial consensus-critical parameters.
+  , initChainValidators      :: [ValidatorUpdate]
+  -- ^ Initial validator set (if non empty).
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped InitChain where
   type Unwrapped InitChain = PT.ResponseInitChain
@@ -166,28 +163,27 @@ instance Wrapped InitChain where
 -- Query
 --------------------------------------------------------------------------------
 
-data Query =
-  Query
-    { queryCode      :: Word32
-    -- ^ Response code.
-    , queryLog       :: Text
-    -- ^ The output of the application's logger. May be non-deterministic.
-    , queryInfo      :: Text
-    -- ^ Additional information. May be non-deterministic.
-    , queryIndex     :: Int64
-    -- ^ The index of the key in the tree.
-    , queryKey       :: ByteString
-    -- ^ The key of the matching data.
-    , queryValue     :: ByteString
-    -- ^ The value of the matching data.
-    , queryProof     :: Maybe Proof
-    -- ^ Serialized proof for the value data, if requested, to be verified against
-    -- the AppHash for the given Height.
-    , queryHeight    :: Int64
-    -- ^ The block height from which data was derived.
-    , queryCodespace :: Text
-    -- ^ Namespace for the Code.
-    } deriving (Eq, Show, Generic)
+data Query = Query
+  { queryCode      :: Word32
+  -- ^ Response code.
+  , queryLog       :: Text
+  -- ^ The output of the application's logger. May be non-deterministic.
+  , queryInfo      :: Text
+  -- ^ Additional information. May be non-deterministic.
+  , queryIndex     :: Int64
+  -- ^ The index of the key in the tree.
+  , queryKey       :: ByteString
+  -- ^ The key of the matching data.
+  , queryValue     :: ByteString
+  -- ^ The value of the matching data.
+  , queryProof     :: Maybe Proof
+  -- ^ Serialized proof for the value data, if requested, to be verified against
+  -- the AppHash for the given Height.
+  , queryHeight    :: Int64
+  -- ^ The block height from which data was derived.
+  , queryCodespace :: Text
+  -- ^ Namespace for the Code.
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped Query where
   type Unwrapped Query = PT.ResponseQuery
@@ -222,11 +218,10 @@ instance Wrapped Query where
 -- BeginBlock
 --------------------------------------------------------------------------------
 
-data BeginBlock =
-  BeginBlock
-    { beginBlockTags :: [KVPair]
-    -- ^ Key-Value tags for filtering and indexing
-    } deriving (Eq, Show, Generic)
+data BeginBlock = BeginBlock
+  { beginBlockTags :: [KVPair]
+  -- ^ Key-Value tags for filtering and indexing
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped BeginBlock where
   type Unwrapped BeginBlock = PT.ResponseBeginBlock
@@ -245,25 +240,24 @@ instance Wrapped BeginBlock where
 -- CheckTx
 --------------------------------------------------------------------------------
 
-data CheckTx =
-  CheckTx
-    { checkTxCode      :: Word32
-    -- ^ Response code
-    , checkTxData      :: ByteString
-    -- ^ Result bytes, if any.
-    , checkTxLog       :: Text
-    -- ^ The output of the application's logger.
-    , checkTxInfo      :: Text
-    -- ^ Additional information.
-    , checkTxGasWanted :: Int64
-    -- ^ Amount of gas requested for transaction.
-    , checkTxGasUsed   :: Int64
-    -- ^ Amount of gas consumed by transaction.
-    , checkTxTags      :: [KVPair]
-    -- ^ Key-Value tags for filtering and indexing transactions (eg. by account).
-    , checkTxCodespace :: Text
-    -- ^ Namespace for the Code.
-    } deriving (Eq, Show, Generic)
+data CheckTx = CheckTx
+  { checkTxCode      :: Word32
+  -- ^ Response code
+  , checkTxData      :: ByteString
+  -- ^ Result bytes, if any.
+  , checkTxLog       :: Text
+  -- ^ The output of the application's logger.
+  , checkTxInfo      :: Text
+  -- ^ Additional information.
+  , checkTxGasWanted :: Int64
+  -- ^ Amount of gas requested for transaction.
+  , checkTxGasUsed   :: Int64
+  -- ^ Amount of gas consumed by transaction.
+  , checkTxTags      :: [KVPair]
+  -- ^ Key-Value tags for filtering and indexing transactions (eg. by account).
+  , checkTxCodespace :: Text
+  -- ^ Namespace for the Code.
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped CheckTx where
   type Unwrapped CheckTx = PT.ResponseCheckTx
@@ -296,25 +290,24 @@ instance Wrapped CheckTx where
 -- DeliverTx
 --------------------------------------------------------------------------------
 
-data DeliverTx =
-  DeliverTx
-    { deliverTxCode      :: Word32
-    -- ^ Response code.
-    , deliverTxData      :: ByteString
-    -- ^ Result bytes, if any.
-    , deliverTxLog       :: Text
-    -- ^ The output of the application's logger. May be non-deterministic.
-    , deliverTxInfo      :: Text
-    -- ^ Additional information.
-    , deliverTxGasWanted :: Int64
-    -- ^ Amount of gas requested for transaction.
-    , deliverTxGasUsed   :: Int64
-    -- ^ Amount of gas consumed by transaction.
-    , deliverTxTags      :: [KVPair]
-    -- ^  Key-Value tags for filtering and indexing transactions (eg. by account).
-    , deliverTxCodespace :: Text
-    -- ^ Namespace for the Code.
-    } deriving (Eq, Show, Generic)
+data DeliverTx = DeliverTx
+  { deliverTxCode      :: Word32
+  -- ^ Response code.
+  , deliverTxData      :: ByteString
+  -- ^ Result bytes, if any.
+  , deliverTxLog       :: Text
+  -- ^ The output of the application's logger. May be non-deterministic.
+  , deliverTxInfo      :: Text
+  -- ^ Additional information.
+  , deliverTxGasWanted :: Int64
+  -- ^ Amount of gas requested for transaction.
+  , deliverTxGasUsed   :: Int64
+  -- ^ Amount of gas consumed by transaction.
+  , deliverTxTags      :: [KVPair]
+  -- ^  Key-Value tags for filtering and indexing transactions (eg. by account).
+  , deliverTxCodespace :: Text
+  -- ^ Namespace for the Code.
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped DeliverTx where
   type Unwrapped DeliverTx = PT.ResponseDeliverTx
@@ -347,15 +340,14 @@ instance Wrapped DeliverTx where
 -- EndBlock
 --------------------------------------------------------------------------------
 
-data EndBlock =
-  EndBlock
-    { endBlockValidatorUpdates      :: [ValidatorUpdate]
-    -- ^ Changes to validator set (set voting power to 0 to remove).
-    , endBlockConsensusParamUpdates :: Maybe ConsensusParams
-    -- ^ Changes to consensus-critical time, size, and other parameters.
-    , endBlockTags                  :: [KVPair]
-    -- ^ Key-Value tags for filtering and indexing
-    } deriving (Eq, Show, Generic)
+data EndBlock = EndBlock
+  { endBlockValidatorUpdates      :: [ValidatorUpdate]
+  -- ^ Changes to validator set (set voting power to 0 to remove).
+  , endBlockConsensusParamUpdates :: Maybe ConsensusParams
+  -- ^ Changes to consensus-critical time, size, and other parameters.
+  , endBlockTags                  :: [KVPair]
+  -- ^ Key-Value tags for filtering and indexing
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped EndBlock where
   type Unwrapped EndBlock = PT.ResponseEndBlock
@@ -378,11 +370,10 @@ instance Wrapped EndBlock where
 -- Commit
 --------------------------------------------------------------------------------
 
-data Commit =
-  Commit
-    { commitData :: ByteString
-    -- ^ The Merkle root hash of the application state
-    } deriving (Eq, Show, Generic)
+data Commit = Commit
+  { commitData :: ByteString
+  -- ^ The Merkle root hash of the application state
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped Commit where
   type Unwrapped Commit = PT.ResponseCommit
@@ -401,10 +392,9 @@ instance Wrapped Commit where
 -- Exception
 --------------------------------------------------------------------------------
 
-data Exception =
-  Exception
-    { exceptionError :: Text
-    } deriving (Eq, Show, Generic)
+data Exception = Exception
+  { exceptionError :: Text
+  } deriving (Eq, Show, Generic)
 
 exception :: Iso' Exception PT.ResponseException
 exception = iso to from

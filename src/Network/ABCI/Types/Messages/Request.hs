@@ -54,11 +54,10 @@ data Request (m :: MessageType) :: * where
 -- Echo
 --------------------------------------------------------------------------------
 
-data Echo =
-  Echo
-    { echoMessage :: Text
-    -- ^ A string to echo back
-    } deriving (Eq, Show, Generic)
+data Echo = Echo
+ { echoMessage :: Text
+ -- ^ A string to echo back
+ } deriving (Eq, Show, Generic)
 
 instance Wrapped Echo where
   type Unwrapped Echo = PT.RequestEcho
@@ -91,15 +90,14 @@ instance Wrapped Flush where
 -- Info
 --------------------------------------------------------------------------------
 
-data Info =
-  Info
-    { infoVersion      :: Text
-    -- ^ The Tendermint software semantic version
-    , infoBlockVersion :: Word64
-    -- ^ The Tendermint Block Protocol version
-    , infoP2pVersion   :: Word64
-    -- ^ The Tendermint P2P Protocol version
-    } deriving (Eq, Show, Generic)
+data Info = Info
+  { infoVersion      :: Text
+  -- ^ The Tendermint software semantic version
+  , infoBlockVersion :: Word64
+  -- ^ The Tendermint Block Protocol version
+  , infoP2pVersion   :: Word64
+  -- ^ The Tendermint P2P Protocol version
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped Info where
   type Unwrapped Info = PT.RequestInfo
@@ -121,13 +119,12 @@ instance Wrapped Info where
 -- SetOption
 --------------------------------------------------------------------------------
 
-data SetOption =
-  SetOption
-    { setOptionKey   :: Text
-    -- ^ Key to set
-    , setOptionValue :: Text
-    -- ^ Value to set for key
-    } deriving (Eq, Show, Generic)
+data SetOption = SetOption
+  { setOptionKey   :: Text
+  -- ^ Key to set
+  , setOptionValue :: Text
+  -- ^ Value to set for key
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped SetOption where
   type Unwrapped SetOption = PT.RequestSetOption
@@ -147,19 +144,18 @@ instance Wrapped SetOption where
 -- InitChain
 --------------------------------------------------------------------------------
 
-data InitChain =
-  InitChain
-    { initChainTime            :: Maybe Timestamp
-    -- ^ Genesis time
-    , initChainChainId         :: Text
-    -- ^ ID of the blockchain.
-    , initChainConsensusParams :: Maybe ConsensusParams
-    -- ^ Initial consensus-critical parameters.
-    , initChainValidators      :: [ValidatorUpdate]
-    -- ^ Initial genesis validators.
-    , initChainAppState        :: ByteString
-    -- ^ Serialized initial application state. Amino-encoded JSON bytes.
-    } deriving (Eq, Show, Generic)
+data InitChain = InitChain
+  { initChainTime            :: Maybe Timestamp
+  -- ^ Genesis time
+  , initChainChainId         :: Text
+  -- ^ ID of the blockchain.
+  , initChainConsensusParams :: Maybe ConsensusParams
+  -- ^ Initial consensus-critical parameters.
+  , initChainValidators      :: [ValidatorUpdate]
+  -- ^ Initial genesis validators.
+  , initChainAppState        :: ByteString
+  -- ^ Serialized initial application state. Amino-encoded JSON bytes.
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped InitChain where
   type Unwrapped InitChain = PT.RequestInitChain
@@ -185,17 +181,16 @@ instance Wrapped InitChain where
 -- Query
 --------------------------------------------------------------------------------
 
-data Query =
-  Query
-    { queryData   :: ByteString
-    -- ^  Raw query bytes. Can be used with or in lieu of Path.
-    , queryPath   :: Text
-    -- ^ Path of request, like an HTTP GET path. Can be used with or in liue of Data.
-    , queryHeight :: Int64
-    -- ^ The block height for which you want the query
-    , queryProve  :: Bool
-    -- ^ Return Merkle proof with response if possible
-    } deriving (Eq, Show, Generic)
+data Query = Query
+  { queryData   :: ByteString
+  -- ^  Raw query bytes. Can be used with or in lieu of Path.
+  , queryPath   :: Text
+  -- ^ Path of request, like an HTTP GET path. Can be used with or in liue of Data.
+  , queryHeight :: Int64
+  -- ^ The block height for which you want the query
+  , queryProve  :: Bool
+  -- ^ Return Merkle proof with response if possible
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped Query where
   type Unwrapped Query = PT.RequestQuery
@@ -219,18 +214,17 @@ instance Wrapped Query where
 -- BeginBlock
 --------------------------------------------------------------------------------
 
-data BeginBlock =
-  BeginBlock
-    { beginBlockHash                :: ByteString
-    -- ^ The block's hash. This can be derived from the block header.
-    , beginBlockHeader              :: Maybe Header
-    -- ^ The block header.
-    , beginBlockLastCommitInfo      :: Maybe LastCommitInfo
-    -- ^ Info about the last commit, including the round, and the list of
-    -- validators and which ones signed the last block.
-    , beginBlockByzantineValidators :: [Evidence]
-    -- ^ List of evidence of validators that acted maliciously.
-    } deriving (Eq, Show, Generic)
+data BeginBlock = BeginBlock
+  { beginBlockHash                :: ByteString
+  -- ^ The block's hash. This can be derived from the block header.
+  , beginBlockHeader              :: Maybe Header
+  -- ^ The block header.
+  , beginBlockLastCommitInfo      :: Maybe LastCommitInfo
+  -- ^ Info about the last commit, including the round, and the list of
+  -- validators and which ones signed the last block.
+  , beginBlockByzantineValidators :: [Evidence]
+  -- ^ List of evidence of validators that acted maliciously.
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped BeginBlock where
   type Unwrapped BeginBlock = PT.RequestBeginBlock
@@ -255,11 +249,10 @@ instance Wrapped BeginBlock where
 --------------------------------------------------------------------------------
 
 -- TODO: figure out what happened to Type CheckTxType field
-data CheckTx =
-  CheckTx
-    { checkTxTx :: ByteString
-    -- ^ The request transaction bytes
-    } deriving (Eq, Show, Generic)
+data CheckTx = CheckTx
+  { checkTxTx :: ByteString
+  -- ^ The request transaction bytes
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped CheckTx where
   type Unwrapped CheckTx = PT.RequestCheckTx
@@ -279,11 +272,10 @@ instance Wrapped CheckTx where
 -- DeliverTx
 --------------------------------------------------------------------------------
 
-data DeliverTx =
-  DeliverTx
-    { deliverTxTx :: ByteString
-    -- ^ The request transaction bytes.
-    } deriving (Eq, Show, Generic)
+data DeliverTx = DeliverTx
+  { deliverTxTx :: ByteString
+  -- ^ The request transaction bytes.
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped DeliverTx where
   type Unwrapped DeliverTx = PT.RequestDeliverTx
@@ -303,11 +295,10 @@ instance Wrapped DeliverTx where
 -- EndBlock
 --------------------------------------------------------------------------------
 
-data EndBlock =
-  EndBlock
-    { endBlockHeight :: Int64
-    -- ^ Height of the block just executed.
-    } deriving (Eq, Show, Generic)
+data EndBlock = EndBlock
+  { endBlockHeight :: Int64
+  -- ^ Height of the block just executed.
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped EndBlock where
   type Unwrapped EndBlock = PT.RequestEndBlock
