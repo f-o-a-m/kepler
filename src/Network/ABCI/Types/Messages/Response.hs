@@ -1,26 +1,38 @@
-module Network.ABCI.Types.Messages.Response where
+module Network.ABCI.Types.Messages.Response
+  ( Response(..)
+
+  -- * Request Message Types
+  , Echo(..)
+  , Flush(..)
+  , Info(..)
+  , Query(..)
+  , BeginBlock(..)
+  , CheckTx(..)
+  , DeliverTx(..)
+  , EndBlock(..)
+  , Commit(..)
+
+  -- * ReExports
+  , MessageType(..)
+  ) where
 
 import           Control.Lens                           (Iso', iso, traverse,
                                                          (&), (.~), (^.), (^..),
-                                                         (^?), _Just, from)
-import           Control.Lens.Wrapped                   (Wrapped(..))
+                                                         (^?), _Just)
+import           Control.Lens.Wrapped                   (Wrapped (..),
+                                                         _Unwrapped')
 import           Data.ByteString                        (ByteString)
 import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word32, Word64)
 import           GHC.Generics                           (Generic)
-import           Network.ABCI.Types.Messages.Types      (MessageType(..))
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams,
                                                          Evidence, Header,
                                                          KVPair, LastCommitInfo,
                                                          Proof, Timestamp,
-                                                         ValidatorUpdate,
-                                                         consensusParams,
-                                                         evidence, header,
-                                                         kVPair, lastCommitInfo,
-                                                         proof, timestamp,
-                                                         validatorUpdate)
+                                                         ValidatorUpdate)
+import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
@@ -167,12 +179,12 @@ instance Wrapped InitChain where
     where
       t InitChain{..} =
         defMessage
-          & PT.maybe'consensusParams .~ initChainConsensusParams ^? _Just . consensusParams
-          & PT.validators .~ initChainValidators ^.. traverse . validatorUpdate
+          & PT.maybe'consensusParams .~ initChainConsensusParams ^? _Just . _Wrapped'
+          & PT.validators .~ initChainValidators ^.. traverse . _Wrapped'
       f message =
         InitChain
-          { initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . from consensusParams
-          , initChainValidators = message ^.. PT.validators . traverse . from validatorUpdate
+          { initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . _Unwrapped'
+          , initChainValidators = message ^.. PT.validators . traverse . _Unwrapped'
           }
 
 --------------------------------------------------------------------------------
@@ -214,7 +226,7 @@ instance Wrapped Query where
           & PT.index .~ queryIndex
           & PT.key .~ queryKey
           & PT.value .~ queryValue
-          & PT.maybe'proof .~ queryProof ^? _Just . proof
+          & PT.maybe'proof .~ queryProof ^? _Just . _Wrapped'
           & PT.height .~ queryHeight
           & PT.codespace .~ queryCodespace
       f message =
@@ -225,7 +237,7 @@ instance Wrapped Query where
           , queryIndex = message ^. PT.index
           , queryKey = message ^. PT.key
           , queryValue = message ^. PT.value
-          , queryProof = message ^? PT.maybe'proof . _Just . from proof
+          , queryProof = message ^? PT.maybe'proof . _Just . _Unwrapped'
           , queryHeight = message ^. PT.height
           , queryCodespace = message ^. PT.codespace
           }
@@ -246,10 +258,10 @@ instance Wrapped BeginBlock where
     where
       t BeginBlock{..} =
         defMessage
-          & PT.tags .~ beginBlockTags ^.. traverse . kVPair
+          & PT.tags .~ beginBlockTags ^.. traverse . _Wrapped'
       f message =
         BeginBlock
-          { beginBlockTags = message ^.. PT.tags . traverse . from kVPair
+          { beginBlockTags = message ^.. PT.tags . traverse . _Unwrapped'
           }
 
 --------------------------------------------------------------------------------
@@ -288,7 +300,7 @@ instance Wrapped CheckTx where
           & PT.info .~ checkTxInfo
           & PT.gasWanted .~ checkTxGasWanted
           & PT.gasUsed .~ checkTxGasUsed
-          & PT.tags .~ checkTxTags ^.. traverse . kVPair
+          & PT.tags .~ checkTxTags ^.. traverse . _Wrapped'
           & PT.codespace .~ checkTxCodespace
       f message =
         CheckTx
@@ -298,7 +310,7 @@ instance Wrapped CheckTx where
           , checkTxInfo = message ^. PT.info
           , checkTxGasWanted = message ^. PT.gasWanted
           , checkTxGasUsed = message ^. PT.gasUsed
-          , checkTxTags = message ^.. PT.tags . traverse . from kVPair
+          , checkTxTags = message ^.. PT.tags . traverse . _Unwrapped'
           , checkTxCodespace = message ^. PT.codespace
           }
 
@@ -338,7 +350,7 @@ instance Wrapped DeliverTx where
           & PT.info .~ deliverTxInfo
           & PT.gasWanted .~ deliverTxGasWanted
           & PT.gasUsed .~ deliverTxGasUsed
-          & PT.tags .~ deliverTxTags ^.. traverse . kVPair
+          & PT.tags .~ deliverTxTags ^.. traverse . _Wrapped'
           & PT.codespace .~ deliverTxCodespace
       f responseDeliverTx =
         DeliverTx
@@ -348,7 +360,7 @@ instance Wrapped DeliverTx where
           , deliverTxInfo = responseDeliverTx ^. PT.info
           , deliverTxGasWanted = responseDeliverTx ^. PT.gasWanted
           , deliverTxGasUsed = responseDeliverTx ^. PT.gasUsed
-          , deliverTxTags = responseDeliverTx ^.. PT.tags . traverse . from kVPair
+          , deliverTxTags = responseDeliverTx ^.. PT.tags . traverse . _Unwrapped'
           , deliverTxCodespace = responseDeliverTx ^. PT.codespace
           }
 
@@ -372,14 +384,14 @@ instance Wrapped EndBlock where
     where
       t EndBlock{..} =
         defMessage
-          & PT.validatorUpdates .~ endBlockValidatorUpdates ^.. traverse . validatorUpdate
-          & PT.maybe'consensusParamUpdates .~ endBlockConsensusParamUpdates ^? _Just . consensusParams
-          & PT.tags .~ endBlockTags ^.. traverse . kVPair
+          & PT.validatorUpdates .~ endBlockValidatorUpdates ^.. traverse . _Wrapped'
+          & PT.maybe'consensusParamUpdates .~ endBlockConsensusParamUpdates ^? _Just . _Wrapped'
+          & PT.tags .~ endBlockTags ^.. traverse . _Wrapped'
       f message =
         EndBlock
-          { endBlockValidatorUpdates = message ^.. PT.validatorUpdates . traverse . from validatorUpdate
-          , endBlockConsensusParamUpdates = message ^? PT.maybe'consensusParamUpdates . _Just . from consensusParams
-          , endBlockTags = message ^.. PT.tags . traverse . from kVPair
+          { endBlockValidatorUpdates = message ^.. PT.validatorUpdates . traverse . _Unwrapped'
+          , endBlockConsensusParamUpdates = message ^? PT.maybe'consensusParamUpdates . _Just . _Unwrapped'
+          , endBlockTags = message ^.. PT.tags . traverse . _Unwrapped'
           }
 
 --------------------------------------------------------------------------------
@@ -413,12 +425,12 @@ data Exception = Exception
   } deriving (Eq, Show, Generic)
 
 exception :: Iso' Exception PT.ResponseException
-exception = iso to from
+exception = iso t f
   where
-    to Exception{..} =
+    t Exception{..} =
       defMessage
         & PT.error .~ exceptionError
-    from responseException =
+    f responseException =
       Exception
         { exceptionError = responseException ^. PT.error
         }

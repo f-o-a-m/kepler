@@ -5,7 +5,6 @@ import           Control.Lens
                                                                                    iso,
                                                                                    mapped,
                                                                                    over,
-                                                                                   from,
                                                                                    traverse,
                                                                                    view,
                                                                                    (%~),
@@ -15,6 +14,9 @@ import           Control.Lens
                                                                                    (^..),
                                                                                    (^?),
                                                                                    _Just)
+import           Control.Lens.Wrapped
+                                                                                   (Wrapped (..),
+                                                                                   _Unwrapped')
 import           Data.ByteString
                                                                                    (ByteString)
 import           Data.Int
@@ -44,21 +46,23 @@ import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields  
 data Timestamp =
   Timestamp DiffTime deriving (Eq, Show, Generic)
 
-timestamp :: Iso' Timestamp T.Timestamp
-timestamp = iso t f
-  where
-    tenToTwelth = 1000000000000
-    tenToThird = 1000
-    t (Timestamp t) =
-      let ps = diffTimeToPicoseconds t
-          s = ps `div` tenToTwelth
-          ns = (ps - s * tenToTwelth) `div` tenToThird
-      in defMessage & T.seconds .~ fromInteger s
-                    & T.nanos .~ fromInteger ns
-    f ts =
-      let ps1 = toInteger (ts ^. T.seconds) * tenToTwelth
-          ps2 = toInteger (ts ^. T.nanos) * tenToThird
-      in Timestamp . picosecondsToDiffTime $ ps1 + ps2
+instance Wrapped Timestamp where
+  type Unwrapped Timestamp = T.Timestamp
+
+  _Wrapped' = iso t f
+    where
+      tenToTwelth = 1000000000000
+      tenToThird = 1000
+      t (Timestamp t) =
+        let ps = diffTimeToPicoseconds t
+            s = ps `div` tenToTwelth
+            ns = (ps - s * tenToTwelth) `div` tenToThird
+        in defMessage & T.seconds .~ fromInteger s
+                      & T.nanos .~ fromInteger ns
+      f ts =
+        let ps1 = toInteger (ts ^. T.seconds) * tenToTwelth
+            ps2 = toInteger (ts ^. T.nanos) * tenToThird
+        in Timestamp . picosecondsToDiffTime $ ps1 + ps2
 
 data BlockSizeParams = BlockSizeParams
   { blockSizeParamsMaxBytes :: Int64
@@ -67,47 +71,56 @@ data BlockSizeParams = BlockSizeParams
   -- ^ Max sum of GasWanted in a proposed block.
   } deriving (Eq, Show, Generic)
 
-blockSizeParams :: Iso' BlockSizeParams PT.BlockSizeParams
-blockSizeParams = iso t f
-  where
-    t BlockSizeParams{..} =
-      defMessage & PT.maxBytes .~ blockSizeParamsMaxBytes
-                 & PT.maxGas .~ blockSizeParamsMaxGas
-    f a =
-      BlockSizeParams
-        { blockSizeParamsMaxBytes = a ^. PT.maxBytes
-        , blockSizeParamsMaxGas = a ^. PT.maxGas
-        }
+instance Wrapped BlockSizeParams where
+  type Unwrapped BlockSizeParams = PT.BlockSizeParams
+
+  _Wrapped' = iso t f
+    where
+      t BlockSizeParams{..} =
+        defMessage
+          & PT.maxBytes .~ blockSizeParamsMaxBytes
+          & PT.maxGas .~ blockSizeParamsMaxGas
+      f a =
+        BlockSizeParams
+          { blockSizeParamsMaxBytes = a ^. PT.maxBytes
+          , blockSizeParamsMaxGas = a ^. PT.maxGas
+          }
 
 data EvidenceParams = EvidenceParams
   { evidenceParamsMaxAge :: Int64
   -- ^ Max age of evidence, in blocks.
   } deriving (Eq, Show, Generic)
 
-evidenceParams :: Iso' EvidenceParams PT.EvidenceParams
-evidenceParams = iso t f
-  where
-    t EvidenceParams{..} =
-      defMessage & PT.maxAge .~ evidenceParamsMaxAge
-    f a =
-      EvidenceParams
-        { evidenceParamsMaxAge = a ^. PT.maxAge
-        }
+instance Wrapped EvidenceParams where
+  type Unwrapped EvidenceParams = PT.EvidenceParams
+
+  _Wrapped' = iso t f
+    where
+      t EvidenceParams{..} =
+        defMessage
+          & PT.maxAge .~ evidenceParamsMaxAge
+      f a =
+        EvidenceParams
+          { evidenceParamsMaxAge = a ^. PT.maxAge
+          }
 
 data ValidatorParams = ValidatorParams
   { validatorParamsPubKeyTypes :: [Text]
   -- ^ List of accepted pubkey types
   } deriving (Eq, Show, Generic)
 
-validatorParams :: Iso' ValidatorParams PT.ValidatorParams
-validatorParams = iso t f
-  where
-    t ValidatorParams{..} =
-      defMessage & PT.pubKeyTypes .~ validatorParamsPubKeyTypes
-    f a =
-      ValidatorParams
-        { validatorParamsPubKeyTypes = a ^. PT.pubKeyTypes
-        }
+instance Wrapped ValidatorParams where
+  type Unwrapped ValidatorParams = PT.ValidatorParams
+
+  _Wrapped' = iso t f
+    where
+      t ValidatorParams{..} =
+        defMessage
+          & PT.pubKeyTypes .~ validatorParamsPubKeyTypes
+      f a =
+        ValidatorParams
+          { validatorParamsPubKeyTypes = a ^. PT.pubKeyTypes
+          }
 
 data ConsensusParams = ConsensusParams
   { consensusParamsBlockSize :: Maybe BlockSizeParams
@@ -118,19 +131,22 @@ data ConsensusParams = ConsensusParams
   -- ^ Parameters limitng the types of pubkeys validators can use.
   } deriving (Eq, Show, Generic)
 
-consensusParams :: Iso' ConsensusParams PT.ConsensusParams
-consensusParams = iso t f
-  where
-    t ConsensusParams{..} =
-      defMessage & PT.maybe'blockSize .~ consensusParamsBlockSize ^? _Just . blockSizeParams
-                 & PT.maybe'evidence .~ consensusParamsEvidence ^? _Just . evidenceParams
-                 & PT.maybe'validator .~ consensusParamsValidator ^? _Just . validatorParams
-    f a =
-      ConsensusParams
-        { consensusParamsBlockSize = a ^? PT.maybe'blockSize . _Just . from blockSizeParams
-        , consensusParamsEvidence =  a ^? PT.maybe'evidence . _Just . from evidenceParams
-        , consensusParamsValidator =  a ^? PT.maybe'validator . _Just . from validatorParams
-        }
+instance Wrapped ConsensusParams where
+  type Unwrapped ConsensusParams =  PT.ConsensusParams
+
+  _Wrapped' = iso t f
+    where
+      t ConsensusParams{..} =
+        defMessage
+          & PT.maybe'blockSize .~ consensusParamsBlockSize ^? _Just . _Wrapped'
+          & PT.maybe'evidence .~ consensusParamsEvidence ^? _Just . _Wrapped'
+          & PT.maybe'validator .~ consensusParamsValidator ^? _Just . _Wrapped'
+      f a =
+        ConsensusParams
+          { consensusParamsBlockSize = a ^? PT.maybe'blockSize . _Just . _Unwrapped'
+          , consensusParamsEvidence =  a ^? PT.maybe'evidence . _Just . _Unwrapped'
+          , consensusParamsValidator =  a ^? PT.maybe'validator . _Just . _Unwrapped'
+          }
 
 data PubKey = PubKey
   { pubKeyType :: Text
@@ -139,17 +155,20 @@ data PubKey = PubKey
   -- ^ Public key data.
   } deriving (Eq, Show, Generic)
 
-pubKey :: Iso' PubKey PT.PubKey
-pubKey = iso t f
-  where
-    t PubKey{..} = defMessage & PT.type' .~ pubKeyType
-                               & PT.data' .~ pubKeyData
+instance Wrapped PubKey where
+  type Unwrapped PubKey = PT.PubKey
 
-    f a =
-      PubKey
-        { pubKeyType = a ^. PT.type'
-        , pubKeyData = a ^. PT.data'
-        }
+  _Wrapped' = iso t f
+    where
+      t PubKey{..} =
+        defMessage
+          & PT.type' .~ pubKeyType
+          & PT.data' .~ pubKeyData
+      f a =
+        PubKey
+          { pubKeyType = a ^. PT.type'
+          , pubKeyData = a ^. PT.data'
+          }
 
 data ValidatorUpdate = ValidatorUpdate
   { validatorUpdatePubKey :: Maybe PubKey
@@ -158,17 +177,20 @@ data ValidatorUpdate = ValidatorUpdate
   -- ^ Voting power of the validator
   } deriving (Eq, Show, Generic)
 
-validatorUpdate :: Iso' ValidatorUpdate PT.ValidatorUpdate
-validatorUpdate = iso t f
-  where
-    t ValidatorUpdate{..} =
-      defMessage & PT.maybe'pubKey .~ validatorUpdatePubKey ^? _Just . pubKey
-                 & PT.power .~ validatorUpdatePower
-    f a =
-      ValidatorUpdate
-        { validatorUpdatePubKey = a ^? PT.maybe'pubKey . _Just . from pubKey
-        , validatorUpdatePower = a ^. PT.power
-        }
+instance Wrapped ValidatorUpdate where
+  type Unwrapped ValidatorUpdate = PT.ValidatorUpdate
+
+  _Wrapped' = iso t f
+    where
+      t ValidatorUpdate{..} =
+        defMessage
+          & PT.maybe'pubKey .~ validatorUpdatePubKey ^? _Just . _Wrapped'
+          & PT.power .~ validatorUpdatePower
+      f a =
+        ValidatorUpdate
+          { validatorUpdatePubKey = a ^? PT.maybe'pubKey . _Just . _Unwrapped'
+          , validatorUpdatePower = a ^. PT.power
+          }
 
 data Validator = Validator
   { validatorAddress :: ByteString
@@ -177,17 +199,20 @@ data Validator = Validator
   -- ^ Voting power of the validator
   } deriving (Eq, Show, Generic)
 
-validator :: Iso' Validator PT.Validator
-validator = iso t f
-  where
-    t Validator{..} =
-      defMessage & PT.address .~ validatorAddress
-                 & PT.power .~ validatorPower
-    f a =
-      Validator
-        { validatorAddress = a ^. PT.address
-        , validatorPower = a ^. PT.power
-        }
+instance Wrapped Validator where
+  type Unwrapped Validator = PT.Validator
+
+  _Wrapped' = iso t f
+    where
+      t Validator{..} =
+        defMessage
+          & PT.address .~ validatorAddress
+          & PT.power .~ validatorPower
+      f a =
+        Validator
+          { validatorAddress = a ^. PT.address
+          , validatorPower = a ^. PT.power
+          }
 
 data VoteInfo = VoteInfo
   { voteInfoValidator       :: Maybe Validator
@@ -196,17 +221,20 @@ data VoteInfo = VoteInfo
   -- ^ Indicates whether or not the validator signed the last block
   } deriving (Eq, Show, Generic)
 
-voteInfo :: Iso' VoteInfo PT.VoteInfo
-voteInfo = iso t f
-  where
-    t VoteInfo{..} =
-      defMessage & PT.maybe'validator .~ voteInfoValidator ^? _Just . validator
-                 & PT.signedLastBlock .~ voteInfoSignedLastBlock
-    f voteInfo =
-      VoteInfo
-        { voteInfoValidator = voteInfo ^? PT.maybe'validator . _Just . from validator
-        , voteInfoSignedLastBlock = voteInfo ^. PT.signedLastBlock
-        }
+instance Wrapped VoteInfo where
+  type Unwrapped VoteInfo = PT.VoteInfo
+
+  _Wrapped' = iso t f
+    where
+      t VoteInfo{..} =
+        defMessage
+          & PT.maybe'validator .~ voteInfoValidator ^? _Just . _Wrapped'
+          & PT.signedLastBlock .~ voteInfoSignedLastBlock
+      f voteInfo =
+        VoteInfo
+          { voteInfoValidator = voteInfo ^? PT.maybe'validator . _Just . _Unwrapped'
+          , voteInfoSignedLastBlock = voteInfo ^. PT.signedLastBlock
+          }
 
 data LastCommitInfo = LastCommitInfo
   { lastCommitInfoRound :: Int32
@@ -216,17 +244,20 @@ data LastCommitInfo = LastCommitInfo
   -- power and whether or not they signed a vote.
   } deriving (Eq, Show, Generic)
 
-lastCommitInfo :: Iso' LastCommitInfo PT.LastCommitInfo
-lastCommitInfo = iso t f
-  where
-    t LastCommitInfo{..} =
-      defMessage & PT.round .~ lastCommitInfoRound
-                 & PT.votes .~ lastCommitInfoVotes ^.. traverse . voteInfo
-    f a =
-      LastCommitInfo
-        { lastCommitInfoRound = a ^. PT.round
-        , lastCommitInfoVotes = a ^.. PT.votes . traverse . from voteInfo
-        }
+instance Wrapped LastCommitInfo where
+  type Unwrapped LastCommitInfo = PT.LastCommitInfo
+
+  _Wrapped' = iso t f
+    where
+      t LastCommitInfo{..} =
+        defMessage
+          & PT.round .~ lastCommitInfoRound
+          & PT.votes .~ lastCommitInfoVotes ^.. traverse . _Wrapped'
+      f a =
+        LastCommitInfo
+          { lastCommitInfoRound = a ^. PT.round
+          , lastCommitInfoVotes = a ^.. PT.votes . traverse . _Unwrapped'
+          }
 
 data PartSetHeader = PartSetHeader
   { partSetHeaderTotal :: Int32
@@ -235,16 +266,19 @@ data PartSetHeader = PartSetHeader
   -- ^ Merkle root hash of those pieces
   } deriving (Eq, Show, Generic)
 
-partSetHeader :: Iso' PartSetHeader PT.PartSetHeader
-partSetHeader = iso t f
-  where
-    t PartSetHeader{..} =
-      defMessage & PT.total .~ partSetHeaderTotal
-                 & PT.hash .~ partSetHeaderHash
-    f a =
-      PartSetHeader { partSetHeaderTotal = a ^. PT.total
-                    , partSetHeaderHash = a ^. PT.hash
-                    }
+instance Wrapped PartSetHeader where
+  type Unwrapped PartSetHeader = PT.PartSetHeader
+
+  _Wrapped' = iso t f
+    where
+      t PartSetHeader{..} =
+        defMessage
+          & PT.total .~ partSetHeaderTotal
+          & PT.hash .~ partSetHeaderHash
+      f a =
+        PartSetHeader { partSetHeaderTotal = a ^. PT.total
+                      , partSetHeaderHash = a ^. PT.hash
+                      }
 
 data BlockID = BlockID
   { blockIDHash        :: ByteString
@@ -253,17 +287,20 @@ data BlockID = BlockID
   -- ^ PartSetHeader (used internally, for clients this is basically opaque).
   } deriving (Eq, Show, Generic)
 
-blockID :: Iso' BlockID PT.BlockID
-blockID = iso t f
-  where
-    t BlockID{..} =
-      defMessage & PT.hash .~ blockIDHash
-                 & PT.maybe'partsHeader .~ blockIDPartsHeader ^? _Just . partSetHeader
-    f a =
-      BlockID
-        { blockIDHash = a ^. PT.hash
-        , blockIDPartsHeader = a ^? PT.maybe'partsHeader . _Just . from partSetHeader
-        }
+instance Wrapped BlockID where
+  type Unwrapped BlockID = PT.BlockID
+
+  _Wrapped' = iso t f
+    where
+      t BlockID{..} =
+        defMessage
+          & PT.hash .~ blockIDHash
+          & PT.maybe'partsHeader .~ blockIDPartsHeader ^? _Just . _Wrapped'
+      f a =
+        BlockID
+          { blockIDHash = a ^. PT.hash
+          , blockIDPartsHeader = a ^? PT.maybe'partsHeader . _Just . _Unwrapped'
+          }
 
 data Version = Version
   { versionBlock :: Word64
@@ -272,17 +309,20 @@ data Version = Version
   -- ^ Protocol version of the application.
   } deriving (Eq, Show, Generic)
 
-version :: Iso' Version PT.Version
-version = iso t f
-  where
-    t Version{..} =
-      defMessage & PT.block .~ versionBlock
-                 & PT.app .~ versionApp
-    f a =
-      Version
-        { versionBlock = a ^. PT.block
-        , versionApp = a ^. PT.app
-        }
+instance Wrapped Version where
+  type Unwrapped Version = PT.Version
+
+  _Wrapped' = iso t f
+    where
+      t Version{..} =
+        defMessage
+          & PT.block .~ versionBlock
+          & PT.app .~ versionApp
+      f a =
+        Version
+          { versionBlock = a ^. PT.block
+          , versionApp = a ^. PT.app
+          }
 
 data Header = Header
   { headerVersion            :: Maybe Version
@@ -319,46 +359,48 @@ data Header = Header
   -- ^ Original proposer for the block
   } deriving (Eq, Show, Generic)
 
+instance Wrapped Header where
+  type Unwrapped Header = PT.Header
 
-header :: Iso' Header PT.Header
-header = iso t f
-  where
-    t Header{..} =
-      defMessage & PT.maybe'version .~ headerVersion ^? _Just . version
-                 & PT.chainId .~ headerChainId
-                 & PT.height .~ headerHeight
-                 & PT.maybe'time .~ headerTime ^? _Just . timestamp
-                 & PT.numTxs .~ headerNumTxs
-                 & PT.totalTxs .~ headerTotalTxs
-                 & PT.lastBlockId .~ headerLastBlockId ^. blockID
-                 & PT.lastCommitHash .~ headerLastCommitHash
-                 & PT.dataHash .~ headerDataHash
-                 & PT.validatorsHash .~ headerValidatorsHash
-                 & PT.nextValidatorsHash .~ headerNextValidatorsHash
-                 & PT.consensusHash .~ headerConsensusHash
-                 & PT.appHash .~ headerAppHash
-                 & PT.lastResultsHash .~ headerLastResultsHash
-                 & PT.evidenceHash .~ headerEvidenceHash
-                 & PT.proposerAddress .~ headerProposerAddress
-    f a =
-      Header
-        { headerVersion = a ^? PT.maybe'version . _Just . from version
-        , headerChainId = a ^. PT.chainId
-        , headerHeight = a ^. PT.height
-        , headerTime = a ^? PT.maybe'time . _Just . from timestamp
-        , headerNumTxs = a ^. PT.numTxs
-        , headerTotalTxs = a ^. PT.totalTxs
-        , headerLastBlockId = a ^. PT.lastBlockId. from blockID
-        , headerLastCommitHash = a ^. PT.lastCommitHash
-        , headerDataHash = a ^. PT.dataHash
-        , headerValidatorsHash = a ^. PT.validatorsHash
-        , headerNextValidatorsHash = a ^. PT.nextValidatorsHash
-        , headerConsensusHash = a ^. PT.consensusHash
-        , headerAppHash = a ^. PT.appHash
-        , headerLastResultsHash = a ^. PT.lastResultsHash
-        , headerEvidenceHash = a ^. PT.evidenceHash
-        , headerProposerAddress = a ^. PT.proposerAddress
-        }
+  _Wrapped' = iso t f
+    where
+      t Header{..} =
+        defMessage
+          & PT.maybe'version .~ headerVersion ^? _Just . _Wrapped'
+          & PT.chainId .~ headerChainId
+          & PT.height .~ headerHeight
+          & PT.maybe'time .~ headerTime ^? _Just . _Wrapped'
+          & PT.numTxs .~ headerNumTxs
+          & PT.totalTxs .~ headerTotalTxs
+          & PT.lastBlockId .~ headerLastBlockId ^. _Wrapped'
+          & PT.lastCommitHash .~ headerLastCommitHash
+          & PT.dataHash .~ headerDataHash
+          & PT.validatorsHash .~ headerValidatorsHash
+          & PT.nextValidatorsHash .~ headerNextValidatorsHash
+          & PT.consensusHash .~ headerConsensusHash
+          & PT.appHash .~ headerAppHash
+          & PT.lastResultsHash .~ headerLastResultsHash
+          & PT.evidenceHash .~ headerEvidenceHash
+          & PT.proposerAddress .~ headerProposerAddress
+      f a =
+        Header
+          { headerVersion = a ^? PT.maybe'version . _Just . _Unwrapped'
+          , headerChainId = a ^. PT.chainId
+          , headerHeight = a ^. PT.height
+          , headerTime = a ^? PT.maybe'time . _Just . _Unwrapped'
+          , headerNumTxs = a ^. PT.numTxs
+          , headerTotalTxs = a ^. PT.totalTxs
+          , headerLastBlockId = a ^. PT.lastBlockId . _Unwrapped'
+          , headerLastCommitHash = a ^. PT.lastCommitHash
+          , headerDataHash = a ^. PT.dataHash
+          , headerValidatorsHash = a ^. PT.validatorsHash
+          , headerNextValidatorsHash = a ^. PT.nextValidatorsHash
+          , headerConsensusHash = a ^. PT.consensusHash
+          , headerAppHash = a ^. PT.appHash
+          , headerLastResultsHash = a ^. PT.lastResultsHash
+          , headerEvidenceHash = a ^. PT.evidenceHash
+          , headerProposerAddress = a ^. PT.proposerAddress
+          }
 
 data Evidence = Evidence
   { evidenceType             :: Text
@@ -373,24 +415,26 @@ data Evidence = Evidence
   -- ^ Total voting power of the validator set at height Height
   } deriving (Eq, Show, Generic)
 
-evidence :: Iso' Evidence PT.Evidence
-evidence = iso t f
-  where
-    t Evidence{..} =
-      defMessage & PT.type' .~ evidenceType
-                 & PT.maybe'validator .~ evidenceValidator ^? _Just . validator
-                 & PT.height .~ evidenceHeight
-                 & PT.maybe'time .~ evidenceTime ^? _Just . timestamp
-                 & PT.totalVotingPower .~ evidenceTotalVotingPower
-    f a =
-      Evidence
-        { evidenceType = a ^. PT.type'
-        , evidenceValidator = a ^? PT.maybe'validator . _Just . from validator
-        , evidenceHeight = a ^. PT.height
-        , evidenceTime = a ^? PT.maybe'time . _Just . from timestamp
-        , evidenceTotalVotingPower = a ^. PT.totalVotingPower
-        }
+instance Wrapped Evidence where
+  type Unwrapped Evidence = PT.Evidence
 
+  _Wrapped' = iso t f
+    where
+      t Evidence{..} =
+        defMessage
+          & PT.type' .~ evidenceType
+          & PT.maybe'validator .~ evidenceValidator ^? _Just . _Wrapped'
+          & PT.height .~ evidenceHeight
+          & PT.maybe'time .~ evidenceTime ^? _Just . _Wrapped'
+          & PT.totalVotingPower .~ evidenceTotalVotingPower
+      f a =
+        Evidence
+          { evidenceType = a ^. PT.type'
+          , evidenceValidator = a ^? PT.maybe'validator . _Just . _Unwrapped'
+          , evidenceHeight = a ^. PT.height
+          , evidenceTime = a ^? PT.maybe'time . _Just . _Unwrapped'
+          , evidenceTotalVotingPower = a ^. PT.totalVotingPower
+          }
 
 data KVPair = KVPair
   { kVPairKey   :: ByteString
@@ -399,18 +443,20 @@ data KVPair = KVPair
   -- ^ value
   } deriving (Eq, Show, Generic)
 
-kVPair :: Iso' KVPair CT.KVPair
-kVPair = iso t f
-  where
-    t KVPair{..} =
-      defMessage
-        & CT.key .~ kVPairKey
-        & CT.value .~ kVPairValue
-    f a =
-      KVPair
-        { kVPairKey = a ^. CT.key
-        , kVPairValue = a ^. CT.value
-        }
+instance Wrapped KVPair where
+  type Unwrapped KVPair = CT.KVPair
+
+  _Wrapped' = iso t f
+    where
+      t KVPair{..} =
+        defMessage
+          & CT.key .~ kVPairKey
+          & CT.value .~ kVPairValue
+      f a =
+        KVPair
+          { kVPairKey = a ^. CT.key
+          , kVPairValue = a ^. CT.value
+          }
 
 
 data Proof = Proof
@@ -418,16 +464,18 @@ data Proof = Proof
   -- ^ List of chained Merkle proofs, of possibly different types
   } deriving (Eq, Show, Generic)
 
-proof :: Iso' Proof MT.Proof
-proof = iso t f
-  where
-    t Proof{..} =
-      defMessage
-        & MT.ops .~ proofOps ^.. traverse . proofOp
-    f a =
-      Proof
-        { proofOps = a ^.. MT.ops . traverse . from proofOp
-        }
+instance Wrapped Proof where
+  type Unwrapped Proof = MT.Proof
+
+  _Wrapped' = iso t f
+    where
+      t Proof{..} =
+        defMessage
+          & MT.ops .~ proofOps ^.. traverse . _Wrapped'
+      f a =
+        Proof
+          { proofOps = a ^.. MT.ops . traverse . _Unwrapped'
+          }
 
 
 data ProofOp = ProofOp
@@ -439,18 +487,20 @@ data ProofOp = ProofOp
   -- ^ Encoded Merkle proof for the key.
   } deriving (Eq, Show, Generic)
 
-proofOp :: Iso' ProofOp MT.ProofOp
-proofOp = iso t f
-  where
-    t ProofOp{..} =
-      defMessage
-        & MT.type' .~ proofOpType
-        & MT.key .~ proofOpKey
-        & MT.data' .~ proofOpData
-    f a =
-      ProofOp
-        { proofOpType = a ^. MT.type'
-        , proofOpKey = a ^. MT.key
-        , proofOpData = a ^. MT.data'
-        }
+instance Wrapped ProofOp where
+  type Unwrapped ProofOp = MT.ProofOp
+
+  _Wrapped' = iso t f
+    where
+      t ProofOp{..} =
+        defMessage
+          & MT.type' .~ proofOpType
+          & MT.key .~ proofOpKey
+          & MT.data' .~ proofOpData
+      f a =
+        ProofOp
+          { proofOpType = a ^. MT.type'
+          , proofOpKey = a ^. MT.key
+          , proofOpData = a ^. MT.data'
+          }
 

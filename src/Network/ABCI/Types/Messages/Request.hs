@@ -18,25 +18,22 @@ module Network.ABCI.Types.Messages.Request
 
 import           Control.Lens                           (Iso', iso, traverse,
                                                          (&), (.~), (^.), (^..),
-                                                         (^?), _Just, from)
-import           Control.Lens.Wrapped                   (Wrapped(..))
+                                                         (^?), _Just)
+import           Control.Lens.Wrapped                   (Wrapped (..),
+                                                         _Unwrapped')
 import           Data.ByteString                        (ByteString)
 import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word64)
 import           GHC.Generics                           (Generic)
-import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams(..),
-                                                         Evidence(..), Header(..),
-                                                         LastCommitInfo(..),
-                                                         Timestamp(..),
-                                                         ValidatorUpdate(..),
-                                                         consensusParams,
-                                                         evidence, header,
-                                                         lastCommitInfo,
-                                                         timestamp,
-                                                         validatorUpdate)
-import           Network.ABCI.Types.Messages.Types      (MessageType(..))
+import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
+                                                         Evidence (..),
+                                                         Header (..),
+                                                         LastCommitInfo (..),
+                                                         Timestamp (..),
+                                                         ValidatorUpdate (..))
+import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
@@ -71,7 +68,8 @@ instance Wrapped Echo where
   _Wrapped' = iso t f
     where
       t Echo{..} =
-        defMessage & PT.message .~ echoMessage
+        defMessage
+          & PT.message .~ echoMessage
       f message =
         Echo
           { echoMessage = message ^. PT.message
@@ -111,9 +109,10 @@ instance Wrapped Info where
   _Wrapped' = iso t f
     where
       t Info{..} =
-        defMessage & PT.version .~ infoVersion
-                   & PT.blockVersion .~ infoBlockVersion
-                   & PT.p2pVersion .~ infoP2pVersion
+        defMessage
+          & PT.version .~ infoVersion
+          & PT.blockVersion .~ infoBlockVersion
+          & PT.p2pVersion .~ infoP2pVersion
       f message =
         Info
           { infoVersion = message ^. PT.version
@@ -138,8 +137,9 @@ instance Wrapped SetOption where
   _Wrapped' = iso t f
     where
       t SetOption{..} =
-        defMessage & PT.key .~ setOptionKey
-                   & PT.value .~ setOptionValue
+        defMessage
+          & PT.key .~ setOptionKey
+          & PT.value .~ setOptionValue
       f message =
         SetOption
           { setOptionKey = message ^. PT.key
@@ -169,17 +169,18 @@ instance Wrapped InitChain where
   _Wrapped' = iso t f
     where
       t InitChain{..} =
-        defMessage & PT.maybe'time .~ initChainTime ^? _Just . timestamp
-                   & PT.chainId .~ initChainChainId
-                   & PT.maybe'consensusParams .~ initChainConsensusParams ^? _Just . consensusParams
-                   & PT.validators .~ initChainValidators ^.. traverse . validatorUpdate
-                   & PT.appStateBytes .~ initChainAppState
+        defMessage
+          & PT.maybe'time .~ initChainTime ^? _Just . _Wrapped'
+          & PT.chainId .~ initChainChainId
+          & PT.maybe'consensusParams .~ initChainConsensusParams ^? _Just . _Wrapped'
+          & PT.validators .~ initChainValidators ^.. traverse . _Wrapped'
+          & PT.appStateBytes .~ initChainAppState
       f message =
         InitChain
-          { initChainTime = message ^? PT.maybe'time . _Just . from timestamp
+          { initChainTime = message ^? PT.maybe'time . _Just . _Unwrapped'
           , initChainChainId = message ^. PT.chainId
-          , initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . from consensusParams
-          , initChainValidators = message ^.. PT.validators . traverse . from validatorUpdate
+          , initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . _Unwrapped'
+          , initChainValidators = message ^.. PT.validators . traverse . _Unwrapped'
           , initChainAppState = message ^. PT.appStateBytes
           }
 
@@ -204,10 +205,11 @@ instance Wrapped Query where
   _Wrapped' = iso t f
     where
       t Query{..} =
-        defMessage & PT.data' .~ queryData
-                   & PT.path .~ queryPath
-                   & PT.height .~ queryHeight
-                   & PT.prove .~ queryProve
+        defMessage
+          & PT.data' .~ queryData
+          & PT.path .~ queryPath
+          & PT.height .~ queryHeight
+          & PT.prove .~ queryProve
       f message =
         Query
           { queryData = message ^. PT.data'
@@ -238,16 +240,17 @@ instance Wrapped BeginBlock where
   _Wrapped' = iso t f
     where
       t BeginBlock{..} =
-        defMessage & PT.hash .~ beginBlockHash
-                   & PT.maybe'header .~ beginBlockHeader ^? _Just . header
-                   & PT.maybe'lastCommitInfo .~ beginBlockLastCommitInfo ^? _Just . lastCommitInfo
-                   & PT.byzantineValidators .~ beginBlockByzantineValidators ^.. traverse . evidence
+        defMessage
+          & PT.hash .~ beginBlockHash
+          & PT.maybe'header .~ beginBlockHeader ^? _Just . _Wrapped'
+          & PT.maybe'lastCommitInfo .~ beginBlockLastCommitInfo ^? _Just . _Wrapped'
+          & PT.byzantineValidators .~ beginBlockByzantineValidators ^.. traverse . _Wrapped'
       f message =
         BeginBlock
           { beginBlockHash = message ^. PT.hash
-          , beginBlockHeader = message ^? PT.maybe'header . _Just . from header
-          , beginBlockLastCommitInfo = message ^? PT.maybe'lastCommitInfo . _Just . from lastCommitInfo
-          , beginBlockByzantineValidators = message ^.. PT.byzantineValidators . traverse . from evidence
+          , beginBlockHeader = message ^? PT.maybe'header . _Just . _Unwrapped'
+          , beginBlockLastCommitInfo = message ^? PT.maybe'lastCommitInfo . _Just . _Unwrapped'
+          , beginBlockByzantineValidators = message ^.. PT.byzantineValidators . traverse . _Unwrapped'
           }
 
 --------------------------------------------------------------------------------
