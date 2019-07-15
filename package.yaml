@@ -31,6 +31,10 @@ default-extensions:
 - RecordWildCards
 - FlexibleContexts
 - DeriveGeneric
+- TypeFamilies
+- GADTs
+- DataKinds
+- PolyKinds
 
 
 dependencies:
