@@ -96,12 +96,13 @@ instance Wrapped Info where
         & PT.lastBlockHeight .~ infoLastBlockHeight
         & PT.lastBlockAppHash .~ infoLastBlockAppHash
      f message =
-       Info { infoData = message ^. PT.data'
-            , infoVersion = message ^. PT.version
-            , infoAppVersion = message ^. PT.appVersion
-            , infoLastBlockHeight = message ^. PT.lastBlockHeight
-            , infoLastBlockAppHash = message ^. PT.lastBlockAppHash
-            }
+       Info
+         { infoData = message ^. PT.data'
+         , infoVersion = message ^. PT.version
+         , infoAppVersion = message ^. PT.appVersion
+         , infoLastBlockHeight = message ^. PT.lastBlockHeight
+         , infoLastBlockAppHash = message ^. PT.lastBlockAppHash
+         }
 
 --------------------------------------------------------------------------------
 -- SetOption
@@ -128,10 +129,11 @@ instance Wrapped SetOption where
           & PT.log .~ setOptionLog
           & PT.info .~ setOptionInfo
       f message =
-        SetOption { setOptionCode = message ^. PT.code
-                  , setOptionLog = message ^. PT.log
-                  , setOptionInfo = message ^. PT.info
-                  }
+        SetOption
+          { setOptionCode = message ^. PT.code
+          , setOptionLog = message ^. PT.log
+          , setOptionInfo = message ^. PT.info
+          }
 
 --------------------------------------------------------------------------------
 -- InitChain
@@ -155,9 +157,10 @@ instance Wrapped InitChain where
           & PT.maybe'consensusParams .~ initChainConsensusParams ^? _Just . consensusParams
           & PT.validators .~ initChainValidators ^.. traverse . validatorUpdate
       f message =
-        InitChain { initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . Lens.from consensusParams
-                  , initChainValidators = message ^.. PT.validators . traverse . Lens.from validatorUpdate
-                  }
+        InitChain
+          { initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . Lens.from consensusParams
+          , initChainValidators = message ^.. PT.validators . traverse . Lens.from validatorUpdate
+          }
 
 --------------------------------------------------------------------------------
 -- Query
@@ -203,16 +206,17 @@ instance Wrapped Query where
           & PT.height .~ queryHeight
           & PT.codespace .~ queryCodespace
       f message =
-        Query { queryCode = message ^. PT.code
-              , queryLog = message ^. PT.log
-              , queryInfo = message ^. PT.info
-              , queryIndex = message ^. PT.index
-              , queryKey = message ^. PT.key
-              , queryValue = message ^. PT.value
-              , queryProof = message ^? PT.maybe'proof . _Just . Lens.from proof
-              , queryHeight = message ^. PT.height
-              , queryCodespace = message ^. PT.codespace
-              }
+        Query
+          { queryCode = message ^. PT.code
+          , queryLog = message ^. PT.log
+          , queryInfo = message ^. PT.info
+          , queryIndex = message ^. PT.index
+          , queryKey = message ^. PT.key
+          , queryValue = message ^. PT.value
+          , queryProof = message ^? PT.maybe'proof . _Just . Lens.from proof
+          , queryHeight = message ^. PT.height
+          , queryCodespace = message ^. PT.codespace
+          }
 
 --------------------------------------------------------------------------------
 -- BeginBlock
@@ -233,8 +237,9 @@ instance Wrapped BeginBlock where
         defMessage
           & PT.tags .~ beginBlockTags ^.. traverse . kVPair
       f message =
-        BeginBlock { beginBlockTags = message ^.. PT.tags . traverse . Lens.from kVPair
-                   }
+        BeginBlock
+          { beginBlockTags = message ^.. PT.tags . traverse . Lens.from kVPair
+          }
 
 --------------------------------------------------------------------------------
 -- CheckTx
@@ -276,15 +281,16 @@ instance Wrapped CheckTx where
           & PT.tags .~ checkTxTags ^.. traverse . kVPair
           & PT.codespace .~ checkTxCodespace
       f message =
-        CheckTx { checkTxCode = message ^. PT.code
-                , checkTxData = message ^. PT.data'
-                , checkTxLog = message ^. PT.log
-                , checkTxInfo = message ^. PT.info
-                , checkTxGasWanted = message ^. PT.gasWanted
-                , checkTxGasUsed = message ^. PT.gasUsed
-                , checkTxTags = message ^.. PT.tags . traverse . Lens.from kVPair
-                , checkTxCodespace = message ^. PT.codespace
-                }
+        CheckTx
+          { checkTxCode = message ^. PT.code
+          , checkTxData = message ^. PT.data'
+          , checkTxLog = message ^. PT.log
+          , checkTxInfo = message ^. PT.info
+          , checkTxGasWanted = message ^. PT.gasWanted
+          , checkTxGasUsed = message ^. PT.gasUsed
+          , checkTxTags = message ^.. PT.tags . traverse . Lens.from kVPair
+          , checkTxCodespace = message ^. PT.codespace
+          }
 
 --------------------------------------------------------------------------------
 -- DeliverTx
@@ -326,15 +332,16 @@ instance Wrapped DeliverTx where
           & PT.tags .~ deliverTxTags ^.. traverse . kVPair
           & PT.codespace .~ deliverTxCodespace
       f responseDeliverTx =
-        DeliverTx { deliverTxCode = responseDeliverTx ^. PT.code
-                  , deliverTxData = responseDeliverTx ^. PT.data'
-                  , deliverTxLog = responseDeliverTx ^. PT.log
-                  , deliverTxInfo = responseDeliverTx ^. PT.info
-                  , deliverTxGasWanted = responseDeliverTx ^. PT.gasWanted
-                  , deliverTxGasUsed = responseDeliverTx ^. PT.gasUsed
-                  , deliverTxTags = responseDeliverTx ^.. PT.tags . traverse . Lens.from kVPair
-                  , deliverTxCodespace = responseDeliverTx ^. PT.codespace
-                  }
+        DeliverTx
+          { deliverTxCode = responseDeliverTx ^. PT.code
+          , deliverTxData = responseDeliverTx ^. PT.data'
+          , deliverTxLog = responseDeliverTx ^. PT.log
+          , deliverTxInfo = responseDeliverTx ^. PT.info
+          , deliverTxGasWanted = responseDeliverTx ^. PT.gasWanted
+          , deliverTxGasUsed = responseDeliverTx ^. PT.gasUsed
+          , deliverTxTags = responseDeliverTx ^.. PT.tags . traverse . Lens.from kVPair
+          , deliverTxCodespace = responseDeliverTx ^. PT.codespace
+          }
 
 --------------------------------------------------------------------------------
 -- EndBlock
@@ -361,10 +368,11 @@ instance Wrapped EndBlock where
           & PT.maybe'consensusParamUpdates .~ endBlockConsensusParamUpdates ^? _Just . consensusParams
           & PT.tags .~ endBlockTags ^.. traverse . kVPair
       f message =
-        EndBlock { endBlockValidatorUpdates = message ^.. PT.validatorUpdates . traverse . Lens.from validatorUpdate
-                 , endBlockConsensusParamUpdates = message ^? PT.maybe'consensusParamUpdates . _Just . Lens.from consensusParams
-                 , endBlockTags = message ^.. PT.tags . traverse . Lens.from kVPair
-                 }
+        EndBlock
+          { endBlockValidatorUpdates = message ^.. PT.validatorUpdates . traverse . Lens.from validatorUpdate
+          , endBlockConsensusParamUpdates = message ^? PT.maybe'consensusParamUpdates . _Just . Lens.from consensusParams
+          , endBlockTags = message ^.. PT.tags . traverse . Lens.from kVPair
+          }
 
 --------------------------------------------------------------------------------
 -- Commit
@@ -385,8 +393,9 @@ instance Wrapped Commit where
         defMessage
           & PT.data' .~ commitData
       f message =
-        Commit { commitData = message ^. PT.data'
-               }
+        Commit
+          { commitData = message ^. PT.data'
+          }
 
 --------------------------------------------------------------------------------
 -- Exception
