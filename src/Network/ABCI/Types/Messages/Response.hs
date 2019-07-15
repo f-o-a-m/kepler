@@ -52,6 +52,7 @@ data Response (m :: MessageType) :: * where
   ResponseCheckTx :: CheckTx -> Response 'MTCheckTx
   ResponseDeliverTx :: DeliverTx -> Response 'MTDeliverTx
   ResponseEndBlock :: EndBlock -> Response 'MTEndBlock
+  ResponseException :: forall (m :: MessageType) . Exception -> Response m
 
 --------------------------------------------------------------------------------
 -- Echo

@@ -35,6 +35,7 @@ default-extensions:
 - GADTs
 - DataKinds
 - PolyKinds
+- RankNTypes
 
 
 dependencies:
