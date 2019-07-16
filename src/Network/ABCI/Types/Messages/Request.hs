@@ -5,6 +5,8 @@ module Network.ABCI.Types.Messages.Request
   , Echo(..)
   , Flush(..)
   , Info(..)
+  , SetOption(..)
+  , InitChain(..)
   , Query(..)
   , BeginBlock(..)
   , CheckTx(..)
@@ -52,6 +54,7 @@ data Request (m :: MessageType) :: * where
   RequestCheckTx :: CheckTx -> Request 'MTCheckTx
   RequestDeliverTx :: DeliverTx -> Request 'MTDeliverTx
   RequestEndBlock :: EndBlock -> Request 'MTEndBlock
+  RequestCommit :: Commit -> Request 'MTCommit
 
 --------------------------------------------------------------------------------
 -- Echo

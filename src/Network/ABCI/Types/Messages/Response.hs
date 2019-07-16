@@ -5,12 +5,15 @@ module Network.ABCI.Types.Messages.Response
   , Echo(..)
   , Flush(..)
   , Info(..)
+  , SetOption(..)
+  , InitChain(..)
   , Query(..)
   , BeginBlock(..)
   , CheckTx(..)
   , DeliverTx(..)
   , EndBlock(..)
   , Commit(..)
+  , Exception(..)
 
   -- * ReExports
   , MessageType(..)
@@ -52,6 +55,7 @@ data Response (m :: MessageType) :: * where
   ResponseCheckTx :: CheckTx -> Response 'MTCheckTx
   ResponseDeliverTx :: DeliverTx -> Response 'MTDeliverTx
   ResponseEndBlock :: EndBlock -> Response 'MTEndBlock
+  ResponseCommit :: Commit -> Response 'MTCommit
   ResponseException :: forall (m :: MessageType) . Exception -> Response m
 
 --------------------------------------------------------------------------------

@@ -43,8 +43,18 @@ import qualified Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Field
 import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types           as CT
 import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields    as CT
 
+-- measured in nanoseconds
 data Timestamp =
   Timestamp DiffTime deriving (Eq, Show, Generic)
+
+mkTimestamp :: DiffTime -> Timestamp
+mkTimestamp ts =
+  let
+    ps = diffTimeToPicoseconds ts
+    tenToThird = 1000
+    nsResolution = (ps `div` tenToThird) * tenToThird
+  in
+    Timestamp $ picosecondsToDiffTime nsResolution
 
 instance Wrapped Timestamp where
   type Unwrapped Timestamp = T.Timestamp
@@ -54,15 +64,19 @@ instance Wrapped Timestamp where
       tenToTwelth = 1000000000000
       tenToThird = 1000
       t (Timestamp t) =
-        let ps = diffTimeToPicoseconds t
-            s = ps `div` tenToTwelth
-            ns = (ps - s * tenToTwelth) `div` tenToThird
-        in defMessage & T.seconds .~ fromInteger s
+        let
+          ps = diffTimeToPicoseconds t
+          s = ps `div` tenToTwelth
+          ns = (ps - s * tenToTwelth) `div` tenToThird
+        in
+          defMessage & T.seconds .~ fromInteger s
                       & T.nanos .~ fromInteger ns
       f ts =
-        let ps1 = toInteger (ts ^. T.seconds) * tenToTwelth
-            ps2 = toInteger (ts ^. T.nanos) * tenToThird
-        in Timestamp . picosecondsToDiffTime $ ps1 + ps2
+        let
+          ps1 = toInteger (ts ^. T.seconds) * tenToTwelth
+          ps2 = toInteger (ts ^. T.nanos) * tenToThird
+        in
+          mkTimestamp . picosecondsToDiffTime $ ps1 + ps2
 
 data BlockSizeParams = BlockSizeParams
   { blockSizeParamsMaxBytes :: Int64
@@ -337,7 +351,7 @@ data Header = Header
   -- ^ Number of transactions in the block
   , headerTotalTxs           :: Int64
   -- ^ Total number of transactions in the blockchain until now
-  , headerLastBlockId        :: BlockID
+  , headerLastBlockId        :: Maybe BlockID
   -- ^ Hash of the previous (parent) block
   , headerLastCommitHash     :: ByteString
   -- ^ Hash of the previous block's commit
@@ -372,7 +386,7 @@ instance Wrapped Header where
           & PT.maybe'time .~ headerTime ^? _Just . _Wrapped'
           & PT.numTxs .~ headerNumTxs
           & PT.totalTxs .~ headerTotalTxs
-          & PT.lastBlockId .~ headerLastBlockId ^. _Wrapped'
+          & PT.maybe'lastBlockId .~ headerLastBlockId ^? _Just . _Wrapped'
           & PT.lastCommitHash .~ headerLastCommitHash
           & PT.dataHash .~ headerDataHash
           & PT.validatorsHash .~ headerValidatorsHash
@@ -390,7 +404,7 @@ instance Wrapped Header where
           , headerTime = a ^? PT.maybe'time . _Just . _Unwrapped'
           , headerNumTxs = a ^. PT.numTxs
           , headerTotalTxs = a ^. PT.totalTxs
-          , headerLastBlockId = a ^. PT.lastBlockId . _Unwrapped'
+          , headerLastBlockId = a ^? PT.maybe'lastBlockId . _Just . _Unwrapped'
           , headerLastCommitHash = a ^. PT.lastCommitHash
           , headerDataHash = a ^. PT.dataHash
           , headerValidatorsHash = a ^. PT.validatorsHash
