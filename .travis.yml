@@ -12,8 +12,14 @@ before_install:
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
 - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+# From https://github.com/google/proto-lens/blob/5ab25dfeb51f700204db4aa8a9e7fbc5a74ed1e9/.travis.yml#L41-L44
+- curl -L https://github.com/protocolbuffers/protobuf/releases/download/v3.7.1/protoc-3.7.1-linux-x86_64.zip > protoc-release.zip
+- unzip -p protoc-release.zip bin/protoc > $HOME/.local/bin/protoc
+- chmod a+x $HOME/.local/bin/protoc
+- rm protoc-release.zip
 install:
 - travis_wait stack --skip-ghc-check setup
 - travis_wait stack --skip-ghc-check install hlint-2.1.10
 script:
 - make hlint
+- make test

@@ -30,7 +30,8 @@ import           Data.Time.Clock
                                                                                    picosecondsToDiffTime)
 import           Data.Word
                                                                                    (Word64)
-import GHC.Generics (Generic)
+import           GHC.Generics
+                                                                                   (Generic)
 import qualified Proto.Types                                                      as PT
 import qualified Proto.Types_Fields                                               as PT
 import qualified Proto.Vendored.Google.Protobuf.Timestamp                         as T
@@ -40,8 +41,19 @@ import qualified Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Field
 import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types           as CT
 import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields    as CT
 
+-- measured in nanoseconds
 data Timestamp =
   Timestamp DiffTime deriving (Eq, Show, Generic)
+
+-- Truncate a DiffTime to the nanosecond
+mkTimestamp :: DiffTime -> Timestamp
+mkTimestamp ts =
+  let
+    ps = diffTimeToPicoseconds ts
+    tenToThird = 1000
+    nsResolution = (ps `div` tenToThird) * tenToThird
+  in
+    Timestamp $ picosecondsToDiffTime nsResolution
 
 timestamp :: Iso' Timestamp T.Timestamp
 timestamp = iso to from
@@ -57,7 +69,7 @@ timestamp = iso to from
     from ts =
       let ps1 = toInteger (ts ^. T.seconds) * tenToTwelth
           ps2 = toInteger (ts ^. T.nanos) * tenToThird
-      in Timestamp . picosecondsToDiffTime $ ps1 + ps2
+      in mkTimestamp . picosecondsToDiffTime $ ps1 + ps2
 
 data BlockSizeParams =
   BlockSizeParams { blockSizeParamsMaxBytes :: Int64
@@ -265,7 +277,7 @@ data Header =
          -- ^ Number of transactions in the block
          , headerTotalTxs           :: Int64
          -- ^ Total number of transactions in the blockchain until now
-         , headerLastBlockId        :: BlockID
+         , headerLastBlockId        :: Maybe BlockID
          -- ^ Hash of the previous (parent) block
          , headerLastCommitHash     :: ByteString
          -- ^ Hash of the previous block's commit
@@ -297,7 +309,7 @@ header = iso to from
                                & PT.maybe'time .~ headerTime ^? _Just . timestamp
                                & PT.numTxs .~ headerNumTxs
                                & PT.totalTxs .~ headerTotalTxs
-                               & PT.lastBlockId .~ headerLastBlockId ^. blockID
+                               & PT.maybe'lastBlockId .~ headerLastBlockId ^? _Just . blockID
                                & PT.lastCommitHash .~ headerLastCommitHash
                                & PT.dataHash .~ headerDataHash
                                & PT.validatorsHash .~ headerValidatorsHash
@@ -313,7 +325,7 @@ header = iso to from
                          , headerTime = header ^? PT.maybe'time . _Just . Lens.from timestamp
                          , headerNumTxs = header ^. PT.numTxs
                          , headerTotalTxs = header ^. PT.totalTxs
-                         , headerLastBlockId = header ^. PT.lastBlockId. Lens.from blockID
+                         , headerLastBlockId = header ^? PT.maybe'lastBlockId . _Just .  Lens.from blockID
                          , headerLastCommitHash = header ^. PT.lastCommitHash
                          , headerDataHash = header ^. PT.dataHash
                          , headerValidatorsHash = header ^. PT.validatorsHash

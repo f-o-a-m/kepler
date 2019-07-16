@@ -31,6 +31,10 @@ default-extensions:
 - RecordWildCards
 - FlexibleContexts
 - DeriveGeneric
+- RankNTypes
+- DataKinds
+- ScopedTypeVariables
+- FlexibleInstances
 
 
 dependencies:
@@ -44,7 +48,12 @@ dependencies:
 
 library:
   source-dirs: src
-  other-modules:
+  exposed-modules:
+  - Lib
+  - Network.ABCI.Types.Messages.Request
+  - Network.ABCI.Types.Messages.Response
+  - Network.ABCI.Types.Messages.FieldTypes
+  generated-exposed-modules:
   - Proto.Types
   - Proto.Types_Fields
   - Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo
@@ -71,9 +80,22 @@ tests:
   hs-abci-server-test:
     main:                Spec.hs
     source-dirs:         test
+    other-modules:
+    - Network.ABCI.Test.Types.Messages.Instances
+    - Network.ABCI.Test.Types.MessagesSpec
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+ 
+
     dependencies:
-    - hs-abci-server
+      - generic-arbitrary
+      - hs-abci-server
+      - hspec
+      - hspec-core
+      - hspec-discover
+      - lens-labels
+      - proto-lens-arbitrary
+      - QuickCheck
+      - quickcheck-instances
