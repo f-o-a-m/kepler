@@ -276,7 +276,7 @@ data Header =
          -- ^ Number of transactions in the block
          , headerTotalTxs           :: Int64
          -- ^ Total number of transactions in the blockchain until now
-         , headerLastBlockId        :: BlockID
+         , headerLastBlockId        :: Maybe BlockID
          -- ^ Hash of the previous (parent) block
          , headerLastCommitHash     :: ByteString
          -- ^ Hash of the previous block's commit
@@ -308,7 +308,7 @@ header = iso to from
                                & PT.maybe'time .~ headerTime ^? _Just . timestamp
                                & PT.numTxs .~ headerNumTxs
                                & PT.totalTxs .~ headerTotalTxs
-                               & PT.lastBlockId .~ headerLastBlockId ^. blockID
+                               & PT.maybe'lastBlockId .~ headerLastBlockId ^? _Just . blockID
                                & PT.lastCommitHash .~ headerLastCommitHash
                                & PT.dataHash .~ headerDataHash
                                & PT.validatorsHash .~ headerValidatorsHash
@@ -324,7 +324,7 @@ header = iso to from
                          , headerTime = header ^? PT.maybe'time . _Just . Lens.from timestamp
                          , headerNumTxs = header ^. PT.numTxs
                          , headerTotalTxs = header ^. PT.totalTxs
-                         , headerLastBlockId = header ^. PT.lastBlockId. Lens.from blockID
+                         , headerLastBlockId = header ^? PT.maybe'lastBlockId . _Just .  Lens.from blockID
                          , headerLastCommitHash = header ^. PT.lastCommitHash
                          , headerDataHash = header ^. PT.dataHash
                          , headerValidatorsHash = header ^. PT.validatorsHash

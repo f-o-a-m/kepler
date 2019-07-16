@@ -10,7 +10,7 @@ import           Network.ABCI.Types.Messages.Request    as Request
 import           Network.ABCI.Types.Messages.Response   as Response
 import           Test.Hspec
 import           Data.ProtoLens.Arbitrary              (ArbitraryMessage(..))
-import           Test.QuickCheck
+import           Test.QuickCheck (Arbitrary, property)
 import qualified Lens.Labels
 import qualified Proto.Types                                                      as PT
 import qualified Proto.Types_Fields                                               as PT
@@ -79,7 +79,7 @@ scrubTimestamp
   -> T.Timestamp
 scrubTimestamp ts =
   ts & T.seconds %~ abs
-     & T.nanos %~ abs . (`mod` 1000000000)
+     & T.nanos %~  (`mod` 1000000000) . abs
 
 scrubTimestampField
   :: Lens.Labels.HasLens' a "time" T.Timestamp
