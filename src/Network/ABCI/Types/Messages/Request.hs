@@ -18,8 +18,8 @@ module Network.ABCI.Types.Messages.Request
   , MessageType(..)
   ) where
 
-import           Control.Lens                           (Iso', iso, traverse,
-                                                         (&), (.~), (^.), (^..),
+import           Control.Lens                           (iso, traverse, (&),
+                                                         (.~), (^.), (^..),
                                                          (^?), _Just)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
@@ -341,5 +341,5 @@ instance Wrapped Commit where
       t Commit =
         defMessage
 
-      f requestCommit =
+      f _ =
         Commit

@@ -52,6 +52,9 @@ dependencies:
 
 library:
   source-dirs: src
+  ghc-options:
+  - -Werror
+  - -Wall
   exposed-modules:
   - Lib
   - Network.ABCI.Types.Messages.Request
@@ -88,6 +91,8 @@ tests:
     - Network.ABCI.Test.Types.Messages.Instances
     - Network.ABCI.Test.Types.MessagesSpec
     ghc-options:
+    - -Werror
+    - -Wall
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N

@@ -1,13 +1,8 @@
 module Network.ABCI.Types.Messages.FieldTypes where
 
 import           Control.Lens
-                                                                                   (Iso',
-                                                                                   iso,
-                                                                                   mapped,
-                                                                                   over,
+                                                                                   (iso,
                                                                                    traverse,
-                                                                                   view,
-                                                                                   (%~),
                                                                                    (&),
                                                                                    (.~),
                                                                                    (^.),
@@ -63,9 +58,9 @@ instance Wrapped Timestamp where
     where
       tenToTwelth = 1000000000000
       tenToThird = 1000
-      t (Timestamp t) =
+      t (Timestamp ts) =
         let
-          ps = diffTimeToPicoseconds t
+          ps = diffTimeToPicoseconds ts
           s = ps `div` tenToTwelth
           ns = (ps - s * tenToTwelth) `div` tenToThird
         in

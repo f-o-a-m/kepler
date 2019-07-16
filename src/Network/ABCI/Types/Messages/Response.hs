@@ -19,8 +19,8 @@ module Network.ABCI.Types.Messages.Response
   , MessageType(..)
   ) where
 
-import           Control.Lens                           (Iso', iso, traverse,
-                                                         (&), (.~), (^.), (^..),
+import           Control.Lens                           (iso, traverse, (&),
+                                                         (.~), (^.), (^..),
                                                          (^?), _Just)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
@@ -31,9 +31,7 @@ import           Data.Text                              (Text)
 import           Data.Word                              (Word32, Word64)
 import           GHC.Generics                           (Generic)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams,
-                                                         Evidence, Header,
-                                                         KVPair, LastCommitInfo,
-                                                         Proof, Timestamp,
+                                                         KVPair, Proof,
                                                          ValidatorUpdate)
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
@@ -94,7 +92,7 @@ instance Wrapped Flush where
     where
       t Flush =
         defMessage
-      f message =
+      f _ =
         Flush
 
 --------------------------------------------------------------------------------
