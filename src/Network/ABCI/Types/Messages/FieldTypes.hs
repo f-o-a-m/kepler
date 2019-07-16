@@ -40,8 +40,19 @@ import qualified Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Field
 import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types           as CT
 import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields    as CT
 
+-- measured in nanoseconds
 data Timestamp =
   Timestamp DiffTime deriving (Eq, Show, Generic)
+
+-- Truncate a DiffTime to the nanosecond
+mkTimestamp :: DiffTime -> Timestamp
+mkTimestamp ts =
+  let
+    ps = diffTimeToPicoseconds ts
+    tenToThird = 1000
+    nsResolution = (ps `div` tenToThird) * tenToThird
+  in
+    Timestamp $ picosecondsToDiffTime nsResolution
 
 timestamp :: Iso' Timestamp T.Timestamp
 timestamp = iso to from
@@ -57,7 +68,7 @@ timestamp = iso to from
     from ts =
       let ps1 = toInteger (ts ^. T.seconds) * tenToTwelth
           ps2 = toInteger (ts ^. T.nanos) * tenToThird
-      in Timestamp . picosecondsToDiffTime $ ps1 + ps2
+      in mkTimestamp . picosecondsToDiffTime $ ps1 + ps2
 
 data BlockSizeParams =
   BlockSizeParams { blockSizeParamsMaxBytes :: Int64

@@ -1,20 +1,32 @@
--- In order to define Arbitrary instances easily we need orphan instances for
--- `Text`, `ByteString` and `DiffTime` which is provided by Test.QuickCheck.Instances
--- because pushing orphans to downstream users of this lib is not a good practice
--- this module shold be published as separate -instances package or something, or
--- we should handwrite those instances which contain `Text`, `ByteString` and `DiffTime`.
-module Network.ABCI.Types.Messages.Instances where
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+module Network.ABCI.Test.Types.Messages.Instances () where
 
-
-import Test.QuickCheck.Instances
+import Control.Lens ((&), (.~))
+import Test.QuickCheck.Instances ()
 
 import Network.ABCI.Types.Messages.FieldTypes as FieldTypes
 import Network.ABCI.Types.Messages.Request    as Request
 import Network.ABCI.Types.Messages.Response   as Response
 import Test.QuickCheck.Arbitrary.Generic      (genericArbitrary)
 import Test.QuickCheck.Arbitrary              (Arbitrary, arbitrary)
+import           Data.ProtoLens.Message                 (Message(..))
+import           Data.ProtoLens.Arbitrary              (ArbitraryMessage(..))
+import qualified Proto.Vendored.Google.Protobuf.Timestamp                         as T
+import qualified Proto.Vendored.Google.Protobuf.Timestamp_Fields                  as T
 
-instance Arbitrary FieldTypes.Timestamp where arbitrary = genericArbitrary
+instance Arbitrary FieldTypes.Timestamp where
+  arbitrary = do
+    Timestamp ts <- genericArbitrary
+    pure $ mkTimestamp $ abs ts
+{-
+instance {-# OVERLAPPING #-} Arbitrary (ArbitraryMessage T.Timestamp) where
+  arbitrary = do
+    (s,ns) <- arbitrary
+    pure . ArbitraryMessage $
+      defMessage & T.seconds .~ abs s
+                 & T.nanos .~ abs ns `mod` 1000000000
+-}
+
 instance Arbitrary FieldTypes.BlockSizeParams where arbitrary = genericArbitrary
 instance Arbitrary FieldTypes.EvidenceParams where arbitrary = genericArbitrary
 instance Arbitrary FieldTypes.ValidatorParams where arbitrary = genericArbitrary
