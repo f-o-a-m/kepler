@@ -115,30 +115,30 @@ scrubByzantineValidatorsTimestampFieldMaybe a =
 spec :: Spec
 spec = do
   describe "Request" $ do
-   isoCheck "echo" Request.echo
-   isoCheck "flush" Request.flush
-   isoCheck "info" Request.info
-   isoCheck "setOption" Request.setOption
-   isoCheck' "initChain" Request.initChain Nothing (Just scrubTimestampFieldMaybe)
-   isoCheck "query" Request.query
-   isoCheck' "beginBlock" Request.beginBlock Nothing (Just $ scrubHeaderTimestampFieldMaybe . scrubByzantineValidatorsTimestampFieldMaybe)
-   isoCheck "checkTx" Request.checkTx
-   isoCheck "deliverTx" Request.deliverTx
-   isoCheck "endBlock" Request.endBlock
-   isoCheck "commit" Request.commit
+    isoCheck "echo" Request.echo
+    isoCheck "flush" Request.flush
+    isoCheck "info" Request.info
+    isoCheck "setOption" Request.setOption
+    isoCheck' "initChain" Request.initChain Nothing (Just scrubTimestampFieldMaybe)
+    isoCheck "query" Request.query
+    isoCheck' "beginBlock" Request.beginBlock Nothing (Just $ scrubHeaderTimestampFieldMaybe . scrubByzantineValidatorsTimestampFieldMaybe)
+    isoCheck "checkTx" Request.checkTx
+    isoCheck "deliverTx" Request.deliverTx
+    isoCheck "endBlock" Request.endBlock
+    isoCheck "commit" Request.commit
   describe "Response" $ do
-     isoCheck "echo" Response.echo
-     isoCheck "flush" Response.flush
-     isoCheck "info" Response.info
-     isoCheck "setOption" Response.setOption
-     isoCheck "initChain" Response.initChain
-     isoCheck "query" Response.query
-     isoCheck "beginBlock" Response.beginBlock
-     isoCheck "checkTx" Response.checkTx
-     isoCheck "deliverTx" Response.deliverTx
-     isoCheck "endBlock" Response.endBlock
-     isoCheck "commit" Response.commit
-     isoCheck "exception" Response.exception
+    isoCheck "echo" Response.echo
+    isoCheck "flush" Response.flush
+    isoCheck "info" Response.info
+    isoCheck "setOption" Response.setOption
+    isoCheck "initChain" Response.initChain
+    isoCheck "query" Response.query
+    isoCheck "beginBlock" Response.beginBlock
+    isoCheck "checkTx" Response.checkTx
+    isoCheck "deliverTx" Response.deliverTx
+    isoCheck "endBlock" Response.endBlock
+    isoCheck "commit" Response.commit
+    isoCheck "exception" Response.exception
   describe "FieldTypes" $ do
     isoCheck' "Timestamp" FT.timestamp Nothing (Just scrubTimestamp)
     isoCheck "BlockSizeParams" FT.blockSizeParams
