@@ -1,17 +1,17 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Network.ABCI.Test.Types.Messages.Instances () where
 
-import           Network.ABCI.Types.Messages.FieldTypes as FieldTypes
-import           Network.ABCI.Types.Messages.Request    as Request
-import           Network.ABCI.Types.Messages.Response   as Response
+import qualified Network.ABCI.Types.Messages.FieldTypes as FieldTypes
+import qualified Network.ABCI.Types.Messages.Request    as Request
+import qualified Network.ABCI.Types.Messages.Response   as Response
 import           Test.QuickCheck.Arbitrary              (Arbitrary, arbitrary)
 import           Test.QuickCheck.Arbitrary.Generic      (genericArbitrary)
 import           Test.QuickCheck.Instances              ()
 
 instance Arbitrary FieldTypes.Timestamp where
   arbitrary = do
-    Timestamp ts <- genericArbitrary
-    pure $ mkTimestamp $ abs ts
+    FieldTypes.Timestamp ts <- genericArbitrary
+    pure $ FieldTypes.mkTimestamp $ abs ts
 
 instance Arbitrary FieldTypes.BlockSizeParams where arbitrary = genericArbitrary
 instance Arbitrary FieldTypes.EvidenceParams where arbitrary = genericArbitrary
