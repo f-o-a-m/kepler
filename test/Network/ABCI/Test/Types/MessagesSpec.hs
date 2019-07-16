@@ -34,21 +34,16 @@ isoCheck'
      )
   => String
   -> Iso' wrapped unwrapped
-  -> Maybe (wrapped -> wrapped)
-  -> Maybe (unwrapped -> unwrapped)
+  -> (wrapped -> wrapped)
+  -> (unwrapped -> unwrapped)
   -> SpecWith ()
 isoCheck' name alpha mf mg = do
   describe name $ do
     it "Wrapped -> Unwrapped -> Wrapped == identity" $ property $ check alpha mf mg
     it "Unwrapped -> Wrapped -> Unwrapped == identity" $ property $ check (from alpha) mg mf . unArbitraryMessage
   where
-    check :: forall a b. Eq a => Iso' a b -> Maybe (a -> a) -> Maybe (b -> b) -> a -> Bool
-    check alpha' mPre mPost val =
-      let
-        pre = fromMaybe id mPre :: a -> a
-        post = fromMaybe id mPost :: b -> b
-      in
-        pre val ^. alpha' . to post . from alpha' == pre val
+    check :: forall a b. Eq a => Iso' a b -> (a -> a) -> (b -> b) -> a -> Bool
+    check alpha' pre post val = pre val ^. alpha' . to post . from alpha' == pre val
 
 isoCheck
   :: ( Eq wrapped
@@ -62,7 +57,7 @@ isoCheck
   -> Iso' wrapped unwrapped
   -> SpecWith ()
 isoCheck name alpha =
-  isoCheck' name alpha Nothing Nothing
+  isoCheck' name alpha id id
 
 --------------------------------------------------------------------------------
 -- Modifiers
@@ -119,9 +114,9 @@ spec = do
     isoCheck "flush" Request.flush
     isoCheck "info" Request.info
     isoCheck "setOption" Request.setOption
-    isoCheck' "initChain" Request.initChain Nothing (Just scrubTimestampFieldMaybe)
+    isoCheck' "initChain" Request.initChain id scrubTimestampFieldMaybe
     isoCheck "query" Request.query
-    isoCheck' "beginBlock" Request.beginBlock Nothing (Just $ scrubHeaderTimestampFieldMaybe . scrubByzantineValidatorsTimestampFieldMaybe)
+    isoCheck' "beginBlock" Request.beginBlock id $ scrubHeaderTimestampFieldMaybe . scrubByzantineValidatorsTimestampFieldMaybe
     isoCheck "checkTx" Request.checkTx
     isoCheck "deliverTx" Request.deliverTx
     isoCheck "endBlock" Request.endBlock
@@ -140,7 +135,7 @@ spec = do
     isoCheck "commit" Response.commit
     isoCheck "exception" Response.exception
   describe "FieldTypes" $ do
-    isoCheck' "Timestamp" FT.timestamp Nothing (Just scrubTimestamp)
+    isoCheck' "Timestamp" FT.timestamp id scrubTimestamp
     isoCheck "BlockSizeParams" FT.blockSizeParams
     isoCheck "EvidenceParams" FT.evidenceParams
     isoCheck "ValidatorParams" FT.validatorParams
@@ -153,8 +148,8 @@ spec = do
     isoCheck "PartSetHeader" FT.partSetHeader
     isoCheck "BlockID" FT.blockID
     isoCheck "Version" FT.version
-    isoCheck' "Header" FT.header Nothing (Just $ scrubTimestampFieldMaybe . clearUnkownFields)
-    isoCheck' "Evidence" FT.evidence Nothing (Just scrubTimestampFieldMaybe)
+    isoCheck' "Header" FT.header id $ scrubTimestampFieldMaybe . clearUnkownFields
+    isoCheck' "Evidence" FT.evidence id scrubTimestampFieldMaybe
     isoCheck "KVPair" FT.kVPair
     isoCheck "Proof" FT.proof
     isoCheck "ProofOp" FT.proofOp
