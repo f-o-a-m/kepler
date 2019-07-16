@@ -30,7 +30,8 @@ import           Data.Time.Clock
                                                                                    picosecondsToDiffTime)
 import           Data.Word
                                                                                    (Word64)
-import GHC.Generics (Generic)
+import           GHC.Generics
+                                                                                   (Generic)
 import qualified Proto.Types                                                      as PT
 import qualified Proto.Types_Fields                                               as PT
 import qualified Proto.Vendored.Google.Protobuf.Timestamp                         as T

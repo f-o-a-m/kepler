@@ -1,18 +1,19 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Network.ABCI.Test.Types.Messages.Instances () where
 
-import Control.Lens ((&), (.~))
-import Test.QuickCheck.Instances ()
+import           Control.Lens                                    ((&), (.~))
+import           Test.QuickCheck.Instances                       ()
 
-import Network.ABCI.Types.Messages.FieldTypes as FieldTypes
-import Network.ABCI.Types.Messages.Request    as Request
-import Network.ABCI.Types.Messages.Response   as Response
-import Test.QuickCheck.Arbitrary.Generic      (genericArbitrary)
-import Test.QuickCheck.Arbitrary              (Arbitrary, arbitrary)
-import           Data.ProtoLens.Message                 (Message(..))
-import           Data.ProtoLens.Arbitrary              (ArbitraryMessage(..))
-import qualified Proto.Vendored.Google.Protobuf.Timestamp                         as T
-import qualified Proto.Vendored.Google.Protobuf.Timestamp_Fields                  as T
+import           Data.ProtoLens.Arbitrary                        (ArbitraryMessage (..))
+import           Data.ProtoLens.Message                          (Message (..))
+import           Network.ABCI.Types.Messages.FieldTypes          as FieldTypes
+import           Network.ABCI.Types.Messages.Request             as Request
+import           Network.ABCI.Types.Messages.Response            as Response
+import qualified Proto.Vendored.Google.Protobuf.Timestamp        as T
+import qualified Proto.Vendored.Google.Protobuf.Timestamp_Fields as T
+import           Test.QuickCheck.Arbitrary                       (Arbitrary,
+                                                                  arbitrary)
+import           Test.QuickCheck.Arbitrary.Generic               (genericArbitrary)
 
 instance Arbitrary FieldTypes.Timestamp where
   arbitrary = do

@@ -1,21 +1,28 @@
 module Network.ABCI.Test.Types.MessagesSpec where
 
-import           Control.Lens                           (Iso', _Just, from, (^.), to, set, iso, view, (%~), (&), traverse)
-import           Data.Maybe (fromMaybe)
-import           Data.ProtoLens.Message                 (Message(..))
-import           Data.Time.Clock (diffTimeToPicoseconds, picosecondsToDiffTime)
-import           Network.ABCI.Test.Types.Messages.Instances ()
-import           Network.ABCI.Types.Messages.FieldTypes as FT
-import           Network.ABCI.Types.Messages.Request    as Request
-import           Network.ABCI.Types.Messages.Response   as Response
-import           Test.Hspec
-import           Data.ProtoLens.Arbitrary              (ArbitraryMessage(..))
-import           Test.QuickCheck (Arbitrary, property)
+import           Control.Lens                                    (Iso', from,
+                                                                  iso, set, to,
+                                                                  traverse,
+                                                                  view, (%~),
+                                                                  (&), (^.),
+                                                                  _Just)
+import           Data.Maybe                                      (fromMaybe)
+import           Data.ProtoLens.Arbitrary                        (ArbitraryMessage (..))
+import           Data.ProtoLens.Message                          (Message (..))
+import           Data.Time.Clock                                 (diffTimeToPicoseconds,
+                                                                  picosecondsToDiffTime)
 import qualified Lens.Labels
-import qualified Proto.Types                                                      as PT
-import qualified Proto.Types_Fields                                               as PT
-import qualified Proto.Vendored.Google.Protobuf.Timestamp                         as T
-import qualified Proto.Vendored.Google.Protobuf.Timestamp_Fields                  as T
+import           Network.ABCI.Test.Types.Messages.Instances      ()
+import           Network.ABCI.Types.Messages.FieldTypes          as FT
+import           Network.ABCI.Types.Messages.Request             as Request
+import           Network.ABCI.Types.Messages.Response            as Response
+import qualified Proto.Types                                     as PT
+import qualified Proto.Types_Fields                              as PT
+import qualified Proto.Vendored.Google.Protobuf.Timestamp        as T
+import qualified Proto.Vendored.Google.Protobuf.Timestamp_Fields as T
+import           Test.Hspec
+import           Test.QuickCheck                                 (Arbitrary,
+                                                                  property)
 
 main :: IO ()
 main = pure () --hspec spec
