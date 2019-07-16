@@ -6,9 +6,11 @@ import           Control.Lens                                    (Iso', from,
                                                                   view, (%~),
                                                                   (&), (^.),
                                                                   _Just)
+import           Control.Lens.Wrapped                            (Wrapped(..), _Unwrapped')
 import           Data.Maybe                                      (fromMaybe)
 import           Data.ProtoLens.Arbitrary                        (ArbitraryMessage (..))
 import           Data.ProtoLens.Message                          (Message (..))
+import           Data.Proxy                                      (Proxy(..))
 import           Data.Time.Clock                                 (diffTimeToPicoseconds,
                                                                   picosecondsToDiffTime)
 import qualified Lens.Labels
@@ -38,16 +40,18 @@ isoCheck'
      , Show unwrapped
      , Arbitrary wrapped
      , Message unwrapped
+     , Wrapped wrapped
+     , Unwrapped wrapped ~ unwrapped
      )
-  => String
-  -> Iso' wrapped unwrapped
+  => Proxy wrapped
+  -> String
   -> (wrapped -> wrapped)
   -> (unwrapped -> unwrapped)
   -> SpecWith ()
-isoCheck' name alpha mf mg = do
+isoCheck' _ name mf mg = do
   describe name $ do
-    it "Wrapped -> Unwrapped -> Wrapped == identity" $ property $ check alpha mf mg
-    it "Unwrapped -> Wrapped -> Unwrapped == identity" $ property $ check (from alpha) mg mf . unArbitraryMessage
+    it "Wrapped -> Unwrapped -> Wrapped == identity" $ property $ check _Wrapped' mf mg
+    it "Unwrapped -> Wrapped -> Unwrapped == identity" $ property $ check _Unwrapped' mg mf . unArbitraryMessage
   where
     check :: forall a b. Eq a => Iso' a b -> (a -> a) -> (b -> b) -> a -> Bool
     check alpha' pre post val = pre val ^. alpha' . to post . from alpha' == pre val
@@ -59,12 +63,14 @@ isoCheck
      , Show unwrapped
      , Arbitrary wrapped
      , Message unwrapped
+     , Wrapped wrapped
+     , Unwrapped wrapped ~ unwrapped
      )
-  => String
-  -> Iso' wrapped unwrapped
+  => Proxy wrapped
+  -> String
   -> SpecWith ()
-isoCheck name alpha =
-  isoCheck' name alpha id id
+isoCheck p name =
+  isoCheck' p name id id
 
 --------------------------------------------------------------------------------
 -- Modifiers
@@ -114,49 +120,50 @@ scrubByzantineValidatorsTimestampFieldMaybe a =
 
 --------------------------------------------------------------------------------
 
+
 spec :: Spec
 spec = do
   describe "Request" $ do
-    isoCheck "echo" Request.echo
-    isoCheck "flush" Request.flush
-    isoCheck "info" Request.info
-    isoCheck "setOption" Request.setOption
-    isoCheck' "initChain" Request.initChain id scrubTimestampFieldMaybe
-    isoCheck "query" Request.query
-    isoCheck' "beginBlock" Request.beginBlock id $ scrubHeaderTimestampFieldMaybe . scrubByzantineValidatorsTimestampFieldMaybe
-    isoCheck "checkTx" Request.checkTx
-    isoCheck "deliverTx" Request.deliverTx
-    isoCheck "endBlock" Request.endBlock
-    isoCheck "commit" Request.commit
+    isoCheck (Proxy :: Proxy Request.Echo) "echo"
+    isoCheck (Proxy :: Proxy Request.Flush) "flush"
+    isoCheck (Proxy :: Proxy Request.Info) "info"
+    isoCheck (Proxy :: Proxy Request.SetOption) "setOption"
+    isoCheck' (Proxy :: Proxy Request.InitChain) "initChain" id scrubTimestampFieldMaybe
+    isoCheck (Proxy :: Proxy Request.Query) "query"
+    isoCheck' (Proxy :: Proxy Request.BeginBlock) "beginBlock" id $ scrubHeaderTimestampFieldMaybe . scrubByzantineValidatorsTimestampFieldMaybe
+    isoCheck (Proxy :: Proxy Request.CheckTx) "checkTx"
+    isoCheck (Proxy :: Proxy Request.DeliverTx) "deliverTx"
+    isoCheck (Proxy :: Proxy Request.EndBlock) "endBlock"
+    isoCheck (Proxy :: Proxy Request.Commit) "commit"
   describe "Response" $ do
-    isoCheck "echo" Response.echo
-    isoCheck "flush" Response.flush
-    isoCheck "info" Response.info
-    isoCheck "setOption" Response.setOption
-    isoCheck "initChain" Response.initChain
-    isoCheck "query" Response.query
-    isoCheck "beginBlock" Response.beginBlock
-    isoCheck "checkTx" Response.checkTx
-    isoCheck "deliverTx" Response.deliverTx
-    isoCheck "endBlock" Response.endBlock
-    isoCheck "commit" Response.commit
-    isoCheck "exception" Response.exception
+    isoCheck (Proxy :: Proxy Response.Echo) "echo"
+    isoCheck (Proxy :: Proxy Response.Flush) "flush"
+    isoCheck (Proxy :: Proxy Response.Info) "info"
+    isoCheck (Proxy :: Proxy Response.SetOption) "setOption"
+    isoCheck (Proxy :: Proxy Response.InitChain) "initChain"
+    isoCheck (Proxy :: Proxy Response.Query) "query"
+    isoCheck (Proxy :: Proxy Response.BeginBlock) "beginBlock"
+    isoCheck (Proxy :: Proxy Response.CheckTx) "checkTx"
+    isoCheck (Proxy :: Proxy Response.DeliverTx) "deliverTx"
+    isoCheck (Proxy :: Proxy Response.EndBlock) "endBlock"
+    isoCheck (Proxy :: Proxy Response.Commit) "commit"
+    isoCheck (Proxy :: Proxy Response.Exception) "exception"
   describe "FieldTypes" $ do
-    isoCheck' "Timestamp" FT.timestamp id scrubTimestamp
-    isoCheck "BlockSizeParams" FT.blockSizeParams
-    isoCheck "EvidenceParams" FT.evidenceParams
-    isoCheck "ValidatorParams" FT.validatorParams
-    isoCheck "ConsensusParam" FT.consensusParams
-    isoCheck "PubKey" FT.pubKey
-    isoCheck "ValidatorUpdate" FT.validatorUpdate
-    isoCheck "Validator" FT.validator
-    isoCheck "VoteInfo" FT.voteInfo
-    isoCheck "LastCommitInfo" FT.lastCommitInfo
-    isoCheck "PartSetHeader" FT.partSetHeader
-    isoCheck "BlockID" FT.blockID
-    isoCheck "Version" FT.version
-    isoCheck' "Header" FT.header id $ scrubTimestampFieldMaybe . clearUnkownFields
-    isoCheck' "Evidence" FT.evidence id scrubTimestampFieldMaybe
-    isoCheck "KVPair" FT.kVPair
-    isoCheck "Proof" FT.proof
-    isoCheck "ProofOp" FT.proofOp
+    isoCheck' (Proxy :: Proxy FT.Timestamp) "Timestamp" id scrubTimestamp
+    isoCheck (Proxy :: Proxy FT.BlockSizeParams) "BlockSizeParams"
+    isoCheck (Proxy :: Proxy FT.EvidenceParams) "EvidenceParams"
+    isoCheck (Proxy :: Proxy FT.ValidatorParams) "ValidatorParams"
+    isoCheck (Proxy :: Proxy FT.ConsensusParams) "ConsensusParam"
+    isoCheck (Proxy :: Proxy FT.PubKey) "PubKey"
+    isoCheck (Proxy :: Proxy FT.ValidatorUpdate) "ValidatorUpdate"
+    isoCheck (Proxy :: Proxy FT.Validator) "Validator"
+    isoCheck (Proxy :: Proxy FT.VoteInfo) "VoteInfo"
+    isoCheck (Proxy :: Proxy FT.LastCommitInfo) "LastCommitInfo"
+    isoCheck (Proxy :: Proxy FT.PartSetHeader) "PartSetHeader"
+    isoCheck (Proxy :: Proxy FT.BlockID) "BlockID"
+    isoCheck (Proxy :: Proxy FT.Version) "Version"
+    isoCheck' (Proxy :: Proxy FT.Header) "Header" id $ scrubTimestampFieldMaybe . clearUnkownFields
+    isoCheck' (Proxy :: Proxy FT.Evidence) "Evidence" id scrubTimestampFieldMaybe
+    isoCheck (Proxy :: Proxy FT.KVPair) "KVPair"
+    isoCheck (Proxy :: Proxy FT.Proof) "Proof"
+    isoCheck (Proxy :: Proxy FT.ProofOp) "ProofOp"
