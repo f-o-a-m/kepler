@@ -56,7 +56,6 @@ library:
   - -Werror
   - -Wall
   exposed-modules:
-  - Lib
   - Network.ABCI.Types.Messages.Request
   - Network.ABCI.Types.Messages.Response
   - Network.ABCI.Types.Messages.FieldTypes
@@ -71,17 +70,6 @@ library:
   - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
   - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types
   - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields
-
-executables:
-  hs-abci-server-exe:
-    main:                Main.hs
-    source-dirs:         app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - hs-abci-server
 
 tests:
   hs-abci-server-test:
