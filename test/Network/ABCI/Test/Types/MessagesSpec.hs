@@ -1,23 +1,20 @@
 module Network.ABCI.Test.Types.MessagesSpec where
 
 import           Control.Lens                                    (Iso', from,
-                                                                  iso, set, to,
+                                                                  set, to,
                                                                   traverse,
-                                                                  view, (%~),
-                                                                  (&), (^.),
-                                                                  _Just)
-import           Control.Lens.Wrapped                            (Wrapped(..), _Unwrapped')
-import           Data.Maybe                                      (fromMaybe)
+                                                                  (%~), (&),
+                                                                  (^.), _Just)
+import           Control.Lens.Wrapped                            (Wrapped (..),
+                                                                  _Unwrapped')
 import           Data.ProtoLens.Arbitrary                        (ArbitraryMessage (..))
 import           Data.ProtoLens.Message                          (Message (..))
-import           Data.Proxy                                      (Proxy(..))
-import           Data.Time.Clock                                 (diffTimeToPicoseconds,
-                                                                  picosecondsToDiffTime)
+import           Data.Proxy                                      (Proxy (..))
 import qualified Lens.Labels
 import           Network.ABCI.Test.Types.Messages.Instances      ()
-import           Network.ABCI.Types.Messages.FieldTypes          as FT
-import           Network.ABCI.Types.Messages.Request             as Request
-import           Network.ABCI.Types.Messages.Response            as Response
+import qualified Network.ABCI.Types.Messages.FieldTypes          as FT
+import qualified Network.ABCI.Types.Messages.Request             as Request
+import qualified Network.ABCI.Types.Messages.Response            as Response
 import qualified Proto.Types                                     as PT
 import qualified Proto.Types_Fields                              as PT
 import qualified Proto.Vendored.Google.Protobuf.Timestamp        as T

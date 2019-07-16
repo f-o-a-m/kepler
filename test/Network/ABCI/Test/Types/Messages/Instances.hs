@@ -1,32 +1,17 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Network.ABCI.Test.Types.Messages.Instances () where
 
-import           Control.Lens                                    ((&), (.~))
-import           Test.QuickCheck.Instances                       ()
-
-import           Data.ProtoLens.Arbitrary                        (ArbitraryMessage (..))
-import           Data.ProtoLens.Message                          (Message (..))
-import           Network.ABCI.Types.Messages.FieldTypes          as FieldTypes
-import           Network.ABCI.Types.Messages.Request             as Request
-import           Network.ABCI.Types.Messages.Response            as Response
-import qualified Proto.Vendored.Google.Protobuf.Timestamp        as T
-import qualified Proto.Vendored.Google.Protobuf.Timestamp_Fields as T
-import           Test.QuickCheck.Arbitrary                       (Arbitrary,
-                                                                  arbitrary)
-import           Test.QuickCheck.Arbitrary.Generic               (genericArbitrary)
+import qualified Network.ABCI.Types.Messages.FieldTypes as FieldTypes
+import qualified Network.ABCI.Types.Messages.Request    as Request
+import qualified Network.ABCI.Types.Messages.Response   as Response
+import           Test.QuickCheck.Arbitrary              (Arbitrary, arbitrary)
+import           Test.QuickCheck.Arbitrary.Generic      (genericArbitrary)
+import           Test.QuickCheck.Instances              ()
 
 instance Arbitrary FieldTypes.Timestamp where
   arbitrary = do
-    Timestamp ts <- genericArbitrary
-    pure $ mkTimestamp $ abs ts
-{-
-instance {-# OVERLAPPING #-} Arbitrary (ArbitraryMessage T.Timestamp) where
-  arbitrary = do
-    (s,ns) <- arbitrary
-    pure . ArbitraryMessage $
-      defMessage & T.seconds .~ abs s
-                 & T.nanos .~ abs ns `mod` 1000000000
--}
+    FieldTypes.Timestamp ts <- genericArbitrary
+    pure $ FieldTypes.mkTimestamp $ abs ts
 
 instance Arbitrary FieldTypes.BlockSizeParams where arbitrary = genericArbitrary
 instance Arbitrary FieldTypes.EvidenceParams where arbitrary = genericArbitrary
