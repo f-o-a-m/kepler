@@ -147,7 +147,7 @@ spec = do
     isoCheck (Proxy :: Proxy Response.Exception) "exception"
   describe "FieldTypes" $ do
     isoCheck' (Proxy :: Proxy FT.Timestamp) "Timestamp" id scrubTimestamp
-    isoCheck (Proxy :: Proxy FT.BlockSizeParams) "BlockSizeParams"
+    isoCheck (Proxy :: Proxy FT.BlockParams) "BlockParams"
     isoCheck (Proxy :: Proxy FT.EvidenceParams) "EvidenceParams"
     isoCheck (Proxy :: Proxy FT.ValidatorParams) "ValidatorParams"
     isoCheck (Proxy :: Proxy FT.ConsensusParams) "ConsensusParam"
@@ -164,3 +164,4 @@ spec = do
     isoCheck (Proxy :: Proxy FT.KVPair) "KVPair"
     isoCheck (Proxy :: Proxy FT.Proof) "Proof"
     isoCheck (Proxy :: Proxy FT.ProofOp) "ProofOp"
+    isoCheck (Proxy :: Proxy FT.Event) "Event"

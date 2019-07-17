@@ -73,26 +73,26 @@ instance Wrapped Timestamp where
         in
           mkTimestamp . picosecondsToDiffTime $ ps1 + ps2
 
-data BlockSizeParams = BlockSizeParams
-  { blockSizeParamsMaxBytes :: Int64
+data BlockParams = BlockParams
+  { blockParamsMaxBytes :: Int64
   -- ^ Max size of a block, in bytes.
-  , blockSizeParamsMaxGas   :: Int64
+  , blockParamsMaxGas   :: Int64
   -- ^ Max sum of GasWanted in a proposed block.
   } deriving (Eq, Show, Generic)
 
-instance Wrapped BlockSizeParams where
-  type Unwrapped BlockSizeParams = PT.BlockSizeParams
+instance Wrapped BlockParams where
+  type Unwrapped BlockParams = PT.BlockParams
 
   _Wrapped' = iso t f
     where
-      t BlockSizeParams{..} =
+      t BlockParams{..} =
         defMessage
-          & PT.maxBytes .~ blockSizeParamsMaxBytes
-          & PT.maxGas .~ blockSizeParamsMaxGas
+          & PT.maxBytes .~ blockParamsMaxBytes
+          & PT.maxGas .~ blockParamsMaxGas
       f a =
-        BlockSizeParams
-          { blockSizeParamsMaxBytes = a ^. PT.maxBytes
-          , blockSizeParamsMaxGas = a ^. PT.maxGas
+        BlockParams
+          { blockParamsMaxBytes = a ^. PT.maxBytes
+          , blockParamsMaxGas = a ^. PT.maxGas
           }
 
 data EvidenceParams = EvidenceParams
@@ -132,7 +132,7 @@ instance Wrapped ValidatorParams where
           }
 
 data ConsensusParams = ConsensusParams
-  { consensusParamsBlockSize :: Maybe BlockSizeParams
+  { consensusParamsBlockSize :: Maybe BlockParams
   --  ^ Parameters limiting the size of a block and time between consecutive blocks.
   , consensusParamsEvidence  :: Maybe EvidenceParams
   -- ^ Parameters limiting the validity of evidence of byzantine behaviour.
@@ -147,12 +147,12 @@ instance Wrapped ConsensusParams where
     where
       t ConsensusParams{..} =
         defMessage
-          & PT.maybe'blockSize .~ consensusParamsBlockSize ^? _Just . _Wrapped'
+          & PT.maybe'block .~ consensusParamsBlockSize ^? _Just . _Wrapped'
           & PT.maybe'evidence .~ consensusParamsEvidence ^? _Just . _Wrapped'
           & PT.maybe'validator .~ consensusParamsValidator ^? _Just . _Wrapped'
       f a =
         ConsensusParams
-          { consensusParamsBlockSize = a ^? PT.maybe'blockSize . _Just . _Unwrapped'
+          { consensusParamsBlockSize = a ^? PT.maybe'block . _Just . _Unwrapped'
           , consensusParamsEvidence =  a ^? PT.maybe'evidence . _Just . _Unwrapped'
           , consensusParamsValidator =  a ^? PT.maybe'validator . _Just . _Unwrapped'
           }
@@ -511,5 +511,27 @@ instance Wrapped ProofOp where
           { proofOpType = a ^. MT.type'
           , proofOpKey = a ^. MT.key
           , proofOpData = a ^. MT.data'
+          }
+
+data Event = Event
+  { eventType       :: Text
+  -- ^ Type of Event
+  , eventAttributes :: [KVPair]
+  -- ^ Event attributes
+  } deriving (Eq, Show, Generic)
+
+instance Wrapped Event where
+  type Unwrapped Event = PT.Event
+
+  _Wrapped' = iso t f
+    where
+      t Event{..} =
+        defMessage
+          & PT.type' .~ eventType
+          & PT.attributes .~ eventAttributes ^.. traverse . _Wrapped'
+      f a =
+        Event
+          { eventType = a ^. PT.type'
+          , eventAttributes = a ^.. PT.attributes . traverse . _Unwrapped'
           }
 

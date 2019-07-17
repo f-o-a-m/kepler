@@ -13,7 +13,7 @@ instance Arbitrary FieldTypes.Timestamp where
     FieldTypes.Timestamp ts <- genericArbitrary
     pure $ FieldTypes.mkTimestamp $ abs ts
 
-instance Arbitrary FieldTypes.BlockSizeParams where arbitrary = genericArbitrary
+instance Arbitrary FieldTypes.BlockParams where arbitrary = genericArbitrary
 instance Arbitrary FieldTypes.EvidenceParams where arbitrary = genericArbitrary
 instance Arbitrary FieldTypes.ValidatorParams where arbitrary = genericArbitrary
 instance Arbitrary FieldTypes.ConsensusParams where arbitrary = genericArbitrary
@@ -30,6 +30,7 @@ instance Arbitrary FieldTypes.Evidence where arbitrary = genericArbitrary
 instance Arbitrary FieldTypes.KVPair where arbitrary = genericArbitrary
 instance Arbitrary FieldTypes.Proof where arbitrary = genericArbitrary
 instance Arbitrary FieldTypes.ProofOp where arbitrary = genericArbitrary
+instance Arbitrary FieldTypes.Event where arbitrary = genericArbitrary
 
 instance Arbitrary Request.Echo where arbitrary = genericArbitrary
 instance Arbitrary Request.Flush where arbitrary = genericArbitrary

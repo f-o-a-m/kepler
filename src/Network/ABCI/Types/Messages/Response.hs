@@ -30,8 +30,8 @@ import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word32, Word64)
 import           GHC.Generics                           (Generic)
-import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams,
-                                                         KVPair, Proof,
+import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams, Event,
+                                                         Proof,
                                                          ValidatorUpdate)
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
@@ -249,8 +249,8 @@ instance Wrapped Query where
 --------------------------------------------------------------------------------
 
 data BeginBlock = BeginBlock
-  { beginBlockTags :: [KVPair]
-  -- ^ Key-Value tags for filtering and indexing
+  { beginBlockEvents :: [Event]
+  -- ^ Beginning block events
   } deriving (Eq, Show, Generic)
 
 instance Wrapped BeginBlock where
@@ -260,10 +260,10 @@ instance Wrapped BeginBlock where
     where
       t BeginBlock{..} =
         defMessage
-          & PT.tags .~ beginBlockTags ^.. traverse . _Wrapped'
+          & PT.events .~ beginBlockEvents ^.. traverse . _Wrapped'
       f message =
         BeginBlock
-          { beginBlockTags = message ^.. PT.tags . traverse . _Unwrapped'
+          { beginBlockEvents = message ^.. PT.events . traverse . _Unwrapped'
           }
 
 --------------------------------------------------------------------------------
@@ -283,8 +283,8 @@ data CheckTx = CheckTx
   -- ^ Amount of gas requested for transaction.
   , checkTxGasUsed   :: Int64
   -- ^ Amount of gas consumed by transaction.
-  , checkTxTags      :: [KVPair]
-  -- ^ Key-Value tags for filtering and indexing transactions (eg. by account).
+  , checkTxEvents    :: [Event]
+  -- ^ Events
   , checkTxCodespace :: Text
   -- ^ Namespace for the Code.
   } deriving (Eq, Show, Generic)
@@ -302,7 +302,7 @@ instance Wrapped CheckTx where
           & PT.info .~ checkTxInfo
           & PT.gasWanted .~ checkTxGasWanted
           & PT.gasUsed .~ checkTxGasUsed
-          & PT.tags .~ checkTxTags ^.. traverse . _Wrapped'
+          & PT.events .~ checkTxEvents ^.. traverse . _Wrapped'
           & PT.codespace .~ checkTxCodespace
       f message =
         CheckTx
@@ -312,7 +312,7 @@ instance Wrapped CheckTx where
           , checkTxInfo = message ^. PT.info
           , checkTxGasWanted = message ^. PT.gasWanted
           , checkTxGasUsed = message ^. PT.gasUsed
-          , checkTxTags = message ^.. PT.tags . traverse . _Unwrapped'
+          , checkTxEvents = message ^.. PT.events . traverse . _Unwrapped'
           , checkTxCodespace = message ^. PT.codespace
           }
 
@@ -333,8 +333,8 @@ data DeliverTx = DeliverTx
   -- ^ Amount of gas requested for transaction.
   , deliverTxGasUsed   :: Int64
   -- ^ Amount of gas consumed by transaction.
-  , deliverTxTags      :: [KVPair]
-  -- ^  Key-Value tags for filtering and indexing transactions (eg. by account).
+  , deliverTxEvents      :: [Event]
+  -- ^ Events
   , deliverTxCodespace :: Text
   -- ^ Namespace for the Code.
   } deriving (Eq, Show, Generic)
@@ -352,7 +352,7 @@ instance Wrapped DeliverTx where
           & PT.info .~ deliverTxInfo
           & PT.gasWanted .~ deliverTxGasWanted
           & PT.gasUsed .~ deliverTxGasUsed
-          & PT.tags .~ deliverTxTags ^.. traverse . _Wrapped'
+          & PT.events .~ deliverTxEvents ^.. traverse . _Wrapped'
           & PT.codespace .~ deliverTxCodespace
       f responseDeliverTx =
         DeliverTx
@@ -362,7 +362,7 @@ instance Wrapped DeliverTx where
           , deliverTxInfo = responseDeliverTx ^. PT.info
           , deliverTxGasWanted = responseDeliverTx ^. PT.gasWanted
           , deliverTxGasUsed = responseDeliverTx ^. PT.gasUsed
-          , deliverTxTags = responseDeliverTx ^.. PT.tags . traverse . _Unwrapped'
+          , deliverTxEvents = responseDeliverTx ^.. PT.events . traverse . _Unwrapped'
           , deliverTxCodespace = responseDeliverTx ^. PT.codespace
           }
 
@@ -375,8 +375,8 @@ data EndBlock = EndBlock
   -- ^ Changes to validator set (set voting power to 0 to remove).
   , endBlockConsensusParamUpdates :: Maybe ConsensusParams
   -- ^ Changes to consensus-critical time, size, and other parameters.
-  , endBlockTags                  :: [KVPair]
-  -- ^ Key-Value tags for filtering and indexing
+  , endBlockEvents                  :: [Event]
+  -- ^ Events
   } deriving (Eq, Show, Generic)
 
 instance Wrapped EndBlock where
@@ -388,12 +388,12 @@ instance Wrapped EndBlock where
         defMessage
           & PT.validatorUpdates .~ endBlockValidatorUpdates ^.. traverse . _Wrapped'
           & PT.maybe'consensusParamUpdates .~ endBlockConsensusParamUpdates ^? _Just . _Wrapped'
-          & PT.tags .~ endBlockTags ^.. traverse . _Wrapped'
+          & PT.events .~ endBlockEvents ^.. traverse . _Wrapped'
       f message =
         EndBlock
           { endBlockValidatorUpdates = message ^.. PT.validatorUpdates . traverse . _Unwrapped'
           , endBlockConsensusParamUpdates = message ^? PT.maybe'consensusParamUpdates . _Just . _Unwrapped'
-          , endBlockTags = message ^.. PT.tags . traverse . _Unwrapped'
+          , endBlockEvents = message ^.. PT.events . traverse . _Unwrapped'
           }
 
 --------------------------------------------------------------------------------
