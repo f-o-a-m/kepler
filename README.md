@@ -1,5 +1,10 @@
 # hs-abci-server
 
+## Introduction
+This is the official repository for the Haskell implementation of the ABCI server and
+SDK for developing applications backed by the Tendermint replication engine. You can
+read more about Tendermint and the ABCI specs in their [documentation](https://tendermint.com/docs/spec/abci/). 
+
 ## Protobuf Files and Generated Modules
 The protobuf files are all in the `/protos` directory, and we use a custom setup in order
 to generate the corrosponding `Proto.*` Haskell modules. If you want to view all of these
