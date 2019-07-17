@@ -5,6 +5,21 @@ This is the official repository for the Haskell implementation of the ABCI serve
 SDK for developing applications backed by the Tendermint replication engine. You can
 read more about Tendermint and the ABCI specs in their [documentation](https://tendermint.com/docs/spec/abci/). 
 
+## Build
+
+### Prerequisites
+At the moment the project's build is managed by `stack`. You can find everything you need regarding how to install stack on your machine [here](https://docs.haskellstack.org/en/stable/README/).
+
+You will also need to install `hlint` and `stylish-haskell` for code hygiene during development. In the project root simply run
+
+```bash
+> stack install hlint stylish-haskell
+```
+
+### Commands
+There is a `Makefile` for this project where you can find all of the options for building, testing etc. The `Makefile`
+is documented and there is a help menu which you can access via the commands `make` or `make help`.
+
 ## Protobuf Files and Generated Modules
 The protobuf files are all in the `/protos` directory, and we use a custom setup in order
 to generate the corrosponding `Proto.*` Haskell modules. If you want to view all of these
