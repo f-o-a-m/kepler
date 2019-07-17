@@ -250,7 +250,7 @@ instance Wrapped Query where
 
 data BeginBlock = BeginBlock
   { beginBlockEvents :: [Event]
-  -- ^ Key-Value tags for filtering and indexing
+  -- ^ Beginning block events
   } deriving (Eq, Show, Generic)
 
 instance Wrapped BeginBlock where
@@ -284,7 +284,7 @@ data CheckTx = CheckTx
   , checkTxGasUsed   :: Int64
   -- ^ Amount of gas consumed by transaction.
   , checkTxEvents    :: [Event]
-  -- ^ Key-Value events for filtering and indexing transactions (eg. by account).
+  -- ^ Events
   , checkTxCodespace :: Text
   -- ^ Namespace for the Code.
   } deriving (Eq, Show, Generic)
@@ -334,7 +334,7 @@ data DeliverTx = DeliverTx
   , deliverTxGasUsed   :: Int64
   -- ^ Amount of gas consumed by transaction.
   , deliverTxEvents      :: [Event]
-  -- ^  Key-Value events for filtering and indexing transactions (eg. by account).
+  -- ^ Events
   , deliverTxCodespace :: Text
   -- ^ Namespace for the Code.
   } deriving (Eq, Show, Generic)
@@ -376,7 +376,7 @@ data EndBlock = EndBlock
   , endBlockConsensusParamUpdates :: Maybe ConsensusParams
   -- ^ Changes to consensus-critical time, size, and other parameters.
   , endBlockEvents                  :: [Event]
-  -- ^ Key-Value events for filtering and indexing
+  -- ^ Events
   } deriving (Eq, Show, Generic)
 
 instance Wrapped EndBlock where
