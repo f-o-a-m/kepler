@@ -11,6 +11,11 @@ generated modules, you can run
 
 to find the root directory.
 
+## Style Guide
+There is a `.stylish-haskell.yaml` file that controls some of the style guide, particularly 
+around import statements and some indentation rules. There is also a small guide for things that
+fall outside of this in the [style wiki](https://github.com/f-o-a-m/hs-abci-server/wiki/code-style-guide).
+If it's not covered by either of these but you think it's really important, mention it in an issue.
 
 ## Building documentation
 You can build the haddocks for the library code only using
