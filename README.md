@@ -10,6 +10,8 @@ read more about Tendermint and the ABCI specs in their [documentation](https://t
 ### Prerequisites
 At the moment the project's build is managed by `stack`. You can find everything you need regarding how to install stack on your machine [here](https://docs.haskellstack.org/en/stable/README/).
 
+We use a custom setup to generate Haskell bindings to the protobuf files, using the proto-lens library from Google. In order for this to work you need to have the protobuf compiler `protoc` on your machine. You can get installation instructions [here](https://google.github.io/proto-lens/installing-protoc.html)
+
 You will also need to install `hlint` and `stylish-haskell` for code hygiene during development. In the project root simply run
 
 ```bash
