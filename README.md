@@ -1,5 +1,7 @@
 # hs-abci-server
 
+![Travis Status](https://travis-ci.com/f-o-a-m/hs-abci-server.svg?branch=master)
+
 ## Introduction
 This is the official repository for the Haskell implementation of the ABCI server and
 SDK for developing applications backed by the Tendermint replication engine. You can
