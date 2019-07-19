@@ -1,6 +1,6 @@
 module Network.ABCI.Types.Messages.Response
   ( Response(..)
-
+  , toProto
   -- * Request Message Types
   , Echo(..)
   , Flush(..)
@@ -21,12 +21,13 @@ module Network.ABCI.Types.Messages.Response
 
 import           Control.Lens                           (iso, traverse, (&),
                                                          (.~), (^.), (^..),
-                                                         (^?), _Just)
+                                                         (^?), (?~), _Just)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
 import           Data.ByteString                        (ByteString)
 import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
+import           Data.ProtoLens.Prism                   (( # ))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word32, Word64)
 import           GHC.Generics                           (Generic)
@@ -55,6 +56,26 @@ data Response (m :: MessageType) :: * where
   ResponseEndBlock :: EndBlock -> Response 'MTEndBlock
   ResponseCommit :: Commit -> Response 'MTCommit
   ResponseException :: forall (m :: MessageType) . Exception -> Response m
+
+
+-- | Translates type-safe 'Response' GADT to the unsafe
+--   auto-generated 'Proto.Response'
+toProto :: Response t -> PT.Response
+toProto r = case r of
+  ResponseEcho msg -> wrap PT._Response'Echo msg
+  ResponseFlush msg -> wrap PT._Response'Flush msg
+  ResponseInfo msg -> wrap PT._Response'Info msg
+  ResponseSetOption msg -> wrap PT._Response'SetOption msg
+  ResponseInitChain msg -> wrap PT._Response'InitChain msg
+  ResponseQuery msg -> wrap PT._Response'Query msg
+  ResponseBeginBlock msg -> wrap PT._Response'BeginBlock msg
+  ResponseCheckTx msg -> wrap PT._Response'CheckTx msg
+  ResponseDeliverTx msg -> wrap PT._Response'DeliverTx msg
+  ResponseEndBlock msg -> wrap PT._Response'EndBlock msg
+  ResponseCommit msg -> wrap PT._Response'Commit msg
+  ResponseException msg -> wrap PT._Response'Exception msg
+  where
+    wrap v msg = defMessage & PT.maybe'value ?~ v # (msg ^. _Wrapped')
 
 --------------------------------------------------------------------------------
 -- Echo

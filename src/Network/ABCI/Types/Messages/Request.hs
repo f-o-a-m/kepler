@@ -1,5 +1,6 @@
 module Network.ABCI.Types.Messages.Request
   ( Request(..)
+  , withProto
 
   -- * Request Message Types
   , Echo(..)
@@ -38,7 +39,7 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
-
+import           Debug.Trace                            (traceShow)
 --------------------------------------------------------------------------------
 -- Request
 --------------------------------------------------------------------------------
@@ -55,6 +56,32 @@ data Request (m :: MessageType) :: * where
   RequestDeliverTx :: DeliverTx -> Request 'MTDeliverTx
   RequestEndBlock :: EndBlock -> Request 'MTEndBlock
   RequestCommit :: Commit -> Request 'MTCommit
+
+-- | Translates the unsafe auto-generated 'Proto.Request' to a type-safe
+--   'Request GADT so users can safely pattern-match on it
+--   (ie: the compiler will warn if any case is not covered)
+--
+--   Note that we need to use a rank-n-types continuation since the
+--   'Request' GADT carries a phantom-type 'MsgType' "tag" and Haskell
+--   does not allow a polymorphic return type on a "normal" function
+--   (only those belonging to a type classes)
+withProto
+  :: PT.Request
+  -> (forall (t :: MessageType). Maybe (Request t) -> a)
+  -> a
+withProto r f
+  | Just echo       <- r ^. PT.maybe'echo       = f (Just (RequestEcho $ echo ^. _Unwrapped'))
+  | Just flush      <- r ^. PT.maybe'flush      = f (Just (RequestFlush $ flush ^. _Unwrapped'))
+  | Just info       <- r ^. PT.maybe'info       = f (Just (RequestInfo $ info ^. _Unwrapped'))
+  | Just setOption  <- r ^. PT.maybe'setOption  = f (Just (RequestSetOption $ setOption ^. _Unwrapped'))
+  | Just initChain  <- r ^. PT.maybe'initChain  = f (Just (RequestInitChain $ initChain ^. _Unwrapped'))
+  | Just query      <- r ^. PT.maybe'query      = f (Just (RequestQuery $ query ^. _Unwrapped'))
+  | Just beginBlock <- r ^. PT.maybe'beginBlock = f (Just (RequestBeginBlock $ beginBlock ^. _Unwrapped'))
+  | Just requestTx  <- r ^. PT.maybe'checkTx    = f (Just (RequestCheckTx $ requestTx ^. _Unwrapped'))
+  | Just deliverTx  <- r ^. PT.maybe'deliverTx  = f (Just (RequestDeliverTx $ deliverTx ^. _Unwrapped'))
+  | Just endBlock   <- r ^. PT.maybe'endBlock   = f (Just (RequestEndBlock $ endBlock ^. _Unwrapped'))
+  | Just commit     <- r ^. PT.maybe'commit     = f (Just (RequestCommit $ commit ^. _Unwrapped'))
+  | otherwise                                   = traceShow r $ f Nothing
 
 --------------------------------------------------------------------------------
 -- Echo
