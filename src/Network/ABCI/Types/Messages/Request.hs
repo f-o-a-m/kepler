@@ -29,7 +29,6 @@ import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word64)
-import           Debug.Trace                            (traceShow)
 import           GHC.Generics                           (Generic)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
                                                          Evidence (..),
@@ -40,6 +39,7 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
+
 --------------------------------------------------------------------------------
 -- Request
 --------------------------------------------------------------------------------
@@ -57,14 +57,6 @@ data Request (m :: MessageType) :: * where
   RequestEndBlock :: EndBlock -> Request 'MTEndBlock
   RequestCommit :: Commit -> Request 'MTCommit
 
--- | Translates the unsafe auto-generated 'Proto.Request' to a type-safe
---   'Request GADT so users can safely pattern-match on it
---   (ie: the compiler will warn if any case is not covered)
---
---   Note that we need to use a rank-n-types continuation since the
---   'Request' GADT carries a phantom-type 'MsgType' "tag" and Haskell
---   does not allow a polymorphic return type on a "normal" function
---   (only those belonging to a type classes)
 withProto
   :: PT.Request
   -> (forall (t :: MessageType). Maybe (Request t) -> a)
@@ -81,7 +73,7 @@ withProto r f
   | Just deliverTx  <- r ^. PT.maybe'deliverTx  = f (Just (RequestDeliverTx $ deliverTx ^. _Unwrapped'))
   | Just endBlock   <- r ^. PT.maybe'endBlock   = f (Just (RequestEndBlock $ endBlock ^. _Unwrapped'))
   | Just commit     <- r ^. PT.maybe'commit     = f (Just (RequestCommit $ commit ^. _Unwrapped'))
-  | otherwise                                   = traceShow r $ f Nothing
+  | otherwise                                   = f Nothing
 
 --------------------------------------------------------------------------------
 -- Echo

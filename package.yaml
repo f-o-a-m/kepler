@@ -39,6 +39,7 @@ default-extensions:
 - DataKinds
 - ScopedTypeVariables
 - FlexibleInstances
+- OverloadedStrings
 
 
 dependencies:

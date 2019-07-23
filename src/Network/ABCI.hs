@@ -14,14 +14,14 @@ import           Data.Monoid                          ((<>))
 import qualified Data.ProtoLens.Encoding              as PL
 import           Data.String                          (fromString)
 import           Data.String.Conversions              (cs)
-import           Data.Text                            (Text)
+import           Data.Text                            ()
 import           Data.Traversable                     (forM, traverse)
 import           Network.ABCI.Internal.Wire           as Wire
 import           Network.ABCI.Types.App               (App (..))
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Network.Socket                       (SockAddr)
-import qualified Proto.Types                          as ABCI
+import qualified Proto.Types                          as PT
 import           UnliftIO                             (MonadUnliftIO)
 
 
@@ -75,19 +75,16 @@ respondWith
      , MonadIO m
      )
   => App m
-  -> Either String [ABCI.Request]
-  -> m [ABCI.Response]
-respondWith _ (Left err) = pure <$> respondErr (cs $ "Invalid request: " <> fromString err)
-respondWith (App app) (Right reqs) = forM reqs $ \req -> Request.withProto req
-  (maybe (respondErr (cs $ "Invalid request"))
-  (fmap Response.toProto . app))
-
--- | "Throws" an ABCI raw 'ResponseException'
-respondErr
-  :: ( Monad m
-     , MonadIO m
-     )
-  => Text
-  -> m ABCI.Response
-respondErr err =
-  return . Response.toProto . Response.ResponseException  $ Response.Exception err
+  -> Either String [PT.Request]
+  -> m [PT.Response]
+respondWith app eReq =
+  case eReq of
+    Left err -> pure [makeResponseError ("Invalid request: " <> cs err)]
+    Right reqs -> forM reqs $ \req ->
+      Request.withProto req (runApp app)
+  where
+    runApp (App f) mParsedReq = case mParsedReq of
+      Nothing        -> pure . makeResponseError $ "Invalid request"
+      Just parsedReq -> Response.toProto <$> f parsedReq
+    makeResponseError err =
+      Response.toProto . Response.ResponseException  $ Response.Exception err
