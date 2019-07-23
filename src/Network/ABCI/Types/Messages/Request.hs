@@ -29,6 +29,7 @@ import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word64)
+import           Debug.Trace                            (traceShow)
 import           GHC.Generics                           (Generic)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
                                                          Evidence (..),
@@ -39,7 +40,6 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
-import           Debug.Trace                            (traceShow)
 --------------------------------------------------------------------------------
 -- Request
 --------------------------------------------------------------------------------

@@ -20,8 +20,8 @@ module Network.ABCI.Types.Messages.Response
   ) where
 
 import           Control.Lens                           (iso, traverse, (&),
-                                                         (.~), (^.), (^..),
-                                                         (^?), (?~), _Just)
+                                                         (.~), (?~), (^.),
+                                                         (^..), (^?), _Just)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
 import           Data.ByteString                        (ByteString)
@@ -32,8 +32,7 @@ import           Data.Text                              (Text)
 import           Data.Word                              (Word32, Word64)
 import           GHC.Generics                           (Generic)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams, Event,
-                                                         Proof,
-                                                         ValidatorUpdate)
+                                                         Proof, ValidatorUpdate)
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
@@ -62,18 +61,18 @@ data Response (m :: MessageType) :: * where
 --   auto-generated 'Proto.Response'
 toProto :: Response t -> PT.Response
 toProto r = case r of
-  ResponseEcho msg -> wrap PT._Response'Echo msg
-  ResponseFlush msg -> wrap PT._Response'Flush msg
-  ResponseInfo msg -> wrap PT._Response'Info msg
-  ResponseSetOption msg -> wrap PT._Response'SetOption msg
-  ResponseInitChain msg -> wrap PT._Response'InitChain msg
-  ResponseQuery msg -> wrap PT._Response'Query msg
+  ResponseEcho msg       -> wrap PT._Response'Echo msg
+  ResponseFlush msg      -> wrap PT._Response'Flush msg
+  ResponseInfo msg       -> wrap PT._Response'Info msg
+  ResponseSetOption msg  -> wrap PT._Response'SetOption msg
+  ResponseInitChain msg  -> wrap PT._Response'InitChain msg
+  ResponseQuery msg      -> wrap PT._Response'Query msg
   ResponseBeginBlock msg -> wrap PT._Response'BeginBlock msg
-  ResponseCheckTx msg -> wrap PT._Response'CheckTx msg
-  ResponseDeliverTx msg -> wrap PT._Response'DeliverTx msg
-  ResponseEndBlock msg -> wrap PT._Response'EndBlock msg
-  ResponseCommit msg -> wrap PT._Response'Commit msg
-  ResponseException msg -> wrap PT._Response'Exception msg
+  ResponseCheckTx msg    -> wrap PT._Response'CheckTx msg
+  ResponseDeliverTx msg  -> wrap PT._Response'DeliverTx msg
+  ResponseEndBlock msg   -> wrap PT._Response'EndBlock msg
+  ResponseCommit msg     -> wrap PT._Response'Commit msg
+  ResponseException msg  -> wrap PT._Response'Exception msg
   where
     wrap v msg = defMessage & PT.maybe'value ?~ v # (msg ^. _Wrapped')
 
@@ -354,7 +353,7 @@ data DeliverTx = DeliverTx
   -- ^ Amount of gas requested for transaction.
   , deliverTxGasUsed   :: Int64
   -- ^ Amount of gas consumed by transaction.
-  , deliverTxEvents      :: [Event]
+  , deliverTxEvents    :: [Event]
   -- ^ Events
   , deliverTxCodespace :: Text
   -- ^ Namespace for the Code.
@@ -396,7 +395,7 @@ data EndBlock = EndBlock
   -- ^ Changes to validator set (set voting power to 0 to remove).
   , endBlockConsensusParamUpdates :: Maybe ConsensusParams
   -- ^ Changes to consensus-critical time, size, and other parameters.
-  , endBlockEvents                  :: [Event]
+  , endBlockEvents                :: [Event]
   -- ^ Events
   } deriving (Eq, Show, Generic)
 

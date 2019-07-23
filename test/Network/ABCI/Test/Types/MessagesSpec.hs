@@ -8,9 +8,9 @@ import           Control.Lens                                    (Iso', from,
 import           Control.Lens.Wrapped                            (Wrapped (..),
                                                                   _Unwrapped')
 import           Data.ProtoLens.Arbitrary                        (ArbitraryMessage (..))
+import           Data.ProtoLens.Field                            (HasField)
 import           Data.ProtoLens.Message                          (Message (..))
 import           Data.Proxy                                      (Proxy (..))
-import           Data.ProtoLens.Field                            (HasField)
 import           Network.ABCI.Test.Types.Messages.Instances      ()
 import qualified Network.ABCI.Types.Messages.FieldTypes          as FT
 import qualified Network.ABCI.Types.Messages.Request             as Request
