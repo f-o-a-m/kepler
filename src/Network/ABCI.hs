@@ -1,11 +1,14 @@
-module Network.ABCI where
+module Network.ABCI
+  ( defaultLocalSettings
+  , serveAppWith
+  , serveApp
+  ) where
 
 import           Data.Conduit                         (ConduitT, runConduit,
                                                        (.|))
 import qualified Data.Conduit.List                    as CL
 import           Data.Conduit.Network                 (AppData, ServerSettings,
-                                                       appSink,
-                                                       appSource,
+                                                       appSink, appSource,
                                                        runGeneralTCPServer,
                                                        serverSettings)
 import           Data.Monoid                          ((<>))
