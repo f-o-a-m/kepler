@@ -8,9 +8,9 @@ import           Control.Lens                                    (Iso', from,
 import           Control.Lens.Wrapped                            (Wrapped (..),
                                                                   _Unwrapped')
 import           Data.ProtoLens.Arbitrary                        (ArbitraryMessage (..))
+import           Data.ProtoLens.Field                            (HasField)
 import           Data.ProtoLens.Message                          (Message (..))
 import           Data.Proxy                                      (Proxy (..))
-import qualified Lens.Labels
 import           Network.ABCI.Test.Types.Messages.Instances      ()
 import qualified Network.ABCI.Types.Messages.FieldTypes          as FT
 import qualified Network.ABCI.Types.Messages.Request             as Request
@@ -87,21 +87,21 @@ scrubTimestamp ts =
      & T.nanos %~  (`mod` 1000000000) . abs
 
 scrubTimestampField
-  :: Lens.Labels.HasLens' a "time" T.Timestamp
+  :: HasField a "time" T.Timestamp
   => a
   -> a
 scrubTimestampField a =
   a & PT.time %~ scrubTimestamp
 
 scrubTimestampFieldMaybe
-  :: Lens.Labels.HasLens' a "maybe'time" (Maybe T.Timestamp)
+  :: HasField a "maybe'time" (Maybe T.Timestamp)
   => a
   -> a
 scrubTimestampFieldMaybe a =
   a & PT.maybe'time %~ fmap scrubTimestamp
 
 scrubHeaderTimestampFieldMaybe
-  :: Lens.Labels.HasLens' a "maybe'header" (Maybe PT.Header)
+  :: HasField a "maybe'header" (Maybe PT.Header)
   => a
   -> a
 scrubHeaderTimestampFieldMaybe a =
@@ -109,7 +109,7 @@ scrubHeaderTimestampFieldMaybe a =
 
 
 scrubByzantineValidatorsTimestampFieldMaybe
-  :: Lens.Labels.HasLens' a "byzantineValidators" [PT.Evidence]
+  :: HasField a "byzantineValidators" [PT.Evidence]
   => a
   -> a
 scrubByzantineValidatorsTimestampFieldMaybe a =

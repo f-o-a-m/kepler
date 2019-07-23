@@ -39,16 +39,25 @@ default-extensions:
 - DataKinds
 - ScopedTypeVariables
 - FlexibleInstances
+- OverloadedStrings
 
 
 dependencies:
 - base >= 4.7 && < 5
 - bytestring
+- base16-bytestring
 - lens
 - proto-lens
 - proto-lens-runtime
 - text
 - time
+- conduit
+- conduit-extra
+- monad-control
+- network
+- string-conversions
+- transformers
+- unliftio
 
 library:
   source-dirs: src
