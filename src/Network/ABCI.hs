@@ -24,11 +24,13 @@ import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Proto.Types                          as PT
 
 
--- | Default ABCI app network settings.
+-- | Default ABCI app network settings for serving on localhost at the
+-- standard port.
 defaultLocalSettings :: ServerSettings
 defaultLocalSettings = serverSettings 26658 $ fromString "127.0.0.1"
 
--- | Serve an ABCI application with custom 'ServerSettings'
+-- | Serve an ABCI application with custom 'ServerSettings' and a custom
+-- action to perform on aquiring the socket resource.
 serveAppWith
   :: ServerSettings
   -> App IO
@@ -38,12 +40,12 @@ serveAppWith cfg app onAquire = runGeneralTCPServer cfg $ \appData -> do
   onAquire appData
   runConduit $ setupConduit app appData
 
--- | Serve an ABCI application with default 'ServerSettings'
+-- | Serve an ABCI application with default local 'ServerSettings'
+-- and a no-op on aquiring the socket resource.
 serveApp
   :: App IO
-  -> (AppData -> IO ())
   -> IO ()
-serveApp = serveAppWith defaultLocalSettings
+serveApp app = serveAppWith defaultLocalSettings app (const $ pure ())
 
 -- | Sets up the application wire pipeline.
 setupConduit
