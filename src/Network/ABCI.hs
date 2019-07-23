@@ -30,55 +30,47 @@ defaultLocalSettings = serverSettings 26658 $ fromString "127.0.0.1"
 
 -- | Serve an ABCI application with custom 'ServerSettings'
 serveAppWith
-  :: Monad m
-  => ServerSettings
-  -> (forall a. m a -> IO a)
-  -> App m
+  :: ServerSettings
+  -> App IO
   -> (AppData -> IO ())
   -> IO ()
-serveAppWith cfg nat app onAquire = runGeneralTCPServer cfg $ \appData -> do
+serveAppWith cfg app onAquire = runGeneralTCPServer cfg $ \appData -> do
   onAquire appData
-  runConduit $ setupConduit app nat appData
+  runConduit $ setupConduit app appData
 
 -- | Serve an ABCI application with default 'ServerSettings'
 serveApp
-  :: Monad m
-  => (forall a. m a -> IO a)
-  -> App m
+  :: App IO
   -> (AppData -> IO ())
   -> IO ()
 serveApp = serveAppWith defaultLocalSettings
 
 -- | Sets up the application wire pipeline.
 setupConduit
-  :: Monad m
-  => App m
-  -> (forall a. m a -> IO a)
+  :: App IO
   -> AppData
   -> ConduitT i o IO ()
-setupConduit app nat appData =
+setupConduit app appData =
      appSource appData
   .| Wire.decodeLengthPrefixC
   .| CL.map (traverse PL.decodeMessage =<<)
-  .| CL.mapM (respondWith app nat)
+  .| CL.mapM (respondWith app)
   .| CL.map (map PL.encodeMessage)
   .| Wire.encodeLengthPrefixC
   .| appSink appData
 
 respondWith
-  :: Monad m
-  => App m
-  -> (forall a. m a -> IO a)
+  :: App IO
   -> Either String [PT.Request]
   -> IO [PT.Response]
-respondWith app nat eReq =
+respondWith app eReq =
   case eReq of
     Left err -> pure [makeResponseError ("Invalid request: " <> cs err)]
-    Right reqs -> nat $ forM reqs $ \req ->
-      Request.withProto req (runApp app)
+    Right reqs -> forM reqs $ \req ->
+      Request.withProto req (run app)
   where
-    runApp (App f) mParsedReq = case mParsedReq of
+    run _app mParsedReq = case mParsedReq of
       Nothing        -> pure . makeResponseError $ "Invalid request"
-      Just parsedReq -> Response.toProto <$> f parsedReq
+      Just parsedReq -> Response.toProto <$> runApp _app parsedReq
     makeResponseError err =
       Response.toProto . Response.ResponseException  $ Response.Exception err

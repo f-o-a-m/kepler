@@ -1,8 +1,21 @@
-module Network.ABCI.Types.App where
+module Network.ABCI.Types.App
+  ( App(..)
+  , transformApp
+  ) where
 
 import           Network.ABCI.Types.Messages.Request  (Request)
 import           Network.ABCI.Types.Messages.Response (Response)
 import           Network.ABCI.Types.Messages.Types    (MessageType)
 
-newtype App m =
-  App (forall (t :: MessageType). Request t -> m (Response t))
+-- | Application type that represents a well typed application, i.e. a
+-- function from a typed `Request` to a typed `Response`.
+newtype App m = App
+  { runApp :: forall (t :: MessageType). Request t -> m (Response t) }
+
+-- | Transform an application from running in a custom monad to running in `IO`.
+transformApp
+  :: (forall a. m a -> IO a)
+  -> App m
+  -> App IO
+transformApp nat (App f) = App $ \req ->
+  nat $ f req
