@@ -1,5 +1,6 @@
 module Network.ABCI where
 
+import           Control.Lens                         ((^.))
 import           Control.Monad.IO.Class               (MonadIO (..))
 import           Control.Monad.Trans.Control          (MonadBaseControl)
 import           Data.Conduit                         (ConduitT, runConduit,
@@ -11,7 +12,7 @@ import           Data.Conduit.Network                 (AppData, ServerSettings,
                                                        runGeneralTCPServer,
                                                        serverSettings)
 import           Data.Monoid                          ((<>))
-import qualified Data.ProtoLens.Encoding              as PL
+import qualified Data.ProtoLens                       as PL
 import           Data.String                          (fromString)
 import           Data.String.Conversions              (cs)
 import           Data.Text                            ()
@@ -22,8 +23,8 @@ import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Network.Socket                       (SockAddr)
 import qualified Proto.Types                          as PT
+import qualified Proto.Types_Fields                   as PT
 import           UnliftIO                             (MonadUnliftIO)
-
 
 
 -- | Default ABCI app network settings.
@@ -53,7 +54,17 @@ serveApp
   -> m ()
 serveApp = serveAppWith defaultSettings
 
--- | Sets up the application wire pipeline.
+data Error
+  = CanNotDecodeRequest String
+  | NoValueInRequest PL.FieldSet
+printError :: Error -> String
+printError e = case e of
+  CanNotDecodeRequest err -> "Got decoding error for Request: " <> err
+  NoValueInRequest fields -> "Got unknown Request with unknown fields: " <> show (map showFields fields)
+    where showFields (PL.TaggedValue tag _) = show tag
+
+
+    -- | Sets up the application wire pipeline.
 setupConduit
   :: ( MonadIO m
      , MonadUnliftIO m
@@ -64,27 +75,27 @@ setupConduit
 setupConduit app appData =
      appSource appData
   .| Wire.decodeLengthPrefixC
-  .| CL.map (traverse PL.decodeMessage =<<)
+  .| CL.map (traverse decodeRequestValue =<<)
   .| CL.mapM (respondWith app)
   .| CL.map (map PL.encodeMessage)
   .| Wire.encodeLengthPrefixC
   .| appSink appData
-
+  where
+    decodeRequestValue input = case PL.decodeMessage input of
+      Left parseError -> Left $ printError $ CanNotDecodeRequest parseError
+      Right (request :: PT.Request) -> case request ^. PT.maybe'value of
+        Nothing -> Left $ printError $ NoValueInRequest $ request ^. PL.unknownFields
+        Just value -> Right $ value
 respondWith
   :: ( Monad m
      , MonadIO m
      )
   => App m
-  -> Either String [PT.Request]
+  -> Either String [PT.Request'Value]
   -> m [PT.Response]
-respondWith app eReq =
+respondWith (App f) eReq =
   case eReq of
-    Left err -> pure [makeResponseError ("Invalid request: " <> cs err)]
-    Right reqs -> forM reqs $ \req ->
-      Request.withProto req (runApp app)
-  where
-    runApp (App f) mParsedReq = case mParsedReq of
-      Nothing        -> pure . makeResponseError $ "Invalid request"
-      Just parsedReq -> Response.toProto <$> f parsedReq
-    makeResponseError err =
-      Response.toProto . Response.ResponseException  $ Response.Exception err
+    Left err ->
+      pure [Response.toProto $ Response.ResponseException $ Response.Exception $ cs err]
+    Right reqs ->
+      forM reqs $ Request.withProto $ fmap Response.toProto . f

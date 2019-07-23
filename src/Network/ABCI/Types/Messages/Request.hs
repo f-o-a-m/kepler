@@ -39,7 +39,6 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
-
 --------------------------------------------------------------------------------
 -- Request
 --------------------------------------------------------------------------------
@@ -58,22 +57,21 @@ data Request (m :: MessageType) :: * where
   RequestCommit :: Commit -> Request 'MTCommit
 
 withProto
-  :: PT.Request
-  -> (forall (t :: MessageType). Maybe (Request t) -> a)
+  :: (forall (t :: MessageType). Request t -> a)
+  -> PT.Request'Value
   -> a
-withProto r f
-  | Just echo       <- r ^. PT.maybe'echo       = f (Just (RequestEcho $ echo ^. _Unwrapped'))
-  | Just flush      <- r ^. PT.maybe'flush      = f (Just (RequestFlush $ flush ^. _Unwrapped'))
-  | Just info       <- r ^. PT.maybe'info       = f (Just (RequestInfo $ info ^. _Unwrapped'))
-  | Just setOption  <- r ^. PT.maybe'setOption  = f (Just (RequestSetOption $ setOption ^. _Unwrapped'))
-  | Just initChain  <- r ^. PT.maybe'initChain  = f (Just (RequestInitChain $ initChain ^. _Unwrapped'))
-  | Just query      <- r ^. PT.maybe'query      = f (Just (RequestQuery $ query ^. _Unwrapped'))
-  | Just beginBlock <- r ^. PT.maybe'beginBlock = f (Just (RequestBeginBlock $ beginBlock ^. _Unwrapped'))
-  | Just requestTx  <- r ^. PT.maybe'checkTx    = f (Just (RequestCheckTx $ requestTx ^. _Unwrapped'))
-  | Just deliverTx  <- r ^. PT.maybe'deliverTx  = f (Just (RequestDeliverTx $ deliverTx ^. _Unwrapped'))
-  | Just endBlock   <- r ^. PT.maybe'endBlock   = f (Just (RequestEndBlock $ endBlock ^. _Unwrapped'))
-  | Just commit     <- r ^. PT.maybe'commit     = f (Just (RequestCommit $ commit ^. _Unwrapped'))
-  | otherwise                                   = f Nothing
+withProto f value = case value of
+  PT.Request'Echo echo -> f $ RequestEcho $ echo ^. _Unwrapped'
+  PT.Request'Flush flush -> f $ RequestFlush $ flush ^. _Unwrapped'
+  PT.Request'Info info -> f $ RequestInfo $ info ^. _Unwrapped'
+  PT.Request'SetOption setOption -> f $ RequestSetOption $ setOption ^. _Unwrapped'
+  PT.Request'InitChain initChain -> f $ RequestInitChain $ initChain ^. _Unwrapped'
+  PT.Request'Query query -> f $ RequestQuery $ query ^. _Unwrapped'
+  PT.Request'BeginBlock beginBlock -> f $ RequestBeginBlock $ beginBlock ^. _Unwrapped'
+  PT.Request'CheckTx checkTx -> f $ RequestCheckTx $ checkTx ^. _Unwrapped'
+  PT.Request'DeliverTx deliverTx -> f $ RequestDeliverTx $ deliverTx ^. _Unwrapped'
+  PT.Request'EndBlock endBlock -> f $ RequestEndBlock $ endBlock ^. _Unwrapped'
+  PT.Request'Commit commit -> f $ RequestCommit $ commit ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- Echo
