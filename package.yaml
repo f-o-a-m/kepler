@@ -53,11 +53,7 @@ dependencies:
 - time
 - conduit
 - conduit-extra
-- monad-control
-- network
 - string-conversions
-- transformers
-- unliftio
 
 library:
   source-dirs: src
