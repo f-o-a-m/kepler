@@ -22,5 +22,5 @@ install:
 - travis_wait stack --skip-ghc-check install hlint-2.1.10
 script:
 - make hlint
-- make stylish && make fail-when-dirty
+- if [ "$TRAVIS_BRANCH" == "master" ]; then make stylish && make fail-when-dirty; fi
 - make test
