@@ -53,11 +53,7 @@ dependencies:
 - time
 - conduit
 - conduit-extra
-- monad-control
-- network
 - string-conversions
-- transformers
-- unliftio
 
 library:
   source-dirs: src
@@ -65,6 +61,9 @@ library:
   - -Werror
   - -Wall
   exposed-modules:
+  - Network.ABCI
+  - Network.ABCI.Internal.Wire
+  - Network.ABCI.Types.App
   - Network.ABCI.Types.Messages.Request
   - Network.ABCI.Types.Messages.Response
   - Network.ABCI.Types.Messages.FieldTypes
