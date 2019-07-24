@@ -4,7 +4,8 @@ module Network.ABCI
   , serveApp
   ) where
 
-import           Control.Lens                         ((^.))
+import           Control.Lens ((^.))
+-- import           Control.Lens                         ((^.))
 import           Data.Conduit                         (ConduitT, runConduit,
                                                        (.|))
 import qualified Data.Conduit.List                    as CL
