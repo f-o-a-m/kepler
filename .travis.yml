@@ -22,4 +22,6 @@ install:
 - travis_wait stack --skip-ghc-check install hlint-2.1.10
 script:
 - make hlint
+- make stylish
+- git diff --exit-code
 - make test
