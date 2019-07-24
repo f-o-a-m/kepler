@@ -68,6 +68,8 @@ library:
   - Network.ABCI.Types.Messages.Request
   - Network.ABCI.Types.Messages.Response
   - Network.ABCI.Types.Messages.FieldTypes
+  - Network.ABCI.Types.Error
+  - Network.ABCI.Internal.Wire
   generated-exposed-modules:
   - Proto.Types
   - Proto.Types_Fields
@@ -87,16 +89,18 @@ tests:
     other-modules:
     - Network.ABCI.Test.Types.Messages.Instances
     - Network.ABCI.Test.Types.MessagesSpec
+    - Network.ABCI.Test.Internal.WireSpec
     ghc-options:
     - -Werror
     - -Wall
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
- 
+
 
     dependencies:
       - generic-arbitrary
+      - binary
       - hs-abci-server
       - hspec
       - hspec-core
