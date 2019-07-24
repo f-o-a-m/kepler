@@ -4,6 +4,7 @@ module Network.ABCI
   , serveApp
   ) where
 
+import           Control.Lens                         ((^.))
 import           Data.Conduit                         (ConduitT, runConduit,
                                                        (.|))
 import qualified Data.Conduit.List                    as CL
@@ -11,17 +12,19 @@ import           Data.Conduit.Network                 (AppData, ServerSettings,
                                                        appSink, appSource,
                                                        runGeneralTCPServer,
                                                        serverSettings)
-import           Data.Monoid                          ((<>))
-import qualified Data.ProtoLens.Encoding              as PL
+import qualified Data.ProtoLens                       as PL
 import           Data.String                          (fromString)
 import           Data.String.Conversions              (cs)
 import           Data.Text                            ()
 import           Data.Traversable                     (forM, traverse)
 import           Network.ABCI.Internal.Wire           as Wire
 import           Network.ABCI.Types.App               (App (..))
+import qualified Network.ABCI.Types.Error             as Error
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Proto.Types                          as PT
+
+import qualified Proto.Types_Fields                   as PT
 
 
 -- | Default ABCI app network settings for serving on localhost at the
@@ -47,7 +50,9 @@ serveApp
   -> IO ()
 serveApp app = serveAppWith defaultLocalSettings app (const $ pure ())
 
--- | Sets up the application wire pipeline.
+
+
+    -- | Sets up the application wire pipeline.
 setupConduit
   :: App IO
   -> AppData
@@ -55,24 +60,25 @@ setupConduit
 setupConduit app appData =
      appSource appData
   .| Wire.decodeLengthPrefixC
-  .| CL.map (traverse PL.decodeMessage =<<)
+  .| CL.map (traverse decodeRequestValue =<<)
   .| CL.mapM (respondWith app)
   .| CL.map (map PL.encodeMessage)
   .| Wire.encodeLengthPrefixC
   .| appSink appData
+  where
+    decodeRequestValue input = case PL.decodeMessage input of
+      Left parseError -> Left $ Error.CanNotDecodeRequest input parseError
+      Right (request :: PT.Request) -> case request ^. PT.maybe'value of
+        Nothing -> Left $ Error.NoValueInRequest input (request ^. PL.unknownFields)
+        Just value -> Right $ value
 
 respondWith
   :: App IO
-  -> Either String [PT.Request]
+  -> Either Error.Error [PT.Request'Value]
   -> IO [PT.Response]
-respondWith app eReq =
+respondWith (App f) eReq =
   case eReq of
-    Left err -> pure [makeResponseError ("Invalid request: " <> cs err)]
-    Right reqs -> forM reqs $ \req ->
-      Request.withProto req (run app)
-  where
-    run _app mParsedReq = case mParsedReq of
-      Nothing        -> pure . makeResponseError $ "Invalid request"
-      Just parsedReq -> Response.toProto <$> runApp _app parsedReq
-    makeResponseError err =
-      Response.toProto . Response.ResponseException  $ Response.Exception err
+    Left err ->
+      pure [Response.toProto $ Response.ResponseException $ Response.Exception $ cs $ Error.print err]
+    Right reqs ->
+      forM reqs $ Request.withProto $ fmap Response.toProto . f
