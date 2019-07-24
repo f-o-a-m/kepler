@@ -15,3 +15,6 @@ test: install ## Run the haskell test suite
 
 stylish: ## Run stylish-haskell over all haskell projects
 	find ./{src,test} -name "*.hs" | xargs stylish-haskell -c ./.stylish_haskell.yaml -i
+
+fail-when-dirty: ## Fails if working directory is dirty
+	git diff-index --quiet HEAD

@@ -22,6 +22,5 @@ install:
 - travis_wait stack --skip-ghc-check install hlint-2.1.10
 script:
 - make hlint
-# if stylish makes any change to files it git diff will exit with code 1
-- make stylish && git diff --exit-code
+- make stylish && make fail-when-dirty
 - make test
