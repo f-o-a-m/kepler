@@ -14,8 +14,8 @@ newtype App m = App
 
 -- | Transform an application from running in a custom monad to running in `IO`.
 transformApp
-  :: (forall a. m a -> IO a)
+  :: (forall a. m a -> n a)
   -> App m
-  -> App IO
+  -> App n
 transformApp nat (App f) = App $ \req ->
   nat $ f req
