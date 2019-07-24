@@ -2,6 +2,7 @@ module Network.ABCI where
 
 import           Control.Lens                         ((^.))
 import           Control.Monad.Trans.Class            (lift)
+import           Control.FromSum                      (fromEither)
 import           Control.Monad.Trans.Except           (runExceptT, except)
 import qualified Data.ByteString                      as BS
 import           Data.Conduit                         (runConduit, (.|))
@@ -65,8 +66,3 @@ runApp (App app) bsInput = do
       Right (request :: PT.Request) -> case request ^. PT.maybe'value of
         Nothing -> Left $ Error.NoValueInRequest packet (request ^. PL.unknownFields)
         Just value -> Right $ value
-
-    -- https://hackage.haskell.org/package/from-sum-0.2.1.0/docs/Control-FromSum.html#v:fromEither
-    fromEither :: (e -> a) -> Either e a -> a
-    fromEither f (Left x) = f x
-    fromEither _ (Right x) = x
