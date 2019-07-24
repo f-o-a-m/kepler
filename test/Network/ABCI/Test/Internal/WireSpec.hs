@@ -2,15 +2,14 @@
 module Network.ABCI.Test.Internal.WireSpec (main, spec) where
 
 import           Network.ABCI.Internal.Wire
-import qualified Network.ABCI.Types.Error as Error
+-- import qualified Network.ABCI.Types.Error as Error
 import qualified Data.Binary.Put as Put
 import qualified Data.ByteString as BS
-import           Data.Bifunctor (first)
+-- import           Data.Bifunctor (first)
 import qualified Data.ByteString.Lazy as LBS
 import           Data.Conduit
 import qualified Data.Conduit.List as CL
 import           Data.Either (isLeft)
-import           Data.Functor.Identity (Identity(runIdentity))
 import           Data.Monoid ((<>))
 import           Test.Hspec
 import           Test.QuickCheck
@@ -37,10 +36,10 @@ spec = do
                    .| CL.map (\a -> [a])
                    .| encodeLengthPrefixC
                    .| decodeLengthPrefixC
-                   .| CL.map (first Error.print)
+                  --  .| CL.map (first Error.print)
                    .| consumeValidChunks
             bytes = BS.pack bytelist
-        in runIdConduit conduit == Right bytes
+        in runConduitPure conduit == Right bytes
 
   describe "decodeLengthPrefixC" $ do
 
@@ -48,9 +47,9 @@ spec = do
       let ginormousSizeVarLen = 8 `BS.cons` runPut (Put.putWord64be maxBound)
           conduit = yield ginormousSizeVarLen
                  .| decodeLengthPrefixC
-                 .| CL.map (first Error.print)
+                --  .| CL.map (first Error.print)
                  .| consumeValidChunks
-      in runIdConduit conduit `shouldSatisfy` isLeft
+      in runConduitPure conduit `shouldSatisfy` isLeft
 
 
 -- Takes a 'ByteString' and a list of chunkSizes >= 0 and yields the
@@ -69,8 +68,6 @@ chunksProducer bs _ | BS.null bs = return ()
 chunksProducer bs (c:cs) = yield chunk >> chunksProducer rest cs
   where (chunk, rest) = BS.splitAt (getNonNegative c) bs
 
-runIdConduit :: ConduitT () Void Identity a -> a
-runIdConduit = runIdentity . runConduit
 
 -- This consumer will concatenate all the valid decoded chunks.
 -- The first error encountered will be the result of the 'Consumer'
