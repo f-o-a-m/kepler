@@ -3,15 +3,15 @@ module Network.ABCI.Internal.Wire
   , decodeLengthPrefixC
   ) where
 
+import           Data.Bifunctor                (first)
 import qualified Data.ByteString               as BS
-import qualified Data.ByteString.Base16        as BS16
 import           Data.Conduit                  (ConduitT, awaitForever, yield)
 import qualified Data.Conduit.List             as CL
 import           Data.ProtoLens.Encoding.Bytes (getVarInt, putVarInt,
                                                 runBuilder, runParser,
                                                 signedInt64ToWord,
                                                 wordToSignedInt64)
-import           Data.String.Conversions       (cs)
+import qualified Network.ABCI.Types.Error      as Error
 
 -- | Transforms a stream of 'ByteString' to a stream of varlength-prefixed
 --   'ByteString's
@@ -28,22 +28,19 @@ encodeLengthPrefixC = CL.map $ foldMap encodeLengthPrefix
 
 decodeLengthPrefixC
   :: Monad m
-  => ConduitT BS.ByteString (Either String [BS.ByteString]) m ()
-decodeLengthPrefixC = awaitForever $ \bytes ->
-  case splitOffMessages bytes of
-    Left err       -> yield (Left err)
-    Right messages -> yield $ Right messages
+  => ConduitT BS.ByteString (Either Error.Error [BS.ByteString]) m ()
+decodeLengthPrefixC = awaitForever $ yield . splitOffMessages
   where
-    splitOffMessages :: BS.ByteString -> Either String [BS.ByteString]
+    splitOffMessages :: BS.ByteString -> Either Error.Error [BS.ByteString]
     splitOffMessages bs
-      | bs == mempty = pure []
+      | bs == mempty = Right []
       | otherwise = do
-          n <- runParser getVarInt bs
+          n <- first (Error.ProtoLensParseError bs) $ runParser getVarInt bs
           let lengthHeader = runBuilder $ putVarInt n
           messageBytesWithTail <- case BS.stripPrefix lengthHeader bs of
-            Nothing -> let prefixWithMsg = show (cs . BS16.encode $ lengthHeader :: String , cs . BS16.encode $ bs :: String)
-                       in Left $ "prefix not actually a prefix!: " <> prefixWithMsg
-            Just a -> pure a
+            Nothing -> Left $ Error.InvalidPrefix lengthHeader bs
+            Just a  -> Right a
           let (messageBytes, remainder) = BS.splitAt (fromIntegral $ wordToSignedInt64 n) messageBytesWithTail
           (messageBytes : ) <$> splitOffMessages remainder
+
 {-# INLINEABLE decodeLengthPrefixC #-}

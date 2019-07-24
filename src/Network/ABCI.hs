@@ -11,7 +11,6 @@ import           Data.Conduit.Network                 (AppData, ServerSettings,
                                                        appSource,
                                                        runGeneralTCPServer,
                                                        serverSettings)
-import           Data.Monoid                          ((<>))
 import qualified Data.ProtoLens                       as PL
 import           Data.String                          (fromString)
 import           Data.String.Conversions              (cs)
@@ -19,6 +18,7 @@ import           Data.Text                            ()
 import           Data.Traversable                     (forM, traverse)
 import           Network.ABCI.Internal.Wire           as Wire
 import           Network.ABCI.Types.App               (App (..))
+import qualified Network.ABCI.Types.Error             as Error
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Network.Socket                       (SockAddr)
@@ -54,14 +54,6 @@ serveApp
   -> m ()
 serveApp = serveAppWith defaultSettings
 
-data Error
-  = CanNotDecodeRequest String
-  | NoValueInRequest PL.FieldSet
-printError :: Error -> String
-printError e = case e of
-  CanNotDecodeRequest err -> "Got decoding error for Request: " <> err
-  NoValueInRequest fields -> "Got unknown Request with unknown fields: " <> show (map showFields fields)
-    where showFields (PL.TaggedValue tag _) = show tag
 
 
     -- | Sets up the application wire pipeline.
@@ -82,20 +74,21 @@ setupConduit app appData =
   .| appSink appData
   where
     decodeRequestValue input = case PL.decodeMessage input of
-      Left parseError -> Left $ printError $ CanNotDecodeRequest parseError
+      Left parseError -> Left $ Error.CanNotDecodeRequest input parseError
       Right (request :: PT.Request) -> case request ^. PT.maybe'value of
-        Nothing -> Left $ printError $ NoValueInRequest $ request ^. PL.unknownFields
+        Nothing -> Left $ Error.NoValueInRequest input (request ^. PL.unknownFields)
         Just value -> Right $ value
+
 respondWith
   :: ( Monad m
      , MonadIO m
      )
   => App m
-  -> Either String [PT.Request'Value]
+  -> Either Error.Error [PT.Request'Value]
   -> m [PT.Response]
 respondWith (App f) eReq =
   case eReq of
     Left err ->
-      pure [Response.toProto $ Response.ResponseException $ Response.Exception $ cs err]
+      pure [Response.toProto $ Response.ResponseException $ Response.Exception $ cs $ Error.print err]
     Right reqs ->
       forM reqs $ Request.withProto $ fmap Response.toProto . f
