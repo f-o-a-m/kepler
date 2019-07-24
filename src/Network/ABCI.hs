@@ -66,11 +66,11 @@ setupConduit
   -> ConduitT i o m ()
 setupConduit app appData =
      appSource appData
-  .| Wire.decodeLengthPrefixC
+  .| CL.map Wire.decodeLengthPrefix
   .| CL.map (traverse decodeRequestValue =<<)
   .| CL.mapM (respondWith app)
   .| CL.map (map PL.encodeMessage)
-  .| Wire.encodeLengthPrefixC
+  .| CL.map Wire.encodeLengthPrefix
   .| appSink appData
   where
     decodeRequestValue input = case PL.decodeMessage input of
