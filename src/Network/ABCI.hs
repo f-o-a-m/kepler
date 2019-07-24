@@ -7,7 +7,7 @@ import           Control.Monad.Trans.Except           (runExceptT, except)
 import qualified Data.ByteString                      as BS
 import           Data.Conduit                         (runConduit, (.|))
 import qualified Data.Conduit.List                    as CL
-import           Data.Conduit.Network                 (AppData, ServerSettings,
+import           Data.Conduit.Network                 (ServerSettings,
                                                        appSink,
                                                        appSource,
                                                        runTCPServer,
@@ -32,21 +32,15 @@ defaultSettings = serverSettings 26658 $ fromString "127.0.0.1"
 type AppRunner m = BS.ByteString -> m BS.ByteString
 
 -- | Serve an ABCI application with custom 'ServerSettings'
-serveAppWith
-  :: ServerSettings
-  -> (AppData -> IO (AppRunner IO))
-  -> IO ()
-serveAppWith cfg mkRunner = runTCPServer cfg $ \appData -> do
-  runner <- mkRunner appData
+serveAppWith :: ServerSettings -> AppRunner IO -> IO ()
+serveAppWith cfg runner = runTCPServer cfg $ \appData -> do
   runConduit $
       appSource appData
     .| CL.mapM runner
     .| appSink appData
 
 -- | Serve an ABCI application with default 'ServerSettings'
-serveApp
-  :: (AppData -> IO (AppRunner IO))
-  -> IO ()
+serveApp :: AppRunner IO -> IO ()
 serveApp = serveAppWith defaultSettings
 
 
