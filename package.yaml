@@ -86,6 +86,7 @@ tests:
     other-modules:
     - Network.ABCI.Test.Types.Messages.Instances
     - Network.ABCI.Test.Types.MessagesSpec
+    - Network.ABCI.Test.Types.AppSpec
     ghc-options:
     - -Werror
     - -Wall
@@ -100,6 +101,7 @@ tests:
       - hspec
       - hspec-core
       - hspec-discover
+      - binary
       - lens-labels
       - proto-lens-arbitrary
       - QuickCheck
