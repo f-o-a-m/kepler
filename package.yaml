@@ -62,8 +62,8 @@ library:
   - -Wall
   exposed-modules:
   - Network.ABCI
-  - Network.ABCI.Internal.Wire
   - Network.ABCI.Types.App
+  - Network.ABCI.Types.DecodeError
   - Network.ABCI.Types.Messages.Request
   - Network.ABCI.Types.Messages.Response
   - Network.ABCI.Types.Messages.FieldTypes
@@ -92,7 +92,7 @@ tests:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
- 
+
 
     dependencies:
       - generic-arbitrary

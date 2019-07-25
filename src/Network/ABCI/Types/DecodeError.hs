@@ -1,11 +1,11 @@
-module Network.ABCI.Types.Error where
+module Network.ABCI.Types.DecodeError where
 
 import qualified Data.ByteString         as BS
 import qualified Data.ByteString.Base16  as BS16
 import qualified Data.ProtoLens          as PL
 import           Data.String.Conversions (cs)
 
-data Error
+data DecodeError
   = CanNotDecodeRequest
       { canNotDecodeRequestRequest :: BS.ByteString
       , canNotDecodeRequestError   :: String
@@ -15,15 +15,15 @@ data Error
       , noValueInRequestUnknownFields :: PL.FieldSet
       }
   | ProtoLensParseError
-      { protoLensParseErrorMsg   :: BS.ByteString
-      , protoLensParseErrorError :: String
+      { protoLensParseErrorRequest :: BS.ByteString
+      , protoLensParseErrorError   :: String
       }
   | InvalidPrefix
       { invalidPrefixMsg    :: BS.ByteString
       , invalidPrefixPrefix :: BS.ByteString
       }
 
-print :: Error -> String
+print :: DecodeError -> String
 print e =
   case e of
     CanNotDecodeRequest {canNotDecodeRequestRequest, canNotDecodeRequestError} ->
@@ -36,15 +36,15 @@ print e =
         <> showBS noValueInRequestRequest
         <> " with unknown fields: "
         <> show (map showFields noValueInRequestUnknownFields)
-    ProtoLensParseError {protoLensParseErrorMsg, protoLensParseErrorError} ->
+    ProtoLensParseError {protoLensParseErrorRequest, protoLensParseErrorError} ->
       "Got parse error while parsing length prefix: "
         <> show protoLensParseErrorError
-        <> " for message: "
-        <> showBS protoLensParseErrorMsg
+        <> " for request: "
+        <> showBS protoLensParseErrorRequest
     InvalidPrefix {invalidPrefixMsg, invalidPrefixPrefix} ->
       "Got Invalid length prefix: "
         <> showBS invalidPrefixPrefix
-        <> " for message: "
+        <> " for request: "
         <> showBS invalidPrefixMsg
   where
     showBS v = show $ (cs . BS16.encode $ v :: String)
