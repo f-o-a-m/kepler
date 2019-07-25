@@ -14,5 +14,4 @@ test: install ## Run the haskell test suite
 	stack test
 
 stylish: ## Run stylish-haskell over all haskell projects
-	find ./src -name "*.hs" | xargs stylish-haskell -c ./.stylish_haskell.yaml -i
-	find ./test -name "*.hs" | xargs stylish-haskell -c ./.stylish_haskell.yaml -i
+	find ./src ./test -name "*.hs" | xargs stylish-haskell -c ./.stylish_haskell.yaml -i
