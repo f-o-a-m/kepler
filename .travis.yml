@@ -22,5 +22,8 @@ install:
 - travis_wait stack --skip-ghc-check install hlint-2.1.10
 script:
 - make hlint
-- if [ "$TRAVIS_BRANCH" == "master" ]; then make stylish && make fail-when-dirty; fi
+
+# When branch is `master` we run `haskell-stylish` and fail if git working directory is dirty
+- if [ "$TRAVIS_BRANCH" == "master" ]; then make stylish && git diff-index --quiet HEAD; fi
+
 - make test
