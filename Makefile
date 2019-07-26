@@ -10,7 +10,7 @@ install: ## Runs stack install to compile library and counter example app
 hlint: ## Run hlint on all haskell projects
 	stack exec hlint -- -h .hlint.yaml hs-abci-server
 
-test: install ## Run the haskell test suite
+test: install ## Run the haskell test suite for all haskell projects
 	stack test
 
 stylish: ## Run stylish-haskell over all haskell projects
