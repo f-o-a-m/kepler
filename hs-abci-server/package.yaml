@@ -7,8 +7,6 @@ maintainer:          "example@example.com"
 copyright:           "2019 Author name here"
 
 extra-source-files:
-- README.md
-- ChangeLog.md
 - protos/**/*.proto
 
 # Metadata used when publishing your package
