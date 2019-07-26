@@ -33,30 +33,26 @@ newtype App m = App
 transformApp :: (forall a. m a -> g a) -> App m -> App g
 transformApp nat (App f) = App $ nat . f
 
--- | compiles `App` down to `AppBS`
-runApp :: Applicative m => App m -> AppBS m
+-- | Compiles `App` down to `AppBS`
+runApp :: forall m. Applicative m => App m -> LPByteStrings -> m LPByteStrings
 runApp (App app) bs =
   bs
     & (decodeLengthPrefix >=> decodeRequests)
-    & either (pure . onError) (traverse onResponce)
-    & fmap (encodeLengthPrefix . encodeResponces)
+    & either (pure . onError) (traverse onResponse)
+    & fmap (encodeLengthPrefix . encodeResponses)
   where
     onError :: DecodeError -> [PT.Response]
     onError err = [Response.toProto $ Response.ResponseException $ Response.Exception $ cs $ DecodeError.print err]
-    -- for some reason with this type we get • Couldn't match type ‘m1’ with ‘m’
-    -- onResponce :: PT.Request'Value -> m PT.Response
-    onResponce = Request.withProto $ fmap Response.toProto . app
+    onResponse :: PT.Request'Value -> m PT.Response
+    onResponse = Request.withProto $ fmap Response.toProto . app
 
--- | ByteString which contains multiple length prefixed messages
-type LengthPrefixedByteString = BS.ByteString
-
--- | compiled Application which operates on varlength-prefixed ByteString
-type AppBS m = LengthPrefixedByteString -> m LengthPrefixedByteString
+-- | ByteString which contains multiple length prefixed ByteStrings
+newtype LPByteStrings = LPByteStrings { unLPByteStrings :: BS.ByteString } deriving (Ord,Eq)
 
 
--- | Encodes responces to bytestrings
-encodeResponces :: [PT.Response] -> [BS.ByteString]
-encodeResponces = map PL.encodeMessage
+-- | Encodes responses to bytestrings
+encodeResponses :: [PT.Response] -> [BS.ByteString]
+encodeResponses = map PL.encodeMessage
 
 -- | Decodes bytestrings into requests
 decodeRequests :: [BS.ByteString] -> Either DecodeError [PT.Request'Value]
@@ -67,16 +63,19 @@ decodeRequests = traverse $ \packet -> case PL.decodeMessage packet of
     Just value -> Right $ value
 
 -- | Encodes ByteStrings into varlength-prefixed ByteString
-encodeLengthPrefix :: [BS.ByteString] -> LengthPrefixedByteString
-encodeLengthPrefix = foldMap $ \bytes ->
-  let headerN = signedInt64ToWord . fromIntegral . BS.length $ bytes
-      header = runBuilder $ putVarInt headerN
-  in header `BS.append` bytes
-{-# INLINEABLE encodeLengthPrefix #-}
+encodeLengthPrefix :: [BS.ByteString] -> LPByteStrings
+encodeLengthPrefix = LPByteStrings . foldMap encoder
+  where
+    encoder bytes =
+      let
+        headerN = signedInt64ToWord . fromIntegral . BS.length $ bytes
+        header = runBuilder $ putVarInt headerN
+      in
+        header `BS.append` bytes
 
 -- | Decodes varlength-prefixed ByteString into ByteStrings
-decodeLengthPrefix :: LengthPrefixedByteString -> Either DecodeError [BS.ByteString]
-decodeLengthPrefix bs
+decodeLengthPrefix :: LPByteStrings -> Either DecodeError [BS.ByteString]
+decodeLengthPrefix (LPByteStrings bs)
   | bs == mempty = Right []
   | otherwise = do
       n <- first (DecodeError.ProtoLensParseError bs) $ runParser getVarInt bs
@@ -85,5 +84,4 @@ decodeLengthPrefix bs
         Nothing -> Left $ DecodeError.InvalidPrefix lengthHeader bs
         Just a  -> Right a
       let (messageBytes, remainder) = BS.splitAt (fromIntegral $ wordToSignedInt64 n) messageBytesWithTail
-      (messageBytes : ) <$> decodeLengthPrefix remainder
-{-# INLINEABLE decodeLengthPrefix #-}
+      (messageBytes : ) <$> decodeLengthPrefix (LPByteStrings remainder)

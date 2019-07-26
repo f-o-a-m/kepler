@@ -7,7 +7,8 @@ import           Data.Conduit.Network   (AppData, ServerSettings, appSink,
                                          serverSettings)
 import           Data.Monoid            (mempty)
 import           Data.String            (fromString)
-import           Network.ABCI.Types.App (App (..), runApp)
+import           Network.ABCI.Types.App (App (..))
+import qualified Network.ABCI.Types.App as App
 
 
 -- | Default ABCI app network settings for serving on localhost at the
@@ -24,7 +25,9 @@ serveAppWith
   -> IO ()
 serveAppWith cfg onAquire app = runTCPServer cfg $ \appData -> do
   onAquire appData
-  runConduit $ appSource appData .| CL.mapM (runApp app) .| appSink appData
+  runConduit $ appSource appData
+    .| CL.mapM (fmap App.unLPByteStrings . App.runApp app . App.LPByteStrings)
+    .| appSink appData
 
 
 -- | Serve an ABCI application with default local 'ServerSettings'
