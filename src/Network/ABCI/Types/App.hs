@@ -14,8 +14,8 @@ import           Data.ProtoLens.Encoding.Bytes        (getVarInt, putVarInt,
 import           Data.String.Conversions              (cs)
 import           Data.Text                            ()
 import           Data.Traversable                     (traverse)
-import           Network.ABCI.Types.DecodeError             (DecodeError)
-import qualified Network.ABCI.Types.DecodeError             as DecodeError
+import           Network.ABCI.Types.DecodeError       (DecodeError)
+import qualified Network.ABCI.Types.DecodeError       as DecodeError
 import           Network.ABCI.Types.Messages.Request  (Request)
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import           Network.ABCI.Types.Messages.Response (Response)
