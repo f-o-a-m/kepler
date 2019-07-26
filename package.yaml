@@ -62,8 +62,8 @@ library:
   - -Wall
   exposed-modules:
   - Network.ABCI
-  - Network.ABCI.Internal.Wire
   - Network.ABCI.Types.App
+  - Network.ABCI.Types.DecodeError
   - Network.ABCI.Types.Messages.Request
   - Network.ABCI.Types.Messages.Response
   - Network.ABCI.Types.Messages.FieldTypes
@@ -86,13 +86,14 @@ tests:
     other-modules:
     - Network.ABCI.Test.Types.Messages.Instances
     - Network.ABCI.Test.Types.MessagesSpec
+    - Network.ABCI.Test.Types.AppSpec
     ghc-options:
     - -Werror
     - -Wall
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
- 
+
 
     dependencies:
       - generic-arbitrary
@@ -100,6 +101,7 @@ tests:
       - hspec
       - hspec-core
       - hspec-discover
+      - binary
       - lens-labels
       - proto-lens-arbitrary
       - QuickCheck

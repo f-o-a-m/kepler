@@ -23,9 +23,6 @@ import           Test.Hspec
 import           Test.QuickCheck                                 (Arbitrary,
                                                                   property)
 
-main :: IO ()
-main = pure () --hspec spec
-
 --------------------------------------------------------------------------------
 -- Helpers to check instances
 --------------------------------------------------------------------------------
