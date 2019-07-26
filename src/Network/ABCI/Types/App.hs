@@ -43,24 +43,25 @@ runApp (App app) bs =
   where
     onError :: DecodeError -> [PT.Response]
     onError err = [Response.toProto $ Response.ResponseException $ Response.Exception $ cs $ DecodeError.print err]
+
     onResponse :: PT.Request'Value -> m PT.Response
     onResponse = Request.withProto $ fmap Response.toProto . app
 
+    -- | Encodes responses to bytestrings
+    encodeResponses :: [PT.Response] -> [BS.ByteString]
+    encodeResponses = map PL.encodeMessage
+
+    -- | Decodes bytestrings into requests
+    decodeRequests :: [BS.ByteString] -> Either DecodeError [PT.Request'Value]
+    decodeRequests = traverse $ \packet -> case PL.decodeMessage packet of
+      Left parseError -> Left $ DecodeError.CanNotDecodeRequest packet parseError
+      Right (request :: PT.Request) -> case request ^. PT.maybe'value of
+        Nothing -> Left $ DecodeError.NoValueInRequest packet (request ^. PL.unknownFields)
+        Just value -> Right $ value
+
+
 -- | ByteString which contains multiple length prefixed ByteStrings
 newtype LPByteStrings = LPByteStrings { unLPByteStrings :: BS.ByteString } deriving (Ord,Eq)
-
-
--- | Encodes responses to bytestrings
-encodeResponses :: [PT.Response] -> [BS.ByteString]
-encodeResponses = map PL.encodeMessage
-
--- | Decodes bytestrings into requests
-decodeRequests :: [BS.ByteString] -> Either DecodeError [PT.Request'Value]
-decodeRequests = traverse $ \packet -> case PL.decodeMessage packet of
-  Left parseError -> Left $ DecodeError.CanNotDecodeRequest packet parseError
-  Right (request :: PT.Request) -> case request ^. PT.maybe'value of
-    Nothing -> Left $ DecodeError.NoValueInRequest packet (request ^. PL.unknownFields)
-    Just value -> Right $ value
 
 -- | Encodes ByteStrings into varlength-prefixed ByteString
 encodeLengthPrefix :: [BS.ByteString] -> LPByteStrings
