@@ -21,10 +21,29 @@ description:         Please see the README on GitHub at <https://github.com/f-o-
 
 dependencies:
 - base >= 4.7 && < 5
-- katip >= 0.7 && < 0.8
-- hs-abci-server >= 0.1 && < 0.2
-- aeson >= 1.4 && < 2
-- aeson-casing >= 0.1.0.0 && < 0.2
+- katip
+- hs-abci-server
+- aeson
+- aeson-casing
+- memory
+- text
+- bytestring
+- bytestring
+
+default-extensions:
+- NamedFieldPuns
+- RecordWildCards
+- FlexibleContexts
+- DeriveGeneric
+- TypeFamilies
+- GADTs
+- DataKinds
+- PolyKinds
+- RankNTypes
+- DataKinds
+- ScopedTypeVariables
+- FlexibleInstances
+- OverloadedStrings
 
 library:
   source-dirs: src
