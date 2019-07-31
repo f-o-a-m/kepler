@@ -9,11 +9,17 @@ import           Control.Lens
                                                                                    (^..),
                                                                                    (^?),
                                                                                    _Just)
+import           Data.Aeson                             (FromJSON (..),
+                                                         ToJSON (..),
+                                                         genericParseJSON,
+                                                         genericToJSON)
 import           Control.Lens.Wrapped
                                                                                    (Wrapped (..),
                                                                                    _Unwrapped')
-import           Data.ByteString
-                                                                                   (ByteString)
+import           Data.ByteArray.HexString
+                                                                                   (HexString,
+                                                                                   fromBytes,
+                                                                                   toBytes)
 import           Data.Int
                                                                                    (Int32,
                                                                                    Int64)
@@ -29,6 +35,7 @@ import           Data.Word
                                                                                    (Word64)
 import           GHC.Generics
                                                                                    (Generic)
+import Network.ABCI.Types.Messages.Common (defaultABCIOptions)
 import qualified Proto.Types                                                      as PT
 import qualified Proto.Types_Fields                                               as PT
 import qualified Proto.Vendored.Google.Protobuf.Timestamp                         as T
@@ -50,6 +57,9 @@ mkTimestamp ts =
     nsResolution = (ps `div` tenToThird) * tenToThird
   in
     Timestamp $ picosecondsToDiffTime nsResolution
+
+instance ToJSON Timestamp
+instance FromJSON Timestamp
 
 instance Wrapped Timestamp where
   type Unwrapped Timestamp = T.Timestamp
@@ -80,6 +90,11 @@ data BlockParams = BlockParams
   -- ^ Max sum of GasWanted in a proposed block.
   } deriving (Eq, Show, Generic)
 
+instance ToJSON BlockParams where
+  toJSON = genericToJSON $ defaultABCIOptions "blockParams"
+instance FromJSON BlockParams where
+  parseJSON = genericParseJSON $ defaultABCIOptions "blockParams"
+
 instance Wrapped BlockParams where
   type Unwrapped BlockParams = PT.BlockParams
 
@@ -100,6 +115,11 @@ data EvidenceParams = EvidenceParams
   -- ^ Max age of evidence, in blocks.
   } deriving (Eq, Show, Generic)
 
+instance ToJSON EvidenceParams where
+  toJSON = genericToJSON $ defaultABCIOptions "evidenceParams"
+instance FromJSON EvidenceParams where
+  parseJSON = genericParseJSON $ defaultABCIOptions "evidenceParams"
+
 instance Wrapped EvidenceParams where
   type Unwrapped EvidenceParams = PT.EvidenceParams
 
@@ -117,6 +137,11 @@ data ValidatorParams = ValidatorParams
   { validatorParamsPubKeyTypes :: [Text]
   -- ^ List of accepted pubkey types
   } deriving (Eq, Show, Generic)
+
+instance ToJSON ValidatorParams where
+  toJSON = genericToJSON $ defaultABCIOptions "validatorParams"
+instance FromJSON ValidatorParams where
+  parseJSON = genericParseJSON $ defaultABCIOptions "validatorParams"
 
 instance Wrapped ValidatorParams where
   type Unwrapped ValidatorParams = PT.ValidatorParams
@@ -140,6 +165,11 @@ data ConsensusParams = ConsensusParams
   -- ^ Parameters limitng the types of pubkeys validators can use.
   } deriving (Eq, Show, Generic)
 
+instance ToJSON ConsensusParams where
+  toJSON = genericToJSON $ defaultABCIOptions "consensusParams"
+instance FromJSON ConsensusParams where
+  parseJSON = genericParseJSON $ defaultABCIOptions "consensusParams"
+
 instance Wrapped ConsensusParams where
   type Unwrapped ConsensusParams =  PT.ConsensusParams
 
@@ -160,9 +190,14 @@ instance Wrapped ConsensusParams where
 data PubKey = PubKey
   { pubKeyType :: Text
   -- ^ Type of the public key.
-  , pubKeyData :: ByteString
+  , pubKeyData :: HexString
   -- ^ Public key data.
   } deriving (Eq, Show, Generic)
+
+instance ToJSON PubKey where
+  toJSON = genericToJSON $ defaultABCIOptions "pubKey"
+instance FromJSON PubKey where
+  parseJSON = genericParseJSON $ defaultABCIOptions "pubKey"
 
 instance Wrapped PubKey where
   type Unwrapped PubKey = PT.PubKey
@@ -172,11 +207,11 @@ instance Wrapped PubKey where
       t PubKey{..} =
         defMessage
           & PT.type' .~ pubKeyType
-          & PT.data' .~ pubKeyData
+          & PT.data' .~ toBytes pubKeyData
       f a =
         PubKey
-          { pubKeyType = a ^. PT.type'
-          , pubKeyData = a ^. PT.data'
+          { pubKeyType =  a ^. PT.type'
+          , pubKeyData = fromBytes (a ^. PT.data')
           }
 
 data ValidatorUpdate = ValidatorUpdate
@@ -185,6 +220,11 @@ data ValidatorUpdate = ValidatorUpdate
   , validatorUpdatePower  :: Int64
   -- ^ Voting power of the validator
   } deriving (Eq, Show, Generic)
+
+instance ToJSON ValidatorUpdate where
+  toJSON = genericToJSON $ defaultABCIOptions "validatorUpdate"
+instance FromJSON ValidatorUpdate where
+  parseJSON = genericParseJSON $ defaultABCIOptions "validatorUpdate"
 
 instance Wrapped ValidatorUpdate where
   type Unwrapped ValidatorUpdate = PT.ValidatorUpdate
@@ -202,11 +242,16 @@ instance Wrapped ValidatorUpdate where
           }
 
 data Validator = Validator
-  { validatorAddress :: ByteString
+  { validatorAddress :: HexString
   -- ^ Address of the validator (hash of the public key)
   , validatorPower   :: Int64
   -- ^ Voting power of the validator
   } deriving (Eq, Show, Generic)
+
+instance ToJSON Validator where
+  toJSON = genericToJSON $ defaultABCIOptions "validator"
+instance FromJSON Validator where
+  parseJSON = genericParseJSON $ defaultABCIOptions "validator"
 
 instance Wrapped Validator where
   type Unwrapped Validator = PT.Validator
@@ -215,11 +260,11 @@ instance Wrapped Validator where
     where
       t Validator{..} =
         defMessage
-          & PT.address .~ validatorAddress
+          & PT.address .~ toBytes validatorAddress
           & PT.power .~ validatorPower
       f a =
         Validator
-          { validatorAddress = a ^. PT.address
+          { validatorAddress = fromBytes (a ^. PT.address)
           , validatorPower = a ^. PT.power
           }
 
@@ -229,6 +274,11 @@ data VoteInfo = VoteInfo
   , voteInfoSignedLastBlock :: Bool
   -- ^ Indicates whether or not the validator signed the last block
   } deriving (Eq, Show, Generic)
+
+instance ToJSON VoteInfo where
+  toJSON = genericToJSON $ defaultABCIOptions "voteInfo"
+instance FromJSON VoteInfo where
+  parseJSON = genericParseJSON $ defaultABCIOptions "voteInfo"
 
 instance Wrapped VoteInfo where
   type Unwrapped VoteInfo = PT.VoteInfo
@@ -253,6 +303,11 @@ data LastCommitInfo = LastCommitInfo
   -- power and whether or not they signed a vote.
   } deriving (Eq, Show, Generic)
 
+instance ToJSON LastCommitInfo where
+  toJSON = genericToJSON $ defaultABCIOptions "lastCommitInfo"
+instance FromJSON LastCommitInfo where
+  parseJSON = genericParseJSON $ defaultABCIOptions "lastCommitInfo"
+
 instance Wrapped LastCommitInfo where
   type Unwrapped LastCommitInfo = PT.LastCommitInfo
 
@@ -271,9 +326,14 @@ instance Wrapped LastCommitInfo where
 data PartSetHeader = PartSetHeader
   { partSetHeaderTotal :: Int32
   -- ^ total number of pieces in a PartSet
-  , partSetHeaderHash  :: ByteString
+  , partSetHeaderHash  :: HexString
   -- ^ Merkle root hash of those pieces
   } deriving (Eq, Show, Generic)
+
+instance ToJSON PartSetHeader where
+  toJSON = genericToJSON $ defaultABCIOptions "partSetHeader"
+instance FromJSON PartSetHeader where
+  parseJSON = genericParseJSON $ defaultABCIOptions "partSetHeader"
 
 instance Wrapped PartSetHeader where
   type Unwrapped PartSetHeader = PT.PartSetHeader
@@ -283,18 +343,23 @@ instance Wrapped PartSetHeader where
       t PartSetHeader{..} =
         defMessage
           & PT.total .~ partSetHeaderTotal
-          & PT.hash .~ partSetHeaderHash
+          & PT.hash .~ toBytes partSetHeaderHash
       f a =
         PartSetHeader { partSetHeaderTotal = a ^. PT.total
-                      , partSetHeaderHash = a ^. PT.hash
+                      , partSetHeaderHash = fromBytes (a ^. PT.hash)
                       }
 
 data BlockID = BlockID
-  { blockIDHash        :: ByteString
+  { blockIDHash        :: HexString
   -- ^ Hash of the block header
   , blockIDPartsHeader :: Maybe PartSetHeader
   -- ^ PartSetHeader (used internally, for clients this is basically opaque).
   } deriving (Eq, Show, Generic)
+
+instance ToJSON BlockID where
+  toJSON = genericToJSON $ defaultABCIOptions "blockID"
+instance FromJSON BlockID where
+  parseJSON = genericParseJSON $ defaultABCIOptions "blockID"
 
 instance Wrapped BlockID where
   type Unwrapped BlockID = PT.BlockID
@@ -303,11 +368,11 @@ instance Wrapped BlockID where
     where
       t BlockID{..} =
         defMessage
-          & PT.hash .~ blockIDHash
+          & PT.hash .~ toBytes blockIDHash
           & PT.maybe'partsHeader .~ blockIDPartsHeader ^? _Just . _Wrapped'
       f a =
         BlockID
-          { blockIDHash = a ^. PT.hash
+          { blockIDHash = fromBytes(a ^. PT.hash)
           , blockIDPartsHeader = a ^? PT.maybe'partsHeader . _Just . _Unwrapped'
           }
 
@@ -317,6 +382,11 @@ data Version = Version
   , versionApp   :: Word64
   -- ^ Protocol version of the application.
   } deriving (Eq, Show, Generic)
+
+instance ToJSON Version where
+  toJSON = genericToJSON $ defaultABCIOptions "version"
+instance FromJSON Version where
+  parseJSON = genericParseJSON $ defaultABCIOptions "version"
 
 instance Wrapped Version where
   type Unwrapped Version = PT.Version
@@ -348,25 +418,30 @@ data Header = Header
   -- ^ Total number of transactions in the blockchain until now
   , headerLastBlockId        :: Maybe BlockID
   -- ^ Hash of the previous (parent) block
-  , headerLastCommitHash     :: ByteString
+  , headerLastCommitHash     :: HexString
   -- ^ Hash of the previous block's commit
-  , headerDataHash           :: ByteString
+  , headerDataHash           :: HexString
   -- ^ Hash of the validator set for this block
-  , headerValidatorsHash     :: ByteString
+  , headerValidatorsHash     :: HexString
   -- ^ Hash of the validator set for the next block
-  , headerNextValidatorsHash :: ByteString
+  , headerNextValidatorsHash :: HexString
   -- ^ Hash of the consensus parameters for this block
-  , headerConsensusHash      :: ByteString
+  , headerConsensusHash      :: HexString
   -- ^ Hash of the consensus parameters for this block
-  , headerAppHash            :: ByteString
+  , headerAppHash            :: HexString
   -- ^ Data returned by the last call to Commit
-  , headerLastResultsHash    :: ByteString
+  , headerLastResultsHash    :: HexString
   -- ^ Hash of the ABCI results returned by the last block
-  , headerEvidenceHash       :: ByteString
+  , headerEvidenceHash       :: HexString
   -- ^ Hash of the evidence included in this block
-  , headerProposerAddress    :: ByteString
+  , headerProposerAddress    :: HexString
   -- ^ Original proposer for the block
   } deriving (Eq, Show, Generic)
+
+instance ToJSON Header where
+  toJSON = genericToJSON $ defaultABCIOptions "header"
+instance FromJSON Header where
+  parseJSON = genericParseJSON $ defaultABCIOptions "header"
 
 instance Wrapped Header where
   type Unwrapped Header = PT.Header
@@ -382,15 +457,15 @@ instance Wrapped Header where
           & PT.numTxs .~ headerNumTxs
           & PT.totalTxs .~ headerTotalTxs
           & PT.maybe'lastBlockId .~ headerLastBlockId ^? _Just . _Wrapped'
-          & PT.lastCommitHash .~ headerLastCommitHash
-          & PT.dataHash .~ headerDataHash
-          & PT.validatorsHash .~ headerValidatorsHash
-          & PT.nextValidatorsHash .~ headerNextValidatorsHash
-          & PT.consensusHash .~ headerConsensusHash
-          & PT.appHash .~ headerAppHash
-          & PT.lastResultsHash .~ headerLastResultsHash
-          & PT.evidenceHash .~ headerEvidenceHash
-          & PT.proposerAddress .~ headerProposerAddress
+          & PT.lastCommitHash .~ toBytes headerLastCommitHash
+          & PT.dataHash .~ toBytes headerDataHash
+          & PT.validatorsHash .~ toBytes headerValidatorsHash
+          & PT.nextValidatorsHash .~ toBytes headerNextValidatorsHash
+          & PT.consensusHash .~ toBytes headerConsensusHash
+          & PT.appHash .~ toBytes headerAppHash
+          & PT.lastResultsHash .~ toBytes headerLastResultsHash
+          & PT.evidenceHash .~ toBytes headerEvidenceHash
+          & PT.proposerAddress .~ toBytes headerProposerAddress
       f a =
         Header
           { headerVersion = a ^? PT.maybe'version . _Just . _Unwrapped'
@@ -400,15 +475,15 @@ instance Wrapped Header where
           , headerNumTxs = a ^. PT.numTxs
           , headerTotalTxs = a ^. PT.totalTxs
           , headerLastBlockId = a ^? PT.maybe'lastBlockId . _Just . _Unwrapped'
-          , headerLastCommitHash = a ^. PT.lastCommitHash
-          , headerDataHash = a ^. PT.dataHash
-          , headerValidatorsHash = a ^. PT.validatorsHash
-          , headerNextValidatorsHash = a ^. PT.nextValidatorsHash
-          , headerConsensusHash = a ^. PT.consensusHash
-          , headerAppHash = a ^. PT.appHash
-          , headerLastResultsHash = a ^. PT.lastResultsHash
-          , headerEvidenceHash = a ^. PT.evidenceHash
-          , headerProposerAddress = a ^. PT.proposerAddress
+          , headerLastCommitHash = fromBytes $ a ^. PT.lastCommitHash
+          , headerDataHash = fromBytes $ a ^. PT.dataHash
+          , headerValidatorsHash = fromBytes $ a ^. PT.validatorsHash
+          , headerNextValidatorsHash = fromBytes $ a ^. PT.nextValidatorsHash
+          , headerConsensusHash = fromBytes $ a ^. PT.consensusHash
+          , headerAppHash = fromBytes $ a ^. PT.appHash
+          , headerLastResultsHash = fromBytes $ a ^. PT.lastResultsHash
+          , headerEvidenceHash = fromBytes $ a ^. PT.evidenceHash
+          , headerProposerAddress = fromBytes $ a ^. PT.proposerAddress
           }
 
 data Evidence = Evidence
@@ -423,6 +498,11 @@ data Evidence = Evidence
   , evidenceTotalVotingPower :: Int64
   -- ^ Total voting power of the validator set at height Height
   } deriving (Eq, Show, Generic)
+
+instance ToJSON Evidence where
+  toJSON = genericToJSON $ defaultABCIOptions "evidence"
+instance FromJSON Evidence where
+  parseJSON = genericParseJSON $ defaultABCIOptions "evidence"
 
 instance Wrapped Evidence where
   type Unwrapped Evidence = PT.Evidence
@@ -446,11 +526,16 @@ instance Wrapped Evidence where
           }
 
 data KVPair = KVPair
-  { kVPairKey   :: ByteString
+  { kVPairKey   :: HexString
   -- ^ key
-  , kVPairValue :: ByteString
+  , kVPairValue :: HexString
   -- ^ value
   } deriving (Eq, Show, Generic)
+
+instance ToJSON KVPair where
+  toJSON = genericToJSON $ defaultABCIOptions "kVPair"
+instance FromJSON KVPair where
+  parseJSON = genericParseJSON $ defaultABCIOptions "kVPair"
 
 instance Wrapped KVPair where
   type Unwrapped KVPair = CT.KVPair
@@ -459,19 +544,23 @@ instance Wrapped KVPair where
     where
       t KVPair{..} =
         defMessage
-          & CT.key .~ kVPairKey
-          & CT.value .~ kVPairValue
+          & CT.key .~ toBytes kVPairKey
+          & CT.value .~ toBytes kVPairValue
       f a =
         KVPair
-          { kVPairKey = a ^. CT.key
-          , kVPairValue = a ^. CT.value
+          { kVPairKey = fromBytes $ a ^. CT.key
+          , kVPairValue = fromBytes $ a ^. CT.value
           }
-
 
 data Proof = Proof
   { proofOps :: [ProofOp]
   -- ^ List of chained Merkle proofs, of possibly different types
   } deriving (Eq, Show, Generic)
+
+instance ToJSON Proof where
+  toJSON = genericToJSON $ defaultABCIOptions "proof"
+instance FromJSON Proof where
+  parseJSON = genericParseJSON $ defaultABCIOptions "proof"
 
 instance Wrapped Proof where
   type Unwrapped Proof = MT.Proof
@@ -490,11 +579,16 @@ instance Wrapped Proof where
 data ProofOp = ProofOp
   { proofOpType :: Text
   -- ^ Type of Merkle proof and how it's encoded.
-  , proofOpKey  :: ByteString
+  , proofOpKey  :: HexString
   -- ^ Key in the Merkle tree that this proof is for.
-  , proofOpData :: ByteString
+  , proofOpData :: HexString
   -- ^ Encoded Merkle proof for the key.
   } deriving (Eq, Show, Generic)
+
+instance ToJSON ProofOp where
+  toJSON = genericToJSON $ defaultABCIOptions "proofOp"
+instance FromJSON ProofOp where
+  parseJSON = genericParseJSON $ defaultABCIOptions "proofOp"
 
 instance Wrapped ProofOp where
   type Unwrapped ProofOp = MT.ProofOp
@@ -504,13 +598,13 @@ instance Wrapped ProofOp where
       t ProofOp{..} =
         defMessage
           & MT.type' .~ proofOpType
-          & MT.key .~ proofOpKey
-          & MT.data' .~ proofOpData
+          & MT.key .~ toBytes proofOpKey
+          & MT.data' .~ toBytes proofOpData
       f a =
         ProofOp
           { proofOpType = a ^. MT.type'
-          , proofOpKey = a ^. MT.key
-          , proofOpData = a ^. MT.data'
+          , proofOpKey = fromBytes $ a ^. MT.key
+          , proofOpData = fromBytes $ a ^. MT.data'
           }
 
 data Event = Event
@@ -519,6 +613,11 @@ data Event = Event
   , eventAttributes :: [KVPair]
   -- ^ Event attributes
   } deriving (Eq, Show, Generic)
+
+instance ToJSON Event where
+  toJSON = genericToJSON $ defaultABCIOptions "event"
+instance FromJSON Event where
+  parseJSON = genericParseJSON $ defaultABCIOptions "event"
 
 instance Wrapped Event where
   type Unwrapped Event = PT.Event
@@ -534,4 +633,5 @@ instance Wrapped Event where
           { eventType = a ^. PT.type'
           , eventAttributes = a ^.. PT.attributes . traverse . _Unwrapped'
           }
+
 

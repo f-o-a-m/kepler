@@ -42,16 +42,19 @@ default-extensions:
 
 dependencies:
 - base >= 4.7 && < 5
-- bytestring
+- aeson
+- aeson-casing
 - base16-bytestring
-- lens
-- proto-lens
-- proto-lens-runtime
-- text
-- time
+- bytestring
 - conduit
 - conduit-extra
+- lens
+- memory
+- proto-lens
+- proto-lens-runtime
 - string-conversions
+- text
+- time
 
 library:
   source-dirs: src

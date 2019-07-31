@@ -17,7 +17,7 @@ import           Network.ABCI.Types.Messages.FieldTypes
 
 -- | Production request logger middleware for ABCI requests
 logStdout :: (MonadIO m) => LogEnv -> Namespace -> Middleware m
-logStdout env ns (App app) = App $ \ req ->
-  liftIO (runKatipContextT env req ns $ $(logTM) InfoS "Request Received")
-  >> app req
+logStdout env ns (App app) = App $ \ req -> undefined
+  -- liftIO (runKatipContextT env req ns $ $(logTM) InfoS "Request Received")
+  -- >> app req
 
