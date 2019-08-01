@@ -4,7 +4,7 @@ cabal-version: 2.0
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 568dd3372e1fcfb6bc240fb3f62856f33871b1ae8f7611b6457a091bab81520e
+-- hash: 1b7dfc7cb3e55e0c5c429a867d5a8cd98aa63c62395b038299776e6e3aff4008
 
 name:           hs-abci-example
 version:        0.1.0.0
@@ -37,24 +37,25 @@ library
       Proto.SimpleStorage.Messages_Fields
   other-modules:
       SimpleStorage.DB
+      SimpleStorage.StateMachine
       Paths_hs_abci_example
   autogen-modules:
       Proto.SimpleStorage.Messages
       Proto.SimpleStorage.Messages_Fields
   hs-source-dirs:
       src
-  default-extensions: DeriveGeneric NamedFieldPuns RecordWildCards RankNTypes TypeFamilies FlexibleContexts
+  default-extensions: DeriveGeneric NamedFieldPuns RecordWildCards RankNTypes TypeFamilies FlexibleContexts DataKinds TypeApplications OverloadedStrings PolyKinds
   ghc-options: -Werror -Wall
   build-depends:
-      base >=4.7 && <5
+      avl-auth
+    , base >=4.7 && <5
+    , binary
     , bytestring
     , containers
     , cryptonite
-    , hash-tree
     , lens
     , memory
     , proto-lens
     , proto-lens-runtime
-    , serialise
     , text
   default-language: Haskell2010

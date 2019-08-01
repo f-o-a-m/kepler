@@ -1,8 +1,8 @@
 module SimpleStorage.Types where
 
-import           Codec.Serialise.Class               (Serialise)
 import           Control.Lens                        (iso, (&), (.~), (^.))
 import           Control.Lens.Wrapped                (Wrapped (..))
+import           Data.Binary                         (Binary)
 import           Data.Int                            (Int32)
 import           Data.ProtoLens.Message              (Message (..))
 import           Data.Text                           (Text)
@@ -15,7 +15,7 @@ data UpdateCountTx = UpdateCountTx
   , updateCountTxCount    :: Int32
   } deriving (Show, Eq, Generic)
 
-instance Serialise UpdateCountTx
+instance Binary UpdateCountTx
 
 instance Wrapped UpdateCountTx where
   type Unwrapped UpdateCountTx = M.UpdateCount

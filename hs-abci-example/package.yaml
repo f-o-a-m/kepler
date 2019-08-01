@@ -24,19 +24,23 @@ default-extensions:
   - RankNTypes
   - TypeFamilies
   - FlexibleContexts
+  - DataKinds
+  - TypeApplications
+  - OverloadedStrings
+  - PolyKinds
 
 
 dependencies:
 - base >= 4.7 && < 5
+- binary
 - bytestring
 - containers
 - cryptonite
 - lens
-- hash-tree
+- avl-auth
 - memory
 - proto-lens
 - proto-lens-runtime
-- serialise
 - text
 
 library:

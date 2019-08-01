@@ -10,8 +10,8 @@ extra-deps:
   - lens-labels-0.3.0.1
   - proto-lens-0.5.0.0
   - proto-lens-protoc-0.5.0.0
-  - git: https://github.com/kazu-yamamoto/hash-tree.git
-    commit: 27bc449547527d05026def003dd376ecaf234517
+  - git: https://github.com/oscoin/avl-auth
+    commit: dfc468845a82cdd7d759943b20853999bc026505
 
 explicit-setup-deps:
   hs-abci-server: true

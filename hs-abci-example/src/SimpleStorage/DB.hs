@@ -6,60 +6,56 @@ module SimpleStorage.DB
   , withHashTree
   ) where
 
-import           Codec.Serialise         (Serialise, deserialise, serialise)
 import           Control.Concurrent.MVar (MVar, modifyMVar_, newMVar, readMVar)
-import           Crypto.Hash             (Digest, hashWith)
-import           Crypto.Hash.Algorithms  (SHA256 (..))
-import           Data.ByteArray          (convert)
+import qualified Crypto.Data.Auth.Tree   as AT
+import           Data.Binary             (Binary, decode, encode)
 import           Data.ByteString         (ByteString)
 import           Data.ByteString.Lazy    (fromStrict, toStrict)
-import           Data.HashTree           (MerkleHashTrees, add, defaultSettings,
-                                          empty)
-import qualified Data.Map.Strict         as M
+import           Data.Proxy              (Proxy)
+import           GHC.TypeLits            (Symbol)
 
-data DB = DB
-  { dbTree :: MerkleHashTrees ByteString SHA256
-  , dbMap  :: M.Map (Digest SHA256) ByteString
+data DB (name :: Symbol) a = DB
+  { dbTree :: AT.Tree ByteString ByteString
   }
 
-newtype Connection = Connection (MVar DB)
+newtype Connection name a = Connection (MVar (DB name a))
 
 -- | Create a handle to a new DB.
-makeConnection :: IO Connection
-makeConnection = fmap Connection . newMVar $
-  DB { dbTree = empty defaultSettings
-     , dbMap = mempty
+makeConnection
+  :: Proxy name
+  -> Proxy a
+  -> IO (Connection name a)
+makeConnection _ _ = fmap Connection . newMVar $
+  DB { dbTree = AT.empty
      }
 
 -- | Put an item in the DB.
 put
-  :: Serialise a
-  => Connection
+  :: Binary a
+  => Connection name a
+  -> ByteString
   -> a
   -> IO ()
-put (Connection c) a = do
-  let entry = serialise a
-      entryHash = hashWith SHA256 . toStrict $ entry
-  modifyMVar_ c $ \DB{dbTree, dbMap} ->
-    pure $ DB { dbTree = add (convert entryHash) dbTree
-              , dbMap = M.insert entryHash (toStrict $ serialise a) dbMap
+put (Connection c) k a = do
+  let v = toStrict . encode $ a
+  modifyMVar_ c $ \DB{dbTree} ->
+    pure $ DB { dbTree = AT.insert k v dbTree
               }
 
 -- | Get an item from the DB using its hash as a key.
 get
-  :: forall a.
-     Serialise a
-  => Connection
-  -> Digest SHA256
+  :: Binary a
+  => Connection name a
+  -> ByteString
   -> IO (Maybe a)
-get (Connection c) d = do
-  DB{dbMap} <- readMVar c
-  pure $ deserialise . fromStrict <$> M.lookup d dbMap
+get (Connection c) k = do
+  DB{dbTree} <- readMVar c
+  pure $ decode . fromStrict <$> AT.lookup k dbTree
 
 -- | Query the HashTree in a read-only fashion.
 withHashTree
-  :: Connection
-  -> (MerkleHashTrees ByteString SHA256 -> a)
+  :: Connection name a
+  -> (AT.Tree ByteString ByteString -> a)
   -> IO a
 withHashTree (Connection c) f = do
   DB{dbTree} <- readMVar c
