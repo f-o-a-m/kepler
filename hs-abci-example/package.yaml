@@ -17,19 +17,35 @@ custom-setup:
     - Cabal
     - proto-lens-setup
 
-# default-extensions:
+default-extensions:
+  - DeriveGeneric
+  - NamedFieldPuns
+  - RecordWildCards
+  - RankNTypes
+  - TypeFamilies
+  - FlexibleContexts
 
 
 dependencies:
 - base >= 4.7 && < 5
+- bytestring
+- containers
+- cryptonite
+- lens
+- hash-tree
+- memory
 - proto-lens
 - proto-lens-runtime
+- serialise
+- text
 
 library:
   source-dirs: src
   ghc-options:
   - -Werror
   - -Wall
-#  exposed-modules:
+  exposed-modules:
+  - SimpleStorage.Types
   generated-exposed-modules:
   - Proto.SimpleStorage.Messages
+  - Proto.SimpleStorage.Messages_Fields

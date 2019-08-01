@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module Network.ABCI.Types.Messages.Response
   ( Response(..)
   , toProto
@@ -21,13 +19,13 @@ module Network.ABCI.Types.Messages.Response
   , MessageType(..)
   ) where
 
-import Data.Default.Class (Default(..))
 import           Control.Lens                           (iso, traverse, (&),
                                                          (.~), (?~), (^.),
                                                          (^..), (^?), _Just)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
 import           Data.ByteString                        (ByteString)
+import           Data.Default.Class                     (Default (..))
 import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.ProtoLens.Prism                   (( # ))

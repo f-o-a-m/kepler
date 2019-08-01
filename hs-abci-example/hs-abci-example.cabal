@@ -4,7 +4,7 @@ cabal-version: 2.0
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b807b43d1d802bcf461897d116e95962cce1c6fb3d4a7d3b347a4fcf70276e34
+-- hash: 568dd3372e1fcfb6bc240fb3f62856f33871b1ae8f7611b6457a091bab81520e
 
 name:           hs-abci-example
 version:        0.1.0.0
@@ -32,16 +32,29 @@ custom-setup
 
 library
   exposed-modules:
+      SimpleStorage.Types
       Proto.SimpleStorage.Messages
+      Proto.SimpleStorage.Messages_Fields
   other-modules:
+      SimpleStorage.DB
       Paths_hs_abci_example
   autogen-modules:
       Proto.SimpleStorage.Messages
+      Proto.SimpleStorage.Messages_Fields
   hs-source-dirs:
       src
+  default-extensions: DeriveGeneric NamedFieldPuns RecordWildCards RankNTypes TypeFamilies FlexibleContexts
   ghc-options: -Werror -Wall
   build-depends:
       base >=4.7 && <5
+    , bytestring
+    , containers
+    , cryptonite
+    , hash-tree
+    , lens
+    , memory
     , proto-lens
     , proto-lens-runtime
+    , serialise
+    , text
   default-language: Haskell2010
