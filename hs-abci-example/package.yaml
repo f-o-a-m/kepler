@@ -1,0 +1,35 @@
+name:                hs-abci-example
+version:             0.1.0.0
+github:              "f-o-a-m/hs-abci/hs-abci-example"
+license:             Apache
+author:              Martin Allen
+maintainer:          "martin@foam.space"
+copyright:           "2019 Martin Allen"
+
+extra-source-files:
+- protos/**/*.proto
+
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-example#readme>
+
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-setup
+
+# default-extensions:
+
+
+dependencies:
+- base >= 4.7 && < 5
+- proto-lens
+- proto-lens-runtime
+
+library:
+  source-dirs: src
+  ghc-options:
+  - -Werror
+  - -Wall
+#  exposed-modules:
+  generated-exposed-modules:
+  - Proto.SimpleStorage.Messages

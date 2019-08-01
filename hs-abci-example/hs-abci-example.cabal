@@ -1,0 +1,47 @@
+cabal-version: 2.0
+
+-- This file has been generated from package.yaml by hpack version 0.31.1.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: b807b43d1d802bcf461897d116e95962cce1c6fb3d4a7d3b347a4fcf70276e34
+
+name:           hs-abci-example
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-example#readme>
+homepage:       https://github.com/f-o-a-m/hs-abci#readme
+bug-reports:    https://github.com/f-o-a-m/hs-abci/issues
+author:         Martin Allen
+maintainer:     martin@foam.space
+copyright:      2019 Martin Allen
+license:        Apache
+build-type:     Custom
+extra-source-files:
+    protos/simple-storage/messages.proto
+
+source-repository head
+  type: git
+  location: https://github.com/f-o-a-m/hs-abci
+  subdir: hs-abci-example
+
+custom-setup
+  setup-depends:
+      Cabal
+    , base
+    , proto-lens-setup
+
+library
+  exposed-modules:
+      Proto.SimpleStorage.Messages
+  other-modules:
+      Paths_hs_abci_example
+  autogen-modules:
+      Proto.SimpleStorage.Messages
+  hs-source-dirs:
+      src
+  ghc-options: -Werror -Wall
+  build-depends:
+      base >=4.7 && <5
+    , proto-lens
+    , proto-lens-runtime
+  default-language: Haskell2010

@@ -1,22 +1,15 @@
 name:                hs-abci-server
 version:             0.1.0.0
-github:              "githubuser/hs-abci-server"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2019 Author name here"
+github:              "f-o-a-m/hs-abci/hs-abci-server"
+license:             Apache
+author:              "Martin Allen"
+maintainer:          "martin@foam.space"
+copyright:           "2019 Martin Allen"
 
 extra-source-files:
 - protos/**/*.proto
 
-# Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
-
-# To avoid duplicated efforts in documentation and dealing with the
-# complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/hs-abci-server#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-server#readme>
 
 custom-setup:
   dependencies:
