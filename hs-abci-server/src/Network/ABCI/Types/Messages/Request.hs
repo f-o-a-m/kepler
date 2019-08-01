@@ -39,6 +39,7 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
+
 --------------------------------------------------------------------------------
 -- Request
 --------------------------------------------------------------------------------

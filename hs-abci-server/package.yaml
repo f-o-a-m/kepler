@@ -37,6 +37,7 @@ dependencies:
 - base >= 4.7 && < 5
 - bytestring
 - base16-bytestring
+- data-default-class
 - lens
 - proto-lens
 - proto-lens-runtime

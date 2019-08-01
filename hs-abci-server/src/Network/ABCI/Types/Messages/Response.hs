@@ -1,3 +1,5 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Network.ABCI.Types.Messages.Response
   ( Response(..)
   , toProto
@@ -19,6 +21,7 @@ module Network.ABCI.Types.Messages.Response
   , MessageType(..)
   ) where
 
+import Data.Default.Class (Default(..))
 import           Control.Lens                           (iso, traverse, (&),
                                                          (.~), (?~), (^.),
                                                          (^..), (^?), _Just)
@@ -37,7 +40,6 @@ import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
-
 --------------------------------------------------------------------------------
 -- Response
 --------------------------------------------------------------------------------
@@ -55,7 +57,6 @@ data Response (m :: MessageType) :: * where
   ResponseEndBlock :: EndBlock -> Response 'MTEndBlock
   ResponseCommit :: Commit -> Response 'MTCommit
   ResponseException :: forall (m :: MessageType) . Exception -> Response m
-
 
 -- | Translates type-safe 'Response' GADT to the unsafe
 --   auto-generated 'Proto.Response'
@@ -98,6 +99,9 @@ instance Wrapped Echo where
           { echoMessage = message ^. PT.message
           }
 
+instance Default (Response 'MTEcho) where
+  def = ResponseEcho $ defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- Flush
 --------------------------------------------------------------------------------
@@ -114,6 +118,9 @@ instance Wrapped Flush where
         defMessage
       f _ =
         Flush
+
+instance Default (Response 'MTFlush) where
+  def = ResponseFlush $ defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- Info
@@ -153,6 +160,9 @@ instance Wrapped Info where
          , infoLastBlockAppHash = message ^. PT.lastBlockAppHash
          }
 
+instance Default (Response 'MTInfo) where
+  def = ResponseInfo $ defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- SetOption
 --------------------------------------------------------------------------------
@@ -183,6 +193,9 @@ instance Wrapped SetOption where
           , setOptionInfo = message ^. PT.info
           }
 
+instance Default (Response 'MTSetOption) where
+  def = ResponseSetOption $ defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- InitChain
 --------------------------------------------------------------------------------
@@ -208,6 +221,9 @@ instance Wrapped InitChain where
           { initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . _Unwrapped'
           , initChainValidators = message ^.. PT.validators . traverse . _Unwrapped'
           }
+
+instance Default (Response 'MTInitChain) where
+  def = ResponseInitChain $ defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- Query
@@ -264,6 +280,9 @@ instance Wrapped Query where
           , queryCodespace = message ^. PT.codespace
           }
 
+instance Default (Response 'MTQuery) where
+  def = ResponseQuery $ defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- BeginBlock
 --------------------------------------------------------------------------------
@@ -285,6 +304,9 @@ instance Wrapped BeginBlock where
         BeginBlock
           { beginBlockEvents = message ^.. PT.events . traverse . _Unwrapped'
           }
+
+instance Default (Response 'MTBeginBlock) where
+  def = ResponseBeginBlock $ defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- CheckTx
@@ -336,6 +358,9 @@ instance Wrapped CheckTx where
           , checkTxCodespace = message ^. PT.codespace
           }
 
+instance Default (Response 'MTCheckTx) where
+  def = ResponseCheckTx $ defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- DeliverTx
 --------------------------------------------------------------------------------
@@ -386,6 +411,9 @@ instance Wrapped DeliverTx where
           , deliverTxCodespace = responseDeliverTx ^. PT.codespace
           }
 
+instance Default (Response 'MTDeliverTx) where
+  def = ResponseDeliverTx $ defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- EndBlock
 --------------------------------------------------------------------------------
@@ -416,6 +444,9 @@ instance Wrapped EndBlock where
           , endBlockEvents = message ^.. PT.events . traverse . _Unwrapped'
           }
 
+instance Default (Response 'MTEndBlock) where
+  def = ResponseEndBlock $ defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- Commit
 --------------------------------------------------------------------------------
@@ -437,6 +468,9 @@ instance Wrapped Commit where
         Commit
           { commitData = message ^. PT.data'
           }
+
+instance Default (Response 'MTCommit) where
+  def = ResponseCommit $ defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- Exception
