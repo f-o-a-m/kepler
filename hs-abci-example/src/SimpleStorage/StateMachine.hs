@@ -4,24 +4,24 @@ module SimpleStorage.StateMachine
   , readCount
   ) where
 
-import Data.Int (Int32)
+import           Crypto.Hash         (SHA256 (..), hashWith)
+import           Data.ByteArray      (convert)
+import           Data.ByteString     (ByteString)
+import           Data.Int            (Int32)
+import           Data.Maybe          (fromJust)
+import           Data.Proxy
+import qualified Data.Text.Encoding  as T
 import qualified SimpleStorage.DB    as DB
 import           SimpleStorage.Types
-import Crypto.Hash (hashWith, SHA256(..))
-import Data.ByteArray (convert)
-import qualified Data.Text.Encoding as T
-import Data.ByteString (ByteString)
-import Data.Maybe (fromJust)
-import Data.Proxy
+
+countKey :: ByteString
+countKey = convert . hashWith SHA256 . T.encodeUtf8 $ "count"
 
 initStateMachine :: IO (DB.Connection "count" Int32)
 initStateMachine = do
   conn <- DB.makeConnection (Proxy @"count") (Proxy @Int32)
   DB.put conn countKey 0
   pure conn
-
-countKey :: ByteString
-countKey = convert . hashWith SHA256 . T.encodeUtf8 $ "count"
 
 updateCount
   :: DB.Connection "count" Int32
