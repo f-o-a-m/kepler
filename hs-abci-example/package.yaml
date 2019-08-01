@@ -28,6 +28,7 @@ default-extensions:
   - TypeApplications
   - OverloadedStrings
   - PolyKinds
+  - GeneralizedNewtypeDeriving
 
 
 dependencies:
@@ -39,6 +40,7 @@ dependencies:
 - lens
 - avl-auth
 - memory
+- mtl
 - proto-lens
 - proto-lens-runtime
 - text

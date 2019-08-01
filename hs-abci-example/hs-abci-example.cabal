@@ -4,7 +4,7 @@ cabal-version: 2.0
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1b7dfc7cb3e55e0c5c429a867d5a8cd98aa63c62395b038299776e6e3aff4008
+-- hash: 58277d1a5fc5c27c623eac5a932f5d028e9c95f0f0885d5d89e32f61ff4af95c
 
 name:           hs-abci-example
 version:        0.1.0.0
@@ -44,7 +44,7 @@ library
       Proto.SimpleStorage.Messages_Fields
   hs-source-dirs:
       src
-  default-extensions: DeriveGeneric NamedFieldPuns RecordWildCards RankNTypes TypeFamilies FlexibleContexts DataKinds TypeApplications OverloadedStrings PolyKinds
+  default-extensions: DeriveGeneric NamedFieldPuns RecordWildCards RankNTypes TypeFamilies FlexibleContexts DataKinds TypeApplications OverloadedStrings PolyKinds GeneralizedNewtypeDeriving
   ghc-options: -Werror -Wall
   build-depends:
       avl-auth
@@ -55,6 +55,7 @@ library
     , cryptonite
     , lens
     , memory
+    , mtl
     , proto-lens
     , proto-lens-runtime
     , text

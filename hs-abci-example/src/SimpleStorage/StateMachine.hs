@@ -17,22 +17,22 @@ import           SimpleStorage.Types
 countKey :: ByteString
 countKey = convert . hashWith SHA256 . T.encodeUtf8 $ "count"
 
-initStateMachine :: IO (DB.Connection "count" Int32)
+initStateMachine :: IO (DB.Connection "count")
 initStateMachine = do
-  conn <- DB.makeConnection (Proxy @"count") (Proxy @Int32)
-  DB.put conn countKey 0
+  conn <- DB.makeConnection (Proxy @"count")
+  DB.put conn countKey (0 :: Int32)
   pure conn
 
 updateCount
-  :: DB.Connection "count" Int32
-  -> UpdateCountTx
-  -> IO ()
-updateCount conn UpdateCountTx{updateCountTxCount} =
-  DB.put conn countKey updateCountTxCount
+  :: UpdateCountTx
+  -> DB.Transaction "count" ()
+updateCount UpdateCountTx{updateCountTxCount} =
+  DB.withConnection $ \conn ->
+    DB.put conn countKey updateCountTxCount
 
 -- NOTE: fromJust is actually safe because there's no way
 -- to create a count DB without initializing the value to 0
 readCount
-  :: DB.Connection "count" Int32
+  :: DB.Connection "count"
   -> IO Int32
 readCount conn = fromJust <$> DB.get conn countKey
