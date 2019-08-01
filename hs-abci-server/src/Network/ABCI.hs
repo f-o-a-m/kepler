@@ -17,7 +17,7 @@ defaultLocalSettings :: ServerSettings
 defaultLocalSettings = serverSettings 26658 $ fromString "127.0.0.1"
 
 -- | Serve an ABCI application with custom 'ServerSettings' and a custom
--- action to perform on aquiring the socket resource.
+-- action to perform on acquiring the socket resource.
 serveAppWith
   :: ServerSettings
   -> (AppData -> IO ())
@@ -31,6 +31,6 @@ serveAppWith cfg onAquire app = runTCPServer cfg $ \appData -> do
 
 
 -- | Serve an ABCI application with default local 'ServerSettings'
--- and a no-op on aquiring the socket resource.
+-- and a no-op on acquiring the socket resource.
 serveApp :: App IO -> IO ()
 serveApp = serveAppWith defaultLocalSettings mempty
