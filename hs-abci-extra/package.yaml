@@ -27,7 +27,7 @@ dependencies:
 - aeson-casing
 - memory
 - text
-- bytestring
+- lens
 - bytestring
 
 default-extensions:

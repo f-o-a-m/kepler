@@ -75,8 +75,28 @@ instance ToJSON (Request (t :: MessageType)) where
   toJSON (RequestEndBlock v)   = toJSON v
   toJSON (RequestCommit v)     = toJSON v
 
-instance FromJSON (Request (t :: MessageType)) where
-  parseJSON = undefined
+instance FromJSON (Request 'MTEcho) where
+  parseJSON = fmap RequestEcho . parseJSON
+instance FromJSON (Request 'MTFlush) where
+  parseJSON = fmap RequestFlush . parseJSON
+instance FromJSON (Request 'MTInfo) where
+  parseJSON = fmap RequestInfo . parseJSON
+instance FromJSON (Request 'MTSetOption) where
+  parseJSON = fmap RequestSetOption . parseJSON
+instance FromJSON (Request 'MTInitChain) where
+  parseJSON = fmap RequestInitChain . parseJSON
+instance FromJSON (Request 'MTQuery) where
+  parseJSON = fmap RequestQuery . parseJSON
+instance FromJSON (Request 'MTBeginBlock) where
+  parseJSON = fmap RequestBeginBlock . parseJSON
+instance FromJSON (Request 'MTCheckTx) where
+  parseJSON = fmap RequestCheckTx . parseJSON
+instance FromJSON (Request 'MTDeliverTx) where
+  parseJSON = fmap RequestDeliverTx . parseJSON
+instance FromJSON (Request 'MTEndBlock) where
+  parseJSON = fmap RequestEndBlock . parseJSON
+instance FromJSON (Request 'MTCommit) where
+  parseJSON = fmap RequestCommit . parseJSON
 
 withProto
   :: (forall (t :: MessageType). Request t -> a)

@@ -1,14 +1,14 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Network.ABCI.Test.Types.Messages.Instances () where
 
+import           Data.ByteArray.HexString               (HexString, fromBytes)
+import           Data.ByteString                        (ByteString)
 import qualified Network.ABCI.Types.Messages.FieldTypes as FieldTypes
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
-import Data.ByteArray.HexString (HexString, fromBytes)
-import Data.ByteString (ByteString)
 import           Test.QuickCheck.Arbitrary              (Arbitrary, arbitrary)
-import           Test.QuickCheck.Gen              (Gen)
 import           Test.QuickCheck.Arbitrary.Generic      (genericArbitrary)
+import           Test.QuickCheck.Gen                    (Gen)
 import           Test.QuickCheck.Instances              ()
 
 instance Arbitrary FieldTypes.Timestamp where
