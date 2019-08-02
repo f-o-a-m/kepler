@@ -29,6 +29,11 @@ import qualified Proto.Types_Fields                   as PT
 newtype App m = App
   { unApp :: forall (t :: MessageType). Request t -> m (Response t) }
 
+-- | Middleware is a component that sits between the server and application.
+-- It can do such tasks as logging or response caching. What follows is the general
+-- definition of middleware, though a middleware author should feel free to modify this.
+type Middleware m = App m -> App m
+
 -- | Transform an application from running in a custom monad to running in `IO`.
 transformApp :: (forall a. m a -> g a) -> App m -> App g
 transformApp nat (App f) = App $ nat . f
