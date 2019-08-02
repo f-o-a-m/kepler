@@ -24,21 +24,19 @@ import           Control.Lens                           (iso, traverse, (&),
                                                          (^..), (^?), _Just)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
-import           Data.Int                               (Int64)
 import           Data.Aeson                             (FromJSON (..),
                                                          ToJSON (..),
                                                          genericParseJSON,
                                                          genericToJSON)
-import           Data.ByteArray.HexString
-                                                                                   (HexString,
-                                                                                   fromBytes,
-                                                                                   toBytes)
+import           Data.ByteArray.HexString               (HexString, fromBytes,
+                                                         toBytes)
+import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.ProtoLens.Prism                   (( # ))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word32, Word64)
 import           GHC.Generics                           (Generic)
-import           Network.ABCI.Types.Messages.Common (defaultABCIOptions)
+import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams, Event,
                                                          Proof, ValidatorUpdate)
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))

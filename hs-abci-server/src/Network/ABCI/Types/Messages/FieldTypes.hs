@@ -9,13 +9,14 @@ import           Control.Lens
                                                                                    (^..),
                                                                                    (^?),
                                                                                    _Just)
-import           Data.Aeson                             (FromJSON (..),
-                                                         ToJSON (..),
-                                                         genericParseJSON,
-                                                         genericToJSON)
 import           Control.Lens.Wrapped
                                                                                    (Wrapped (..),
                                                                                    _Unwrapped')
+import           Data.Aeson
+                                                                                   (FromJSON (..),
+                                                                                   ToJSON (..),
+                                                                                   genericParseJSON,
+                                                                                   genericToJSON)
 import           Data.ByteArray.HexString
                                                                                    (HexString,
                                                                                    fromBytes,
@@ -35,7 +36,8 @@ import           Data.Word
                                                                                    (Word64)
 import           GHC.Generics
                                                                                    (Generic)
-import Network.ABCI.Types.Messages.Common (defaultABCIOptions)
+import           Network.ABCI.Types.Messages.Common
+                                                                                   (defaultABCIOptions)
 import qualified Proto.Types                                                      as PT
 import qualified Proto.Types_Fields                                               as PT
 import qualified Proto.Vendored.Google.Protobuf.Timestamp                         as T

@@ -28,15 +28,14 @@ import           Data.Aeson                             (FromJSON (..),
                                                          ToJSON (..),
                                                          genericParseJSON,
                                                          genericToJSON)
-import           Data.ByteArray.HexString
-                                                                                   (HexString,
-                                                                                   fromBytes,
-                                                                                   toBytes)
+import           Data.ByteArray.HexString               (HexString, fromBytes,
+                                                         toBytes)
 import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word64)
 import           GHC.Generics                           (Generic)
+import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
                                                          Evidence (..),
                                                          Header (..),
@@ -44,7 +43,6 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
                                                          Timestamp (..),
                                                          ValidatorUpdate (..))
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))
-import Network.ABCI.Types.Messages.Common (defaultABCIOptions)
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 --------------------------------------------------------------------------------
