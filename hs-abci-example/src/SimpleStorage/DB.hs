@@ -106,7 +106,7 @@ commitTransaction
 commitTransaction conn transaction = do
   eRes <- stageTransaction conn transaction
   case eRes of
-    Left e             -> pure $ Left e
+    Left e                  -> pure $ Left e
     Right (a, commitAction) ->  Right a <$ commitAction
 
 -- | Use a connection to perform a transaction step
