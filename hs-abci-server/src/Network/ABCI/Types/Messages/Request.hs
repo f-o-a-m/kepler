@@ -1,27 +1,13 @@
-module Network.ABCI.Types.Messages.Request
-  ( Request(..)
-  , withProto
+{-# LANGUAGE TemplateHaskell #-}
+{-# OPTIONS_GHC -fno-warn-overlapping-patterns#-}
 
-  -- * Request Message Types
-  , Echo(..)
-  , Flush(..)
-  , Info(..)
-  , SetOption(..)
-  , InitChain(..)
-  , Query(..)
-  , BeginBlock(..)
-  , CheckTx(..)
-  , DeliverTx(..)
-  , EndBlock(..)
-  , Commit(..)
 
-  -- * ReExports
-  , MessageType(..)
-  ) where
+module Network.ABCI.Types.Messages.Request where
 
 import           Control.Lens                           (iso, traverse, (&),
                                                          (.~), (^.), (^..),
                                                          (^?), _Just)
+import Control.Lens.TH (makePrisms, makeLenses)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
 import           Data.ByteString                        (ByteString)
@@ -40,39 +26,6 @@ import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
---------------------------------------------------------------------------------
--- Request
---------------------------------------------------------------------------------
-
-data Request (m :: MessageType) :: * where
-  RequestEcho :: Echo -> Request 'MTEcho
-  RequestFlush :: Flush -> Request 'MTFlush
-  RequestInfo :: Info -> Request 'MTInfo
-  RequestSetOption :: SetOption -> Request 'MTSetOption
-  RequestInitChain :: InitChain -> Request 'MTInitChain
-  RequestQuery :: Query -> Request 'MTQuery
-  RequestBeginBlock :: BeginBlock -> Request 'MTBeginBlock
-  RequestCheckTx :: CheckTx -> Request 'MTCheckTx
-  RequestDeliverTx :: DeliverTx -> Request 'MTDeliverTx
-  RequestEndBlock :: EndBlock -> Request 'MTEndBlock
-  RequestCommit :: Commit -> Request 'MTCommit
-
-withProto
-  :: (forall (t :: MessageType). Request t -> a)
-  -> PT.Request'Value
-  -> a
-withProto f value = case value of
-  PT.Request'Echo echo -> f $ RequestEcho $ echo ^. _Unwrapped'
-  PT.Request'Flush flush -> f $ RequestFlush $ flush ^. _Unwrapped'
-  PT.Request'Info info -> f $ RequestInfo $ info ^. _Unwrapped'
-  PT.Request'SetOption setOption -> f $ RequestSetOption $ setOption ^. _Unwrapped'
-  PT.Request'InitChain initChain -> f $ RequestInitChain $ initChain ^. _Unwrapped'
-  PT.Request'Query query -> f $ RequestQuery $ query ^. _Unwrapped'
-  PT.Request'BeginBlock beginBlock -> f $ RequestBeginBlock $ beginBlock ^. _Unwrapped'
-  PT.Request'CheckTx checkTx -> f $ RequestCheckTx $ checkTx ^. _Unwrapped'
-  PT.Request'DeliverTx deliverTx -> f $ RequestDeliverTx $ deliverTx ^. _Unwrapped'
-  PT.Request'EndBlock endBlock -> f $ RequestEndBlock $ endBlock ^. _Unwrapped'
-  PT.Request'Commit commit -> f $ RequestCommit $ commit ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- Echo
@@ -82,6 +35,8 @@ data Echo = Echo
   { echoMessage :: Text
   -- ^ A string to echo back
   } deriving (Eq, Show, Generic)
+
+makeLenses ''Echo
 
 instance Wrapped Echo where
   type Unwrapped Echo = PT.RequestEcho
@@ -124,6 +79,8 @@ data Info = Info
   -- ^ The Tendermint P2P Protocol version
   } deriving (Eq, Show, Generic)
 
+makeLenses ''Info
+
 instance Wrapped Info where
   type Unwrapped Info = PT.RequestInfo
 
@@ -151,6 +108,8 @@ data SetOption = SetOption
   , setOptionValue :: Text
   -- ^ Value to set for key
   } deriving (Eq, Show, Generic)
+
+makeLenses ''SetOption
 
 instance Wrapped SetOption where
   type Unwrapped SetOption = PT.RequestSetOption
@@ -183,6 +142,8 @@ data InitChain = InitChain
   , initChainAppState        :: ByteString
   -- ^ Serialized initial application state. Amino-encoded JSON bytes.
   } deriving (Eq, Show, Generic)
+
+makeLenses ''InitChain
 
 instance Wrapped InitChain where
   type Unwrapped InitChain = PT.RequestInitChain
@@ -220,6 +181,8 @@ data Query = Query
   -- ^ Return Merkle proof with response if possible
   } deriving (Eq, Show, Generic)
 
+makeLenses ''Query
+
 instance Wrapped Query where
   type Unwrapped Query = PT.RequestQuery
 
@@ -255,6 +218,8 @@ data BeginBlock = BeginBlock
   -- ^ List of evidence of validators that acted maliciously.
   } deriving (Eq, Show, Generic)
 
+makeLenses ''BeginBlock
+
 instance Wrapped BeginBlock where
   type Unwrapped BeginBlock = PT.RequestBeginBlock
 
@@ -284,6 +249,8 @@ data CheckTx = CheckTx
   -- ^ The request transaction bytes
   } deriving (Eq, Show, Generic)
 
+makeLenses ''CheckTx
+
 instance Wrapped CheckTx where
   type Unwrapped CheckTx = PT.RequestCheckTx
 
@@ -306,6 +273,8 @@ data DeliverTx = DeliverTx
   { deliverTxTx :: ByteString
   -- ^ The request transaction bytes.
   } deriving (Eq, Show, Generic)
+
+makeLenses ''DeliverTx
 
 instance Wrapped DeliverTx where
   type Unwrapped DeliverTx = PT.RequestDeliverTx
@@ -330,6 +299,8 @@ data EndBlock = EndBlock
   -- ^ Height of the block just executed.
   } deriving (Eq, Show, Generic)
 
+makeLenses ''EndBlock
+
 instance Wrapped EndBlock where
   type Unwrapped EndBlock = PT.RequestEndBlock
 
@@ -351,6 +322,8 @@ instance Wrapped EndBlock where
 data Commit =
   Commit deriving (Eq, Show, Generic)
 
+makeLenses ''Commit
+
 instance Wrapped Commit where
   type Unwrapped Commit = PT.RequestCommit
 
@@ -361,3 +334,41 @@ instance Wrapped Commit where
 
       f _ =
         Commit
+
+--------------------------------------------------------------------------------
+-- Request
+--------------------------------------------------------------------------------
+
+data Request (m :: MessageType) :: * where
+  RequestEcho :: Echo -> Request 'MTEcho
+  RequestFlush :: Flush -> Request 'MTFlush
+  RequestInfo :: Info -> Request 'MTInfo
+  RequestSetOption :: SetOption -> Request 'MTSetOption
+  RequestInitChain :: InitChain -> Request 'MTInitChain
+  RequestQuery :: Query -> Request 'MTQuery
+  RequestBeginBlock :: BeginBlock -> Request 'MTBeginBlock
+  RequestCheckTx :: CheckTx -> Request 'MTCheckTx
+  RequestDeliverTx :: DeliverTx -> Request 'MTDeliverTx
+  RequestEndBlock :: EndBlock -> Request 'MTEndBlock
+  RequestCommit :: Commit -> Request 'MTCommit
+
+-- NOTE: We needed the -fno-warn-overlapping-patterns pragma because
+-- of this, I don't know why it doesn't trip for the similar Response type
+makePrisms ''Request
+
+withProto
+  :: (forall (t :: MessageType). Request t -> a)
+  -> PT.Request'Value
+  -> a
+withProto f value = case value of
+  PT.Request'Echo echo -> f $ RequestEcho $ echo ^. _Unwrapped'
+  PT.Request'Flush flush -> f $ RequestFlush $ flush ^. _Unwrapped'
+  PT.Request'Info info -> f $ RequestInfo $ info ^. _Unwrapped'
+  PT.Request'SetOption setOption -> f $ RequestSetOption $ setOption ^. _Unwrapped'
+  PT.Request'InitChain initChain -> f $ RequestInitChain $ initChain ^. _Unwrapped'
+  PT.Request'Query query -> f $ RequestQuery $ query ^. _Unwrapped'
+  PT.Request'BeginBlock beginBlock -> f $ RequestBeginBlock $ beginBlock ^. _Unwrapped'
+  PT.Request'CheckTx checkTx -> f $ RequestCheckTx $ checkTx ^. _Unwrapped'
+  PT.Request'DeliverTx deliverTx -> f $ RequestDeliverTx $ deliverTx ^. _Unwrapped'
+  PT.Request'EndBlock endBlock -> f $ RequestEndBlock $ endBlock ^. _Unwrapped'
+  PT.Request'Commit commit -> f $ RequestCommit $ commit ^. _Unwrapped'
