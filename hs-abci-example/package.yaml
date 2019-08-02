@@ -29,6 +29,7 @@ default-extensions:
   - OverloadedStrings
   - PolyKinds
   - GeneralizedNewtypeDeriving
+  - ScopedTypeVariables
 
 
 dependencies:
@@ -37,6 +38,8 @@ dependencies:
 - bytestring
 - containers
 - cryptonite
+- data-default-class
+- hs-abci-server
 - lens
 - avl-auth
 - memory

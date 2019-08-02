@@ -59,6 +59,7 @@ library:
   - Network.ABCI.Types.Messages.Request
   - Network.ABCI.Types.Messages.Response
   - Network.ABCI.Types.Messages.FieldTypes
+  - Network.ABCI.Types.Messages.Types
   generated-exposed-modules:
   - Proto.Types
   - Proto.Types_Fields

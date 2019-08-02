@@ -68,7 +68,7 @@ withHashTree (Connection c) f = do
   DB{dbTree} <- readMVar c
   pure $ f dbTree
 
-data TransactionError = TransactionError String
+data TransactionError = TransactionError String deriving Show
 
 newtype Transaction name a =
   Transaction { runTransaction :: ReaderT (Connection name) (ExceptT TransactionError IO) a }
