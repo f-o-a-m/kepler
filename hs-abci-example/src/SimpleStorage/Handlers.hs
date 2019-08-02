@@ -1,11 +1,11 @@
 module SimpleStorage.Handlers where
 
---import           Control.Lens                         ((&), (.~))
+import           Control.Lens                         ((&), (.~), (^.))
 --import           Control.Monad.IO.Class               (liftIO)
 --import           Control.Monad.Reader                 (ask)
 --import           Data.Binary                          (encode)
 --import           Data.ByteString.Lazy                 (toStrict)
---import           Data.Default.Class                   (def)
+import           Data.Default.Class                   (def)
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Network.ABCI.Types.Messages.Types    (MessageType (..))
@@ -16,9 +16,8 @@ import           SimpleStorage.Application            (Handler, defaultHandler)
 echoH
   :: Req.Request 'MTEcho
   -> Handler (Resp.Response 'MTEcho)
--- echoH (Req.RequestEcho echo) =
---  pure . Resp.ResponseEcho $ def & Resp._echoMessage .~ echo ^. Req._echoMessage
-echoH = defaultHandler
+echoH (Req.RequestEcho echo) =
+  pure . Resp.ResponseEcho $ def & Resp._echoMessage .~ echo ^. Req._echoMessage
 
 
 flushH

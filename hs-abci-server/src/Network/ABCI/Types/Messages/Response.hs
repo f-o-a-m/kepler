@@ -21,7 +21,7 @@ import           Data.ProtoLens.Prism                   (( # ))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word32, Word64)
 import           GHC.Generics                           (Generic)
-import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions)
+import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions, makeABCILenses)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams, Event,
                                                          Proof, ValidatorUpdate)
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))
@@ -37,7 +37,7 @@ data Echo = Echo
   -- ^ The input string
   } deriving (Eq, Show, Generic)
 
-makeLenses ''Echo
+makeABCILenses ''Echo
 
 instance ToJSON Echo where
   toJSON = genericToJSON $ defaultABCIOptions "echo"

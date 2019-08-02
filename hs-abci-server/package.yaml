@@ -50,6 +50,7 @@ dependencies:
 - proto-lens-runtime
 - string-conversions
 - text
+- template-haskell
 - time
 
 library:

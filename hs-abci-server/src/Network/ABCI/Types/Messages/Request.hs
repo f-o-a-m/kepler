@@ -19,7 +19,7 @@ import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word64)
 import           GHC.Generics                           (Generic)
-import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions)
+import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions, makeABCILenses)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
                                                          Evidence (..),
                                                          Header (..),
@@ -40,7 +40,7 @@ data Echo = Echo
   } deriving (Eq, Show, Generic)
 
 
-makeLenses ''Echo
+makeABCILenses ''Echo
 
 instance ToJSON Echo where
   toJSON = genericToJSON $ defaultABCIOptions "echo"
