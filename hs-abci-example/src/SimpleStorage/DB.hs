@@ -51,7 +51,7 @@ put (Connection c) k a =
     pure $ DB { dbTree = AT.insert k (toStrict . encode $ a) dbTree
               }
 
--- | Get an item from the DB using its hash as a key.
+-- | Get an item from the DB from the key.
 get
   :: forall a name.
      Binary a

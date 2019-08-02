@@ -1,27 +1,11 @@
-module Network.ABCI.Types.Messages.Response
-  ( Response(..)
-  , toProto
-  -- * Request Message Types
-  , Echo(..)
-  , Flush(..)
-  , Info(..)
-  , SetOption(..)
-  , InitChain(..)
-  , Query(..)
-  , BeginBlock(..)
-  , CheckTx(..)
-  , DeliverTx(..)
-  , EndBlock(..)
-  , Commit(..)
-  , Exception(..)
+{-# LANGUAGE TemplateHaskell #-}
 
-  -- * ReExports
-  , MessageType(..)
-  ) where
+module Network.ABCI.Types.Messages.Response where
 
 import           Control.Lens                           (iso, traverse, (&),
                                                          (.~), (?~), (^.),
                                                          (^..), (^?), _Just)
+import           Control.Lens.TH                        (makeLenses, makePrisms)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
 import           Data.ByteString                        (ByteString)
@@ -39,43 +23,6 @@ import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
 --------------------------------------------------------------------------------
--- Response
---------------------------------------------------------------------------------
-
-data Response (m :: MessageType) :: * where
-  ResponseEcho :: Echo -> Response 'MTEcho
-  ResponseFlush :: Flush -> Response 'MTFlush
-  ResponseInfo :: Info -> Response 'MTInfo
-  ResponseSetOption :: SetOption -> Response 'MTSetOption
-  ResponseInitChain :: InitChain -> Response 'MTInitChain
-  ResponseQuery :: Query -> Response 'MTQuery
-  ResponseBeginBlock :: BeginBlock -> Response 'MTBeginBlock
-  ResponseCheckTx :: CheckTx -> Response 'MTCheckTx
-  ResponseDeliverTx :: DeliverTx -> Response 'MTDeliverTx
-  ResponseEndBlock :: EndBlock -> Response 'MTEndBlock
-  ResponseCommit :: Commit -> Response 'MTCommit
-  ResponseException :: forall (m :: MessageType) . Exception -> Response m
-
--- | Translates type-safe 'Response' GADT to the unsafe
---   auto-generated 'Proto.Response'
-toProto :: Response t -> PT.Response
-toProto r = case r of
-  ResponseEcho msg       -> wrap PT._Response'Echo msg
-  ResponseFlush msg      -> wrap PT._Response'Flush msg
-  ResponseInfo msg       -> wrap PT._Response'Info msg
-  ResponseSetOption msg  -> wrap PT._Response'SetOption msg
-  ResponseInitChain msg  -> wrap PT._Response'InitChain msg
-  ResponseQuery msg      -> wrap PT._Response'Query msg
-  ResponseBeginBlock msg -> wrap PT._Response'BeginBlock msg
-  ResponseCheckTx msg    -> wrap PT._Response'CheckTx msg
-  ResponseDeliverTx msg  -> wrap PT._Response'DeliverTx msg
-  ResponseEndBlock msg   -> wrap PT._Response'EndBlock msg
-  ResponseCommit msg     -> wrap PT._Response'Commit msg
-  ResponseException msg  -> wrap PT._Response'Exception msg
-  where
-    wrap v msg = defMessage & PT.maybe'value ?~ v # (msg ^. _Wrapped')
-
---------------------------------------------------------------------------------
 -- Echo
 --------------------------------------------------------------------------------
 
@@ -83,6 +30,8 @@ data Echo = Echo
   { echoMessage :: Text
   -- ^ The input string
   } deriving (Eq, Show, Generic)
+
+makeLenses ''Echo
 
 instance Wrapped Echo where
   type Unwrapped Echo = PT.ResponseEcho
@@ -97,8 +46,8 @@ instance Wrapped Echo where
           { echoMessage = message ^. PT.message
           }
 
-instance Default (Response 'MTEcho) where
-  def = ResponseEcho $ defMessage ^. _Unwrapped'
+instance Default Echo where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- Flush
@@ -117,8 +66,8 @@ instance Wrapped Flush where
       f _ =
         Flush
 
-instance Default (Response 'MTFlush) where
-  def = ResponseFlush $ defMessage ^. _Unwrapped'
+instance Default Flush where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- Info
@@ -136,6 +85,8 @@ data Info = Info
   , infoLastBlockAppHash :: ByteString
   -- ^  Latest result of Commit
   } deriving (Eq, Show, Generic)
+
+makeLenses ''Info
 
 instance Wrapped Info where
   type Unwrapped Info = PT.ResponseInfo
@@ -158,8 +109,8 @@ instance Wrapped Info where
          , infoLastBlockAppHash = message ^. PT.lastBlockAppHash
          }
 
-instance Default (Response 'MTInfo) where
-  def = ResponseInfo $ defMessage ^. _Unwrapped'
+instance Default Info where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- SetOption
@@ -173,6 +124,8 @@ data SetOption = SetOption
   , setOptionInfo :: Text
   -- ^ Additional information. May be non-deterministic.
   } deriving (Eq, Show, Generic)
+
+makeLenses ''SetOption
 
 instance Wrapped SetOption where
   type Unwrapped SetOption = PT.ResponseSetOption
@@ -191,8 +144,8 @@ instance Wrapped SetOption where
           , setOptionInfo = message ^. PT.info
           }
 
-instance Default (Response 'MTSetOption) where
-  def = ResponseSetOption $ defMessage ^. _Unwrapped'
+instance Default SetOption where
+   def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- InitChain
@@ -204,6 +157,8 @@ data InitChain = InitChain
   , initChainValidators      :: [ValidatorUpdate]
   -- ^ Initial validator set (if non empty).
   } deriving (Eq, Show, Generic)
+
+makeLenses ''InitChain
 
 instance Wrapped InitChain where
   type Unwrapped InitChain = PT.ResponseInitChain
@@ -220,8 +175,8 @@ instance Wrapped InitChain where
           , initChainValidators = message ^.. PT.validators . traverse . _Unwrapped'
           }
 
-instance Default (Response 'MTInitChain) where
-  def = ResponseInitChain $ defMessage ^. _Unwrapped'
+instance Default InitChain where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- Query
@@ -248,6 +203,8 @@ data Query = Query
   , queryCodespace :: Text
   -- ^ Namespace for the Code.
   } deriving (Eq, Show, Generic)
+
+makeLenses ''Query
 
 instance Wrapped Query where
   type Unwrapped Query = PT.ResponseQuery
@@ -278,8 +235,8 @@ instance Wrapped Query where
           , queryCodespace = message ^. PT.codespace
           }
 
-instance Default (Response 'MTQuery) where
-  def = ResponseQuery $ defMessage ^. _Unwrapped'
+instance Default Query where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- BeginBlock
@@ -289,6 +246,8 @@ data BeginBlock = BeginBlock
   { beginBlockEvents :: [Event]
   -- ^ Beginning block events
   } deriving (Eq, Show, Generic)
+
+makeLenses ''BeginBlock
 
 instance Wrapped BeginBlock where
   type Unwrapped BeginBlock = PT.ResponseBeginBlock
@@ -303,8 +262,8 @@ instance Wrapped BeginBlock where
           { beginBlockEvents = message ^.. PT.events . traverse . _Unwrapped'
           }
 
-instance Default (Response 'MTBeginBlock) where
-  def = ResponseBeginBlock $ defMessage ^. _Unwrapped'
+instance Default BeginBlock where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- CheckTx
@@ -328,6 +287,8 @@ data CheckTx = CheckTx
   , checkTxCodespace :: Text
   -- ^ Namespace for the Code.
   } deriving (Eq, Show, Generic)
+
+makeLenses ''CheckTx
 
 instance Wrapped CheckTx where
   type Unwrapped CheckTx = PT.ResponseCheckTx
@@ -356,8 +317,8 @@ instance Wrapped CheckTx where
           , checkTxCodespace = message ^. PT.codespace
           }
 
-instance Default (Response 'MTCheckTx) where
-  def = ResponseCheckTx $ defMessage ^. _Unwrapped'
+instance Default CheckTx where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- DeliverTx
@@ -381,6 +342,8 @@ data DeliverTx = DeliverTx
   , deliverTxCodespace :: Text
   -- ^ Namespace for the Code.
   } deriving (Eq, Show, Generic)
+
+makeLenses ''DeliverTx
 
 instance Wrapped DeliverTx where
   type Unwrapped DeliverTx = PT.ResponseDeliverTx
@@ -409,8 +372,8 @@ instance Wrapped DeliverTx where
           , deliverTxCodespace = responseDeliverTx ^. PT.codespace
           }
 
-instance Default (Response 'MTDeliverTx) where
-  def = ResponseDeliverTx $ defMessage ^. _Unwrapped'
+instance Default DeliverTx where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- EndBlock
@@ -424,6 +387,8 @@ data EndBlock = EndBlock
   , endBlockEvents                :: [Event]
   -- ^ Events
   } deriving (Eq, Show, Generic)
+
+makeLenses ''BeginBlock
 
 instance Wrapped EndBlock where
   type Unwrapped EndBlock = PT.ResponseEndBlock
@@ -442,8 +407,8 @@ instance Wrapped EndBlock where
           , endBlockEvents = message ^.. PT.events . traverse . _Unwrapped'
           }
 
-instance Default (Response 'MTEndBlock) where
-  def = ResponseEndBlock $ defMessage ^. _Unwrapped'
+instance Default EndBlock where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- Commit
@@ -453,6 +418,8 @@ data Commit = Commit
   { commitData :: ByteString
   -- ^ The Merkle root hash of the application state
   } deriving (Eq, Show, Generic)
+
+makeLenses ''Commit
 
 instance Wrapped Commit where
   type Unwrapped Commit = PT.ResponseCommit
@@ -467,8 +434,8 @@ instance Wrapped Commit where
           { commitData = message ^. PT.data'
           }
 
-instance Default (Response 'MTCommit) where
-  def = ResponseCommit $ defMessage ^. _Unwrapped'
+instance Default Commit where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- Exception
@@ -490,3 +457,75 @@ instance Wrapped Exception where
         Exception
           { exceptionError = responseException ^. PT.error
           }
+
+--------------------------------------------------------------------------------
+-- Response
+--------------------------------------------------------------------------------
+
+data Response (m :: MessageType) :: * where
+  ResponseEcho :: Echo -> Response 'MTEcho
+  ResponseFlush :: Flush -> Response 'MTFlush
+  ResponseInfo :: Info -> Response 'MTInfo
+  ResponseSetOption :: SetOption -> Response 'MTSetOption
+  ResponseInitChain :: InitChain -> Response 'MTInitChain
+  ResponseQuery :: Query -> Response 'MTQuery
+  ResponseBeginBlock :: BeginBlock -> Response 'MTBeginBlock
+  ResponseCheckTx :: CheckTx -> Response 'MTCheckTx
+  ResponseDeliverTx :: DeliverTx -> Response 'MTDeliverTx
+  ResponseEndBlock :: EndBlock -> Response 'MTEndBlock
+  ResponseCommit :: Commit -> Response 'MTCommit
+  ResponseException :: forall (m :: MessageType) . Exception -> Response m
+
+makePrisms ''Response
+
+instance Default (Response 'MTEcho) where
+  def = ResponseEcho def
+
+instance Default (Response 'MTFlush) where
+  def = ResponseFlush def
+
+instance Default (Response 'MTInfo) where
+  def = ResponseInfo def
+
+instance Default (Response 'MTSetOption) where
+  def = ResponseSetOption def
+
+instance Default (Response 'MTInitChain) where
+  def = ResponseInitChain def
+
+instance Default (Response 'MTQuery) where
+  def = ResponseQuery def
+
+instance Default (Response 'MTBeginBlock) where
+  def = ResponseBeginBlock def
+
+instance Default (Response 'MTCheckTx) where
+  def = ResponseCheckTx def
+
+instance Default (Response 'MTDeliverTx) where
+  def = ResponseDeliverTx def
+
+instance Default (Response 'MTEndBlock) where
+  def = ResponseEndBlock def
+
+instance Default (Response 'MTCommit) where
+  def = ResponseCommit def
+
+-- | Translates type-safe 'Response' GADT to the unsafe
+--   auto-generated 'Proto.Response'
+toProto :: Response t -> PT.Response
+toProto r = case r of
+  ResponseEcho msg       -> wrap PT._Response'Echo msg
+  ResponseFlush msg      -> wrap PT._Response'Flush msg
+  ResponseInfo msg       -> wrap PT._Response'Info msg
+  ResponseSetOption msg  -> wrap PT._Response'SetOption msg
+  ResponseInitChain msg  -> wrap PT._Response'InitChain msg
+  ResponseQuery msg      -> wrap PT._Response'Query msg
+  ResponseBeginBlock msg -> wrap PT._Response'BeginBlock msg
+  ResponseCheckTx msg    -> wrap PT._Response'CheckTx msg
+  ResponseDeliverTx msg  -> wrap PT._Response'DeliverTx msg
+  ResponseEndBlock msg   -> wrap PT._Response'EndBlock msg
+  ResponseCommit msg     -> wrap PT._Response'Commit msg
+  ResponseException msg  -> wrap PT._Response'Exception msg
+  where
+    wrap v msg = defMessage & PT.maybe'value ?~ v # (msg ^. _Wrapped')
