@@ -47,15 +47,3 @@ default-extensions:
 
 library:
   source-dirs: src
-
-tests:
-  hs-abci-extra-test:
-    main:                Spec.hs
-    source-dirs:         test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - hs-abci-extra
-    - text
