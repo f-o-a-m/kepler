@@ -56,9 +56,8 @@ get
   => Connection name
   -> ByteString
   -> IO (Maybe a)
-get (Connection c) k = do
-  DB{dbTree} <- readMVar c
-  pure $ decode . fromStrict <$> AT.lookup k dbTree
+get conn k = withHashTree conn $
+  fmap (decode . fromStrict) . AT.lookup k
 
 -- | Query the HashTree in a read-only fashion.
 withHashTree
@@ -116,4 +115,3 @@ withConnection
 withConnection f = do
   conn <- ask
   liftIO $ f conn
-
