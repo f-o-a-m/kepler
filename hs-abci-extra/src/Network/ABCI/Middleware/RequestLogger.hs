@@ -29,17 +29,17 @@ instance ToObject (Loggable (Request (t :: MessageType))) where
     _          -> mempty
    where
     addMessageType :: forall t. Request (t :: MessageType) -> A.Object -> A.Object
-    addMessageType (RequestEcho _) o       = at "message_type" ?~ A.String "Echo" $ o
-    addMessageType (RequestFlush _) o      = at "message_type" ?~ A.String "Flush" $ o
-    addMessageType (RequestInfo _) o       = at "message_type" ?~ A.String "Info" $ o
-    addMessageType (RequestSetOption _) o  = at "message_type" ?~ A.String "SetOption" $ o
-    addMessageType (RequestInitChain _) o  = at "message_type" ?~ A.String "InitChain" $ o
-    addMessageType (RequestQuery _) o      = at "message_type" ?~ A.String "Query" $ o
-    addMessageType (RequestBeginBlock _) o = at "message_type" ?~ A.String "BeginBlock" $ o
-    addMessageType (RequestCheckTx _) o    = at "message_type" ?~ A.String "CheckTx" $ o
-    addMessageType (RequestDeliverTx _) o  = at "message_type" ?~ A.String "DeliverTx" $ o
-    addMessageType (RequestEndBlock _) o   = at "message_type" ?~ A.String "EndBlock" $ o
-    addMessageType (RequestCommit _) o     = at "message_type" ?~ A.String "Commit" $ o
+    addMessageType (RequestEcho _) o       = at "message_type" ?~ A.String "echo" $ o
+    addMessageType (RequestFlush _) o      = at "message_type" ?~ A.String "flush" $ o
+    addMessageType (RequestInfo _) o       = at "message_type" ?~ A.String "info" $ o
+    addMessageType (RequestSetOption _) o  = at "message_type" ?~ A.String "set_option" $ o
+    addMessageType (RequestInitChain _) o  = at "message_type" ?~ A.String "init_chain" $ o
+    addMessageType (RequestQuery _) o      = at "message_type" ?~ A.String "query" $ o
+    addMessageType (RequestBeginBlock _) o = at "message_type" ?~ A.String "begin_block" $ o
+    addMessageType (RequestCheckTx _) o    = at "message_type" ?~ A.String "check_tx" $ o
+    addMessageType (RequestDeliverTx _) o  = at "message_type" ?~ A.String "deliver_tx" $ o
+    addMessageType (RequestEndBlock _) o   = at "message_type" ?~ A.String "end_block" $ o
+    addMessageType (RequestCommit _) o     = at "message_type" ?~ A.String "commit" $ o
 
 instance LogItem (Loggable (Request (t :: MessageType))) where
   payloadKeys V0 _ = SomeKeys ["message_type"]
