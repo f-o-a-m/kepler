@@ -62,6 +62,7 @@ library:
   - -Werror
   - -Wall
   exposed-modules:
+  - Data.ByteArray.HexString
   - Network.ABCI
   - Network.ABCI.Types.App
   - Network.ABCI.Types.DecodeError

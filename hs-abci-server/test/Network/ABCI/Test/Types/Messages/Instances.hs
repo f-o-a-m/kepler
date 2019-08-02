@@ -4,7 +4,10 @@ module Network.ABCI.Test.Types.Messages.Instances () where
 import qualified Network.ABCI.Types.Messages.FieldTypes as FieldTypes
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
+import Data.ByteArray.HexString (HexString, fromBytes)
+import Data.ByteString (ByteString)
 import           Test.QuickCheck.Arbitrary              (Arbitrary, arbitrary)
+import           Test.QuickCheck.Gen              (Gen)
 import           Test.QuickCheck.Arbitrary.Generic      (genericArbitrary)
 import           Test.QuickCheck.Instances              ()
 
@@ -57,3 +60,5 @@ instance Arbitrary Response.DeliverTx where arbitrary = genericArbitrary
 instance Arbitrary Response.EndBlock where arbitrary = genericArbitrary
 instance Arbitrary Response.Commit where arbitrary = genericArbitrary
 instance Arbitrary Response.Exception where arbitrary = genericArbitrary
+
+instance Arbitrary HexString where arbitrary = fromBytes <$> (arbitrary :: Gen ByteString)
