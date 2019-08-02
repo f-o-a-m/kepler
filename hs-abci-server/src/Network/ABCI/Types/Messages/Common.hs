@@ -3,7 +3,7 @@ module Network.ABCI.Types.Messages.Common
   ) where
 
 import           Data.Aeson        (Options)
-import           Data.Aeson.Casing (aesonDrop, camelCase)
+import           Data.Aeson.Casing (aesonDrop, snakeCase)
 
 defaultABCIOptions :: String -> Options
-defaultABCIOptions prefix = aesonDrop (length prefix) camelCase
+defaultABCIOptions prefix = aesonDrop (length prefix) snakeCase

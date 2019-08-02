@@ -5,11 +5,7 @@ module Network.ABCI.Middleware.RequestLogger
     ) where
 
 import           Control.Monad.IO.Class              (MonadIO, liftIO)
-import           Data.Aeson                          (FromJSON (..),
-                                                      ToJSON (..),
-                                                      genericParseJSON,
-                                                      genericToJSON)
-import           Data.Aeson.Casing                   (aesonPrefix, camelCase)
+import           Data.Aeson                          (ToJSON (..))
 import           Katip
 import           System.IO                           (stdout)
 
