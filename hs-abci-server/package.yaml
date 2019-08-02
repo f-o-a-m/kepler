@@ -37,17 +37,20 @@ default-extensions:
 
 dependencies:
 - base >= 4.7 && < 5
-- bytestring
+- aeson
+- aeson-casing
 - base16-bytestring
-- data-default-class
-- lens
-- proto-lens
-- proto-lens-runtime
-- text
-- time
+- bytestring
 - conduit
 - conduit-extra
+- data-default-class
+- lens
+- memory
+- proto-lens
+- proto-lens-runtime
 - string-conversions
+- text
+- time
 
 library:
   source-dirs: src
@@ -55,6 +58,7 @@ library:
   - -Werror
   - -Wall
   exposed-modules:
+  - Data.ByteArray.HexString
   - Network.ABCI
   - Network.ABCI.Types.App
   - Network.ABCI.Types.DecodeError

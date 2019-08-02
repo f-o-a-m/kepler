@@ -8,12 +8,18 @@ import           Control.Lens                           (iso, traverse, (&),
 import           Control.Lens.TH                        (makeLenses)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
-import           Data.ByteString                        (ByteString)
+import           Data.Aeson                             (FromJSON (..),
+                                                         ToJSON (..),
+                                                         genericParseJSON,
+                                                         genericToJSON)
+import           Data.ByteArray.HexString               (HexString, fromBytes,
+                                                         toBytes)
 import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word64)
 import           GHC.Generics                           (Generic)
+import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
                                                          Evidence (..),
                                                          Header (..),
@@ -24,7 +30,6 @@ import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
-
 --------------------------------------------------------------------------------
 -- Echo
 --------------------------------------------------------------------------------
@@ -34,7 +39,14 @@ data Echo = Echo
   -- ^ A string to echo back
   } deriving (Eq, Show, Generic)
 
+
 makeLenses ''Echo
+
+instance ToJSON Echo where
+  toJSON = genericToJSON $ defaultABCIOptions "echo"
+instance FromJSON Echo where
+  parseJSON = genericParseJSON $ defaultABCIOptions "echo"
+
 
 instance Wrapped Echo where
   type Unwrapped Echo = PT.RequestEcho
@@ -55,6 +67,11 @@ instance Wrapped Echo where
 
 data Flush =
   Flush deriving (Eq, Show, Generic)
+
+instance ToJSON Flush where
+  toJSON = genericToJSON $ defaultABCIOptions "flush"
+instance FromJSON Flush where
+  parseJSON = genericParseJSON $ defaultABCIOptions "flush"
 
 instance Wrapped Flush where
   type Unwrapped Flush = PT.RequestFlush
@@ -77,7 +94,14 @@ data Info = Info
   -- ^ The Tendermint P2P Protocol version
   } deriving (Eq, Show, Generic)
 
+
 makeLenses ''Info
+
+instance ToJSON Info where
+  toJSON = genericToJSON $ defaultABCIOptions "info"
+instance FromJSON Info where
+  parseJSON = genericParseJSON $ defaultABCIOptions "info"
+
 
 instance Wrapped Info where
   type Unwrapped Info = PT.RequestInfo
@@ -107,7 +131,14 @@ data SetOption = SetOption
   -- ^ Value to set for key
   } deriving (Eq, Show, Generic)
 
+
 makeLenses ''SetOption
+
+instance ToJSON SetOption where
+  toJSON = genericToJSON $ defaultABCIOptions "setOption"
+instance FromJSON SetOption where
+  parseJSON = genericParseJSON $ defaultABCIOptions "setOption"
+
 
 instance Wrapped SetOption where
   type Unwrapped SetOption = PT.RequestSetOption
@@ -137,11 +168,18 @@ data InitChain = InitChain
   -- ^ Initial consensus-critical parameters.
   , initChainValidators      :: [ValidatorUpdate]
   -- ^ Initial genesis validators.
-  , initChainAppState        :: ByteString
+  , initChainAppState        :: HexString
   -- ^ Serialized initial application state. Amino-encoded JSON bytes.
   } deriving (Eq, Show, Generic)
 
+
 makeLenses ''InitChain
+
+instance ToJSON InitChain where
+  toJSON = genericToJSON $ defaultABCIOptions "initChain"
+instance FromJSON InitChain where
+  parseJSON = genericParseJSON $ defaultABCIOptions "initChain"
+
 
 instance Wrapped InitChain where
   type Unwrapped InitChain = PT.RequestInitChain
@@ -154,14 +192,14 @@ instance Wrapped InitChain where
           & PT.chainId .~ initChainChainId
           & PT.maybe'consensusParams .~ initChainConsensusParams ^? _Just . _Wrapped'
           & PT.validators .~ initChainValidators ^.. traverse . _Wrapped'
-          & PT.appStateBytes .~ initChainAppState
+          & PT.appStateBytes .~ toBytes initChainAppState
       f message =
         InitChain
           { initChainTime = message ^? PT.maybe'time . _Just . _Unwrapped'
           , initChainChainId = message ^. PT.chainId
           , initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . _Unwrapped'
           , initChainValidators = message ^.. PT.validators . traverse . _Unwrapped'
-          , initChainAppState = message ^. PT.appStateBytes
+          , initChainAppState = fromBytes $ message ^. PT.appStateBytes
           }
 
 --------------------------------------------------------------------------------
@@ -169,7 +207,7 @@ instance Wrapped InitChain where
 --------------------------------------------------------------------------------
 
 data Query = Query
-  { queryData   :: ByteString
+  { queryData   :: HexString
   -- ^  Raw query bytes. Can be used with or in lieu of Path.
   , queryPath   :: Text
   -- ^ Path of request, like an HTTP GET path. Can be used with or in liue of Data.
@@ -179,7 +217,14 @@ data Query = Query
   -- ^ Return Merkle proof with response if possible
   } deriving (Eq, Show, Generic)
 
+
 makeLenses ''Query
+
+instance ToJSON Query where
+  toJSON = genericToJSON $ defaultABCIOptions "query"
+instance FromJSON Query where
+  parseJSON = genericParseJSON $ defaultABCIOptions "query"
+
 
 instance Wrapped Query where
   type Unwrapped Query = PT.RequestQuery
@@ -188,13 +233,13 @@ instance Wrapped Query where
     where
       t Query{..} =
         defMessage
-          & PT.data' .~ queryData
+          & PT.data' .~ toBytes queryData
           & PT.path .~ queryPath
           & PT.height .~ queryHeight
           & PT.prove .~ queryProve
       f message =
         Query
-          { queryData = message ^. PT.data'
+          { queryData = fromBytes $ message ^. PT.data'
           , queryPath = message ^. PT.path
           , queryHeight = message ^. PT.height
           , queryProve = message ^. PT.prove
@@ -205,7 +250,7 @@ instance Wrapped Query where
 --------------------------------------------------------------------------------
 
 data BeginBlock = BeginBlock
-  { beginBlockHash                :: ByteString
+  { beginBlockHash                :: HexString
   -- ^ The block's hash. This can be derived from the block header.
   , beginBlockHeader              :: Maybe Header
   -- ^ The block header.
@@ -216,7 +261,14 @@ data BeginBlock = BeginBlock
   -- ^ List of evidence of validators that acted maliciously.
   } deriving (Eq, Show, Generic)
 
+
 makeLenses ''BeginBlock
+
+instance ToJSON BeginBlock where
+  toJSON = genericToJSON $ defaultABCIOptions "beginBlock"
+instance FromJSON BeginBlock where
+  parseJSON = genericParseJSON $ defaultABCIOptions "beginBlock"
+
 
 instance Wrapped BeginBlock where
   type Unwrapped BeginBlock = PT.RequestBeginBlock
@@ -225,13 +277,13 @@ instance Wrapped BeginBlock where
     where
       t BeginBlock{..} =
         defMessage
-          & PT.hash .~ beginBlockHash
+          & PT.hash .~ toBytes beginBlockHash
           & PT.maybe'header .~ beginBlockHeader ^? _Just . _Wrapped'
           & PT.maybe'lastCommitInfo .~ beginBlockLastCommitInfo ^? _Just . _Wrapped'
           & PT.byzantineValidators .~ beginBlockByzantineValidators ^.. traverse . _Wrapped'
       f message =
         BeginBlock
-          { beginBlockHash = message ^. PT.hash
+          { beginBlockHash = fromBytes $  message ^. PT.hash
           , beginBlockHeader = message ^? PT.maybe'header . _Just . _Unwrapped'
           , beginBlockLastCommitInfo = message ^? PT.maybe'lastCommitInfo . _Just . _Unwrapped'
           , beginBlockByzantineValidators = message ^.. PT.byzantineValidators . traverse . _Unwrapped'
@@ -243,11 +295,18 @@ instance Wrapped BeginBlock where
 
 -- TODO: figure out what happened to Type CheckTxType field
 data CheckTx = CheckTx
-  { checkTxTx :: ByteString
+  { checkTxTx :: HexString
   -- ^ The request transaction bytes
   } deriving (Eq, Show, Generic)
 
+
 makeLenses ''CheckTx
+
+instance ToJSON CheckTx where
+  toJSON = genericToJSON $ defaultABCIOptions "checkTx"
+instance FromJSON CheckTx where
+  parseJSON = genericParseJSON $ defaultABCIOptions "checkTx"
+
 
 instance Wrapped CheckTx where
   type Unwrapped CheckTx = PT.RequestCheckTx
@@ -256,11 +315,11 @@ instance Wrapped CheckTx where
     where
       t CheckTx{..} =
         defMessage
-          & PT.tx .~ checkTxTx
+          & PT.tx .~ toBytes checkTxTx
 
       f message =
         CheckTx
-          { checkTxTx = message ^. PT.tx
+          { checkTxTx = fromBytes $ message ^. PT.tx
           }
 
 --------------------------------------------------------------------------------
@@ -268,11 +327,18 @@ instance Wrapped CheckTx where
 --------------------------------------------------------------------------------
 
 data DeliverTx = DeliverTx
-  { deliverTxTx :: ByteString
+  { deliverTxTx :: HexString
   -- ^ The request transaction bytes.
   } deriving (Eq, Show, Generic)
 
+
 makeLenses ''DeliverTx
+
+instance ToJSON DeliverTx where
+  toJSON = genericToJSON $ defaultABCIOptions "deliverTx"
+instance FromJSON DeliverTx where
+  parseJSON = genericParseJSON $ defaultABCIOptions "deliverTx"
+
 
 instance Wrapped DeliverTx where
   type Unwrapped DeliverTx = PT.RequestDeliverTx
@@ -281,11 +347,11 @@ instance Wrapped DeliverTx where
     where
      t DeliverTx{..} =
        defMessage
-         & PT.tx .~ deliverTxTx
+         & PT.tx .~ toBytes deliverTxTx
 
      f message =
        DeliverTx
-         { deliverTxTx = message ^. PT.tx
+         { deliverTxTx = fromBytes $ message ^. PT.tx
          }
 
 --------------------------------------------------------------------------------
@@ -297,7 +363,14 @@ data EndBlock = EndBlock
   -- ^ Height of the block just executed.
   } deriving (Eq, Show, Generic)
 
+
 makeLenses ''EndBlock
+
+instance ToJSON EndBlock where
+  toJSON = genericToJSON $ defaultABCIOptions "endBlock"
+instance FromJSON EndBlock where
+  parseJSON = genericParseJSON $ defaultABCIOptions "endBlock"
+
 
 instance Wrapped EndBlock where
   type Unwrapped EndBlock = PT.RequestEndBlock
@@ -320,7 +393,14 @@ instance Wrapped EndBlock where
 data Commit =
   Commit deriving (Eq, Show, Generic)
 
+
 makeLenses ''Commit
+
+instance ToJSON Commit where
+  toJSON = genericToJSON $ defaultABCIOptions "commit"
+instance FromJSON Commit where
+  parseJSON = genericParseJSON $ defaultABCIOptions "commit"
+
 
 instance Wrapped Commit where
   type Unwrapped Commit = PT.RequestCommit
@@ -349,6 +429,43 @@ data Request (m :: MessageType) :: * where
   RequestDeliverTx :: DeliverTx -> Request 'MTDeliverTx
   RequestEndBlock :: EndBlock -> Request 'MTEndBlock
   RequestCommit :: Commit -> Request 'MTCommit
+
+instance ToJSON (Request (t :: MessageType)) where
+  toJSON (RequestEcho v)       = toJSON v
+  toJSON (RequestFlush v)      = toJSON v
+  toJSON (RequestInfo v)       = toJSON v
+  toJSON (RequestSetOption v)  = toJSON v
+  toJSON (RequestInitChain v)  = toJSON v
+  toJSON (RequestQuery v)      = toJSON v
+  toJSON (RequestBeginBlock v) = toJSON v
+  toJSON (RequestCheckTx v)    = toJSON v
+  toJSON (RequestDeliverTx v)  = toJSON v
+  toJSON (RequestEndBlock v)   = toJSON v
+  toJSON (RequestCommit v)     = toJSON v
+
+instance FromJSON (Request 'MTEcho) where
+  parseJSON = fmap RequestEcho . parseJSON
+instance FromJSON (Request 'MTFlush) where
+  parseJSON = fmap RequestFlush . parseJSON
+instance FromJSON (Request 'MTInfo) where
+  parseJSON = fmap RequestInfo . parseJSON
+instance FromJSON (Request 'MTSetOption) where
+  parseJSON = fmap RequestSetOption . parseJSON
+instance FromJSON (Request 'MTInitChain) where
+  parseJSON = fmap RequestInitChain . parseJSON
+instance FromJSON (Request 'MTQuery) where
+  parseJSON = fmap RequestQuery . parseJSON
+instance FromJSON (Request 'MTBeginBlock) where
+  parseJSON = fmap RequestBeginBlock . parseJSON
+instance FromJSON (Request 'MTCheckTx) where
+  parseJSON = fmap RequestCheckTx . parseJSON
+instance FromJSON (Request 'MTDeliverTx) where
+  parseJSON = fmap RequestDeliverTx . parseJSON
+instance FromJSON (Request 'MTEndBlock) where
+  parseJSON = fmap RequestEndBlock . parseJSON
+instance FromJSON (Request 'MTCommit) where
+  parseJSON = fmap RequestCommit . parseJSON
+
 
 withProto
   :: (forall (t :: MessageType). Request t -> a)
