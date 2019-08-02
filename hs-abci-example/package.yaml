@@ -30,6 +30,7 @@ default-extensions:
   - PolyKinds
   - GeneralizedNewtypeDeriving
   - ScopedTypeVariables
+  - TupleSections
 
 
 dependencies:

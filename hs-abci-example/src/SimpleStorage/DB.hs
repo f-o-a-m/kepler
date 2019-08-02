@@ -87,17 +87,16 @@ abortTransaction = throwError . TransactionError
 stageTransaction
   :: Connection name
   -> Transaction name a
-  -> IO (Either TransactionError (IO a))
+  -> IO (Either TransactionError (a, IO ()))
 stageTransaction (Connection c) transaction = do
   db <- readMVar c
   dbCopy <- newMVar db
   eTxRes <- runExceptT $ runReaderT (runTransaction transaction) (Connection dbCopy)
   pure $ case eTxRes of
     Left e -> Left e
-    Right a -> Right $ do
-      dbRes <- readMVar dbCopy
-      putMVar c dbRes
-      pure a
+    Right a ->
+      let commitAction = readMVar dbCopy >>=  putMVar c
+      in Right (a, commitAction)
 
 -- | Run an commit a transaction
 commitTransaction
@@ -108,7 +107,7 @@ commitTransaction conn transaction = do
   eRes <- stageTransaction conn transaction
   case eRes of
     Left e             -> pure $ Left e
-    Right commitAction -> Right <$> commitAction
+    Right (a, commitAction) ->  Right a <$ commitAction
 
 -- | Use a connection to perform a transaction step
 withConnection
