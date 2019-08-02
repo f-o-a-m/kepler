@@ -7,13 +7,13 @@ module SimpleStorage.Application
   , transformHandler
   ) where
 
-import Data.Default.Class (Default(..))
-import qualified SimpleStorage.DB as DB
-import SimpleStorage.StateMachine (initStateMachine)
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Except (ExceptT, runExceptT, MonadError)
-import Control.Monad.Reader (ReaderT, MonadReader, runReaderT)
-import Control.Exception (Exception, throwIO)
+import           Control.Exception          (Exception, throwIO)
+import           Control.Monad.Except       (ExceptT, MonadError, runExceptT)
+import           Control.Monad.IO.Class     (MonadIO)
+import           Control.Monad.Reader       (MonadReader, ReaderT, runReaderT)
+import           Data.Default.Class         (Default (..))
+import qualified SimpleStorage.DB           as DB
+import           SimpleStorage.StateMachine (initStateMachine)
 
 
 data AppConfig = AppConfig
@@ -52,5 +52,5 @@ transformHandler
 transformHandler cfg m = do
   eRes <- runExceptT $ runReaderT (runHandler m) cfg
   case eRes of
-    Left e -> throwIO e
+    Left e  -> throwIO e
     Right a -> pure a

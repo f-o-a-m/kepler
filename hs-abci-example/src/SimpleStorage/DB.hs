@@ -12,14 +12,16 @@ module SimpleStorage.DB
   , commitTransaction
   ) where
 
-import Control.Monad.IO.Class (MonadIO(..))
-import Data.ByteString.Lazy (fromStrict, toStrict)
-import Control.Monad.Reader (ReaderT, MonadReader, ask, runReaderT)
-import Control.Monad.Except (ExceptT, MonadError, throwError, runExceptT)
-import           Control.Concurrent.MVar (MVar, modifyMVar_, newMVar, readMVar, putMVar)
+import           Control.Concurrent.MVar (MVar, modifyMVar_, newMVar, putMVar,
+                                          readMVar)
+import           Control.Monad.Except    (ExceptT, MonadError, runExceptT,
+                                          throwError)
+import           Control.Monad.IO.Class  (MonadIO (..))
+import           Control.Monad.Reader    (MonadReader, ReaderT, ask, runReaderT)
 import qualified Crypto.Data.Auth.Tree   as AT
-import           Data.Binary             (Binary, encode, decode)
+import           Data.Binary             (Binary, decode, encode)
 import           Data.ByteString         (ByteString)
+import           Data.ByteString.Lazy    (fromStrict, toStrict)
 import           Data.Proxy              (Proxy)
 import           GHC.TypeLits            (Symbol)
 
@@ -105,7 +107,7 @@ commitTransaction
 commitTransaction conn transaction = do
   eRes <- stageTransaction conn transaction
   case eRes of
-    Left e -> pure $ Left e
+    Left e             -> pure $ Left e
     Right commitAction -> Right <$> commitAction
 
 -- | Use a connection to perform a transaction step
