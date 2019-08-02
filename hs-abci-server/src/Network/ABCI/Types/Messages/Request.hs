@@ -1,13 +1,11 @@
 {-# LANGUAGE TemplateHaskell #-}
-{-# OPTIONS_GHC -fno-warn-overlapping-patterns#-}
-
 
 module Network.ABCI.Types.Messages.Request where
 
 import           Control.Lens                           (iso, traverse, (&),
                                                          (.~), (^.), (^..),
                                                          (^?), _Just)
-import Control.Lens.TH (makePrisms, makeLenses)
+import           Control.Lens.TH                        (makeLenses)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
 import           Data.ByteString                        (ByteString)
@@ -351,10 +349,6 @@ data Request (m :: MessageType) :: * where
   RequestDeliverTx :: DeliverTx -> Request 'MTDeliverTx
   RequestEndBlock :: EndBlock -> Request 'MTEndBlock
   RequestCommit :: Commit -> Request 'MTCommit
-
--- NOTE: We needed the -fno-warn-overlapping-patterns pragma because
--- of this, I don't know why it doesn't trip for the similar Response type
-makePrisms ''Request
 
 withProto
   :: (forall (t :: MessageType). Request t -> a)

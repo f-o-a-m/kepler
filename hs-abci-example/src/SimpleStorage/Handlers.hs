@@ -1,5 +1,6 @@
 module SimpleStorage.Handlers where
 
+import           Control.Lens                         ((&), (.~))
 import           Control.Monad.IO.Class               (liftIO)
 import           Control.Monad.Reader                 (ask)
 import           Data.Binary                          (encode)
@@ -16,8 +17,8 @@ import           SimpleStorage.StateMachine           (readCount)
 echoH
   :: Req.Request 'MTEcho
   -> Handler (Resp.Response 'MTEcho)
-echoH (Req.RequestEcho Req.Echo {echoMessage}) =
-  pure $ Resp.ResponseEcho $ def {Resp.echoMessage = echoMessage}
+echoH (Req.RequestEcho echo) =
+  pure . Resp.ResponseEcho $ def & Resp._echoMessage .~ echo ^. Req._echoMessage
 
 flushH
   :: Req.Request 'MTFlush

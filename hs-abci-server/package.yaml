@@ -31,6 +31,8 @@ default-extensions:
 - ScopedTypeVariables
 - FlexibleInstances
 - OverloadedStrings
+- MultiParamTypeClasses
+- FunctionalDependencies
 
 
 dependencies:

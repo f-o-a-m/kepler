@@ -5,7 +5,7 @@ module Network.ABCI.Types.Messages.Response where
 import           Control.Lens                           (iso, traverse, (&),
                                                          (.~), (?~), (^.),
                                                          (^..), (^?), _Just)
-import           Control.Lens.TH                        (makeLenses, makePrisms)
+import           Control.Lens.TH                        (makeLenses)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
 import           Data.ByteString                        (ByteString)
@@ -475,8 +475,6 @@ data Response (m :: MessageType) :: * where
   ResponseEndBlock :: EndBlock -> Response 'MTEndBlock
   ResponseCommit :: Commit -> Response 'MTCommit
   ResponseException :: forall (m :: MessageType) . Exception -> Response m
-
-makePrisms ''Response
 
 instance Default (Response 'MTEcho) where
   def = ResponseEcho def
