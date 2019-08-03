@@ -7,17 +7,19 @@ module SimpleStorage.Application
   , transformHandler
   ) where
 
-import Control.Lens ((&), (.~))
-import           Control.Monad.Except       (ExceptT, MonadError, runExceptT)
-import           Control.Monad.IO.Class     (MonadIO)
-import           Control.Monad.Reader       (MonadReader, ReaderT, runReaderT)
-import           Data.Default.Class         (Default (..))
-import qualified SimpleStorage.DB           as DB
-import           SimpleStorage.StateMachine (initStateMachine)
-import           SimpleStorage.Transaction  (TransactionError(..))
-import Data.Text (Text, pack)
-import Network.ABCI.Types.Messages.Types (MessageType(..))
+import           Control.Lens                         ((&), (.~))
+import           Control.Monad.Except                 (ExceptT, MonadError,
+                                                       runExceptT)
+import           Control.Monad.IO.Class               (MonadIO)
+import           Control.Monad.Reader                 (MonadReader, ReaderT,
+                                                       runReaderT)
+import           Data.Default.Class                   (Default (..))
+import           Data.Text                            (Text, pack)
 import qualified Network.ABCI.Types.Messages.Response as Resp
+import           Network.ABCI.Types.Messages.Types    (MessageType (..))
+import qualified SimpleStorage.DB                     as DB
+import           SimpleStorage.StateMachine           (initStateMachine)
+import           SimpleStorage.Transaction            (TransactionError (..))
 
 data AppConfig = AppConfig
   { countConnection :: DB.Connection "count"

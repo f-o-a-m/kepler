@@ -1,6 +1,9 @@
 module SimpleStorage.Handlers where
 
-import           Control.Lens                         ((&), (.~), (^.), to)
+import           Control.Concurrent.STM               (atomically)
+import           Control.Concurrent.STM.TVar          (readTVar)
+import           Control.Lens                         (to, (&), (.~), (^.))
+import           Control.Monad.Except                 (throwError)
 import           Control.Monad.IO.Class               (liftIO)
 import           Control.Monad.Reader                 (ask)
 import           Data.Binary                          (encode)
@@ -10,16 +13,14 @@ import           Data.Default.Class                   (def)
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Network.ABCI.Types.Messages.Types    (MessageType (..))
-import           SimpleStorage.Application            (AppConfig (..), Handler,
-                                                       defaultHandler, AppError(..))
-import Control.Monad.Except (throwError)
-import           SimpleStorage.StateMachine           (readCount)
-import SimpleStorage.Types (AppTxMessage(..), decodeAppTxMessage)
-import SimpleStorage.DB (Connection(..))
-import SimpleStorage.Transaction (stageTransaction)
-import SimpleStorage.StateMachine (updateCount)
-import Control.Concurrent.STM.TVar (readTVar)
-import Control.Concurrent.STM (atomically)
+import           SimpleStorage.Application            (AppConfig (..),
+                                                       AppError (..), Handler,
+                                                       defaultHandler)
+import           SimpleStorage.DB                     (Connection (..))
+import           SimpleStorage.StateMachine           (readCount, updateCount)
+import           SimpleStorage.Transaction            (stageTransaction)
+import           SimpleStorage.Types                  (AppTxMessage (..),
+                                                       decodeAppTxMessage)
 
 echoH
   :: Req.Request 'MTEcho
@@ -84,5 +85,5 @@ checkTxH (Req.RequestCheckTx checkTx) = do
         pure $ stageTransaction db $
           updateCount updateCountTx
       return . Resp.ResponseCheckTx $ case eRes of
-        Left _ -> def & Resp._checkTxCode .~ 1
+        Left _  -> def & Resp._checkTxCode .~ 1
         Right _ -> def & Resp._checkTxCode .~ 0

@@ -1,16 +1,17 @@
 module SimpleStorage.Types where
 
-import           Control.Lens                        (iso, (&), (.~), (^.), view)
+import           Control.Lens                        (iso, view, (&), (.~),
+                                                      (^.))
 import           Control.Lens.Wrapped                (Wrapped (..), _Unwrapped')
 import           Data.Binary                         (Binary)
+import           Data.ByteString                     (ByteString)
 import           Data.Int                            (Int32)
+import qualified Data.ProtoLens                      as PL
 import           Data.ProtoLens.Message              (Message (..))
 import           Data.Text                           (Text)
 import           GHC.Generics                        (Generic)
 import           Proto.SimpleStorage.Messages        as M
 import           Proto.SimpleStorage.Messages_Fields as M
-import qualified Data.ProtoLens                       as PL
-import Data.ByteString (ByteString)
 
 data AppTxMessage =
     ATMUpdateCount UpdateCountTx
