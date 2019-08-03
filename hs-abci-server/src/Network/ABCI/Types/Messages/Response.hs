@@ -521,10 +521,16 @@ data Exception = Exception
   { exceptionError :: Text
   } deriving (Eq, Show, Generic)
 
+
+makeABCILenses ''Exception
+
 instance ToJSON Exception where
   toJSON = genericToJSON $ defaultABCIOptions "exception"
 instance FromJSON Exception where
   parseJSON = genericParseJSON $ defaultABCIOptions "exception"
+
+instance Default Exception where
+  def = defMessage ^. _Unwrapped'
 
 instance Wrapped Exception where
   type Unwrapped Exception = PT.ResponseException

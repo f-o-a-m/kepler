@@ -7,14 +7,17 @@ module SimpleStorage.Application
   , transformHandler
   ) where
 
-import           Control.Exception          (Exception, throwIO)
+import Control.Lens ((&), (.~))
 import           Control.Monad.Except       (ExceptT, MonadError, runExceptT)
 import           Control.Monad.IO.Class     (MonadIO)
 import           Control.Monad.Reader       (MonadReader, ReaderT, runReaderT)
 import           Data.Default.Class         (Default (..))
 import qualified SimpleStorage.DB           as DB
 import           SimpleStorage.StateMachine (initStateMachine)
-import           SimpleStorage.Transaction  (TransactionError)
+import           SimpleStorage.Transaction  (TransactionError(..))
+import Data.Text (Text, pack)
+import Network.ABCI.Types.Messages.Types (MessageType(..))
+import qualified Network.ABCI.Types.Messages.Response as Resp
 
 data AppConfig = AppConfig
   { countConnection :: DB.Connection "count"
@@ -28,10 +31,14 @@ makeAppConfig = do
 
 data AppError =
     QueryMissError String
-  | TransactionError TransactionError
+  | TxError TransactionError
+  | DecodeTxError String
   deriving (Show)
 
-instance Exception AppError
+printAppError :: AppError -> Text
+printAppError (QueryMissError msg) = pack $ "QueryMissError : " <> msg
+printAppError (TxError (TransactionError txError)) = pack $ "TransactionError : " <> txError
+printAppError (DecodeTxError msg) = pack $ "DecodeTxError : " <> msg
 
 newtype Handler a = Handler
   { runHandler :: ReaderT AppConfig (ExceptT AppError IO) a }
@@ -48,9 +55,10 @@ defaultHandler = const $ pure def
 
 transformHandler
   :: AppConfig
-  -> (forall a. Handler a -> IO a)
+  -> (forall (t :: MessageType). Handler (Resp.Response t) -> IO (Resp.Response t))
 transformHandler cfg m = do
   eRes <- runExceptT $ runReaderT (runHandler m) cfg
   case eRes of
-    Left e  -> throwIO e
+    Left e  -> pure $ Resp.ResponseException $
+      def & Resp._exceptionError .~ printAppError e
     Right a -> pure a

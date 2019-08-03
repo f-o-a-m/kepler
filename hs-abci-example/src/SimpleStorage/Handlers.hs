@@ -1,6 +1,6 @@
 module SimpleStorage.Handlers where
 
-import           Control.Lens                         ((&), (.~), (^.))
+import           Control.Lens                         ((&), (.~), (^.), to)
 import           Control.Monad.IO.Class               (liftIO)
 import           Control.Monad.Reader                 (ask)
 import           Data.Binary                          (encode)
@@ -11,9 +11,15 @@ import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Network.ABCI.Types.Messages.Types    (MessageType (..))
 import           SimpleStorage.Application            (AppConfig (..), Handler,
-                                                       defaultHandler)
+                                                       defaultHandler, AppError(..))
+import Control.Monad.Except (throwError)
 import           SimpleStorage.StateMachine           (readCount)
-
+import SimpleStorage.Types (AppTxMessage(..), decodeAppTxMessage)
+import SimpleStorage.DB (Connection(..))
+import SimpleStorage.Transaction (stageTransaction)
+import SimpleStorage.StateMachine (updateCount)
+import Control.Concurrent.STM.TVar (readTVar)
+import Control.Concurrent.STM (atomically)
 
 echoH
   :: Req.Request 'MTEcho
@@ -58,3 +64,25 @@ queryH (Req.RequestQuery query)
       pure . Resp.ResponseQuery $
         def & Resp._queryCode .~ 0
             & Resp._queryValue .~ convert countBS
+
+beginBlockH
+  :: Req.Request 'MTBeginBlock
+  -> Handler (Resp.Response 'MTBeginBlock)
+beginBlockH = defaultHandler
+
+checkTxH
+  :: Req.Request 'MTCheckTx
+  -> Handler (Resp.Response 'MTCheckTx)
+checkTxH (Req.RequestCheckTx checkTx) = do
+  case decodeAppTxMessage $ checkTx ^. Req._checkTxTx . to convert of
+    Left e -> throwError $ DecodeTxError e
+    Right (ATMUpdateCount updateCountTx) -> do
+      AppConfig{countConnection} <- ask
+      eRes <- liftIO $ atomically $ do
+        let Connection c = countConnection
+        db <- readTVar c
+        pure $ stageTransaction db $
+          updateCount updateCountTx
+      return . Resp.ResponseCheckTx $ case eRes of
+        Left _ -> def & Resp._checkTxCode .~ 1
+        Right _ -> def & Resp._checkTxCode .~ 0
