@@ -47,6 +47,7 @@ dependencies:
 - mtl
 - proto-lens
 - proto-lens-runtime
+- stm
 - text
 
 library:

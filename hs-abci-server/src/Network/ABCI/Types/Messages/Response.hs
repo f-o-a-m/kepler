@@ -5,7 +5,6 @@ module Network.ABCI.Types.Messages.Response where
 import           Control.Lens                           (iso, traverse, (&),
                                                          (.~), (?~), (^.),
                                                          (^..), (^?), _Just)
-import           Control.Lens.TH                        (makeLenses)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
 import           Data.Aeson                             (FromJSON (..),
@@ -21,7 +20,8 @@ import           Data.ProtoLens.Prism                   (( # ))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word32, Word64)
 import           GHC.Generics                           (Generic)
-import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions, makeABCILenses)
+import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions,
+                                                         makeABCILenses)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams, Event,
                                                          Proof, ValidatorUpdate)
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))
@@ -104,7 +104,7 @@ data Info = Info
   } deriving (Eq, Show, Generic)
 
 
-makeLenses ''Info
+makeABCILenses ''Info
 
 instance ToJSON Info where
   toJSON = genericToJSON $ defaultABCIOptions "info"
@@ -150,7 +150,7 @@ data SetOption = SetOption
   } deriving (Eq, Show, Generic)
 
 
-makeLenses ''SetOption
+makeABCILenses ''SetOption
 
 instance ToJSON SetOption where
   toJSON = genericToJSON $ defaultABCIOptions "setOption"
@@ -190,7 +190,7 @@ data InitChain = InitChain
   } deriving (Eq, Show, Generic)
 
 
-makeLenses ''InitChain
+makeABCILenses ''InitChain
 
 instance ToJSON InitChain where
   toJSON = genericToJSON $ defaultABCIOptions "initChain"
@@ -243,7 +243,7 @@ data Query = Query
   } deriving (Eq, Show, Generic)
 
 
-makeLenses ''Query
+makeABCILenses ''Query
 
 instance ToJSON Query where
   toJSON = genericToJSON $ defaultABCIOptions "query"
@@ -293,7 +293,7 @@ data BeginBlock = BeginBlock
   } deriving (Eq, Show, Generic)
 
 
-makeLenses ''BeginBlock
+makeABCILenses ''BeginBlock
 
 instance ToJSON BeginBlock where
   toJSON = genericToJSON $ defaultABCIOptions "beginBlock"
@@ -341,7 +341,7 @@ data CheckTx = CheckTx
   } deriving (Eq, Show, Generic)
 
 
-makeLenses ''CheckTx
+makeABCILenses ''CheckTx
 
 instance ToJSON CheckTx where
   toJSON = genericToJSON $ defaultABCIOptions "checkTx"
@@ -403,7 +403,7 @@ data DeliverTx = DeliverTx
   } deriving (Eq, Show, Generic)
 
 
-makeLenses ''DeliverTx
+makeABCILenses ''DeliverTx
 
 instance ToJSON DeliverTx where
   toJSON = genericToJSON $ defaultABCIOptions "deliverTx"
@@ -454,7 +454,7 @@ data EndBlock = EndBlock
   -- ^ Events
   } deriving (Eq, Show, Generic)
 
-makeLenses ''BeginBlock
+makeABCILenses ''EndBlock
 
 instance ToJSON EndBlock where
   toJSON = genericToJSON $ defaultABCIOptions "endBlock"
@@ -490,7 +490,7 @@ data Commit = Commit
   -- ^ The Merkle root hash of the application state
   } deriving (Eq, Show, Generic)
 
-makeLenses ''Commit
+makeABCILenses ''Commit
 
 instance ToJSON Commit where
   toJSON = genericToJSON $ defaultABCIOptions "commit"
