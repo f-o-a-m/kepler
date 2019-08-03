@@ -7,13 +7,13 @@ module SimpleStorage.DB
   , withHashTree
   ) where
 
-import qualified Crypto.Data.Auth.Tree as AT
-import           Data.Binary           (Binary, decode, encode)
-import           Data.ByteString       (ByteString)
-import           Data.ByteString.Lazy  (fromStrict, toStrict)
-import           Data.Proxy            (Proxy)
-import           GHC.TypeLits          (Symbol)
-import Control.Concurrent.STM.TVar (TVar, newTVarIO)
+import           Control.Concurrent.STM.TVar (TVar, newTVarIO)
+import qualified Crypto.Data.Auth.Tree       as AT
+import           Data.Binary                 (Binary, decode, encode)
+import           Data.ByteString             (ByteString)
+import           Data.ByteString.Lazy        (fromStrict, toStrict)
+import           Data.Proxy                  (Proxy)
+import           GHC.TypeLits                (Symbol)
 
 data DB (name :: Symbol) = DB
   { dbTree :: AT.Tree ByteString ByteString

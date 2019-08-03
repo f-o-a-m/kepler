@@ -8,13 +8,13 @@ module SimpleStorage.Transaction
   , stateChange
   ) where
 
-import Control.Concurrent.STM (atomically)
-import Control.Concurrent.STM.TVar (writeTVar, readTVar)
-import           Control.Monad.Except  (Except, MonadError, runExcept,
-                                        throwError)
+import           Control.Concurrent.STM      (atomically)
+import           Control.Concurrent.STM.TVar (readTVar, writeTVar)
+import           Control.Monad.Except        (Except, MonadError, runExcept,
+                                              throwError)
 import           Control.Monad.State
-import           Data.Monoid (Endo(..))
-import           SimpleStorage.DB      (Connection(..),DB)
+import           Data.Monoid                 (Endo (..))
+import           SimpleStorage.DB            (Connection (..), DB)
 
 
 
@@ -22,7 +22,7 @@ data TransactionError = TransactionError String deriving Show
 
 data TransactionState name = TransactionState
   { originalRoot :: DB name
-  , currentRoot :: DB name
+  , currentRoot  :: DB name
   }
 
 newtype Transaction name a =

@@ -4,19 +4,19 @@ module SimpleStorage.StateMachine
   , readCount
   ) where
 
-import           Crypto.Hash         (SHA256 (..), hashWith)
-import           Data.ByteArray      (convert)
-import           Data.ByteString     (ByteString)
-import           Data.Int            (Int32)
-import           Data.Maybe          (fromJust)
+import           Control.Concurrent.STM      (atomically)
+import           Control.Concurrent.STM.TVar (modifyTVar, readTVarIO)
+import           Crypto.Hash                 (SHA256 (..), hashWith)
+import           Data.ByteArray              (convert)
+import           Data.ByteString             (ByteString)
+import           Data.Int                    (Int32)
+import           Data.Maybe                  (fromJust)
+import           Data.Monoid                 (Endo (..))
 import           Data.Proxy
-import qualified Data.Text.Encoding  as T
-import qualified SimpleStorage.DB    as DB
-import           SimpleStorage.Transaction (Transaction, stateChange)
+import qualified Data.Text.Encoding          as T
+import qualified SimpleStorage.DB            as DB
+import           SimpleStorage.Transaction   (Transaction, stateChange)
 import           SimpleStorage.Types
-import Control.Concurrent.STM.TVar (readTVarIO, modifyTVar)
-import Control.Concurrent.STM (atomically)
-import Data.Monoid (Endo(..))
 
 countKey :: ByteString
 countKey = convert . hashWith SHA256 . T.encodeUtf8 $ "count"

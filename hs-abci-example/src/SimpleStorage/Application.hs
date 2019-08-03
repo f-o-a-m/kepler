@@ -14,7 +14,7 @@ import           Control.Monad.Reader       (MonadReader, ReaderT, runReaderT)
 import           Data.Default.Class         (Default (..))
 import qualified SimpleStorage.DB           as DB
 import           SimpleStorage.StateMachine (initStateMachine)
-import SimpleStorage.Transaction (TransactionError)
+import           SimpleStorage.Transaction  (TransactionError)
 
 data AppConfig = AppConfig
   { countConnection :: DB.Connection "count"
