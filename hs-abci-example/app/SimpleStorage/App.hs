@@ -1,4 +1,4 @@
-module SimpleStorage (makeAndServeApplication) where
+module SimpleStorage.App (makeAndServeApplication) where
 
 import           Network.ABCI                        (serveApp)
 import           Network.ABCI.Types.App              (App (..), transformApp)

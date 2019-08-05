@@ -62,7 +62,7 @@ library:
   - Tendermint.SDK.DB
   - Tendermint.SDK.Transaction
 
-  - SimpleStorage
+  - SimpleStorage.App
   - SimpleStorage.Application
   - SimpleStorage.Handlers
   - SimpleStorage.StateMachine

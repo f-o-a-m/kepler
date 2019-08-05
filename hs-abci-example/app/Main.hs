@@ -1,6 +1,6 @@
 module Main where
 
-import           SimpleStorage (makeAndServeApplication)
+import           SimpleStorage.App (makeAndServeApplication)
 
 main :: IO ()
 main = makeAndServeApplication
