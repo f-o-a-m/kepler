@@ -1,4 +1,4 @@
-module SimpleStorage.DB
+module Tendermint.SDK.DB
   ( Connection(..)
   , DB
   , makeConnection

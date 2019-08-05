@@ -14,9 +14,9 @@ import           Data.Maybe                  (fromJust)
 import           Data.Monoid                 (Endo (..))
 import           Data.Proxy
 import qualified Data.Text.Encoding          as T
-import qualified SimpleStorage.DB            as DB
-import           SimpleStorage.Transaction   (Transaction, stateChange)
 import           SimpleStorage.Types
+import qualified Tendermint.SDK.DB           as DB
+import           Tendermint.SDK.Transaction  (Transaction, stateChange)
 
 countKey :: ByteString
 countKey = convert . hashWith SHA256 . T.encodeUtf8 $ "count"

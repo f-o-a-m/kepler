@@ -1,4 +1,4 @@
-module SimpleStorage.Transaction
+module Tendermint.SDK.Transaction
   ( Transaction
   , TransactionState(..)
   , TransactionError(..)
@@ -14,7 +14,7 @@ import           Control.Monad.Except        (Except, MonadError, runExcept,
                                               throwError)
 import           Control.Monad.State
 import           Data.Monoid                 (Endo (..))
-import           SimpleStorage.DB            (Connection (..), DB)
+import           Tendermint.SDK.DB           (Connection (..), DB)
 
 
 

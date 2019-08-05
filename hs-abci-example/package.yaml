@@ -11,12 +11,6 @@ extra-source-files:
 
 description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-example#readme>
 
-custom-setup:
-  dependencies:
-    - base
-    - Cabal
-    - proto-lens-setup
-
 default-extensions:
   - DeriveGeneric
   - NamedFieldPuns
@@ -51,19 +45,29 @@ dependencies:
 - stm
 - text
 
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-setup
+
 library:
-  source-dirs: src
+  source-dirs:
+  - src
+  - app
   ghc-options:
   - -Werror
   - -Wall
   exposed-modules:
+  - Tendermint.SDK.DB
+  - Tendermint.SDK.Transaction
+
   - SimpleStorage
   - SimpleStorage.Application
-  - SimpleStorage.DB
   - SimpleStorage.Handlers
   - SimpleStorage.StateMachine
-  - SimpleStorage.Transaction
   - SimpleStorage.Types
+
   generated-exposed-modules:
   - Proto.SimpleStorage.Messages
   - Proto.SimpleStorage.Messages_Fields

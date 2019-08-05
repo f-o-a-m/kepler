@@ -16,12 +16,12 @@ import           Network.ABCI.Types.Messages.Types    (MessageType (..))
 import           SimpleStorage.Application            (AppConfig (..),
                                                        AppError (..), Handler,
                                                        defaultHandler)
-import           SimpleStorage.DB                     (Connection (..))
 import           SimpleStorage.StateMachine           (readCount, updateCount)
-import           SimpleStorage.Transaction            (commitTransaction,
-                                                       stageTransaction)
 import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        decodeAppTxMessage)
+import           Tendermint.SDK.DB                    (Connection (..))
+import           Tendermint.SDK.Transaction           (commitTransaction,
+                                                       stageTransaction)
 
 echoH
   :: Req.Request 'MTEcho

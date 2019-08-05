@@ -17,9 +17,9 @@ import           Data.Default.Class                   (Default (..))
 import           Data.Text                            (Text, pack)
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Network.ABCI.Types.Messages.Types    (MessageType (..))
-import qualified SimpleStorage.DB                     as DB
 import           SimpleStorage.StateMachine           (initStateMachine)
-import           SimpleStorage.Transaction            (TransactionError (..))
+import qualified Tendermint.SDK.DB                    as DB
+import           Tendermint.SDK.Transaction           (TransactionError (..))
 
 data AppConfig = AppConfig
   { countConnection :: DB.Connection "count"
