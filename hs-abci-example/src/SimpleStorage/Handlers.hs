@@ -18,7 +18,8 @@ import           SimpleStorage.Application            (AppConfig (..),
                                                        defaultHandler)
 import           SimpleStorage.DB                     (Connection (..))
 import           SimpleStorage.StateMachine           (readCount, updateCount)
-import           SimpleStorage.Transaction            (stageTransaction, commitTransaction)
+import           SimpleStorage.Transaction            (commitTransaction,
+                                                       stageTransaction)
 import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        decodeAppTxMessage)
 
@@ -106,3 +107,8 @@ endBlockH
   :: Req.Request 'MTEndBlock
   -> Handler (Resp.Response 'MTEndBlock)
 endBlockH = defaultHandler
+
+commitH
+  :: Req.Request 'MTCommit
+  -> Handler (Resp.Response 'MTCommit)
+commitH = defaultHandler
