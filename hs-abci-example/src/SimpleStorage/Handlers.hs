@@ -18,7 +18,7 @@ import           SimpleStorage.Application            (AppConfig (..),
                                                        defaultHandler)
 import           SimpleStorage.DB                     (Connection (..))
 import           SimpleStorage.StateMachine           (readCount, updateCount)
-import           SimpleStorage.Transaction            (stageTransaction)
+import           SimpleStorage.Transaction            (stageTransaction, commitTransaction)
 import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        decodeAppTxMessage)
 
@@ -87,3 +87,22 @@ checkTxH (Req.RequestCheckTx checkTx) = do
       return . Resp.ResponseCheckTx $ case eRes of
         Left _  -> def & Resp._checkTxCode .~ 1
         Right _ -> def & Resp._checkTxCode .~ 0
+
+deliverTxH
+  :: Req.Request 'MTDeliverTx
+  -> Handler (Resp.Response 'MTDeliverTx)
+deliverTxH (Req.RequestDeliverTx deliverTx) = do
+  case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of
+    Left e -> throwError $ DecodeTxError e
+    Right (ATMUpdateCount updateCountTx) -> do
+      AppConfig{countConnection} <- ask
+      eRes <- liftIO $ commitTransaction countConnection $
+        updateCount updateCountTx
+      return . Resp.ResponseDeliverTx $ case eRes of
+        Left _  -> def & Resp._deliverTxCode .~ 1
+        Right _ -> def & Resp._deliverTxCode .~ 0
+
+endBlockH
+  :: Req.Request 'MTEndBlock
+  -> Handler (Resp.Response 'MTEndBlock)
+endBlockH = defaultHandler
