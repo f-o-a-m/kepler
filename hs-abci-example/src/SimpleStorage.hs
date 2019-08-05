@@ -7,7 +7,6 @@ import           SimpleStorage.Application           (Handler, makeAppConfig,
                                                       transformHandler)
 import           SimpleStorage.Handlers
 
-
 makeAndServeApplication :: IO ()
 makeAndServeApplication = do
   cfg <- makeAppConfig

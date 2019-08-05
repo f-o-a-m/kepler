@@ -57,7 +57,24 @@ library:
   - -Werror
   - -Wall
   exposed-modules:
+  - SimpleStorage
+  - SimpleStorage.Application
+  - SimpleStorage.DB
+  - SimpleStorage.Handlers
+  - SimpleStorage.StateMachine
+  - SimpleStorage.Transaction
   - SimpleStorage.Types
   generated-exposed-modules:
   - Proto.SimpleStorage.Messages
   - Proto.SimpleStorage.Messages_Fields
+
+executables:
+  simple-storage:
+    source-dirs:
+    - app
+    main: Main.hs
+    ghc-options:
+    - -Werror
+    - -Wall
+    dependencies:
+    - hs-abci-example
