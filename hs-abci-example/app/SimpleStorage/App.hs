@@ -1,14 +1,15 @@
 module SimpleStorage.App (makeAndServeApplication) where
 
-import           Network.ABCI                        (serveApp)
-import           Network.ABCI.Types.App              (App (..), transformApp, Middleware)
-import qualified Network.ABCI.Types.Messages.Request as Req
-import           SimpleStorage.Application           (Handler, makeAppConfig,
-                                                      transformHandler)
-import Data.Foldable (fold)
+import           Data.Foldable                         (fold)
+import           Data.Monoid                           (Endo (..))
+import           Network.ABCI                          (serveApp)
+import           Network.ABCI.Middleware.RequestLogger (mkLogStdoutDev)
+import           Network.ABCI.Types.App                (App (..), Middleware,
+                                                        transformApp)
+import qualified Network.ABCI.Types.Messages.Request   as Req
+import           SimpleStorage.Application             (Handler, makeAppConfig,
+                                                        transformHandler)
 import           SimpleStorage.Handlers
-import           Data.Monoid (Endo(..))
-import            Network.ABCI.Middleware.RequestLogger (mkLogStdout)
 
 makeAndServeApplication :: IO ()
 makeAndServeApplication = do
@@ -18,7 +19,7 @@ makeAndServeApplication = do
   where
     mkMiddleware :: IO (Middleware IO)
     mkMiddleware = do
-      logger <- mkLogStdout
+      logger <- mkLogStdoutDev
       pure . appEndo . fold $
         [ Endo logger
         ]
