@@ -1,4 +1,4 @@
-module Network.Tendermint.Internal.RPCClient where
+module Network.Tendermint.Client.Internal.RPCClient where
 
 import           Control.Applicative    ((<|>))
 import           Control.Exception      (Exception)

@@ -1,4 +1,4 @@
 .stack-work/
 hs-abci-server.cabal
-hs-tendermint.cabal
+hs-tendermint-client.cabal
 *~

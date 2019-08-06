@@ -1,4 +1,4 @@
-module Network.Tendermint where
+module Network.Tendermint.Client where
 
 import           Control.Monad.Reader                   (ReaderT, runReaderT)
 import           Data.Aeson                             (FromJSON (..),
@@ -12,12 +12,12 @@ import           Data.Int                               (Int64)
 import           Data.Text                              (Text)
 import           GHC.Generics                           (Generic)
 import qualified Network.HTTP.Simple                    as HTTP
-import qualified Network.Tendermint.Internal.RPCClient  as RPC
--- import qualified Network.ABCI.Types.Messages.Request as Request
+import qualified Network.Tendermint.Client.Internal.RPCClient  as RPC
 import           Data.ByteArray.HexString               (HexString)
 import           Data.Word                              (Word32)
 import qualified Network.ABCI.Types.Messages.FieldTypes as FieldTypes
 import qualified Network.ABCI.Types.Messages.Response   as Response
+-- import qualified Network.ABCI.Types.Messages.Request as Request
 
 type TendermintM a = ReaderT RPC.Config IO a
 
