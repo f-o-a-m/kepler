@@ -93,7 +93,7 @@ remote ::
 remote method input = do
   rid <- abs <$> liftIO randomIO
   let req = Request method rid (toJSON input)
-  (Config baseHTTPRequest) <- ask
+  Config baseHTTPRequest <- ask
   response <- liftIO
     $ HTTP.httpBS
     $ HTTP.setRequestBodyJSON req
