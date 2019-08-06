@@ -1,22 +1,24 @@
 module Network.Tendermint.Client where
 
-import           Control.Monad.Reader                   (ReaderT, runReaderT)
-import           Data.Aeson                             (FromJSON (..),
-                                                         ToJSON (..),
-                                                         genericParseJSON,
-                                                         genericToJSON)
-import qualified Data.Aeson                             as Aeson
-import           Data.Aeson.Casing                      (aesonDrop, pascalCase,
-                                                         snakeCase)
-import           Data.Int                               (Int64)
-import           Data.Text                              (Text)
-import           GHC.Generics                           (Generic)
-import qualified Network.HTTP.Simple                    as HTTP
-import qualified Network.Tendermint.Client.Internal.RPCClient  as RPC
-import           Data.ByteArray.HexString               (HexString)
-import           Data.Word                              (Word32)
-import qualified Network.ABCI.Types.Messages.FieldTypes as FieldTypes
-import qualified Network.ABCI.Types.Messages.Response   as Response
+import           Control.Monad.Reader                         (ReaderT,
+                                                               runReaderT)
+import           Data.Aeson                                   (FromJSON (..),
+                                                               ToJSON (..),
+                                                               genericParseJSON,
+                                                               genericToJSON)
+import qualified Data.Aeson                                   as Aeson
+import           Data.Aeson.Casing                            (aesonDrop,
+                                                               pascalCase,
+                                                               snakeCase)
+import           Data.ByteArray.HexString                     (HexString)
+import           Data.Int                                     (Int64)
+import           Data.Text                                    (Text)
+import           Data.Word                                    (Word32)
+import           GHC.Generics                                 (Generic)
+import qualified Network.ABCI.Types.Messages.FieldTypes       as FieldTypes
+import qualified Network.ABCI.Types.Messages.Response         as Response
+import qualified Network.HTTP.Simple                          as HTTP
+import qualified Network.Tendermint.Client.Internal.RPCClient as RPC
 -- import qualified Network.ABCI.Types.Messages.Request as Request
 
 type TendermintM a = ReaderT RPC.Config IO a
