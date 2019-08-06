@@ -49,28 +49,36 @@ import qualified Proto.Types_Fields                     as PT
 -- Request
 --------------------------------------------------------------------------------
 
+-- Note: that there are 3 type of connection made by tendermint to the ABCI application:
+-- * Info/Query Connection, sends only: Echo, Info and SetOption requests
+-- * Mempool Connection, sends only: CheckTx and Flush requests
+-- * Consensus Connection, InitChain,: BeginBlock, DeliverTx, EndBlock and  Commit requests
+-- https://github.com/tendermint/tendermint/blob/62f97a69e97262b5feb57b1c2498f0c1e0e297b3/proxy/app_conn.go#L11-L41
 data Request (m :: MessageType) :: * where
+  -- Info/Query Connection
   RequestEcho :: Echo -> Request 'MTEcho
-  RequestFlush :: Flush -> Request 'MTFlush
   RequestInfo :: Info -> Request 'MTInfo
   RequestSetOption :: SetOption -> Request 'MTSetOption
-  RequestInitChain :: InitChain -> Request 'MTInitChain
   RequestQuery :: Query -> Request 'MTQuery
-  RequestBeginBlock :: BeginBlock -> Request 'MTBeginBlock
+  -- Mempool Connection
   RequestCheckTx :: CheckTx -> Request 'MTCheckTx
+  RequestFlush :: Flush -> Request 'MTFlush
+  -- Consensus Connection
+  RequestInitChain :: InitChain -> Request 'MTInitChain
+  RequestBeginBlock :: BeginBlock -> Request 'MTBeginBlock
   RequestDeliverTx :: DeliverTx -> Request 'MTDeliverTx
   RequestEndBlock :: EndBlock -> Request 'MTEndBlock
   RequestCommit :: Commit -> Request 'MTCommit
 
 instance ToJSON (Request (t :: MessageType)) where
   toJSON (RequestEcho v)       = toJSON v
-  toJSON (RequestFlush v)      = toJSON v
   toJSON (RequestInfo v)       = toJSON v
   toJSON (RequestSetOption v)  = toJSON v
-  toJSON (RequestInitChain v)  = toJSON v
   toJSON (RequestQuery v)      = toJSON v
-  toJSON (RequestBeginBlock v) = toJSON v
   toJSON (RequestCheckTx v)    = toJSON v
+  toJSON (RequestFlush v)      = toJSON v
+  toJSON (RequestInitChain v)  = toJSON v
+  toJSON (RequestBeginBlock v) = toJSON v
   toJSON (RequestDeliverTx v)  = toJSON v
   toJSON (RequestEndBlock v)   = toJSON v
   toJSON (RequestCommit v)     = toJSON v
