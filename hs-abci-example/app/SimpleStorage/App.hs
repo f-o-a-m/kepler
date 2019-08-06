@@ -15,6 +15,7 @@ makeAndServeApplication :: IO ()
 makeAndServeApplication = do
   cfg <- makeAppConfig
   let ioApp = transformApp (transformHandler cfg) $ app
+  putStrLn "Starting ABCI application..."
   serveApp =<< hookInMiddleware ioApp
   where
     mkMiddleware :: IO (Middleware IO)

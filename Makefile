@@ -13,6 +13,9 @@ hlint: ## Run hlint on all haskell projects
 test: install ## Run the haskell test suite for all haskell projects
 	stack test
 
+run-simple-storage: install ## Run the example simple-storage app
+	stack exec -- simple-storage
+
 stylish: ## Run stylish-haskell over all haskell projects
 	find ./hs-abci-server -name "*.hs" | xargs stylish-haskell -c ./.stylish_haskell.yaml -i
 	find ./hs-abci-example -name "*.hs" | xargs stylish-haskell -c ./.stylish_haskell.yaml -i
