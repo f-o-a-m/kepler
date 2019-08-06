@@ -15,5 +15,5 @@ test: install ## Run the haskell test suite for all haskell projects
 	stack test
 
 stylish: ## Run stylish-haskell over all haskell projects
-	find ./hs-abci-server -name "*.hs" | xargs stylish-haskell -c ./.stylish_haskell.yaml -i
-	find ./hs-abci-extra -name "*.hs" | xargs stylish-haskell -c ./.stylish_haskell.yaml -i
+	find ./hs-abci-server -name "*.hs" | xargs stack exec stylish-haskell -- -c ./.stylish_haskell.yaml -i
+	find ./hs-abci-extra -name "*.hs" | xargs stack exec stylish-haskell -- -c ./.stylish_haskell.yaml -i
