@@ -417,48 +417,57 @@ instance Wrapped Commit where
 -- Request
 --------------------------------------------------------------------------------
 
+-- Note: that there are 3 type of connection made by tendermint to the ABCI application:
+-- * Info/Query Connection, sends only: Echo, Info and SetOption requests
+-- * Mempool Connection, sends only: CheckTx and Flush requests
+-- * Consensus Connection, InitChain,: BeginBlock, DeliverTx, EndBlock and  Commit requests
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/proxy/app_conn.go#L11-L41
 data Request (m :: MessageType) :: * where
+  -- Info/Query Connection
   RequestEcho :: Echo -> Request 'MTEcho
-  RequestFlush :: Flush -> Request 'MTFlush
   RequestInfo :: Info -> Request 'MTInfo
   RequestSetOption :: SetOption -> Request 'MTSetOption
-  RequestInitChain :: InitChain -> Request 'MTInitChain
   RequestQuery :: Query -> Request 'MTQuery
-  RequestBeginBlock :: BeginBlock -> Request 'MTBeginBlock
+  -- Mempool Connection
   RequestCheckTx :: CheckTx -> Request 'MTCheckTx
+  RequestFlush :: Flush -> Request 'MTFlush
+  -- Consensus Connection
+  RequestInitChain :: InitChain -> Request 'MTInitChain
+  RequestBeginBlock :: BeginBlock -> Request 'MTBeginBlock
   RequestDeliverTx :: DeliverTx -> Request 'MTDeliverTx
   RequestEndBlock :: EndBlock -> Request 'MTEndBlock
   RequestCommit :: Commit -> Request 'MTCommit
 
 instance ToJSON (Request (t :: MessageType)) where
   toJSON (RequestEcho v)       = toJSON v
-  toJSON (RequestFlush v)      = toJSON v
   toJSON (RequestInfo v)       = toJSON v
   toJSON (RequestSetOption v)  = toJSON v
-  toJSON (RequestInitChain v)  = toJSON v
   toJSON (RequestQuery v)      = toJSON v
-  toJSON (RequestBeginBlock v) = toJSON v
   toJSON (RequestCheckTx v)    = toJSON v
+  toJSON (RequestFlush v)      = toJSON v
+  toJSON (RequestInitChain v)  = toJSON v
+  toJSON (RequestBeginBlock v) = toJSON v
   toJSON (RequestDeliverTx v)  = toJSON v
   toJSON (RequestEndBlock v)   = toJSON v
   toJSON (RequestCommit v)     = toJSON v
 
+
 instance FromJSON (Request 'MTEcho) where
   parseJSON = fmap RequestEcho . parseJSON
-instance FromJSON (Request 'MTFlush) where
-  parseJSON = fmap RequestFlush . parseJSON
 instance FromJSON (Request 'MTInfo) where
   parseJSON = fmap RequestInfo . parseJSON
 instance FromJSON (Request 'MTSetOption) where
   parseJSON = fmap RequestSetOption . parseJSON
-instance FromJSON (Request 'MTInitChain) where
-  parseJSON = fmap RequestInitChain . parseJSON
 instance FromJSON (Request 'MTQuery) where
   parseJSON = fmap RequestQuery . parseJSON
-instance FromJSON (Request 'MTBeginBlock) where
-  parseJSON = fmap RequestBeginBlock . parseJSON
 instance FromJSON (Request 'MTCheckTx) where
   parseJSON = fmap RequestCheckTx . parseJSON
+instance FromJSON (Request 'MTFlush) where
+  parseJSON = fmap RequestFlush . parseJSON
+instance FromJSON (Request 'MTInitChain) where
+  parseJSON = fmap RequestInitChain . parseJSON
+instance FromJSON (Request 'MTBeginBlock) where
+  parseJSON = fmap RequestBeginBlock . parseJSON
 instance FromJSON (Request 'MTDeliverTx) where
   parseJSON = fmap RequestDeliverTx . parseJSON
 instance FromJSON (Request 'MTEndBlock) where
