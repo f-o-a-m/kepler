@@ -53,7 +53,7 @@ import qualified Proto.Types_Fields                     as PT
 -- * Info/Query Connection, sends only: Echo, Info and SetOption requests
 -- * Mempool Connection, sends only: CheckTx and Flush requests
 -- * Consensus Connection, InitChain,: BeginBlock, DeliverTx, EndBlock and  Commit requests
--- https://github.com/tendermint/tendermint/blob/62f97a69e97262b5feb57b1c2498f0c1e0e297b3/proxy/app_conn.go#L11-L41
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/proxy/app_conn.go#L11-L41
 data Request (m :: MessageType) :: * where
   -- Info/Query Connection
   RequestEcho :: Echo -> Request 'MTEcho
