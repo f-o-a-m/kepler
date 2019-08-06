@@ -1,0 +1,85 @@
+name:                hs-abci-example
+version:             0.1.0.0
+github:              "f-o-a-m/hs-abci/hs-abci-example"
+license:             Apache
+author:              Martin Allen
+maintainer:          "martin@foam.space"
+copyright:           "2019 Martin Allen"
+
+extra-source-files:
+- protos/**/*.proto
+
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-example#readme>
+
+default-extensions:
+  - DeriveGeneric
+  - NamedFieldPuns
+  - RecordWildCards
+  - RankNTypes
+  - TypeFamilies
+  - FlexibleContexts
+  - DataKinds
+  - TypeApplications
+  - OverloadedStrings
+  - PolyKinds
+  - GeneralizedNewtypeDeriving
+  - ScopedTypeVariables
+  - TupleSections
+  - LambdaCase
+
+
+dependencies:
+- base >= 4.7 && < 5
+- binary
+- bytestring
+- containers
+- cryptonite
+- data-default-class
+- hs-abci-server
+- hs-abci-extra
+- lens
+- avl-auth
+- memory
+- mtl
+- proto-lens
+- proto-lens-runtime
+- stm
+- text
+
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-setup
+
+library:
+  source-dirs:
+  - src
+  - app
+  ghc-options:
+  - -Werror
+  - -Wall
+  exposed-modules:
+  - Tendermint.SDK.DB
+  - Tendermint.SDK.Transaction
+
+  - SimpleStorage.App
+  - SimpleStorage.Application
+  - SimpleStorage.Handlers
+  - SimpleStorage.StateMachine
+  - SimpleStorage.Types
+
+  generated-exposed-modules:
+  - Proto.SimpleStorage.Messages
+  - Proto.SimpleStorage.Messages_Fields
+
+executables:
+  simple-storage:
+    source-dirs:
+    - app
+    main: Main.hs
+    ghc-options:
+    - -Werror
+    - -Wall
+    dependencies:
+    - hs-abci-example

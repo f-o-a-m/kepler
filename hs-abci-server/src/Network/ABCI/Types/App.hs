@@ -35,7 +35,7 @@ newtype App m = App
 type Middleware m = App m -> App m
 
 -- | Transform an application from running in a custom monad to running in `IO`.
-transformApp :: (forall a. m a -> g a) -> App m -> App g
+transformApp :: (forall (t :: MessageType). m (Response t) -> g (Response t)) -> App m -> App g
 transformApp nat (App f) = App $ nat . f
 
 -- | Compiles `App` down to `AppBS`

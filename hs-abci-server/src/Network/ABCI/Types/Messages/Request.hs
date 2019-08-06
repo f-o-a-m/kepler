@@ -1,23 +1,6 @@
-module Network.ABCI.Types.Messages.Request
-  ( Request(..)
-  , withProto
+{-# LANGUAGE TemplateHaskell #-}
 
-  -- * Request Message Types
-  , Echo(..)
-  , Flush(..)
-  , Info(..)
-  , SetOption(..)
-  , InitChain(..)
-  , Query(..)
-  , BeginBlock(..)
-  , CheckTx(..)
-  , DeliverTx(..)
-  , EndBlock(..)
-  , Commit(..)
-
-  -- * ReExports
-  , MessageType(..)
-  ) where
+module Network.ABCI.Types.Messages.Request where
 
 import           Control.Lens                           (iso, traverse, (&),
                                                          (.~), (^.), (^..),
@@ -35,7 +18,8 @@ import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word64)
 import           GHC.Generics                           (Generic)
-import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions)
+import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions,
+                                                         makeABCILenses)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
                                                          Evidence (..),
                                                          Header (..),
@@ -45,83 +29,6 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
 import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
---------------------------------------------------------------------------------
--- Request
---------------------------------------------------------------------------------
-
--- Note: that there are 3 type of connection made by tendermint to the ABCI application:
--- * Info/Query Connection, sends only: Echo, Info and SetOption requests
--- * Mempool Connection, sends only: CheckTx and Flush requests
--- * Consensus Connection, InitChain,: BeginBlock, DeliverTx, EndBlock and  Commit requests
--- https://github.com/tendermint/tendermint/blob/v0.32.2/proxy/app_conn.go#L11-L41
-data Request (m :: MessageType) :: * where
-  -- Info/Query Connection
-  RequestEcho :: Echo -> Request 'MTEcho
-  RequestInfo :: Info -> Request 'MTInfo
-  RequestSetOption :: SetOption -> Request 'MTSetOption
-  RequestQuery :: Query -> Request 'MTQuery
-  -- Mempool Connection
-  RequestCheckTx :: CheckTx -> Request 'MTCheckTx
-  RequestFlush :: Flush -> Request 'MTFlush
-  -- Consensus Connection
-  RequestInitChain :: InitChain -> Request 'MTInitChain
-  RequestBeginBlock :: BeginBlock -> Request 'MTBeginBlock
-  RequestDeliverTx :: DeliverTx -> Request 'MTDeliverTx
-  RequestEndBlock :: EndBlock -> Request 'MTEndBlock
-  RequestCommit :: Commit -> Request 'MTCommit
-
-instance ToJSON (Request (t :: MessageType)) where
-  toJSON (RequestEcho v)       = toJSON v
-  toJSON (RequestInfo v)       = toJSON v
-  toJSON (RequestSetOption v)  = toJSON v
-  toJSON (RequestQuery v)      = toJSON v
-  toJSON (RequestCheckTx v)    = toJSON v
-  toJSON (RequestFlush v)      = toJSON v
-  toJSON (RequestInitChain v)  = toJSON v
-  toJSON (RequestBeginBlock v) = toJSON v
-  toJSON (RequestDeliverTx v)  = toJSON v
-  toJSON (RequestEndBlock v)   = toJSON v
-  toJSON (RequestCommit v)     = toJSON v
-
-instance FromJSON (Request 'MTEcho) where
-  parseJSON = fmap RequestEcho . parseJSON
-instance FromJSON (Request 'MTFlush) where
-  parseJSON = fmap RequestFlush . parseJSON
-instance FromJSON (Request 'MTInfo) where
-  parseJSON = fmap RequestInfo . parseJSON
-instance FromJSON (Request 'MTSetOption) where
-  parseJSON = fmap RequestSetOption . parseJSON
-instance FromJSON (Request 'MTInitChain) where
-  parseJSON = fmap RequestInitChain . parseJSON
-instance FromJSON (Request 'MTQuery) where
-  parseJSON = fmap RequestQuery . parseJSON
-instance FromJSON (Request 'MTBeginBlock) where
-  parseJSON = fmap RequestBeginBlock . parseJSON
-instance FromJSON (Request 'MTCheckTx) where
-  parseJSON = fmap RequestCheckTx . parseJSON
-instance FromJSON (Request 'MTDeliverTx) where
-  parseJSON = fmap RequestDeliverTx . parseJSON
-instance FromJSON (Request 'MTEndBlock) where
-  parseJSON = fmap RequestEndBlock . parseJSON
-instance FromJSON (Request 'MTCommit) where
-  parseJSON = fmap RequestCommit . parseJSON
-
-withProto
-  :: (forall (t :: MessageType). Request t -> a)
-  -> PT.Request'Value
-  -> a
-withProto f value = case value of
-  PT.Request'Echo echo -> f $ RequestEcho $ echo ^. _Unwrapped'
-  PT.Request'Flush flush -> f $ RequestFlush $ flush ^. _Unwrapped'
-  PT.Request'Info info -> f $ RequestInfo $ info ^. _Unwrapped'
-  PT.Request'SetOption setOption -> f $ RequestSetOption $ setOption ^. _Unwrapped'
-  PT.Request'InitChain initChain -> f $ RequestInitChain $ initChain ^. _Unwrapped'
-  PT.Request'Query query -> f $ RequestQuery $ query ^. _Unwrapped'
-  PT.Request'BeginBlock beginBlock -> f $ RequestBeginBlock $ beginBlock ^. _Unwrapped'
-  PT.Request'CheckTx checkTx -> f $ RequestCheckTx $ checkTx ^. _Unwrapped'
-  PT.Request'DeliverTx deliverTx -> f $ RequestDeliverTx $ deliverTx ^. _Unwrapped'
-  PT.Request'EndBlock endBlock -> f $ RequestEndBlock $ endBlock ^. _Unwrapped'
-  PT.Request'Commit commit -> f $ RequestCommit $ commit ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- Echo
@@ -132,10 +39,14 @@ data Echo = Echo
   -- ^ A string to echo back
   } deriving (Eq, Show, Generic)
 
+
+makeABCILenses ''Echo
+
 instance ToJSON Echo where
   toJSON = genericToJSON $ defaultABCIOptions "echo"
 instance FromJSON Echo where
   parseJSON = genericParseJSON $ defaultABCIOptions "echo"
+
 
 instance Wrapped Echo where
   type Unwrapped Echo = PT.RequestEcho
@@ -183,10 +94,14 @@ data Info = Info
   -- ^ The Tendermint P2P Protocol version
   } deriving (Eq, Show, Generic)
 
+
+makeABCILenses ''Info
+
 instance ToJSON Info where
   toJSON = genericToJSON $ defaultABCIOptions "info"
 instance FromJSON Info where
   parseJSON = genericParseJSON $ defaultABCIOptions "info"
+
 
 instance Wrapped Info where
   type Unwrapped Info = PT.RequestInfo
@@ -216,10 +131,14 @@ data SetOption = SetOption
   -- ^ Value to set for key
   } deriving (Eq, Show, Generic)
 
+
+makeABCILenses ''SetOption
+
 instance ToJSON SetOption where
   toJSON = genericToJSON $ defaultABCIOptions "setOption"
 instance FromJSON SetOption where
   parseJSON = genericParseJSON $ defaultABCIOptions "setOption"
+
 
 instance Wrapped SetOption where
   type Unwrapped SetOption = PT.RequestSetOption
@@ -253,10 +172,14 @@ data InitChain = InitChain
   -- ^ Serialized initial application state. Amino-encoded JSON bytes.
   } deriving (Eq, Show, Generic)
 
+
+makeABCILenses ''InitChain
+
 instance ToJSON InitChain where
   toJSON = genericToJSON $ defaultABCIOptions "initChain"
 instance FromJSON InitChain where
   parseJSON = genericParseJSON $ defaultABCIOptions "initChain"
+
 
 instance Wrapped InitChain where
   type Unwrapped InitChain = PT.RequestInitChain
@@ -294,10 +217,14 @@ data Query = Query
   -- ^ Return Merkle proof with response if possible
   } deriving (Eq, Show, Generic)
 
+
+makeABCILenses ''Query
+
 instance ToJSON Query where
   toJSON = genericToJSON $ defaultABCIOptions "query"
 instance FromJSON Query where
   parseJSON = genericParseJSON $ defaultABCIOptions "query"
+
 
 instance Wrapped Query where
   type Unwrapped Query = PT.RequestQuery
@@ -334,10 +261,14 @@ data BeginBlock = BeginBlock
   -- ^ List of evidence of validators that acted maliciously.
   } deriving (Eq, Show, Generic)
 
+
+makeABCILenses ''BeginBlock
+
 instance ToJSON BeginBlock where
   toJSON = genericToJSON $ defaultABCIOptions "beginBlock"
 instance FromJSON BeginBlock where
   parseJSON = genericParseJSON $ defaultABCIOptions "beginBlock"
+
 
 instance Wrapped BeginBlock where
   type Unwrapped BeginBlock = PT.RequestBeginBlock
@@ -368,10 +299,14 @@ data CheckTx = CheckTx
   -- ^ The request transaction bytes
   } deriving (Eq, Show, Generic)
 
+
+makeABCILenses ''CheckTx
+
 instance ToJSON CheckTx where
   toJSON = genericToJSON $ defaultABCIOptions "checkTx"
 instance FromJSON CheckTx where
   parseJSON = genericParseJSON $ defaultABCIOptions "checkTx"
+
 
 instance Wrapped CheckTx where
   type Unwrapped CheckTx = PT.RequestCheckTx
@@ -396,10 +331,14 @@ data DeliverTx = DeliverTx
   -- ^ The request transaction bytes.
   } deriving (Eq, Show, Generic)
 
+
+makeABCILenses ''DeliverTx
+
 instance ToJSON DeliverTx where
   toJSON = genericToJSON $ defaultABCIOptions "deliverTx"
 instance FromJSON DeliverTx where
   parseJSON = genericParseJSON $ defaultABCIOptions "deliverTx"
+
 
 instance Wrapped DeliverTx where
   type Unwrapped DeliverTx = PT.RequestDeliverTx
@@ -424,10 +363,14 @@ data EndBlock = EndBlock
   -- ^ Height of the block just executed.
   } deriving (Eq, Show, Generic)
 
+
+makeABCILenses ''EndBlock
+
 instance ToJSON EndBlock where
   toJSON = genericToJSON $ defaultABCIOptions "endBlock"
 instance FromJSON EndBlock where
   parseJSON = genericParseJSON $ defaultABCIOptions "endBlock"
+
 
 instance Wrapped EndBlock where
   type Unwrapped EndBlock = PT.RequestEndBlock
@@ -450,10 +393,14 @@ instance Wrapped EndBlock where
 data Commit =
   Commit deriving (Eq, Show, Generic)
 
+
+makeABCILenses ''Commit
+
 instance ToJSON Commit where
   toJSON = genericToJSON $ defaultABCIOptions "commit"
 instance FromJSON Commit where
   parseJSON = genericParseJSON $ defaultABCIOptions "commit"
+
 
 instance Wrapped Commit where
   type Unwrapped Commit = PT.RequestCommit
@@ -465,3 +412,83 @@ instance Wrapped Commit where
 
       f _ =
         Commit
+
+--------------------------------------------------------------------------------
+-- Request
+--------------------------------------------------------------------------------
+
+-- Note: that there are 3 type of connection made by tendermint to the ABCI application:
+-- * Info/Query Connection, sends only: Echo, Info and SetOption requests
+-- * Mempool Connection, sends only: CheckTx and Flush requests
+-- * Consensus Connection, InitChain,: BeginBlock, DeliverTx, EndBlock and  Commit requests
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/proxy/app_conn.go#L11-L41
+data Request (m :: MessageType) :: * where
+  -- Info/Query Connection
+  RequestEcho :: Echo -> Request 'MTEcho
+  RequestInfo :: Info -> Request 'MTInfo
+  RequestSetOption :: SetOption -> Request 'MTSetOption
+  RequestQuery :: Query -> Request 'MTQuery
+  -- Mempool Connection
+  RequestCheckTx :: CheckTx -> Request 'MTCheckTx
+  RequestFlush :: Flush -> Request 'MTFlush
+  -- Consensus Connection
+  RequestInitChain :: InitChain -> Request 'MTInitChain
+  RequestBeginBlock :: BeginBlock -> Request 'MTBeginBlock
+  RequestDeliverTx :: DeliverTx -> Request 'MTDeliverTx
+  RequestEndBlock :: EndBlock -> Request 'MTEndBlock
+  RequestCommit :: Commit -> Request 'MTCommit
+
+instance ToJSON (Request (t :: MessageType)) where
+  toJSON (RequestEcho v)       = toJSON v
+  toJSON (RequestInfo v)       = toJSON v
+  toJSON (RequestSetOption v)  = toJSON v
+  toJSON (RequestQuery v)      = toJSON v
+  toJSON (RequestCheckTx v)    = toJSON v
+  toJSON (RequestFlush v)      = toJSON v
+  toJSON (RequestInitChain v)  = toJSON v
+  toJSON (RequestBeginBlock v) = toJSON v
+  toJSON (RequestDeliverTx v)  = toJSON v
+  toJSON (RequestEndBlock v)   = toJSON v
+  toJSON (RequestCommit v)     = toJSON v
+
+
+instance FromJSON (Request 'MTEcho) where
+  parseJSON = fmap RequestEcho . parseJSON
+instance FromJSON (Request 'MTInfo) where
+  parseJSON = fmap RequestInfo . parseJSON
+instance FromJSON (Request 'MTSetOption) where
+  parseJSON = fmap RequestSetOption . parseJSON
+instance FromJSON (Request 'MTQuery) where
+  parseJSON = fmap RequestQuery . parseJSON
+instance FromJSON (Request 'MTCheckTx) where
+  parseJSON = fmap RequestCheckTx . parseJSON
+instance FromJSON (Request 'MTFlush) where
+  parseJSON = fmap RequestFlush . parseJSON
+instance FromJSON (Request 'MTInitChain) where
+  parseJSON = fmap RequestInitChain . parseJSON
+instance FromJSON (Request 'MTBeginBlock) where
+  parseJSON = fmap RequestBeginBlock . parseJSON
+instance FromJSON (Request 'MTDeliverTx) where
+  parseJSON = fmap RequestDeliverTx . parseJSON
+instance FromJSON (Request 'MTEndBlock) where
+  parseJSON = fmap RequestEndBlock . parseJSON
+instance FromJSON (Request 'MTCommit) where
+  parseJSON = fmap RequestCommit . parseJSON
+
+
+withProto
+  :: (forall (t :: MessageType). Request t -> a)
+  -> PT.Request'Value
+  -> a
+withProto f value = case value of
+  PT.Request'Echo echo -> f $ RequestEcho $ echo ^. _Unwrapped'
+  PT.Request'Flush flush -> f $ RequestFlush $ flush ^. _Unwrapped'
+  PT.Request'Info info -> f $ RequestInfo $ info ^. _Unwrapped'
+  PT.Request'SetOption setOption -> f $ RequestSetOption $ setOption ^. _Unwrapped'
+  PT.Request'InitChain initChain -> f $ RequestInitChain $ initChain ^. _Unwrapped'
+  PT.Request'Query query -> f $ RequestQuery $ query ^. _Unwrapped'
+  PT.Request'BeginBlock beginBlock -> f $ RequestBeginBlock $ beginBlock ^. _Unwrapped'
+  PT.Request'CheckTx checkTx -> f $ RequestCheckTx $ checkTx ^. _Unwrapped'
+  PT.Request'DeliverTx deliverTx -> f $ RequestDeliverTx $ deliverTx ^. _Unwrapped'
+  PT.Request'EndBlock endBlock -> f $ RequestEndBlock $ endBlock ^. _Unwrapped'
+  PT.Request'Commit commit -> f $ RequestCommit $ commit ^. _Unwrapped'
