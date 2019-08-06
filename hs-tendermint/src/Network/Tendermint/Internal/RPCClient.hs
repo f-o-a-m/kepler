@@ -94,13 +94,13 @@ remote method input = do
   rid <- abs <$> liftIO randomIO
   let req = Request method rid (toJSON input)
   (Config baseHTTPRequest) <- ask
-  responce <- liftIO
+  response <- liftIO
     $ HTTP.httpBS
     $ HTTP.setRequestBodyJSON req
     $ HTTP.setRequestHeaders [("Content-Type", "application/json")]
     $ HTTP.setRequestMethod "POST"
     $ baseHTTPRequest
-  decodeResponse (HTTP.getResponseBody responce)
+  decodeResponse (HTTP.getResponseBody response)
   where
     decodeResponse
       :: (MonadThrow m, FromJSON a)
