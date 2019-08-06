@@ -1,4 +1,5 @@
 .stack-work/
 hs-abci-server.cabal
 hs-tendermint-client.cabal
+hs-abci-extra.cabal
 *~
