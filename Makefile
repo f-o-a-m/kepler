@@ -1,6 +1,10 @@
 help: ## Ask for help!
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+export
+
+SIMPLE_STORAGE_BINARY := $(shell stack exec -- which simple-storage)
+
 build-docs-local: ## Build the haddocks documentation for just this project (no dependencies)
 	stack haddock --no-haddock-deps
 
@@ -12,6 +16,10 @@ hlint: ## Run hlint on all haskell projects
 
 test: install ## Run the haskell test suite for all haskell projects
 	stack test
+
+deploy-simple-storage: install ## run the simple storage docker network
+	BINARY_PATH=$(SIMPLE_STORAGE_BINARY) \
+	docker-compose -f hs-abci-example/docker-compose.yaml up --build -d
 
 run-simple-storage: install ## Run the example simple-storage app
 	stack exec -- simple-storage

@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  tendermint-init:
+    image: tendermint/tendermint:v0.32.2
+    command: init
+    volumes:
+        - /tmp:/tendermint
+  tendermint:
+    depends_on:
+      - tendermint-init
+    image: tendermint/tendermint:v0.32.2
+    command: node
+    volumes:
+      - /tmp:/tendermint
+    restart: always
+    ports:
+      - "26656:26656"
