@@ -12,8 +12,7 @@ import           Data.Default.Class                   (def)
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Network.ABCI.Types.Messages.Types    (MessageType (..))
-import           SimpleStorage.Application            (AppConfig (..),
-                                                       Handler,
+import           SimpleStorage.Application            (AppConfig (..), Handler,
                                                        defaultHandler)
 import           SimpleStorage.StateMachine           (readCount, updateCount)
 import           SimpleStorage.Types                  (AppTxMessage (..),
