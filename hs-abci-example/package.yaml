@@ -36,6 +36,7 @@ dependencies:
 - cryptonite
 - data-default-class
 - hs-abci-server
+- hs-abci-types
 - hs-abci-extra
 - lens
 - avl-auth

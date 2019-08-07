@@ -70,11 +70,11 @@ isoCheck p name =
 -- Modifiers
 --------------------------------------------------------------------------------
 
-clearUnkownFields
+clearUnknownFields
   :: Message a
   => a
   -> a
-clearUnkownFields = set unknownFields []
+clearUnknownFields = set unknownFields []
 
 scrubTimestamp
   :: T.Timestamp
@@ -156,7 +156,7 @@ spec = do
     isoCheck (Proxy :: Proxy FT.PartSetHeader) "PartSetHeader"
     isoCheck (Proxy :: Proxy FT.BlockID) "BlockID"
     isoCheck (Proxy :: Proxy FT.Version) "Version"
-    isoCheck' (Proxy :: Proxy FT.Header) "Header" id $ scrubTimestampFieldMaybe . clearUnkownFields
+    isoCheck' (Proxy :: Proxy FT.Header) "Header" id $ scrubTimestampFieldMaybe . clearUnknownFields
     isoCheck' (Proxy :: Proxy FT.Evidence) "Evidence" id scrubTimestampFieldMaybe
     isoCheck (Proxy :: Proxy FT.KVPair) "KVPair"
     isoCheck (Proxy :: Proxy FT.Proof) "Proof"

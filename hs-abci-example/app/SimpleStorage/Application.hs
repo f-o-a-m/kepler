@@ -15,11 +15,11 @@ import           Control.Monad.Reader                 (MonadReader, ReaderT,
                                                        runReaderT)
 import           Data.Default.Class                   (Default (..))
 import           Data.Text                            (Text, pack)
+import           Network.ABCI.Server.App              (MessageType,
+                                                       Response (..))
 import qualified Network.ABCI.Types.Messages.Response as Resp
-import           Network.ABCI.Types.Messages.Types    (MessageType (..))
 import           SimpleStorage.StateMachine           (initStateMachine)
 import qualified Tendermint.SDK.DB                    as DB
-import           Tendermint.SDK.Transaction           (TransactionError (..))
 
 data AppConfig = AppConfig
   { countConnection :: DB.Connection "count"
@@ -31,16 +31,10 @@ makeAppConfig = do
   pure $ AppConfig { countConnection = conn
                    }
 
-data AppError =
-    QueryMissError String
-  | TxError TransactionError
-  | DecodeTxError String
-  deriving (Show)
+data AppError = AppError String deriving (Show)
 
 printAppError :: AppError -> Text
-printAppError (QueryMissError msg) = pack $ "QueryMissError : " <> msg
-printAppError (TxError (TransactionError txError)) = pack $ "TransactionError : " <> txError
-printAppError (DecodeTxError msg) = pack $ "DecodeTxError : " <> msg
+printAppError (AppError msg) = pack $ "AppError : " <> msg
 
 newtype Handler a = Handler
   { runHandler :: ReaderT AppConfig (ExceptT AppError IO) a }
@@ -57,10 +51,10 @@ defaultHandler = const $ pure def
 
 transformHandler
   :: AppConfig
-  -> (forall (t :: MessageType). Handler (Resp.Response t) -> IO (Resp.Response t))
+  -> (forall (t :: MessageType). Handler (Response t) -> IO (Response t))
 transformHandler cfg m = do
   eRes <- runExceptT $ runReaderT (runHandler m) cfg
   case eRes of
-    Left e  -> pure $ Resp.ResponseException $
+    Left e  -> pure $ ResponseException $
       def & Resp._exceptionError .~ printAppError e
     Right a -> pure a

@@ -26,7 +26,6 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
                                                          LastCommitInfo (..),
                                                          Timestamp (..),
                                                          ValidatorUpdate (..))
-import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
@@ -412,74 +411,3 @@ instance Wrapped Commit where
 
       f _ =
         Commit
-
---------------------------------------------------------------------------------
--- Request
---------------------------------------------------------------------------------
-
-data Request (m :: MessageType) :: * where
-  RequestEcho :: Echo -> Request 'MTEcho
-  RequestFlush :: Flush -> Request 'MTFlush
-  RequestInfo :: Info -> Request 'MTInfo
-  RequestSetOption :: SetOption -> Request 'MTSetOption
-  RequestInitChain :: InitChain -> Request 'MTInitChain
-  RequestQuery :: Query -> Request 'MTQuery
-  RequestBeginBlock :: BeginBlock -> Request 'MTBeginBlock
-  RequestCheckTx :: CheckTx -> Request 'MTCheckTx
-  RequestDeliverTx :: DeliverTx -> Request 'MTDeliverTx
-  RequestEndBlock :: EndBlock -> Request 'MTEndBlock
-  RequestCommit :: Commit -> Request 'MTCommit
-
-instance ToJSON (Request (t :: MessageType)) where
-  toJSON (RequestEcho v)       = toJSON v
-  toJSON (RequestFlush v)      = toJSON v
-  toJSON (RequestInfo v)       = toJSON v
-  toJSON (RequestSetOption v)  = toJSON v
-  toJSON (RequestInitChain v)  = toJSON v
-  toJSON (RequestQuery v)      = toJSON v
-  toJSON (RequestBeginBlock v) = toJSON v
-  toJSON (RequestCheckTx v)    = toJSON v
-  toJSON (RequestDeliverTx v)  = toJSON v
-  toJSON (RequestEndBlock v)   = toJSON v
-  toJSON (RequestCommit v)     = toJSON v
-
-instance FromJSON (Request 'MTEcho) where
-  parseJSON = fmap RequestEcho . parseJSON
-instance FromJSON (Request 'MTFlush) where
-  parseJSON = fmap RequestFlush . parseJSON
-instance FromJSON (Request 'MTInfo) where
-  parseJSON = fmap RequestInfo . parseJSON
-instance FromJSON (Request 'MTSetOption) where
-  parseJSON = fmap RequestSetOption . parseJSON
-instance FromJSON (Request 'MTInitChain) where
-  parseJSON = fmap RequestInitChain . parseJSON
-instance FromJSON (Request 'MTQuery) where
-  parseJSON = fmap RequestQuery . parseJSON
-instance FromJSON (Request 'MTBeginBlock) where
-  parseJSON = fmap RequestBeginBlock . parseJSON
-instance FromJSON (Request 'MTCheckTx) where
-  parseJSON = fmap RequestCheckTx . parseJSON
-instance FromJSON (Request 'MTDeliverTx) where
-  parseJSON = fmap RequestDeliverTx . parseJSON
-instance FromJSON (Request 'MTEndBlock) where
-  parseJSON = fmap RequestEndBlock . parseJSON
-instance FromJSON (Request 'MTCommit) where
-  parseJSON = fmap RequestCommit . parseJSON
-
-
-withProto
-  :: (forall (t :: MessageType). Request t -> a)
-  -> PT.Request'Value
-  -> a
-withProto f value = case value of
-  PT.Request'Echo echo -> f $ RequestEcho $ echo ^. _Unwrapped'
-  PT.Request'Flush flush -> f $ RequestFlush $ flush ^. _Unwrapped'
-  PT.Request'Info info -> f $ RequestInfo $ info ^. _Unwrapped'
-  PT.Request'SetOption setOption -> f $ RequestSetOption $ setOption ^. _Unwrapped'
-  PT.Request'InitChain initChain -> f $ RequestInitChain $ initChain ^. _Unwrapped'
-  PT.Request'Query query -> f $ RequestQuery $ query ^. _Unwrapped'
-  PT.Request'BeginBlock beginBlock -> f $ RequestBeginBlock $ beginBlock ^. _Unwrapped'
-  PT.Request'CheckTx checkTx -> f $ RequestCheckTx $ checkTx ^. _Unwrapped'
-  PT.Request'DeliverTx deliverTx -> f $ RequestDeliverTx $ deliverTx ^. _Unwrapped'
-  PT.Request'EndBlock endBlock -> f $ RequestEndBlock $ endBlock ^. _Unwrapped'
-  PT.Request'Commit commit -> f $ RequestCommit $ commit ^. _Unwrapped'
