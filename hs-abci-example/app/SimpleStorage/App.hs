@@ -4,9 +4,7 @@ import           Data.Foldable                         (fold)
 import           Data.Monoid                           (Endo (..))
 import           Network.ABCI                          (serveApp)
 import           Network.ABCI.Middleware.RequestLogger (mkLogStdoutDev)
-import           Network.ABCI.Types.App                (App (..), Middleware,
-                                                        transformApp)
-import qualified Network.ABCI.Types.Messages.Request   as Req
+import           Network.ABCI.Types.App                (App (..), Middleware, Request(..),transformApp)
 import           SimpleStorage.Application             (Handler, makeAppConfig,
                                                         transformHandler)
 import           SimpleStorage.Handlers
@@ -30,14 +28,14 @@ makeAndServeApplication = do
 
 app :: App Handler
 app = App $ \case
-  msg@(Req.RequestEcho _) -> echoH msg
-  msg@(Req.RequestFlush _) -> flushH msg
-  msg@(Req.RequestInfo _) -> infoH msg
-  msg@(Req.RequestSetOption _) -> setOptionH msg
-  msg@(Req.RequestInitChain _) -> initChainH msg
-  msg@(Req.RequestQuery _) -> queryH msg
-  msg@(Req.RequestBeginBlock _) -> beginBlockH msg
-  msg@(Req.RequestCheckTx _) -> checkTxH msg
-  msg@(Req.RequestDeliverTx _) -> deliverTxH msg
-  msg@(Req.RequestEndBlock _) -> endBlockH msg
-  msg@(Req.RequestCommit _) -> commitH msg
+  msg@(RequestEcho _) -> echoH msg
+  msg@(RequestFlush _) -> flushH msg
+  msg@(RequestInfo _) -> infoH msg
+  msg@(RequestSetOption _) -> setOptionH msg
+  msg@(RequestInitChain _) -> initChainH msg
+  msg@(RequestQuery _) -> queryH msg
+  msg@(RequestBeginBlock _) -> beginBlockH msg
+  msg@(RequestCheckTx _) -> checkTxH msg
+  msg@(RequestDeliverTx _) -> deliverTxH msg
+  msg@(RequestEndBlock _) -> endBlockH msg
+  msg@(RequestCommit _) -> commitH msg

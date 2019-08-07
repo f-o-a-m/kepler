@@ -45,7 +45,7 @@ dependencies:
 - aeson
 - aeson-casing
 - memory
-- hs-abci-server
+- hs-abci-types
 
 library:
   source-dirs: src

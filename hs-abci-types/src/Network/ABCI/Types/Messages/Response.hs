@@ -3,7 +3,7 @@
 module Network.ABCI.Types.Messages.Response where
 
 import           Control.Lens                           (iso, traverse, (&),
-                                                         (.~), (?~), (^.),
+                                                         (.~), (^.),
                                                          (^..), (^?), _Just)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
@@ -16,7 +16,6 @@ import           Data.ByteArray.HexString               (HexString, fromBytes,
 import           Data.Default.Class                     (Default (..))
 import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
-import           Data.ProtoLens.Prism                   (( # ))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word32, Word64)
 import           GHC.Generics                           (Generic)
@@ -24,7 +23,6 @@ import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions,
                                                          makeABCILenses)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams, Event,
                                                          Proof, ValidatorUpdate)
-import           Network.ABCI.Types.Messages.Types      (MessageType (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
@@ -544,100 +542,3 @@ instance Wrapped Exception where
         Exception
           { exceptionError = responseException ^. PT.error
           }
-
---------------------------------------------------------------------------------
--- Response
---------------------------------------------------------------------------------
-
-data Response (m :: MessageType) :: * where
-  ResponseEcho :: Echo -> Response 'MTEcho
-  ResponseFlush :: Flush -> Response 'MTFlush
-  ResponseInfo :: Info -> Response 'MTInfo
-  ResponseSetOption :: SetOption -> Response 'MTSetOption
-  ResponseInitChain :: InitChain -> Response 'MTInitChain
-  ResponseQuery :: Query -> Response 'MTQuery
-  ResponseBeginBlock :: BeginBlock -> Response 'MTBeginBlock
-  ResponseCheckTx :: CheckTx -> Response 'MTCheckTx
-  ResponseDeliverTx :: DeliverTx -> Response 'MTDeliverTx
-  ResponseEndBlock :: EndBlock -> Response 'MTEndBlock
-  ResponseCommit :: Commit -> Response 'MTCommit
-  ResponseException :: forall (m :: MessageType) . Exception -> Response m
-
-instance ToJSON (Response (t :: MessageType)) where
-  toJSON (ResponseEcho v)       = toJSON v
-  toJSON (ResponseFlush v)      = toJSON v
-  toJSON (ResponseInfo v)       = toJSON v
-  toJSON (ResponseSetOption v)  = toJSON v
-  toJSON (ResponseInitChain v)  = toJSON v
-  toJSON (ResponseQuery v)      = toJSON v
-  toJSON (ResponseBeginBlock v) = toJSON v
-  toJSON (ResponseCheckTx v)    = toJSON v
-  toJSON (ResponseDeliverTx v)  = toJSON v
-  toJSON (ResponseEndBlock v)   = toJSON v
-  toJSON (ResponseCommit v)     = toJSON v
-  toJSON (ResponseException v)  = toJSON v
-
-instance FromJSON (Response 'MTEcho) where
-  parseJSON = fmap ResponseEcho . parseJSON
-instance FromJSON (Response 'MTFlush) where
-  parseJSON = fmap ResponseFlush . parseJSON
-instance FromJSON (Response 'MTInfo) where
-  parseJSON = fmap ResponseInfo . parseJSON
-instance FromJSON (Response 'MTSetOption) where
-  parseJSON = fmap ResponseSetOption . parseJSON
-instance FromJSON (Response 'MTInitChain) where
-  parseJSON = fmap ResponseInitChain . parseJSON
-instance FromJSON (Response 'MTQuery) where
-  parseJSON = fmap ResponseQuery . parseJSON
-instance FromJSON (Response 'MTBeginBlock) where
-  parseJSON = fmap ResponseBeginBlock . parseJSON
-instance FromJSON (Response 'MTCheckTx) where
-  parseJSON = fmap ResponseCheckTx . parseJSON
-instance FromJSON (Response 'MTDeliverTx) where
-  parseJSON = fmap ResponseDeliverTx . parseJSON
-instance FromJSON (Response 'MTEndBlock) where
-  parseJSON = fmap ResponseEndBlock . parseJSON
-instance FromJSON (Response 'MTCommit) where
-  parseJSON = fmap ResponseCommit . parseJSON
-
-instance Default (Response 'MTEcho) where
-  def = ResponseEcho def
-instance Default (Response 'MTFlush) where
-  def = ResponseFlush def
-instance Default (Response 'MTInfo) where
-  def = ResponseInfo def
-instance Default (Response 'MTSetOption) where
-  def = ResponseSetOption def
-instance Default (Response 'MTInitChain) where
-  def = ResponseInitChain def
-instance Default (Response 'MTQuery) where
-  def = ResponseQuery def
-instance Default (Response 'MTBeginBlock) where
-  def = ResponseBeginBlock def
-instance Default (Response 'MTCheckTx) where
-  def = ResponseCheckTx def
-instance Default (Response 'MTDeliverTx) where
-  def = ResponseDeliverTx def
-instance Default (Response 'MTEndBlock) where
-  def = ResponseEndBlock def
-instance Default (Response 'MTCommit) where
-  def = ResponseCommit def
-
--- | Translates type-safe 'Response' GADT to the unsafe
---   auto-generated 'Proto.Response'
-toProto :: Response t -> PT.Response
-toProto r = case r of
-  ResponseEcho msg       -> wrap PT._Response'Echo msg
-  ResponseFlush msg      -> wrap PT._Response'Flush msg
-  ResponseInfo msg       -> wrap PT._Response'Info msg
-  ResponseSetOption msg  -> wrap PT._Response'SetOption msg
-  ResponseInitChain msg  -> wrap PT._Response'InitChain msg
-  ResponseQuery msg      -> wrap PT._Response'Query msg
-  ResponseBeginBlock msg -> wrap PT._Response'BeginBlock msg
-  ResponseCheckTx msg    -> wrap PT._Response'CheckTx msg
-  ResponseDeliverTx msg  -> wrap PT._Response'DeliverTx msg
-  ResponseEndBlock msg   -> wrap PT._Response'EndBlock msg
-  ResponseCommit msg     -> wrap PT._Response'Commit msg
-  ResponseException msg  -> wrap PT._Response'Exception msg
-  where
-    wrap v msg = defMessage & PT.maybe'value ?~ v # (msg ^. _Wrapped')

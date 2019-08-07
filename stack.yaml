@@ -5,6 +5,7 @@ packages:
 - ./hs-abci-server
 - ./hs-abci-example
 - ./hs-abci-extra
+- ./hs-abci-types
 - ./hs-tendermint-client
 
 extra-deps:

@@ -19,7 +19,6 @@ import qualified Network.ABCI.Types.Messages.FieldTypes       as FieldTypes
 import qualified Network.ABCI.Types.Messages.Response         as Response
 import qualified Network.HTTP.Simple                          as HTTP
 import qualified Network.Tendermint.Client.Internal.RPCClient as RPC
--- import qualified Network.ABCI.Types.Messages.Request as Request
 
 type TendermintM a = ReaderT RPC.Config IO a
 

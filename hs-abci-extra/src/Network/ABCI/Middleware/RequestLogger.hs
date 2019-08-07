@@ -9,9 +9,7 @@ import           Control.Lens                        (at, (?~))
 import           Control.Monad.IO.Class              (MonadIO, liftIO)
 import qualified Data.Aeson                          as A
 import           Katip
-import           Network.ABCI.Types.App              (App (..), Middleware)
-import           Network.ABCI.Types.Messages.Request (Request (..))
-import           Network.ABCI.Types.Messages.Types   (MessageType (..))
+import           Network.ABCI.Types.App              (App (..), Middleware, Request (..), MessageType)
 import           System.IO                           (stdout)
 
 ---------------------------------------------------------------------------
