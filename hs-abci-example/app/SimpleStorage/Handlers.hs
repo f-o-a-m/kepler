@@ -3,7 +3,6 @@ module SimpleStorage.Handlers where
 import           Control.Concurrent.STM               (atomically)
 import           Control.Concurrent.STM.TVar          (readTVar)
 import           Control.Lens                         (to, (&), (.~), (^.))
-import           Control.Monad.Except                 (throwError)
 import           Control.Monad.IO.Class               (liftIO)
 import           Control.Monad.Reader                 (ask)
 import           Data.Binary                          (encode)
@@ -14,7 +13,7 @@ import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Network.ABCI.Types.Messages.Types    (MessageType (..))
 import           SimpleStorage.Application            (AppConfig (..),
-                                                       AppError (..), Handler,
+                                                       Handler,
                                                        defaultHandler)
 import           SimpleStorage.StateMachine           (readCount, updateCount)
 import           SimpleStorage.Types                  (AppTxMessage (..),
@@ -77,7 +76,8 @@ checkTxH
   -> Handler (Resp.Response 'MTCheckTx)
 checkTxH (Req.RequestCheckTx checkTx) = do
   case decodeAppTxMessage $ checkTx ^. Req._checkTxTx . to convert of
-    Left e -> throwError $ DecodeTxError e
+    Left _ -> return . Resp.ResponseCheckTx $
+      def & Resp._checkTxCode .~ 1
     Right (ATMUpdateCount updateCountTx) -> do
       AppConfig{countConnection} <- ask
       eRes <- liftIO $ atomically $ do
@@ -94,7 +94,8 @@ deliverTxH
   -> Handler (Resp.Response 'MTDeliverTx)
 deliverTxH (Req.RequestDeliverTx deliverTx) = do
   case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of
-    Left e -> throwError $ DecodeTxError e
+    Left _ -> return . Resp.ResponseDeliverTx $
+      def & Resp._deliverTxCode .~ 1
     Right (ATMUpdateCount updateCountTx) -> do
       AppConfig{countConnection} <- ask
       eRes <- liftIO $ commitTransaction countConnection $

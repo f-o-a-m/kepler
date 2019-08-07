@@ -19,7 +19,6 @@ import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Network.ABCI.Types.Messages.Types    (MessageType (..))
 import           SimpleStorage.StateMachine           (initStateMachine)
 import qualified Tendermint.SDK.DB                    as DB
-import           Tendermint.SDK.Transaction           (TransactionError (..))
 
 data AppConfig = AppConfig
   { countConnection :: DB.Connection "count"
@@ -31,16 +30,10 @@ makeAppConfig = do
   pure $ AppConfig { countConnection = conn
                    }
 
-data AppError =
-    QueryMissError String
-  | TxError TransactionError
-  | DecodeTxError String
-  deriving (Show)
+data AppError = AppError String deriving (Show)
 
 printAppError :: AppError -> Text
-printAppError (QueryMissError msg) = pack $ "QueryMissError : " <> msg
-printAppError (TxError (TransactionError txError)) = pack $ "TransactionError : " <> txError
-printAppError (DecodeTxError msg) = pack $ "DecodeTxError : " <> msg
+printAppError (AppError msg) = pack $ "AppError : " <> msg
 
 newtype Handler a = Handler
   { runHandler :: ReaderT AppConfig (ExceptT AppError IO) a }
