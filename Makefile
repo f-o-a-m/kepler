@@ -17,4 +17,4 @@ run-simple-storage: install ## Run the example simple-storage app
 	stack exec -- simple-storage
 
 stylish: ## Run stylish-haskell over all haskell projects
-	find ./hs-abci-extra ./hs-tendermint-client ./hs-abci-example ./hs-abci-server -name "*.hs" | xargs stack exec stylish-haskell -c ./.stylish_haskell.yaml -i
+	find ./hs-abci-extra ./hs-tendermint-client ./hs-abci-example ./hs-abci-server -name "*.hs" | xargs stack exec stylish-haskell -- -c ./.stylish_haskell.yaml -i
