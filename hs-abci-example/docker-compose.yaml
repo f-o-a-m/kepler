@@ -15,3 +15,10 @@ services:
     restart: always
     ports:
       - "26656:26656"
+  simple-storage:
+    build:
+      context: ../.
+      dockerfile: hs-abci-example/Dockerfile
+    restart: always
+    expose:
+      - "26658"
