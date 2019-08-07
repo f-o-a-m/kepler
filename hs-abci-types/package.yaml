@@ -1,12 +1,21 @@
-name:                hs-abci-server
+name:                hs-abci-types
 version:             0.1.0.0
-github:              "f-o-a-m/hs-abci/hs-abci-server"
+github:              "f-o-a-m/hs-abci/hs-abci-types"
 license:             Apache
 author:              "Martin Allen"
 maintainer:          "martin@foam.space"
 copyright:           "2019 Martin Allen"
 
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-server#readme>
+extra-source-files:
+- protos/**/*.proto
+
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-types#readme>
+
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-setup
 
 default-extensions:
 - NamedFieldPuns
@@ -32,8 +41,6 @@ dependencies:
 - aeson-casing
 - base16-bytestring
 - bytestring
-- conduit
-- conduit-extra
 - data-default-class
 - lens
 - memory
@@ -43,7 +50,6 @@ dependencies:
 - text
 - template-haskell
 - time
-- hs-abci-types
 
 library:
   source-dirs: src
@@ -51,16 +57,29 @@ library:
   - -Werror
   - -Wall
   exposed-modules:
-  - Network.ABCI.Server
-  - Network.ABCI.Server.App
-  - Network.ABCI.Server.App.DecodeError
+  - Data.ByteArray.HexString
+  - Network.ABCI.Types.Messages.Request
+  - Network.ABCI.Types.Messages.Response
+  - Network.ABCI.Types.Messages.FieldTypes
+  generated-exposed-modules:
+  - Proto.Types
+  - Proto.Types_Fields
+  - Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo
+  - Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo_Fields
+  - Proto.Vendored.Google.Protobuf.Timestamp
+  - Proto.Vendored.Google.Protobuf.Timestamp_Fields
+  - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle
+  - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
+  - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types
+  - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields
 
 tests:
-  hs-abci-server-test:
+  hs-abci-types-test:
     main:                Spec.hs
     source-dirs:         test
     other-modules:
-    - Network.ABCI.Test.Server.AppSpec
+    - Network.ABCI.Test.Types.Messages.Instances
+    - Network.ABCI.Test.Types.MessagesSpec
     ghc-options:
     - -Werror
     - -Wall
@@ -71,7 +90,7 @@ tests:
 
     dependencies:
       - generic-arbitrary
-      - hs-abci-server
+      - hs-abci-types
       - hspec
       - hspec-core
       - hspec-discover

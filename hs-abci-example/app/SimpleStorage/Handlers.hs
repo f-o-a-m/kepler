@@ -10,9 +10,11 @@ import           Data.Binary                          (encode)
 import           Data.ByteArray                       (convert)
 import           Data.ByteString.Lazy                 (toStrict)
 import           Data.Default.Class                   (def)
+import           Network.ABCI.Server.App              (MessageType (..),
+                                                       Request (..),
+                                                       Response (..))
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
-import           Network.ABCI.Types.Messages.Types    (MessageType (..))
 import           SimpleStorage.Application            (AppConfig (..),
                                                        AppError (..), Handler,
                                                        defaultHandler)
@@ -24,58 +26,58 @@ import           Tendermint.SDK.Transaction           (commitTransaction,
                                                        stageTransaction)
 
 echoH
-  :: Req.Request 'MTEcho
-  -> Handler (Resp.Response 'MTEcho)
-echoH (Req.RequestEcho echo) =
-  pure . Resp.ResponseEcho $ def & Resp._echoMessage .~ echo ^. Req._echoMessage
+  :: Request 'MTEcho
+  -> Handler (Response 'MTEcho)
+echoH (RequestEcho echo) =
+  pure . ResponseEcho $ def & Resp._echoMessage .~ echo ^. Req._echoMessage
 
 flushH
-  :: Req.Request 'MTFlush
-  -> Handler (Resp.Response 'MTFlush)
+  :: Request 'MTFlush
+  -> Handler (Response 'MTFlush)
 flushH = defaultHandler
 
 infoH
-  :: Req.Request 'MTInfo
-  -> Handler (Resp.Response 'MTInfo)
+  :: Request 'MTInfo
+  -> Handler (Response 'MTInfo)
 infoH = defaultHandler
 
 setOptionH
-  :: Req.Request 'MTSetOption
-  -> Handler (Resp.Response 'MTSetOption)
+  :: Request 'MTSetOption
+  -> Handler (Response 'MTSetOption)
 setOptionH = defaultHandler
 
 -- TODO: this one might be useful for initializing to 0
 -- instead of doing that manually in code
 initChainH
-  :: Req.Request 'MTInitChain
-  -> Handler (Resp.Response 'MTInitChain)
+  :: Request 'MTInitChain
+  -> Handler (Response 'MTInitChain)
 initChainH = defaultHandler
 
 queryH
-  :: Req.Request 'MTQuery
-  -> Handler (Resp.Response 'MTQuery)
-queryH (Req.RequestQuery query)
+  :: Request 'MTQuery
+  -> Handler (Response 'MTQuery)
+queryH (RequestQuery query)
   | query ^. Req._queryPath == "count" = handleCountQuery
-  | otherwise = pure . Resp.ResponseQuery $
+  | otherwise = pure . ResponseQuery $
       def & Resp._queryCode .~ 1
   where
     handleCountQuery = do
       AppConfig{countConnection} <- ask
       count <- liftIO $ readCount countConnection
       let countBS = toStrict . encode $ count
-      pure . Resp.ResponseQuery $
+      pure . ResponseQuery $
         def & Resp._queryCode .~ 0
             & Resp._queryValue .~ convert countBS
 
 beginBlockH
-  :: Req.Request 'MTBeginBlock
-  -> Handler (Resp.Response 'MTBeginBlock)
+  :: Request 'MTBeginBlock
+  -> Handler (Response 'MTBeginBlock)
 beginBlockH = defaultHandler
 
 checkTxH
-  :: Req.Request 'MTCheckTx
-  -> Handler (Resp.Response 'MTCheckTx)
-checkTxH (Req.RequestCheckTx checkTx) = do
+  :: Request 'MTCheckTx
+  -> Handler (Response 'MTCheckTx)
+checkTxH (RequestCheckTx checkTx) = do
   case decodeAppTxMessage $ checkTx ^. Req._checkTxTx . to convert of
     Left e -> throwError $ DecodeTxError e
     Right (ATMUpdateCount updateCountTx) -> do
@@ -85,30 +87,30 @@ checkTxH (Req.RequestCheckTx checkTx) = do
         db <- readTVar c
         pure $ stageTransaction db $
           updateCount updateCountTx
-      return . Resp.ResponseCheckTx $ case eRes of
+      return . ResponseCheckTx $ case eRes of
         Left _  -> def & Resp._checkTxCode .~ 1
         Right _ -> def & Resp._checkTxCode .~ 0
 
 deliverTxH
-  :: Req.Request 'MTDeliverTx
-  -> Handler (Resp.Response 'MTDeliverTx)
-deliverTxH (Req.RequestDeliverTx deliverTx) = do
+  :: Request 'MTDeliverTx
+  -> Handler (Response 'MTDeliverTx)
+deliverTxH (RequestDeliverTx deliverTx) = do
   case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of
     Left e -> throwError $ DecodeTxError e
     Right (ATMUpdateCount updateCountTx) -> do
       AppConfig{countConnection} <- ask
       eRes <- liftIO $ commitTransaction countConnection $
         updateCount updateCountTx
-      return . Resp.ResponseDeliverTx $ case eRes of
+      return . ResponseDeliverTx $ case eRes of
         Left _  -> def & Resp._deliverTxCode .~ 1
         Right _ -> def & Resp._deliverTxCode .~ 0
 
 endBlockH
-  :: Req.Request 'MTEndBlock
-  -> Handler (Resp.Response 'MTEndBlock)
+  :: Request 'MTEndBlock
+  -> Handler (Response 'MTEndBlock)
 endBlockH = defaultHandler
 
 commitH
-  :: Req.Request 'MTCommit
-  -> Handler (Resp.Response 'MTCommit)
+  :: Request 'MTCommit
+  -> Handler (Response 'MTCommit)
 commitH = defaultHandler

@@ -15,8 +15,9 @@ import           Control.Monad.Reader                 (MonadReader, ReaderT,
                                                        runReaderT)
 import           Data.Default.Class                   (Default (..))
 import           Data.Text                            (Text, pack)
+import           Network.ABCI.Server.App              (MessageType,
+                                                       Response (..))
 import qualified Network.ABCI.Types.Messages.Response as Resp
-import           Network.ABCI.Types.Messages.Types    (MessageType (..))
 import           SimpleStorage.StateMachine           (initStateMachine)
 import qualified Tendermint.SDK.DB                    as DB
 import           Tendermint.SDK.Transaction           (TransactionError (..))
@@ -57,10 +58,10 @@ defaultHandler = const $ pure def
 
 transformHandler
   :: AppConfig
-  -> (forall (t :: MessageType). Handler (Resp.Response t) -> IO (Resp.Response t))
+  -> (forall (t :: MessageType). Handler (Response t) -> IO (Response t))
 transformHandler cfg m = do
   eRes <- runExceptT $ runReaderT (runHandler m) cfg
   case eRes of
-    Left e  -> pure $ Resp.ResponseException $
+    Left e  -> pure $ ResponseException $
       def & Resp._exceptionError .~ printAppError e
     Right a -> pure a

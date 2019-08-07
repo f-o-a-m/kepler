@@ -1,6 +1,6 @@
 # hs-abci
 
-![Travis Status](https://travis-ci.com/f-o-a-m/hs-abci-server.svg?branch=master)
+![Travis Status](https://travis-ci.com/f-o-a-m/hs-abci.svg?branch=master)
 
 ## Introduction
 This is the official repository for the Haskell implementation of the ABCI server and
@@ -42,7 +42,7 @@ to find the root directory.
 ## Style Guide
 There is a `.stylish-haskell.yaml` file that controls some of the style guide, particularly
 around import statements and some indentation rules. There is also a small guide for things that
-fall outside of this in the [style wiki](https://github.com/f-o-a-m/hs-abci-server/wiki/code-style-guide).
+fall outside of this in the [style wiki](https://github.com/f-o-a-m/hs-abci/wiki/code-style-guide).
 If it's not covered by either of these but you think it's really important, mention it in an issue.
 
 ## Building documentation
