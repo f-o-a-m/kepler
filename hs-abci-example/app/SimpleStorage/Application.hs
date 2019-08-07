@@ -15,7 +15,7 @@ import           Control.Monad.Reader                 (MonadReader, ReaderT,
                                                        runReaderT)
 import           Data.Default.Class                   (Default (..))
 import           Data.Text                            (Text, pack)
-import           Network.ABCI.Types.App               (MessageType (..),
+import           Network.ABCI.Types.App               (MessageType,
                                                        Response (..))
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           SimpleStorage.StateMachine           (initStateMachine)
