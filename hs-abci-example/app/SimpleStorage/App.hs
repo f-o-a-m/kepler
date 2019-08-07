@@ -4,7 +4,9 @@ import           Data.Foldable                         (fold)
 import           Data.Monoid                           (Endo (..))
 import           Network.ABCI                          (serveApp)
 import           Network.ABCI.Middleware.RequestLogger (mkLogStdoutDev)
-import           Network.ABCI.Types.App                (App (..), Middleware, Request(..),transformApp)
+import           Network.ABCI.Types.App                (App (..), Middleware,
+                                                        Request (..),
+                                                        transformApp)
 import           SimpleStorage.Application             (Handler, makeAppConfig,
                                                         transformHandler)
 import           SimpleStorage.Handlers

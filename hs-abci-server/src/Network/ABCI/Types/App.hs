@@ -1,8 +1,12 @@
 
 module Network.ABCI.Types.App where
 
-import           Control.Lens                         ((^.),(?~))
+import           Control.Lens                         ((?~), (^.))
+import           Control.Lens.Wrapped                 (Wrapped (..),
+                                                       _Unwrapped')
 import           Control.Monad                        ((>=>))
+import           Data.Aeson                           (FromJSON (..),
+                                                       ToJSON (..))
 import           Data.Bifunctor                       (first)
 import qualified Data.ByteString                      as BS
 import           Data.Function                        ((&))
@@ -12,22 +16,18 @@ import           Data.ProtoLens.Encoding.Bytes        (getVarInt, putVarInt,
                                                        signedInt64ToWord,
                                                        wordToSignedInt64)
 import           Data.String.Conversions              (cs)
-import           Control.Lens.Wrapped                   (Wrapped (..),
-                                                         _Unwrapped')
 import           Data.Text                            ()
 import           Data.Traversable                     (traverse)
 import           Network.ABCI.Types.DecodeError       (DecodeError)
 import qualified Network.ABCI.Types.DecodeError       as DecodeError
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
-import           Data.Aeson                             (FromJSON (..),
-                                                         ToJSON (..))
 
-import           Data.Default.Class                     (Default (..))
+import           Data.Default.Class                   (Default (..))
+import           Data.ProtoLens.Message               (Message (defMessage))
+import           Data.ProtoLens.Prism                 (( # ))
 import qualified Proto.Types                          as PT
 import qualified Proto.Types_Fields                   as PT
-import           Data.ProtoLens.Prism                   (( # ))
-import           Data.ProtoLens.Message                 (Message (defMessage))
 
 -- | Used to parametrize Request and Respone types
 data MessageType

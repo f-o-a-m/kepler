@@ -5,12 +5,13 @@ module Network.ABCI.Middleware.RequestLogger
     , mkRequestLoggerM
     ) where
 
-import           Control.Lens                        (at, (?~))
-import           Control.Monad.IO.Class              (MonadIO, liftIO)
-import qualified Data.Aeson                          as A
+import           Control.Lens           (at, (?~))
+import           Control.Monad.IO.Class (MonadIO, liftIO)
+import qualified Data.Aeson             as A
 import           Katip
-import           Network.ABCI.Types.App              (App (..), Middleware, Request (..), MessageType)
-import           System.IO                           (stdout)
+import           Network.ABCI.Types.App (App (..), MessageType, Middleware,
+                                         Request (..))
+import           System.IO              (stdout)
 
 ---------------------------------------------------------------------------
 -- Types

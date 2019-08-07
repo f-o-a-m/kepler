@@ -10,8 +10,10 @@ import           Data.Binary                          (encode)
 import           Data.ByteArray                       (convert)
 import           Data.ByteString.Lazy                 (toStrict)
 import           Data.Default.Class                   (def)
-import           Network.ABCI.Types.App (Request(..),Response(..), MessageType (..))
-import qualified Network.ABCI.Types.Messages.Request as Req
+import           Network.ABCI.Types.App               (MessageType (..),
+                                                       Request (..),
+                                                       Response (..))
+import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           SimpleStorage.Application            (AppConfig (..),
                                                        AppError (..), Handler,
