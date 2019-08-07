@@ -60,7 +60,7 @@ tests:
     main:                Spec.hs
     source-dirs:         test
     other-modules:
-    - Network.ABCI.Server.Test.Types.AppSpec
+    - Network.ABCI.Test.Server.AppSpec
     ghc-options:
     - -Werror
     - -Wall

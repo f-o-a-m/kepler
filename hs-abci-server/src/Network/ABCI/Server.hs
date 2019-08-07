@@ -1,12 +1,12 @@
 module Network.ABCI.Server where
 
-import           Data.Conduit           (runConduit, (.|))
-import qualified Data.Conduit.List      as CL
-import           Data.Conduit.Network   (AppData, ServerSettings, appSink,
-                                         appSource, runTCPServer,
-                                         serverSettings)
-import           Data.Monoid            (mempty)
-import           Data.String            (fromString)
+import           Data.Conduit            (runConduit, (.|))
+import qualified Data.Conduit.List       as CL
+import           Data.Conduit.Network    (AppData, ServerSettings, appSink,
+                                          appSource, runTCPServer,
+                                          serverSettings)
+import           Data.Monoid             (mempty)
+import           Data.String             (fromString)
 import           Network.ABCI.Server.App (App (..))
 import qualified Network.ABCI.Server.App as App
 
