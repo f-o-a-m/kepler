@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-module Network.ABCI.Test.Types.Messages.Instances () where
+module Network.ABCI.Server.Test.Types.Messages.Instances () where
 
 import           Data.ByteArray.HexString               (HexString, fromBytes)
 import           Data.ByteString                        (ByteString)

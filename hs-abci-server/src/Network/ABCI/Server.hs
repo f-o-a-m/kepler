@@ -1,4 +1,4 @@
-module Network.ABCI where
+module Network.ABCI.Server where
 
 import           Data.Conduit           (runConduit, (.|))
 import qualified Data.Conduit.List      as CL
@@ -7,8 +7,8 @@ import           Data.Conduit.Network   (AppData, ServerSettings, appSink,
                                          serverSettings)
 import           Data.Monoid            (mempty)
 import           Data.String            (fromString)
-import           Network.ABCI.Types.App (App (..))
-import qualified Network.ABCI.Types.App as App
+import           Network.ABCI.Server.App (App (..))
+import qualified Network.ABCI.Server.App as App
 
 
 -- | Default ABCI app network settings for serving on localhost at the

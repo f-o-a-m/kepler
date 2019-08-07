@@ -1,4 +1,4 @@
-module Network.ABCI.Middleware.RequestLogger
+module Network.ABCI.Server.Middleware.RequestLogger
     ( mkLogStdout
     , mkLogStdoutDev
     , mkRequestLogger
@@ -9,7 +9,7 @@ import           Control.Lens           (at, (?~))
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.Aeson             as A
 import           Katip
-import           Network.ABCI.Types.App (App (..), MessageType, Middleware,
+import           Network.ABCI.Server.App (App (..), MessageType, Middleware,
                                          Request (..))
 import           System.IO              (stdout)
 

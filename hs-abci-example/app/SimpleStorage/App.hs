@@ -2,9 +2,9 @@ module SimpleStorage.App (makeAndServeApplication) where
 
 import           Data.Foldable                         (fold)
 import           Data.Monoid                           (Endo (..))
-import           Network.ABCI                          (serveApp)
-import           Network.ABCI.Middleware.RequestLogger (mkLogStdoutDev)
-import           Network.ABCI.Types.App                (App (..), Middleware,
+import           Network.ABCI.Server                          (serveApp)
+import           Network.ABCI.Server.Middleware.RequestLogger (mkLogStdoutDev)
+import           Network.ABCI.Server.App                (App (..), Middleware,
                                                         Request (..),
                                                         transformApp)
 import           SimpleStorage.Application             (Handler, makeAppConfig,

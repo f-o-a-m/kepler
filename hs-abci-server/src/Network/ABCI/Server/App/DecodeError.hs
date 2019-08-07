@@ -1,4 +1,4 @@
-module Network.ABCI.Types.DecodeError where
+module Network.ABCI.Server.App.DecodeError where
 
 import qualified Data.ByteString         as BS
 import qualified Data.ByteString.Base16  as BS16

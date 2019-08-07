@@ -1,4 +1,4 @@
-module Network.ABCI.Test.Types.MessagesSpec where
+module Network.ABCI.Server.Test.Types.MessagesSpec where
 
 import           Control.Lens                                    (Iso', from,
                                                                   set, to,
@@ -11,7 +11,7 @@ import           Data.ProtoLens.Arbitrary                        (ArbitraryMessa
 import           Data.ProtoLens.Field                            (HasField)
 import           Data.ProtoLens.Message                          (Message (..))
 import           Data.Proxy                                      (Proxy (..))
-import           Network.ABCI.Test.Types.Messages.Instances      ()
+import           Network.ABCI.Server.Test.Types.Messages.Instances      ()
 import qualified Network.ABCI.Types.Messages.FieldTypes          as FT
 import qualified Network.ABCI.Types.Messages.Request             as Request
 import qualified Network.ABCI.Types.Messages.Response            as Response

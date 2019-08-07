@@ -51,16 +51,16 @@ library:
   - -Werror
   - -Wall
   exposed-modules:
-  - Network.ABCI
-  - Network.ABCI.Types.App
-  - Network.ABCI.Types.DecodeError
+  - Network.ABCI.Server
+  - Network.ABCI.Server.App
+  - Network.ABCI.Server.App.DecodeError
 
 tests:
   hs-abci-server-test:
     main:                Spec.hs
     source-dirs:         test
     other-modules:
-    - Network.ABCI.Test.Types.AppSpec
+    - Network.ABCI.Server.Test.Types.AppSpec
     ghc-options:
     - -Werror
     - -Wall

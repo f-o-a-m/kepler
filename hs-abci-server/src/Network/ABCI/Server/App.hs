@@ -1,5 +1,5 @@
 
-module Network.ABCI.Types.App where
+module Network.ABCI.Server.App where
 
 import           Control.Lens                         ((?~), (^.))
 import           Control.Lens.Wrapped                 (Wrapped (..),
@@ -18,8 +18,8 @@ import           Data.ProtoLens.Encoding.Bytes        (getVarInt, putVarInt,
 import           Data.String.Conversions              (cs)
 import           Data.Text                            ()
 import           Data.Traversable                     (traverse)
-import           Network.ABCI.Types.DecodeError       (DecodeError)
-import qualified Network.ABCI.Types.DecodeError       as DecodeError
+import           Network.ABCI.Server.App.DecodeError       (DecodeError)
+import qualified Network.ABCI.Server.App.DecodeError       as DecodeError
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 
