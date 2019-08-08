@@ -1,7 +1,9 @@
 module SimpleStorage.App (makeAndServeApplication) where
 
+import           Data.Conduit.Network                         (serverSettings)
 import           Data.Foldable                                (fold)
 import           Data.Monoid                                  (Endo (..))
+import           Data.String                                  (fromString)
 import           Network.ABCI.Server                          (serveAppWith)
 import           Network.ABCI.Server.App                      (App (..),
                                                                Middleware,
@@ -12,8 +14,6 @@ import           SimpleStorage.Application                    (Handler,
                                                                makeAppConfig,
                                                                transformHandler)
 import           SimpleStorage.Handlers
-import           Data.Conduit.Network    (serverSettings)
-import Data.String (fromString)
 
 makeAndServeApplication :: IO ()
 makeAndServeApplication = do

@@ -3,6 +3,7 @@ help: ## Ask for help!
 
 export
 
+# This is useful for copying example app binaries built on a linux machine rather than building in docker
 SIMPLE_STORAGE_BINARY := $(shell stack exec -- which simple-storage)
 
 build-docs-local: ## Build the haddocks documentation for just this project (no dependencies)
@@ -18,7 +19,6 @@ test: install ## Run the haskell test suite for all haskell projects
 	stack test
 
 deploy-simple-storage: install ## run the simple storage docker network
-	BINARY_PATH=$(SIMPLE_STORAGE_BINARY) \
 	docker-compose -f hs-abci-example/docker-compose.yaml up --build -d
 
 run-simple-storage: install ## Run the example simple-storage app
