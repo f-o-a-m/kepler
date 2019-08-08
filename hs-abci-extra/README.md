@@ -4,4 +4,4 @@ The goal here is to provide common features and example middleware implementatio
 
 ## Example using middleware
 
-There is a small example using the RequestLogger middlware [here](https://github.com/f-o-a-m/hs-abci/tree/master/hs-abci-example).
+There is a small example using the RequestLogger middleware [here](https://github.com/f-o-a-m/hs-abci/tree/master/hs-abci-example).
