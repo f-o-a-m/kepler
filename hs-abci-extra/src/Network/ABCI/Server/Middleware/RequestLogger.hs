@@ -1,6 +1,8 @@
 module Network.ABCI.Server.Middleware.RequestLogger
-    ( mkLogStdout
+    ( -- * Basic stdout logging
+      mkLogStdout
     , mkLogStdoutDev
+      -- * Custom Loggers
     , mkRequestLogger
     , mkRequestLoggerM
     ) where
@@ -23,7 +25,7 @@ instance ToObject (Loggable (Request (t :: MessageType))) where
   toObject (Loggable v) = case A.toJSON v of
     A.Object o -> addMessageType v o
     -- unreachable case
-    _          -> mempty
+    _          ->  mempty
    where
     addMessageType :: forall t. Request (t :: MessageType) -> A.Object -> A.Object
     addMessageType (RequestEcho _) o       = at "message_type" ?~ A.String "echo" $ o
@@ -64,15 +66,16 @@ mkLogStdoutDev :: (MonadIO m) => m (Middleware m)
 mkLogStdoutDev = do
   handleScribe <- liftIO $ mkHandleScribe ColorIfTerminal stdout DebugS V3
   le <- liftIO (registerScribe "stdout" handleScribe defaultScribeSettings
-        =<< initLogEnv "ABCI" "production")
+        =<< initLogEnv "ABCI" "development")
   let ns = "Server"
   pure $ mkRequestLogger le ns
 
 ---------------------------------------------------------------------------
 -- mkRequestLogger
 ---------------------------------------------------------------------------
--- | Request logger middleware for ABCI requests with custom Katip LogEnv
--- and Namespace.
+-- | Request logger middleware for ABCI requests with custom 'Katip.LogEnv'
+-- and 'Katip.Namespace'. This method makes it easy use various scribes such as
+-- <http://hackage.haskell.org/package/katip-elasticsearch-0.5.1.1/docs/Katip-Scribes-ElasticSearch.html elastic-search>.
 mkRequestLogger :: (MonadIO m) => LogEnv -> Namespace -> Middleware m
 mkRequestLogger le ns (App app) = App $ \ req -> do
   runKatipContextT le () ns $ logRequest req
@@ -82,6 +85,7 @@ mkRequestLogger le ns (App app) = App $ \ req -> do
 -- mkRequestLoggerM
 ---------------------------------------------------------------------------
 -- | Request logger middleware for ABCI requests in app with KatipContext.
+-- Great for `App m` with a `KatipContext` instance.
 mkRequestLoggerM :: (KatipContext m) => Middleware m
 mkRequestLoggerM (App app) = App $ \ req -> logRequest req >> app req
 
