@@ -32,7 +32,6 @@ dependencies:
 - base >= 4.7 && < 5
 - binary
 - bytestring
-- conduit-extra
 - containers
 - cryptonite
 - data-default-class
