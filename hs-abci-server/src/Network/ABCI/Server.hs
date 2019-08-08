@@ -14,7 +14,7 @@ import qualified Network.ABCI.Server.App as App
 -- | Default ABCI app network settings for serving on localhost at the
 -- standard port.
 defaultLocalSettings :: ServerSettings
-defaultLocalSettings = serverSettings 26658 $ fromString "127.0.0.1"
+defaultLocalSettings = serverSettings 26658 $ fromString "0.0.0.0"
 
 -- | Serve an ABCI application with custom 'ServerSettings' and a custom
 -- action to perform on acquiring the socket resource.
