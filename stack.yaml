@@ -2,11 +2,11 @@
 resolver: lts-13.27
 
 packages:
-- ./hs-abci-server
-- ./hs-abci-example
-- ./hs-abci-extra
 - ./hs-abci-types
 - ./hs-tendermint-client
+- ./hs-abci-server
+- ./hs-abci-extra
+- ./hs-abci-example
 
 extra-deps:
   - proto-lens-runtime-0.5.0.0

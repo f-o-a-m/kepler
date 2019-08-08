@@ -8,17 +8,19 @@ services:
   tendermint:
     depends_on:
       - tendermint-init
+      - simple_storage
     image: tendermint/tendermint:v0.32.2
-    command: node
+    command: node --proxy_app=tcp://simple_storage:26658
     volumes:
       - /tmp:/tendermint
     restart: always
     ports:
-      - "26656:26656"
-  simple-storage:
+      - "26656-26657:26656-26657"
+  simple_storage:
     build:
       context: ../.
       dockerfile: hs-abci-example/Dockerfile
     restart: always
     expose:
       - "26658"
+

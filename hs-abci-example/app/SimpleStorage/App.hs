@@ -2,7 +2,7 @@ module SimpleStorage.App (makeAndServeApplication) where
 
 import           Data.Foldable                                (fold)
 import           Data.Monoid                                  (Endo (..))
-import           Network.ABCI.Server                          (serveApp)
+import           Network.ABCI.Server                          (serveAppWith)
 import           Network.ABCI.Server.App                      (App (..),
                                                                Middleware,
                                                                Request (..),
@@ -12,13 +12,16 @@ import           SimpleStorage.Application                    (Handler,
                                                                makeAppConfig,
                                                                transformHandler)
 import           SimpleStorage.Handlers
+import           Data.Conduit.Network    (serverSettings)
+import Data.String (fromString)
 
 makeAndServeApplication :: IO ()
 makeAndServeApplication = do
   cfg <- makeAppConfig
   let ioApp = transformApp (transformHandler cfg) $ app
+      s = serverSettings 26658 $ fromString "0.0.0.0"
   putStrLn "Starting ABCI application..."
-  serveApp =<< hookInMiddleware ioApp
+  serveAppWith s mempty =<< hookInMiddleware ioApp
   where
     mkMiddleware :: IO (Middleware IO)
     mkMiddleware = do
