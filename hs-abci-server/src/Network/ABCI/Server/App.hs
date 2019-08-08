@@ -4,8 +4,14 @@ module Network.ABCI.Server.App where
 import           Control.Lens                         ((?~), (^.))
 import           Control.Lens.Wrapped                 (Wrapped (..),
                                                        _Unwrapped')
-import           Control.Monad                        ((>=>))
+import           Control.Monad                        ((>=>),when)
+import           Data.Text                            (Text)
+import           Data.Aeson.Types                     (Parser)
 import           Data.Aeson                           (FromJSON (..),
+                                                       withObject, object,
+                                                       Value(..),
+                                                       (.:),
+                                                       (.=),
                                                        ToJSON (..))
 import           Data.Bifunctor                       (first)
 import qualified Data.ByteString                      as BS
@@ -43,6 +49,16 @@ data MessageType
   | MTEndBlock
   | MTCommit
 
+reqResParseJSON :: FromJSON inner => String -> Text -> (inner -> outer) -> Value -> Parser outer
+reqResParseJSON strName expectedType ctr = withObject strName $ \v ->  do
+  actualType <- v .: "type"
+  when (actualType /= expectedType) $ fail $ "expected `type` to equal: " <> show expectedType <> ", but got: " <> show actualType
+  message <- v .: "message"
+  return $ ctr message
+
+reqResToJSON :: ToJSON inner => Text -> inner -> Value
+reqResToJSON typeName message = object
+  [ "type" .= String typeName, "message" .= toJSON message]
 
 --------------------------------------------------------------------------------
 -- Request
@@ -70,41 +86,41 @@ data Request (m :: MessageType) :: * where
   RequestCommit :: Request.Commit -> Request 'MTCommit
 
 instance ToJSON (Request (t :: MessageType)) where
-  toJSON (RequestEcho v)       = toJSON v
-  toJSON (RequestInfo v)       = toJSON v
-  toJSON (RequestSetOption v)  = toJSON v
-  toJSON (RequestQuery v)      = toJSON v
-  toJSON (RequestCheckTx v)    = toJSON v
-  toJSON (RequestFlush v)      = toJSON v
-  toJSON (RequestInitChain v)  = toJSON v
-  toJSON (RequestBeginBlock v) = toJSON v
-  toJSON (RequestDeliverTx v)  = toJSON v
-  toJSON (RequestEndBlock v)   = toJSON v
-  toJSON (RequestCommit v)     = toJSON v
+  toJSON (RequestEcho v)       = reqResToJSON "echo" v
+  toJSON (RequestInfo v)       = reqResToJSON "info" v
+  toJSON (RequestSetOption v)  = reqResToJSON "set_option" v
+  toJSON (RequestQuery v)      = reqResToJSON "query" v
+  toJSON (RequestCheckTx v)    = reqResToJSON "check_tx" v
+  toJSON (RequestFlush v)      = reqResToJSON "flush" v
+  toJSON (RequestInitChain v)  = reqResToJSON "init_chain" v
+  toJSON (RequestBeginBlock v) = reqResToJSON "begin_block" v
+  toJSON (RequestDeliverTx v)  = reqResToJSON "deliver_tx" v
+  toJSON (RequestEndBlock v)   = reqResToJSON "end_block" v
+  toJSON (RequestCommit v)     = reqResToJSON "commit" v
 
 
 instance FromJSON (Request 'MTEcho) where
-  parseJSON = fmap RequestEcho . parseJSON
+  parseJSON = reqResParseJSON "RequestEcho" "echo" RequestEcho
 instance FromJSON (Request 'MTInfo) where
-  parseJSON = fmap RequestInfo . parseJSON
+  parseJSON = reqResParseJSON "RequestInfo" "info" RequestInfo
 instance FromJSON (Request 'MTSetOption) where
-  parseJSON = fmap RequestSetOption . parseJSON
+  parseJSON = reqResParseJSON "RequestSetOption" "set_option" RequestSetOption
 instance FromJSON (Request 'MTQuery) where
-  parseJSON = fmap RequestQuery . parseJSON
+  parseJSON = reqResParseJSON "RequestQuery" "query" RequestQuery
 instance FromJSON (Request 'MTCheckTx) where
-  parseJSON = fmap RequestCheckTx . parseJSON
+  parseJSON = reqResParseJSON "RequestCheckTx" "check_tx" RequestCheckTx
 instance FromJSON (Request 'MTFlush) where
-  parseJSON = fmap RequestFlush . parseJSON
+  parseJSON = reqResParseJSON "RequestFlush" "flush" RequestFlush
 instance FromJSON (Request 'MTInitChain) where
-  parseJSON = fmap RequestInitChain . parseJSON
+  parseJSON = reqResParseJSON "RequestInitChain" "init_chain" RequestInitChain
 instance FromJSON (Request 'MTBeginBlock) where
-  parseJSON = fmap RequestBeginBlock . parseJSON
+  parseJSON = reqResParseJSON "RequestBeginBlock" "begin_block" RequestBeginBlock
 instance FromJSON (Request 'MTDeliverTx) where
-  parseJSON = fmap RequestDeliverTx . parseJSON
+  parseJSON = reqResParseJSON "RequestDeliverTx" "deliver_tx" RequestDeliverTx
 instance FromJSON (Request 'MTEndBlock) where
-  parseJSON = fmap RequestEndBlock . parseJSON
+  parseJSON = reqResParseJSON "RequestEndBlock" "end_block" RequestEndBlock
 instance FromJSON (Request 'MTCommit) where
-  parseJSON = fmap RequestCommit . parseJSON
+  parseJSON = reqResParseJSON "RequestCommit" "commit" RequestCommit
 
 
 withProto
@@ -143,41 +159,41 @@ data Response (m :: MessageType) :: * where
   ResponseException :: forall (m :: MessageType) . Response.Exception -> Response m
 
 instance ToJSON (Response (t :: MessageType)) where
-  toJSON (ResponseEcho v)       = toJSON v
-  toJSON (ResponseFlush v)      = toJSON v
-  toJSON (ResponseInfo v)       = toJSON v
-  toJSON (ResponseSetOption v)  = toJSON v
-  toJSON (ResponseInitChain v)  = toJSON v
-  toJSON (ResponseQuery v)      = toJSON v
-  toJSON (ResponseBeginBlock v) = toJSON v
-  toJSON (ResponseCheckTx v)    = toJSON v
-  toJSON (ResponseDeliverTx v)  = toJSON v
-  toJSON (ResponseEndBlock v)   = toJSON v
-  toJSON (ResponseCommit v)     = toJSON v
-  toJSON (ResponseException v)  = toJSON v
+  toJSON (ResponseEcho v)       = reqResToJSON "echo" v
+  toJSON (ResponseFlush v)      = reqResToJSON "flush" v
+  toJSON (ResponseInfo v)       = reqResToJSON "info" v
+  toJSON (ResponseSetOption v)  = reqResToJSON "set_option" v
+  toJSON (ResponseInitChain v)  = reqResToJSON "init_chain" v
+  toJSON (ResponseQuery v)      = reqResToJSON "query" v
+  toJSON (ResponseBeginBlock v) = reqResToJSON "begin_block" v
+  toJSON (ResponseCheckTx v)    = reqResToJSON "check_tx" v
+  toJSON (ResponseDeliverTx v)  = reqResToJSON "deliver_tx" v
+  toJSON (ResponseEndBlock v)   = reqResToJSON "end_block" v
+  toJSON (ResponseCommit v)     = reqResToJSON "commit" v
+  toJSON (ResponseException v)  = reqResToJSON "exception" v
 
 instance FromJSON (Response 'MTEcho) where
-  parseJSON = fmap ResponseEcho . parseJSON
+  parseJSON = reqResParseJSON "ResponseEcho" "echo" ResponseEcho
 instance FromJSON (Response 'MTFlush) where
-  parseJSON = fmap ResponseFlush . parseJSON
+  parseJSON = reqResParseJSON "ResponseFlush" "flush" ResponseFlush
 instance FromJSON (Response 'MTInfo) where
-  parseJSON = fmap ResponseInfo . parseJSON
+  parseJSON = reqResParseJSON "ResponseInfo" "info" ResponseInfo
 instance FromJSON (Response 'MTSetOption) where
-  parseJSON = fmap ResponseSetOption . parseJSON
+  parseJSON = reqResParseJSON "ResponseSetOption" "set_option" ResponseSetOption
 instance FromJSON (Response 'MTInitChain) where
-  parseJSON = fmap ResponseInitChain . parseJSON
+  parseJSON = reqResParseJSON "ResponseInitChain" "init_chain" ResponseInitChain
 instance FromJSON (Response 'MTQuery) where
-  parseJSON = fmap ResponseQuery . parseJSON
+  parseJSON = reqResParseJSON "ResponseQuery" "query" ResponseQuery
 instance FromJSON (Response 'MTBeginBlock) where
-  parseJSON = fmap ResponseBeginBlock . parseJSON
+  parseJSON = reqResParseJSON "ResponseBeginBlock" "begin_block" ResponseBeginBlock
 instance FromJSON (Response 'MTCheckTx) where
-  parseJSON = fmap ResponseCheckTx . parseJSON
+  parseJSON = reqResParseJSON "ResponseCheckTx" "check_tx" ResponseCheckTx
 instance FromJSON (Response 'MTDeliverTx) where
-  parseJSON = fmap ResponseDeliverTx . parseJSON
+  parseJSON = reqResParseJSON "ResponseDeliverTx" "deliver_tx" ResponseDeliverTx
 instance FromJSON (Response 'MTEndBlock) where
-  parseJSON = fmap ResponseEndBlock . parseJSON
+  parseJSON = reqResParseJSON "ResponseEndBlock" "end_block" ResponseEndBlock
 instance FromJSON (Response 'MTCommit) where
-  parseJSON = fmap ResponseCommit . parseJSON
+  parseJSON = reqResParseJSON "ResponseCommit" "commit" ResponseCommit
 
 instance Default (Response 'MTEcho) where
   def = ResponseEcho def
