@@ -84,3 +84,20 @@ executables:
     - -Wall
     dependencies:
     - hs-abci-example
+
+tests:
+  hs-abci-example-e2e:
+    main:                Spec.hs
+    source-dirs:         test
+    other-modules:
+    - SimpleStorage.Test.E2ESpec
+    ghc-options:
+    - -Werror
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+
+    dependencies:
+      - hspec
+      - hs-abci-example
