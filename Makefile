@@ -44,8 +44,5 @@ deploy-simple-storage-docker: install ## run the simple storage docker network
 deploy-simple-storage-local: install ## run the simple storage locally
 	stack exec simple-storage
 
-run-simple-storage: install ## Run the example simple-storage app
-	stack exec -- simple-storage
-
 test-simple-storage: install ## Run the test suite for the example application
 	stack test hs-abci-example
