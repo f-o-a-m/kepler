@@ -5,14 +5,11 @@ import           Control.Lens                         ((?~), (^.))
 import           Control.Lens.Wrapped                 (Wrapped (..),
                                                        _Unwrapped')
 import           Control.Monad                        ((>=>))
-import           Data.Text                            (Text)
-import           Data.Aeson.Types                     (Parser)
 import           Data.Aeson                           (FromJSON (..),
-                                                       withObject, object,
-                                                       Value(..),
-                                                       (.:),
-                                                       (.=),
-                                                       ToJSON (..))
+                                                       ToJSON (..), Value (..),
+                                                       object, withObject, (.:),
+                                                       (.=))
+import           Data.Aeson.Types                     (Parser)
 import           Data.Bifunctor                       (first)
 import qualified Data.ByteString                      as BS
 import           Data.Function                        ((&))
@@ -22,7 +19,7 @@ import           Data.ProtoLens.Encoding.Bytes        (getVarInt, putVarInt,
                                                        signedInt64ToWord,
                                                        wordToSignedInt64)
 import           Data.String.Conversions              (cs)
-import           Data.Text                            ()
+import           Data.Text                            (Text)
 import           Data.Traversable                     (traverse)
 import           Network.ABCI.Server.App.DecodeError  (DecodeError)
 import qualified Network.ABCI.Server.App.DecodeError  as DecodeError
@@ -51,19 +48,19 @@ data MessageType
 
 msgTypeKey :: MessageType -> String
 msgTypeKey m = case m of
-  MTEcho -> "echo"
-  MTFlush -> "flush"
-  MTInfo -> "info"
-  MTSetOption -> "setOption"
-  MTInitChain -> "initChain"
-  MTQuery -> "query"
+  MTEcho       -> "echo"
+  MTFlush      -> "flush"
+  MTInfo       -> "info"
+  MTSetOption  -> "setOption"
+  MTInitChain  -> "initChain"
+  MTQuery      -> "query"
   MTBeginBlock -> "beginBlock"
-  MTCheckTx -> "checkTx"
-  MTDeliverTx -> "deliverTx"
-  MTEndBlock -> "endBlock"
-  MTCommit -> "commit"
+  MTCheckTx    -> "checkTx"
+  MTDeliverTx  -> "deliverTx"
+  MTEndBlock   -> "endBlock"
+  MTCommit     -> "commit"
 
-reqParseJSON :: FromJSON inner => MessageType -> (inner -> (Request t)) -> Value -> Parser (Request t)
+reqParseJSON :: FromJSON inner => MessageType -> (inner -> Request t) -> Value -> Parser (Request t)
 reqParseJSON msgType ctr = withObject ("req:" <> expectedType) $ \v -> do
   actualType <- v .: "type"
   if actualType == expectedType
