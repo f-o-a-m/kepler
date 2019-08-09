@@ -1,6 +1,6 @@
 # hs-tendermint-client
 
-Client of [tendermint's RPC server](https://tendermint.com/rpc).
+A client implementation of [tendermint's RPC server](https://tendermint.com/rpc).
 
 Implemented methods:
 
