@@ -21,7 +21,7 @@ handleBeginBlock
 handleBeginBlock req = ...
 ```
 
-The application is served over TCP using `network-conduit` package, which means that ultimately your application must be run
+The application is served over TCP using `Data.Conduit.Network`, which means that ultimately your application must be run
 in `IO`. You can use the `transformApp` to compile your application to `IO`
 
 ```haskell
