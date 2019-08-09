@@ -29,6 +29,7 @@ default-extensions:
 - ScopedTypeVariables
 - FlexibleInstances
 - OverloadedStrings
+- GeneralizedNewtypeDeriving
 
 
 dependencies:

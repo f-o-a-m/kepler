@@ -8,7 +8,6 @@ import           Control.Monad.Reader   (MonadReader, ask)
 import           Data.Aeson             (FromJSON (..), ToJSON (..), Value (..),
                                          (.:), (.:?), (.=))
 import qualified Data.Aeson             as Aeson
-import qualified Data.ByteString        as B
 import qualified Data.ByteString.Lazy   as BL
 import           Data.Text              (Text, unpack)
 import qualified Network.HTTP.Simple    as HTTP
@@ -29,16 +28,26 @@ instance ToJSON Request where
     , "id"      .= rid
     ]
 
-
 -- | JSON-RPC response.
 data Response = Response
-  { rsResult :: !(Either RpcError Value)
+  { responseId     :: !Int
+  , responseResult :: !(Either RpcError Value)
   } deriving (Eq, Show)
 
 instance FromJSON Response where
-  parseJSON = Aeson.withObject "JSON-RPC response object" $ \v -> Response
-    <$> (Right <$> v .: "result" <|> Left <$> v .: "error")
+  parseJSON = Aeson.withObject "JSON-RPC response object" $ \v ->
+    Response <$> v .: "id"
+             <*> (Right <$> v .: "result" <|> Left <$> v .: "error")
 
+-- this instance is usefule for logging
+instance ToJSON Response where
+  toJSON (Response rid res) = Aeson.object
+    [ "jsonrpc" .= String "2.0"
+    , "id"      .= rid
+    , case res of
+        Left e  -> "error" .= e
+        Right r -> "result" .= r
+    ]
 
 -- | JSON-RPC error message
 data RpcError = RpcError
@@ -58,6 +67,13 @@ instance FromJSON RpcError where
     <*> v .: "message"
     <*> v .:? "data"
 
+instance ToJSON RpcError where
+  toJSON (RpcError code msg _data)= Aeson.object
+   [ "code" .= code
+   , "message" .= msg
+   , "data" .= _data
+   ]
+
 
 data JsonRpcException
   = ParsingException String
@@ -68,12 +84,17 @@ instance Exception JsonRpcException
 
 
 -- | Name of called method.
-newtype MethodName = MethodName Text deriving (Eq, Show)
+newtype MethodName = MethodName Text deriving (Eq, Show, ToJSON)
 
 
 -- | JSON-RPC client config
 data Config = Config
   { cBaseHTTPRequest :: HTTP.Request
+  -- ^ A base request used for all JSON RPC requests
+  , withRequest      :: Request -> IO ()
+  -- ^ An acion to perform before sending the 'HTTP.Request'
+  , withResponse     :: Response -> IO ()
+  -- ^ An acion to perform before handling the 'HTTP.Response'
   }
 
 remote ::
@@ -89,23 +110,26 @@ remote ::
 {-# INLINE remote #-}
 remote method input = do
   rid <- abs <$> liftIO randomIO
+  Config baseHTTPRequest withReq withResp <- ask
   let req = Request method rid (toJSON input)
-  Config baseHTTPRequest <- ask
-  response <- liftIO
-    $ HTTP.httpBS
-    $ HTTP.setRequestBodyJSON req
-    $ HTTP.setRequestHeaders [("Content-Type", "application/json")]
-    $ HTTP.setRequestMethod "POST"
-    $ baseHTTPRequest
-  decodeResponse (HTTP.getResponseBody response)
+      httpReq = HTTP.setRequestBodyJSON req
+              $ HTTP.setRequestHeaders [("Content-Type", "application/json")]
+              $ HTTP.setRequestMethod "POST"
+              $ baseHTTPRequest
+  liftIO $ do
+    withReq req
+    resp <- HTTP.httpBS httpReq
+    print resp
+    rpcResponse <- decodeRPCResponse $ HTTP.getResponseBody resp
+    withResp rpcResponse
+    extractResult rpcResponse
   where
-    decodeResponse
-      :: (MonadThrow m, FromJSON a)
-      => B.ByteString
-      -> m a
-    decodeResponse bs = case Aeson.eitherDecodeStrict bs of
-      Left err -> throwM $ ParsingException err
-      Right (Response (Left rpcError)) -> throwM $ CallException rpcError
-      Right (Response (Right resultValue)) -> case Aeson.eitherDecodeStrict $ BL.toStrict $ Aeson.encode resultValue of
-        Left err     -> throwM $ ParsingException err
-        Right result -> pure result
+    decodeRPCResponse bs = case Aeson.eitherDecodeStrict bs of
+      Left err       -> throwM $ ParsingException err
+      Right response -> pure response
+    extractResult (Response _ resp) = case resp of
+      Left rpcError -> throwM $ CallException rpcError
+      resultValue ->
+        case Aeson.eitherDecodeStrict $ BL.toStrict $ Aeson.encode resultValue of
+          Left err     -> throwM $ ParsingException err
+          Right result -> pure result
