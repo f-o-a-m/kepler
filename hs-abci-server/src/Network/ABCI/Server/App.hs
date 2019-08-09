@@ -49,25 +49,46 @@ data MessageType
   | MTEndBlock
   | MTCommit
 
-reqParseJSON :: FromJSON inner => Text -> (inner -> outer) -> Value -> Parser outer
-reqParseJSON expectedType ctr = withObject ("req:" <> cs expectedType) $ \v ->  do
+msgTypeKey :: MessageType -> String
+msgTypeKey m = case m of
+  MTEcho -> "echo"
+  MTFlush -> "flush"
+  MTInfo -> "info"
+  MTSetOption -> "setOption"
+  MTInitChain -> "initChain"
+  MTQuery -> "query"
+  MTBeginBlock -> "beginBlock"
+  MTCheckTx -> "checkTx"
+  MTDeliverTx -> "deliverTx"
+  MTEndBlock -> "endBlock"
+  MTCommit -> "commit"
+
+reqParseJSON :: FromJSON inner => MessageType -> (inner -> (Request t)) -> Value -> Parser (Request t)
+reqParseJSON msgType ctr = withObject ("req:" <> expectedType) $ \v -> do
   actualType <- v .: "type"
   if actualType == expectedType
     then ctr <$> v .: "message"
     else fail $ "expected `type` to equal: " <> show expectedType <> ", but got: " <> show actualType
+  where
+    expectedType = msgTypeKey msgType
 
-resParseJSON :: FromJSON inner => Text -> (inner -> Response t) -> Value -> Parser (Response t)
-resParseJSON expectedType ctr = withObject ("res:" <> cs expectedType) $ \v ->  do
+resParseJSON :: FromJSON inner => MessageType -> (inner -> Response t) -> Value -> Parser (Response t)
+resParseJSON msgType ctr = withObject ("res:" <> expectedType) $ \v -> do
   actualType <- v .: "type"
   if actualType == "exception"
     then ResponseException <$> v .: "message"
   else if actualType == expectedType
     then ctr <$> v .: "message"
     else fail $ "expected `type` to equal: " <> show expectedType <> ", but got: " <> show actualType
+  where
+    expectedType = msgTypeKey msgType
 
-reqResToJSON :: ToJSON inner => Text -> inner -> Value
-reqResToJSON typeName message = object
-  [ "type" .= String typeName, "message" .= toJSON message]
+reqResToJSON :: ToJSON inner => MessageType -> inner -> Value
+reqResToJSON msgType message = reqResToJSON' (cs $ msgTypeKey msgType) message
+
+reqResToJSON' :: ToJSON inner => Text -> inner -> Value
+reqResToJSON' msgType message = object
+  [ "type" .= String msgType, "message" .= toJSON message]
 
 --------------------------------------------------------------------------------
 -- Request
@@ -95,41 +116,30 @@ data Request (m :: MessageType) :: * where
   RequestCommit :: Request.Commit -> Request 'MTCommit
 
 instance ToJSON (Request (t :: MessageType)) where
-  toJSON (RequestEcho v)       = reqResToJSON "echo" v
-  toJSON (RequestInfo v)       = reqResToJSON "info" v
-  toJSON (RequestSetOption v)  = reqResToJSON "set_option" v
-  toJSON (RequestQuery v)      = reqResToJSON "query" v
-  toJSON (RequestCheckTx v)    = reqResToJSON "check_tx" v
-  toJSON (RequestFlush v)      = reqResToJSON "flush" v
-  toJSON (RequestInitChain v)  = reqResToJSON "init_chain" v
-  toJSON (RequestBeginBlock v) = reqResToJSON "begin_block" v
-  toJSON (RequestDeliverTx v)  = reqResToJSON "deliver_tx" v
-  toJSON (RequestEndBlock v)   = reqResToJSON "end_block" v
-  toJSON (RequestCommit v)     = reqResToJSON "commit" v
+  toJSON (RequestEcho v)       = reqResToJSON MTEcho v
+  toJSON (RequestInfo v)       = reqResToJSON MTInfo v
+  toJSON (RequestSetOption v)  = reqResToJSON MTSetOption v
+  toJSON (RequestQuery v)      = reqResToJSON MTQuery v
+  toJSON (RequestCheckTx v)    = reqResToJSON MTCheckTx v
+  toJSON (RequestFlush v)      = reqResToJSON MTFlush v
+  toJSON (RequestInitChain v)  = reqResToJSON MTInitChain v
+  toJSON (RequestBeginBlock v) = reqResToJSON MTBeginBlock v
+  toJSON (RequestDeliverTx v)  = reqResToJSON MTDeliverTx v
+  toJSON (RequestEndBlock v)   = reqResToJSON MTEndBlock v
+  toJSON (RequestCommit v)     = reqResToJSON MTCommit v
 
 
-instance FromJSON (Request 'MTEcho) where
-  parseJSON = reqParseJSON "echo" RequestEcho
-instance FromJSON (Request 'MTInfo) where
-  parseJSON = reqParseJSON "info" RequestInfo
-instance FromJSON (Request 'MTSetOption) where
-  parseJSON = reqParseJSON "set_option" RequestSetOption
-instance FromJSON (Request 'MTQuery) where
-  parseJSON = reqParseJSON "query" RequestQuery
-instance FromJSON (Request 'MTCheckTx) where
-  parseJSON = reqParseJSON "check_tx" RequestCheckTx
-instance FromJSON (Request 'MTFlush) where
-  parseJSON = reqParseJSON "flush" RequestFlush
-instance FromJSON (Request 'MTInitChain) where
-  parseJSON = reqParseJSON "init_chain" RequestInitChain
-instance FromJSON (Request 'MTBeginBlock) where
-  parseJSON = reqParseJSON "begin_block" RequestBeginBlock
-instance FromJSON (Request 'MTDeliverTx) where
-  parseJSON = reqParseJSON "deliver_tx" RequestDeliverTx
-instance FromJSON (Request 'MTEndBlock) where
-  parseJSON = reqParseJSON "end_block" RequestEndBlock
-instance FromJSON (Request 'MTCommit) where
-  parseJSON = reqParseJSON "commit" RequestCommit
+instance FromJSON (Request 'MTEcho) where parseJSON = reqParseJSON MTEcho RequestEcho
+instance FromJSON (Request 'MTInfo) where parseJSON = reqParseJSON MTInfo RequestInfo
+instance FromJSON (Request 'MTSetOption) where parseJSON = reqParseJSON MTSetOption RequestSetOption
+instance FromJSON (Request 'MTQuery) where parseJSON = reqParseJSON MTQuery RequestQuery
+instance FromJSON (Request 'MTCheckTx) where parseJSON = reqParseJSON MTCheckTx RequestCheckTx
+instance FromJSON (Request 'MTFlush) where parseJSON = reqParseJSON MTFlush RequestFlush
+instance FromJSON (Request 'MTInitChain) where parseJSON = reqParseJSON MTInitChain RequestInitChain
+instance FromJSON (Request 'MTBeginBlock) where parseJSON = reqParseJSON MTBeginBlock RequestBeginBlock
+instance FromJSON (Request 'MTDeliverTx) where parseJSON = reqParseJSON MTDeliverTx RequestDeliverTx
+instance FromJSON (Request 'MTEndBlock) where parseJSON = reqParseJSON MTEndBlock RequestEndBlock
+instance FromJSON (Request 'MTCommit) where parseJSON = reqParseJSON MTCommit RequestCommit
 
 
 withProto
@@ -168,64 +178,42 @@ data Response (m :: MessageType) :: * where
   ResponseException :: forall (m :: MessageType) . Response.Exception -> Response m
 
 instance ToJSON (Response (t :: MessageType)) where
-  toJSON (ResponseEcho v)       = reqResToJSON "echo" v
-  toJSON (ResponseFlush v)      = reqResToJSON "flush" v
-  toJSON (ResponseInfo v)       = reqResToJSON "info" v
-  toJSON (ResponseSetOption v)  = reqResToJSON "set_option" v
-  toJSON (ResponseInitChain v)  = reqResToJSON "init_chain" v
-  toJSON (ResponseQuery v)      = reqResToJSON "query" v
-  toJSON (ResponseBeginBlock v) = reqResToJSON "begin_block" v
-  toJSON (ResponseCheckTx v)    = reqResToJSON "check_tx" v
-  toJSON (ResponseDeliverTx v)  = reqResToJSON "deliver_tx" v
-  toJSON (ResponseEndBlock v)   = reqResToJSON "end_block" v
-  toJSON (ResponseCommit v)     = reqResToJSON "commit" v
-  toJSON (ResponseException v)  = reqResToJSON "exception" v
+  toJSON (ResponseEcho v)       = reqResToJSON MTEcho v
+  toJSON (ResponseFlush v)      = reqResToJSON MTFlush v
+  toJSON (ResponseInfo v)       = reqResToJSON MTInfo v
+  toJSON (ResponseSetOption v)  = reqResToJSON MTSetOption v
+  toJSON (ResponseInitChain v)  = reqResToJSON MTInitChain v
+  toJSON (ResponseQuery v)      = reqResToJSON MTQuery v
+  toJSON (ResponseBeginBlock v) = reqResToJSON MTBeginBlock v
+  toJSON (ResponseCheckTx v)    = reqResToJSON MTCheckTx v
+  toJSON (ResponseDeliverTx v)  = reqResToJSON MTDeliverTx v
+  toJSON (ResponseEndBlock v)   = reqResToJSON MTEndBlock v
+  toJSON (ResponseCommit v)     = reqResToJSON MTCommit v
+  toJSON (ResponseException v)  = reqResToJSON' "exception" v
 
-instance FromJSON (Response 'MTEcho) where
-  parseJSON = resParseJSON "echo" ResponseEcho
-instance FromJSON (Response 'MTFlush) where
-  parseJSON = resParseJSON "flush" ResponseFlush
-instance FromJSON (Response 'MTInfo) where
-  parseJSON = resParseJSON "info" ResponseInfo
-instance FromJSON (Response 'MTSetOption) where
-  parseJSON = resParseJSON "set_option" ResponseSetOption
-instance FromJSON (Response 'MTInitChain) where
-  parseJSON = resParseJSON "init_chain" ResponseInitChain
-instance FromJSON (Response 'MTQuery) where
-  parseJSON = resParseJSON "query" ResponseQuery
-instance FromJSON (Response 'MTBeginBlock) where
-  parseJSON = resParseJSON "begin_block" ResponseBeginBlock
-instance FromJSON (Response 'MTCheckTx) where
-  parseJSON = resParseJSON "check_tx" ResponseCheckTx
-instance FromJSON (Response 'MTDeliverTx) where
-  parseJSON = resParseJSON "deliver_tx" ResponseDeliverTx
-instance FromJSON (Response 'MTEndBlock) where
-  parseJSON = resParseJSON "end_block" ResponseEndBlock
-instance FromJSON (Response 'MTCommit) where
-  parseJSON = resParseJSON "commit" ResponseCommit
+instance FromJSON (Response 'MTEcho) where parseJSON = resParseJSON MTEcho ResponseEcho
+instance FromJSON (Response 'MTFlush) where parseJSON = resParseJSON MTFlush ResponseFlush
+instance FromJSON (Response 'MTInfo) where parseJSON = resParseJSON MTInfo ResponseInfo
+instance FromJSON (Response 'MTSetOption) where parseJSON = resParseJSON MTSetOption ResponseSetOption
+instance FromJSON (Response 'MTInitChain) where parseJSON = resParseJSON MTInitChain ResponseInitChain
+instance FromJSON (Response 'MTQuery) where parseJSON = resParseJSON MTQuery ResponseQuery
+instance FromJSON (Response 'MTBeginBlock) where parseJSON = resParseJSON MTBeginBlock ResponseBeginBlock
+instance FromJSON (Response 'MTCheckTx) where parseJSON = resParseJSON MTCheckTx ResponseCheckTx
+instance FromJSON (Response 'MTDeliverTx) where parseJSON = resParseJSON MTDeliverTx ResponseDeliverTx
+instance FromJSON (Response 'MTEndBlock) where parseJSON = resParseJSON MTEndBlock ResponseEndBlock
+instance FromJSON (Response 'MTCommit) where parseJSON = resParseJSON MTCommit ResponseCommit
 
-instance Default (Response 'MTEcho) where
-  def = ResponseEcho def
-instance Default (Response 'MTFlush) where
-  def = ResponseFlush def
-instance Default (Response 'MTInfo) where
-  def = ResponseInfo def
-instance Default (Response 'MTSetOption) where
-  def = ResponseSetOption def
-instance Default (Response 'MTInitChain) where
-  def = ResponseInitChain def
-instance Default (Response 'MTQuery) where
-  def = ResponseQuery def
-instance Default (Response 'MTBeginBlock) where
-  def = ResponseBeginBlock def
-instance Default (Response 'MTCheckTx) where
-  def = ResponseCheckTx def
-instance Default (Response 'MTDeliverTx) where
-  def = ResponseDeliverTx def
-instance Default (Response 'MTEndBlock) where
-  def = ResponseEndBlock def
-instance Default (Response 'MTCommit) where
-  def = ResponseCommit def
+instance Default (Response 'MTEcho) where def = ResponseEcho def
+instance Default (Response 'MTFlush) where def = ResponseFlush def
+instance Default (Response 'MTInfo) where def = ResponseInfo def
+instance Default (Response 'MTSetOption) where def = ResponseSetOption def
+instance Default (Response 'MTInitChain) where def = ResponseInitChain def
+instance Default (Response 'MTQuery) where def = ResponseQuery def
+instance Default (Response 'MTBeginBlock) where def = ResponseBeginBlock def
+instance Default (Response 'MTCheckTx) where def = ResponseCheckTx def
+instance Default (Response 'MTDeliverTx) where def = ResponseDeliverTx def
+instance Default (Response 'MTEndBlock) where def = ResponseEndBlock def
+instance Default (Response 'MTCommit) where def = ResponseCommit def
 
 -- | Translates type-safe 'Response' GADT to the unsafe
 --   auto-generated 'Proto.Response'
