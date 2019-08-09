@@ -38,6 +38,8 @@ instance ToJSON HexString where
     toJSON = String . toText
 
 -- | Smart constructor which trims '0x' and validates length is even.
+--   Works with any mixed casing of characters:
+--   `hexString "0xAA" == hexString "0xAa" == hexString "0xaA" == hexString "0xaa"`
 hexString :: ByteArray ba => ba -> Either String HexString
 hexString bs = HexString <$> convertFromBase Base16 bs'
   where

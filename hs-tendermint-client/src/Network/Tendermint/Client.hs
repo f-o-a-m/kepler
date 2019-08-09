@@ -31,35 +31,35 @@ defaultConfig = RPC.Config
   $ HTTP.setRequestPort 26657
   $ HTTP.defaultRequest
 
-
+-- | invokes [/abci_info](https://tendermint.com/rpc/#abciinfo) rpc call
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/abci.go#L100
 abciInfo :: TendermintM ResultABCIInfo
 abciInfo = RPC.remote (RPC.MethodName "abci_info") ()
-
+-- | invokes [/health](https://tendermint.com/rpc/#health) rpc call
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/health.go#L35
 health :: TendermintM ResultHealth
 health = RPC.remote (RPC.MethodName "health") ()
-
+-- | invokes [/abci_query](https://tendermint.com/rpc/#abciquery) rpc call
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/abci.go#L56
 abciQuery :: RequestABCIQuery -> TendermintM ResultABCIQuery
 abciQuery = RPC.remote (RPC.MethodName "abci_query")
-
+-- | invokes [/block](https://tendermint.com/rpc/#block) rpc call
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/blocks.go#L72
 block :: RequestBlock -> TendermintM ResultBlock
 block = RPC.remote (RPC.MethodName "block")
-
+-- | invokes [/tx](https://tendermint.com/rpc/#tx) rpc call
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/tx.go#L81
 tx :: RequestTx -> TendermintM ResultTx
 tx = RPC.remote (RPC.MethodName "tx")
-
+-- | invokes [/broadcast_tx_async](https://tendermint.com/rpc/#broadcasttxasync) rpc call
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L75
 broadcastTxAsync :: RequestBroadcastTxAsync -> TendermintM ResultBroadcastTx
 broadcastTxAsync = RPC.remote (RPC.MethodName "broadcast_tx_async")
-
+-- | invokes [/broadcast_tx_sync](https://tendermint.com/rpc/#broadcasttxsync) rpc call
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L136
 broadcastTxSync :: RequestBroadcastTxSync -> TendermintM ResultBroadcastTx
 broadcastTxSync = RPC.remote (RPC.MethodName "broadcast_tx_sync")
-
+-- | invokes [/broadcast_tx_commit](https://tendermint.com/rpc/#broadcasttxcommit) rpc call
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L215
 broadcastTxCommit :: RequestBroadcastTxCommit -> TendermintM ResultBroadcastTxCommit
 broadcastTxCommit = RPC.remote (RPC.MethodName "broadcast_tx_commit")

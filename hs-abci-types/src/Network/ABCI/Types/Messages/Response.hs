@@ -3,8 +3,8 @@
 module Network.ABCI.Types.Messages.Response where
 
 import           Control.Lens                           (iso, traverse, (&),
-                                                         (.~), (^.),
-                                                         (^..), (^?), _Just)
+                                                         (.~), (^.), (^..),
+                                                         (^?), _Just)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
 import           Data.Aeson                             (FromJSON (..),
