@@ -6,15 +6,15 @@ module Network.ABCI.Server.Middleware.RequestLogger
     , mkRequestLogger
     , mkRequestLoggerM
     ) where
-
 import           Control.Lens            (at, (?~))
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import qualified Data.Aeson              as A
+import qualified Data.HashMap.Strict     as H
+import           Data.Text               (Text)
 import           Katip
 import           Network.ABCI.Server.App (App (..), MessageType, Middleware,
                                           Request (..))
 import           System.IO               (stdout)
-
 ---------------------------------------------------------------------------
 -- Types
 ---------------------------------------------------------------------------
@@ -22,23 +22,21 @@ import           System.IO               (stdout)
 newtype Loggable a = Loggable a
 
 instance ToObject (Loggable (Request (t :: MessageType))) where
-  toObject (Loggable v) = case A.toJSON v of
-    A.Object o -> addMessageType v o
-    -- unreachable case
-    _          ->  mempty
-   where
-    addMessageType :: forall t. Request (t :: MessageType) -> A.Object -> A.Object
-    addMessageType (RequestEcho _) o       = at "message_type" ?~ A.String "echo" $ o
-    addMessageType (RequestFlush _) o      = at "message_type" ?~ A.String "flush" $ o
-    addMessageType (RequestInfo _) o       = at "message_type" ?~ A.String "info" $ o
-    addMessageType (RequestSetOption _) o  = at "message_type" ?~ A.String "set_option" $ o
-    addMessageType (RequestInitChain _) o  = at "message_type" ?~ A.String "init_chain" $ o
-    addMessageType (RequestQuery _) o      = at "message_type" ?~ A.String "query" $ o
-    addMessageType (RequestBeginBlock _) o = at "message_type" ?~ A.String "begin_block" $ o
-    addMessageType (RequestCheckTx _) o    = at "message_type" ?~ A.String "check_tx" $ o
-    addMessageType (RequestDeliverTx _) o  = at "message_type" ?~ A.String "deliver_tx" $ o
-    addMessageType (RequestEndBlock _) o   = at "message_type" ?~ A.String "end_block" $ o
-    addMessageType (RequestCommit _) o     = at "message_type" ?~ A.String "commit" $ o
+  toObject (Loggable v) =
+    H.fromList ["type" A..= A.String (toMsgType v), "message" A..= A.toJSON v]
+    where
+      toMsgType :: forall t. Request (t :: MessageType) -> Text
+      toMsgType (RequestEcho _)       = "echo"
+      toMsgType (RequestFlush _)      = "flush"
+      toMsgType (RequestInfo _)       = "info"
+      toMsgType (RequestSetOption _)  = "set_option"
+      toMsgType (RequestInitChain _)  = "init_chain"
+      toMsgType (RequestQuery _)      = "query"
+      toMsgType (RequestBeginBlock _) = "begin_block"
+      toMsgType (RequestCheckTx _)    = "check_tx"
+      toMsgType (RequestDeliverTx _)  = "deliver_tx"
+      toMsgType (RequestEndBlock _)   = "end_block"
+      toMsgType (RequestCommit _)     = "commit"
 
 instance LogItem (Loggable (Request (t :: MessageType))) where
   payloadKeys V0 _ = SomeKeys ["message_type"]

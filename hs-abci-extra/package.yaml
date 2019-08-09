@@ -25,6 +25,7 @@ dependencies:
 - hs-abci-server
 - aeson
 - aeson-casing
+- unordered-containers
 - memory
 - text
 - lens
