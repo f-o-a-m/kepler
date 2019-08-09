@@ -76,9 +76,6 @@ data Config = Config
   { cBaseHTTPRequest :: HTTP.Request
   }
 
-defaultConfig :: Config
-defaultConfig = Config HTTP.defaultRequest
-
 remote ::
   ( MonadIO m
   , MonadThrow m

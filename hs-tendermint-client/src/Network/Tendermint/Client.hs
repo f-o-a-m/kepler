@@ -1,4 +1,9 @@
-module Network.Tendermint.Client where
+module Network.Tendermint.Client
+  ( module Network.Tendermint.Client
+
+  -- * ReExports
+  , RPC.Config(..)
+  ) where
 
 import           Control.Monad.Reader                         (ReaderT,
                                                                runReaderT)
@@ -11,6 +16,8 @@ import           Data.Aeson.Casing                            (aesonDrop,
                                                                pascalCase,
                                                                snakeCase)
 import           Data.ByteArray.HexString                     (HexString)
+import           Data.ByteString                              (ByteString)
+import           Data.Default.Class                           (Default (..))
 import           Data.Int                                     (Int64)
 import           Data.Text                                    (Text)
 import           Data.Word                                    (Word32)
@@ -20,15 +27,22 @@ import qualified Network.ABCI.Types.Messages.Response         as Response
 import qualified Network.HTTP.Simple                          as HTTP
 import qualified Network.Tendermint.Client.Internal.RPCClient as RPC
 
+
 type TendermintM a = ReaderT RPC.Config IO a
 
+-- | Execute an RPC request with the given configuration.
 runTendermintM :: RPC.Config -> TendermintM a -> IO a
 runTendermintM = flip runReaderT
 
-defaultConfig :: RPC.Config
-defaultConfig = RPC.Config
-  $ HTTP.setRequestHost "localhost"
-  $ HTTP.setRequestPort 26657
+defaultConfig
+  :: ByteString
+  -- ^ Hostname or IP (e.g. "localhost", "127.0.0.1", "151.101.208.68")
+  -> Int
+  -- ^ Port
+  -> RPC.Config
+defaultConfig host port = RPC.Config
+  $ HTTP.setRequestHost host
+  $ HTTP.setRequestPort port
   $ HTTP.defaultRequest
 
 -- | invokes [/abci_info](https://tendermint.com/rpc/#abciinfo) rpc call
@@ -73,13 +87,22 @@ defaultRPCOptions prefix = aesonDrop (length prefix) snakeCase
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/abci.go#L56
 data RequestABCIQuery = RequestABCIQuery
-  { requestABCIQueryPath   :: Text
+  { requestABCIQueryPath   :: Maybe Text
   , requestABCIQueryData   :: HexString
-  , requestABCIQueryHeight :: Int64
+  , requestABCIQueryHeight :: Maybe Int64
   , requestABCIQueryProve  :: Bool
   } deriving (Eq, Show, Generic)
 instance ToJSON RequestABCIQuery where
   toJSON = genericToJSON $ defaultRPCOptions "requestABCIQuery"
+
+instance Default RequestABCIQuery where
+  def =
+    RequestABCIQuery
+      { requestABCIQueryPath = Nothing
+      , requestABCIQueryData = ""
+      , requestABCIQueryHeight = Nothing
+      , requestABCIQueryProve = False
+      }
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/blocks.go#L72
 data RequestBlock = RequestBlock
@@ -88,13 +111,26 @@ data RequestBlock = RequestBlock
 instance ToJSON RequestBlock where
   toJSON = genericToJSON $ defaultRPCOptions "requestBlock"
 
+instance Default RequestBlock where
+  def =
+    RequestBlock
+      { requestBlockHeightPtr = Nothing
+      }
+
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/tx.go#L81
 data RequestTx = RequestTx
-  { requestTxHash  :: HexString
+  { requestTxHash  :: Maybe HexString
   , requestTxProve :: Bool
   } deriving (Eq, Show, Generic)
 instance ToJSON RequestTx where
   toJSON = genericToJSON $ defaultRPCOptions "requestTx"
+
+instance Default RequestTx where
+  def =
+    RequestTx
+      { requestTxHash = Nothing
+      , requestTxProve = False
+      }
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L75
 data RequestBroadcastTxAsync = RequestBroadcastTxAsync
@@ -119,7 +155,11 @@ instance ToJSON RequestBroadcastTxCommit where
 
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L208
-type ResultHealth = ()
+data ResultHealth = ResultHealth deriving (Eq, Show)
+
+instance FromJSON ResultHealth where
+  parseJSON = Aeson.withObject "Expected emptyObject" $ \_ ->
+    pure ResultHealth
 
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L188
