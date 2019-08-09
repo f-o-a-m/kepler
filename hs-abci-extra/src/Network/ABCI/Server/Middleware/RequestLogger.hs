@@ -22,24 +22,12 @@ import           System.IO               (stdout)
 newtype Loggable a = Loggable a
 
 instance ToObject (Loggable (Request (t :: MessageType))) where
-  toObject (Loggable v) =
-    H.fromList ["type" A..= A.String (toMsgType v), "message" A..= A.toJSON v]
-    where
-      toMsgType :: forall t. Request (t :: MessageType) -> Text
-      toMsgType (RequestEcho _)       = "echo"
-      toMsgType (RequestFlush _)      = "flush"
-      toMsgType (RequestInfo _)       = "info"
-      toMsgType (RequestSetOption _)  = "set_option"
-      toMsgType (RequestInitChain _)  = "init_chain"
-      toMsgType (RequestQuery _)      = "query"
-      toMsgType (RequestBeginBlock _) = "begin_block"
-      toMsgType (RequestCheckTx _)    = "check_tx"
-      toMsgType (RequestDeliverTx _)  = "deliver_tx"
-      toMsgType (RequestEndBlock _)   = "end_block"
-      toMsgType (RequestCommit _)     = "commit"
+  toObject (Loggable v) = case A.toJSON v of
+      A.Object o -> o
+      _          -> error "Contract violation: `toJSON` of any `Request t` must result with json object"
 
 instance LogItem (Loggable (Request (t :: MessageType))) where
-  payloadKeys V0 _ = SomeKeys ["message_type"]
+  payloadKeys V0 _ = SomeKeys ["type"]
   payloadKeys _ _  = AllKeys
 
 ---------------------------------------------------------------------------
