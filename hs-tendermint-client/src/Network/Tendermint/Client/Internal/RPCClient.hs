@@ -5,10 +5,10 @@ import           Control.Exception      (Exception)
 import           Control.Monad.Catch    (MonadThrow, throwM)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Control.Monad.Reader   (MonadReader, ask)
-import           Data.Aeson             (FromJSON (..), ToJSON (..), Value (..),
+import           Data.Aeson             (FromJSON (..), Result (..),
+                                         ToJSON (..), Value (..), fromJSON,
                                          (.:), (.:?), (.=))
 import qualified Data.Aeson             as Aeson
-import qualified Data.ByteString.Lazy   as BL
 import           Data.Text              (Text, unpack)
 import qualified Network.HTTP.Simple    as HTTP
 import           System.Random          (randomIO)
@@ -119,7 +119,6 @@ remote method input = do
   liftIO $ do
     withReq req
     resp <- HTTP.httpBS httpReq
-    print resp
     rpcResponse <- decodeRPCResponse $ HTTP.getResponseBody resp
     withResp rpcResponse
     extractResult rpcResponse
@@ -129,7 +128,7 @@ remote method input = do
       Right response -> pure response
     extractResult (Response _ resp) = case resp of
       Left rpcError -> throwM $ CallException rpcError
-      resultValue ->
-        case Aeson.eitherDecodeStrict $ BL.toStrict $ Aeson.encode resultValue of
-          Left err     -> throwM $ ParsingException err
-          Right result -> pure result
+      Right resultValue ->
+        case fromJSON resultValue of
+          Error err      -> throwM $ ParsingException err
+          Success result -> pure result
