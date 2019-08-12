@@ -92,6 +92,7 @@ tests:
     source-dirs:         test
     other-modules:
     - SimpleStorage.Test.E2ESpec
+    - SimpleStorage.Test.HandlersSpec
     ghc-options:
     - -Werror
     - -Wall

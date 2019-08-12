@@ -14,16 +14,16 @@ import qualified Network.Tendermint.Client            as RPC
 import           Test.Hspec
 
 
-
 spec :: Spec
 spec = do
-  describe "SimpleStorage E2E" $ do
+  describe "SimpleStorage E2E - via hs-tendermint-client" $ do
 
---    it "Can query /health to make sure the node is alive" $ do
---      resp <- runRPC RPC.health
---      resp `shouldBe` RPC.ResultHealth
+    it "Can query /health to make sure the node is alive" $ do
+      resp <- runRPC RPC.health
+      resp `shouldBe` RPC.ResultHealth
 
     it "Can query the initial count and make sure it's 0" $ do
+      pendingWith "Pending hs-tendermint-client resolution."
       let queryReq =
             def { RPC.requestABCIQueryPath = Just "count"
                 }
