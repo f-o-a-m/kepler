@@ -107,3 +107,4 @@ tests:
       - hs-abci-types
       - hs-tendermint-client
       - hspec
+      - QuickCheck
