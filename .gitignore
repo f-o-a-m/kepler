@@ -1,3 +1,6 @@
 .stack-work/
 *.cabal
 *~
+
+# nix
+result-*
