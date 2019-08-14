@@ -1,10 +1,10 @@
 # hs-abci-server
 
-The `hs-abci-server` package defines the types and methods for serving an ACBI application. See 
+The `hs-abci-server` package defines the types and methods for serving an ABCI application. See
 the [example application](https://github.com/f-o-a-m/hs-abci/tree/master/hs-abci-example) as a guide for how you can use this package.
 
 ## Application types
-The applicaction type `App m` is defined as a newtype
+The application type `App m` is defined as a newtype
 
 ```haskell
 newtype App m = App m
