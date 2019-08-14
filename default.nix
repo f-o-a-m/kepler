@@ -33,36 +33,73 @@ let
 
   addBuildInputs = inputs: { buildInputs ? [], ... }: { buildInputs = inputs ++ buildInputs; };
 
+  overrides = self: super:
+    let
+      callHackageDirect = {pkg, ver, sha256}@args:
+        let pkgver = "${pkg}-${ver}";
+        in self.callCabal2nix pkg (pkgs.fetchzip {
+          url = "http://hackage.haskell.org/package/${pkgver}/${pkgver}.tar.gz";
+          inherit sha256;
+        }) {};
+    in {
+      proto-lens = callHackageDirect {
+        pkg = "proto-lens";
+        ver = "0.5.0.1";
+        sha256 = "1730b7p7yhp60spbmgflikkx98smfarz7h7wzrpric5pj7si6x44";
+      };
+      proto-lens-protoc = callHackageDirect {
+        pkg = "proto-lens-protoc";
+        ver = "0.5.0.0";
+        sha256 = "05g9kdmwcv216l90w6r47hbmn0yx35w7lbj41gxrnha8axjzrxrq";
+      };
+      proto-lens-runtime = callHackageDirect {
+        pkg = "proto-lens-runtime";
+        ver = "0.5.0.0";
+        sha256 = "15prbfk10xkb2q5ij5dajbcjwgbkw26h34i330kf3867h0mprs08";
+      };
+      proto-lens-setup = callHackageDirect {
+        pkg = "proto-lens-setup";
+        ver = "0.4.0.2";
+        sha256 = "17lhdp6pcpk2ifcmnafr39150740ayjnyfbwvjc8wvbmlrd47d1n";
+      };
+      proto-lens-arbitrary = callHackageDirect {
+        pkg = "proto-lens-arbitrary";
+        ver = "0.1.2.6";
+        sha256 = "17hksng65gdyg0rabv5xnfgwdv1vsq7sph3fwyq9wmgfk4dzxf3r";
+      };
+
+      # dependency of avl-auth
+      # marked as broken, fails with some `ld` error
+      xxhash =
+        let
+          # from recent nixpkgs
+          unmarkBroken = drv: pkgs.haskell.lib.overrideCabal drv (drv: { broken = false; });
+        in
+          unmarkBroken super.xxhash;
+    };
+
   config = {
     packageOverrides = pkgs: {
       haskellPackages = pkgs.haskellPackages.override {
         overrides = pkgs.lib.foldr pkgs.lib.composeExtensions (_: _: {}) [
+          overrides
           (self: super: builtins.mapAttrs (name: path: (self.callCabal2nix name path {})) (repoPackages // packages))
           (self: super: builtins.mapAttrs (name: deps: super.${name}.overrideAttrs (addBuildInputs deps)) extra-build-inputs)
-          (self: super: {
-            proto-lens = super.proto-lens_0_5_0_1;
-            proto-lens-protoc = super.proto-lens-protoc_0_5_0_0;
-            proto-lens-runtime = super.proto-lens-runtime_0_5_0_0;
-
-            # dependency of avl-auth
-            # marked as broken, fails with some `ld` error
-            xxhash =
-              let
-                # from recent nixpkgs
-                unmarkBroken = drv: pkgs.haskell.lib.overrideCabal drv (drv: { broken = false; });
-              in
-                unmarkBroken super.xxhash;
-          })
         ];
       };
     };
   };
 
-in { inherit (pkgs.haskellPackages)
-       #hs-abci-example
-       hs-abci-extra
-       hs-abci-server
-       hs-abci-types
-       hs-tendermint-client
-     ;
-   }
+in {
+  inherit overrides;
+
+  packages = {
+    inherit (pkgs.haskellPackages)
+      #hs-abci-example
+      hs-abci-extra
+      hs-abci-server
+      hs-abci-types
+      hs-tendermint-client
+    ;
+  };
+}
