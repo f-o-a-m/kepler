@@ -27,3 +27,4 @@ script:
 - if [ "$TRAVIS_BRANCH" == "master" ]; then make stylish && git diff-index --quiet HEAD; fi
 
 - make test-libraries
+- make test-simple-storage-handlers
