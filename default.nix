@@ -33,7 +33,7 @@ let
 
   addBuildInputs = inputs: { buildInputs ? [], ... }: { buildInputs = inputs ++ buildInputs; };
 
-  overrides = self: super:
+  hackageOverrides = self: super:
     let
       callHackageDirect = {pkg, ver, sha256}@args:
         let pkgver = "${pkg}-${ver}";
@@ -78,13 +78,25 @@ let
           unmarkBroken super.xxhash;
     };
 
+  localOverrides = self: super:
+    builtins.mapAttrs (name: path: (self.callCabal2nix name path {})) packages;
+
+  repoOverrides = self: super:
+    builtins.mapAttrs (name: path: (self.callCabal2nix name path {})) repoPackages;
+
+  overrides = self: super:
+    let allOverrides =
+          hackageOverrides self super
+          // repoOverrides self super
+          // localOverrides self super;
+    in
+      builtins.mapAttrs (name: pkg: pkg.overrideAttrs (addBuildInputs (extra-build-inputs.${name} or []))) allOverrides;
+
   config = {
     packageOverrides = pkgs: {
       haskellPackages = pkgs.haskellPackages.override {
         overrides = pkgs.lib.foldr pkgs.lib.composeExtensions (_: _: {}) [
           overrides
-          (self: super: builtins.mapAttrs (name: path: (self.callCabal2nix name path {})) (repoPackages // packages))
-          (self: super: builtins.mapAttrs (name: deps: super.${name}.overrideAttrs (addBuildInputs deps)) extra-build-inputs)
         ];
       };
     };
