@@ -23,7 +23,7 @@ newtype HexString = HexString { unHexString :: ByteString }
   deriving (Eq, Ord, Semigroup, Monoid, ByteArrayAccess, ByteArray)
 
 instance Show HexString where
-    show = ("HexString " ++) . show . toText
+    show = ("HexString " ++) . show . format
 
 instance IsString HexString where
     fromString = hexString' . fromString
@@ -57,4 +57,8 @@ toBytes = convert . unHexString
 
 -- | Access to a 'Text' representation of the 'HexString'
 toText :: HexString -> Text
-toText = ("0x" <>) . decodeUtf8 . convertToBase Base16 . unHexString
+toText = decodeUtf8 . convertToBase Base16 . unHexString
+
+-- | Access to a 'Text' representation of the 'HexString'
+format :: HexString -> Text
+format a = "0x" <> toText a
