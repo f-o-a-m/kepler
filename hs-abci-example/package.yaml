@@ -26,6 +26,12 @@ default-extensions:
   - ScopedTypeVariables
   - TupleSections
   - LambdaCase
+  - GADTs
+  - TypeOperators
+  - FlexibleInstances
+  - MultiParamTypeClasses
+  - DefaultSignatures
+  - FunctionalDependencies
 
 
 dependencies:
@@ -45,6 +51,7 @@ dependencies:
 - proto-lens
 - proto-lens-runtime
 - stm
+- string-conversions
 - text
 
 custom-setup:

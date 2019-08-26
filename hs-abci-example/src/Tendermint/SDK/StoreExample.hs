@@ -66,5 +66,8 @@ instance StoreKey User UserKey where
 
 type UserStore = Store '[User] AuthTreeHash IO
 
-putUser :: User -> UserStore -> IO ()
+putUser
+  :: User
+  -> UserStore
+  -> IO ()
 putUser user@User{userAddress} store = put (UserKey userAddress) user store

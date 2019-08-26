@@ -27,7 +27,7 @@ class HasRootKey a where
     default rootKey :: KnownSymbol (RootKey a) => Proxy a -> BS.ByteString
     rootKey _ = cs $ symbolVal (Proxy :: Proxy (RootKey a))
 
-class StoreKey a k | k -> a where
+class HasRootKey a => StoreKey a k | k -> a where
     makeRawStoreKey :: Proxy a -> k -> BS.ByteString
 
 data Store contents hash m = Store
@@ -37,8 +37,7 @@ data Store contents hash m = Store
 
 mkKey
   :: forall a k.
-     HasRootKey a
-  => StoreKey a k
+     StoreKey a k
   => k
   -> BS.ByteString
 mkKey k = 
@@ -54,7 +53,6 @@ root Store{storeRawStore} = rawStoreRoot storeRawStore
 put
   :: forall a k contents hash m.
      HasCodec a contents
-  => HasRootKey a
   => StoreKey a k
   => k
   -> a
@@ -70,7 +68,6 @@ put k a Store{storeRawStore, storeCodecs} = do
 get 
   :: forall a k contents hash m.
      HasCodec a contents
-  => HasRootKey a
   => StoreKey a k
   => Monad m
   => k
