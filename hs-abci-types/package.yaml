@@ -80,6 +80,7 @@ tests:
     other-modules:
     - Network.ABCI.Test.Types.Messages.Instances
     - Network.ABCI.Test.Types.MessagesSpec
+    - Test.Data.ByteArray.HexStringSpec
     ghc-options:
     - -Werror
     - -Wall

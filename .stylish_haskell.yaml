@@ -204,3 +204,4 @@ language_extensions:
    - NamedFieldPuns
    - ExistentialQuantification
    - FunctionalDependencies
+   - ViewPatterns
