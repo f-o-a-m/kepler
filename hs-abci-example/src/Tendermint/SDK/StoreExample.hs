@@ -58,11 +58,10 @@ userCodec =
           , codecDecode = decode . cs 
           }
 
-instance HasRootKey User where
+instance HasStorageKeys User where
     type RootKey User = "user"
-
-instance StoreKey User UserKey where
-  makeRawStoreKey _ (UserKey k) = cs k
+    type StoreKey User = UserKey
+    makeRawStoreKey (UserKey k) = cs k
 
 type UserStore = Store '[User] AuthTreeHash IO
 

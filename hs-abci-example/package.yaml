@@ -32,6 +32,7 @@ default-extensions:
   - MultiParamTypeClasses
   - DefaultSignatures
   - FunctionalDependencies
+  - TypeFamilyDependencies
 
 
 dependencies:

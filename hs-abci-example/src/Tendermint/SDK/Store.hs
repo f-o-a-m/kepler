@@ -2,8 +2,7 @@ module Tendermint.SDK.Store
   ( RawStore(..)
   , Store(..)
   , Codecs(..)
-  , HasRootKey(..)
-  , StoreKey(..)
+  , HasStorageKeys(..)
   , get
   , put
   , root
@@ -21,14 +20,15 @@ data RawStore m hash = RawStore
   , rawStoreRoot :: m hash
   }
 
-class HasRootKey a where
+class HasStorageKeys a where
     type RootKey a :: Symbol
+    type StoreKey a = k | k -> a
+
     rootKey :: Proxy a -> BS.ByteString
     default rootKey :: KnownSymbol (RootKey a) => Proxy a -> BS.ByteString
     rootKey _ = cs $ symbolVal (Proxy :: Proxy (RootKey a))
 
-class HasRootKey a => StoreKey a k | k -> a where
-    makeRawStoreKey :: Proxy a -> k -> BS.ByteString
+    makeRawStoreKey :: StoreKey a -> BS.ByteString
 
 data Store contents hash m = Store
   { storeRawStore :: RawStore m hash
@@ -36,13 +36,13 @@ data Store contents hash m = Store
   }
 
 mkKey
-  :: forall a k.
-     StoreKey a k
-  => k
+  :: forall a.
+     HasStorageKeys a
+  => StoreKey a
   -> BS.ByteString
 mkKey k = 
   let rk = rootKey (Proxy :: Proxy a)
-      key = makeRawStoreKey (Proxy :: Proxy a) k
+      key = makeRawStoreKey k
   in rk <> key
 
 root
@@ -51,10 +51,10 @@ root
 root Store{storeRawStore} = rawStoreRoot storeRawStore
 
 put
-  :: forall a k contents hash m.
+  :: forall a contents hash m.
      HasCodec a contents
-  => StoreKey a k
-  => k
+  => HasStorageKeys a
+  => StoreKey a
   -> a
   -> Store contents hash m
   -> m ()
@@ -66,11 +66,11 @@ put k a Store{storeRawStore, storeCodecs} = do
     rawStorePut key val
 
 get 
-  :: forall a k contents hash m.
+  :: forall a contents hash m.
      HasCodec a contents
-  => StoreKey a k
+  => HasStorageKeys a
   => Monad m
-  => k
+  => StoreKey a
   -> Store contents hash m
   -> m (Maybe a)
 get k Store{storeRawStore, storeCodecs} = do
