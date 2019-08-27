@@ -8,14 +8,15 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import           Network.HTTP.Types (decodePathSegments)
 import Servant.API
-import Network.ABCI.Types.Messages.Request (Query, _queryPath)
+import qualified Network.ABCI.Types.Messages.Request as Request
+import qualified Network.ABCI.Types.Messages.Response  as Response
 
 
 -- all of this was vendored from https://github.com/ElvishJerricco/servant-router
 data Router m a where
   RChoice       :: Router m a -> Router m a -> Router m a
   RPath         :: KnownSymbol sym => Proxy sym -> Router m a -> Router m a
-  RLeaf         :: (Query -> m a) -> Router m a
+  RLeaf         :: (Request.Query -> m Response.Query) -> Router m Response.Query
 
 class HasRouter layout where
   -- | A route handler.
@@ -50,22 +51,22 @@ data RoutingError = Fail | FailFatal deriving (Show, Eq, Ord)
 routeURI
   :: (HasRouter layout, Monad m)
   => Proxy layout
-  -> RouteT layout m a
-  -> Query
-  -> m (Either RoutingError a)
+  -> RouteT layout m Response.Query
+  -> Request.Query
+  -> m (Either RoutingError Response.Query)
 routeURI layout page query =
   let routing = route layout Proxy Proxy page
-      path = query ^. _queryPath . to (decodePathSegments . T.encodeUtf8)
+      path = query ^. Request._queryPath . to (decodePathSegments . T.encodeUtf8)
   in  routeQueryAndPath query path routing
 
   -- | Use a computed 'Router' to route a path and query. Generally,
 -- you should use 'routeURI'.
 routeQueryAndPath
   :: Monad m
-  => Query
+  => Request.Query
   -> [Text]
-  -> Router m a
-  -> m (Either RoutingError a)
+  -> Router m Response.Query
+  -> m (Either RoutingError Response.Query)
 routeQueryAndPath query pathSegs r = case r of
   RChoice a b       -> do
     result <- routeQueryAndPath query pathSegs a

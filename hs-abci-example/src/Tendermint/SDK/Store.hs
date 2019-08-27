@@ -65,8 +65,6 @@ get k Store{storeRawStore, storeCodecs} = do
         Just raw -> case codecDecode codec raw of
           Left e -> error $ "Impossible codec error "  <> e
           Right a -> Just a
-
-
 {-
 
 "name" :> Leaf k
