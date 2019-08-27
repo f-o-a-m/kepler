@@ -2,84 +2,75 @@ module Tendermint.SDK.Store
   ( RawStore(..)
   , Store(..)
   , Codecs(..)
-  , HasStorageKeys(..)
+  , HasKey(..)
   , get
   , put
   , root
   ) where
 
 import qualified Data.ByteString as BS
-import Data.Proxy (Proxy(..))
-import GHC.TypeLits (Symbol, KnownSymbol, symbolVal)
 import Tendermint.SDK.Codec
-import Data.String.Conversions (cs)
 
-data RawStore m hash = RawStore
+data RawStore m = RawStore
   { rawStorePut :: BS.ByteString -> BS.ByteString -> m ()
   , rawStoreGet :: BS.ByteString -> m (Maybe BS.ByteString)
-  , rawStoreRoot :: m hash
+  , rawStoreRoot :: m BS.ByteString
   }
 
-class HasStorageKeys a where
-    type RootKey a :: Symbol
-    type StoreKey a = k | k -> a
+class HasKey a where
+    type Key a = k | k -> a
+    makeRawKey :: Key a -> BS.ByteString
 
-    rootKey :: Proxy a -> BS.ByteString
-    default rootKey :: KnownSymbol (RootKey a) => Proxy a -> BS.ByteString
-    rootKey _ = cs $ symbolVal (Proxy :: Proxy (RootKey a))
-
-    makeRawStoreKey :: StoreKey a -> BS.ByteString
-
-data Store contents hash m = Store
-  { storeRawStore :: RawStore m hash
+data Store contents m = Store
+  { storeRawStore :: RawStore m
   , storeCodecs :: Codecs contents
   }
 
-mkKey
-  :: forall a.
-     HasStorageKeys a
-  => StoreKey a
-  -> BS.ByteString
-mkKey k = 
-  let rk = rootKey (Proxy :: Proxy a)
-      key = makeRawStoreKey k
-  in rk <> key
-
 root
-  :: Store contents hash m
-  -> m hash
+  :: Store contents m
+  -> m BS.ByteString
 root Store{storeRawStore} = rawStoreRoot storeRawStore
 
 put
-  :: forall a contents hash m.
+  :: forall a contents m.
      HasCodec a contents
-  => HasStorageKeys a
-  => StoreKey a
+  => HasKey a
+  => Key a
   -> a
-  -> Store contents hash m
+  -> Store contents m
   -> m ()
 put k a Store{storeRawStore, storeCodecs} = do
     let codec = getCodec storeCodecs
         RawStore {rawStorePut} = storeRawStore
-        key = mkKey k
+        key = makeRawKey k
         val = codecEncode codec $ a
     rawStorePut key val
 
 get 
-  :: forall a contents hash m.
+  :: forall a contents m.
      HasCodec a contents
-  => HasStorageKeys a
+  => HasKey a
   => Monad m
-  => StoreKey a
-  -> Store contents hash m
+  => Key a
+  -> Store contents m
   -> m (Maybe a)
 get k Store{storeRawStore, storeCodecs} = do
     let codec = getCodec storeCodecs
         RawStore {rawStoreGet} = storeRawStore
-        key = mkKey k
+        key = makeRawKey k
     mRes <- rawStoreGet key
     pure $ case mRes of
         Nothing -> Nothing
         Just raw -> case codecDecode codec raw of
           Left e -> error $ "Impossible codec error "  <> e
           Right a -> Just a
+
+
+{-
+
+"name" :> Leaf k
+
+class CreateRoutes s rs where
+
+
+-}

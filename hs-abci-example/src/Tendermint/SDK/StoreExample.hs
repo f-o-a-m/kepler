@@ -1,6 +1,7 @@
 module Tendermint.SDK.StoreExample where
 
 import Data.Binary (Binary, encode, decode)
+import Data.ByteArray (convert)
 import Tendermint.SDK.Store
 import Tendermint.SDK.Codec
 import Data.String.Conversions (cs)
@@ -11,7 +12,6 @@ import Control.Concurrent.STM.TVar
 import Control.Concurrent.STM (atomically)
 import qualified Crypto.Hash as Cryptonite
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
-
 
 
 
@@ -26,7 +26,7 @@ instance AT.MerkleHash AuthTreeHash where
     hashLeaf k v = AuthTreeHash $ Cryptonite.hashLeaf k v
     concatHashes (AuthTreeHash a) (AuthTreeHash b) = AuthTreeHash $ Cryptonite.concatHashes a b
 
-type AuthTreeRawStore = RawStore IO AuthTreeHash
+type AuthTreeRawStore = RawStore IO
 
 mkAuthTreeStore :: IO AuthTreeRawStore
 mkAuthTreeStore = do
@@ -40,7 +40,8 @@ mkAuthTreeStore = do
         pure $ AT.lookup k tree
     , rawStoreRoot = atomically $ do
         tree <- readTVar treeV
-        pure $ AT.merkleHash tree
+        let AuthTreeHash r = AT.merkleHash tree :: AuthTreeHash
+        pure $ convert r
     }
 
 data User = User 
@@ -58,12 +59,11 @@ userCodec =
           , codecDecode = decode . cs 
           }
 
-instance HasStorageKeys User where
-    type RootKey User = "user"
-    type StoreKey User = UserKey
-    makeRawStoreKey (UserKey k) = cs k
+instance HasKey User where
+    type Key User = UserKey
+    makeRawKey (UserKey k) = cs k
 
-type UserStore = Store '[User] AuthTreeHash IO
+type UserStore = Store '[User] IO
 
 putUser
   :: User

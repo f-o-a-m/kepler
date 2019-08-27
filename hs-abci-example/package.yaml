@@ -45,6 +45,7 @@ dependencies:
 - hs-abci-server
 - hs-abci-types
 - hs-abci-extra
+- http-api-data
 - lens
 - avl-auth
 - memory
@@ -54,6 +55,7 @@ dependencies:
 - stm
 - string-conversions
 - text
+- uri-bytestring
 
 custom-setup:
   dependencies:
