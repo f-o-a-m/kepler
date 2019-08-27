@@ -8,6 +8,7 @@ module Tendermint.SDK.Store
   , root
   ) where
 
+import Control.Lens (Iso', (^.))
 import qualified Data.ByteString as BS
 import Tendermint.SDK.Codec
 
@@ -19,7 +20,7 @@ data RawStore m = RawStore
 
 class HasKey a where
     type Key a = k | k -> a
-    makeRawKey :: Key a -> BS.ByteString
+    rawKey :: Iso' (Key a) BS.ByteString
 
 data Store contents m = Store
   { storeRawStore :: RawStore m
@@ -42,7 +43,7 @@ put
 put k a Store{storeRawStore, storeCodecs} = do
     let codec = getCodec storeCodecs
         RawStore {rawStorePut} = storeRawStore
-        key = makeRawKey k
+        key = k ^. rawKey
         val = codecEncode codec $ a
     rawStorePut key val
 
@@ -57,7 +58,7 @@ get
 get k Store{storeRawStore, storeCodecs} = do
     let codec = getCodec storeCodecs
         RawStore {rawStoreGet} = storeRawStore
-        key = makeRawKey k
+        key = k ^. rawKey
     mRes <- rawStoreGet key
     pure $ case mRes of
         Nothing -> Nothing

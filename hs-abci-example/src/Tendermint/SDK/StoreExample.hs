@@ -1,5 +1,6 @@
 module Tendermint.SDK.StoreExample where
 
+import Control.Lens (iso)
 import Data.Binary (Binary, encode, decode)
 import Data.ByteArray (convert)
 import Tendermint.SDK.Store
@@ -61,7 +62,7 @@ userCodec =
 
 instance HasKey User where
     type Key User = UserKey
-    makeRawKey (UserKey k) = cs k
+    rawKey = iso (\(UserKey k) -> cs k) (UserKey . cs)
 
 type UserStore = Store '[User] IO
 

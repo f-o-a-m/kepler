@@ -4,25 +4,13 @@ module Tendermint.SDK.Routes where
 import GHC.TypeLits (KnownSymbol, symbolVal)
 import qualified Data.ByteString as BS
 import Data.Proxy
-import           URI.ByteString
 import Data.Text (Text)
 import qualified Data.Text as T
-import           Network.HTTP.Types (decodePathSegments)
+import           Network.HTTP.Types (decodePathSegments, parseQuery)
 import Data.String.Conversions (cs)
+import Servant.API
 
 
-
-
--- For the moment it's worth just vendoring these types for
--- simplicity but there is an argument for using the actual
--- servant types for things like markdown docs etc.
-data (path :: k) :> (a :: *)
-infixr 4 :>
-
-data a :<|> b = a :<|> b
-infixr 3 :<|>
-
-data Capture s a
 
 class FromQueryData a where
     fromQueryData :: BS.ByteString -> Either String a
@@ -75,15 +63,14 @@ routeURI
   :: (HasRouter layout, Monad m)
   => Proxy layout
   -> RouteT layout m a
-  -> URIRef Absolute
+  -> URI
   -> m (Either RoutingError a)
 routeURI layout page uri =
   let routing = route layout Proxy Proxy page
-      toMaybeQuery (k, v) = if BS.null v then (k, Nothing) else (k, Just v)
 
       (path, query) = case uri of
-        URI{}         -> (uriPath uri, uriQuery uri)
-  in  routeQueryAndPath (toMaybeQuery <$> queryPairs query) (decodePathSegments path) routing
+        URI{}         -> (cs $ uriPath uri, cs $ uriQuery uri)
+  in  routeQueryAndPath (parseQuery query) (decodePathSegments path) routing
 
   -- | Use a computed 'Router' to route a path and query. Generally,
 -- you should use 'routeURI'.

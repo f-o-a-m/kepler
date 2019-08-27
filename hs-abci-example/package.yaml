@@ -52,6 +52,7 @@ dependencies:
 - mtl
 - proto-lens
 - proto-lens-runtime
+- servant
 - stm
 - string-conversions
 - text
