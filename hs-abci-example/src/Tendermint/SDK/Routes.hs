@@ -1,9 +1,17 @@
 module Tendermint.SDK.Routes where
 
 
-import GHC.TypeLits (KnownSymbol)
+import GHC.TypeLits (KnownSymbol, symbolVal)
 import qualified Data.ByteString as BS
 import Data.Proxy
+import           URI.ByteString
+import Data.Text (Text)
+import qualified Data.Text as T
+import           Network.HTTP.Types (decodePathSegments)
+import Data.String.Conversions (cs)
+
+
+
 
 -- For the moment it's worth just vendoring these types for
 -- simplicity but there is an argument for using the actual
@@ -18,6 +26,8 @@ data Capture s a
 
 class FromQueryData a where
     fromQueryData :: BS.ByteString -> Either String a
+    fromQueryDataMaybe :: BS.ByteString -> Maybe a
+    fromQueryDataMaybe = either (const Nothing) Just . fromQueryData
 
 -- all of this was vendored from https://github.com/ElvishJerricco/servant-router
 data Router m a where
@@ -56,3 +66,50 @@ instance (HasRouter sublayout, KnownSymbol path) => HasRouter (path :> sublayout
   route _ m a page = RPath
     (Proxy :: Proxy path)
     (route (Proxy :: Proxy sublayout) m a page)
+
+data RoutingError = Fail | FailFatal deriving (Show, Eq, Ord)
+
+
+-- | Use a handler to route a 'URIRef'.
+routeURI
+  :: (HasRouter layout, Monad m)
+  => Proxy layout
+  -> RouteT layout m a
+  -> URIRef Absolute
+  -> m (Either RoutingError a)
+routeURI layout page uri =
+  let routing = route layout Proxy Proxy page
+      toMaybeQuery (k, v) = if BS.null v then (k, Nothing) else (k, Just v)
+
+      (path, query) = case uri of
+        URI{}         -> (uriPath uri, uriQuery uri)
+  in  routeQueryAndPath (toMaybeQuery <$> queryPairs query) (decodePathSegments path) routing
+
+  -- | Use a computed 'Router' to route a path and query. Generally,
+-- you should use 'routeURI'.
+routeQueryAndPath
+  :: Monad m
+  => [(BS.ByteString, Maybe BS.ByteString)]
+  -> [Text]
+  -> Router m a
+  -> m (Either RoutingError a)
+routeQueryAndPath queries pathSegs r = case r of
+  RChoice a b       -> do
+    result <- routeQueryAndPath queries pathSegs a
+    case result of
+      Left  Fail      -> routeQueryAndPath queries pathSegs b
+      Left  FailFatal -> return $ Left FailFatal
+      Right x         -> return $ Right x
+  RCapture f        -> case pathSegs of
+    [] -> return $ Left Fail
+    capture:paths ->
+      maybe (return $ Left FailFatal)
+            (routeQueryAndPath queries paths . f)
+            (fromQueryDataMaybe $ cs capture)
+  RPath      sym a -> case pathSegs of
+    [] -> return $ Left Fail
+    p:paths ->
+      if p == T.pack (symbolVal sym) then routeQueryAndPath queries paths a else return $ Left Fail
+  RLeaf a          -> case pathSegs of
+    [] -> Right <$> a
+    _ -> return $ Left Fail

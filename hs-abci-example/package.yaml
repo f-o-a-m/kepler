@@ -45,7 +45,7 @@ dependencies:
 - hs-abci-server
 - hs-abci-types
 - hs-abci-extra
-- http-api-data
+- http-types
 - lens
 - avl-auth
 - memory
