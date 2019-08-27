@@ -6,6 +6,7 @@ import qualified Data.ByteString as BS
 import Data.Proxy
 import Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import           Network.HTTP.Types (decodePathSegments, parseQuery)
 import Data.String.Conversions (cs)
 import Servant.API
@@ -22,6 +23,8 @@ data Router m a where
   RChoice       :: Router m a -> Router m a -> Router m a
   RCapture      :: FromQueryData x => (x -> Router m a) -> Router m a
   RPath         :: KnownSymbol sym => Proxy sym -> Router m a -> Router m a
+  RQueryParam   :: (FromHttpApiData x, KnownSymbol sym) => Proxy sym -> (Maybe x -> Router m a) -> Router m a
+  RQueryFlag    :: KnownSymbol sym => Proxy sym -> (Bool -> Router m a) -> Router m a
   RLeaf         :: m a -> Router m a
 
 class HasRouter layout where
@@ -97,6 +100,16 @@ routeQueryAndPath queries pathSegs r = case r of
     [] -> return $ Left Fail
     p:paths ->
       if p == T.pack (symbolVal sym) then routeQueryAndPath queries paths a else return $ Left Fail
+  RQueryParam sym f -> case lookup (cs $ symbolVal sym) queries of
+    Nothing          -> routeQueryAndPath queries pathSegs $ f Nothing
+    Just Nothing     -> return $ Left FailFatal
+    Just (Just text) -> case parseQueryParam (T.decodeUtf8 text) of
+      Left _ -> return $ Left FailFatal
+      Right x  -> routeQueryAndPath queries pathSegs $ f (Just x)
+  RQueryFlag sym f -> case lookup (cs $ symbolVal sym) queries of
+    Nothing       -> routeQueryAndPath queries pathSegs $ f False
+    Just Nothing  -> routeQueryAndPath queries pathSegs $ f True
+    Just (Just _) -> return $ Left FailFatal
   RLeaf a          -> case pathSegs of
     [] -> Right <$> a
     _ -> return $ Left Fail
