@@ -33,6 +33,7 @@ default-extensions:
   - DefaultSignatures
   - FunctionalDependencies
   - TypeFamilyDependencies
+  - DeriveFunctor
 
 
 dependencies:

@@ -14,7 +14,12 @@ import Control.Concurrent.STM (atomically)
 import qualified Crypto.Hash as Cryptonite
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 
+import qualified Network.ABCI.Types.Messages.Request as Request
+import qualified Network.ABCI.Types.Messages.Response  as Response
+import Tendermint.SDK.StoreQueries
 
+import Data.Proxy
+import System.IO.Unsafe
 
 --------------------------------------------------------------------------------
 -- Example Store
@@ -52,6 +57,7 @@ data User = User
 
 newtype UserKey = UserKey String
 
+
 instance Binary User
 
 userCodec :: Codec User
@@ -67,7 +73,23 @@ instance HasKey User where
 type UserStore = Store '[User] IO
 
 putUser
-  :: User
+  :: UserKey 
+  -> User
   -> UserStore
   -> IO ()
-putUser user@User{userAddress} store = put (UserKey userAddress) user store
+putUser k user store = put k user store
+
+userStore :: UserStore
+userStore = unsafePerformIO $ do
+  rawStore <- mkAuthTreeStore
+  pure $ Store
+    { storeRawStore = rawStore
+    , storeCodecs = userCodec :~ NilCodecs 
+    }
+{-# NOINLINE userStore #-}
+
+
+queryUser 
+  :: Request.Query
+  -> IO Response.Query
+queryUser = storeQueryHandler (Proxy :: Proxy User) userStore
