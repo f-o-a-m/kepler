@@ -94,8 +94,16 @@ userStore = unsafePerformIO $ do
 --  -> IO Response.Query
 --queryUser = storeQueryHandler (Proxy :: Proxy User) userStore
 
-type UserRoute = "user" :> "user" :> Leaf User
-type DogRoute = "user" :> "dog" :> Leaf User
+newtype DogKey = DogKey Int
+
+instance FromQueryData DogKey where
+  fromQueryData = const $ Right $ DogKey 2
+
+instance FromQueryData UserKey where
+  fromQueryData = const $ Right $ UserKey "1"
+
+type UserRoute = "user" :> "user" :> QA UserKey :> Leaf User
+type DogRoute = "user" :> "dog" :> QA DogKey :> Leaf User
 
 type Layout = UserRoute :<|> DogRoute
 
@@ -105,11 +113,11 @@ layoutP = Proxy
 userServer :: RouteT Layout IO
 userServer = handleUserQuery1 :<|> handleUserQuery2
 
-handleUserQuery1 :: HandlerT IO (QueryResult User)
-handleUserQuery1 = return . mkQueryResult $ User "1" "man"
+handleUserQuery1 :: QueryArgs UserKey -> HandlerT IO (QueryResult User)
+handleUserQuery1 _ = return . mkQueryResult $ User "1" "man"
 
-handleUserQuery2 :: HandlerT IO (QueryResult User)
-handleUserQuery2 = return . mkQueryResult $ User "2" "dog"
+handleUserQuery2 :: QueryArgs DogKey -> HandlerT IO (QueryResult User)
+handleUserQuery2 _ = return . mkQueryResult $ User "2" "dog"
 
 serveRoutes :: Application IO
 serveRoutes = serve layoutP (Proxy :: Proxy IO) userServer
