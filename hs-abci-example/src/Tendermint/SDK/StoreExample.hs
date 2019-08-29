@@ -3,6 +3,7 @@ module Tendermint.SDK.StoreExample where
 import Control.Lens (iso)
 import Data.Binary (Binary, encode, decode)
 import Data.ByteArray (convert)
+import Data.ByteArray.HexString
 import Tendermint.SDK.Store
 import Tendermint.SDK.Codec
 import Data.String.Conversions (cs)
@@ -13,7 +14,7 @@ import Control.Concurrent.STM.TVar
 import Control.Concurrent.STM (atomically)
 import qualified Crypto.Hash as Cryptonite
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
-
+import qualified Data.ByteString as BS
 import Tendermint.SDK.Routes
 
 import Data.Proxy
@@ -102,10 +103,25 @@ layoutP :: Proxy Layout
 layoutP = Proxy
 
 userServer :: RouteT Layout IO
-userServer = handleUserQuery :<|> handleUserQuery
+userServer = handleUserQuery1 :<|> handleUserQuery2
 
-handleUserQuery :: HandlerT IO User 
-handleUserQuery = undefined
+handleUserQuery1 :: HandlerT IO (QueryResult User)
+handleUserQuery1 = return . mkQueryResult $ User "1" "man"
+
+handleUserQuery2 :: HandlerT IO (QueryResult User)
+handleUserQuery2 = return . mkQueryResult $ User "2" "dog"
 
 serveRoutes :: Application IO
 serveRoutes = serve layoutP (Proxy :: Proxy IO) userServer
+
+instance EncodeQueryResult User where
+  encodeQueryResult = fromBytes . codecEncode userCodec
+
+mkQueryResult :: a -> QueryResult a
+mkQueryResult a = QueryResult
+  { queryResultData = a
+  , queryResultHeight = 0
+  , queryResultIndex = 0
+  , queryResultKey = fromBytes (mempty :: BS.ByteString)
+  , queryResultProof = Nothing
+  }

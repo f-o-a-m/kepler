@@ -1,9 +1,11 @@
 module Tendermint.SDK.Routes where
 
+import Data.ByteArray.HexString (HexString)
+import Data.Int (Int64)
 import Control.Monad.Reader (ReaderT, MonadReader, ask, runReaderT)
 import Control.Monad.IO.Class (MonadIO(..))
 import Control.Monad.Trans (MonadTrans(..))
-import Control.Lens ((^.), to)
+import Control.Lens ((^.), to, (&), (.~))
 import GHC.TypeLits (KnownSymbol, symbolVal)
 import Data.Proxy
 import Data.Text (Text)
@@ -14,6 +16,7 @@ import           Network.HTTP.Types (decodePathSegments)
 import Servant.API
 import qualified Network.ABCI.Types.Messages.Request as Request
 import qualified Network.ABCI.Types.Messages.Response  as Response
+import           Network.ABCI.Types.Messages.FieldTypes (Proof)
 import Data.Map (Map)
 import qualified Data.Map as M
 import Data.String.Conversions (cs)
@@ -23,7 +26,7 @@ import Control.Monad.Except (ExceptT, runExceptT)
 
 data QueryError =
     PathNotFound
-  | InvalidQuery String 
+  | InvalidQuery String
   | InternalError String
   deriving (Show)
 
@@ -31,6 +34,7 @@ data QueryError =
 
 newtype HandlerT m a = 
   HandlerT { _runHandlerT :: ExceptT QueryError m a }
+  deriving (Functor, Applicative, Monad)
 
 runHandlerT :: HandlerT m a -> m (Either QueryError a)
 runHandlerT = runExceptT . _runHandlerT
@@ -80,7 +84,7 @@ instance MonadIO m => MonadIO (RouteResultT m) where
 
 
 newtype DelayedIO a = 
-  DelayedIO { runDelayedIO' :: ReaderT Request.Query ((RouteResultT IO)) a }
+  DelayedIO { runDelayedIO' :: ReaderT Request.Query (RouteResultT IO) a }
     deriving (Functor, Applicative, Monad, MonadIO, MonadReader Request.Query)
 
 liftRouteResult :: RouteResult a -> DelayedIO a
@@ -92,13 +96,13 @@ runDelayedIO m req = runRouteResultT $ runReaderT (runDelayedIO' m) req
 --------------------------------------------------------------------------------
 
 data Delayed env a where
-  Delayed :: { delayedQueryData :: env -> DelayedIO qd 
-             , delayedHandler :: qd -> Request.Query -> RouteResult a
+  Delayed :: { delayedQueryArgs :: env -> DelayedIO qa
+             , delayedHandler :: qa -> Request.Query -> RouteResult a
              } -> Delayed env a
 
 instance Functor (Delayed env) where
   fmap f Delayed{..} = 
-    Delayed { delayedHandler = \qd ->  fmap f <$> delayedHandler qd
+    Delayed { delayedHandler = \qa ->  fmap f <$> delayedHandler qa
             , ..
             }
 
@@ -108,8 +112,8 @@ runDelayed :: Delayed env a
            -> IO (RouteResult a)
 runDelayed Delayed{..} env = runDelayedIO $ do
    q <- ask
-   qd <- delayedQueryData env
-   liftRouteResult $ delayedHandler qd q
+   qa <- delayedQueryArgs env
+   liftRouteResult $ delayedHandler qa q
 
 runAction :: MonadIO m 
           => Delayed env (HandlerT m a)
@@ -128,15 +132,44 @@ runAction action env query k =
         Left err -> pure $ Route (responseQueryError err)
         Right a' -> pure $ k a'
 
+-- | Fail with the option to recover.
+delayedFail :: QueryError -> DelayedIO a
+delayedFail err = liftRouteResult $ Fail err
 
 responseQueryError :: QueryError -> Response.Query
-responseQueryError = undefined
+responseQueryError e = 
+  let msg = case e of
+        PathNotFound -> "Path Not Found"
+        InvalidQuery m -> "Invalid Query: " <> m
+        InternalError _ -> "Internal Error"
+  in def { Response.queryCode = 1
+         , Response.queryLog = cs msg
+         }
+
+data QueryArgs a = QueryArgs
+  { queryArgsProve :: Bool
+  , queryArgsData :: a
+  , queryArgsQueryData :: HexString
+  , queryArgsBlockHeight :: Int64
+  } deriving Functor
+
+
+addQueryArgs :: Delayed env (a -> b)
+           -> (qa -> DelayedIO a)
+           -> Delayed (qa, env) b
+addQueryArgs Delayed{..} new =
+  Delayed
+    { delayedQueryArgs = \ (qa, env) -> (,) <$> delayedQueryArgs env <*> new qa
+    , delayedHandler   = \ (x, v) query -> ($ v) <$> delayedHandler x query
+    , ..
+    } 
 
 --------------------------------------------------------------------------------
 
 data Router' env a =
     RChoice (Router' env a) (Router' env a)
   | RStatic (Map Text (Router' env a)) [env -> a]
+  | RQueryArgs (Router' (QueryArgs HexString, env) a)
 
 type RoutingApplication m = Request.Query -> m (RouteResult Response.Query)
 
@@ -155,13 +188,20 @@ choice router1 (RChoice router2 router3) = RChoice (choice router1 router2) rout
 choice router1 router2 = RChoice router1 router2
 
 
+
 methodRouter
   :: MonadIO m
-  => Delayed env (HandlerT m b)
+  => EncodeQueryResult b
+  => Delayed env (HandlerT m (QueryResult b))
   -> Router env m
 methodRouter action = leafRouter route'
   where
-    route' env query = runAction action env query $ \_ -> Route def
+    route' env query = runAction action env query $ \QueryResult{..} ->
+       Route $ def & Response._queryIndex .~ queryResultIndex
+                   & Response._queryKey .~ queryResultKey
+                   & Response._queryValue .~ encodeQueryResult queryResultData
+                   & Response._queryProof .~ queryResultProof
+                   & Response._queryHeight .~ queryResultHeight
 
 
 --------------------------------------------------------------------------------
@@ -190,11 +230,46 @@ instance (HasRouter sublayout, KnownSymbol path) => HasRouter (path :> sublayout
     pathRouter (cs (symbolVal proxyPath)) (route (Proxy :: Proxy sublayout) pm subserver)
     where proxyPath = Proxy :: Proxy path
 
+
+class FromQueryData a where
+  fromQueryData :: HexString -> Either String a
+
+
+data QA (a :: *)
+
+
+instance (FromQueryData a, HasRouter layout)
+      => HasRouter (QA a :> layout) where
+
+  type RouteT (QA a :> layout) m = QueryArgs a -> RouteT layout m
+
+  route _ pm d =
+    RQueryArgs $
+      route (Proxy :: Proxy layout)
+          pm
+          (addQueryArgs d $ \ qa -> case fromQueryData $ queryArgsData qa of
+             Left e -> delayedFail $ InvalidQuery e
+             Right v  -> return qa {queryArgsData = v}
+          )
+
+
+data QueryResult a = QueryResult
+  { queryResultData :: a
+  , queryResultIndex :: Int64
+  , queryResultKey :: HexString
+  , queryResultProof :: Maybe Proof
+  , queryResultHeight :: Int64
+  } deriving Functor
+
+class EncodeQueryResult a where
+  encodeQueryResult :: a -> HexString
+
+
 data Leaf (a :: *)
 
-instance HasRouter (Leaf a) where
+instance EncodeQueryResult a => HasRouter (Leaf a) where
 
-  type RouteT (Leaf a) m = HandlerT m a
+  type RouteT (Leaf a) m = HandlerT m (QueryResult a)
   route _ _  = methodRouter
 
 
@@ -215,8 +290,8 @@ serve p pm server =
     toApplication ra query = do
       res <- ra query
       case res of
-        Fail _ -> pure def
-        FailFatal _ -> pure def
+        Fail e -> pure $ responseQueryError e
+        FailFatal e -> pure $ responseQueryError e
         Route a -> pure a
 
 runRouter 
@@ -236,6 +311,14 @@ runRouter router env query =
           -> let query' = query { Request.queryPath = T.intercalate "/" rest }
              in  runRouter router' env query'
         _ -> pure $ Fail PathNotFound
+    RQueryArgs r' ->
+      let qa = QueryArgs
+            { queryArgsData = query ^. Request._queryData
+            , queryArgsQueryData = query ^. Request._queryData
+            , queryArgsBlockHeight = query ^. Request._queryHeight
+            , queryArgsProve = query ^. Request._queryProve
+            }
+      in runRouter r' (qa, env) query
     RChoice r1 r2 ->
       runChoice [runRouter r1, runRouter r2] env query
 runChoice :: Monad m => [env -> RoutingApplication m] -> env -> RoutingApplication m
