@@ -23,7 +23,7 @@ instance (HasKey a, HasCodec a contents, Monad m)
     mRes <- get (key :: Key a) store
     case mRes of
         Nothing -> pure def
-        Just res -> pure $ def & Response._queryValue .~ (fromBytes $ codecEncode res)
+        Just res -> pure $ def & Response._queryValue .~ fromBytes (codecEncode res)
 
 class StoreQueryHandlers contents m hs where
     storeQueryHandlers :: Store contents m -> hs

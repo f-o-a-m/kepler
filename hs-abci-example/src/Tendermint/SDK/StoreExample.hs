@@ -20,6 +20,7 @@ import Tendermint.SDK.Routes
 import Data.Proxy
 import System.IO.Unsafe
 import Servant.API
+import Tendermint.SKD.Router.Types
 
 --------------------------------------------------------------------------------
 -- Example Store
