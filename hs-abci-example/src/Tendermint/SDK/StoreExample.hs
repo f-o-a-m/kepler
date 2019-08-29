@@ -14,12 +14,11 @@ import Control.Concurrent.STM (atomically)
 import qualified Crypto.Hash as Cryptonite
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 
-import qualified Network.ABCI.Types.Messages.Request as Request
-import qualified Network.ABCI.Types.Messages.Response  as Response
-import Tendermint.SDK.StoreQueries
+import Tendermint.SDK.Routes
 
 import Data.Proxy
 import System.IO.Unsafe
+import Servant.API
 
 --------------------------------------------------------------------------------
 -- Example Store
@@ -89,7 +88,24 @@ userStore = unsafePerformIO $ do
 {-# NOINLINE userStore #-}
 
 
-queryUser 
-  :: Request.Query
-  -> IO Response.Query
-queryUser = storeQueryHandler (Proxy :: Proxy User) userStore
+--queryUser 
+--  :: Request.Query
+--  -> IO Response.Query
+--queryUser = storeQueryHandler (Proxy :: Proxy User) userStore
+
+type UserRoute = "user" :> "user" :> Leaf User
+type DogRoute = "user" :> "dog" :> Leaf User
+
+type Layout = UserRoute :<|> DogRoute
+
+layoutP :: Proxy Layout
+layoutP = Proxy
+
+userServer :: RouteT Layout IO
+userServer = handleUserQuery :<|> handleUserQuery
+
+handleUserQuery :: HandlerT IO User 
+handleUserQuery = undefined
+
+serveRoutes :: Application IO
+serveRoutes = serve layoutP (Proxy :: Proxy IO) userServer

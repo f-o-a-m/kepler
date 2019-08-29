@@ -1,9 +1,13 @@
 module Tendermint.SDK.Routes where
 
+import Control.Monad.Reader (ReaderT, MonadReader, ask, runReaderT)
+import Control.Monad.IO.Class (MonadIO(..))
+import Control.Monad.Trans (MonadTrans(..))
 import Control.Lens ((^.), to)
 import GHC.TypeLits (KnownSymbol, symbolVal)
 import Data.Proxy
 import Data.Text (Text)
+import Control.Monad (ap)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import           Network.HTTP.Types (decodePathSegments)
@@ -19,30 +23,19 @@ import Control.Monad.Except (ExceptT, runExceptT)
 
 data QueryError =
     PathNotFound
-  | InvalidQueryData String 
+  | InvalidQuery String 
   | InternalError String
   deriving (Show)
 
--- all of this was vendored from https://github.com/ElvishJerricco/servant-router
-data Router' a =
-    RChoice (Router' a) (Router' a)
-  | RStatic (Map Text (Router' a)) [a]
+--------------------------------------------------------------------------------
 
-type RoutingApplication m = Request.Query -> m (RouteResult Response.Query)
+newtype HandlerT m a = 
+  HandlerT { _runHandlerT :: ExceptT QueryError m a }
 
-type Router m = Router' (RoutingApplication m)
+runHandlerT :: HandlerT m a -> m (Either QueryError a)
+runHandlerT = runExceptT . _runHandlerT
 
-pathRouter :: Text -> Router' a -> Router' a
-pathRouter t r = RStatic (M.singleton t r) []
-
-leafRouter :: a -> Router' a
-leafRouter l = RStatic M.empty [l]
-
-choice :: Router' a -> Router' a -> Router' a
-choice (RStatic table1 ls1) (RStatic table2 ls2) =
-  RStatic (M.unionWith choice table1 table2) (ls1 ++ ls2)
-choice router1 (RChoice router2 router3) = RChoice (choice router1 router2) router3
-choice router1 router2 = RChoice router1 router2
+--------------------------------------------------------------------------------
 
 data RouteResult a =
     Fail QueryError
@@ -50,48 +43,135 @@ data RouteResult a =
   | Route a
   deriving (Functor)
 
-data Delayed a = Delayed (Request.Query -> RouteResult a)
+instance Applicative RouteResult where
+  pure = return
+  (<*>) = ap
 
-instance Functor Delayed where
-  fmap f (Delayed g) = Delayed (fmap f . g)
+instance Monad RouteResult where
+  return = Route
+  (>>=) m f = case m of
+    Route a -> f a
+    Fail e -> Fail e
+    FailFatal e -> FailFatal e
 
-runDelayed :: Delayed a
+data RouteResultT m a = RouteResultT { runRouteResultT :: m (RouteResult a) }
+  deriving (Functor)
+
+instance MonadTrans RouteResultT where
+  lift m = RouteResultT $ fmap Route m
+
+instance Monad m => Applicative (RouteResultT m) where
+  pure = return
+  (<*>) = ap
+
+instance Monad m => Monad (RouteResultT m) where
+  return = RouteResultT . return . Route
+  (>>=) m f = RouteResultT $ do
+    a <- runRouteResultT m
+    case a of 
+      Route a' -> runRouteResultT $ f a' 
+      Fail e -> return $ Fail e
+      FailFatal e -> return $ FailFatal e
+
+instance MonadIO m => MonadIO (RouteResultT m) where
+  liftIO = lift . liftIO
+
+--------------------------------------------------------------------------------
+
+
+newtype DelayedIO a = 
+  DelayedIO { runDelayedIO' :: ReaderT Request.Query ((RouteResultT IO)) a }
+    deriving (Functor, Applicative, Monad, MonadIO, MonadReader Request.Query)
+
+liftRouteResult :: RouteResult a -> DelayedIO a
+liftRouteResult x = DelayedIO $ lift  $ RouteResultT . return $ x
+
+runDelayedIO :: DelayedIO a -> Request.Query -> IO (RouteResult a)
+runDelayedIO m req = runRouteResultT $ runReaderT (runDelayedIO' m) req
+
+--------------------------------------------------------------------------------
+
+data Delayed env a where
+  Delayed :: { delayedQueryData :: env -> DelayedIO qd 
+             , delayedHandler :: qd -> Request.Query -> RouteResult a
+             } -> Delayed env a
+
+instance Functor (Delayed env) where
+  fmap f Delayed{..} = 
+    Delayed { delayedHandler = \qd ->  fmap f <$> delayedHandler qd
+            , ..
+            }
+
+runDelayed :: Delayed env a
+           -> env
            -> Request.Query
-           -> RouteResult a
-runDelayed (Delayed action) query = action query
+           -> IO (RouteResult a)
+runDelayed Delayed{..} env = runDelayedIO $ do
+   q <- ask
+   qd <- delayedQueryData env
+   liftRouteResult $ delayedHandler qd q
 
-
-runAction :: Monad m 
-          => Delayed (ExceptT QueryError m a)
+runAction :: MonadIO m 
+          => Delayed env (HandlerT m a)
+          -> env
           -> Request.Query
-          -> (RouteResult a -> RouteResult Response.Query)
+          -> (a -> RouteResult Response.Query)
           -> m (RouteResult Response.Query)
-runAction action req respond = 
-    go $ runDelayed action req
-  where
-    go (Fail e) = pure $ respond (Fail e)
-    go (FailFatal e) = pure $ respond (FailFatal e)
-    go (Route ma) = do
-      eRes <- runExceptT ma
-      pure $ respond $ 
-        case eRes of
-           Left err -> Fail err
-           Right res -> Route res
+runAction action env query k =
+  liftIO (runDelayed action env query) >>= go 
+  where 
+    go (Fail e) = pure $ Fail e
+    go (FailFatal e) = pure $ FailFatal e
+    go (Route a) = do 
+      e <- runHandlerT a
+      case e of
+        Left err -> pure $ Route (responseQueryError err)
+        Right a' -> pure $ k a'
+
+
+responseQueryError :: QueryError -> Response.Query
+responseQueryError = undefined
+
+--------------------------------------------------------------------------------
+
+data Router' env a =
+    RChoice (Router' env a) (Router' env a)
+  | RStatic (Map Text (Router' env a)) [env -> a]
+
+type RoutingApplication m = Request.Query -> m (RouteResult Response.Query)
+
+type Router env m = Router' env (RoutingApplication m)
+
+pathRouter :: Text -> Router' env a -> Router' env a
+pathRouter t r = RStatic (M.singleton t r) []
+
+leafRouter :: (env -> a) -> Router' env a
+leafRouter l = RStatic M.empty [l]
+
+choice :: Router' env a -> Router' env a -> Router' env a
+choice (RStatic table1 ls1) (RStatic table2 ls2) =
+  RStatic (M.unionWith choice table1 table2) (ls1 ++ ls2)
+choice router1 (RChoice router2 router3) = RChoice (choice router1 router2) router3
+choice router1 router2 = RChoice router1 router2
 
 
 methodRouter
-  :: Monad m
-  => Delayed (ExceptT QueryError m b)
-  -> Router m
+  :: MonadIO m
+  => Delayed env (HandlerT m b)
+  -> Router env m
 methodRouter action = leafRouter route'
   where
-    route' request = runAction action request $ \_ -> Route def
+    route' env query = runAction action env query $ \_ -> Route def
+
+
+--------------------------------------------------------------------------------
+
 
 class HasRouter layout where
   -- | A route handler.
   type RouteT layout (m :: * -> *) :: *
   -- | Transform a route handler into a 'Router'.
-  route :: Monad m => Proxy layout -> Proxy m -> Delayed (RouteT layout m) -> Router m
+  route :: MonadIO m => Proxy layout -> Proxy m -> Delayed env (RouteT layout m) -> Router env m
   
 
 instance (HasRouter a, HasRouter b) => HasRouter (a :<|> b) where
@@ -114,23 +194,25 @@ data Leaf (a :: *)
 
 instance HasRouter (Leaf a) where
 
-  type RouteT (Leaf a) m = ExceptT QueryError m a
+  type RouteT (Leaf a) m = HandlerT m a
   route _ _  = methodRouter
 
 
 serve 
   :: HasRouter layout
-  => Monad m
+  => MonadIO m
   => Proxy layout
   -> Proxy m
   -> RouteT layout m
   -> Request.Query
   -> m Response.Query
-serve p pm server query = 
-  toApplication (runRouter (route p pm (emptyDelayed (Route server))))
+serve p pm server = 
+  toApplication (runRouter (route p pm (emptyDelayed (Route server))) ())
   where
-    emptyDelayed response = Delayed $ const response
-    toApplication ra = do
+    emptyDelayed response = 
+      let r = pure ()
+      in Delayed (const r) $ \_ _ -> response
+    toApplication ra query = do
       res <- ra query
       case res of
         Fail _ -> pure def
@@ -139,30 +221,33 @@ serve p pm server query =
 
 runRouter 
   :: Monad m
-  => Router m
+  => Router env m
+  -> env
   -> RoutingApplication m
-runRouter router query =
+runRouter router env query =
   case router of
     RStatic table ls ->
       let path = query ^. Request._queryPath . to (decodePathSegments . T.encodeUtf8)
       in case path of
-        []   -> runChoice ls query
+        []   -> runChoice ls env query
         -- This case is to handle trailing slashes.
-        [""] -> runChoice ls query
+        [""] -> runChoice ls env query
         first : rest | Just router' <- M.lookup first table
           -> let query' = query { Request.queryPath = T.intercalate "/" rest }
-             in  runRouter router' query'
+             in  runRouter router' env query'
         _ -> pure $ Fail PathNotFound
     RChoice r1 r2 ->
-      runChoice [runRouter r1, runRouter r2] query
-runChoice :: Monad m => [RoutingApplication m] -> RoutingApplication m
+      runChoice [runRouter r1, runRouter r2] env query
+runChoice :: Monad m => [env -> RoutingApplication m] -> env -> RoutingApplication m
 runChoice ls =
   case ls of
-    []       -> \ _ -> pure $ Fail PathNotFound
+    []       -> \ _ _ -> pure $ Fail PathNotFound
     [r]      -> r
     (r : rs) ->
-      \ query -> do
-        response1 <- r query
+      \ env query -> do
+        response1 <- r env query
         case response1 of
-          Fail _ -> runChoice rs query
+          Fail _ -> runChoice rs env query
           _      ->  pure response1
+
+type Application m  = Request.Query -> m Response.Query
