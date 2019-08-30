@@ -1,14 +1,14 @@
 module Tendermint.SDK.Router.Types where
 
-import Data.ByteArray.HexString (HexString)
-import Data.Int (Int64)
-import Control.Monad.IO.Class (MonadIO(..))
-import Control.Monad.Trans (MonadTrans(..))
-import Control.Monad (ap)
-import qualified Network.ABCI.Types.Messages.Request as Request
-import qualified Network.ABCI.Types.Messages.Response  as Response
+import           Control.Monad                          (ap)
+import           Control.Monad.Except                   (ExceptT, runExceptT)
+import           Control.Monad.IO.Class                 (MonadIO (..))
+import           Control.Monad.Trans                    (MonadTrans (..))
+import           Data.ByteArray.HexString               (HexString)
+import           Data.Int                               (Int64)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof)
-import Control.Monad.Except (ExceptT, runExceptT)
+import qualified Network.ABCI.Types.Messages.Request    as Request
+import qualified Network.ABCI.Types.Messages.Response   as Response
 
 
 data Leaf (a :: *)
@@ -28,17 +28,17 @@ data QueryError =
   deriving (Show)
 
 data QueryArgs a = QueryArgs
-  { queryArgsProve :: Bool
-  , queryArgsData :: a
-  , queryArgsQueryData :: HexString
+  { queryArgsProve       :: Bool
+  , queryArgsData        :: a
+  , queryArgsQueryData   :: HexString
   , queryArgsBlockHeight :: Int64
   } deriving Functor
 
 data QueryResult a = QueryResult
-  { queryResultData :: a
-  , queryResultIndex :: Int64
-  , queryResultKey :: HexString
-  , queryResultProof :: Maybe Proof
+  { queryResultData   :: a
+  , queryResultIndex  :: Int64
+  , queryResultKey    :: HexString
+  , queryResultProof  :: Maybe Proof
   , queryResultHeight :: Int64
   } deriving Functor
 
@@ -52,7 +52,7 @@ class FromQueryData a where
 
 --------------------------------------------------------------------------------
 
-newtype HandlerT m a = 
+newtype HandlerT m a =
   HandlerT { _runHandlerT :: ExceptT QueryError m a }
   deriving (Functor, Applicative, Monad)
 
@@ -74,8 +74,8 @@ instance Applicative RouteResult where
 instance Monad RouteResult where
   return = Route
   (>>=) m f = case m of
-    Route a -> f a
-    Fail e -> Fail e
+    Route a     -> f a
+    Fail e      -> Fail e
     FailFatal e -> FailFatal e
 
 data RouteResultT m a = RouteResultT { runRouteResultT :: m (RouteResult a) }
@@ -92,9 +92,9 @@ instance Monad m => Monad (RouteResultT m) where
   return = RouteResultT . return . Route
   (>>=) m f = RouteResultT $ do
     a <- runRouteResultT m
-    case a of 
-      Route a' -> runRouteResultT $ f a' 
-      Fail e -> return $ Fail e
+    case a of
+      Route a'    -> runRouteResultT $ f a'
+      Fail e      -> return $ Fail e
       FailFatal e -> return $ FailFatal e
 
 instance MonadIO m => MonadIO (RouteResultT m) where

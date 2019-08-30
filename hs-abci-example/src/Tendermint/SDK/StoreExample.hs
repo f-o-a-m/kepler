@@ -1,27 +1,27 @@
 module Tendermint.SDK.StoreExample where
 
-import Control.Lens (iso)
-import Data.Binary (Binary, encode, decode)
-import Data.ByteArray (convert)
-import Data.ByteArray.HexString
-import Tendermint.SDK.Store
-import Tendermint.SDK.Codec
-import Data.String.Conversions (cs)
-import GHC.Generics (Generic)
-import qualified Crypto.Data.Auth.Tree       as AT
-import qualified Crypto.Data.Auth.Tree.Class as AT
-import Control.Concurrent.STM.TVar
-import Control.Concurrent.STM (atomically)
-import qualified Crypto.Hash as Cryptonite
+import           Control.Concurrent.STM           (atomically)
+import           Control.Concurrent.STM.TVar
+import           Control.Lens                     (iso)
+import qualified Crypto.Data.Auth.Tree            as AT
+import qualified Crypto.Data.Auth.Tree.Class      as AT
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
-import qualified Data.ByteString as BS
-import Tendermint.SDK.Router
+import qualified Crypto.Hash                      as Cryptonite
+import           Data.Binary                      (Binary, decode, encode)
+import           Data.ByteArray                   (convert)
+import           Data.ByteArray.HexString
+import qualified Data.ByteString                  as BS
+import           Data.String.Conversions          (cs)
+import           GHC.Generics                     (Generic)
+import           Tendermint.SDK.Codec
+import           Tendermint.SDK.Router
+import           Tendermint.SDK.Store
 
-import Data.Proxy
-import System.IO.Unsafe
-import Servant.API
-import Tendermint.SDK.Router.Types
-import Tendermint.SDK.Router.Class
+import           Data.Proxy
+import           Servant.API
+import           System.IO.Unsafe
+import           Tendermint.SDK.Router.Class
+import           Tendermint.SDK.Router.Types
 
 --------------------------------------------------------------------------------
 -- Example Store
@@ -40,7 +40,7 @@ mkAuthTreeStore :: IO AuthTreeRawStore
 mkAuthTreeStore = do
   treeV <- newTVarIO AT.empty
   pure $ RawStore
-    { rawStorePut = \k v -> atomically $ do 
+    { rawStorePut = \k v -> atomically $ do
         tree <- readTVar treeV
         writeTVar treeV $ AT.insert k v tree
     , rawStoreGet = \k -> atomically $ do
@@ -52,9 +52,9 @@ mkAuthTreeStore = do
         pure $ convert r
     }
 
-data User = User 
+data User = User
   { userAddress :: String
-  , userName :: String
+  , userName    :: String
   } deriving Generic
 
 newtype UserKey = UserKey String
@@ -63,9 +63,9 @@ newtype UserKey = UserKey String
 instance Binary User
 
 userCodec :: Codec User
-userCodec = 
+userCodec =
     Codec { codecEncode = cs . encode
-          , codecDecode = decode . cs 
+          , codecDecode = decode . cs
           }
 
 instance HasKey User where
@@ -75,7 +75,7 @@ instance HasKey User where
 type UserStore = Store '[User] IO
 
 putUser
-  :: UserKey 
+  :: UserKey
   -> User
   -> UserStore
   -> IO ()
@@ -86,12 +86,12 @@ userStore = unsafePerformIO $ do
   rawStore <- mkAuthTreeStore
   pure $ Store
     { storeRawStore = rawStore
-    , storeCodecs = userCodec :~ NilCodecs 
+    , storeCodecs = userCodec :~ NilCodecs
     }
 {-# NOINLINE userStore #-}
 
 
---queryUser 
+--queryUser
 --  :: Request.Query
 --  -> IO Response.Query
 --queryUser = storeQueryHandler (Proxy :: Proxy User) userStore

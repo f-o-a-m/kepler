@@ -8,13 +8,13 @@ module Tendermint.SDK.Store
   , root
   ) where
 
-import Control.Lens (Iso', (^.))
-import qualified Data.ByteString as BS
-import Tendermint.SDK.Codec
+import           Control.Lens         (Iso', (^.))
+import qualified Data.ByteString      as BS
+import           Tendermint.SDK.Codec
 
 data RawStore m = RawStore
-  { rawStorePut :: BS.ByteString -> BS.ByteString -> m ()
-  , rawStoreGet :: BS.ByteString -> m (Maybe BS.ByteString)
+  { rawStorePut  :: BS.ByteString -> BS.ByteString -> m ()
+  , rawStoreGet  :: BS.ByteString -> m (Maybe BS.ByteString)
   , rawStoreRoot :: m BS.ByteString
   }
 
@@ -24,7 +24,7 @@ class HasKey a where
 
 data Store contents m = Store
   { storeRawStore :: RawStore m
-  , storeCodecs :: Codecs contents
+  , storeCodecs   :: Codecs contents
   }
 
 root
@@ -47,7 +47,7 @@ put k a Store{storeRawStore, storeCodecs} = do
         val = codecEncode codec $ a
     rawStorePut key val
 
-get 
+get
   :: forall a contents m.
      HasCodec a contents
   => HasKey a
@@ -63,7 +63,7 @@ get k Store{storeRawStore, storeCodecs} = do
     pure $ case mRes of
         Nothing -> Nothing
         Just raw -> case codecDecode codec raw of
-          Left e -> error $ "Impossible codec error "  <> e
+          Left e  -> error $ "Impossible codec error "  <> e
           Right a -> Just a
 {-
 

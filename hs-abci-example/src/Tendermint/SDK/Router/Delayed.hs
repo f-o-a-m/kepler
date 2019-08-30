@@ -1,18 +1,19 @@
 module Tendermint.SDK.Router.Delayed where
 
-import Control.Monad.Reader (ReaderT, MonadReader, ask, runReaderT)
-import Control.Monad.IO.Class (MonadIO(..))
-import Control.Monad.Trans (MonadTrans(..))
-import qualified Network.ABCI.Types.Messages.Request as Request
-import qualified Network.ABCI.Types.Messages.Response  as Response
-import Data.String.Conversions (cs)
-import Data.Default.Class (def)
-import Tendermint.SDK.Router.Types
+import           Control.Monad.IO.Class               (MonadIO (..))
+import           Control.Monad.Reader                 (MonadReader, ReaderT,
+                                                       ask, runReaderT)
+import           Control.Monad.Trans                  (MonadTrans (..))
+import           Data.Default.Class                   (def)
+import           Data.String.Conversions              (cs)
+import qualified Network.ABCI.Types.Messages.Request  as Request
+import qualified Network.ABCI.Types.Messages.Response as Response
+import           Tendermint.SDK.Router.Types
 
 --------------------------------------------------------------------------------
 
 
-newtype DelayedIO a = 
+newtype DelayedIO a =
   DelayedIO { runDelayedIO' :: ReaderT Request.Query (RouteResultT IO) a }
     deriving (Functor, Applicative, Monad, MonadIO, MonadReader Request.Query)
 
@@ -30,7 +31,7 @@ data Delayed env a where
              } -> Delayed env a
 
 instance Functor (Delayed env) where
-  fmap f Delayed{..} = 
+  fmap f Delayed{..} =
     Delayed { delayedHandler = fmap (fmap f) . delayedHandler
             , ..
             }
@@ -44,18 +45,18 @@ runDelayed Delayed{..} env = runDelayedIO $ do
    qa <- delayedQueryArgs env
    liftRouteResult $ delayedHandler qa q
 
-runAction :: MonadIO m 
+runAction :: MonadIO m
           => Delayed env (HandlerT m a)
           -> env
           -> Request.Query
           -> (a -> RouteResult Response.Query)
           -> m (RouteResult Response.Query)
 runAction action env query k =
-  liftIO (runDelayed action env query) >>= go 
-  where 
+  liftIO (runDelayed action env query) >>= go
+  where
     go (Fail e) = pure $ Fail e
     go (FailFatal e) = pure $ FailFatal e
-    go (Route a) = do 
+    go (Route a) = do
       e <- runHandlerT a
       case e of
         Left err -> pure $ Route (responseQueryError err)
@@ -66,10 +67,10 @@ delayedFail :: QueryError -> DelayedIO a
 delayedFail err = liftRouteResult $ Fail err
 
 responseQueryError :: QueryError -> Response.Query
-responseQueryError e = 
+responseQueryError e =
   let msg = case e of
-        PathNotFound -> "Path Not Found"
-        InvalidQuery m -> "Invalid Query: " <> m
+        PathNotFound    -> "Path Not Found"
+        InvalidQuery m  -> "Invalid Query: " <> m
         InternalError _ -> "Internal Error"
   in def { Response.queryCode = 1
          , Response.queryLog = cs msg
@@ -83,4 +84,4 @@ addQueryArgs Delayed{..} new =
     { delayedQueryArgs = \ (qa, env) -> (,) <$> delayedQueryArgs env <*> new qa
     , delayedHandler   = \ (x, v) query -> ($ v) <$> delayedHandler x query
     , ..
-    } 
+    }

@@ -1,15 +1,16 @@
 module Tendermint.SDK.StoreQueries where
 
-import Control.Lens ((^.), (&), (.~), from, to)
+import           Control.Lens                         (from, to, (&), (.~),
+                                                       (^.))
 --import Servant.API
 -- import Tendermint.SDK.Routes
-import Tendermint.SDK.Store
-import Tendermint.SDK.Codec
-import Data.Proxy
-import Data.Default.Class (def)
-import qualified Network.ABCI.Types.Messages.Request as Request
+import           Data.ByteArray.HexString             (fromBytes, toBytes)
+import           Data.Default.Class                   (def)
+import           Data.Proxy
+import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
-import Data.ByteArray.HexString (toBytes, fromBytes)
+import           Tendermint.SDK.Codec
+import           Tendermint.SDK.Store
 
 
 class StoreQueryHandler a store h where
@@ -29,4 +30,4 @@ class StoreQueryHandlers contents m hs where
     storeQueryHandlers :: Store contents m -> hs
 
 --instance {-# OVERLAPPING #-} HasKey a => StoreQueryHandlers (Store '[a] m) (Response Query where
---    storeQueryHandlers 
+--    storeQueryHandlers

@@ -1,19 +1,19 @@
 module Tendermint.SDK.Router.Router where
 
-import Data.ByteArray.HexString (HexString)
-import Control.Monad.IO.Class (MonadIO(..))
-import Control.Lens ((^.), to, (&), (.~))
-import Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Text.Encoding as T
-import           Network.HTTP.Types (decodePathSegments)
-import qualified Network.ABCI.Types.Messages.Request as Request
-import qualified Network.ABCI.Types.Messages.Response  as Response
-import Data.Map (Map)
-import qualified Data.Map as M
-import Data.Default.Class (def)
-import Tendermint.SDK.Router.Types
-import Tendermint.SDK.Router.Delayed
+import           Control.Lens                         (to, (&), (.~), (^.))
+import           Control.Monad.IO.Class               (MonadIO (..))
+import           Data.ByteArray.HexString             (HexString)
+import           Data.Default.Class                   (def)
+import           Data.Map                             (Map)
+import qualified Data.Map                             as M
+import           Data.Text                            (Text)
+import qualified Data.Text                            as T
+import qualified Data.Text.Encoding                   as T
+import qualified Network.ABCI.Types.Messages.Request  as Request
+import qualified Network.ABCI.Types.Messages.Response as Response
+import           Network.HTTP.Types                   (decodePathSegments)
+import           Tendermint.SDK.Router.Delayed
+import           Tendermint.SDK.Router.Types
 
 data Router' env a =
     RChoice (Router' env a) (Router' env a)
@@ -51,7 +51,7 @@ methodRouter action = leafRouter route'
                    & Response._queryProof .~ queryResultProof
                    & Response._queryHeight .~ queryResultHeight
 
-runRouter 
+runRouter
   :: Monad m
   => Router env m
   -> env

@@ -1,18 +1,18 @@
 module Tendermint.SDK.Router where
 
-import Data.Proxy
-import Control.Monad.IO.Class (MonadIO(..))
+import           Control.Monad.IO.Class               (MonadIO (..))
+import           Data.Proxy
 
-import qualified Network.ABCI.Types.Messages.Request as Request
-import qualified Network.ABCI.Types.Messages.Response  as Response
+import qualified Network.ABCI.Types.Messages.Request  as Request
+import qualified Network.ABCI.Types.Messages.Response as Response
 
-import Tendermint.SDK.Router.Class
-import Tendermint.SDK.Router.Types
-import Tendermint.SDK.Router.Delayed
-import Tendermint.SDK.Router.Router
+import           Tendermint.SDK.Router.Class
+import           Tendermint.SDK.Router.Delayed
+import           Tendermint.SDK.Router.Router
+import           Tendermint.SDK.Router.Types
 
 
-serve 
+serve
   :: HasRouter layout
   => MonadIO m
   => Proxy layout
@@ -20,15 +20,15 @@ serve
   -> RouteT layout m
   -> Request.Query
   -> m Response.Query
-serve p pm server = 
+serve p pm server =
   toApplication (runRouter (route p pm (emptyDelayed (Route server))) ())
   where
-    emptyDelayed response = 
+    emptyDelayed response =
       let r = pure ()
       in Delayed (const r) $ \_ _ -> response
     toApplication ra query = do
       res <- ra query
       case res of
-        Fail e -> pure $ responseQueryError e
+        Fail e      -> pure $ responseQueryError e
         FailFatal e -> pure $ responseQueryError e
-        Route a -> pure a
+        Route a     -> pure a
