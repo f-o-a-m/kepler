@@ -75,6 +75,8 @@ library:
   exposed-modules:
   - Tendermint.SDK.DB
   - Tendermint.SDK.Transaction
+  - Tendermint.SDK.StoreExample
+  - Tendermint.SDK.Codec
 
   - SimpleStorage.App
   - SimpleStorage.Application
@@ -96,3 +98,28 @@ executables:
     - -Wall
     dependencies:
     - hs-abci-example
+
+tests:
+  hs-abci-example-test:
+    main:                Spec.hs
+    source-dirs:         test
+    other-modules:
+    - Tendermint.SDK.StoreExampleSpec
+    ghc-options:
+    - -Werror
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+
+
+    dependencies:
+      - generic-arbitrary
+      - hs-abci-example
+      - hs-abci-server
+      - hspec
+      - hspec-core
+      - hspec-discover
+      - binary
+      - QuickCheck
+      - quickcheck-instances

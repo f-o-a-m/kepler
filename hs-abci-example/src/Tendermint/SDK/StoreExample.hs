@@ -55,7 +55,7 @@ mkAuthTreeStore = do
 data User = User
   { userAddress :: String
   , userName    :: String
-  } deriving Generic
+  } deriving (Eq, Show, Generic)
 
 newtype UserKey = UserKey String
 
