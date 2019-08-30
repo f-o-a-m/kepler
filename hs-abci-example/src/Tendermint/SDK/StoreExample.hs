@@ -15,12 +15,13 @@ import Control.Concurrent.STM (atomically)
 import qualified Crypto.Hash as Cryptonite
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Data.ByteString as BS
-import Tendermint.SDK.Routes
+import Tendermint.SDK.Router
 
 import Data.Proxy
 import System.IO.Unsafe
 import Servant.API
-import Tendermint.SKD.Router.Types
+import Tendermint.SDK.Router.Types
+import Tendermint.SDK.Router.Class
 
 --------------------------------------------------------------------------------
 -- Example Store
@@ -94,6 +95,7 @@ userStore = unsafePerformIO $ do
 --  :: Request.Query
 --  -> IO Response.Query
 --queryUser = storeQueryHandler (Proxy :: Proxy User) userStore
+
 
 newtype DogKey = DogKey Int
 

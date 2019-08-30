@@ -5,7 +5,6 @@ import GHC.TypeLits (KnownSymbol, symbolVal)
 import Data.Proxy
 import Servant.API
 import Data.String.Conversions (cs)
-
 import Tendermint.SDK.Router.Types
 import Tendermint.SDK.Router.Delayed
 import Tendermint.SDK.Router.Router
@@ -36,7 +35,11 @@ instance (HasRouter sublayout, KnownSymbol path) => HasRouter (path :> sublayout
     pathRouter (cs (symbolVal proxyPath)) (route (Proxy :: Proxy sublayout) pm subserver)
     where proxyPath = Proxy :: Proxy path
 
-
+instance EncodeQueryResult a => HasRouter (Leaf a) where
+ 
+   type RouteT (Leaf a) m = HandlerT m (QueryResult a)
+   route _ _  = methodRouter
+ 
 
 
 instance (FromQueryData a, HasRouter layout)
