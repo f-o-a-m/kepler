@@ -7,7 +7,8 @@ import qualified Crypto.Data.Auth.Tree            as AT
 import qualified Crypto.Data.Auth.Tree.Class      as AT
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Crypto.Hash                      as Cryptonite
-import           Data.Binary                      (Binary, decode, encode)
+import           Data.Binary                      (Binary)
+import qualified Data.Binary                     as Binary
 import           Data.ByteArray                   (convert)
 import           Data.ByteArray.HexString
 import qualified Data.ByteString                  as BS
@@ -62,11 +63,9 @@ newtype UserKey = UserKey String
 
 instance Binary User
 
-userCodec :: Codec User
-userCodec =
-    Codec { codecEncode = cs . encode
-          , codecDecode = Right . decode . cs
-          }
+instance HasCodec User where
+    encode = cs . Binary.encode
+    decode = Right . Binary.decode . cs
 
 instance HasKey User where
     type Key User = UserKey
@@ -86,7 +85,6 @@ userStore = unsafePerformIO $ do
   rawStore <- mkAuthTreeStore
   pure $ Store
     { storeRawStore = rawStore
-    , storeCodecs = userCodec :~ NilCodecs
     }
 {-# NOINLINE userStore #-}
 
@@ -126,7 +124,7 @@ serveRoutes :: Application IO
 serveRoutes = serve layoutP (Proxy :: Proxy IO) userServer
 
 instance EncodeQueryResult User where
-  encodeQueryResult = fromBytes . codecEncode userCodec
+  encodeQueryResult = fromBytes . encode
 
 mkQueryResult :: a -> QueryResult a
 mkQueryResult a = QueryResult

@@ -16,15 +16,14 @@ import           Tendermint.SDK.Store
 class StoreQueryHandler a store h where
     storeQueryHandler :: Proxy a -> store -> h
 
-instance (HasKey a, HasCodec a contents, Monad m)
+instance (HasKey a, ContainsCodec a contents, Monad m)
    => StoreQueryHandler a (Store contents m) (Request.Query -> m Response.Query) where
-  storeQueryHandler _ store@Store{storeCodecs} query = do
+  storeQueryHandler _ store query = do
     let key = query ^. Request._queryData . to toBytes . from rawKey :: Key a
-        Codec{codecEncode} = getCodec storeCodecs :: Codec a
     mRes <- get (key :: Key a) store
     case mRes of
         Nothing -> pure def
-        Just res -> pure $ def & Response._queryValue .~ fromBytes (codecEncode res)
+        Just res -> pure $ def & Response._queryValue .~ fromBytes (encode res)
 
 class StoreQueryHandlers contents m hs where
     storeQueryHandlers :: Store contents m -> hs

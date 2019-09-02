@@ -1,7 +1,6 @@
 module Tendermint.SDK.Store
   ( RawStore(..)
   , Store(..)
-  , Codecs(..)
   , HasKey(..)
   , get
   , put
@@ -24,7 +23,6 @@ class HasKey a where
 
 data Store contents m = Store
   { storeRawStore :: RawStore m
-  , storeCodecs   :: Codecs contents
   }
 
 root
@@ -34,35 +32,33 @@ root Store{storeRawStore} = rawStoreRoot storeRawStore
 
 put
   :: forall a contents m.
-     HasCodec a contents
+     ContainsCodec a contents
   => HasKey a
   => Key a
   -> a
   -> Store contents m
   -> m ()
-put k a Store{storeRawStore, storeCodecs} = do
-    let codec = getCodec storeCodecs
-        RawStore {rawStorePut} = storeRawStore
+put k a Store{storeRawStore} = do
+    let RawStore {rawStorePut} = storeRawStore
         key = k ^. rawKey
-        val = codecEncode codec $ a
+        val = encode a
     rawStorePut key val
 
 get
   :: forall a contents m.
-     HasCodec a contents
+     ContainsCodec a contents
   => HasKey a
   => Monad m
   => Key a
   -> Store contents m
   -> m (Maybe a)
-get k Store{storeRawStore, storeCodecs} = do
-    let codec = getCodec storeCodecs
-        RawStore {rawStoreGet} = storeRawStore
+get k Store{storeRawStore} = do
+    let RawStore {rawStoreGet} = storeRawStore
         key = k ^. rawKey
     mRes <- rawStoreGet key
     pure $ case mRes of
         Nothing -> Nothing
-        Just raw -> case codecDecode codec raw of
+        Just raw -> case decode raw of
           Left e  -> error $ "Impossible codec error "  <> e
           Right a -> Just a
 {-
