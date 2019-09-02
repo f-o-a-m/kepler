@@ -65,7 +65,7 @@ instance Binary User
 userCodec :: Codec User
 userCodec =
     Codec { codecEncode = cs . encode
-          , codecDecode = decode . cs
+          , codecDecode = Right . decode . cs
           }
 
 instance HasKey User where

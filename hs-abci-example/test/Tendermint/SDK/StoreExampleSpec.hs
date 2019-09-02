@@ -19,9 +19,9 @@ spec =
           decode = codecDecode userCodec
       qManRes  <- serveRoutes manQuery
       qDogRes  <- serveRoutes dogQuery
-      let (Right man) = decode . toBytes . Response.queryValue $ qManRes
-          (Right dog) = decode . toBytes . Response.queryValue $ qDogRes
-      man `shouldBe` expectedMan
-      dog `shouldBe` expectedDog
+      let man = decode . toBytes . Response.queryValue $ qManRes
+          dog = decode . toBytes . Response.queryValue $ qDogRes
+      man `shouldBe` Right expectedMan
+      dog `shouldBe` Right expectedDog
 
 
