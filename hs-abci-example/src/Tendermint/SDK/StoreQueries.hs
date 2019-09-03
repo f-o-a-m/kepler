@@ -1,32 +1,63 @@
 module Tendermint.SDK.StoreQueries where
 
-import           Control.Lens                         (from, to, (&), (.~),
-                                                       (^.))
 --import Servant.API
 -- import Tendermint.SDK.Routes
-import           Data.ByteArray.HexString             (fromBytes, toBytes)
-import           Data.Default.Class                   (def)
+import           Control.Monad.Trans (lift)
+import           Control.Lens ((^.), to)
 import           Data.Proxy
-import qualified Network.ABCI.Types.Messages.Request  as Request
-import qualified Network.ABCI.Types.Messages.Response as Response
 import           Tendermint.SDK.Codec
 import           Tendermint.SDK.Store
+import           Tendermint.SDK.Router.Types
+import           Tendermint.SDK.Router.Class
+import           Servant.API
+import           Control.Monad.Except (throwError)
+import           Data.ByteArray.HexString (fromBytes)
 
 
 class StoreQueryHandler a store h where
     storeQueryHandler :: Proxy a -> store -> h
 
-instance (HasKey a, ContainsCodec a contents, Monad m)
-   => StoreQueryHandler a (Store contents m) (Request.Query -> m Response.Query) where
-  storeQueryHandler _ store query = do
-    let key = query ^. Request._queryData . to toBytes . from rawKey :: Key a
-    mRes <- get (key :: Key a) store
+instance (HasKey a, Key a ~ k, ContainsCodec a contents, Monad m)
+   => StoreQueryHandler a (Store contents m) (QueryArgs k -> HandlerT m (QueryResult a)) where
+  storeQueryHandler _ store QueryArgs{..} = do
+    let key = queryArgsData
+    mRes <- lift $ get (Root mempty) key store
     case mRes of
-        Nothing -> pure def
-        Just res -> pure $ def & Response._queryValue .~ fromBytes (encode res)
+      Nothing -> throwError ResourceNotFound
+      Just (res :: a) -> pure $ QueryResult
+        -- TODO: actually handle proofs
+        { queryResultData = res
+        , queryResultIndex = 0
+        , queryResultKey = key ^. rawKey . to fromBytes
+        , queryResultProof = Nothing
+        , queryResultHeight = 0
+        }
+        
+           
 
-class StoreQueryHandlers contents m hs where
-    storeQueryHandlers :: Store contents m -> hs
+class StoreQueryHandlers (items :: [*]) (contents :: [*]) m where
+    type QueryApi items :: *
+    storeQueryHandlers :: Proxy items -> Store contents m -> RouteT (QueryApi items) m
 
---instance {-# OVERLAPPING #-} HasKey a => StoreQueryHandlers (Store '[a] m) (Response Query where
---    storeQueryHandlers
+instance
+    ( HasKey a
+    , Monad m
+    , HasCodec a
+    , ContainsCodec a contents
+    , Queryable a
+    )  => StoreQueryHandlers (a ': '[]) contents m where
+      type QueryApi (a ': '[])  =  Name a :> QA (Key a) :> Leaf a
+      storeQueryHandlers _ store = storeQueryHandler  (Proxy :: Proxy a) store
+
+instance
+    ( HasKey a
+    , Monad m
+    , HasCodec a
+    , Queryable a
+    , ContainsCodec a contents
+    , StoreQueryHandlers (a': as) contents m
+    ) => StoreQueryHandlers (a ': a' : as) contents m where
+        type (QueryApi (a ': a' : as)) = (Name a :> QA (Key a) :> Leaf a) :<|> QueryApi (a' ': as)
+        storeQueryHandlers _ store = 
+          storeQueryHandler  (Proxy :: Proxy a) store :<|> 
+          storeQueryHandlers (Proxy :: Proxy (a' ': as)) store

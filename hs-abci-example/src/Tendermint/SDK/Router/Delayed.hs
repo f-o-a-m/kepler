@@ -70,6 +70,7 @@ responseQueryError :: QueryError -> Response.Query
 responseQueryError e =
   let msg = case e of
         PathNotFound    -> "Path Not Found"
+        ResourceNotFound -> "Resource Not Found"
         InvalidQuery m  -> "Invalid Query: " <> m
         InternalError _ -> "Internal Error"
   in def { Response.queryCode = 1

@@ -44,13 +44,14 @@ mkAuthTreeStore = do
     { rawStorePut = \k v -> atomically $ do
         tree <- readTVar treeV
         writeTVar treeV $ AT.insert k v tree
-    , rawStoreGet = \k -> atomically $ do
+    , rawStoreGet = \_ k -> atomically $ do
         tree <- readTVar treeV
         pure $ AT.lookup k tree
+    , rawStoreProve = \_ _ -> pure Nothing
     , rawStoreRoot = atomically $ do
         tree <- readTVar treeV
         let AuthTreeHash r = AT.merkleHash tree :: AuthTreeHash
-        pure $ convert r
+        pure $ Root $ convert r
     }
 
 data User = User

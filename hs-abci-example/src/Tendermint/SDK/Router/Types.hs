@@ -1,7 +1,7 @@
 module Tendermint.SDK.Router.Types where
 
 import           Control.Monad                          (ap)
-import           Control.Monad.Except                   (ExceptT, runExceptT)
+import           Control.Monad.Except                   (ExceptT, MonadError, runExceptT)
 import           Control.Monad.IO.Class                 (MonadIO (..))
 import           Control.Monad.Trans                    (MonadTrans (..))
 import           Data.ByteArray.HexString               (HexString)
@@ -23,6 +23,7 @@ type Application m  = Request.Query -> m Response.Query
 
 data QueryError =
     PathNotFound
+  | ResourceNotFound
   | InvalidQuery String
   | InternalError String
   deriving (Show)
@@ -54,7 +55,7 @@ class FromQueryData a where
 
 newtype HandlerT m a =
   HandlerT { _runHandlerT :: ExceptT QueryError m a }
-  deriving (Functor, Applicative, Monad)
+  deriving (Functor, Applicative, Monad, MonadTrans, MonadError QueryError)
 
 runHandlerT :: HandlerT m a -> m (Either QueryError a)
 runHandlerT = runExceptT . _runHandlerT
