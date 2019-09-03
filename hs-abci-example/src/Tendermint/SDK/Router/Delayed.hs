@@ -51,8 +51,7 @@ runAction :: MonadIO m
           -> Request.Query
           -> (a -> RouteResult Response.Query)
           -> m (RouteResult Response.Query)
-runAction action env query k = do
-  liftIO $ print query
+runAction action env query k =
   liftIO (runDelayed action env query) >>= go
   where
     go (Fail e) = pure $ Fail e
