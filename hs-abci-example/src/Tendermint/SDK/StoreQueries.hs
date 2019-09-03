@@ -2,6 +2,7 @@ module Tendermint.SDK.StoreQueries where
 
 --import Servant.API
 -- import Tendermint.SDK.Routes
+import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Control.Monad.Trans (lift)
 import           Control.Lens ((^.), to)
 import           Data.Proxy
@@ -17,11 +18,12 @@ import           Data.ByteArray.HexString (fromBytes)
 class StoreQueryHandler a store h where
     storeQueryHandler :: Proxy a -> store -> h
 
-instance (HasKey a, Key a ~ k, ContainsCodec a contents, Monad m)
+instance (HasKey a, Show a, Key a ~ k, ContainsCodec a contents, MonadIO m)
    => StoreQueryHandler a (Store contents m) (QueryArgs k -> HandlerT m (QueryResult a)) where
   storeQueryHandler _ store QueryArgs{..} = do
     let key = queryArgsData
     mRes <- lift $ get (Root mempty) key store
+    lift $ liftIO $ print mRes
     case mRes of
       Nothing -> throwError ResourceNotFound
       Just (res :: a) -> pure $ QueryResult
@@ -33,15 +35,14 @@ instance (HasKey a, Key a ~ k, ContainsCodec a contents, Monad m)
         , queryResultHeight = 0
         }
         
-           
-
 class StoreQueryHandlers (items :: [*]) (contents :: [*]) m where
     type QueryApi items :: *
     storeQueryHandlers :: Proxy items -> Store contents m -> RouteT (QueryApi items) m
 
 instance
     ( HasKey a
-    , Monad m
+    , Show a
+    , MonadIO m
     , HasCodec a
     , ContainsCodec a contents
     , Queryable a
@@ -51,7 +52,8 @@ instance
 
 instance
     ( HasKey a
-    , Monad m
+    , Show a
+    , MonadIO m
     , HasCodec a
     , Queryable a
     , ContainsCodec a contents

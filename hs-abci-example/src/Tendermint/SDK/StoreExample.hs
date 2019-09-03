@@ -2,7 +2,7 @@ module Tendermint.SDK.StoreExample where
 
 import           Control.Concurrent.STM           (atomically)
 import           Control.Concurrent.STM.TVar
-import           Control.Lens                     (iso)
+import           Control.Lens                     (iso, (^.), from)
 import qualified Crypto.Data.Auth.Tree            as AT
 import qualified Crypto.Data.Auth.Tree.Class      as AT
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
@@ -11,17 +11,11 @@ import           Data.Binary                      (Binary)
 import qualified Data.Binary                     as Binary
 import           Data.ByteArray                   (convert)
 import           Data.ByteArray.HexString
-import qualified Data.ByteString                  as BS
 import           Data.String.Conversions          (cs)
 import           GHC.Generics                     (Generic)
 import           Tendermint.SDK.Codec
-import           Tendermint.SDK.Router
 import           Tendermint.SDK.Store
 
-import           Data.Proxy
-import           Servant.API
-import           System.IO.Unsafe
-import           Tendermint.SDK.Router.Class
 import           Tendermint.SDK.Router.Types
 
 --------------------------------------------------------------------------------
@@ -59,8 +53,7 @@ data User = User
   , userName    :: String
   } deriving (Eq, Show, Generic)
 
-newtype UserKey = UserKey String
-
+newtype UserKey = UserKey String deriving Show
 
 instance Binary User
 
@@ -72,7 +65,55 @@ instance HasKey User where
     type Key User = UserKey
     rawKey = iso (\(UserKey k) -> cs k) (UserKey . cs)
 
-type UserStore = Store '[User] IO
+instance FromQueryData UserKey where
+  fromQueryData hx = Right (toBytes hx ^. from rawKey)
+
+instance EncodeQueryResult User where
+  encodeQueryResult = fromBytes . encode
+
+instance Queryable User where
+  type Name User = "user"
+
+--------------------------------------------------------------------------------
+
+data Dog = Dog
+  { dogId :: String
+  , dogName  :: String
+  } deriving (Eq, Show, Generic)
+
+instance Binary Dog
+
+newtype DogKey = DogKey String deriving Show
+
+instance HasKey Dog where
+  type Key Dog = DogKey
+  rawKey = iso (\(DogKey k) -> cs k) (DogKey . cs)
+
+instance HasCodec Dog where
+  encode = cs . Binary.encode 
+  decode = Right . Binary.decode . cs
+
+instance EncodeQueryResult Dog where
+  encodeQueryResult  = fromBytes . encode
+
+instance FromQueryData DogKey where
+  fromQueryData hx = Right (toBytes hx ^. from rawKey)
+
+instance Queryable Dog where
+  type Name Dog = "dog"
+
+--------------------------------------------------------------------------------
+
+type UserStoreContents = '[Dog, User]
+
+type UserStore = Store UserStoreContents IO
+
+putDog
+  :: DogKey
+  -> Dog
+  -> UserStore
+  -> IO ()
+putDog k dog store = put k dog store
 
 putUser
   :: UserKey
@@ -80,6 +121,8 @@ putUser
   -> UserStore
   -> IO ()
 putUser k user store = put k user store
+
+{-
 
 userStore :: UserStore
 userStore = unsafePerformIO $ do
@@ -89,49 +132,13 @@ userStore = unsafePerformIO $ do
     }
 {-# NOINLINE userStore #-}
 
+userApi :: Proxy (QueryApi UserStoreContents)
+userApi = Proxy
 
---queryUser
---  :: Request.Query
---  -> IO Response.Query
---queryUser = storeQueryHandler (Proxy :: Proxy User) userStore
-
-
-newtype DogKey = DogKey Int
-
-instance FromQueryData DogKey where
-  fromQueryData = const $ Right $ DogKey 2
-
-instance FromQueryData UserKey where
-  fromQueryData = const $ Right $ UserKey "1"
-
-type UserRoute = "user" :> "user" :> QA UserKey :> Leaf User
-type DogRoute = "user" :> "dog" :> QA DogKey :> Leaf User
-
-type Layout = UserRoute :<|> DogRoute
-
-layoutP :: Proxy Layout
-layoutP = Proxy
-
-userServer :: RouteT Layout IO
-userServer = handleUserQuery1 :<|> handleUserQuery2
-
-handleUserQuery1 :: QueryArgs UserKey -> HandlerT IO (QueryResult User)
-handleUserQuery1 _ = return . mkQueryResult $ User "1" "man"
-
-handleUserQuery2 :: QueryArgs DogKey -> HandlerT IO (QueryResult User)
-handleUserQuery2 _ = return . mkQueryResult $ User "2" "dog"
+userServer :: RouteT (QueryApi UserStoreContents) IO 
+userServer = storeQueryHandlers (Proxy :: Proxy UserStoreContents) userStore
 
 serveRoutes :: Application IO
-serveRoutes = serve layoutP (Proxy :: Proxy IO) userServer
+serveRoutes = serve userApi (Proxy :: Proxy IO) userServer
 
-instance EncodeQueryResult User where
-  encodeQueryResult = fromBytes . encode
-
-mkQueryResult :: a -> QueryResult a
-mkQueryResult a = QueryResult
-  { queryResultData = a
-  , queryResultHeight = 0
-  , queryResultIndex = 0
-  , queryResultKey = fromBytes (mempty :: BS.ByteString)
-  , queryResultProof = Nothing
-  }
+-}

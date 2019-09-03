@@ -76,7 +76,12 @@ library:
   - Tendermint.SDK.DB
   - Tendermint.SDK.Transaction
   - Tendermint.SDK.StoreExample
+  - Tendermint.SDK.Store
   - Tendermint.SDK.Codec
+  - Tendermint.SDK.StoreQueries
+  - Tendermint.SDK.Router.Types
+  - Tendermint.SDK.Router.Class
+  - Tendermint.SDK.Router
 
   - SimpleStorage.App
   - SimpleStorage.Application
