@@ -23,8 +23,8 @@ spec =
       let userStore :: UserStore
           userStore = Store { storeRawStore = rawStore }
 
-          userServer :: RouteT (QueryApi UserStoreContents) IO 
-          userServer = storeQueryHandlers (Proxy :: Proxy UserStoreContents) userStore
+          userServer :: RouteT ("user" :> QueryApi UserStoreContents) IO 
+          userServer = allStoreHandlers userStore
 
           userApi :: Proxy ("user" :> QueryApi UserStoreContents)
           userApi = Proxy

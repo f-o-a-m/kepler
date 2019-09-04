@@ -59,3 +59,11 @@ instance
         storeQueryHandlers _ store = 
           storeQueryHandler  (Proxy :: Proxy a) store :<|> 
           storeQueryHandlers (Proxy :: Proxy (a' ': as)) store
+
+allStoreHandlers
+  :: forall (contents :: [*]) m .
+     StoreQueryHandlers contents contents m
+  => Monad m
+  => Store contents m
+  -> RouteT (QueryApi contents) m
+allStoreHandlers = storeQueryHandlers (Proxy :: Proxy contents)
