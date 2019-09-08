@@ -48,97 +48,171 @@ mkAuthTreeStore = do
         pure $ Root $ convert r
     }
 
-data User = User
-  { userAddress :: String
-  , userName    :: String
+--------------------------------------------------------------------------------
+-- UserStore
+--------------------------------------------------------------------------------
+-- | Buyer
+data Buyer = Buyer
+  { buyerId :: String
+  , buyerName    :: String
   } deriving (Eq, Show, Generic)
 
-newtype UserKey = UserKey String deriving Show
+newtype BuyerKey = BuyerKey String deriving Show
 
-instance Binary User
+instance Binary Buyer
 
-instance HasCodec User where
+instance HasCodec Buyer where
     encode = cs . Binary.encode
     decode = Right . Binary.decode . cs
 
-instance HasKey User where
-    type Key User = UserKey
-    rawKey = iso (\(UserKey k) -> cs k) (UserKey . cs)
+instance HasKey Buyer where
+    type Key Buyer = BuyerKey
+    rawKey = iso (\(BuyerKey k) -> cs k) (BuyerKey . cs)
 
-instance FromQueryData UserKey where
+instance FromQueryData BuyerKey where
   fromQueryData hx = Right (toBytes hx ^. from rawKey)
 
-instance EncodeQueryResult User where
+instance EncodeQueryResult Buyer where
   encodeQueryResult = fromBytes . encode
 
-instance Queryable User where
-  type Name User = "user"
+instance Queryable Buyer where
+  type Name Buyer = "buyer"
 
---------------------------------------------------------------------------------
-
-data Dog = Dog
-  { dogId :: String
-  , dogName  :: String
+-- | Owner
+data Owner = Owner
+  { ownerId :: String
+  , ownerName  :: String
   } deriving (Eq, Show, Generic)
 
-instance Binary Dog
+instance Binary Owner
 
-newtype DogKey = DogKey String deriving Show
+newtype OwnerKey = OwnerKey String deriving Show
 
-instance HasKey Dog where
-  type Key Dog = DogKey
-  rawKey = iso (\(DogKey k) -> cs k) (DogKey . cs)
+instance HasKey Owner where
+  type Key Owner = OwnerKey
+  rawKey = iso (\(OwnerKey k) -> cs k) (OwnerKey . cs)
 
-instance HasCodec Dog where
-  encode = cs . Binary.encode 
+instance HasCodec Owner where
+  encode = cs . Binary.encode
   decode = Right . Binary.decode . cs
 
-instance EncodeQueryResult Dog where
+instance EncodeQueryResult Owner where
   encodeQueryResult  = fromBytes . encode
 
-instance FromQueryData DogKey where
+instance FromQueryData OwnerKey where
   fromQueryData hx = Right (toBytes hx ^. from rawKey)
 
-instance Queryable Dog where
-  type Name Dog = "dog"
+instance Queryable Owner where
+  type Name Owner = "owner"
 
---------------------------------------------------------------------------------
-
-type UserStoreContents = '[Dog, User]
+-- | Store
+type UserStoreContents = '[Owner, Buyer]
 
 type UserStore = Store UserStoreContents IO
 
-putDog
-  :: DogKey
-  -> Dog
+putOwner
+  :: OwnerKey
+  -> Owner
   -> UserStore
   -> IO ()
-putDog k dog store = put k dog store
+putOwner k owner store = put k owner store
 
-putUser
-  :: UserKey
-  -> User
+putBuyer
+  :: BuyerKey
+  -> Buyer
   -> UserStore
   -> IO ()
-putUser k user store = put k user store
+putBuyer k buyer store = put k buyer store
 
-{-
+--------------------------------------------------------------------------------
+-- DogStore
+--------------------------------------------------------------------------------
+-- | Hound
+data Hound = Hound
+  { houndId :: String
+  , houndName    :: String
+  } deriving (Eq, Show, Generic)
 
-userStore :: UserStore
-userStore = unsafePerformIO $ do
-  rawStore <- mkAuthTreeStore
-  pure $ Store
-    { storeRawStore = rawStore
-    }
-{-# NOINLINE userStore #-}
+newtype HoundKey = HoundKey String deriving Show
 
-userApi :: Proxy (QueryApi UserStoreContents)
-userApi = Proxy
+instance Binary Hound
 
-userServer :: RouteT (QueryApi UserStoreContents) IO 
-userServer = storeQueryHandlers (Proxy :: Proxy UserStoreContents) userStore
+instance HasCodec Hound where
+    encode = cs . Binary.encode
+    decode = Right . Binary.decode . cs
 
-serveRoutes :: Application IO
-serveRoutes = serve userApi (Proxy :: Proxy IO) userServer
+instance HasKey Hound where
+    type Key Hound = HoundKey
+    rawKey = iso (\(HoundKey k) -> cs k) (HoundKey . cs)
 
--}
+instance FromQueryData HoundKey where
+  fromQueryData hx = Right (toBytes hx ^. from rawKey)
+
+instance EncodeQueryResult Hound where
+  encodeQueryResult = fromBytes . encode
+
+instance Queryable Hound where
+  type Name Hound = "hound"
+
+-- | Lab
+data Lab = Lab
+  { labId :: String
+  , labName  :: String
+  } deriving (Eq, Show, Generic)
+
+instance Binary Lab
+
+newtype LabKey = LabKey String deriving Show
+
+instance HasKey Lab where
+  type Key Lab = LabKey
+  rawKey = iso (\(LabKey k) -> cs k) (LabKey . cs)
+
+instance HasCodec Lab where
+  encode = cs . Binary.encode
+  decode = Right . Binary.decode . cs
+
+instance EncodeQueryResult Lab where
+  encodeQueryResult  = fromBytes . encode
+
+instance FromQueryData LabKey where
+  fromQueryData hx = Right (toBytes hx ^. from rawKey)
+
+instance Queryable Lab where
+  type Name Lab = "lab"
+
+-- | DogStore
+type DogStoreContents = '[Lab, Hound]
+
+type DogStore = Store DogStoreContents IO
+
+putLab
+  :: LabKey
+  -> Lab
+  -> DogStore
+  -> IO ()
+putLab k lab store = put k lab store
+
+putHound
+  :: HoundKey
+  -> Hound
+  -> DogStore
+  -> IO ()
+putHound k hound store = put k hound store
+-- userStore :: UserStore
+-- userStore = unsafePerformIO $ do
+--   rawStore <- mkAuthTreeStore
+--   pure $ Store
+--     { storeRawStore = rawStore
+--     }
+-- {-# NOINLINE userStore #-}
+
+-- userApi :: Proxy (QueryApi UserStoreContents)
+-- userApi = Proxy
+
+-- userServer :: RouteT (QueryApi UserStoreContents) IO
+-- userServer = storeQueryHandlers (Proxy :: Proxy UserStoreContents) userStore
+
+-- serveRoutes :: Application IO
+-- serveRoutes = serve userApi (Proxy :: Proxy IO) userServer
+

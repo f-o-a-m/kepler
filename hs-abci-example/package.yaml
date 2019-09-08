@@ -109,6 +109,7 @@ tests:
     main:                Spec.hs
     source-dirs:         test
     other-modules:
+    - Tendermint.SDK.StoreExample.Instances
     - Tendermint.SDK.StoreExampleSpec
     ghc-options:
     - -Werror
