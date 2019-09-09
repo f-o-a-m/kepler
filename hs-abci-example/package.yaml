@@ -37,18 +37,19 @@ default-extensions:
 
 
 dependencies:
+- avl-auth
 - base >= 4.7 && < 5
 - binary
 - bytestring
 - containers
 - cryptonite
 - data-default-class
+- hs-abci-extra
 - hs-abci-server
 - hs-abci-types
 - hs-abci-extra
 - http-types
 - lens
-- avl-auth
 - memory
 - mtl
 - proto-lens
@@ -105,18 +106,39 @@ executables:
     - hs-abci-example
 
 tests:
-  hs-abci-example-test:
+  hs-abci-example-e2e:
     main:                Spec.hs
-    source-dirs:         test
+    source-dirs:         e2e-test
     other-modules:
-    - Tendermint.SDK.StoreExampleSpec
+    - SimpleStorage.Test.E2ESpec
+    - SimpleStorage.Test.HandlersSpec
     ghc-options:
     - -Werror
     - -Wall
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    dependencies:
+      - aeson
+      - aeson-pretty
+      - hs-abci-example
+      - hs-abci-types
+      - hs-tendermint-client
+      - hspec
+      - QuickCheck
 
+  hs-abci-example-test:
+    main:                Spec.hs
+    source-dirs:         sdk-test
+    other-modules:
+    - Tendermint.SDK.StoreExampleSpec
+
+    ghc-options:
+    - -Werror
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
 
     dependencies:
       - generic-arbitrary

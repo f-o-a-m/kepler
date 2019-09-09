@@ -1,4 +1,9 @@
-module Network.Tendermint.Client where
+module Network.Tendermint.Client
+  ( module Network.Tendermint.Client
+
+  -- * ReExports
+  , RPC.Config(..)
+  ) where
 
 import           Control.Monad.Reader                         (ReaderT,
                                                                runReaderT)
@@ -11,6 +16,8 @@ import           Data.Aeson.Casing                            (aesonDrop,
                                                                pascalCase,
                                                                snakeCase)
 import           Data.ByteArray.HexString                     (HexString)
+import           Data.ByteString                              (ByteString)
+import           Data.Default.Class                           (Default (..))
 import           Data.Int                                     (Int64)
 import           Data.Text                                    (Text)
 import           Data.Word                                    (Word32)
@@ -20,114 +27,53 @@ import qualified Network.ABCI.Types.Messages.Response         as Response
 import qualified Network.HTTP.Simple                          as HTTP
 import qualified Network.Tendermint.Client.Internal.RPCClient as RPC
 
+
 type TendermintM a = ReaderT RPC.Config IO a
 
+-- | Execute an RPC request with the given configuration.
 runTendermintM :: RPC.Config -> TendermintM a -> IO a
 runTendermintM = flip runReaderT
 
-defaultConfig :: RPC.Config
-defaultConfig = RPC.Config
-  $ HTTP.setRequestHost "localhost"
-  $ HTTP.setRequestPort 26657
-  $ HTTP.defaultRequest
+defaultConfig
+  :: ByteString
+  -- ^ Hostname or IP (e.g. "localhost", "127.0.0.1", "151.101.208.68")
+  -> Int
+  -- ^ Port
+  -> RPC.Config
+defaultConfig host port =
+  let baseReq =
+          HTTP.setRequestHost host
+        $ HTTP.setRequestPort port
+        $ HTTP.defaultRequest
+  in RPC.Config baseReq mempty mempty
 
--- | invokes [/abci_info](https://tendermint.com/rpc/#abciinfo) rpc call
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/abci.go#L100
-abciInfo :: TendermintM ResultABCIInfo
-abciInfo = RPC.remote (RPC.MethodName "abci_info") ()
--- | invokes [/health](https://tendermint.com/rpc/#health) rpc call
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/health.go#L35
-health :: TendermintM ResultHealth
-health = RPC.remote (RPC.MethodName "health") ()
+--------------------------------------------------------------------------------
+-- ABCI Query
+--------------------------------------------------------------------------------
+
 -- | invokes [/abci_query](https://tendermint.com/rpc/#abciquery) rpc call
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/abci.go#L56
 abciQuery :: RequestABCIQuery -> TendermintM ResultABCIQuery
 abciQuery = RPC.remote (RPC.MethodName "abci_query")
--- | invokes [/block](https://tendermint.com/rpc/#block) rpc call
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/blocks.go#L72
-block :: RequestBlock -> TendermintM ResultBlock
-block = RPC.remote (RPC.MethodName "block")
--- | invokes [/tx](https://tendermint.com/rpc/#tx) rpc call
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/tx.go#L81
-tx :: RequestTx -> TendermintM ResultTx
-tx = RPC.remote (RPC.MethodName "tx")
--- | invokes [/broadcast_tx_async](https://tendermint.com/rpc/#broadcasttxasync) rpc call
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L75
-broadcastTxAsync :: RequestBroadcastTxAsync -> TendermintM ResultBroadcastTx
-broadcastTxAsync = RPC.remote (RPC.MethodName "broadcast_tx_async")
--- | invokes [/broadcast_tx_sync](https://tendermint.com/rpc/#broadcasttxsync) rpc call
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L136
-broadcastTxSync :: RequestBroadcastTxSync -> TendermintM ResultBroadcastTx
-broadcastTxSync = RPC.remote (RPC.MethodName "broadcast_tx_sync")
--- | invokes [/broadcast_tx_commit](https://tendermint.com/rpc/#broadcasttxcommit) rpc call
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L215
-broadcastTxCommit :: RequestBroadcastTxCommit -> TendermintM ResultBroadcastTxCommit
-broadcastTxCommit = RPC.remote (RPC.MethodName "broadcast_tx_commit")
-
-
-
-defaultRPCOptions :: String -> Aeson.Options
-defaultRPCOptions prefix = aesonDrop (length prefix) snakeCase
-
-
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/abci.go#L56
 data RequestABCIQuery = RequestABCIQuery
-  { requestABCIQueryPath   :: Text
+  { requestABCIQueryPath   :: Maybe Text
   , requestABCIQueryData   :: HexString
-  , requestABCIQueryHeight :: Int64
+  , requestABCIQueryHeight :: Maybe Int64
   , requestABCIQueryProve  :: Bool
   } deriving (Eq, Show, Generic)
 instance ToJSON RequestABCIQuery where
   toJSON = genericToJSON $ defaultRPCOptions "requestABCIQuery"
 
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/blocks.go#L72
-data RequestBlock = RequestBlock
-  { requestBlockHeightPtr :: Maybe Int64
-  } deriving (Eq, Show, Generic)
-instance ToJSON RequestBlock where
-  toJSON = genericToJSON $ defaultRPCOptions "requestBlock"
-
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/tx.go#L81
-data RequestTx = RequestTx
-  { requestTxHash  :: HexString
-  , requestTxProve :: Bool
-  } deriving (Eq, Show, Generic)
-instance ToJSON RequestTx where
-  toJSON = genericToJSON $ defaultRPCOptions "requestTx"
-
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L75
-data RequestBroadcastTxAsync = RequestBroadcastTxAsync
-  { requestBroadcastTxAsyncTx :: Tx
-  } deriving (Eq, Show, Generic)
-instance ToJSON RequestBroadcastTxAsync where
-  toJSON = genericToJSON $ defaultRPCOptions "requestBroadcastTxAsync"
-
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L136
-data RequestBroadcastTxSync = RequestBroadcastTxSync
-  { requestBroadcastTxSyncTx :: Tx
-  } deriving (Eq, Show, Generic)
-instance ToJSON RequestBroadcastTxSync where
-  toJSON = genericToJSON $ defaultRPCOptions "requestBroadcastTxSync"
-
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L215
-data RequestBroadcastTxCommit = RequestBroadcastTxCommit
-  { requestBroadcastTxCommitTx :: Tx
-  } deriving (Eq, Show, Generic)
-instance ToJSON RequestBroadcastTxCommit where
-  toJSON = genericToJSON $ defaultRPCOptions "requestBroadcastTxCommit"
-
-
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L208
-type ResultHealth = ()
-
-
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L188
-data ResultABCIInfo = ResultABCIInfo
-  { resultABCIInfoResponse :: Response.Info
-  } deriving (Eq, Show, Generic)
-instance FromJSON ResultABCIInfo where
-  parseJSON = genericParseJSON $ defaultRPCOptions "resultABCIInfo"
+instance Default RequestABCIQuery where
+  def =
+    RequestABCIQuery
+      { requestABCIQueryPath = Nothing
+      , requestABCIQueryData = ""
+      , requestABCIQueryHeight = Nothing
+      , requestABCIQueryProve = False
+      }
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L193
 data ResultABCIQuery = ResultABCIQuery
@@ -136,6 +82,28 @@ data ResultABCIQuery = ResultABCIQuery
 instance FromJSON ResultABCIQuery where
   parseJSON = genericParseJSON $ defaultRPCOptions "resultABCIQuery"
 
+--------------------------------------------------------------------------------
+-- Block
+--------------------------------------------------------------------------------
+
+-- | invokes [/block](https://tendermint.com/rpc/#block) rpc call
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/blocks.go#L72
+block :: RequestBlock -> TendermintM ResultBlock
+block = RPC.remote (RPC.MethodName "block")
+
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/blocks.go#L72
+data RequestBlock = RequestBlock
+  { requestBlockHeightPtr :: Maybe Int64
+  } deriving (Eq, Show, Generic)
+instance ToJSON RequestBlock where
+  toJSON = genericToJSON $ defaultRPCOptions "requestBlock"
+
+instance Default RequestBlock where
+  def =
+    RequestBlock
+      { requestBlockHeightPtr = Nothing
+      }
+
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L28
 data ResultBlock = ResultBlock
   { resultBlockBlockMeta :: BlockMeta
@@ -143,6 +111,31 @@ data ResultBlock = ResultBlock
   } deriving (Eq, Show, Generic)
 instance FromJSON ResultBlock where
   parseJSON = genericParseJSON $ defaultRPCOptions "resultBlock"
+
+
+--------------------------------------------------------------------------------
+-- Tx
+--------------------------------------------------------------------------------
+
+-- | invokes [/tx](https://tendermint.com/rpc/#tx) rpc call
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/tx.go#L81
+tx :: RequestTx -> TendermintM ResultTx
+tx = RPC.remote (RPC.MethodName "tx")
+
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/tx.go#L81
+data RequestTx = RequestTx
+  { requestTxHash  :: Maybe HexString
+  , requestTxProve :: Bool
+  } deriving (Eq, Show, Generic)
+instance ToJSON RequestTx where
+  toJSON = genericToJSON $ defaultRPCOptions "requestTx"
+
+instance Default RequestTx where
+  def =
+    RequestTx
+      { requestTxHash = Nothing
+      , requestTxProve = False
+      }
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L164
 data ResultTx = ResultTx
@@ -156,15 +149,53 @@ data ResultTx = ResultTx
 instance FromJSON ResultTx where
   parseJSON = genericParseJSON $ defaultRPCOptions "resultTx"
 
--- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L147
-data ResultBroadcastTx = ResultBroadcastTx
-  { resultBroadcastTxCode :: Word32
-  , resultBroadcastTxData :: HexString
-  , resultBroadcastTxLog  :: Text
-  , resultBroadcastTxHash :: HexString
+--------------------------------------------------------------------------------
+-- BroadcastTxAsync
+--------------------------------------------------------------------------------
+
+-- | invokes [/broadcast_tx_async](https://tendermint.com/rpc/#broadcasttxasync) rpc call
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L75
+broadcastTxAsync :: RequestBroadcastTxAsync -> TendermintM ResultBroadcastTx
+broadcastTxAsync = RPC.remote (RPC.MethodName "broadcast_tx_async")
+
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L75
+data RequestBroadcastTxAsync = RequestBroadcastTxAsync
+  { requestBroadcastTxAsyncTx :: Tx
   } deriving (Eq, Show, Generic)
-instance FromJSON ResultBroadcastTx where
-  parseJSON = genericParseJSON $ defaultRPCOptions "resultBroadcastTx"
+instance ToJSON RequestBroadcastTxAsync where
+  toJSON = genericToJSON $ defaultRPCOptions "requestBroadcastTxAsync"
+
+--------------------------------------------------------------------------------
+-- BroadcastTxSync
+--------------------------------------------------------------------------------
+
+-- | invokes [/broadcast_tx_sync](https://tendermint.com/rpc/#broadcasttxsync) rpc call
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L136
+broadcastTxSync :: RequestBroadcastTxSync -> TendermintM ResultBroadcastTx
+broadcastTxSync = RPC.remote (RPC.MethodName "broadcast_tx_sync")
+
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L136
+data RequestBroadcastTxSync = RequestBroadcastTxSync
+  { requestBroadcastTxSyncTx :: Tx
+  } deriving (Eq, Show, Generic)
+instance ToJSON RequestBroadcastTxSync where
+  toJSON = genericToJSON $ defaultRPCOptions "requestBroadcastTxSync"
+
+--------------------------------------------------------------------------------
+-- BroadcastTxCommit
+--------------------------------------------------------------------------------
+
+-- | invokes [/broadcast_tx_commit](https://tendermint.com/rpc/#broadcasttxcommit) rpc call
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L215
+broadcastTxCommit :: RequestBroadcastTxCommit -> TendermintM ResultBroadcastTxCommit
+broadcastTxCommit = RPC.remote (RPC.MethodName "broadcast_tx_commit")
+
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L215
+data RequestBroadcastTxCommit = RequestBroadcastTxCommit
+  { requestBroadcastTxCommitTx :: Tx
+  } deriving (Eq, Show, Generic)
+instance ToJSON RequestBroadcastTxCommit where
+  toJSON = genericToJSON $ defaultRPCOptions "requestBroadcastTxCommit"
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L156
 data ResultBroadcastTxCommit = ResultBroadcastTxCommit
@@ -175,6 +206,51 @@ data ResultBroadcastTxCommit = ResultBroadcastTxCommit
   } deriving (Eq, Show, Generic)
 instance FromJSON ResultBroadcastTxCommit where
   parseJSON = genericParseJSON $ defaultRPCOptions "resultBroadcastTxCommit"
+
+
+--------------------------------------------------------------------------------
+-- Health
+--------------------------------------------------------------------------------
+
+-- | invokes [/health](https://tendermint.com/rpc/#health) rpc call
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/health.go#L35
+health :: TendermintM ResultHealth
+health = RPC.remote (RPC.MethodName "health") ()
+
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L208
+data ResultHealth = ResultHealth deriving (Eq, Show)
+
+instance FromJSON ResultHealth where
+  parseJSON = Aeson.withObject "Expected emptyObject" $ \_ ->
+    pure ResultHealth
+
+--------------------------------------------------------------------------------
+-- ABCIInfo
+--------------------------------------------------------------------------------
+
+-- | invokes [/abci_info](https://tendermint.com/rpc/#abciinfo) rpc call
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/abci.go#L100
+abciInfo :: TendermintM ResultABCIInfo
+abciInfo = RPC.remote (RPC.MethodName "abci_info") ()
+
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L188
+data ResultABCIInfo = ResultABCIInfo
+  { resultABCIInfoResponse :: Response.Info
+  } deriving (Eq, Show, Generic)
+instance FromJSON ResultABCIInfo where
+  parseJSON = genericParseJSON $ defaultRPCOptions "resultABCIInfo"
+
+--------------------------------------------------------------------------------
+
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L147
+data ResultBroadcastTx = ResultBroadcastTx
+  { resultBroadcastTxCode :: Word32
+  , resultBroadcastTxData :: HexString
+  , resultBroadcastTxLog  :: Text
+  , resultBroadcastTxHash :: HexString
+  } deriving (Eq, Show, Generic)
+instance FromJSON ResultBroadcastTx where
+  parseJSON = genericParseJSON $ defaultRPCOptions "resultBroadcastTx"
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/types/tx.go#L85
 data TxProof = TxProof
@@ -269,4 +345,5 @@ instance FromJSON SignedMsgType where
     32 -> pure ProposalType
     _  -> fail $ "invalid SignedMsg code: " <> show n
 
-
+defaultRPCOptions :: String -> Aeson.Options
+defaultRPCOptions prefix = aesonDrop (length prefix) snakeCase

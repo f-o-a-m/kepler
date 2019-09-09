@@ -34,7 +34,7 @@ to generate the corresponding `Proto.*` Haskell modules. If you want to view all
 generated modules, you can run
 
 ```bash
-> cd hs-abci-server && find .stack-work -path '*autogen/Proto'
+> find hs-abci-types/.stack-work -path '*autogen/Proto'
 ```
 
 to find the root directory.

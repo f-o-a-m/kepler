@@ -29,23 +29,25 @@ default-extensions:
 - ScopedTypeVariables
 - FlexibleInstances
 - OverloadedStrings
+- GeneralizedNewtypeDeriving
 
 
 dependencies:
-- base >= 4.7 && < 5
-- bytestring
-- base16-bytestring
-- text
-- time
-- exceptions
-- mtl
-- http-conduit
-- http-client
-- random
 - aeson
 - aeson-casing
-- memory
+- base >= 4.7 && < 5
+- base16-bytestring
+- bytestring
+- data-default-class
+- exceptions
 - hs-abci-types
+- http-client
+- http-conduit
+- memory
+- mtl
+- random
+- text
+- time
 
 library:
   source-dirs: src

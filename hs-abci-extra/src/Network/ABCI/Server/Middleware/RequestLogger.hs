@@ -34,7 +34,7 @@ instance LogItem (Loggable (Request (t :: MessageType))) where
 -- mkLogStdout
 --------------------------------------------------------------------------
 -- | Creates a production request logger as middleware for ABCI requests.
--- Uses Lowest possible verbosity.
+-- Uses lowest possible verbosity.
 mkLogStdout :: (MonadIO m) => m (Middleware m)
 mkLogStdout = do
   handleScribe <- liftIO $ mkHandleScribe ColorIfTerminal stdout InfoS V0
