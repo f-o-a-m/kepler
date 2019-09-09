@@ -26,6 +26,7 @@ data TendermintQ query action input a
   | Receive input a
   | Query (Coyoneda query a) (() -> a)
   deriving (Functor)
+      
 
 data EvalSpec state query action input m = EvalSpec
     { handleAction :: action -> TendermintM state action m ()
@@ -40,12 +41,21 @@ mkEval
   => EvalSpec state query action input m
   -> (forall a. TendermintQ query action input a -> TendermintM state action m a)
 mkEval EvalSpec{..} q = case q of
+  -- the module can use this to initialize itself, seems self evident
   Initialize a ->
     traverse_ handleAction initialize $> a
+  -- as far as i can tell, this is only used by halogen in the case where a
+  -- compenet is a child component and is being run. See
+  -- https://github.com/slamdata/purescript-halogen/blob/78a47710678ac8b59142263149f7c532387b662d/src/Halogen/Component.purs#L229
+  -- https://github.com/slamdata/purescript-halogen/blob/78a47710678ac8b59142263149f7c532387b662d/src/Halogen/Component.purs#L229
   Receive i a ->
     traverse_ handleAction (receive i) $> a
+  -- an action is an internal version of a query, so that a module can raise events that are
+  -- not known to external modules
   Action action a ->
     handleAction action $> a
+  -- the module exposes this algebra to be used by other modules as a command / msg passing
+  -- algebra
   Query (Coyoneda g a) f ->  maybe (f ()) g <$> handleQuery a
 
 data ComponentSpec state query action input m = ComponentSpec 
