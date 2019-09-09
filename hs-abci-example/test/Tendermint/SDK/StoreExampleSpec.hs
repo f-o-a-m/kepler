@@ -1,22 +1,22 @@
 module Tendermint.SDK.StoreExampleSpec where
 
-import           Control.Lens ((^.), to)
-import           Data.ByteArray.HexString             (toBytes, fromBytes)
-import           Test.Hspec
+import           Control.Lens                          (to, (^.))
+import           Data.ByteArray.HexString              (fromBytes, toBytes)
 import           Data.Proxy
-import           Test.QuickCheck.Gen (generate)
-import           Test.QuickCheck.Arbitrary (arbitrary)
-import Servant.API
-import qualified Network.ABCI.Types.Messages.Response            as Response
-import qualified Network.ABCI.Types.Messages.Request             as Request
+import qualified Network.ABCI.Types.Messages.Request   as Request
+import qualified Network.ABCI.Types.Messages.Response  as Response
+import           Servant.API
 import           Tendermint.SDK.Codec
-import           Tendermint.SDK.Store
-import           Tendermint.SDK.StoreExample
+import           Tendermint.SDK.Router
 import           Tendermint.SDK.Router.Class
 import           Tendermint.SDK.Router.Types
-import           Tendermint.SDK.Router
-import           Tendermint.SDK.StoreQueries
+import           Tendermint.SDK.Store
+import           Tendermint.SDK.StoreExample
 import           Tendermint.SDK.StoreExample.Instances ()
+import           Tendermint.SDK.StoreQueries
+import           Test.Hspec
+import           Test.QuickCheck.Arbitrary             (arbitrary)
+import           Test.QuickCheck.Gen                   (generate)
 
 type API = "dog"  :> QueryApi DogStoreContents
       :<|> "user" :> QueryApi UserStoreContents
@@ -47,26 +47,43 @@ spec =
           serveRoutes :: Application IO
           serveRoutes = serve api (Proxy :: Proxy IO) (dogServer :<|> userServer)
 
-      -- | Fill the stores
+      -- | Owner
       ownerKey <- generate arbitrary
       expectedOwner <- generate arbitrary
-      -- let
-      --     expectedMan  = User "1" "man"
-      --     manKey = UserKey "abcd"
-      --     expectedDog  = Dog "2" "fido"
-      --     dogKey = DogKey "1234"
-
       putOwner ownerKey expectedOwner userStore
-      -- putDog dogKey expectedDog userStore
-
-      let
-          ownerKeyHex = ownerKey ^. rawKey . to fromBytes
-          ownerQuery = Request.Query ownerKeyHex "user/user" 0 False
-
+      let ownerKeyHex = ownerKey ^. rawKey . to fromBytes
+          ownerQuery = Request.Query ownerKeyHex "user/owner" 0 False
       qOwnerRes  <- serveRoutes ownerQuery
-
       let Right owner = decode . toBytes . Response.queryValue $ qOwnerRes
       owner `shouldBe` expectedOwner
 
+      -- | Buyer
+      buyerKey <- generate arbitrary
+      expectedBuyer <- generate arbitrary
+      putBuyer buyerKey expectedBuyer userStore
+      let buyerKeyHex = buyerKey ^. rawKey . to fromBytes
+          buyerQuery = Request.Query buyerKeyHex "user/buyer" 0 False
+      qBuyerRes  <- serveRoutes buyerQuery
+      let Right buyer = decode . toBytes . Response.queryValue $ qBuyerRes
+      buyer `shouldBe` expectedBuyer
 
+      -- | Lab
+      labKey <- generate arbitrary
+      expectedLab <- generate arbitrary
+      putLab labKey expectedLab dogStore
+      let labKeyHex = labKey ^. rawKey . to fromBytes
+          labQuery = Request.Query labKeyHex "dog/lab" 0 False
+      qLabRes  <- serveRoutes labQuery
+      let Right lab = decode . toBytes . Response.queryValue $ qLabRes
+      lab `shouldBe` expectedLab
+
+      -- | Hound
+      houndKey <- generate arbitrary
+      expectedHound <- generate arbitrary
+      putHound houndKey expectedHound dogStore
+      let houndKeyHex = houndKey ^. rawKey . to fromBytes
+          houndQuery = Request.Query houndKeyHex "dog/hound" 0 False
+      qHoundRes  <- serveRoutes houndQuery
+      let Right hound = decode . toBytes . Response.queryValue $ qHoundRes
+      hound `shouldBe` expectedHound
 
