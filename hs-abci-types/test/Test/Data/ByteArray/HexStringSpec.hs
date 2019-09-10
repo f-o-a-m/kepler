@@ -1,10 +1,10 @@
-{-# LANGUAGE  TypeApplications #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Test.Data.ByteArray.HexStringSpec where
 
-import Data.ByteString
-import qualified Data.List as L
-import           Data.ByteArray.HexString (HexString, toBytes, fromBytes)
+import           Data.ByteArray.HexString (HexString, fromBytes, toBytes)
+import           Data.ByteString
+import qualified Data.List                as L
 import           Test.Hspec
 spec :: Spec
 spec = do

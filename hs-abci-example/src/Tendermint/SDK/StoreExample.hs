@@ -2,13 +2,13 @@ module Tendermint.SDK.StoreExample where
 
 import           Control.Concurrent.STM           (atomically)
 import           Control.Concurrent.STM.TVar
-import           Control.Lens                     (iso, (^.), from)
+import           Control.Lens                     (from, iso, (^.))
 import qualified Crypto.Data.Auth.Tree            as AT
 import qualified Crypto.Data.Auth.Tree.Class      as AT
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Crypto.Hash                      as Cryptonite
 import           Data.Binary                      (Binary)
-import qualified Data.Binary                     as Binary
+import qualified Data.Binary                      as Binary
 import           Data.ByteArray                   (convert)
 import           Data.ByteArray.HexString
 import           Data.String.Conversions          (cs)
@@ -53,8 +53,8 @@ mkAuthTreeStore = do
 --------------------------------------------------------------------------------
 -- | Buyer
 data Buyer = Buyer
-  { buyerId :: String
-  , buyerName    :: String
+  { buyerId   :: String
+  , buyerName :: String
   } deriving (Eq, Show, Generic)
 
 newtype BuyerKey = BuyerKey String deriving Show
@@ -80,8 +80,8 @@ instance Queryable Buyer where
 
 -- | Owner
 data Owner = Owner
-  { ownerId :: String
-  , ownerName  :: String
+  { ownerId   :: String
+  , ownerName :: String
   } deriving (Eq, Show, Generic)
 
 instance Binary Owner
@@ -129,8 +129,8 @@ putBuyer k buyer store = put k buyer store
 --------------------------------------------------------------------------------
 -- | Hound
 data Hound = Hound
-  { houndId :: String
-  , houndName    :: String
+  { houndId   :: String
+  , houndName :: String
   } deriving (Eq, Show, Generic)
 
 newtype HoundKey = HoundKey String deriving Show
@@ -156,8 +156,8 @@ instance Queryable Hound where
 
 -- | Lab
 data Lab = Lab
-  { labId :: String
-  , labName  :: String
+  { labId   :: String
+  , labName :: String
   } deriving (Eq, Show, Generic)
 
 instance Binary Lab

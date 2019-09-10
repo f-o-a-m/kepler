@@ -69,10 +69,10 @@ delayedFail err = liftRouteResult $ Fail err
 responseQueryError :: QueryError -> Response.Query
 responseQueryError e =
   let msg = case e of
-        PathNotFound    -> "Path Not Found"
+        PathNotFound     -> "Path Not Found"
         ResourceNotFound -> "Resource Not Found"
-        InvalidQuery m  -> "Invalid Query: " <> m
-        InternalError _ -> "Internal Error"
+        InvalidQuery m   -> "Invalid Query: " <> m
+        InternalError _  -> "Internal Error"
   in def { Response.queryCode = 1
          , Response.queryLog = cs msg
          }

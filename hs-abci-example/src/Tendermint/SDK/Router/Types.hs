@@ -1,7 +1,8 @@
 module Tendermint.SDK.Router.Types where
 
 import           Control.Monad                          (ap)
-import           Control.Monad.Except                   (ExceptT, MonadError, runExceptT)
+import           Control.Monad.Except                   (ExceptT, MonadError,
+                                                         runExceptT)
 import           Control.Monad.IO.Class                 (MonadIO (..))
 import           Control.Monad.Trans                    (MonadTrans (..))
 import           Data.ByteArray.HexString               (HexString)

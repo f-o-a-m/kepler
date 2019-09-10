@@ -2,16 +2,16 @@ module Tendermint.SDK.StoreQueries where
 
 --import Servant.API
 -- import Tendermint.SDK.Routes
-import           Control.Monad.Trans (lift)
-import           Control.Lens ((^.), to)
+import           Control.Lens                (to, (^.))
+import           Control.Monad.Except        (throwError)
+import           Control.Monad.Trans         (lift)
+import           Data.ByteArray.HexString    (fromBytes)
 import           Data.Proxy
-import           Tendermint.SDK.Codec
-import           Tendermint.SDK.Store
-import           Tendermint.SDK.Router.Types
-import           Tendermint.SDK.Router.Class
 import           Servant.API
-import           Control.Monad.Except (throwError)
-import           Data.ByteArray.HexString (fromBytes)
+import           Tendermint.SDK.Codec
+import           Tendermint.SDK.Router.Class
+import           Tendermint.SDK.Router.Types
+import           Tendermint.SDK.Store
 
 
 class StoreQueryHandler a store h where
@@ -32,7 +32,7 @@ instance (HasKey a, Key a ~ k, ContainsCodec a contents, Monad m)
         , queryResultProof = Nothing
         , queryResultHeight = 0
         }
-        
+
 class StoreQueryHandlers (items :: [*]) (contents :: [*]) m where
     type QueryApi items :: *
     storeQueryHandlers :: Proxy items -> Store contents m -> RouteT (QueryApi items) m
@@ -56,8 +56,8 @@ instance
     , StoreQueryHandlers (a': as) contents m
     ) => StoreQueryHandlers (a ': a' : as) contents m where
         type (QueryApi (a ': a' : as)) = (Name a :> QA (Key a) :> Leaf a) :<|> QueryApi (a' ': as)
-        storeQueryHandlers _ store = 
-          storeQueryHandler  (Proxy :: Proxy a) store :<|> 
+        storeQueryHandlers _ store =
+          storeQueryHandler  (Proxy :: Proxy a) store :<|>
           storeQueryHandlers (Proxy :: Proxy (a' ': as)) store
 
 allStoreHandlers

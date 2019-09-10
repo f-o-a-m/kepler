@@ -12,16 +12,16 @@ module Tendermint.SDK.Store
 
 import           Control.Lens         (Iso', (^.))
 import qualified Data.ByteString      as BS
-import           Tendermint.SDK.Codec
 import           GHC.TypeLits         (Symbol)
+import           Tendermint.SDK.Codec
 
 newtype Root = Root BS.ByteString
 
 data RawStore m = RawStore
-  { rawStorePut  :: BS.ByteString -> BS.ByteString -> m ()
-  , rawStoreGet  :: Root -> BS.ByteString -> m (Maybe BS.ByteString)
+  { rawStorePut   :: BS.ByteString -> BS.ByteString -> m ()
+  , rawStoreGet   :: Root -> BS.ByteString -> m (Maybe BS.ByteString)
   , rawStoreProve :: Root -> BS.ByteString -> m (Maybe BS.ByteString)
-  , rawStoreRoot :: m Root
+  , rawStoreRoot  :: m Root
   }
 
 class HasKey a where
@@ -30,7 +30,7 @@ class HasKey a where
 
 class HasKey a => Queryable a where
   type Name a :: Symbol
-  
+
 data Store contents m = Store
   { storeRawStore :: RawStore m
   }
@@ -73,7 +73,7 @@ get index k Store{storeRawStore} = do
           Left e  -> error $ "Impossible codec error "  <> e
           Right a -> Just a
 
-prove 
+prove
   :: HasKey a
   => Monad m
   => Root
