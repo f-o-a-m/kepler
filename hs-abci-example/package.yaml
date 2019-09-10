@@ -44,11 +44,13 @@ dependencies:
 - containers
 - cryptonite
 - data-default-class
+- free
 - hs-abci-extra
 - hs-abci-server
 - hs-abci-types
 - hs-abci-extra
 - http-types
+- kan-extensions
 - lens
 - memory
 - mtl
