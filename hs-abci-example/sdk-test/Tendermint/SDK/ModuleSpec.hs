@@ -1,12 +1,12 @@
 
 module Tendermint.SDK.ModuleSpec where
 
+import           Control.Monad                         (void)
+import           Tendermint.SDK.Module
 import           Tendermint.SDK.Store
 import           Tendermint.SDK.StoreExample
 import           Tendermint.SDK.StoreExample.Instances ()
 import           Test.Hspec
-import           Tendermint.SDK.Module
-import Control.Monad (void)
 
 spec :: Spec
 spec =
@@ -27,16 +27,16 @@ spec =
 --------------------------------------------------------------------------------
 
 data UserQ a =
-    PutBuyer Buyer a 
+    PutBuyer Buyer a
   | GetBuyer BuyerKey (Maybe Buyer -> a)
 
 evalQuery :: forall a action. UserQ a -> TendermintM UserStore action IO a
 evalQuery (PutBuyer buyer a) = do
-  tState $ \store -> 
+  tState $ \store ->
     putBuyer (BuyerKey $ buyerId buyer) buyer store
   pure a
 evalQuery (GetBuyer buyerKey f) = do
-  buyer <- tState $ 
+  buyer <- tState $
     \store -> get (undefined :: Root) buyerKey store
   pure $ f buyer
 
@@ -49,7 +49,7 @@ userComponentSpec = ComponentSpec
   , eval = evaluator
   }
   where
-    evaluator = mkEval $ EvalSpec 
+    evaluator = mkEval $ EvalSpec
       { handleAction = const $ pure ()
       , handleQuery = evalQuery
       , receive = const Nothing

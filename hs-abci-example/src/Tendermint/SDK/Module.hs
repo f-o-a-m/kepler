@@ -1,10 +1,10 @@
 module Tendermint.SDK.Module where
 
-import Data.Functor (($>))
-import Data.Foldable (traverse_)
-import Control.Monad.Free (Free, foldFree, liftF)
-import Data.Functor.Coyoneda (Coyoneda(..), liftCoyoneda)
-import Unsafe.Coerce (unsafeCoerce)
+import           Control.Monad.Free    (Free, foldFree, liftF)
+import           Data.Foldable         (traverse_)
+import           Data.Functor          (($>))
+import           Data.Functor.Coyoneda (Coyoneda (..), liftCoyoneda)
+import           Unsafe.Coerce         (unsafeCoerce)
 
 --import Tendermint.SDK.Store
 
@@ -15,7 +15,7 @@ data TendermintF state action m a =
 instance Functor m => Functor (TendermintF state action m) where
     fmap f a = case a of
       State g -> State (fmap f . g)
-      Lift b -> Lift (f <$> b)
+      Lift b  -> Lift (f <$> b)
 
 newtype TendermintM state action m a = TendermintM (Free (TendermintF state action m) a)
   deriving (Functor, Applicative, Monad)
@@ -29,13 +29,13 @@ data TendermintQ query action input a
   | Receive input a
   | Query (Coyoneda query a)
   deriving (Functor)
-      
+
 
 data EvalSpec state query action input m = EvalSpec
     { handleAction :: action -> TendermintM state action m ()
-    , handleQuery :: forall a. query a -> TendermintM state action m a
-    , receive :: input -> Maybe action
-    , initialize :: Maybe action
+    , handleQuery  :: forall a. query a -> TendermintM state action m a
+    , receive      :: input -> Maybe action
+    , initialize   :: Maybe action
     }
 
 mkEval
@@ -60,7 +60,7 @@ mkEval EvalSpec{..} q = case q of
   -- algebra
   Query (Coyoneda g a) ->  g <$> handleQuery a
 
-data ComponentSpec state query action input m = ComponentSpec 
+data ComponentSpec state query action input m = ComponentSpec
   { initialState :: input -> m state
   , eval :: forall a. TendermintQ query action input a -> TendermintM state action m a
   }
@@ -72,15 +72,15 @@ data Component query input m
 mkComponent :: ComponentSpec state query action input m -> Component query input m
 mkComponent = unsafeCoerce
 
-unComponent 
-  :: forall query input m a. 
+unComponent
+  :: forall query input m a.
      (forall state action. ComponentSpec state query action input m -> a)
   -> Component query input m -> a
 unComponent = unsafeCoerce
 
 data DriverState state query action input m = DriverState
   { component :: ComponentSpec state query action input m
-  , state :: state
+  , state     :: state
   }
 
 evalM
@@ -104,7 +104,7 @@ evalQ
   -> query a
   -> m a
 evalQ ds@DriverState{component} q = do
-  let ComponentSpec{eval} = component  
+  let ComponentSpec{eval} = component
   evalM ds . eval $ Query (liftCoyoneda q)
 
 -- TODO: Use GADTs
@@ -157,7 +157,7 @@ runTendermint
   => Component query input m
   -> input
   -> m (TendermintIO query m)
-runTendermint component i = 
+runTendermint component i =
   unComponent (\componentSpec -> do
     ds <- initDriverState componentSpec i
     unDriverStateX (\st ->
