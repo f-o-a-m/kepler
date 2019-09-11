@@ -56,5 +56,5 @@ userComponentSpec = ComponentSpec
       , initialize = Nothing
       }
 
-userComponent :: Component UserQ (input :: *) IO
+userComponent :: forall (input :: *). Component UserQ input IO
 userComponent = mkComponent userComponentSpec
