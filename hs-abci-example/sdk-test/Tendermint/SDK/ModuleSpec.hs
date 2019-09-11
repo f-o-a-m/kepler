@@ -32,11 +32,11 @@ data UserQ a =
 
 evalQuery :: forall a action. UserQ a -> TendermintM UserStore action IO a
 evalQuery (PutBuyer buyer a) = do
-  tState $ \store ->
+  withState $ \store ->
     putBuyer (BuyerKey $ buyerId buyer) buyer store
   pure a
 evalQuery (GetBuyer buyerKey f) = do
-  buyer <- tState $
+  buyer <- withState $
     \store -> get (undefined :: Root) buyerKey store
   pure $ f buyer
 
@@ -57,4 +57,4 @@ userComponentSpec = ComponentSpec
       }
 
 userComponent :: forall (input :: *). Component UserQ input IO
-userComponent = mkComponent userComponentSpec
+userComponent = Component userComponentSpec

@@ -4,7 +4,6 @@ import           Control.Monad.Free    (Free, foldFree, liftF)
 import           Data.Foldable         (traverse_)
 import           Data.Functor          (($>))
 import           Data.Functor.Coyoneda (Coyoneda (..), liftCoyoneda)
-import           Unsafe.Coerce         (unsafeCoerce)
 
 --import Tendermint.SDK.Store
 
@@ -20,8 +19,8 @@ instance Functor m => Functor (TendermintF state action m) where
 newtype TendermintM state action m a = TendermintM (Free (TendermintF state action m) a)
   deriving (Functor, Applicative, Monad)
 
-tState :: Functor m => (state -> m a) -> TendermintM state action m a
-tState = TendermintM . liftF . State
+withState :: Functor m => (state -> m a) -> TendermintM state action m a
+withState = TendermintM . liftF . State
 
 data TendermintQ query action input a
   = Initialize a
@@ -65,18 +64,14 @@ data ComponentSpec state query action input m = ComponentSpec
   , eval :: forall a. TendermintQ query action input a -> TendermintM state action m a
   }
 
-data Component query input m
+data Component query input m where
+  Component :: ComponentSpec state query action input m -> Component query input m
 
-
--- TODO: Use GADTs
-mkComponent :: ComponentSpec state query action input m -> Component query input m
-mkComponent = unsafeCoerce
-
-unComponent
+withComponent
   :: forall query input m a.
      (forall state action. ComponentSpec state query action input m -> a)
   -> Component query input m -> a
-unComponent = unsafeCoerce
+withComponent f (Component c) = f c
 
 data DriverState state query action input m = DriverState
   { component :: ComponentSpec state query action input m
@@ -108,17 +103,15 @@ evalQ ds@DriverState{component} q = do
   evalM ds . eval $ Query (liftCoyoneda q)
 
 -- TODO: Use GADTs
-data DriverStateX query m
+data DriverStateX query m where
+  DriverStateX ::  DriverState state query action input m -> DriverStateX query m
 
-mkDriverStateX :: DriverState state query action input m -> DriverStateX query m
-mkDriverStateX = unsafeCoerce
-
-unDriverStateX
+withDriverStateX
   :: forall x query m.
      (forall state action input. DriverState state query action input m -> x)
   -> DriverStateX query m
   -> x
-unDriverStateX = unsafeCoerce
+withDriverStateX f (DriverStateX ds) = f ds
 
 initDriverState
   :: Monad m
@@ -127,7 +120,7 @@ initDriverState
   -> m (DriverStateX query m)
 initDriverState c@ComponentSpec{initialState} i = do
   s <- initialState i
-  return . mkDriverStateX $ DriverState
+  return . DriverStateX $ DriverState
     { component = c
     , state = s
     }
@@ -158,9 +151,9 @@ runTendermint
   -> input
   -> m (TendermintIO query m)
 runTendermint component i =
-  unComponent (\componentSpec -> do
+  withComponent (\componentSpec -> do
     ds <- initDriverState componentSpec i
-    unDriverStateX (\st ->
+    withDriverStateX (\st ->
       return $ TendermintIO
         { query =  evalDriver st
         }
