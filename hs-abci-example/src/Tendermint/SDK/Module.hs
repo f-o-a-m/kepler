@@ -2,7 +2,7 @@ module Tendermint.SDK.Module where
 
 import Data.Functor (($>))
 import Data.Foldable (traverse_)
-import Control.Monad.Free (Free, foldFree)
+import Control.Monad.Free (Free, foldFree, liftF)
 import Data.Functor.Coyoneda (Coyoneda(..), liftCoyoneda)
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -19,6 +19,9 @@ instance Functor m => Functor (TendermintF state action m) where
 
 newtype TendermintM state action m a = TendermintM (Free (TendermintF state action m) a)
   deriving (Functor, Applicative, Monad)
+
+tState :: Functor m => (state -> m a) -> TendermintM state action m a
+tState = TendermintM . liftF . State
 
 data TendermintQ query action input a
   = Initialize a
@@ -136,6 +139,15 @@ evalDriver
   -> forall a. (query a -> m (Maybe a))
 evalDriver ds q = evalQ ds q
 
+type Request f a = (a -> a) -> f a
+request :: forall f a. Request f a -> f a
+request req = req id
+
+
+type Tell f = () -> f ()
+tell :: forall f. Tell f -> f ()
+tell act = act ()
+
 data TendermintIO query m = TendermintIO
   { query :: forall a. query a -> m (Maybe a)
   }
@@ -154,3 +166,4 @@ runTendermint component i =
         }
       ) ds
     ) component
+
