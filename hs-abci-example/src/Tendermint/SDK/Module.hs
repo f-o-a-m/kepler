@@ -2,8 +2,8 @@ module Tendermint.SDK.Module where
 
 import Data.Functor (($>))
 import Data.Foldable (traverse_)
-import Control.Monad.Free (Free)
-import Data.Functor.Coyoneda (Coyoneda(..))
+import Control.Monad.Free (Free, foldFree)
+import Data.Functor.Coyoneda (Coyoneda(..), liftCoyoneda)
 import Unsafe.Coerce (unsafeCoerce)
 
 --import Tendermint.SDK.Store
@@ -47,7 +47,6 @@ mkEval EvalSpec{..} q = case q of
   -- as far as i can tell, this is only used by halogen in the case where a
   -- compenet is a child component and is being run. See
   -- https://github.com/slamdata/purescript-halogen/blob/78a47710678ac8b59142263149f7c532387b662d/src/Halogen/Component.purs#L229
-  -- https://github.com/slamdata/purescript-halogen/blob/78a47710678ac8b59142263149f7c532387b662d/src/Halogen/Component.purs#L229
   Receive i a ->
     traverse_ handleAction (receive i) $> a
   -- an action is an internal version of a query, so that a module can raise events that are
@@ -59,12 +58,14 @@ mkEval EvalSpec{..} q = case q of
   Query (Coyoneda g a) f ->  maybe (f ()) g <$> handleQuery a
 
 data ComponentSpec state query action input m = ComponentSpec 
-  { initialState :: input -> state
+  { initialState :: input -> m state
   , eval :: forall a. TendermintQ query action input a -> TendermintM state action m a
   }
 
 data Component query input m
 
+
+-- TODO: Use GADTs
 mkComponent :: ComponentSpec state query action input m -> Component query input m
 mkComponent = unsafeCoerce
 
@@ -73,3 +74,83 @@ unComponent
      (forall state action. ComponentSpec state query action input m -> a)
   -> Component query input m -> a
 unComponent = unsafeCoerce
+
+data DriverState state query action input m = DriverState
+  { component :: ComponentSpec state query action input m
+  , state :: state
+  }
+
+evalM
+  :: Monad m
+  => DriverState state query action input m
+  -> (forall a. TendermintM state action m a -> m a)
+evalM ds (TendermintM tm) = foldFree (go ds) tm
+  where
+  go
+    :: DriverState state query action input m
+    -> (forall a. TendermintF state action m a -> m a)
+  go ds' = \case
+    State f -> do
+      let DriverState {state} = ds'
+      f state
+    Lift m -> m
+
+evalQ
+  :: Monad m
+  => DriverState state query action input m
+  -> query a
+  -> m (Maybe a)
+evalQ ds@DriverState{component} q = do
+  let ComponentSpec{eval} = component  
+  evalM ds (eval (Query (Just <$> liftCoyoneda q) (const Nothing)))
+
+-- TODO: Use GADTs
+data DriverStateX query m
+
+mkDriverStateX :: DriverState state query action input m -> DriverStateX query m
+mkDriverStateX = unsafeCoerce
+
+unDriverStateX
+  :: forall x query m.
+     (forall state action input. DriverState state query action input m -> x)
+  -> DriverStateX query m
+  -> x
+unDriverStateX = unsafeCoerce
+
+initDriverState
+  :: Monad m
+  => ComponentSpec state query action input m
+  -> input
+  -> m (DriverStateX query m)
+initDriverState c@ComponentSpec{initialState} i = do
+  s <- initialState i
+  return . mkDriverStateX $ DriverState
+    { component = c
+    , state = s
+    }
+
+-- NOTE: this is dumb, it's just a renaming at this point
+evalDriver
+  :: Monad m
+  => DriverState state query action input m
+  -> forall a. (query a -> m (Maybe a))
+evalDriver ds q = evalQ ds q
+
+data TendermintIO query m = TendermintIO
+  { query :: forall a. query a -> m (Maybe a)
+  }
+
+runTendermint
+  :: Monad m
+  => Component query input m
+  -> input
+  -> m (TendermintIO query m)
+runTendermint component i = 
+  unComponent (\componentSpec -> do
+    ds <- initDriverState componentSpec i
+    unDriverStateX (\st ->
+      return $ TendermintIO
+        { query =  evalDriver st
+        }
+      ) ds
+    ) component
