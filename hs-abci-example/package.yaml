@@ -85,6 +85,7 @@ library:
   - Tendermint.SDK.Router.Types
   - Tendermint.SDK.Router.Class
   - Tendermint.SDK.Router
+  - Tendermint.SDK.Module
 
   - SimpleStorage.App
   - SimpleStorage.Application
@@ -135,6 +136,7 @@ tests:
     other-modules:
     - Tendermint.SDK.StoreExample.Instances
     - Tendermint.SDK.StoreExampleSpec
+    - Tendermint.SDK.ModuleSpec
 
     ghc-options:
     - -Werror

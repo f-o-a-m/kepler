@@ -27,13 +27,13 @@ data TendermintQ query action input a
   = Initialize a
   | Action action a
   | Receive input a
-  | Query (Coyoneda query a) (() -> a)
+  | Query (Coyoneda query a)
   deriving (Functor)
       
 
 data EvalSpec state query action input m = EvalSpec
     { handleAction :: action -> TendermintM state action m ()
-    , handleQuery :: forall a. query a -> TendermintM state action m (Maybe a)
+    , handleQuery :: forall a. query a -> TendermintM state action m a
     , receive :: input -> Maybe action
     , initialize :: Maybe action
     }
@@ -58,7 +58,7 @@ mkEval EvalSpec{..} q = case q of
     handleAction action $> a
   -- the module exposes this algebra to be used by other modules as a command / msg passing
   -- algebra
-  Query (Coyoneda g a) f ->  maybe (f ()) g <$> handleQuery a
+  Query (Coyoneda g a) ->  g <$> handleQuery a
 
 data ComponentSpec state query action input m = ComponentSpec 
   { initialState :: input -> m state
@@ -102,10 +102,10 @@ evalQ
   :: Monad m
   => DriverState state query action input m
   -> query a
-  -> m (Maybe a)
+  -> m a
 evalQ ds@DriverState{component} q = do
   let ComponentSpec{eval} = component  
-  evalM ds (eval (Query (Just <$> liftCoyoneda q) (const Nothing)))
+  evalM ds . eval $ Query (liftCoyoneda q)
 
 -- TODO: Use GADTs
 data DriverStateX query m
@@ -136,7 +136,7 @@ initDriverState c@ComponentSpec{initialState} i = do
 evalDriver
   :: Monad m
   => DriverState state query action input m
-  -> forall a. (query a -> m (Maybe a))
+  -> forall a. (query a -> m a)
 evalDriver ds q = evalQ ds q
 
 type Request f a = (a -> a) -> f a
@@ -149,7 +149,7 @@ tell :: forall f. Tell f -> f ()
 tell act = act ()
 
 data TendermintIO query m = TendermintIO
-  { query :: forall a. query a -> m (Maybe a)
+  { query :: forall a. query a -> m a
   }
 
 runTendermint

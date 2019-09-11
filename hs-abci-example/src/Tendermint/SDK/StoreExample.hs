@@ -17,8 +17,6 @@ import           Tendermint.SDK.Codec
 import           Tendermint.SDK.Store
 
 import           Tendermint.SDK.Router.Types
-import           Tendermint.SDK.Module
-import Control.Monad (void)
 --------------------------------------------------------------------------------
 -- Example Store
 --------------------------------------------------------------------------------
@@ -217,50 +215,3 @@ putHound k hound store = put k hound store
 -- serveRoutes :: Application IO
 -- serveRoutes = serve userApi (Proxy :: Proxy IO) userServer
 
-
---------------------------------------------------------------------------------
--- User Module
---------------------------------------------------------------------------------
-
-data UserQ a =
-    PutBuyer Buyer a 
-  | GetBuyer BuyerKey (Maybe Buyer -> a)
-
-evalQuery :: forall a action. UserQ a -> TendermintM UserStore action IO a
-evalQuery (PutBuyer buyer a) = do
-  tState $ \store -> 
-    putBuyer (BuyerKey $ buyerId buyer) buyer store
-  pure a
-evalQuery (GetBuyer buyerKey f) = do
-  buyer <- tState $ 
-    \store -> get (undefined :: Root) buyerKey store
-  pure $ f buyer
-
-userComponentSpec :: ComponentSpec UserStore UserQ action input IO
-userComponentSpec = ComponentSpec
-  { initialState = const $ do
-      rawStore <- mkAuthTreeStore
-      pure $ Store
-        { storeRawStore = rawStore }
-  , eval = evaluator
-  }
-  where
-    evaluator = mkEval $ EvalSpec 
-      { handleAction = const $ pure ()
-      , handleQuery = fmap Just . evalQuery
-      , receive = const Nothing
-      , initialize = Nothing
-      }
-
-userComponent :: Component UserQ (input :: *) IO
-userComponent = mkComponent userComponentSpec
-
-testGetPut :: IO (Maybe (Maybe Buyer))
-testGetPut = do
-  TendermintIO {query} <- runTendermint userComponent ()
-  let irakli = Buyer { buyerId = "1"
-                     , buyerName = "irakli"
-                     }
-  void $ query $ tell (PutBuyer irakli)
-  query $ request (GetBuyer (BuyerKey "1"))
-  
