@@ -86,3 +86,8 @@ addQueryArgs Delayed{..} new =
     , delayedHandler   = \ (x, v) query -> ($ v) <$> delayedHandler x query
     , ..
     }
+
+emptyDelayed :: RouteResult a -> Delayed b a
+emptyDelayed response =
+  let r = pure ()
+  in Delayed (const r) $ \_ _ -> response

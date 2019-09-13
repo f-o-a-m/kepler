@@ -1,10 +1,12 @@
 module Tendermint.SDK.Module where
 
-import           Control.Monad.Free    (Free, foldFree, liftF)
-import           Data.Foldable         (traverse_)
-import           Data.Functor          (($>))
-import           Data.Functor.Coyoneda (Coyoneda (..), liftCoyoneda)
-
+import           Control.Monad.Free     (Free, foldFree, liftF)
+import           Control.Monad.IO.Class (MonadIO)
+import           Data.Foldable          (traverse_)
+import           Data.Functor           (($>))
+import           Data.Functor.Coyoneda  (Coyoneda (..), liftCoyoneda)
+import           Data.Proxy
+import           Tendermint.SDK.Router
 --import Tendermint.SDK.Store
 
 data TendermintF state action m a =
@@ -59,33 +61,34 @@ mkEval EvalSpec{..} q = case q of
   -- algebra
   Query (Coyoneda g a) ->  g <$> handleQuery a
 
-data ComponentSpec state query action input m = ComponentSpec
+data ComponentSpec state query action input (api :: *) m = ComponentSpec
   { initialState :: input -> m state
   , eval :: forall a. TendermintQ query action input a -> TendermintM state action m a
+  , mkServer :: state -> RouteT api m
   }
 
-data Component query input m where
-  Component :: ComponentSpec state query action input m -> Component query input m
+data Component query input api m where
+  Component :: ComponentSpec state query action input api m -> Component query input api m
 
 withComponent
-  :: forall query input m a.
-     (forall state action. ComponentSpec state query action input m -> a)
-  -> Component query input m -> a
+  :: forall query input api m a.
+     (forall state action. ComponentSpec state query action input api m -> a)
+  -> Component query input api m -> a
 withComponent f (Component c) = f c
 
-data DriverState state query action input m = DriverState
-  { component :: ComponentSpec state query action input m
+data DriverState state query action input api m = DriverState
+  { component :: ComponentSpec state query action input api m
   , state     :: state
   }
 
 evalM
   :: Monad m
-  => DriverState state query action input m
+  => DriverState state query action input api m
   -> (forall a. TendermintM state action m a -> m a)
 evalM ds (TendermintM tm) = foldFree (go ds) tm
   where
   go
-    :: DriverState state query action input m
+    :: DriverState state query action input api m
     -> (forall a. TendermintF state action m a -> m a)
   go ds' = \case
     State f -> do
@@ -95,7 +98,7 @@ evalM ds (TendermintM tm) = foldFree (go ds) tm
 
 evalQ
   :: Monad m
-  => DriverState state query action input m
+  => DriverState state query action input api m
   -> query a
   -> m a
 evalQ ds@DriverState{component} q = do
@@ -104,31 +107,38 @@ evalQ ds@DriverState{component} q = do
 
 -- TODO: Use GADTs
 data DriverStateX query m where
-  DriverStateX ::  DriverState state query action input m -> DriverStateX query m
+  DriverStateX ::  DriverState state query action input api m -> DriverStateX query m
 
 withDriverStateX
   :: forall x query m.
-     (forall state action input. DriverState state query action input m -> x)
+     (forall state action input api. DriverState state query action input api m -> x)
   -> DriverStateX query m
   -> x
 withDriverStateX f (DriverStateX ds) = f ds
 
 initDriverState
-  :: Monad m
-  => ComponentSpec state query action input m
+  :: forall state query action input api m server.
+     HasRouter api
+  => RouteT api m ~ server
+  => MonadIO m
+  => ComponentSpec state query action input api m
   -> input
-  -> m (DriverStateX query m)
-initDriverState c@ComponentSpec{initialState} i = do
+  -> m (DriverStateX query m, Router () m)
+initDriverState c@ComponentSpec{initialState, mkServer} i = do
   s <- initialState i
-  return . DriverStateX $ DriverState
-    { component = c
-    , state = s
-    }
+  let dsx =  DriverStateX $ DriverState
+               { component = c
+               , state = s
+               }
+      server = mkServer s
+      router = route (Proxy :: Proxy api) (Proxy :: Proxy m)
+                 (emptyDelayed (Route server) :: Delayed () server)
+  return (dsx, router)
 
 -- NOTE: this is dumb, it's just a renaming at this point
 evalDriver
   :: Monad m
-  => DriverState state query action input m
+  => DriverState state query action input api m
   -> forall a. (query a -> m a)
 evalDriver ds q = evalQ ds q
 
@@ -142,20 +152,23 @@ tell :: forall f. Tell f -> f ()
 tell act = act ()
 
 data TendermintIO query m = TendermintIO
-  { query :: forall a. query a -> m a
+  { ioQuery  :: forall a. query a -> m a
+  , ioRouter :: Router () m
   }
 
 runTendermint
-  :: Monad m
-  => Component query input m
+  :: MonadIO m
+  => HasRouter api
+  => Component query input api m
   -> input
   -> m (TendermintIO query m)
 runTendermint component i =
   withComponent (\componentSpec -> do
-    ds <- initDriverState componentSpec i
+    (ds, router) <- initDriverState componentSpec i
     withDriverStateX (\st ->
       return $ TendermintIO
-        { query =  evalDriver st
+        { ioQuery =  evalDriver st
+        , ioRouter = router
         }
       ) ds
     ) component
