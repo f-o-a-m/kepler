@@ -4,6 +4,7 @@ module Tendermint.SDK.ModuleSpec where
 import           Control.Lens                          (to, (^.))
 import           Control.Monad                         (void)
 import           Data.ByteArray.HexString              (fromBytes, toBytes)
+import           Data.Proxy
 import qualified Network.ABCI.Types.Messages.Request   as Request
 import qualified Network.ABCI.Types.Messages.Response  as Response
 import           Servant.API                           ((:>))
@@ -20,7 +21,7 @@ spec :: Spec
 spec =
   describe "UserModule" $ do
     it "can create the user module and query it via Query msg and from component" $ do
-      TendermintIO {ioQuery, ioRouter} <- runTendermint userComponent ()
+      TendermintIO {ioQuery, ioServer} <- runTendermint userComponent ()
       let irakli = Buyer { buyerId = "1"
                          , buyerName = "irakli"
                          }
@@ -32,7 +33,7 @@ spec =
       mNobody `shouldBe` Nothing
 
       let serveRoutes :: Application IO
-          serveRoutes = serveRouter ioRouter
+          serveRoutes = serve (Proxy :: Proxy UserApi) (Proxy :: Proxy IO) ioServer
           irakliKeyHex = irakliKey ^. rawKey . to fromBytes
           irakliQuery = Request.Query irakliKeyHex "user/buyer" 0 False
       qBuyerRes  <- serveRoutes irakliQuery

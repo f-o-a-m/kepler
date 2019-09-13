@@ -1,11 +1,9 @@
 module Tendermint.SDK.Module where
 
-import           Control.Monad.Free     (Free, foldFree, liftF)
-import           Control.Monad.IO.Class (MonadIO)
-import           Data.Foldable          (traverse_)
-import           Data.Functor           (($>))
-import           Data.Functor.Coyoneda  (Coyoneda (..), liftCoyoneda)
-import           Data.Proxy
+import           Control.Monad.Free    (Free, foldFree, liftF)
+import           Data.Foldable         (traverse_)
+import           Data.Functor          (($>))
+import           Data.Functor.Coyoneda (Coyoneda (..), liftCoyoneda)
 import           Tendermint.SDK.Router
 --import Tendermint.SDK.Store
 
@@ -117,13 +115,11 @@ withDriverStateX
 withDriverStateX f (DriverStateX ds) = f ds
 
 initDriverState
-  :: forall state query action input api m server.
-     HasRouter api
-  => RouteT api m ~ server
-  => MonadIO m
+  :: forall state query action input api m.
+     Monad m
   => ComponentSpec state query action input api m
   -> input
-  -> m (DriverStateX query m, Router () m)
+  -> m (DriverStateX query m,  RouteT api m)
 initDriverState c@ComponentSpec{initialState, mkServer} i = do
   s <- initialState i
   let dsx =  DriverStateX $ DriverState
@@ -131,9 +127,7 @@ initDriverState c@ComponentSpec{initialState, mkServer} i = do
                , state = s
                }
       server = mkServer s
-      router = route (Proxy :: Proxy api) (Proxy :: Proxy m)
-                 (emptyDelayed (Route server) :: Delayed () server)
-  return (dsx, router)
+  return (dsx, server)
 
 -- NOTE: this is dumb, it's just a renaming at this point
 evalDriver
@@ -151,24 +145,23 @@ type Tell f = () -> f ()
 tell :: forall f. Tell f -> f ()
 tell act = act ()
 
-data TendermintIO query m = TendermintIO
+data TendermintIO query api m = TendermintIO
   { ioQuery  :: forall a. query a -> m a
-  , ioRouter :: Router () m
+  , ioServer :: RouteT api m
   }
 
 runTendermint
-  :: MonadIO m
-  => HasRouter api
+  :: Monad m
   => Component query input api m
   -> input
-  -> m (TendermintIO query m)
+  -> m (TendermintIO query api m)
 runTendermint component i =
   withComponent (\componentSpec -> do
-    (ds, router) <- initDriverState componentSpec i
+    (ds, server) <- initDriverState componentSpec i
     withDriverStateX (\st ->
       return $ TendermintIO
         { ioQuery =  evalDriver st
-        , ioRouter = router
+        , ioServer = server
         }
       ) ds
     ) component
