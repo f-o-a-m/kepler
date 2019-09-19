@@ -13,7 +13,6 @@ import           Data.Aeson                             (FromJSON (..),
                                                          genericToJSON)
 import           Data.ByteArray.HexString               (HexString, fromBytes,
                                                          toBytes)
-import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word64)
@@ -25,7 +24,8 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
                                                          Header (..),
                                                          LastCommitInfo (..),
                                                          Timestamp (..),
-                                                         ValidatorUpdate (..))
+                                                         ValidatorUpdate (..),
+                                                         WrappedInt64 (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
@@ -51,14 +51,9 @@ instance Wrapped Echo where
   type Unwrapped Echo = PT.RequestEcho
 
   _Wrapped' = iso t f
-    where
-      t Echo{..} =
-        defMessage
-          & PT.message .~ echoMessage
-      f message =
-        Echo
-          { echoMessage = message ^. PT.message
-          }
+   where
+    t Echo {..} = defMessage & PT.message .~ echoMessage
+    f message = Echo { echoMessage = message ^. PT.message }
 
 --------------------------------------------------------------------------------
 -- Flush
@@ -76,9 +71,9 @@ instance Wrapped Flush where
   type Unwrapped Flush = PT.RequestFlush
 
   _Wrapped' = iso t f
-    where
-      t = const defMessage
-      f = const Flush
+   where
+    t = const defMessage
+    f = const Flush
 
 --------------------------------------------------------------------------------
 -- Info
@@ -106,18 +101,19 @@ instance Wrapped Info where
   type Unwrapped Info = PT.RequestInfo
 
   _Wrapped' = iso t f
-    where
-      t Info{..} =
-        defMessage
-          & PT.version .~ infoVersion
-          & PT.blockVersion .~ infoBlockVersion
-          & PT.p2pVersion .~ infoP2pVersion
-      f message =
-        Info
-          { infoVersion = message ^. PT.version
-          , infoBlockVersion = message ^. PT.blockVersion
-          , infoP2pVersion = message ^. PT.p2pVersion
-          }
+   where
+    t Info {..} =
+      defMessage
+        &  PT.version
+        .~ infoVersion
+        &  PT.blockVersion
+        .~ infoBlockVersion
+        &  PT.p2pVersion
+        .~ infoP2pVersion
+    f message = Info { infoVersion      = message ^. PT.version
+                     , infoBlockVersion = message ^. PT.blockVersion
+                     , infoP2pVersion   = message ^. PT.p2pVersion
+                     }
 
 --------------------------------------------------------------------------------
 -- SetOption
@@ -143,16 +139,12 @@ instance Wrapped SetOption where
   type Unwrapped SetOption = PT.RequestSetOption
 
   _Wrapped' = iso t f
-    where
-      t SetOption{..} =
-        defMessage
-          & PT.key .~ setOptionKey
-          & PT.value .~ setOptionValue
-      f message =
-        SetOption
-          { setOptionKey = message ^. PT.key
-          , setOptionValue = message ^. PT.value
-          }
+   where
+    t SetOption {..} =
+      defMessage & PT.key .~ setOptionKey & PT.value .~ setOptionValue
+    f message = SetOption { setOptionKey   = message ^. PT.key
+                          , setOptionValue = message ^. PT.value
+                          }
 
 --------------------------------------------------------------------------------
 -- InitChain
@@ -184,22 +176,35 @@ instance Wrapped InitChain where
   type Unwrapped InitChain = PT.RequestInitChain
 
   _Wrapped' = iso t f
-    where
-      t InitChain{..} =
-        defMessage
-          & PT.maybe'time .~ initChainTime ^? _Just . _Wrapped'
-          & PT.chainId .~ initChainChainId
-          & PT.maybe'consensusParams .~ initChainConsensusParams ^? _Just . _Wrapped'
-          & PT.validators .~ initChainValidators ^.. traverse . _Wrapped'
-          & PT.appStateBytes .~ toBytes initChainAppState
-      f message =
-        InitChain
-          { initChainTime = message ^? PT.maybe'time . _Just . _Unwrapped'
-          , initChainChainId = message ^. PT.chainId
-          , initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . _Unwrapped'
-          , initChainValidators = message ^.. PT.validators . traverse . _Unwrapped'
-          , initChainAppState = fromBytes $ message ^. PT.appStateBytes
-          }
+   where
+    t InitChain {..} =
+      defMessage
+        &   PT.maybe'time
+        .~  initChainTime
+        ^?  _Just
+        .   _Wrapped'
+        &   PT.chainId
+        .~  initChainChainId
+        &   PT.maybe'consensusParams
+        .~  initChainConsensusParams
+        ^?  _Just
+        .   _Wrapped'
+        &   PT.validators
+        .~  initChainValidators
+        ^.. traverse
+        .   _Wrapped'
+        &   PT.appStateBytes
+        .~  toBytes initChainAppState
+    f message = InitChain
+      { initChainTime = message ^? PT.maybe'time . _Just . _Unwrapped'
+      , initChainChainId = message ^. PT.chainId
+      , initChainConsensusParams = message
+                                   ^? PT.maybe'consensusParams
+                                   .  _Just
+                                   .  _Unwrapped'
+      , initChainValidators = message ^.. PT.validators . traverse . _Unwrapped'
+      , initChainAppState = fromBytes $ message ^. PT.appStateBytes
+      }
 
 --------------------------------------------------------------------------------
 -- Query
@@ -210,7 +215,7 @@ data Query = Query
   -- ^  Raw query bytes. Can be used with or in lieu of Path.
   , queryPath   :: Text
   -- ^ Path of request, like an HTTP GET path. Can be used with or in liue of Data.
-  , queryHeight :: Int64
+  , queryHeight :: WrappedInt64
   -- ^ The block height for which you want the query
   , queryProve  :: Bool
   -- ^ Return Merkle proof with response if possible
@@ -229,20 +234,22 @@ instance Wrapped Query where
   type Unwrapped Query = PT.RequestQuery
 
   _Wrapped' = iso t f
-    where
-      t Query{..} =
-        defMessage
-          & PT.data' .~ toBytes queryData
-          & PT.path .~ queryPath
-          & PT.height .~ queryHeight
-          & PT.prove .~ queryProve
-      f message =
-        Query
-          { queryData = fromBytes $ message ^. PT.data'
-          , queryPath = message ^. PT.path
-          , queryHeight = message ^. PT.height
-          , queryProve = message ^. PT.prove
-          }
+   where
+    t Query {..} =
+      defMessage
+        &  PT.data'
+        .~ toBytes queryData
+        &  PT.path
+        .~ queryPath
+        &  PT.height
+        .~ unwrapInt64 queryHeight
+        &  PT.prove
+        .~ queryProve
+    f message = Query { queryData   = fromBytes $ message ^. PT.data'
+                      , queryPath   = message ^. PT.path
+                      , queryHeight = WrappedInt64 $ message ^. PT.height
+                      , queryProve  = message ^. PT.prove
+                      }
 
 --------------------------------------------------------------------------------
 -- BeginBlock
@@ -273,20 +280,35 @@ instance Wrapped BeginBlock where
   type Unwrapped BeginBlock = PT.RequestBeginBlock
 
   _Wrapped' = iso t f
-    where
-      t BeginBlock{..} =
-        defMessage
-          & PT.hash .~ toBytes beginBlockHash
-          & PT.maybe'header .~ beginBlockHeader ^? _Just . _Wrapped'
-          & PT.maybe'lastCommitInfo .~ beginBlockLastCommitInfo ^? _Just . _Wrapped'
-          & PT.byzantineValidators .~ beginBlockByzantineValidators ^.. traverse . _Wrapped'
-      f message =
-        BeginBlock
-          { beginBlockHash = fromBytes $  message ^. PT.hash
-          , beginBlockHeader = message ^? PT.maybe'header . _Just . _Unwrapped'
-          , beginBlockLastCommitInfo = message ^? PT.maybe'lastCommitInfo . _Just . _Unwrapped'
-          , beginBlockByzantineValidators = message ^.. PT.byzantineValidators . traverse . _Unwrapped'
-          }
+   where
+    t BeginBlock {..} =
+      defMessage
+        &   PT.hash
+        .~  toBytes beginBlockHash
+        &   PT.maybe'header
+        .~  beginBlockHeader
+        ^?  _Just
+        .   _Wrapped'
+        &   PT.maybe'lastCommitInfo
+        .~  beginBlockLastCommitInfo
+        ^?  _Just
+        .   _Wrapped'
+        &   PT.byzantineValidators
+        .~  beginBlockByzantineValidators
+        ^.. traverse
+        .   _Wrapped'
+    f message = BeginBlock
+      { beginBlockHash                = fromBytes $ message ^. PT.hash
+      , beginBlockHeader = message ^? PT.maybe'header . _Just . _Unwrapped'
+      , beginBlockLastCommitInfo      = message
+                                        ^? PT.maybe'lastCommitInfo
+                                        .  _Just
+                                        .  _Unwrapped'
+      , beginBlockByzantineValidators = message
+                                        ^.. PT.byzantineValidators
+                                        .   traverse
+                                        .   _Unwrapped'
+      }
 
 --------------------------------------------------------------------------------
 -- CheckTx
@@ -311,15 +333,10 @@ instance Wrapped CheckTx where
   type Unwrapped CheckTx = PT.RequestCheckTx
 
   _Wrapped' = iso t f
-    where
-      t CheckTx{..} =
-        defMessage
-          & PT.tx .~ toBytes checkTxTx
+   where
+    t CheckTx {..} = defMessage & PT.tx .~ toBytes checkTxTx
 
-      f message =
-        CheckTx
-          { checkTxTx = fromBytes $ message ^. PT.tx
-          }
+    f message = CheckTx { checkTxTx = fromBytes $ message ^. PT.tx }
 
 --------------------------------------------------------------------------------
 -- DeliverTx
@@ -343,22 +360,17 @@ instance Wrapped DeliverTx where
   type Unwrapped DeliverTx = PT.RequestDeliverTx
 
   _Wrapped' = iso t f
-    where
-     t DeliverTx{..} =
-       defMessage
-         & PT.tx .~ toBytes deliverTxTx
+   where
+    t DeliverTx {..} = defMessage & PT.tx .~ toBytes deliverTxTx
 
-     f message =
-       DeliverTx
-         { deliverTxTx = fromBytes $ message ^. PT.tx
-         }
+    f message = DeliverTx { deliverTxTx = fromBytes $ message ^. PT.tx }
 
 --------------------------------------------------------------------------------
 -- EndBlock
 --------------------------------------------------------------------------------
 
 data EndBlock = EndBlock
-  { endBlockHeight :: Int64
+  { endBlockHeight :: WrappedInt64
   -- ^ Height of the block just executed.
   } deriving (Eq, Show, Generic)
 
@@ -375,15 +387,11 @@ instance Wrapped EndBlock where
   type Unwrapped EndBlock = PT.RequestEndBlock
 
   _Wrapped' = iso t f
-    where
-      t EndBlock{..} =
-        defMessage
-          & PT.height .~ endBlockHeight
+   where
+    t EndBlock {..} = defMessage & PT.height .~ unwrapInt64 endBlockHeight
 
-      f message =
-        EndBlock
-          { endBlockHeight = message ^. PT.height
-          }
+    f message =
+      EndBlock { endBlockHeight = WrappedInt64 $ message ^. PT.height }
 
 --------------------------------------------------------------------------------
 -- Commit
@@ -405,9 +413,7 @@ instance Wrapped Commit where
   type Unwrapped Commit = PT.RequestCommit
 
   _Wrapped' = iso t f
-    where
-      t Commit =
-        defMessage
+   where
+    t Commit = defMessage
 
-      f _ =
-        Commit
+    f _ = Commit
