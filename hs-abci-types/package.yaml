@@ -24,6 +24,7 @@ default-extensions:
 - DeriveGeneric
 - TypeFamilies
 - GADTs
+- GeneralizedNewtypeDeriving
 - DataKinds
 - PolyKinds
 - RankNTypes

@@ -7,10 +7,10 @@ import           Control.Lens                           (iso, traverse, (&),
                                                          (^?), _Just)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
-import           Data.Aeson                             (FromJSON (..),
+import           Data.Aeson                             ((.!=), (.:), (.:?), FromJSON (..),
                                                          ToJSON (..),
                                                          genericParseJSON,
-                                                         genericToJSON)
+                                                         genericToJSON, withObject)
 import           Data.ByteArray.HexString               (HexString, fromBytes,
                                                          toBytes)
 import           Data.Default.Class                     (Default (..))
@@ -155,9 +155,9 @@ instance Wrapped SetOption where
    where
     t SetOption {..} =
       defMessage
-        &  PT.code .~ setOptionCode
-        &  PT.log .~ setOptionLog
-        &  PT.info .~ setOptionInfo
+        & PT.code .~ setOptionCode
+        & PT.log .~ setOptionLog
+        & PT.info .~ setOptionInfo
     f message = SetOption { setOptionCode = message ^. PT.code
                           , setOptionLog  = message ^. PT.log
                           , setOptionInfo = message ^. PT.info
@@ -183,7 +183,9 @@ makeABCILenses ''InitChain
 instance ToJSON InitChain where
   toJSON = genericToJSON $ defaultABCIOptions "initChain"
 instance FromJSON InitChain where
-  parseJSON = genericParseJSON $ defaultABCIOptions "initChain"
+  parseJSON = withObject "InitChain" $ \v -> InitChain
+    <$> v .:? "consensusParams"
+    <*> v .:? "validators" .!= []
 
 
 instance Wrapped InitChain where
@@ -284,7 +286,8 @@ makeABCILenses ''BeginBlock
 instance ToJSON BeginBlock where
   toJSON = genericToJSON $ defaultABCIOptions "beginBlock"
 instance FromJSON BeginBlock where
-  parseJSON = genericParseJSON $ defaultABCIOptions "beginBlock"
+  parseJSON = withObject "BeginBlock" $ \v -> BeginBlock
+   <$> v .:? "events" .!= []
 
 
 instance Wrapped BeginBlock where
@@ -330,7 +333,15 @@ makeABCILenses ''CheckTx
 instance ToJSON CheckTx where
   toJSON = genericToJSON $ defaultABCIOptions "checkTx"
 instance FromJSON CheckTx where
-  parseJSON = genericParseJSON $ defaultABCIOptions "checkTx"
+  parseJSON = withObject "CheckTx" $ \v -> CheckTx
+    <$> v .: "code"
+    <*> v .: "data"
+    <*> v .: "log"
+    <*> v .: "info"
+    <*> v .: "gasWanted"
+    <*> v .: "gasUsed"
+    <*> v .:? "events" .!= []
+    <*> v .: "codespace"
 
 
 instance Wrapped CheckTx where
@@ -391,7 +402,15 @@ makeABCILenses ''DeliverTx
 instance ToJSON DeliverTx where
   toJSON = genericToJSON $ defaultABCIOptions "deliverTx"
 instance FromJSON DeliverTx where
-  parseJSON = genericParseJSON $ defaultABCIOptions "deliverTx"
+  parseJSON = withObject "DeliverTx" $ \v -> DeliverTx
+    <$> v .: "code"
+    <*> v .: "data"
+    <*> v .: "log"
+    <*> v .: "info"
+    <*> v .: "gasWanted"
+    <*> v .: "gasUsed"
+    <*> v .:? "events" .!= []
+    <*> v .: "codespace"
 
 
 instance Wrapped DeliverTx where
@@ -441,7 +460,11 @@ makeABCILenses ''EndBlock
 instance ToJSON EndBlock where
   toJSON = genericToJSON $ defaultABCIOptions "endBlock"
 instance FromJSON EndBlock where
-  parseJSON = genericParseJSON $ defaultABCIOptions "endBlock"
+  parseJSON = withObject "EndBlock" $ \v -> EndBlock
+    <$> v .:? "validatorUpdates" .!= []
+    <*> v .:? "consensusParams"
+    <*> v .:? "events" .!= []
+
 
 instance Wrapped EndBlock where
   type Unwrapped EndBlock = PT.ResponseEndBlock

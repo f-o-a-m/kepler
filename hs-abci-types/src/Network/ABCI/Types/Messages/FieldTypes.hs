@@ -1,4 +1,3 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Network.ABCI.Types.Messages.FieldTypes where
 
 import           Control.Lens
@@ -14,11 +13,11 @@ import           Control.Lens.Wrapped
                                                                                    (Wrapped (..),
                                                                                    _Unwrapped')
 import           Data.Aeson
-                                                                                   (FromJSON (..),
+                                                                                   ((.!=), (.:), (.:?), FromJSON (..),
                                                                                    ToJSON (..),
                                                                                    Value (..),
                                                                                    genericParseJSON,
-                                                                                   genericToJSON)
+                                                                                   genericToJSON, withObject)
 import           Data.ByteArray.HexString
                                                                                    (HexString,
                                                                                    fromBytes,
@@ -157,7 +156,8 @@ data ValidatorParams = ValidatorParams
 instance ToJSON ValidatorParams where
   toJSON = genericToJSON $ defaultABCIOptions "validatorParams"
 instance FromJSON ValidatorParams where
-  parseJSON = genericParseJSON $ defaultABCIOptions "validatorParams"
+  parseJSON = withObject "ValidatorParams" $ \v -> ValidatorParams
+    <$> v .:? "pubKeyTypes" .!= []
 
 instance Wrapped ValidatorParams where
   type Unwrapped ValidatorParams = PT.ValidatorParams
@@ -322,7 +322,9 @@ data LastCommitInfo = LastCommitInfo
 instance ToJSON LastCommitInfo where
   toJSON = genericToJSON $ defaultABCIOptions "lastCommitInfo"
 instance FromJSON LastCommitInfo where
-  parseJSON = genericParseJSON $ defaultABCIOptions "lastCommitInfo"
+  parseJSON = withObject "LastCommitInfo" $ \v -> LastCommitInfo
+    <$> v .: "infoRound"
+    <*> v .:? "infoVotes" .!= []
 
 instance Wrapped LastCommitInfo where
   type Unwrapped LastCommitInfo = PT.LastCommitInfo
@@ -576,7 +578,8 @@ data Proof = Proof
 instance ToJSON Proof where
   toJSON = genericToJSON $ defaultABCIOptions "proof"
 instance FromJSON Proof where
-  parseJSON = genericParseJSON $ defaultABCIOptions "proof"
+  parseJSON = withObject "Proof" $ \v -> Proof
+    <$> v .:? "ops" .!= []
 
 instance Wrapped Proof where
   type Unwrapped Proof = MT.Proof
@@ -633,7 +636,9 @@ data Event = Event
 instance ToJSON Event where
   toJSON = genericToJSON $ defaultABCIOptions "event"
 instance FromJSON Event where
-  parseJSON = genericParseJSON $ defaultABCIOptions "event"
+  parseJSON = withObject "Event" $ \v -> Event
+    <$> v .: "type"
+    <*> v .:? "attributes" .!= []
 
 instance Wrapped Event where
   type Unwrapped Event = PT.Event

@@ -7,10 +7,10 @@ import           Control.Lens                           (iso, traverse, (&),
                                                          (^?), _Just)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
-import           Data.Aeson                             (FromJSON (..),
+import           Data.Aeson                             ((.!=), (.:), (.:?), FromJSON (..),
                                                          ToJSON (..),
                                                          genericParseJSON,
-                                                         genericToJSON)
+                                                         genericToJSON, withObject)
 import           Data.ByteArray.HexString               (HexString, fromBytes,
                                                          toBytes)
 import           Data.ProtoLens.Message                 (Message (defMessage))
@@ -104,12 +104,9 @@ instance Wrapped Info where
    where
     t Info {..} =
       defMessage
-        &  PT.version
-        .~ infoVersion
-        &  PT.blockVersion
-        .~ infoBlockVersion
-        &  PT.p2pVersion
-        .~ infoP2pVersion
+        &  PT.version .~ infoVersion
+        &  PT.blockVersion .~ infoBlockVersion
+        &  PT.p2pVersion .~ infoP2pVersion
     f message = Info { infoVersion      = message ^. PT.version
                      , infoBlockVersion = message ^. PT.blockVersion
                      , infoP2pVersion   = message ^. PT.p2pVersion
@@ -169,7 +166,12 @@ makeABCILenses ''InitChain
 instance ToJSON InitChain where
   toJSON = genericToJSON $ defaultABCIOptions "initChain"
 instance FromJSON InitChain where
-  parseJSON = genericParseJSON $ defaultABCIOptions "initChain"
+  parseJSON = withObject "InitChain" $ \v -> InitChain
+   <$> v .:? "time"
+   <*> v .: "chainId"
+   <*> v .:? "consensusParams"
+   <*> v .:? "validators" .!= []
+   <*> v .: "appState"
 
 
 instance Wrapped InitChain where
@@ -179,29 +181,15 @@ instance Wrapped InitChain where
    where
     t InitChain {..} =
       defMessage
-        &   PT.maybe'time
-        .~  initChainTime
-        ^?  _Just
-        .   _Wrapped'
-        &   PT.chainId
-        .~  initChainChainId
-        &   PT.maybe'consensusParams
-        .~  initChainConsensusParams
-        ^?  _Just
-        .   _Wrapped'
-        &   PT.validators
-        .~  initChainValidators
-        ^.. traverse
-        .   _Wrapped'
-        &   PT.appStateBytes
-        .~  toBytes initChainAppState
+        & PT.maybe'time .~ initChainTime ^? _Just . _Wrapped'
+        & PT.chainId .~ initChainChainId
+        & PT.maybe'consensusParams .~ initChainConsensusParams ^? _Just . _Wrapped'
+        & PT.validators .~ initChainValidators ^.. traverse . _Wrapped'
+        & PT.appStateBytes .~ toBytes initChainAppState
     f message = InitChain
       { initChainTime = message ^? PT.maybe'time . _Just . _Unwrapped'
       , initChainChainId = message ^. PT.chainId
-      , initChainConsensusParams = message
-                                   ^? PT.maybe'consensusParams
-                                   .  _Just
-                                   .  _Unwrapped'
+      , initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . _Unwrapped'
       , initChainValidators = message ^.. PT.validators . traverse . _Unwrapped'
       , initChainAppState = fromBytes $ message ^. PT.appStateBytes
       }
@@ -237,14 +225,10 @@ instance Wrapped Query where
    where
     t Query {..} =
       defMessage
-        &  PT.data'
-        .~ toBytes queryData
-        &  PT.path
-        .~ queryPath
-        &  PT.height
-        .~ unwrapInt64 queryHeight
-        &  PT.prove
-        .~ queryProve
+        &  PT.data' .~ toBytes queryData
+        &  PT.path .~ queryPath
+        &  PT.height .~ unwrapInt64 queryHeight
+        &  PT.prove .~ queryProve
     f message = Query { queryData   = fromBytes $ message ^. PT.data'
                       , queryPath   = message ^. PT.path
                       , queryHeight = WrappedInt64 $ message ^. PT.height
@@ -273,7 +257,11 @@ makeABCILenses ''BeginBlock
 instance ToJSON BeginBlock where
   toJSON = genericToJSON $ defaultABCIOptions "beginBlock"
 instance FromJSON BeginBlock where
-  parseJSON = genericParseJSON $ defaultABCIOptions "beginBlock"
+  parseJSON = withObject "BeginBlock" $ \v -> BeginBlock
+   <$> v .: "hash"
+   <*> v .:? "header"
+   <*> v .:? "lastCommitInfo"
+   <*> v .:? "byzantineValidators" .!= []
 
 
 instance Wrapped BeginBlock where
@@ -283,31 +271,15 @@ instance Wrapped BeginBlock where
    where
     t BeginBlock {..} =
       defMessage
-        &   PT.hash
-        .~  toBytes beginBlockHash
-        &   PT.maybe'header
-        .~  beginBlockHeader
-        ^?  _Just
-        .   _Wrapped'
-        &   PT.maybe'lastCommitInfo
-        .~  beginBlockLastCommitInfo
-        ^?  _Just
-        .   _Wrapped'
-        &   PT.byzantineValidators
-        .~  beginBlockByzantineValidators
-        ^.. traverse
-        .   _Wrapped'
+        & PT.hash .~ toBytes beginBlockHash
+        & PT.maybe'header .~ beginBlockHeader ^? _Just . _Wrapped'
+        & PT.maybe'lastCommitInfo .~ beginBlockLastCommitInfo ^? _Just . _Wrapped'
+        & PT.byzantineValidators .~ beginBlockByzantineValidators ^.. traverse . _Wrapped'
     f message = BeginBlock
-      { beginBlockHash                = fromBytes $ message ^. PT.hash
+      { beginBlockHash = fromBytes $ message ^. PT.hash
       , beginBlockHeader = message ^? PT.maybe'header . _Just . _Unwrapped'
-      , beginBlockLastCommitInfo      = message
-                                        ^? PT.maybe'lastCommitInfo
-                                        .  _Just
-                                        .  _Unwrapped'
-      , beginBlockByzantineValidators = message
-                                        ^.. PT.byzantineValidators
-                                        .   traverse
-                                        .   _Unwrapped'
+      , beginBlockLastCommitInfo = message ^? PT.maybe'lastCommitInfo . _Just . _Unwrapped'
+      , beginBlockByzantineValidators = message ^.. PT.byzantineValidators . traverse . _Unwrapped'
       }
 
 --------------------------------------------------------------------------------
