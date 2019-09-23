@@ -1,17 +1,17 @@
 module SimpleStorage.App (makeAndServeApplication) where
 
-import           Data.Foldable                                (fold)
-import           Data.Monoid                                  (Endo (..))
-import           Network.ABCI.Server                          (serveApp)
-import           Network.ABCI.Server.App                      (App (..),
-                                                               Middleware,
-                                                               Request (..),
-                                                               transformApp)
-import qualified Network.ABCI.Server.Middleware.RequestLogger as ReqLogger
+import           Data.Foldable                                 (fold)
+import           Data.Monoid                                   (Endo (..))
+import           Network.ABCI.Server                           (serveApp)
+import           Network.ABCI.Server.App                       (App (..),
+                                                                Middleware,
+                                                                Request (..),
+                                                                transformApp)
+import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
-import           SimpleStorage.Application                    (Handler,
-                                                               makeAppConfig,
-                                                               transformHandler)
+import           SimpleStorage.Application                     (Handler,
+                                                                makeAppConfig,
+                                                                transformHandler)
 import           SimpleStorage.Handlers
 
 makeAndServeApplication :: IO ()

@@ -3,8 +3,8 @@ module SimpleStorage.Test.HandlersSpec where
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Control.Lens.Wrapped                 (_Unwrapped', _Wrapped')
 import           Data.Binary                          (decode, encode)
-import qualified Data.ByteArray.Base64String             as Base64
-import  Data.ByteArray.Base64String             (Base64String)
+import           Data.ByteArray.Base64String          (Base64String)
+import qualified Data.ByteArray.Base64String          as Base64
 import qualified Data.ByteString.Lazy                 as LBS
 import           Data.Int                             (Int32)
 import           Data.ProtoLens                       (defMessage)

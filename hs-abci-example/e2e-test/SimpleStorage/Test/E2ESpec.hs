@@ -4,8 +4,8 @@ import           Control.Lens                         (to, (^.))
 import           Data.Aeson                           (ToJSON)
 import           Data.Aeson.Encode.Pretty             (encodePretty)
 import           Data.Binary                          (decode, encode)
-import qualified Data.ByteArray.Base64String             as Base64
-import  Data.ByteArray.Base64String             (Base64String)
+import           Data.ByteArray.Base64String          (Base64String)
+import qualified Data.ByteArray.Base64String          as Base64
 import qualified Data.ByteString.Lazy                 as LBS
 import           Data.Default.Class                   (def)
 import           Data.Int                             (Int32)

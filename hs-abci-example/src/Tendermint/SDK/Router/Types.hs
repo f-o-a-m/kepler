@@ -5,7 +5,7 @@ import           Control.Monad.Except                   (ExceptT, MonadError,
                                                          runExceptT)
 import           Control.Monad.IO.Class                 (MonadIO (..))
 import           Control.Monad.Trans                    (MonadTrans (..))
-import           Data.ByteArray.Base64String               (Base64String)
+import           Data.ByteArray.Base64String            (Base64String)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof,
                                                          WrappedInt64 (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request

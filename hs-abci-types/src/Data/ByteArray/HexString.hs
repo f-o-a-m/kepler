@@ -4,7 +4,7 @@
 module Data.ByteArray.HexString where
 
 import           Data.Aeson              (FromJSON (..), ToJSON (..),
-                                          Value (String), withText, Value(..))
+                                          Value (..), withText)
 import           Data.ByteArray          (ByteArray, ByteArrayAccess, convert)
 import qualified Data.ByteArray          as BA (drop, take)
 import           Data.ByteArray.Encoding (Base (Base16), convertFromBase,

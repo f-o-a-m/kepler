@@ -4,7 +4,7 @@
 module Data.ByteArray.Base64String where
 
 import           Data.Aeson              (FromJSON (..), ToJSON (..),
-                                          Value (String), withText, Value(..))
+                                          Value (..), withText)
 import           Data.ByteArray          (ByteArray, ByteArrayAccess, convert)
 import           Data.ByteArray.Encoding (Base (Base64), convertFromBase,
                                           convertToBase)

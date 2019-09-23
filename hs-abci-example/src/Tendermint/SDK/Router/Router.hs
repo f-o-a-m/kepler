@@ -2,7 +2,7 @@ module Tendermint.SDK.Router.Router where
 
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Control.Monad.IO.Class               (MonadIO (..))
-import           Data.ByteArray.Base64String               (Base64String)
+import           Data.ByteArray.Base64String          (Base64String)
 import           Data.Default.Class                   (def)
 import           Data.Map                             (Map)
 import qualified Data.Map                             as M

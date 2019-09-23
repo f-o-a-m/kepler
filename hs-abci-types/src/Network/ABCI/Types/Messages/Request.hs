@@ -7,14 +7,16 @@ import           Control.Lens                           (iso, traverse, (&),
                                                          (^?), _Just)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
-import           Data.Aeson                             ((.!=), (.:), (.:?), FromJSON (..),
+import           Data.Aeson                             (FromJSON (..),
                                                          ToJSON (..),
                                                          genericParseJSON,
-                                                         genericToJSON, withObject)
+                                                         genericToJSON,
+                                                         withObject, (.!=),
+                                                         (.:), (.:?))
+import           Data.ByteArray.Base64String            (Base64String)
+import qualified Data.ByteArray.Base64String            as Base64
 import           Data.ByteArray.HexString               (HexString)
-import qualified Data.ByteArray.HexString              as Hex
-import           Data.ByteArray.Base64String               (Base64String)
-import qualified Data.ByteArray.Base64String              as Base64
+import qualified Data.ByteArray.HexString               as Hex
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word64)

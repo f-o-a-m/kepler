@@ -13,15 +13,21 @@ import           Control.Lens.Wrapped
                                                                                    (Wrapped (..),
                                                                                    _Unwrapped')
 import           Data.Aeson
-                                                                                   ((.!=), (.:), (.:?), FromJSON (..),
+                                                                                   (FromJSON (..),
                                                                                    ToJSON (..),
                                                                                    Value (..),
                                                                                    genericParseJSON,
-                                                                                   genericToJSON, withObject)
-import           Data.ByteArray.HexString               (HexString)
-import qualified Data.ByteArray.HexString              as Hex
-import           Data.ByteArray.Base64String               (Base64String)
-import qualified Data.ByteArray.Base64String              as Base64
+                                                                                   genericToJSON,
+                                                                                   withObject,
+                                                                                   (.!=),
+                                                                                   (.:),
+                                                                                   (.:?))
+import           Data.ByteArray.Base64String
+                                                                                   (Base64String)
+import qualified Data.ByteArray.Base64String                                      as Base64
+import           Data.ByteArray.HexString
+                                                                                   (HexString)
+import qualified Data.ByteArray.HexString                                         as Hex
 import           Data.Int
                                                                                    (Int32,
                                                                                    Int64)
