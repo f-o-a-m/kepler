@@ -30,17 +30,21 @@ spec =
                          , buyerName = "irakli"
                          }
           irakliKey = BuyerKey "1"
+          charles = Buyer { buyerId = "2"
+                          , buyerName = "charles"
+                          }
           logger = awaitForever $ \msg ->
             case msg of
               StoredBuyer buyer -> lift $ MVar.modifyMVar_ logsVar (pure . (:) buyer)
       _ <- ioSubscribe logger
       void $ ioQuery $ tell (PutBuyer irakli)
+      void $ ioQuery $ tell (PutBuyer charles)
       mIrakli <- ioQuery $ request (GetBuyer irakliKey)
       mIrakli `shouldBe` Just irakli
-      mNobody <- ioQuery $ request (GetBuyer (BuyerKey "2"))
+      mNobody <- ioQuery $ request (GetBuyer (BuyerKey "3"))
       mNobody `shouldBe` Nothing
       logs <- MVar.readMVar logsVar
-      logs `shouldBe` [irakli]
+      logs `shouldBe` [charles, irakli]
 
       let serveRoutes :: Application IO
           serveRoutes = serve (Proxy :: Proxy UserApi) (Proxy :: Proxy IO) ioServer
