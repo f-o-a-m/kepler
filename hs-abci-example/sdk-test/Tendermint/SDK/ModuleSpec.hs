@@ -1,9 +1,12 @@
 
 module Tendermint.SDK.ModuleSpec where
 
+import qualified Control.Concurrent.MVar               as MVar
 import           Control.Lens                          (to, (^.))
 import           Control.Monad                         (void)
+import           Control.Monad.Trans
 import           Data.ByteArray.HexString              (fromBytes, toBytes)
+import           Data.Conduit
 import           Data.Proxy
 import qualified Network.ABCI.Types.Messages.Request   as Request
 import qualified Network.ABCI.Types.Messages.Response  as Response
@@ -16,9 +19,6 @@ import           Tendermint.SDK.StoreExample
 import           Tendermint.SDK.StoreExample.Instances ()
 import           Tendermint.SDK.StoreQueries
 import           Test.Hspec
-import qualified Control.Concurrent.MVar as MVar
-import Data.Conduit
-import Control.Monad.Trans
 
 spec :: Spec
 spec =
@@ -26,6 +26,7 @@ spec =
     it "can create the user module and query it via Query msg and from component" $ do
       TendermintIO {ioQuery, ioServer, ioSubscribe} <- runApp userComponent ()
       logsVar <- MVar.newMVar []
+      charlesLogsVar <- MVar.newMVar []
       let irakli = Buyer { buyerId = "1"
                          , buyerName = "irakli"
                          }
@@ -33,10 +34,15 @@ spec =
           charles = Buyer { buyerId = "2"
                           , buyerName = "charles"
                           }
-          logger = awaitForever $ \msg ->
-            case msg of
-              StoredBuyer buyer -> lift $ MVar.modifyMVar_ logsVar (pure . (:) buyer)
+          logger = awaitForever $ \case
+                     StoredBuyer buyer -> lift $ MVar.modifyMVar_ logsVar (pure . (:) buyer)
+          charlesLogger = awaitForever $ \case
+                            StoredBuyer buyer ->
+                              lift $ if buyerName buyer == "charles"
+                                then MVar.modifyMVar_ charlesLogsVar (pure . (:) buyer)
+                                else pure ()
       _ <- ioSubscribe logger
+      _ <- ioSubscribe charlesLogger
       void $ ioQuery $ tell (PutBuyer irakli)
       void $ ioQuery $ tell (PutBuyer charles)
       mIrakli <- ioQuery $ request (GetBuyer irakliKey)
@@ -45,6 +51,8 @@ spec =
       mNobody `shouldBe` Nothing
       logs <- MVar.readMVar logsVar
       logs `shouldBe` [charles, irakli]
+      charlesLogs <- MVar.readMVar charlesLogsVar
+      charlesLogs `shouldBe` [charles]
 
       let serveRoutes :: Application IO
           serveRoutes = serve (Proxy :: Proxy UserApi) (Proxy :: Proxy IO) ioServer

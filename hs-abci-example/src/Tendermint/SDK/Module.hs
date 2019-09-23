@@ -1,20 +1,20 @@
-{-# LANGUAGE  StandaloneDeriving  #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Tendermint.SDK.Module where
 
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import           Control.Monad.Free    (Free, foldFree, liftF)
-import           Data.Foldable         (traverse_)
-import           Data.Functor          (($>))
-import           Data.Functor.Coyoneda (Coyoneda (..), liftCoyoneda)
-import           Tendermint.SDK.Router
-import Data.Void
-import Data.Conduit
-import qualified Data.IORef as IORef
-import qualified Control.Concurrent.MVar as MVar
-import Control.Monad (forM_, forever)
-import qualified Data.Map as M
 import qualified Control.Concurrent.Async as Async
+import qualified Control.Concurrent.MVar  as MVar
+import           Control.Monad            (forM_, forever)
+import           Control.Monad.Free       (Free, foldFree, liftF)
+import           Control.Monad.IO.Class   (MonadIO, liftIO)
+import           Data.Conduit
+import           Data.Foldable            (traverse_)
+import           Data.Functor             (($>))
+import           Data.Functor.Coyoneda    (Coyoneda (..), liftCoyoneda)
+import qualified Data.IORef               as IORef
+import qualified Data.Map                 as M
+import           Tendermint.SDK.Router
+-- import qualified Debug.Trace as Trace
 
 --import Tendermint.SDK.Store
 
@@ -49,7 +49,7 @@ data EvalSpec state query action input output m = EvalSpec
     , initialize   :: Maybe action
     }
 
-defaultEvalSpec 
+defaultEvalSpec
   :: Applicative m
   => (forall a. query a -> TendermintM state action output m a)
   -> EvalSpec state query action input output m
@@ -100,7 +100,7 @@ withComponent f (Component c) = f c
 data DriverState state query action input output api m = DriverState
   { component :: ComponentSpec state query action input output api m
   , state     :: state
-  , handler :: output -> m ()
+  , handler   :: output -> m ()
   }
 
 evalM
@@ -178,8 +178,8 @@ tell :: forall f. Tell f -> f ()
 tell act = act ()
 
 data TendermintIO query output api m = TendermintIO
-  { ioQuery  :: forall a. query a -> m a
-  , ioServer :: RouteT api m
+  { ioQuery     :: forall a. query a -> m a
+  , ioServer    :: RouteT api m
   , ioSubscribe :: ConduitT output Void IO () -> IO (Async.Async ())
   }
 
@@ -200,11 +200,11 @@ subscribe fresh ref consumer = do
   inputVar <- MVar.newEmptyMVar
   listenerId <- do
     listenerId <- IORef.readIORef fresh
-    IORef.modifyIORef fresh ((+) 1)
+    IORef.modifyIORef fresh (1 +)
     IORef.modifyIORef ref (M.insert listenerId inputVar)
     pure listenerId
   let producer = mkProducer inputVar
-  Async.async $ do 
+  Async.async $ do
     runConduit (producer .| consumer)
     IORef.modifyIORef ref (M.delete listenerId)
   where
@@ -213,7 +213,7 @@ subscribe fresh ref consumer = do
       mInput <- liftIO $ MVar.tryTakeMVar var
       case mInput of
         Nothing -> pure ()
-        Just a -> yield a
+        Just a  -> yield a
 
 
 runComponent
