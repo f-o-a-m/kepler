@@ -37,11 +37,13 @@ default-extensions:
 
 
 dependencies:
+- async
 - avl-auth
 - base >= 4.7 && < 5
 - binary
 - bytestring
 - containers
+- conduit
 - cryptonite
 - data-default-class
 - free

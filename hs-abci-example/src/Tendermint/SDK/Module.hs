@@ -1,26 +1,38 @@
+{-# LANGUAGE  StandaloneDeriving  #-}
+
 module Tendermint.SDK.Module where
 
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import           Control.Monad.Free    (Free, foldFree, liftF)
 import           Data.Foldable         (traverse_)
 import           Data.Functor          (($>))
 import           Data.Functor.Coyoneda (Coyoneda (..), liftCoyoneda)
 import           Tendermint.SDK.Router
+import Data.Void
+import Data.Conduit
+import qualified Data.IORef as IORef
+import qualified Control.Concurrent.MVar as MVar
+import Control.Monad (forM_, forever)
+import qualified Data.Map as M
+import qualified Control.Concurrent.Async as Async
+
 --import Tendermint.SDK.Store
 
-data TendermintF state action m a =
+data TendermintF state action output m a =
     State (state -> m a)
   | Lift (m a)
+  | Raise output a
 
-instance Functor m => Functor (TendermintF state action m) where
-    fmap f a = case a of
-      State g -> State (fmap f . g)
-      Lift b  -> Lift (f <$> b)
+deriving instance Functor m => Functor (TendermintF state action output m)
 
-newtype TendermintM state action m a = TendermintM (Free (TendermintF state action m) a)
+newtype TendermintM state action output m a = TendermintM (Free (TendermintF state action output m) a)
   deriving (Functor, Applicative, Monad)
 
-withState :: Functor m => (state -> m a) -> TendermintM state action m a
+withState :: Functor m => (state -> m a) -> TendermintM state action output m a
 withState = TendermintM . liftF . State
+
+raise :: Functor m => output -> TendermintM state action output m ()
+raise o = TendermintM . liftF $ Raise o ()
 
 data TendermintQ query action input a
   = Initialize a
@@ -30,18 +42,29 @@ data TendermintQ query action input a
   deriving (Functor)
 
 
-data EvalSpec state query action input m = EvalSpec
-    { handleAction :: action -> TendermintM state action m ()
-    , handleQuery  :: forall a. query a -> TendermintM state action m a
+data EvalSpec state query action input output m = EvalSpec
+    { handleAction :: action -> TendermintM state action output m ()
+    , handleQuery  :: forall a. query a -> TendermintM state action output m a
     , receive      :: input -> Maybe action
     , initialize   :: Maybe action
     }
 
+defaultEvalSpec 
+  :: Applicative m
+  => (forall a. query a -> TendermintM state action output m a)
+  -> EvalSpec state query action input output m
+defaultEvalSpec f = EvalSpec
+  { handleAction = const $ pure ()
+  , handleQuery = f
+  , receive = const Nothing
+  , initialize = Nothing
+  }
+
 mkEval
-  :: forall state query action input m.
+  :: forall state query action input output m.
      Functor m
-  => EvalSpec state query action input m
-  -> (forall a. TendermintQ query action input a -> TendermintM state action m a)
+  => EvalSpec state query action input output m
+  -> (forall a. TendermintQ query action input a -> TendermintM state action output m a)
 mkEval EvalSpec{..} q = case q of
   -- the module can use this to initialize itself, seems self evident
   Initialize a ->
@@ -59,80 +82,89 @@ mkEval EvalSpec{..} q = case q of
   -- algebra
   Query (Coyoneda g a) ->  g <$> handleQuery a
 
-data ComponentSpec state query action input (api :: *) m = ComponentSpec
+data ComponentSpec state query action input output (api :: *) m = ComponentSpec
   { initialState :: input -> m state
-  , eval :: forall a. TendermintQ query action input a -> TendermintM state action m a
+  , eval :: forall a. TendermintQ query action input a -> TendermintM state action output m a
   , mkServer :: state -> RouteT api m
   }
 
-data Component query input api m where
-  Component :: ComponentSpec state query action input api m -> Component query input api m
+data Component query input output api m where
+  Component :: ComponentSpec state query action input output api m -> Component query input output api m
 
 withComponent
-  :: forall query input api m a.
-     (forall state action. ComponentSpec state query action input api m -> a)
-  -> Component query input api m -> a
+  :: forall query input output api m a.
+     (forall state action. ComponentSpec state query action input output api m -> a)
+  -> Component query input output api m -> a
 withComponent f (Component c) = f c
 
-data DriverState state query action input api m = DriverState
-  { component :: ComponentSpec state query action input api m
+data DriverState state query action input output api m = DriverState
+  { component :: ComponentSpec state query action input output api m
   , state     :: state
+  , handler :: output -> m ()
   }
 
 evalM
-  :: Monad m
-  => DriverState state query action input api m
-  -> (forall a. TendermintM state action m a -> m a)
+  :: MonadIO m
+  => DriverState state query action input output api m
+  -> (forall a. TendermintM state action output m a -> m a)
 evalM ds (TendermintM tm) = foldFree (go ds) tm
   where
   go
-    :: DriverState state query action input api m
-    -> (forall a. TendermintF state action m a -> m a)
+    :: MonadIO m
+    => DriverState state query action input output api m
+    -> (forall a. TendermintF state action output m a -> m a)
   go ds' = \case
     State f -> do
       let DriverState {state} = ds'
       f state
     Lift m -> m
+    Raise output a -> do
+      let DriverState {handler} = ds'
+      handler output
+      pure a
 
 evalQ
-  :: Monad m
-  => DriverState state query action input api m
+  :: MonadIO m
+  => DriverState state query action input output api m
   -> query a
   -> m a
-evalQ ds@DriverState{component} q = do
-  let ComponentSpec{eval} = component
+evalQ ds q = do
+  let DriverState{component} = ds
+      ComponentSpec{eval} = component
   evalM ds . eval $ Query (liftCoyoneda q)
 
 -- TODO: Use GADTs
-data DriverStateX query m where
-  DriverStateX ::  DriverState state query action input api m -> DriverStateX query m
+data DriverStateX query output m where
+  DriverStateX ::  DriverState state query action input output api m -> DriverStateX query output m
 
 withDriverStateX
-  :: forall x query m.
-     (forall state action input api. DriverState state query action input api m -> x)
-  -> DriverStateX query m
+  :: forall x query output m.
+     (forall state action input api. DriverState state query action input output api m -> x)
+  -> DriverStateX query output m
   -> x
 withDriverStateX f (DriverStateX ds) = f ds
 
 initDriverState
-  :: forall state query action input api m.
-     Monad m
-  => ComponentSpec state query action input api m
+  :: forall state query action input output api m.
+     MonadIO m
+  => ComponentSpec state query action input output api m
   -> input
-  -> m (DriverStateX query m,  RouteT api m)
-initDriverState c@ComponentSpec{initialState, mkServer} i = do
+  -> (output -> m ())
+  -> m (DriverStateX query output m,  RouteT api m)
+initDriverState c@ComponentSpec{initialState, mkServer} i handler = do
   s <- initialState i
   let dsx =  DriverStateX $ DriverState
                { component = c
                , state = s
+               , handler = handler
                }
       server = mkServer s
   return (dsx, server)
 
 -- NOTE: this is dumb, it's just a renaming at this point
 evalDriver
-  :: Monad m
-  => DriverState state query action input api m
+  :: MonadIO m
+  => DriverState state query action input output api m
   -> forall a. (query a -> m a)
 evalDriver ds q = evalQ ds q
 
@@ -145,24 +177,69 @@ type Tell f = () -> f ()
 tell :: forall f. Tell f -> f ()
 tell act = act ()
 
-data TendermintIO query api m = TendermintIO
+data TendermintIO query output api m = TendermintIO
   { ioQuery  :: forall a. query a -> m a
   , ioServer :: RouteT api m
+  , ioSubscribe :: ConduitT output Void IO () -> IO (Async.Async ())
   }
 
-runTendermint
-  :: Monad m
-  => Component query input api m
+rootHandler
+  :: IORef.IORef (M.Map Int (MVar.MVar output))
+  -> output
+  -> IO ()
+rootHandler ref message = do
+  listeners <- IORef.readIORef ref
+  forM_ listeners $ \listener -> MVar.putMVar listener message
+
+subscribe
+  :: IORef.IORef Int
+  -> IORef.IORef (M.Map Int (MVar.MVar output))
+  -> ConduitT output Void IO ()
+  -> IO (Async.Async ())
+subscribe fresh ref consumer = do
+  inputVar <- MVar.newEmptyMVar
+  listenerId <- do
+    listenerId <- IORef.readIORef fresh
+    IORef.modifyIORef fresh ((+) 1)
+    IORef.modifyIORef ref (M.insert listenerId inputVar)
+    pure listenerId
+  let producer = mkProducer inputVar
+  Async.async $ do 
+    runConduit (producer .| consumer)
+    IORef.modifyIORef ref (M.delete listenerId)
+  where
+    mkProducer :: MonadIO m => MVar.MVar output -> ConduitT () output m ()
+    mkProducer var = forever $ do
+      mInput <- liftIO $ MVar.tryTakeMVar var
+      case mInput of
+        Nothing -> pure ()
+        Just a -> yield a
+
+
+runComponent
+  :: MonadIO m
+  => Component query input output api m
   -> input
-  -> m (TendermintIO query api m)
-runTendermint component i =
+  -> (output -> m ())
+  -> m (DriverStateX query output m, RouteT api m)
+runComponent component i handler =
   withComponent (\componentSpec -> do
-    (ds, server) <- initDriverState componentSpec i
-    withDriverStateX (\st ->
-      return $ TendermintIO
-        { ioQuery =  evalDriver st
-        , ioServer = server
-        }
-      ) ds
+    initDriverState componentSpec i handler
     ) component
 
+runApp
+  :: MonadIO m
+  => Component query input output api m
+  -> input
+  -> m (TendermintIO query output api m)
+runApp component i = do
+  fresh <- liftIO $ IORef.newIORef 0
+  listeners <- liftIO $ IORef.newIORef M.empty
+  (ds, server) <- runComponent component i (liftIO . rootHandler listeners)
+  withDriverStateX (\st -> do
+    return $ TendermintIO
+      { ioQuery =  evalDriver st
+      , ioServer = server
+      , ioSubscribe = subscribe fresh listeners
+      }
+    ) ds
