@@ -11,8 +11,10 @@ import           Data.Aeson                             ((.!=), (.:), (.:?), Fro
                                                          ToJSON (..),
                                                          genericParseJSON,
                                                          genericToJSON, withObject)
-import           Data.ByteArray.HexString               (HexString, fromBytes,
-                                                         toBytes)
+import           Data.ByteArray.HexString               (HexString)
+import qualified Data.ByteArray.HexString              as Hex
+import           Data.ByteArray.Base64String               (Base64String)
+import qualified Data.ByteArray.Base64String              as Base64
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word64)
@@ -156,7 +158,7 @@ data InitChain = InitChain
   -- ^ Initial consensus-critical parameters.
   , initChainValidators      :: [ValidatorUpdate]
   -- ^ Initial genesis validators.
-  , initChainAppState        :: HexString
+  , initChainAppState        :: Base64String
   -- ^ Serialized initial application state. Amino-encoded JSON bytes.
   } deriving (Eq, Show, Generic)
 
@@ -185,13 +187,13 @@ instance Wrapped InitChain where
         & PT.chainId .~ initChainChainId
         & PT.maybe'consensusParams .~ initChainConsensusParams ^? _Just . _Wrapped'
         & PT.validators .~ initChainValidators ^.. traverse . _Wrapped'
-        & PT.appStateBytes .~ toBytes initChainAppState
+        & PT.appStateBytes .~ Base64.toBytes initChainAppState
     f message = InitChain
       { initChainTime = message ^? PT.maybe'time . _Just . _Unwrapped'
       , initChainChainId = message ^. PT.chainId
       , initChainConsensusParams = message ^? PT.maybe'consensusParams . _Just . _Unwrapped'
       , initChainValidators = message ^.. PT.validators . traverse . _Unwrapped'
-      , initChainAppState = fromBytes $ message ^. PT.appStateBytes
+      , initChainAppState = Base64.fromBytes $ message ^. PT.appStateBytes
       }
 
 --------------------------------------------------------------------------------
@@ -199,7 +201,7 @@ instance Wrapped InitChain where
 --------------------------------------------------------------------------------
 
 data Query = Query
-  { queryData   :: HexString
+  { queryData   :: Base64String
   -- ^  Raw query bytes. Can be used with or in lieu of Path.
   , queryPath   :: Text
   -- ^ Path of request, like an HTTP GET path. Can be used with or in liue of Data.
@@ -225,11 +227,11 @@ instance Wrapped Query where
    where
     t Query {..} =
       defMessage
-        &  PT.data' .~ toBytes queryData
+        &  PT.data' .~ Base64.toBytes queryData
         &  PT.path .~ queryPath
         &  PT.height .~ unwrapInt64 queryHeight
         &  PT.prove .~ queryProve
-    f message = Query { queryData   = fromBytes $ message ^. PT.data'
+    f message = Query { queryData   = Base64.fromBytes $ message ^. PT.data'
                       , queryPath   = message ^. PT.path
                       , queryHeight = WrappedInt64 $ message ^. PT.height
                       , queryProve  = message ^. PT.prove
@@ -271,12 +273,12 @@ instance Wrapped BeginBlock where
    where
     t BeginBlock {..} =
       defMessage
-        & PT.hash .~ toBytes beginBlockHash
+        & PT.hash .~ Hex.toBytes beginBlockHash
         & PT.maybe'header .~ beginBlockHeader ^? _Just . _Wrapped'
         & PT.maybe'lastCommitInfo .~ beginBlockLastCommitInfo ^? _Just . _Wrapped'
         & PT.byzantineValidators .~ beginBlockByzantineValidators ^.. traverse . _Wrapped'
     f message = BeginBlock
-      { beginBlockHash = fromBytes $ message ^. PT.hash
+      { beginBlockHash = Hex.fromBytes $ message ^. PT.hash
       , beginBlockHeader = message ^? PT.maybe'header . _Just . _Unwrapped'
       , beginBlockLastCommitInfo = message ^? PT.maybe'lastCommitInfo . _Just . _Unwrapped'
       , beginBlockByzantineValidators = message ^.. PT.byzantineValidators . traverse . _Unwrapped'
@@ -288,7 +290,7 @@ instance Wrapped BeginBlock where
 
 -- TODO: figure out what happened to Type CheckTxType field
 data CheckTx = CheckTx
-  { checkTxTx :: HexString
+  { checkTxTx :: Base64String
   -- ^ The request transaction bytes
   } deriving (Eq, Show, Generic)
 
@@ -306,16 +308,16 @@ instance Wrapped CheckTx where
 
   _Wrapped' = iso t f
    where
-    t CheckTx {..} = defMessage & PT.tx .~ toBytes checkTxTx
+    t CheckTx {..} = defMessage & PT.tx .~ Base64.toBytes checkTxTx
 
-    f message = CheckTx { checkTxTx = fromBytes $ message ^. PT.tx }
+    f message = CheckTx { checkTxTx = Base64.fromBytes $ message ^. PT.tx }
 
 --------------------------------------------------------------------------------
 -- DeliverTx
 --------------------------------------------------------------------------------
 
 data DeliverTx = DeliverTx
-  { deliverTxTx :: HexString
+  { deliverTxTx :: Base64String
   -- ^ The request transaction bytes.
   } deriving (Eq, Show, Generic)
 
@@ -333,9 +335,9 @@ instance Wrapped DeliverTx where
 
   _Wrapped' = iso t f
    where
-    t DeliverTx {..} = defMessage & PT.tx .~ toBytes deliverTxTx
+    t DeliverTx {..} = defMessage & PT.tx .~ Base64.toBytes deliverTxTx
 
-    f message = DeliverTx { deliverTxTx = fromBytes $ message ^. PT.tx }
+    f message = DeliverTx { deliverTxTx = Base64.fromBytes $ message ^. PT.tx }
 
 --------------------------------------------------------------------------------
 -- EndBlock

@@ -11,8 +11,10 @@ import           Data.Aeson                             ((.!=), (.:), (.:?), Fro
                                                          ToJSON (..),
                                                          genericParseJSON,
                                                          genericToJSON, withObject)
-import           Data.ByteArray.HexString               (HexString, fromBytes,
-                                                         toBytes)
+import qualified Data.ByteArray.HexString  as Hex
+import  Data.ByteArray.HexString  (HexString)
+import qualified Data.ByteArray.Base64String  as Base64
+import  Data.ByteArray.Base64String  (Base64String)
 import           Data.Default.Class                     (Default (..))
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
@@ -114,13 +116,13 @@ instance Wrapped Info where
         & PT.version .~ infoVersion
         & PT.appVersion .~ infoAppVersion
         & PT.lastBlockHeight .~ unwrapInt64 infoLastBlockHeight
-        & PT.lastBlockAppHash .~ toBytes infoLastBlockAppHash
+        & PT.lastBlockAppHash .~ Hex.toBytes infoLastBlockAppHash
     f message = Info
       { infoData             = message ^. PT.data'
       , infoVersion          = message ^. PT.version
       , infoAppVersion       = message ^. PT.appVersion
       , infoLastBlockHeight  = WrappedInt64 $ message ^. PT.lastBlockHeight
-      , infoLastBlockAppHash = fromBytes $ message ^. PT.lastBlockAppHash
+      , infoLastBlockAppHash = Hex.fromBytes $ message ^. PT.lastBlockAppHash
       }
 
 instance Default Info where
@@ -218,9 +220,9 @@ data Query = Query
   -- ^ Additional information. May be non-deterministic.
   , queryIndex     :: WrappedInt64
   -- ^ The index of the key in the tree.
-  , queryKey       :: HexString
+  , queryKey       :: Base64String
   -- ^ The key of the matching data.
-  , queryValue     :: HexString
+  , queryValue     :: Base64String
   -- ^ The value of the matching data.
   , queryProof     :: Maybe Proof
   -- ^ Serialized proof for the value data, if requested, to be verified against
@@ -251,8 +253,8 @@ instance Wrapped Query where
         & PT.log .~ queryLog
         & PT.info .~ queryInfo
         & PT.index .~ unwrapInt64 queryIndex
-        & PT.key .~ toBytes queryKey
-        & PT.value .~ toBytes queryValue
+        & PT.key .~ Base64.toBytes queryKey
+        & PT.value .~ Base64.toBytes queryValue
         & PT.maybe'proof .~ queryProof ^? _Just .  _Wrapped'
         & PT.height .~ unwrapInt64 queryHeight
         & PT.codespace .~ queryCodespace
@@ -261,8 +263,8 @@ instance Wrapped Query where
       , queryLog       = message ^. PT.log
       , queryInfo      = message ^. PT.info
       , queryIndex     = WrappedInt64 $ message ^. PT.index
-      , queryKey       = fromBytes $ message ^. PT.key
-      , queryValue     = fromBytes $ message ^. PT.value
+      , queryKey       = Base64.fromBytes $ message ^. PT.key
+      , queryValue     = Base64.fromBytes $ message ^. PT.value
       , queryProof     = message ^? PT.maybe'proof . _Just . _Unwrapped'
       , queryHeight    = WrappedInt64 $ message ^. PT.height
       , queryCodespace = message ^. PT.codespace
@@ -311,7 +313,7 @@ instance Default BeginBlock where
 data CheckTx = CheckTx
   { checkTxCode      :: Word32
   -- ^ Response code
-  , checkTxData      :: HexString
+  , checkTxData      :: Base64String
   -- ^ Result bytes, if any.
   , checkTxLog       :: Text
   -- ^ The output of the application's logger.
@@ -352,7 +354,7 @@ instance Wrapped CheckTx where
     t CheckTx {..} =
       defMessage
         & PT.code .~ checkTxCode
-        & PT.data' .~ toBytes checkTxData
+        & PT.data' .~ Base64.toBytes checkTxData
         & PT.log .~ checkTxLog
         & PT.info .~ checkTxInfo
         & PT.gasWanted .~ unwrapInt64 checkTxGasWanted
@@ -361,7 +363,7 @@ instance Wrapped CheckTx where
         & PT.codespace .~ checkTxCodespace
     f message = CheckTx
       { checkTxCode      = message ^. PT.code
-      , checkTxData      = fromBytes $ message ^. PT.data'
+      , checkTxData      = Base64.fromBytes $ message ^. PT.data'
       , checkTxLog       = message ^. PT.log
       , checkTxInfo      = message ^. PT.info
       , checkTxGasWanted = WrappedInt64 $ message ^. PT.gasWanted
@@ -380,7 +382,7 @@ instance Default CheckTx where
 data DeliverTx = DeliverTx
   { deliverTxCode      :: Word32
   -- ^ Response code.
-  , deliverTxData      :: HexString
+  , deliverTxData      :: Base64String
   -- ^ Result bytes, if any.
   , deliverTxLog       :: Text
   -- ^ The output of the application's logger. May be non-deterministic.
@@ -421,7 +423,7 @@ instance Wrapped DeliverTx where
     t DeliverTx {..} =
       defMessage
         & PT.code .~ deliverTxCode
-        & PT.data' .~ toBytes deliverTxData
+        & PT.data' .~ Base64.toBytes deliverTxData
         & PT.log .~ deliverTxLog
         & PT.info .~ deliverTxInfo
         & PT.gasWanted .~ unwrapInt64 deliverTxGasWanted
@@ -430,7 +432,7 @@ instance Wrapped DeliverTx where
         & PT.codespace .~ deliverTxCodespace
     f responseDeliverTx = DeliverTx
       { deliverTxCode      = responseDeliverTx ^. PT.code
-      , deliverTxData      = fromBytes $ responseDeliverTx ^. PT.data'
+      , deliverTxData      = Base64.fromBytes $ responseDeliverTx ^. PT.data'
       , deliverTxLog       = responseDeliverTx ^. PT.log
       , deliverTxInfo      = responseDeliverTx ^. PT.info
       , deliverTxGasWanted = WrappedInt64 $ responseDeliverTx ^. PT.gasWanted
@@ -490,7 +492,7 @@ instance Default EndBlock where
 --------------------------------------------------------------------------------
 
 data Commit = Commit
-  { commitData :: HexString
+  { commitData :: Base64String
   -- ^ The Merkle root hash of the application state
   } deriving (Eq, Show, Generic)
 
@@ -506,8 +508,8 @@ instance Wrapped Commit where
 
   _Wrapped' = iso t f
    where
-    t Commit {..} = defMessage & PT.data' .~ toBytes commitData
-    f message = Commit { commitData = fromBytes $ message ^. PT.data' }
+    t Commit {..} = defMessage & PT.data' .~ Base64.toBytes commitData
+    f message = Commit { commitData = Base64.fromBytes $ message ^. PT.data' }
 
 instance Default Commit where
   def = defMessage ^. _Unwrapped'

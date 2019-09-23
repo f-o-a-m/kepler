@@ -4,7 +4,8 @@ import           Control.Lens                         (to, (^.))
 import           Data.Aeson                           (ToJSON)
 import           Data.Aeson.Encode.Pretty             (encodePretty)
 import           Data.Binary                          (decode, encode)
-import qualified Data.ByteArray.HexString             as Hex
+import qualified Data.ByteArray.Base64String             as Base64
+import  Data.ByteArray.Base64String             (Base64String)
 import qualified Data.ByteString.Lazy                 as LBS
 import           Data.Default.Class                   (def)
 import           Data.Int                             (Int32)
@@ -23,7 +24,6 @@ spec = do
       resp `shouldBe` RPC.ResultHealth
 
     it "Can query the initial count and make sure it's 0" $ do
-      pendingWith "Pending hs-tendermint-client resolution."
       let queryReq =
             def { RPC.requestABCIQueryPath = Just "count"
                 }
@@ -32,11 +32,12 @@ spec = do
       let foundCount = queryResp ^. Resp._queryValue . to decodeCount
       foundCount `shouldBe` 0
 
-encodeCount :: Int32 -> Hex.HexString
-encodeCount = Hex.fromBytes . LBS.toStrict . encode
 
-decodeCount :: Hex.HexString -> Int32
-decodeCount =  decode . LBS.fromStrict . Hex.toBytes
+encodeCount :: Int32 -> Base64String
+encodeCount = Base64.fromBytes . LBS.toStrict . encode
+
+decodeCount :: Base64String -> Int32
+decodeCount =  decode . LBS.fromStrict . Base64.toBytes
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
 runRPC = RPC.runTendermintM rpcConfig

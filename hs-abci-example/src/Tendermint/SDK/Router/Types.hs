@@ -5,7 +5,7 @@ import           Control.Monad.Except                   (ExceptT, MonadError,
                                                          runExceptT)
 import           Control.Monad.IO.Class                 (MonadIO (..))
 import           Control.Monad.Trans                    (MonadTrans (..))
-import           Data.ByteArray.HexString               (HexString)
+import           Data.ByteArray.Base64String               (Base64String)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof,
                                                          WrappedInt64 (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
@@ -32,14 +32,14 @@ data QueryError =
 data QueryArgs a = QueryArgs
   { queryArgsProve       :: Bool
   , queryArgsData        :: a
-  , queryArgsQueryData   :: HexString
+  , queryArgsQueryData   :: Base64String
   , queryArgsBlockHeight :: WrappedInt64
   } deriving Functor
 
 data QueryResult a = QueryResult
   { queryResultData   :: a
   , queryResultIndex  :: WrappedInt64
-  , queryResultKey    :: HexString
+  , queryResultKey    :: Base64String
   , queryResultProof  :: Maybe Proof
   , queryResultHeight :: WrappedInt64
   } deriving Functor
@@ -47,10 +47,10 @@ data QueryResult a = QueryResult
 --------------------------------------------------------------------------------
 
 class EncodeQueryResult a where
-  encodeQueryResult :: a -> HexString
+  encodeQueryResult :: a -> Base64String
 
 class FromQueryData a where
-  fromQueryData :: HexString -> Either String a
+  fromQueryData :: Base64String -> Either String a
 
 --------------------------------------------------------------------------------
 

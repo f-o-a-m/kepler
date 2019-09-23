@@ -5,7 +5,7 @@ module Tendermint.SDK.StoreQueries where
 import           Control.Lens                (to, (^.))
 import           Control.Monad.Except        (throwError)
 import           Control.Monad.Trans         (lift)
-import           Data.ByteArray.HexString    (fromBytes)
+import           Data.ByteArray.Base64String    (fromBytes)
 import           Data.Proxy
 import           Servant.API
 import           Tendermint.SDK.Codec

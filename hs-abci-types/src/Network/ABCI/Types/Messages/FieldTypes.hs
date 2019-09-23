@@ -18,10 +18,10 @@ import           Data.Aeson
                                                                                    Value (..),
                                                                                    genericParseJSON,
                                                                                    genericToJSON, withObject)
-import           Data.ByteArray.HexString
-                                                                                   (HexString,
-                                                                                   fromBytes,
-                                                                                   toBytes)
+import           Data.ByteArray.HexString               (HexString)
+import qualified Data.ByteArray.HexString              as Hex
+import           Data.ByteArray.Base64String               (Base64String)
+import qualified Data.ByteArray.Base64String              as Base64
 import           Data.Int
                                                                                    (Int32,
                                                                                    Int64)
@@ -206,7 +206,7 @@ instance Wrapped ConsensusParams where
 data PubKey = PubKey
   { pubKeyType :: Text
   -- ^ Type of the public key.
-  , pubKeyData :: HexString
+  , pubKeyData :: Base64String
   -- ^ Public key data.
   } deriving (Eq, Show, Generic)
 
@@ -223,11 +223,11 @@ instance Wrapped PubKey where
       t PubKey{..} =
         defMessage
           & PT.type' .~ pubKeyType
-          & PT.data' .~ toBytes pubKeyData
+          & PT.data' .~ Base64.toBytes pubKeyData
       f a =
         PubKey
           { pubKeyType =  a ^. PT.type'
-          , pubKeyData = fromBytes (a ^. PT.data')
+          , pubKeyData = Base64.fromBytes (a ^. PT.data')
           }
 
 data ValidatorUpdate = ValidatorUpdate
@@ -276,11 +276,11 @@ instance Wrapped Validator where
     where
       t Validator{..} =
         defMessage
-          & PT.address .~ toBytes validatorAddress
+          & PT.address .~ Hex.toBytes validatorAddress
           & PT.power .~ unwrapInt64 validatorPower
       f a =
         Validator
-          { validatorAddress = fromBytes (a ^. PT.address)
+          { validatorAddress = Hex.fromBytes (a ^. PT.address)
           , validatorPower = WrappedInt64 $ a ^. PT.power
           }
 
@@ -361,10 +361,10 @@ instance Wrapped PartSetHeader where
       t PartSetHeader{..} =
         defMessage
           & PT.total .~ partSetHeaderTotal
-          & PT.hash .~ toBytes partSetHeaderHash
+          & PT.hash .~ Hex.toBytes partSetHeaderHash
       f a =
         PartSetHeader { partSetHeaderTotal = a ^. PT.total
-                      , partSetHeaderHash = fromBytes (a ^. PT.hash)
+                      , partSetHeaderHash = Hex.fromBytes (a ^. PT.hash)
                       }
 
 data BlockID = BlockID
@@ -386,11 +386,11 @@ instance Wrapped BlockID where
     where
       t BlockID{..} =
         defMessage
-          & PT.hash .~ toBytes blockIDHash
+          & PT.hash .~ Hex.toBytes blockIDHash
           & PT.maybe'partsHeader .~ blockIDPartsHeader ^? _Just . _Wrapped'
       f a =
         BlockID
-          { blockIDHash = fromBytes(a ^. PT.hash)
+          { blockIDHash = Hex.fromBytes(a ^. PT.hash)
           , blockIDPartsHeader = a ^? PT.maybe'partsHeader . _Just . _Unwrapped'
           }
 
@@ -475,15 +475,15 @@ instance Wrapped Header where
           & PT.numTxs .~ unwrapInt64 headerNumTxs
           & PT.totalTxs .~ unwrapInt64 headerTotalTxs
           & PT.maybe'lastBlockId .~ headerLastBlockId ^? _Just . _Wrapped'
-          & PT.lastCommitHash .~ toBytes headerLastCommitHash
-          & PT.dataHash .~ toBytes headerDataHash
-          & PT.validatorsHash .~ toBytes headerValidatorsHash
-          & PT.nextValidatorsHash .~ toBytes headerNextValidatorsHash
-          & PT.consensusHash .~ toBytes headerConsensusHash
-          & PT.appHash .~ toBytes headerAppHash
-          & PT.lastResultsHash .~ toBytes headerLastResultsHash
-          & PT.evidenceHash .~ toBytes headerEvidenceHash
-          & PT.proposerAddress .~ toBytes headerProposerAddress
+          & PT.lastCommitHash .~ Hex.toBytes headerLastCommitHash
+          & PT.dataHash .~ Hex.toBytes headerDataHash
+          & PT.validatorsHash .~ Hex.toBytes headerValidatorsHash
+          & PT.nextValidatorsHash .~ Hex.toBytes headerNextValidatorsHash
+          & PT.consensusHash .~ Hex.toBytes headerConsensusHash
+          & PT.appHash .~ Hex.toBytes headerAppHash
+          & PT.lastResultsHash .~ Hex.toBytes headerLastResultsHash
+          & PT.evidenceHash .~ Hex.toBytes headerEvidenceHash
+          & PT.proposerAddress .~ Hex.toBytes headerProposerAddress
       f a =
         Header
           { headerVersion = a ^? PT.maybe'version . _Just . _Unwrapped'
@@ -493,15 +493,15 @@ instance Wrapped Header where
           , headerNumTxs = WrappedInt64 $ a ^. PT.numTxs
           , headerTotalTxs = WrappedInt64 $ a ^. PT.totalTxs
           , headerLastBlockId = a ^? PT.maybe'lastBlockId . _Just . _Unwrapped'
-          , headerLastCommitHash = fromBytes $ a ^. PT.lastCommitHash
-          , headerDataHash = fromBytes $ a ^. PT.dataHash
-          , headerValidatorsHash = fromBytes $ a ^. PT.validatorsHash
-          , headerNextValidatorsHash = fromBytes $ a ^. PT.nextValidatorsHash
-          , headerConsensusHash = fromBytes $ a ^. PT.consensusHash
-          , headerAppHash = fromBytes $ a ^. PT.appHash
-          , headerLastResultsHash = fromBytes $ a ^. PT.lastResultsHash
-          , headerEvidenceHash = fromBytes $ a ^. PT.evidenceHash
-          , headerProposerAddress = fromBytes $ a ^. PT.proposerAddress
+          , headerLastCommitHash = Hex.fromBytes $ a ^. PT.lastCommitHash
+          , headerDataHash = Hex.fromBytes $ a ^. PT.dataHash
+          , headerValidatorsHash = Hex.fromBytes $ a ^. PT.validatorsHash
+          , headerNextValidatorsHash = Hex.fromBytes $ a ^. PT.nextValidatorsHash
+          , headerConsensusHash = Hex.fromBytes $ a ^. PT.consensusHash
+          , headerAppHash = Hex.fromBytes $ a ^. PT.appHash
+          , headerLastResultsHash = Hex.fromBytes $ a ^. PT.lastResultsHash
+          , headerEvidenceHash = Hex.fromBytes $ a ^. PT.evidenceHash
+          , headerProposerAddress = Hex.fromBytes $ a ^. PT.proposerAddress
           }
 
 data Evidence = Evidence
@@ -544,9 +544,9 @@ instance Wrapped Evidence where
           }
 
 data KVPair = KVPair
-  { kVPairKey   :: HexString
+  { kVPairKey   :: Base64String
   -- ^ key
-  , kVPairValue :: HexString
+  , kVPairValue :: Base64String
   -- ^ value
   } deriving (Eq, Show, Generic)
 
@@ -562,12 +562,12 @@ instance Wrapped KVPair where
     where
       t KVPair{..} =
         defMessage
-          & CT.key .~ toBytes kVPairKey
-          & CT.value .~ toBytes kVPairValue
+          & CT.key .~ Base64.toBytes kVPairKey
+          & CT.value .~ Base64.toBytes kVPairValue
       f a =
         KVPair
-          { kVPairKey = fromBytes $ a ^. CT.key
-          , kVPairValue = fromBytes $ a ^. CT.value
+          { kVPairKey = Base64.fromBytes $ a ^. CT.key
+          , kVPairValue = Base64.fromBytes $ a ^. CT.value
           }
 
 data Proof = Proof
@@ -598,9 +598,9 @@ instance Wrapped Proof where
 data ProofOp = ProofOp
   { proofOpType :: Text
   -- ^ Type of Merkle proof and how it's encoded.
-  , proofOpKey  :: HexString
+  , proofOpKey  :: Base64String
   -- ^ Key in the Merkle tree that this proof is for.
-  , proofOpData :: HexString
+  , proofOpData :: Base64String
   -- ^ Encoded Merkle proof for the key.
   } deriving (Eq, Show, Generic)
 
@@ -617,13 +617,13 @@ instance Wrapped ProofOp where
       t ProofOp{..} =
         defMessage
           & MT.type' .~ proofOpType
-          & MT.key .~ toBytes proofOpKey
-          & MT.data' .~ toBytes proofOpData
+          & MT.key .~ Base64.toBytes proofOpKey
+          & MT.data' .~ Base64.toBytes proofOpData
       f a =
         ProofOp
           { proofOpType = a ^. MT.type'
-          , proofOpKey = fromBytes $ a ^. MT.key
-          , proofOpData = fromBytes $ a ^. MT.data'
+          , proofOpKey = Base64.fromBytes $ a ^. MT.key
+          , proofOpData = Base64.fromBytes $ a ^. MT.data'
           }
 
 data Event = Event
