@@ -1,21 +1,21 @@
 module SimpleStorage.App (makeAndServeApplication) where
 
-import           Data.Foldable                                (fold)
-import           Data.Monoid                                  (Endo (..))
-import           Network.ABCI.Server                          (serveApp)
-import           Network.ABCI.Server.App                      (App (..),
-                                                               Middleware,
-                                                               Request (..),
-                                                               transformApp)
-import           Network.ABCI.Server.Middleware.RequestLogger (mkLogStdoutDev)
-import           SimpleStorage.Application                    (Handler,
-                                                               makeAppConfig,
-                                                               transformHandler)
+import           Data.Foldable                                 (fold)
+import           Data.Monoid                                   (Endo (..))
+import           Network.ABCI.Server                           (serveApp)
+import           Network.ABCI.Server.App                       (App (..),
+                                                                Middleware,
+                                                                Request (..),
+                                                                transformApp)
+import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
+import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
+import           SimpleStorage.Application                     (Handler,
+                                                                AppConfig,
+                                                                transformHandler)
 import           SimpleStorage.Handlers
 
-makeAndServeApplication :: IO ()
-makeAndServeApplication = do
-  cfg <- makeAppConfig
+makeAndServeApplication :: AppConfig -> IO ()
+makeAndServeApplication cfg = do
   let ioApp = transformApp (transformHandler cfg) $ app
   putStrLn "Starting ABCI application..."
   serveApp =<< hookInMiddleware ioApp

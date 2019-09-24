@@ -16,13 +16,14 @@ import qualified Network.ABCI.Types.Messages.Response as Resp
 import           SimpleStorage.Application            (makeAppConfig,
                                                        transformHandler)
 import           SimpleStorage.Handlers               (deliverTxH, queryH)
+import           SimpleStorage.Logging                (mkLogConfig)
 import           SimpleStorage.Types                  (UpdateCountTx (..))
 import           Test.Hspec
 import           Test.QuickCheck
 
 
 spec :: Spec
-spec = beforeAll makeAppConfig $ do
+spec = beforeAll (mkLogConfig "simple-storage" >>= makeAppConfig) $ do
   describe "SimpleStorage E2E - via handlers" $ do
     it "Can query the initial count and make sure it's 0" $ \cfg -> do
       let handle = transformHandler cfg . queryH

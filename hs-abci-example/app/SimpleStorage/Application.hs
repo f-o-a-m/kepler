@@ -25,8 +25,8 @@ data AppConfig = AppConfig
   { countConnection :: DB.Connection "count"
   }
 
-makeAppConfig :: IO AppConfig
-makeAppConfig = do
+makeAppConfig :: Log.LogConfig -> IO AppConfig
+makeAppConfig logCfg = do
   conn <- initStateMachine
   pure $ AppConfig { countConnection = conn
                    }

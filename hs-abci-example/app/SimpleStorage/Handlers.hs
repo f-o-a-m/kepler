@@ -1,5 +1,6 @@
 module SimpleStorage.Handlers where
 
+import qualified Katip as K
 import           Control.Concurrent.STM               (atomically)
 import           Control.Concurrent.STM.TVar          (readTVar)
 import           Control.Lens                         (to, (&), (.~), (^.))
@@ -22,6 +23,7 @@ import           SimpleStorage.Types                  (AppTxMessage (..),
 import           Tendermint.SDK.DB                    (Connection (..))
 import           Tendermint.SDK.Transaction           (commitTransaction,
                                                        stageTransaction)
+import Data.String (fromString)
 
 echoH
   :: Request 'MTEcho
@@ -99,11 +101,16 @@ deliverTxH (RequestDeliverTx deliverTx) = do
       def & Resp._deliverTxCode .~ 1
     Right (ATMUpdateCount updateCountTx) -> do
       AppConfig{countConnection} <- ask
+      K.logFM K.InfoS (fromString $ "Changing count with transaction " <> show updateCountTx)
       eRes <- liftIO $ commitTransaction countConnection $
         updateCount updateCountTx
-      return . ResponseDeliverTx $ case eRes of
-        Left _  -> def & Resp._deliverTxCode .~ 1
-        Right _ -> def & Resp._deliverTxCode .~ 0
+      case eRes of
+        Left e  -> do
+          K.logFM K.ErrorS (fromString $ show e)
+          return $ ResponseDeliverTx $ def & Resp._deliverTxCode .~ 1
+        Right res -> do
+          K.logFM K.InfoS (fromString $ show res)
+          return  $ ResponseDeliverTx $ def & Resp._deliverTxCode .~ 0
 
 endBlockH
   :: Request 'MTEndBlock
