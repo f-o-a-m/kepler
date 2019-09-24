@@ -1,8 +1,19 @@
 module SimpleStorage.Modules.SimpleStorage
-  ( countComponent
-  , Query
-  , Message
+  (
+  -- * Component
+    simpleStorageComponent
+  , Query(..)
+  , Message(..)
   , Api
+
+  -- * Store
+  , CountStoreContents
+  , CountStore
+
+  -- * Types
+  , Count(..)
+  , CountKey(..)
+
   ) where
 
 import           Control.Lens                 (from, iso, (^.))
@@ -51,7 +62,7 @@ evalQuery (PutCount count a) = do
   pure a
 evalQuery (GetCount f) = do
   buyer <- withState $ \store ->
-    -- fromJust is safe because the count is initalized to 0 at genesis
+    -- fromJust is safe because the count is initalized to 0
     liftIO $ fromJust <$> get (undefined :: Root) CountKey store
   pure $ f buyer
 
@@ -63,8 +74,8 @@ evalAction InitializeCount =
 
 type Api = "count" :> QueryApi CountStoreContents
 
-countComponentSpec :: MonadIO m => ComponentSpec CountStore Query Action input Message Api m
-countComponentSpec = ComponentSpec
+simpleStorageComponentSpec :: MonadIO m => ComponentSpec CountStore Query Action input Message Api m
+simpleStorageComponentSpec = ComponentSpec
   { initialState = const $ do
       rawStore <- liftIO $ mkAuthTreeStore
       pure $ Store
@@ -83,8 +94,8 @@ countComponentSpec = ComponentSpec
       , initialize = Just InitializeCount
       }
 
-countComponent :: forall (input :: *) m. MonadIO m => Component Query input Message Api m
-countComponent = Component countComponentSpec
+simpleStorageComponent :: forall (input :: *) m. MonadIO m => Component Query input Message Api m
+simpleStorageComponent = Component simpleStorageComponentSpec
 
 --------------------------------------------------------------------------------
 -- Types
