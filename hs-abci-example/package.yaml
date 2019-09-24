@@ -49,6 +49,7 @@ dependencies:
 - hs-abci-types
 - hs-abci-extra
 - http-types
+- katip
 - lens
 - memory
 - mtl
@@ -89,6 +90,7 @@ library:
   - SimpleStorage.Handlers
   - SimpleStorage.StateMachine
   - SimpleStorage.Types
+  - SimpleStorage.Logging
 
   generated-exposed-modules:
   - Proto.SimpleStorage.Messages

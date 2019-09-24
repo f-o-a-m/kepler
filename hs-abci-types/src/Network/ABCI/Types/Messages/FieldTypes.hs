@@ -15,19 +15,28 @@ import           Control.Lens.Wrapped
 import           Data.Aeson
                                                                                    (FromJSON (..),
                                                                                    ToJSON (..),
+                                                                                   Value (..),
                                                                                    genericParseJSON,
-                                                                                   genericToJSON)
+                                                                                   genericToJSON,
+                                                                                   withObject,
+                                                                                   (.!=),
+                                                                                   (.:),
+                                                                                   (.:?))
+import           Data.ByteArray.Base64String
+                                                                                   (Base64String)
+import qualified Data.ByteArray.Base64String                                      as Base64
 import           Data.ByteArray.HexString
-                                                                                   (HexString,
-                                                                                   fromBytes,
-                                                                                   toBytes)
+                                                                                   (HexString)
+import qualified Data.ByteArray.HexString                                         as Hex
 import           Data.Int
                                                                                    (Int32,
                                                                                    Int64)
 import           Data.ProtoLens.Message
                                                                                    (Message (defMessage))
 import           Data.Text
-                                                                                   (Text)
+                                                                                   (Text,
+                                                                                   pack,
+                                                                                   unpack)
 import           Data.Time.Clock
                                                                                    (DiffTime,
                                                                                    diffTimeToPicoseconds,
@@ -46,6 +55,16 @@ import qualified Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle      
 import qualified Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields as MT
 import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types           as CT
 import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields    as CT
+
+newtype WrappedInt64 =
+  WrappedInt64 { unwrapInt64 :: Int64 } deriving (Eq, Show, Generic, Num)
+
+instance ToJSON WrappedInt64 where
+  toJSON (WrappedInt64 n) = String . pack . show $ n
+
+instance FromJSON WrappedInt64 where
+  parseJSON (String t) = pure . WrappedInt64 . read . unpack $ t
+  parseJSON a          = WrappedInt64 <$> parseJSON a
 
 -- measured in nanoseconds
 data Timestamp =
@@ -86,9 +105,9 @@ instance Wrapped Timestamp where
           mkTimestamp . picosecondsToDiffTime $ ps1 + ps2
 
 data BlockParams = BlockParams
-  { blockParamsMaxBytes :: Int64
+  { blockParamsMaxBytes :: WrappedInt64
   -- ^ Max size of a block, in bytes.
-  , blockParamsMaxGas   :: Int64
+  , blockParamsMaxGas   :: WrappedInt64
   -- ^ Max sum of GasWanted in a proposed block.
   } deriving (Eq, Show, Generic)
 
@@ -104,16 +123,16 @@ instance Wrapped BlockParams where
     where
       t BlockParams{..} =
         defMessage
-          & PT.maxBytes .~ blockParamsMaxBytes
-          & PT.maxGas .~ blockParamsMaxGas
+          & PT.maxBytes .~ unwrapInt64 blockParamsMaxBytes
+          & PT.maxGas .~ unwrapInt64 blockParamsMaxGas
       f a =
         BlockParams
-          { blockParamsMaxBytes = a ^. PT.maxBytes
-          , blockParamsMaxGas = a ^. PT.maxGas
+          { blockParamsMaxBytes = WrappedInt64 $ a ^. PT.maxBytes
+          , blockParamsMaxGas = WrappedInt64 $ a ^. PT.maxGas
           }
 
 data EvidenceParams = EvidenceParams
-  { evidenceParamsMaxAge :: Int64
+  { evidenceParamsMaxAge :: WrappedInt64
   -- ^ Max age of evidence, in blocks.
   } deriving (Eq, Show, Generic)
 
@@ -129,10 +148,10 @@ instance Wrapped EvidenceParams where
     where
       t EvidenceParams{..} =
         defMessage
-          & PT.maxAge .~ evidenceParamsMaxAge
+          & PT.maxAge .~ unwrapInt64 evidenceParamsMaxAge
       f a =
         EvidenceParams
-          { evidenceParamsMaxAge = a ^. PT.maxAge
+          { evidenceParamsMaxAge = WrappedInt64 $ a ^. PT.maxAge
           }
 
 data ValidatorParams = ValidatorParams
@@ -143,7 +162,8 @@ data ValidatorParams = ValidatorParams
 instance ToJSON ValidatorParams where
   toJSON = genericToJSON $ defaultABCIOptions "validatorParams"
 instance FromJSON ValidatorParams where
-  parseJSON = genericParseJSON $ defaultABCIOptions "validatorParams"
+  parseJSON = withObject "ValidatorParams" $ \v -> ValidatorParams
+    <$> v .:? "pubKeyTypes" .!= []
 
 instance Wrapped ValidatorParams where
   type Unwrapped ValidatorParams = PT.ValidatorParams
@@ -192,7 +212,7 @@ instance Wrapped ConsensusParams where
 data PubKey = PubKey
   { pubKeyType :: Text
   -- ^ Type of the public key.
-  , pubKeyData :: HexString
+  , pubKeyData :: Base64String
   -- ^ Public key data.
   } deriving (Eq, Show, Generic)
 
@@ -209,17 +229,17 @@ instance Wrapped PubKey where
       t PubKey{..} =
         defMessage
           & PT.type' .~ pubKeyType
-          & PT.data' .~ toBytes pubKeyData
+          & PT.data' .~ Base64.toBytes pubKeyData
       f a =
         PubKey
           { pubKeyType =  a ^. PT.type'
-          , pubKeyData = fromBytes (a ^. PT.data')
+          , pubKeyData = Base64.fromBytes (a ^. PT.data')
           }
 
 data ValidatorUpdate = ValidatorUpdate
   { validatorUpdatePubKey :: Maybe PubKey
   -- ^ Public key of the validator
-  , validatorUpdatePower  :: Int64
+  , validatorUpdatePower  :: WrappedInt64
   -- ^ Voting power of the validator
   } deriving (Eq, Show, Generic)
 
@@ -236,17 +256,17 @@ instance Wrapped ValidatorUpdate where
       t ValidatorUpdate{..} =
         defMessage
           & PT.maybe'pubKey .~ validatorUpdatePubKey ^? _Just . _Wrapped'
-          & PT.power .~ validatorUpdatePower
+          & PT.power .~ unwrapInt64 validatorUpdatePower
       f a =
         ValidatorUpdate
           { validatorUpdatePubKey = a ^? PT.maybe'pubKey . _Just . _Unwrapped'
-          , validatorUpdatePower = a ^. PT.power
+          , validatorUpdatePower = WrappedInt64 $ a ^. PT.power
           }
 
 data Validator = Validator
   { validatorAddress :: HexString
   -- ^ Address of the validator (hash of the public key)
-  , validatorPower   :: Int64
+  , validatorPower   :: WrappedInt64
   -- ^ Voting power of the validator
   } deriving (Eq, Show, Generic)
 
@@ -262,12 +282,12 @@ instance Wrapped Validator where
     where
       t Validator{..} =
         defMessage
-          & PT.address .~ toBytes validatorAddress
-          & PT.power .~ validatorPower
+          & PT.address .~ Hex.toBytes validatorAddress
+          & PT.power .~ unwrapInt64 validatorPower
       f a =
         Validator
-          { validatorAddress = fromBytes (a ^. PT.address)
-          , validatorPower = a ^. PT.power
+          { validatorAddress = Hex.fromBytes (a ^. PT.address)
+          , validatorPower = WrappedInt64 $ a ^. PT.power
           }
 
 data VoteInfo = VoteInfo
@@ -308,7 +328,9 @@ data LastCommitInfo = LastCommitInfo
 instance ToJSON LastCommitInfo where
   toJSON = genericToJSON $ defaultABCIOptions "lastCommitInfo"
 instance FromJSON LastCommitInfo where
-  parseJSON = genericParseJSON $ defaultABCIOptions "lastCommitInfo"
+  parseJSON = withObject "LastCommitInfo" $ \v -> LastCommitInfo
+    <$> v .: "infoRound"
+    <*> v .:? "infoVotes" .!= []
 
 instance Wrapped LastCommitInfo where
   type Unwrapped LastCommitInfo = PT.LastCommitInfo
@@ -345,10 +367,10 @@ instance Wrapped PartSetHeader where
       t PartSetHeader{..} =
         defMessage
           & PT.total .~ partSetHeaderTotal
-          & PT.hash .~ toBytes partSetHeaderHash
+          & PT.hash .~ Hex.toBytes partSetHeaderHash
       f a =
         PartSetHeader { partSetHeaderTotal = a ^. PT.total
-                      , partSetHeaderHash = fromBytes (a ^. PT.hash)
+                      , partSetHeaderHash = Hex.fromBytes (a ^. PT.hash)
                       }
 
 data BlockID = BlockID
@@ -370,11 +392,11 @@ instance Wrapped BlockID where
     where
       t BlockID{..} =
         defMessage
-          & PT.hash .~ toBytes blockIDHash
+          & PT.hash .~ Hex.toBytes blockIDHash
           & PT.maybe'partsHeader .~ blockIDPartsHeader ^? _Just . _Wrapped'
       f a =
         BlockID
-          { blockIDHash = fromBytes(a ^. PT.hash)
+          { blockIDHash = Hex.fromBytes(a ^. PT.hash)
           , blockIDPartsHeader = a ^? PT.maybe'partsHeader . _Just . _Unwrapped'
           }
 
@@ -410,13 +432,13 @@ data Header = Header
   -- ^ Version of the blockchain and the application
   , headerChainId            :: Text
   -- ^ ID of the blockchain
-  , headerHeight             :: Int64
+  , headerHeight             :: WrappedInt64
   -- ^ Height of the block in the chain
   , headerTime               :: Maybe Timestamp
   -- ^ Time of the previous block
-  , headerNumTxs             :: Int64
+  , headerNumTxs             :: WrappedInt64
   -- ^ Number of transactions in the block
-  , headerTotalTxs           :: Int64
+  , headerTotalTxs           :: WrappedInt64
   -- ^ Total number of transactions in the blockchain until now
   , headerLastBlockId        :: Maybe BlockID
   -- ^ Hash of the previous (parent) block
@@ -454,38 +476,38 @@ instance Wrapped Header where
         defMessage
           & PT.maybe'version .~ headerVersion ^? _Just . _Wrapped'
           & PT.chainId .~ headerChainId
-          & PT.height .~ headerHeight
+          & PT.height .~ unwrapInt64 headerHeight
           & PT.maybe'time .~ headerTime ^? _Just . _Wrapped'
-          & PT.numTxs .~ headerNumTxs
-          & PT.totalTxs .~ headerTotalTxs
+          & PT.numTxs .~ unwrapInt64 headerNumTxs
+          & PT.totalTxs .~ unwrapInt64 headerTotalTxs
           & PT.maybe'lastBlockId .~ headerLastBlockId ^? _Just . _Wrapped'
-          & PT.lastCommitHash .~ toBytes headerLastCommitHash
-          & PT.dataHash .~ toBytes headerDataHash
-          & PT.validatorsHash .~ toBytes headerValidatorsHash
-          & PT.nextValidatorsHash .~ toBytes headerNextValidatorsHash
-          & PT.consensusHash .~ toBytes headerConsensusHash
-          & PT.appHash .~ toBytes headerAppHash
-          & PT.lastResultsHash .~ toBytes headerLastResultsHash
-          & PT.evidenceHash .~ toBytes headerEvidenceHash
-          & PT.proposerAddress .~ toBytes headerProposerAddress
+          & PT.lastCommitHash .~ Hex.toBytes headerLastCommitHash
+          & PT.dataHash .~ Hex.toBytes headerDataHash
+          & PT.validatorsHash .~ Hex.toBytes headerValidatorsHash
+          & PT.nextValidatorsHash .~ Hex.toBytes headerNextValidatorsHash
+          & PT.consensusHash .~ Hex.toBytes headerConsensusHash
+          & PT.appHash .~ Hex.toBytes headerAppHash
+          & PT.lastResultsHash .~ Hex.toBytes headerLastResultsHash
+          & PT.evidenceHash .~ Hex.toBytes headerEvidenceHash
+          & PT.proposerAddress .~ Hex.toBytes headerProposerAddress
       f a =
         Header
           { headerVersion = a ^? PT.maybe'version . _Just . _Unwrapped'
           , headerChainId = a ^. PT.chainId
-          , headerHeight = a ^. PT.height
+          , headerHeight = WrappedInt64 $ a ^. PT.height
           , headerTime = a ^? PT.maybe'time . _Just . _Unwrapped'
-          , headerNumTxs = a ^. PT.numTxs
-          , headerTotalTxs = a ^. PT.totalTxs
+          , headerNumTxs = WrappedInt64 $ a ^. PT.numTxs
+          , headerTotalTxs = WrappedInt64 $ a ^. PT.totalTxs
           , headerLastBlockId = a ^? PT.maybe'lastBlockId . _Just . _Unwrapped'
-          , headerLastCommitHash = fromBytes $ a ^. PT.lastCommitHash
-          , headerDataHash = fromBytes $ a ^. PT.dataHash
-          , headerValidatorsHash = fromBytes $ a ^. PT.validatorsHash
-          , headerNextValidatorsHash = fromBytes $ a ^. PT.nextValidatorsHash
-          , headerConsensusHash = fromBytes $ a ^. PT.consensusHash
-          , headerAppHash = fromBytes $ a ^. PT.appHash
-          , headerLastResultsHash = fromBytes $ a ^. PT.lastResultsHash
-          , headerEvidenceHash = fromBytes $ a ^. PT.evidenceHash
-          , headerProposerAddress = fromBytes $ a ^. PT.proposerAddress
+          , headerLastCommitHash = Hex.fromBytes $ a ^. PT.lastCommitHash
+          , headerDataHash = Hex.fromBytes $ a ^. PT.dataHash
+          , headerValidatorsHash = Hex.fromBytes $ a ^. PT.validatorsHash
+          , headerNextValidatorsHash = Hex.fromBytes $ a ^. PT.nextValidatorsHash
+          , headerConsensusHash = Hex.fromBytes $ a ^. PT.consensusHash
+          , headerAppHash = Hex.fromBytes $ a ^. PT.appHash
+          , headerLastResultsHash = Hex.fromBytes $ a ^. PT.lastResultsHash
+          , headerEvidenceHash = Hex.fromBytes $ a ^. PT.evidenceHash
+          , headerProposerAddress = Hex.fromBytes $ a ^. PT.proposerAddress
           }
 
 data Evidence = Evidence
@@ -493,11 +515,11 @@ data Evidence = Evidence
   -- ^ Type of the evidence.
   , evidenceValidator        :: Maybe Validator
   -- ^ The offending validator
-  , evidenceHeight           :: Int64
+  , evidenceHeight           :: WrappedInt64
   -- ^ Height when the offense was committed
   , evidenceTime             :: Maybe Timestamp
   -- ^ Time of the block at height Height.
-  , evidenceTotalVotingPower :: Int64
+  , evidenceTotalVotingPower :: WrappedInt64
   -- ^ Total voting power of the validator set at height Height
   } deriving (Eq, Show, Generic)
 
@@ -515,22 +537,22 @@ instance Wrapped Evidence where
         defMessage
           & PT.type' .~ evidenceType
           & PT.maybe'validator .~ evidenceValidator ^? _Just . _Wrapped'
-          & PT.height .~ evidenceHeight
+          & PT.height .~ unwrapInt64 evidenceHeight
           & PT.maybe'time .~ evidenceTime ^? _Just . _Wrapped'
-          & PT.totalVotingPower .~ evidenceTotalVotingPower
+          & PT.totalVotingPower .~ unwrapInt64 evidenceTotalVotingPower
       f a =
         Evidence
           { evidenceType = a ^. PT.type'
           , evidenceValidator = a ^? PT.maybe'validator . _Just . _Unwrapped'
-          , evidenceHeight = a ^. PT.height
+          , evidenceHeight = WrappedInt64 $ a ^. PT.height
           , evidenceTime = a ^? PT.maybe'time . _Just . _Unwrapped'
-          , evidenceTotalVotingPower = a ^. PT.totalVotingPower
+          , evidenceTotalVotingPower = WrappedInt64 $ a ^. PT.totalVotingPower
           }
 
 data KVPair = KVPair
-  { kVPairKey   :: HexString
+  { kVPairKey   :: Base64String
   -- ^ key
-  , kVPairValue :: HexString
+  , kVPairValue :: Base64String
   -- ^ value
   } deriving (Eq, Show, Generic)
 
@@ -546,12 +568,12 @@ instance Wrapped KVPair where
     where
       t KVPair{..} =
         defMessage
-          & CT.key .~ toBytes kVPairKey
-          & CT.value .~ toBytes kVPairValue
+          & CT.key .~ Base64.toBytes kVPairKey
+          & CT.value .~ Base64.toBytes kVPairValue
       f a =
         KVPair
-          { kVPairKey = fromBytes $ a ^. CT.key
-          , kVPairValue = fromBytes $ a ^. CT.value
+          { kVPairKey = Base64.fromBytes $ a ^. CT.key
+          , kVPairValue = Base64.fromBytes $ a ^. CT.value
           }
 
 data Proof = Proof
@@ -562,7 +584,8 @@ data Proof = Proof
 instance ToJSON Proof where
   toJSON = genericToJSON $ defaultABCIOptions "proof"
 instance FromJSON Proof where
-  parseJSON = genericParseJSON $ defaultABCIOptions "proof"
+  parseJSON = withObject "Proof" $ \v -> Proof
+    <$> v .:? "ops" .!= []
 
 instance Wrapped Proof where
   type Unwrapped Proof = MT.Proof
@@ -581,9 +604,9 @@ instance Wrapped Proof where
 data ProofOp = ProofOp
   { proofOpType :: Text
   -- ^ Type of Merkle proof and how it's encoded.
-  , proofOpKey  :: HexString
+  , proofOpKey  :: Base64String
   -- ^ Key in the Merkle tree that this proof is for.
-  , proofOpData :: HexString
+  , proofOpData :: Base64String
   -- ^ Encoded Merkle proof for the key.
   } deriving (Eq, Show, Generic)
 
@@ -600,13 +623,13 @@ instance Wrapped ProofOp where
       t ProofOp{..} =
         defMessage
           & MT.type' .~ proofOpType
-          & MT.key .~ toBytes proofOpKey
-          & MT.data' .~ toBytes proofOpData
+          & MT.key .~ Base64.toBytes proofOpKey
+          & MT.data' .~ Base64.toBytes proofOpData
       f a =
         ProofOp
           { proofOpType = a ^. MT.type'
-          , proofOpKey = fromBytes $ a ^. MT.key
-          , proofOpData = fromBytes $ a ^. MT.data'
+          , proofOpKey = Base64.fromBytes $ a ^. MT.key
+          , proofOpData = Base64.fromBytes $ a ^. MT.data'
           }
 
 data Event = Event
@@ -619,7 +642,9 @@ data Event = Event
 instance ToJSON Event where
   toJSON = genericToJSON $ defaultABCIOptions "event"
 instance FromJSON Event where
-  parseJSON = genericParseJSON $ defaultABCIOptions "event"
+  parseJSON = withObject "Event" $ \v -> Event
+    <$> v .: "type"
+    <*> v .:? "attributes" .!= []
 
 instance Wrapped Event where
   type Unwrapped Event = PT.Event

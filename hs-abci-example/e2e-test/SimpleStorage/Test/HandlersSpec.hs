@@ -3,7 +3,8 @@ module SimpleStorage.Test.HandlersSpec where
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Control.Lens.Wrapped                 (_Unwrapped', _Wrapped')
 import           Data.Binary                          (decode, encode)
-import qualified Data.ByteArray.HexString             as Hex
+import           Data.ByteArray.Base64String          (Base64String)
+import qualified Data.ByteArray.Base64String          as Base64
 import qualified Data.ByteString.Lazy                 as LBS
 import           Data.Int                             (Int32)
 import           Data.ProtoLens                       (defMessage)
@@ -16,13 +17,14 @@ import qualified Network.ABCI.Types.Messages.Response as Resp
 import           SimpleStorage.Application            (makeAppConfig,
                                                        transformHandler)
 import           SimpleStorage.Handlers               (deliverTxH, queryH)
+import           SimpleStorage.Logging
 import           SimpleStorage.Types                  (UpdateCountTx (..))
 import           Test.Hspec
 import           Test.QuickCheck
 
 
 spec :: Spec
-spec = beforeAll makeAppConfig $ do
+spec = beforeAll (mkLogConfig "handler-spec" >>= makeAppConfig) $ do
   describe "SimpleStorage E2E - via handlers" $ do
     it "Can query the initial count and make sure it's 0" $ \cfg -> do
       let handle = transformHandler cfg . queryH
@@ -39,7 +41,7 @@ spec = beforeAll makeAppConfig $ do
         updateTx = (defMessage ^. _Unwrapped') { updateCountTxUsername = genUsername
                                                , updateCountTxCount = genCount
                                                }
-        encodedUpdateTx = Hex.fromBytes $ encodeMessage (updateTx ^. _Wrapped')
+        encodedUpdateTx = Base64.fromBytes $ encodeMessage (updateTx ^. _Wrapped')
       (ResponseDeliverTx deliverResp) <- handleDeliver
         (  RequestDeliverTx
         $  defMessage
@@ -53,10 +55,8 @@ spec = beforeAll makeAppConfig $ do
       let foundCount = queryResp ^. Resp._queryValue . to decodeCount
       foundCount `shouldBe` genCount
 
-encodeCount :: Int32 -> Hex.HexString
-encodeCount 0 = "0x"
-encodeCount c = Hex.fromBytes . LBS.toStrict . encode $ c
+encodeCount :: Int32 -> Base64String
+encodeCount = Base64.fromBytes . LBS.toStrict . encode
 
-decodeCount :: Hex.HexString -> Int32
-decodeCount "0x" = 0
-decodeCount hs   = decode . LBS.fromStrict . Hex.toBytes $ hs
+decodeCount :: Base64String -> Int32
+decodeCount = decode . LBS.fromStrict . Base64.toBytes

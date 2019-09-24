@@ -2,7 +2,7 @@ module Tendermint.SDK.Router.Router where
 
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Control.Monad.IO.Class               (MonadIO (..))
-import           Data.ByteArray.HexString             (HexString)
+import           Data.ByteArray.Base64String          (Base64String)
 import           Data.Default.Class                   (def)
 import           Data.Map                             (Map)
 import qualified Data.Map                             as M
@@ -18,7 +18,7 @@ import           Tendermint.SDK.Router.Types
 data Router' env a =
     RChoice (Router' env a) (Router' env a)
   | RStatic (Map Text (Router' env a)) [env -> a]
-  | RQueryArgs (Router' (QueryArgs HexString, env) a)
+  | RQueryArgs (Router' (QueryArgs Base64String, env) a)
 
 type RoutingApplication m = Request.Query -> m (RouteResult Response.Query)
 

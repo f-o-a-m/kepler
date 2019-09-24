@@ -1,7 +1,7 @@
 module Tendermint.SDK.StoreExampleSpec where
 
 import           Control.Lens                          (to, (^.))
-import           Data.ByteArray.HexString              (fromBytes, toBytes)
+import           Data.ByteArray.Base64String           (fromBytes, toBytes)
 import           Data.Proxy
 import qualified Network.ABCI.Types.Messages.Request   as Request
 import qualified Network.ABCI.Types.Messages.Response  as Response

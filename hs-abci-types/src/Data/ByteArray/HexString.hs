@@ -4,7 +4,7 @@
 module Data.ByteArray.HexString where
 
 import           Data.Aeson              (FromJSON (..), ToJSON (..),
-                                          Value (String), withText)
+                                          Value (..), withText)
 import           Data.ByteArray          (ByteArray, ByteArrayAccess, convert)
 import qualified Data.ByteArray          as BA (drop, take)
 import           Data.ByteArray.Encoding (Base (Base16), convertFromBase,
@@ -32,7 +32,8 @@ instance IsString HexString where
         hexString' = either error id . hexString
 
 instance FromJSON HexString where
-    parseJSON = withText "HexString" $ either fail pure . hexString . encodeUtf8
+    parseJSON Null = pure (fromBytes ("" :: ByteString))
+    parseJSON v = withText "HexString" (either fail pure . hexString . encodeUtf8) v
 
 instance ToJSON HexString where
     toJSON = String . toText

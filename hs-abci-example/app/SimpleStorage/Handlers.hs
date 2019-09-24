@@ -9,6 +9,8 @@ import           Data.Binary                          (encode)
 import           Data.ByteArray                       (convert)
 import           Data.ByteString.Lazy                 (toStrict)
 import           Data.Default.Class                   (def)
+import           Data.String                          (fromString)
+import qualified Katip                                as K
 import           Network.ABCI.Server.App              (MessageType (..),
                                                        Request (..),
                                                        Response (..))
@@ -99,11 +101,16 @@ deliverTxH (RequestDeliverTx deliverTx) = do
       def & Resp._deliverTxCode .~ 1
     Right (ATMUpdateCount updateCountTx) -> do
       AppConfig{countConnection} <- ask
+      K.logFM K.InfoS (fromString $ "Changing count with transaction " <> show updateCountTx)
       eRes <- liftIO $ commitTransaction countConnection $
         updateCount updateCountTx
-      return . ResponseDeliverTx $ case eRes of
-        Left _  -> def & Resp._deliverTxCode .~ 1
-        Right _ -> def & Resp._deliverTxCode .~ 0
+      case eRes of
+        Left e  -> do
+          K.logFM K.ErrorS (fromString $ show e)
+          return $ ResponseDeliverTx $ def & Resp._deliverTxCode .~ 1
+        Right res -> do
+          K.logFM K.InfoS (fromString $ show res)
+          return  $ ResponseDeliverTx $ def & Resp._deliverTxCode .~ 0
 
 endBlockH
   :: Request 'MTEndBlock

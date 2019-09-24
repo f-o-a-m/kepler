@@ -5,9 +5,9 @@ import           Control.Monad.Except                   (ExceptT, MonadError,
                                                          runExceptT)
 import           Control.Monad.IO.Class                 (MonadIO (..))
 import           Control.Monad.Trans                    (MonadTrans (..))
-import           Data.ByteArray.HexString               (HexString)
-import           Data.Int                               (Int64)
-import           Network.ABCI.Types.Messages.FieldTypes (Proof)
+import           Data.ByteArray.Base64String            (Base64String)
+import           Network.ABCI.Types.Messages.FieldTypes (Proof,
+                                                         WrappedInt64 (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
 
@@ -18,7 +18,7 @@ data QA (a :: *)
 
 --------------------------------------------------------------------------------
 
-type Application m  = Request.Query -> m Response.Query
+type Application m = Request.Query -> m Response.Query
 
 --------------------------------------------------------------------------------
 
@@ -32,25 +32,25 @@ data QueryError =
 data QueryArgs a = QueryArgs
   { queryArgsProve       :: Bool
   , queryArgsData        :: a
-  , queryArgsQueryData   :: HexString
-  , queryArgsBlockHeight :: Int64
+  , queryArgsQueryData   :: Base64String
+  , queryArgsBlockHeight :: WrappedInt64
   } deriving Functor
 
 data QueryResult a = QueryResult
   { queryResultData   :: a
-  , queryResultIndex  :: Int64
-  , queryResultKey    :: HexString
+  , queryResultIndex  :: WrappedInt64
+  , queryResultKey    :: Base64String
   , queryResultProof  :: Maybe Proof
-  , queryResultHeight :: Int64
+  , queryResultHeight :: WrappedInt64
   } deriving Functor
 
 --------------------------------------------------------------------------------
 
 class EncodeQueryResult a where
-  encodeQueryResult :: a -> HexString
+  encodeQueryResult :: a -> Base64String
 
 class FromQueryData a where
-  fromQueryData :: HexString -> Either String a
+  fromQueryData :: Base64String -> Either String a
 
 --------------------------------------------------------------------------------
 
@@ -70,14 +70,14 @@ data RouteResult a =
   deriving (Functor)
 
 instance Applicative RouteResult where
-  pure = return
+  pure  = return
   (<*>) = ap
 
 instance Monad RouteResult where
   return = Route
   (>>=) m f = case m of
-    Route a     -> f a
-    Fail e      -> Fail e
+    Route     a -> f a
+    Fail      e -> Fail e
     FailFatal e -> FailFatal e
 
 data RouteResultT m a = RouteResultT { runRouteResultT :: m (RouteResult a) }
@@ -87,7 +87,7 @@ instance MonadTrans RouteResultT where
   lift m = RouteResultT $ fmap Route m
 
 instance Monad m => Applicative (RouteResultT m) where
-  pure = return
+  pure  = return
   (<*>) = ap
 
 instance Monad m => Monad (RouteResultT m) where
@@ -95,9 +95,9 @@ instance Monad m => Monad (RouteResultT m) where
   (>>=) m f = RouteResultT $ do
     a <- runRouteResultT m
     case a of
-      Route a'    -> runRouteResultT $ f a'
-      Fail e      -> return $ Fail e
-      FailFatal e -> return $ FailFatal e
+      Route     a' -> runRouteResultT $ f a'
+      Fail      e  -> return $ Fail e
+      FailFatal e  -> return $ FailFatal e
 
 instance MonadIO m => MonadIO (RouteResultT m) where
   liftIO = lift . liftIO
