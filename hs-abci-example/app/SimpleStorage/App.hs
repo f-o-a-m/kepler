@@ -23,8 +23,8 @@ makeAndServeApplication = do
   where
     mkMiddleware :: IO (Middleware IO)
     mkMiddleware = do
-      reqLogger <- ReqLogger.mkLogStdoutDev
-      resLogger <- ResLogger.mkLogStdoutDev
+      reqLogger <- ReqLogger.mkLogStdout
+      resLogger <- ResLogger.mkLogStdout
       pure . appEndo . fold $
         [ Endo reqLogger
         , Endo resLogger

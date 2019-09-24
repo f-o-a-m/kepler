@@ -26,6 +26,8 @@ import qualified Network.ABCI.Types.Messages.FieldTypes       as FieldTypes
 import qualified Network.ABCI.Types.Messages.Response         as Response
 import qualified Network.HTTP.Simple                          as HTTP
 import qualified Network.Tendermint.Client.Internal.RPCClient as RPC
+import qualified Data.ByteArray.Base64String as Base64
+
 
 
 type TendermintM a = ReaderT RPC.Config IO a
@@ -321,7 +323,7 @@ instance FromJSON Vote where
   parseJSON = genericParseJSON $ defaultRPCOptions "vote"
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/types/tx.go#L19
-type Tx = HexString
+type Tx = Base64.Base64String
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/types/signed_msg_type.go#L4
 data SignedMsgType

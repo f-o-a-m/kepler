@@ -13,6 +13,7 @@ import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import qualified Network.Tendermint.Client            as RPC
 import           Test.Hspec
+import SimpleStorage.Types 
 
 
 spec :: Spec
@@ -31,6 +32,24 @@ spec = do
         RPC.abciQuery queryReq
       let foundCount = queryResp ^. Resp._queryValue . to decodeCount
       foundCount `shouldBe` 0
+
+    it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
+      let tx = UpdateCountTx "irakli" 1
+          txReq = RPC.RequestBroadcastTxSync
+                    { RPC.requestBroadcastTxSyncTx = Base64.fromBytes . encodeAppTxMessage $ ATMUpdateCount tx
+                    }
+      txRespCode <- fmap RPC.resultBroadcastTxCode . runRPC $
+        RPC.broadcastTxSync txReq
+      txRespCode `shouldBe` 0
+
+    it "can make sure the synchronous tx transaction worked and the count is now 1" $ do
+      let queryReq =
+            def { RPC.requestABCIQueryPath = Just "count"
+                }
+      queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
+        RPC.abciQuery queryReq
+      let foundCount = queryResp ^. Resp._queryValue . to decodeCount
+      foundCount `shouldBe` 1
 
 
 encodeCount :: Int32 -> Base64String

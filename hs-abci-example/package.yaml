@@ -49,6 +49,7 @@ dependencies:
 - hs-abci-types
 - hs-abci-extra
 - http-types
+- katip
 - lens
 - memory
 - mtl

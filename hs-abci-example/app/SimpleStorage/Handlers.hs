@@ -8,6 +8,7 @@ import           Control.Monad.Reader                 (ask)
 import           Data.Binary                          (encode)
 import           Data.ByteArray                       (convert)
 import           Data.ByteString.Lazy                 (toStrict)
+import Data.String.Conversions (cs)
 import           Data.Default.Class                   (def)
 import           Network.ABCI.Server.App              (MessageType (..),
                                                        Request (..),
@@ -77,8 +78,9 @@ checkTxH
   -> Handler (Response 'MTCheckTx)
 checkTxH (RequestCheckTx checkTx) = do
   case decodeAppTxMessage $ checkTx ^. Req._checkTxTx . to convert of
-    Left _ -> return . ResponseCheckTx $
+    Left e -> return . ResponseCheckTx $
       def & Resp._checkTxCode .~ 1
+          & Resp._checkTxLog .~ ("Unable to parse transaction: " <> cs (show e))
     Right (ATMUpdateCount updateCountTx) -> do
       AppConfig{countConnection} <- ask
       eRes <- liftIO $ atomically $ do
@@ -95,8 +97,9 @@ deliverTxH
   -> Handler (Response 'MTDeliverTx)
 deliverTxH (RequestDeliverTx deliverTx) = do
   case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of
-    Left _ -> return . ResponseDeliverTx $
+    Left e -> return . ResponseDeliverTx $
       def & Resp._deliverTxCode .~ 1
+          & Resp._deliverTxLog .~ ("Unable to parse transaction: " <> cs (show e))
     Right (ATMUpdateCount updateCountTx) -> do
       AppConfig{countConnection} <- ask
       eRes <- liftIO $ commitTransaction countConnection $
