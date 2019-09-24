@@ -21,7 +21,7 @@ instance (HasKey a, Key a ~ k, ContainsCodec a contents, Monad m)
    => StoreQueryHandler a (Store contents m) (QueryArgs k -> HandlerT m (QueryResult a)) where
   storeQueryHandler _ store QueryArgs{..} = do
     let key = queryArgsData
-    mRes <- lift $ get (Root mempty) key store
+    mRes <- lift $ get undefined key store
     case mRes of
       Nothing -> throwError ResourceNotFound
       Just (res :: a) -> pure $ QueryResult

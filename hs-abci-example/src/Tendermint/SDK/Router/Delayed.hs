@@ -75,7 +75,7 @@ responseQueryError e =
         InternalError _  -> "Internal Error"
   in def { Response.queryCode = 1
          , Response.queryLog = cs msg
-         }
+        }
 
 addQueryArgs :: Delayed env (a -> b)
            -> (qa -> DelayedIO a)

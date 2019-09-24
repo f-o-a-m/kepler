@@ -19,7 +19,6 @@ module SimpleStorage.Modules.SimpleStorage
 import           Control.Lens                 (from, iso, (^.))
 import           Control.Monad.Trans
 import           Crypto.Hash                  (SHA256 (..), hashWith)
-import           Data.Binary                  (Binary)
 import qualified Data.Binary                  as Binary
 import           Data.ByteArray               (convert)
 import           Data.ByteArray.Base64String  (fromBytes, toBytes)
@@ -101,13 +100,13 @@ simpleStorageComponent = Component simpleStorageComponentSpec
 -- Types
 --------------------------------------------------------------------------------
 
-newtype Count = Count Int32 deriving (Eq, Show, Binary)
+newtype Count = Count Int32 deriving (Eq, Show)
 
 data CountKey = CountKey
 
 instance HasCodec Count where
-    encode = cs . Binary.encode
-    decode = Right . Binary.decode . cs
+    encode (Count c) = cs . Binary.encode $ c
+    decode = Right . Count . Binary.decode . cs
 
 instance HasKey Count where
     type Key Count = CountKey

@@ -6,13 +6,16 @@ import           Data.Aeson.Encode.Pretty             (encodePretty)
 import           Data.Binary                          (decode, encode)
 import           Data.ByteArray.Base64String          (Base64String)
 import qualified Data.ByteArray.Base64String          as Base64
+import qualified Data.ByteArray.HexString             as Hex
 import qualified Data.ByteString.Lazy                 as LBS
 import           Data.Default.Class                   (def)
 import           Data.Int                             (Int32)
 import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import qualified Network.Tendermint.Client            as RPC
+import qualified SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types
+import           Tendermint.SDK.Store
 import           Test.Hspec
 
 
@@ -27,6 +30,8 @@ spec = do
     it "Can query the initial count and make sure it's 0" $ do
       let queryReq =
             def { RPC.requestABCIQueryPath = Just "count/count"
+                , RPC.requestABCIQueryData = SS.CountKey ^. rawKey . to Hex.fromBytes
+
                 }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
         RPC.abciQuery queryReq
@@ -45,6 +50,7 @@ spec = do
     it "can make sure the synchronous tx transaction worked and the count is now 1" $ do
       let queryReq =
             def { RPC.requestABCIQueryPath = Just "count/count"
+                , RPC.requestABCIQueryData = SS.CountKey ^. rawKey . to Hex.fromBytes
                 }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
         RPC.abciQuery queryReq

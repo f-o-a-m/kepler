@@ -232,11 +232,12 @@ runApp
   => Component query input output api m
   -> input
   -> m (TendermintIO query output api m)
-runApp component i = do
+runApp c i = do
   fresh <- liftIO $ IORef.newIORef 0
   listeners <- liftIO $ IORef.newIORef M.empty
-  (ds, server) <- runComponent component i (liftIO . rootHandler listeners)
+  (ds, server) <- runComponent c i (liftIO . rootHandler listeners)
   withDriverStateX (\st -> do
+    evalM st (eval (component st) $ Initialize ())
     return $ TendermintIO
       { ioQuery =  evalDriver st
       , ioServer = server
