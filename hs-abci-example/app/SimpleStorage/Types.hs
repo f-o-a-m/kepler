@@ -1,7 +1,7 @@
 module SimpleStorage.Types where
 
 import           Control.Lens                        (iso, view, (&), (.~),
-                                                      (^.))
+                                                      (^.), from)
 import           Control.Lens.Wrapped                (Wrapped (..), _Unwrapped')
 import           Data.Binary                         (Binary)
 import           Data.ByteString                     (ByteString)
@@ -20,6 +20,13 @@ decodeAppTxMessage
   :: ByteString
   -> Either String AppTxMessage
 decodeAppTxMessage = fmap (ATMUpdateCount . view _Unwrapped') . PL.decodeMessage
+
+encodeAppTxMessage
+  :: AppTxMessage 
+  -> ByteString
+encodeAppTxMessage = \case
+  ATMUpdateCount a -> PL.encodeMessage  $ a ^. from _Unwrapped'
+
 
 --------------------------------------------------------------------------------
 

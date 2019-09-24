@@ -90,6 +90,7 @@ library:
   - SimpleStorage.Handlers
   - SimpleStorage.StateMachine
   - SimpleStorage.Types
+  - SimpleStorage.Logging
 
   generated-exposed-modules:
   - Proto.SimpleStorage.Messages
