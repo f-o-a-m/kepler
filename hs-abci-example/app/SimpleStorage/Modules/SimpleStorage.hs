@@ -80,11 +80,11 @@ simpleStorageComponentSpec = ComponentSpec
       pure $ Store
         { storeRawStore = rawStore }
   , eval = evaluator
-  , mkServer = hoistRoute (Proxy :: Proxy Api) liftIO . userServer
+  , mkServer = hoistRoute (Proxy :: Proxy Api) liftIO . simpleStorageServer
   }
   where
-    userServer :: CountStore -> RouteT Api IO
-    userServer = allStoreHandlers
+    simpleStorageServer :: CountStore -> RouteT Api IO
+    simpleStorageServer = allStoreHandlers
 
     evaluator = mkEval $ EvalSpec
       { handleAction = evalAction
