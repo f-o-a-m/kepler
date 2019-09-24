@@ -17,8 +17,8 @@ import qualified Network.ABCI.Types.Messages.Response as Resp
 import           SimpleStorage.Application            (makeAppConfig,
                                                        transformHandler)
 import           SimpleStorage.Handlers               (deliverTxH, queryH)
-import           SimpleStorage.Types                  (UpdateCountTx (..))
 import           SimpleStorage.Logging
+import           SimpleStorage.Types                  (UpdateCountTx (..))
 import           Test.Hspec
 import           Test.QuickCheck
 

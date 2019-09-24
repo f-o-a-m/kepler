@@ -16,6 +16,7 @@ import qualified Data.Aeson                                   as Aeson
 import           Data.Aeson.Casing                            (aesonDrop,
                                                                pascalCase,
                                                                snakeCase)
+import qualified Data.ByteArray.Base64String                  as Base64
 import           Data.ByteArray.HexString                     (HexString)
 import           Data.ByteString                              (ByteString)
 import           Data.Default.Class                           (Default (..))
@@ -26,7 +27,6 @@ import qualified Network.ABCI.Types.Messages.FieldTypes       as FieldTypes
 import qualified Network.ABCI.Types.Messages.Response         as Response
 import qualified Network.HTTP.Simple                          as HTTP
 import qualified Network.Tendermint.Client.Internal.RPCClient as RPC
-import qualified Data.ByteArray.Base64String as Base64
 
 
 

@@ -1,6 +1,5 @@
 module SimpleStorage.Handlers where
 
-import qualified Katip as K
 import           Control.Concurrent.STM               (atomically)
 import           Control.Concurrent.STM.TVar          (readTVar)
 import           Control.Lens                         (to, (&), (.~), (^.))
@@ -10,6 +9,8 @@ import           Data.Binary                          (encode)
 import           Data.ByteArray                       (convert)
 import           Data.ByteString.Lazy                 (toStrict)
 import           Data.Default.Class                   (def)
+import           Data.String                          (fromString)
+import qualified Katip                                as K
 import           Network.ABCI.Server.App              (MessageType (..),
                                                        Request (..),
                                                        Response (..))
@@ -23,7 +24,6 @@ import           SimpleStorage.Types                  (AppTxMessage (..),
 import           Tendermint.SDK.DB                    (Connection (..))
 import           Tendermint.SDK.Transaction           (commitTransaction,
                                                        stageTransaction)
-import Data.String (fromString)
 
 echoH
   :: Request 'MTEcho

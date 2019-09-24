@@ -9,8 +9,8 @@ import           Network.ABCI.Server.App                       (App (..),
                                                                 transformApp)
 import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
-import           SimpleStorage.Application                     (Handler,
-                                                                AppConfig,
+import           SimpleStorage.Application                     (AppConfig,
+                                                                Handler,
                                                                 transformHandler)
 import           SimpleStorage.Handlers
 

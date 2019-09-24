@@ -7,7 +7,7 @@ module SimpleStorage.Application
   , transformHandler
   ) where
 
-import           Control.Lens                         ((&), (.~), lens)
+import           Control.Lens                         (lens, (&), (.~))
 import           Control.Monad.Except                 (ExceptT, MonadError,
                                                        runExceptT)
 import           Control.Monad.IO.Class               (MonadIO)
@@ -18,13 +18,13 @@ import           Data.Text                            (Text, pack)
 import           Network.ABCI.Server.App              (MessageType,
                                                        Response (..))
 import qualified Network.ABCI.Types.Messages.Response as Resp
+import qualified SimpleStorage.Logging                as Log
 import           SimpleStorage.StateMachine           (initStateMachine)
 import qualified Tendermint.SDK.DB                    as DB
-import qualified SimpleStorage.Logging as Log
 
 data AppConfig = AppConfig
   { countConnection :: DB.Connection "count"
-  , logConfig :: Log.LogConfig
+  , logConfig       :: Log.LogConfig
   }
 
 makeAppConfig :: Log.LogConfig -> IO AppConfig

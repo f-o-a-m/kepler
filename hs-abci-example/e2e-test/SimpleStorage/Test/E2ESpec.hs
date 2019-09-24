@@ -12,8 +12,8 @@ import           Data.Int                             (Int32)
 import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import qualified Network.Tendermint.Client            as RPC
+import           SimpleStorage.Types
 import           Test.Hspec
-import SimpleStorage.Types 
 
 
 spec :: Spec
