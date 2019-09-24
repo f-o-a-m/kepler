@@ -12,6 +12,7 @@ import           Data.Default.Class                   (def)
 import           Data.Int                             (Int32)
 import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Response as Resp
+import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Network.Tendermint.Client            as RPC
 import qualified SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types
@@ -40,12 +41,12 @@ spec = do
 
     it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
       let tx = UpdateCountTx "irakli" 1
-          txReq = RPC.RequestBroadcastTxSync
-                    { RPC.requestBroadcastTxSyncTx = Base64.fromBytes . encodeAppTxMessage $ ATMUpdateCount tx
+          txReq = RPC.RequestBroadcastTxCommit
+                    { RPC.requestBroadcastTxCommitTx = Base64.fromBytes . encodeAppTxMessage $ ATMUpdateCount tx
                     }
-      txRespCode <- fmap RPC.resultBroadcastTxCode . runRPC $
-        RPC.broadcastTxSync txReq
-      txRespCode `shouldBe` 0
+      deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
+      let deliverRespCode = deliverResp ^. Response._deliverTxCode
+      deliverRespCode `shouldBe` 0
 
     it "can make sure the synchronous tx transaction worked and the count is now 1" $ do
       let queryReq =
