@@ -26,7 +26,7 @@ spec = do
 
     it "Can query the initial count and make sure it's 0" $ do
       let queryReq =
-            def { RPC.requestABCIQueryPath = Just "count"
+            def { RPC.requestABCIQueryPath = Just "count/count"
                 }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
         RPC.abciQuery queryReq
@@ -44,7 +44,7 @@ spec = do
 
     it "can make sure the synchronous tx transaction worked and the count is now 1" $ do
       let queryReq =
-            def { RPC.requestABCIQueryPath = Just "count"
+            def { RPC.requestABCIQueryPath = Just "count/count"
                 }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
         RPC.abciQuery queryReq
