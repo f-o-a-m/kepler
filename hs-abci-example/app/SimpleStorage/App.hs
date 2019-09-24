@@ -9,8 +9,8 @@ import           Network.ABCI.Server.App                       (App (..),
                                                                 transformApp)
 import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
-import           SimpleStorage.Application                     (Handler,
-                                                                AppConfig,
+import           SimpleStorage.Application                     (AppConfig,
+                                                                Handler,
                                                                 transformHandler)
 import           SimpleStorage.Handlers
 
@@ -22,9 +22,11 @@ makeAndServeApplication cfg = do
   where
     mkMiddleware :: IO (Middleware IO)
     mkMiddleware = do
-      logger <- mkLogStdoutDev
+      reqLogger <- ReqLogger.mkLogStdoutDev
+      resLogger <- ResLogger.mkLogStdoutDev
       pure . appEndo . fold $
-        [ Endo logger
+        [ Endo reqLogger
+        , Endo resLogger
         ]
     hookInMiddleware _app = do
       middleware <- mkMiddleware

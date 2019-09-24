@@ -10,7 +10,7 @@ import qualified Crypto.Hash                      as Cryptonite
 import           Data.Binary                      (Binary)
 import qualified Data.Binary                      as Binary
 import           Data.ByteArray                   (convert)
-import           Data.ByteArray.HexString
+import           Data.ByteArray.Base64String
 import           Data.String.Conversions          (cs)
 import           GHC.Generics                     (Generic)
 import           Tendermint.SDK.Codec
@@ -69,7 +69,7 @@ instance HasKey Buyer where
     rawKey = iso (\(BuyerKey k) -> cs k) (BuyerKey . cs)
 
 instance FromQueryData BuyerKey where
-  fromQueryData hx = Right (toBytes hx ^. from rawKey)
+  fromQueryData bs = Right (toBytes bs ^. from rawKey)
 
 instance EncodeQueryResult Buyer where
   encodeQueryResult = fromBytes . encode
@@ -99,7 +99,7 @@ instance EncodeQueryResult Owner where
   encodeQueryResult  = fromBytes . encode
 
 instance FromQueryData OwnerKey where
-  fromQueryData hx = Right (toBytes hx ^. from rawKey)
+  fromQueryData bs = Right (toBytes bs ^. from rawKey)
 
 instance Queryable Owner where
   type Name Owner = "owner"

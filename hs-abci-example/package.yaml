@@ -53,6 +53,7 @@ dependencies:
 - hs-abci-extra
 - http-types
 - kan-extensions
+- katip
 - lens
 - memory
 - mtl
@@ -138,6 +139,7 @@ tests:
     other-modules:
     - Tendermint.SDK.Test.StoreExample
     - Tendermint.SDK.Test.StoreExampleSpec
+    - Tendermint.SDK.Test.ModuleSpec
 
     ghc-options:
     - -Werror

@@ -24,6 +24,7 @@ default-extensions:
 - DeriveGeneric
 - TypeFamilies
 - GADTs
+- GeneralizedNewtypeDeriving
 - DataKinds
 - PolyKinds
 - RankNTypes
@@ -58,6 +59,7 @@ library:
   - -Wall
   exposed-modules:
   - Data.ByteArray.HexString
+  - Data.ByteArray.Base64String
   - Network.ABCI.Types.Messages.Request
   - Network.ABCI.Types.Messages.Response
   - Network.ABCI.Types.Messages.FieldTypes

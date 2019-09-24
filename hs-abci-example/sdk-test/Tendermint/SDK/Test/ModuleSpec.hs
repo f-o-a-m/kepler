@@ -1,11 +1,10 @@
-
-module Tendermint.SDK.ModuleSpec where
+module Tendermint.SDK.Test.ModuleSpec where
 
 import qualified Control.Concurrent.MVar               as MVar
 import           Control.Lens                          (to, (^.))
 import           Control.Monad                         (void)
 import           Control.Monad.Trans
-import           Data.ByteArray.HexString              (fromBytes, toBytes)
+import           Data.ByteArray.Base64String              (fromBytes, toBytes)
 import           Data.Conduit
 import           Data.Proxy
 import qualified Network.ABCI.Types.Messages.Request   as Request
@@ -15,8 +14,7 @@ import           Tendermint.SDK.Codec
 import           Tendermint.SDK.Module
 import           Tendermint.SDK.Router
 import           Tendermint.SDK.Store
-import           Tendermint.SDK.StoreExample
-import           Tendermint.SDK.StoreExample.Instances ()
+import           Tendermint.SDK.Test.StoreExample
 import           Tendermint.SDK.StoreQueries
 import           Test.Hspec
 

@@ -1,12 +1,11 @@
 module Main where
 
-import           SimpleStorage.App (makeAndServeApplication)
-import qualified Katip as K
-import SimpleStorage.Application
-import SimpleStorage.Logging
 import           Control.Exception
-import           System.IO                            (stdout)
-
+import qualified Katip                     as K
+import           SimpleStorage.App         (makeAndServeApplication)
+import           SimpleStorage.Application
+import           SimpleStorage.Logging
+import           System.IO                 (stdout)
 
 
 main :: IO ()
@@ -17,4 +16,3 @@ main = do
   bracket mkLogEnv K.closeScribes $ \le -> do
     cfg <- makeAppConfig logCfg {_logEnv = le}
     makeAndServeApplication cfg
-    

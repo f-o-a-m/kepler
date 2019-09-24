@@ -8,8 +8,6 @@ import qualified Network.ABCI.Types.Messages.Response  as Response
 import           Servant.API
 import           Tendermint.SDK.Codec
 import           Tendermint.SDK.Router
-import           Tendermint.SDK.Router.Class
-import           Tendermint.SDK.Router.Types
 import           Tendermint.SDK.Store
 import           Tendermint.SDK.Test.StoreExample
 import           Tendermint.SDK.StoreQueries
