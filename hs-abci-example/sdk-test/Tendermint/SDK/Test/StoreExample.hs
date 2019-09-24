@@ -1,18 +1,18 @@
 module Tendermint.SDK.Test.StoreExample where
 
-import           Control.Lens                     (from, iso, (^.))
-import           Data.Binary                      (Binary)
-import qualified Data.Binary                      as Binary
+import           Control.Lens                      (from, iso, (^.))
+import           Data.Binary                       (Binary)
+import qualified Data.Binary                       as Binary
 import           Data.ByteArray.Base64String
-import           Data.String.Conversions          (cs)
-import           GHC.Generics                     (Generic)
+import           Data.String.Conversions           (cs)
+import           GHC.Generics                      (Generic)
 import           Tendermint.SDK.Codec
+import           Tendermint.SDK.Router.Types
 import           Tendermint.SDK.Store
 import           Test.QuickCheck                   (getPrintableString)
 import           Test.QuickCheck.Arbitrary         (Arbitrary, arbitrary)
 import           Test.QuickCheck.Arbitrary.Generic (genericArbitrary)
 import           Test.QuickCheck.Instances         ()
-import           Tendermint.SDK.Router.Types
 
 --------------------------------------------------------------------------------
 -- Example Store

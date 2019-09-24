@@ -1,8 +1,8 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Network.ABCI.Test.Types.Messages.Instances () where
 
-import qualified Data.ByteArray.HexString               as Hex
 import qualified Data.ByteArray.Base64String            as Base64
+import qualified Data.ByteArray.HexString               as Hex
 import           Data.ByteString                        (ByteString)
 import qualified Network.ABCI.Types.Messages.FieldTypes as FieldTypes
 import qualified Network.ABCI.Types.Messages.Request    as Request

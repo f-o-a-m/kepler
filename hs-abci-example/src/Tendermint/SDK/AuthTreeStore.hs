@@ -2,16 +2,16 @@ module Tendermint.SDK.AuthTreeStore where
 
 import           Control.Concurrent.STM           (atomically)
 import           Control.Concurrent.STM.TVar
+import           Control.Monad.IO.Class
 import qualified Crypto.Data.Auth.Tree            as AT
 import qualified Crypto.Data.Auth.Tree.Class      as AT
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Crypto.Hash                      as Cryptonite
 import           Data.ByteArray                   (convert)
 import           Tendermint.SDK.Store
-import Control.Monad.IO.Class
 
 --------------------------------------------------------------------------------
--- 
+--
 --------------------------------------------------------------------------------
 
 newtype AuthTreeHash =  AuthTreeHash (Cryptonite.Digest Cryptonite.SHA256)

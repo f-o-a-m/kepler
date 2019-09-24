@@ -1,22 +1,22 @@
 module Tendermint.SDK.Test.ModuleSpec where
 
-import qualified Control.Concurrent.MVar               as MVar
-import           Control.Lens                          (to, (^.))
-import           Control.Monad                         (void)
+import qualified Control.Concurrent.MVar              as MVar
+import           Control.Lens                         (to, (^.))
+import           Control.Monad                        (void)
 import           Control.Monad.Trans
-import           Data.ByteArray.Base64String              (fromBytes, toBytes)
+import           Data.ByteArray.Base64String          (fromBytes, toBytes)
 import           Data.Conduit
 import           Data.Proxy
-import qualified Network.ABCI.Types.Messages.Request   as Request
-import qualified Network.ABCI.Types.Messages.Response  as Response
-import           Servant.API                           ((:>))
+import qualified Network.ABCI.Types.Messages.Request  as Request
+import qualified Network.ABCI.Types.Messages.Response as Response
+import           Servant.API                          ((:>))
+import           Tendermint.SDK.AuthTreeStore
 import           Tendermint.SDK.Codec
 import           Tendermint.SDK.Module
 import           Tendermint.SDK.Router
 import           Tendermint.SDK.Store
-import           Tendermint.SDK.Test.StoreExample
 import           Tendermint.SDK.StoreQueries
-import           Tendermint.SDK.AuthTreeStore
+import           Tendermint.SDK.Test.StoreExample
 import           Test.Hspec
 
 spec :: Spec
