@@ -1,7 +1,8 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Network.ABCI.Test.Types.Messages.Instances () where
 
-import           Data.ByteArray.HexString               (HexString, fromBytes)
+import qualified Data.ByteArray.HexString               as Hex
+import qualified Data.ByteArray.Base64String            as Base64
 import           Data.ByteString                        (ByteString)
 import qualified Network.ABCI.Types.Messages.FieldTypes as FieldTypes
 import qualified Network.ABCI.Types.Messages.Request    as Request
@@ -61,4 +62,6 @@ instance Arbitrary Response.EndBlock where arbitrary = genericArbitrary
 instance Arbitrary Response.Commit where arbitrary = genericArbitrary
 instance Arbitrary Response.Exception where arbitrary = genericArbitrary
 
-instance Arbitrary HexString where arbitrary = fromBytes <$> (arbitrary :: Gen ByteString)
+instance Arbitrary Hex.HexString where arbitrary = Hex.fromBytes <$> (arbitrary :: Gen ByteString)
+instance Arbitrary Base64.Base64String where arbitrary = Base64.fromBytes <$> (arbitrary :: Gen ByteString)
+instance Arbitrary FieldTypes.WrappedInt64 where arbitrary = FieldTypes.WrappedInt64 <$> arbitrary
