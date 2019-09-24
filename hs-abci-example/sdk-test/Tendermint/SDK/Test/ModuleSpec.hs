@@ -16,6 +16,7 @@ import           Tendermint.SDK.Router
 import           Tendermint.SDK.Store
 import           Tendermint.SDK.Test.StoreExample
 import           Tendermint.SDK.StoreQueries
+import           Tendermint.SDK.AuthTreeStore
 import           Test.Hspec
 
 spec :: Spec

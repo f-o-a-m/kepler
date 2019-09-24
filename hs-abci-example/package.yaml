@@ -84,6 +84,7 @@ library:
   - Tendermint.SDK.Store
   - Tendermint.SDK.Codec
   - Tendermint.SDK.StoreQueries
+  - Tendermint.SDK.AuthTreeStore
   - Tendermint.SDK.Router.Types
   - Tendermint.SDK.Router.Class
   - Tendermint.SDK.Router
@@ -93,6 +94,7 @@ library:
   - SimpleStorage.Application
   - SimpleStorage.Handlers
   - SimpleStorage.StateMachine
+  - SimpleStorage.Modules.SimpleStorage
   - SimpleStorage.Types
   - SimpleStorage.Logging
 

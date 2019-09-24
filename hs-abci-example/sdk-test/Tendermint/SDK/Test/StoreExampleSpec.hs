@@ -11,6 +11,7 @@ import           Tendermint.SDK.Router
 import           Tendermint.SDK.Store
 import           Tendermint.SDK.Test.StoreExample
 import           Tendermint.SDK.StoreQueries
+import           Tendermint.SDK.AuthTreeStore
 import           Test.Hspec
 import           Test.QuickCheck.Arbitrary             (arbitrary)
 import           Test.QuickCheck.Gen                   (generate)
