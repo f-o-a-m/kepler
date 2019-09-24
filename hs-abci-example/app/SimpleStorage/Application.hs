@@ -7,7 +7,7 @@ module SimpleStorage.Application
   , transformHandler
   ) where
 
-import           Control.Lens                         ((&), (.~), lens)
+import           Control.Lens                         ((&), (.~))
 import           Control.Monad.Except                 (ExceptT, MonadError,
                                                        runExceptT)
 import           Control.Monad.IO.Class               (MonadIO)
@@ -20,19 +20,15 @@ import           Network.ABCI.Server.App              (MessageType,
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           SimpleStorage.StateMachine           (initStateMachine)
 import qualified Tendermint.SDK.DB                    as DB
-import qualified SimpleStorage.Logging as Log
 
 data AppConfig = AppConfig
   { countConnection :: DB.Connection "count"
-  , loggingConfig :: Log.LogConfig
   }
 
-makeAppConfig :: IO AppConfig
-makeAppConfig = do
+makeAppConfig :: Log.LogConfig -> IO AppConfig
+makeAppConfig logCfg = do
   conn <- initStateMachine
-  logCfg <- Log.mkLogConfig "simple-storage"
   pure $ AppConfig { countConnection = conn
-                   , loggingConfig = logCfg
                    }
 
 data AppError = AppError String deriving (Show)
@@ -43,12 +39,6 @@ printAppError (AppError msg) = pack $ "AppError : " <> msg
 newtype Handler a = Handler
   { runHandler :: ReaderT AppConfig (ExceptT AppError IO) a }
   deriving (Functor, Applicative, Monad, MonadReader AppConfig, MonadError AppError, MonadIO)
-
-instance Log.HasLogConfig AppConfig where
-  logConfig = lens g s
-    where
-      g = loggingConfig
-      s cfg lc = cfg {loggingConfig = lc} 
 
 -- NOTE: this should probably go in the library
 defaultHandler

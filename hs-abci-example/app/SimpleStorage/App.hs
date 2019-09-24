@@ -10,24 +10,21 @@ import           Network.ABCI.Server.App                       (App (..),
 import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
 import           SimpleStorage.Application                     (Handler,
-                                                                makeAppConfig,
+                                                                AppConfig,
                                                                 transformHandler)
 import           SimpleStorage.Handlers
 
-makeAndServeApplication :: IO ()
-makeAndServeApplication = do
-  cfg <- makeAppConfig
+makeAndServeApplication :: AppConfig -> IO ()
+makeAndServeApplication cfg = do
   let ioApp = transformApp (transformHandler cfg) $ app
   putStrLn "Starting ABCI application..."
   serveApp =<< hookInMiddleware ioApp
   where
     mkMiddleware :: IO (Middleware IO)
     mkMiddleware = do
-      reqLogger <- ReqLogger.mkLogStdout
-      resLogger <- ResLogger.mkLogStdout
+      logger <- mkLogStdoutDev
       pure . appEndo . fold $
-        [ Endo reqLogger
-        , Endo resLogger
+        [ Endo logger
         ]
     hookInMiddleware _app = do
       middleware <- mkMiddleware
