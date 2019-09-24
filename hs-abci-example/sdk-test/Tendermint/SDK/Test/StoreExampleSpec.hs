@@ -1,22 +1,20 @@
-module Tendermint.SDK.StoreExampleSpec where
+module Tendermint.SDK.Test.StoreExampleSpec where
 
-import           Control.Lens                          (to, (^.))
-import           Data.ByteArray.Base64String           (fromBytes, toBytes)
+import           Control.Lens                         (to, (^.))
+import           Data.ByteArray.Base64String          (fromBytes, toBytes)
 import           Data.Proxy
-import qualified Network.ABCI.Types.Messages.Request   as Request
-import qualified Network.ABCI.Types.Messages.Response  as Response
+import qualified Network.ABCI.Types.Messages.Request  as Request
+import qualified Network.ABCI.Types.Messages.Response as Response
 import           Servant.API
+import           Tendermint.SDK.AuthTreeStore
 import           Tendermint.SDK.Codec
 import           Tendermint.SDK.Router
-import           Tendermint.SDK.Router.Class
-import           Tendermint.SDK.Router.Types
 import           Tendermint.SDK.Store
-import           Tendermint.SDK.StoreExample
-import           Tendermint.SDK.StoreExample.Instances ()
 import           Tendermint.SDK.StoreQueries
+import           Tendermint.SDK.Test.StoreExample
 import           Test.Hspec
-import           Test.QuickCheck.Arbitrary             (arbitrary)
-import           Test.QuickCheck.Gen                   (generate)
+import           Test.QuickCheck.Arbitrary            (arbitrary)
+import           Test.QuickCheck.Gen                  (generate)
 
 type API = "dog"  :> QueryApi DogStoreContents
       :<|> "user" :> QueryApi UserStoreContents

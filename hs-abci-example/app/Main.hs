@@ -8,7 +8,6 @@ import           SimpleStorage.Logging
 import           System.IO                 (stdout)
 
 
-
 main :: IO ()
 main = do
   logCfg <- mkLogConfig "simple-storage"
@@ -17,4 +16,3 @@ main = do
   bracket mkLogEnv K.closeScribes $ \le -> do
     cfg <- makeAppConfig logCfg {_logEnv = le}
     makeAndServeApplication cfg
-

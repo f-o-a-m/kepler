@@ -75,7 +75,7 @@ responseQueryError e =
         InternalError _  -> "Internal Error"
   in def { Response.queryCode = 1
          , Response.queryLog = cs msg
-         }
+        }
 
 addQueryArgs :: Delayed env (a -> b)
            -> (qa -> DelayedIO a)
@@ -86,3 +86,8 @@ addQueryArgs Delayed{..} new =
     , delayedHandler   = \ (x, v) query -> ($ v) <$> delayedHandler x query
     , ..
     }
+
+emptyDelayed :: RouteResult a -> Delayed b a
+emptyDelayed response =
+  let r = pure ()
+  in Delayed (const r) $ \_ _ -> response

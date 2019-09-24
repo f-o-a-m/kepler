@@ -5,9 +5,12 @@ module SimpleStorage.Application
   , Handler
   , defaultHandler
   , transformHandler
+  , runHandler
   ) where
 
+import           Control.Exception                    (Exception)
 import           Control.Lens                         (lens, (&), (.~))
+import           Control.Monad.Catch                  (throwM)
 import           Control.Monad.Except                 (ExceptT, MonadError,
                                                        runExceptT)
 import           Control.Monad.IO.Class               (MonadIO)
@@ -36,11 +39,13 @@ makeAppConfig logCfg = do
 
 data AppError = AppError String deriving (Show)
 
+instance Exception AppError
+
 printAppError :: AppError -> Text
 printAppError (AppError msg) = pack $ "AppError : " <> msg
 
 newtype Handler a = Handler
-  { runHandler :: ReaderT AppConfig (ExceptT AppError IO) a }
+  { _runHandler :: ReaderT AppConfig (ExceptT AppError IO) a }
   deriving (Functor, Applicative, Monad, MonadReader AppConfig, MonadError AppError, MonadIO)
 
 instance Log.HasLogConfig AppConfig where
@@ -58,11 +63,21 @@ defaultHandler
   -> m a
 defaultHandler = const $ pure def
 
+runHandler
+  :: AppConfig
+  -> forall a. Handler a -> IO a
+runHandler cfg m = do
+  eRes <- runExceptT $ runReaderT (_runHandler m) cfg
+  case eRes of
+    Left e  -> throwM e
+    Right a -> pure a
+
+
 transformHandler
   :: AppConfig
   -> (forall (t :: MessageType). Handler (Response t) -> IO (Response t))
 transformHandler cfg m = do
-  eRes <- runExceptT $ runReaderT (runHandler m) cfg
+  eRes <- runExceptT $ runReaderT (_runHandler m) cfg
   case eRes of
     Left e  -> pure $ ResponseException $
       def & Resp._exceptionError .~ printAppError e

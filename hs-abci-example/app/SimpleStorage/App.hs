@@ -11,12 +11,16 @@ import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
 import           SimpleStorage.Application                     (AppConfig,
                                                                 Handler,
+                                                                runHandler,
                                                                 transformHandler)
 import           SimpleStorage.Handlers
+import qualified SimpleStorage.Modules.SimpleStorage           as SS
+import           Tendermint.SDK.Module
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do
-  let ioApp = transformApp (transformHandler cfg) $ app
+  io <- runHandler cfg $ runApp SS.simpleStorageComponent ()
+  let ioApp = transformApp (transformHandler cfg) $ app io
   putStrLn "Starting ABCI application..."
   serveApp =<< hookInMiddleware ioApp
   where
@@ -32,16 +36,16 @@ makeAndServeApplication cfg = do
       middleware <- mkMiddleware
       pure $ middleware _app
 
-app :: App Handler
-app = App $ \case
+app :: TendermintIO SS.Query SS.Message SS.Api Handler -> App Handler
+app io = App $ \case
   msg@(RequestEcho _) -> echoH msg
   msg@(RequestFlush _) -> flushH msg
   msg@(RequestInfo _) -> infoH msg
   msg@(RequestSetOption _) -> setOptionH msg
   msg@(RequestInitChain _) -> initChainH msg
-  msg@(RequestQuery _) -> queryH msg
+  msg@(RequestQuery _) -> queryH io msg
   msg@(RequestBeginBlock _) -> beginBlockH msg
   msg@(RequestCheckTx _) -> checkTxH msg
-  msg@(RequestDeliverTx _) -> deliverTxH msg
+  msg@(RequestDeliverTx _) -> deliverTxH io msg
   msg@(RequestEndBlock _) -> endBlockH msg
   msg@(RequestCommit _) -> commitH msg

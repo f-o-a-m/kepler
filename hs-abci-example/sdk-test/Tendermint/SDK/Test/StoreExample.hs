@@ -1,52 +1,24 @@
-module Tendermint.SDK.StoreExample where
+module Tendermint.SDK.Test.StoreExample where
 
-import           Control.Concurrent.STM           (atomically)
-import           Control.Concurrent.STM.TVar
-import           Control.Lens                     (from, iso, (^.))
-import qualified Crypto.Data.Auth.Tree            as AT
-import qualified Crypto.Data.Auth.Tree.Class      as AT
-import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
-import qualified Crypto.Hash                      as Cryptonite
-import           Data.Binary                      (Binary)
-import qualified Data.Binary                      as Binary
-import           Data.ByteArray                   (convert)
+import           Control.Lens                      (from, iso, (^.))
+import           Data.Binary                       (Binary)
+import qualified Data.Binary                       as Binary
 import           Data.ByteArray.Base64String
-import           Data.String.Conversions          (cs)
-import           GHC.Generics                     (Generic)
+import           Data.String.Conversions           (cs)
+import           GHC.Generics                      (Generic)
 import           Tendermint.SDK.Codec
-import           Tendermint.SDK.Store
-
 import           Tendermint.SDK.Router.Types
+import           Tendermint.SDK.Store
+import           Test.QuickCheck                   (getPrintableString)
+import           Test.QuickCheck.Arbitrary         (Arbitrary, arbitrary)
+import           Test.QuickCheck.Arbitrary.Generic (genericArbitrary)
+import           Test.QuickCheck.Instances         ()
 
 --------------------------------------------------------------------------------
 -- Example Store
 --------------------------------------------------------------------------------
 
-newtype AuthTreeHash =  AuthTreeHash (Cryptonite.Digest Cryptonite.SHA256)
-
-instance AT.MerkleHash AuthTreeHash where
-    emptyHash = AuthTreeHash Cryptonite.emptyHash
-    hashLeaf k v = AuthTreeHash $ Cryptonite.hashLeaf k v
-    concatHashes (AuthTreeHash a) (AuthTreeHash b) = AuthTreeHash $ Cryptonite.concatHashes a b
-
 type AuthTreeRawStore = RawStore IO
-
-mkAuthTreeStore :: IO AuthTreeRawStore
-mkAuthTreeStore = do
-  treeV <- newTVarIO AT.empty
-  pure $ RawStore
-    { rawStorePut = \k v -> atomically $ do
-        tree <- readTVar treeV
-        writeTVar treeV $ AT.insert k v tree
-    , rawStoreGet = \_ k -> atomically $ do
-        tree <- readTVar treeV
-        pure $ AT.lookup k tree
-    , rawStoreProve = \_ _ -> pure Nothing
-    , rawStoreRoot = atomically $ do
-        tree <- readTVar treeV
-        let AuthTreeHash r = AT.merkleHash tree :: AuthTreeHash
-        pure $ Root $ convert r
-    }
 
 --------------------------------------------------------------------------------
 -- UserStore
@@ -215,4 +187,12 @@ putHound k hound store = put k hound store
 
 -- serveRoutes :: Application IO
 -- serveRoutes = serve userApi (Proxy :: Proxy IO) userServer
-
+--------------------------------------------------------------------------------
+instance Arbitrary Buyer where arbitrary = genericArbitrary
+instance Arbitrary BuyerKey where arbitrary = BuyerKey . getPrintableString <$> arbitrary
+instance Arbitrary Owner where arbitrary = genericArbitrary
+instance Arbitrary OwnerKey where arbitrary = OwnerKey . getPrintableString <$> arbitrary
+instance Arbitrary Lab where arbitrary = genericArbitrary
+instance Arbitrary LabKey where arbitrary = LabKey . getPrintableString <$> arbitrary
+instance Arbitrary Hound where arbitrary = genericArbitrary
+instance Arbitrary HoundKey where arbitrary = HoundKey . getPrintableString <$> arbitrary

@@ -2,7 +2,7 @@ module Tendermint.SDK.Router.Types where
 
 import           Control.Monad                          (ap)
 import           Control.Monad.Except                   (ExceptT, MonadError,
-                                                         runExceptT)
+                                                         mapExceptT, runExceptT)
 import           Control.Monad.IO.Class                 (MonadIO (..))
 import           Control.Monad.Trans                    (MonadTrans (..))
 import           Data.ByteArray.Base64String            (Base64String)
@@ -60,6 +60,9 @@ newtype HandlerT m a =
 
 runHandlerT :: HandlerT m a -> m (Either QueryError a)
 runHandlerT = runExceptT . _runHandlerT
+
+hoistHandlerT :: (forall x. m x -> n x) -> HandlerT m a -> HandlerT n a
+hoistHandlerT phi = HandlerT . mapExceptT phi . _runHandlerT
 
 --------------------------------------------------------------------------------
 
