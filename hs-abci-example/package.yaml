@@ -26,27 +26,45 @@ default-extensions:
   - ScopedTypeVariables
   - TupleSections
   - LambdaCase
+  - GADTs
+  - TypeOperators
+  - FlexibleInstances
+  - MultiParamTypeClasses
+  - DefaultSignatures
+  - FunctionalDependencies
+  - TypeFamilyDependencies
+  - DeriveFunctor
 
 
 dependencies:
+- async
 - avl-auth
 - base >= 4.7 && < 5
 - binary
 - bytestring
 - containers
+- conduit
 - cryptonite
 - data-default-class
+- exceptions
+- free
 - hs-abci-extra
 - hs-abci-server
 - hs-abci-types
+- hs-abci-extra
+- http-types
+- kan-extensions
+- katip
 - lens
 - memory
 - mtl
 - proto-lens
 - proto-lens-runtime
+- servant
 - stm
 - string-conversions
 - text
+- uri-bytestring
 
 custom-setup:
   dependencies:
@@ -64,12 +82,22 @@ library:
   exposed-modules:
   - Tendermint.SDK.DB
   - Tendermint.SDK.Transaction
+  - Tendermint.SDK.Store
+  - Tendermint.SDK.Codec
+  - Tendermint.SDK.StoreQueries
+  - Tendermint.SDK.AuthTreeStore
+  - Tendermint.SDK.Router.Types
+  - Tendermint.SDK.Router.Class
+  - Tendermint.SDK.Router
+  - Tendermint.SDK.Module
 
   - SimpleStorage.App
   - SimpleStorage.Application
   - SimpleStorage.Handlers
   - SimpleStorage.StateMachine
+  - SimpleStorage.Modules.SimpleStorage
   - SimpleStorage.Types
+  - SimpleStorage.Logging
 
   generated-exposed-modules:
   - Proto.SimpleStorage.Messages
@@ -89,7 +117,7 @@ executables:
 tests:
   hs-abci-example-e2e:
     main:                Spec.hs
-    source-dirs:         test
+    source-dirs:         e2e-test
     other-modules:
     - SimpleStorage.Test.E2ESpec
     - SimpleStorage.Test.HandlersSpec
@@ -99,7 +127,6 @@ tests:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-
     dependencies:
       - aeson
       - aeson-pretty
@@ -108,3 +135,29 @@ tests:
       - hs-tendermint-client
       - hspec
       - QuickCheck
+
+  hs-abci-example-test:
+    main:                Spec.hs
+    source-dirs:         sdk-test
+    other-modules:
+    - Tendermint.SDK.Test.StoreExample
+    - Tendermint.SDK.Test.StoreExampleSpec
+    - Tendermint.SDK.Test.ModuleSpec
+
+    ghc-options:
+    - -Werror
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+
+    dependencies:
+      - generic-arbitrary
+      - hs-abci-example
+      - hs-abci-server
+      - hspec
+      - hspec-core
+      - hspec-discover
+      - binary
+      - QuickCheck
+      - quickcheck-instances
