@@ -42,6 +42,11 @@ let
           inherit sha256;
         }) {};
     in {
+      hpack = callHackageDirect {
+        pkg = "hpack";
+        ver = "0.32.0";
+        sha256 = "0c01mrq6b48c5f0vmbir0m9xzwb8nn0rwcq556nx3dg3wpnzw4z6";
+      };
       proto-lens = callHackageDirect {
         pkg = "proto-lens";
         ver = "0.5.0.1";
