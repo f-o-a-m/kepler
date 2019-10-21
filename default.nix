@@ -34,46 +34,46 @@ let
   addBuildInputs = inputs: { buildInputs ? [], ... }: { buildInputs = inputs ++ buildInputs; };
 
   hackageOverrides = self: super: {
-      hpack = self.callHackageDirect {
-        pkg = "hpack";
-        ver = "0.32.0";
-        sha256 = "0c01mrq6b48c5f0vmbir0m9xzwb8nn0rwcq556nx3dg3wpnzw4z6";
-      } {};
-      proto-lens = self.callHackageDirect {
-        pkg = "proto-lens";
-        ver = "0.5.0.1";
-        sha256 = "1730b7p7yhp60spbmgflikkx98smfarz7h7wzrpric5pj7si6x44";
-      } {};
-      proto-lens-protoc = self.callHackageDirect {
-        pkg = "proto-lens-protoc";
-        ver = "0.5.0.0";
-        sha256 = "05g9kdmwcv216l90w6r47hbmn0yx35w7lbj41gxrnha8axjzrxrq";
-      } {};
-      proto-lens-runtime = self.callHackageDirect {
-        pkg = "proto-lens-runtime";
-        ver = "0.5.0.0";
-        sha256 = "15prbfk10xkb2q5ij5dajbcjwgbkw26h34i330kf3867h0mprs08";
-      } {};
-      proto-lens-setup = self.callHackageDirect {
-        pkg = "proto-lens-setup";
-        ver = "0.4.0.2";
-        sha256 = "17lhdp6pcpk2ifcmnafr39150740ayjnyfbwvjc8wvbmlrd47d1n";
-      } {};
-      proto-lens-arbitrary = self.callHackageDirect {
-        pkg = "proto-lens-arbitrary";
-        ver = "0.1.2.6";
-        sha256 = "17hksng65gdyg0rabv5xnfgwdv1vsq7sph3fwyq9wmgfk4dzxf3r";
-      } {};
+    hpack = self.callHackageDirect {
+      pkg = "hpack";
+      ver = "0.32.0";
+      sha256 = "0c01mrq6b48c5f0vmbir0m9xzwb8nn0rwcq556nx3dg3wpnzw4z6";
+    } {};
+    proto-lens = self.callHackageDirect {
+      pkg = "proto-lens";
+      ver = "0.5.0.1";
+      sha256 = "1730b7p7yhp60spbmgflikkx98smfarz7h7wzrpric5pj7si6x44";
+    } {};
+    proto-lens-protoc = self.callHackageDirect {
+      pkg = "proto-lens-protoc";
+      ver = "0.5.0.0";
+      sha256 = "05g9kdmwcv216l90w6r47hbmn0yx35w7lbj41gxrnha8axjzrxrq";
+    } {};
+    proto-lens-runtime = self.callHackageDirect {
+      pkg = "proto-lens-runtime";
+      ver = "0.5.0.0";
+      sha256 = "15prbfk10xkb2q5ij5dajbcjwgbkw26h34i330kf3867h0mprs08";
+    } {};
+    proto-lens-setup = self.callHackageDirect {
+      pkg = "proto-lens-setup";
+      ver = "0.4.0.2";
+      sha256 = "17lhdp6pcpk2ifcmnafr39150740ayjnyfbwvjc8wvbmlrd47d1n";
+    } {};
+    proto-lens-arbitrary = self.callHackageDirect {
+      pkg = "proto-lens-arbitrary";
+      ver = "0.1.2.6";
+      sha256 = "17hksng65gdyg0rabv5xnfgwdv1vsq7sph3fwyq9wmgfk4dzxf3r";
+    } {};
 
-      # dependency of avl-auth
-      # marked as broken, fails with some `ld` error
-      xxhash =
-        let
-          # from recent nixpkgs
-          unmarkBroken = drv: pkgs.haskell.lib.overrideCabal drv (drv: { broken = false; });
-        in
-          unmarkBroken super.xxhash;
-    };
+    # dependency of avl-auth
+    # marked as broken, fails with some `ld` error
+    xxhash =
+      let
+        # from recent nixpkgs
+        unmarkBroken = drv: pkgs.haskell.lib.overrideCabal drv (drv: { broken = false; });
+      in
+        unmarkBroken super.xxhash;
+  };
 
   localOverrides = self: super:
     builtins.mapAttrs (name: path: (self.callCabal2nix name path {})) packages;
