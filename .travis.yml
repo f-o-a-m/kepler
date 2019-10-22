@@ -26,5 +26,4 @@ script:
 # When branch is `master` we run `haskell-stylish` and fail if git working directory becomes dirty
 - if [ "$TRAVIS_BRANCH" == "master" ]; then make stylish && git diff-index --quiet HEAD; fi
 
-- make test-libraries
-- make test-simple-storage-handlers
+- make test-without-e2e

@@ -1,45 +1,51 @@
 module SimpleStorage.App (makeAndServeApplication) where
 
-import           Data.Foldable                                (fold)
-import           Data.Monoid                                  (Endo (..))
-import           Network.ABCI.Server                          (serveApp)
-import           Network.ABCI.Server.App                      (App (..),
-                                                               Middleware,
-                                                               Request (..),
-                                                               transformApp)
-import           Network.ABCI.Server.Middleware.RequestLogger (mkLogStdoutDev)
-import           SimpleStorage.Application                    (Handler,
-                                                               makeAppConfig,
-                                                               transformHandler)
+import           Data.Foldable                                 (fold)
+import           Data.Monoid                                   (Endo (..))
+import           Network.ABCI.Server                           (serveApp)
+import           Network.ABCI.Server.App                       (App (..),
+                                                                Middleware,
+                                                                Request (..),
+                                                                transformApp)
+import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
+import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
+import           SimpleStorage.Application                     (AppConfig,
+                                                                Handler,
+                                                                runHandler,
+                                                                transformHandler)
 import           SimpleStorage.Handlers
+import qualified SimpleStorage.Modules.SimpleStorage           as SS
+import           Tendermint.SDK.Module
 
-makeAndServeApplication :: IO ()
-makeAndServeApplication = do
-  cfg <- makeAppConfig
-  let ioApp = transformApp (transformHandler cfg) $ app
+makeAndServeApplication :: AppConfig -> IO ()
+makeAndServeApplication cfg = do
+  io <- runHandler cfg $ runApp SS.simpleStorageComponent ()
+  let ioApp = transformApp (transformHandler cfg) $ app io
   putStrLn "Starting ABCI application..."
   serveApp =<< hookInMiddleware ioApp
   where
     mkMiddleware :: IO (Middleware IO)
     mkMiddleware = do
-      logger <- mkLogStdoutDev
+      reqLogger <- ReqLogger.mkLogStdoutDev
+      resLogger <- ResLogger.mkLogStdoutDev
       pure . appEndo . fold $
-        [ Endo logger
+        [ Endo reqLogger
+        , Endo resLogger
         ]
     hookInMiddleware _app = do
       middleware <- mkMiddleware
       pure $ middleware _app
 
-app :: App Handler
-app = App $ \case
+app :: TendermintIO SS.Query SS.Message SS.Api Handler -> App Handler
+app io = App $ \case
   msg@(RequestEcho _) -> echoH msg
   msg@(RequestFlush _) -> flushH msg
   msg@(RequestInfo _) -> infoH msg
   msg@(RequestSetOption _) -> setOptionH msg
   msg@(RequestInitChain _) -> initChainH msg
-  msg@(RequestQuery _) -> queryH msg
+  msg@(RequestQuery _) -> queryH io msg
   msg@(RequestBeginBlock _) -> beginBlockH msg
   msg@(RequestCheckTx _) -> checkTxH msg
-  msg@(RequestDeliverTx _) -> deliverTxH msg
+  msg@(RequestDeliverTx _) -> deliverTxH io msg
   msg@(RequestEndBlock _) -> endBlockH msg
   msg@(RequestCommit _) -> commitH msg

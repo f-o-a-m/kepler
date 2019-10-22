@@ -47,5 +47,5 @@ deploy-simple-storage-local: install ## run the simple storage locally
 test-simple-storage: install ## Run the test suite for the example application
 	stack test hs-abci-example
 
-test-simple-storage-handlers: install ## Run the haskell test suite the example application handlers
-	stack test hs-abci-example --test-arguments "-m handlers"
+test-without-e2e: install ## Run the haskell test suite the example application handlers
+	stack test --skip hs-abci-example-e2e; stack test hs-abci-example --test-arguments "-m handlers"

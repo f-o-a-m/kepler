@@ -3,7 +3,8 @@ module Network.Tendermint.Client
 
   -- * ReExports
   , RPC.Config(..)
-  ) where
+  )
+where
 
 import           Control.Monad.Reader                         (ReaderT,
                                                                runReaderT)
@@ -15,10 +16,10 @@ import qualified Data.Aeson                                   as Aeson
 import           Data.Aeson.Casing                            (aesonDrop,
                                                                pascalCase,
                                                                snakeCase)
+import qualified Data.ByteArray.Base64String                  as Base64
 import           Data.ByteArray.HexString                     (HexString)
 import           Data.ByteString                              (ByteString)
 import           Data.Default.Class                           (Default (..))
-import           Data.Int                                     (Int64)
 import           Data.Text                                    (Text)
 import           Data.Word                                    (Word32)
 import           GHC.Generics                                 (Generic)
@@ -26,6 +27,7 @@ import qualified Network.ABCI.Types.Messages.FieldTypes       as FieldTypes
 import qualified Network.ABCI.Types.Messages.Response         as Response
 import qualified Network.HTTP.Simple                          as HTTP
 import qualified Network.Tendermint.Client.Internal.RPCClient as RPC
+
 
 
 type TendermintM a = ReaderT RPC.Config IO a
@@ -43,9 +45,9 @@ defaultConfig
 defaultConfig host port =
   let baseReq =
           HTTP.setRequestHost host
-        $ HTTP.setRequestPort port
-        $ HTTP.defaultRequest
-  in RPC.Config baseReq mempty mempty
+            $ HTTP.setRequestPort port
+            $ HTTP.defaultRequest
+  in  RPC.Config baseReq mempty mempty
 
 --------------------------------------------------------------------------------
 -- ABCI Query
@@ -60,20 +62,18 @@ abciQuery = RPC.remote (RPC.MethodName "abci_query")
 data RequestABCIQuery = RequestABCIQuery
   { requestABCIQueryPath   :: Maybe Text
   , requestABCIQueryData   :: HexString
-  , requestABCIQueryHeight :: Maybe Int64
+  , requestABCIQueryHeight :: Maybe FieldTypes.WrappedInt64
   , requestABCIQueryProve  :: Bool
   } deriving (Eq, Show, Generic)
 instance ToJSON RequestABCIQuery where
   toJSON = genericToJSON $ defaultRPCOptions "requestABCIQuery"
 
 instance Default RequestABCIQuery where
-  def =
-    RequestABCIQuery
-      { requestABCIQueryPath = Nothing
-      , requestABCIQueryData = ""
-      , requestABCIQueryHeight = Nothing
-      , requestABCIQueryProve = False
-      }
+  def = RequestABCIQuery { requestABCIQueryPath   = Nothing
+                         , requestABCIQueryData   = ""
+                         , requestABCIQueryHeight = Nothing
+                         , requestABCIQueryProve  = False
+                         }
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L193
 data ResultABCIQuery = ResultABCIQuery
@@ -93,16 +93,13 @@ block = RPC.remote (RPC.MethodName "block")
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/blocks.go#L72
 data RequestBlock = RequestBlock
-  { requestBlockHeightPtr :: Maybe Int64
+  { requestBlockHeightPtr :: Maybe FieldTypes.WrappedInt64
   } deriving (Eq, Show, Generic)
 instance ToJSON RequestBlock where
   toJSON = genericToJSON $ defaultRPCOptions "requestBlock"
 
 instance Default RequestBlock where
-  def =
-    RequestBlock
-      { requestBlockHeightPtr = Nothing
-      }
+  def = RequestBlock { requestBlockHeightPtr = Nothing }
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L28
 data ResultBlock = ResultBlock
@@ -131,16 +128,12 @@ instance ToJSON RequestTx where
   toJSON = genericToJSON $ defaultRPCOptions "requestTx"
 
 instance Default RequestTx where
-  def =
-    RequestTx
-      { requestTxHash = Nothing
-      , requestTxProve = False
-      }
+  def = RequestTx { requestTxHash = Nothing, requestTxProve = False }
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L164
 data ResultTx = ResultTx
   { resultTxHash     :: HexString
-  , resultTxHeight   :: Int64
+  , resultTxHeight   :: FieldTypes.WrappedInt64
   , resultTxIndex    :: Word32
   , resultTxTxResult :: Response.DeliverTx
   , resultTxTx       :: Tx
@@ -187,7 +180,8 @@ instance ToJSON RequestBroadcastTxSync where
 
 -- | invokes [/broadcast_tx_commit](https://tendermint.com/rpc/#broadcasttxcommit) rpc call
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L215
-broadcastTxCommit :: RequestBroadcastTxCommit -> TendermintM ResultBroadcastTxCommit
+broadcastTxCommit
+  :: RequestBroadcastTxCommit -> TendermintM ResultBroadcastTxCommit
 broadcastTxCommit = RPC.remote (RPC.MethodName "broadcast_tx_commit")
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/mempool.go#L215
@@ -202,7 +196,7 @@ data ResultBroadcastTxCommit = ResultBroadcastTxCommit
   { resultBroadcastTxCommitCheckTx   :: Response.CheckTx
   , resultBroadcastTxCommitDeliverTx :: Response.DeliverTx
   , resultBroadcastTxCommitHash      :: HexString
-  , resultBroadcastTxCommitHeight    :: Int64
+  , resultBroadcastTxCommitHeight    :: FieldTypes.WrappedInt64
   } deriving (Eq, Show, Generic)
 instance FromJSON ResultBroadcastTxCommit where
   parseJSON = genericParseJSON $ defaultRPCOptions "resultBroadcastTxCommit"
@@ -221,8 +215,7 @@ health = RPC.remote (RPC.MethodName "health") ()
 data ResultHealth = ResultHealth deriving (Eq, Show)
 
 instance FromJSON ResultHealth where
-  parseJSON = Aeson.withObject "Expected emptyObject" $ \_ ->
-    pure ResultHealth
+  parseJSON = Aeson.withObject "Expected emptyObject" $ \_ -> pure ResultHealth
 
 --------------------------------------------------------------------------------
 -- ABCIInfo
@@ -259,7 +252,8 @@ data TxProof = TxProof
   , txProofProof    :: SimpleProof
   } deriving (Eq, Show, Generic)
 instance FromJSON TxProof where
-  parseJSON = genericParseJSON $ aesonDrop (length ("txProof" :: String)) pascalCase
+  parseJSON =
+    genericParseJSON $ aesonDrop (length ("txProof" :: String)) pascalCase
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/crypto/merkle/simple_proof.go#L18
 data SimpleProof = SimpleProof
@@ -317,7 +311,7 @@ instance FromJSON Commit where
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/types/vote.go#L51
 data Vote = Vote
   { voteType             :: SignedMsgType
-  , voteHeight           :: Int64
+  , voteHeight           :: FieldTypes.WrappedInt64
   , voteRound            :: Int
   , voteBlockId          :: FieldTypes.BlockID
   , voteTimestamp        :: FieldTypes.Timestamp
@@ -329,7 +323,7 @@ instance FromJSON Vote where
   parseJSON = genericParseJSON $ defaultRPCOptions "vote"
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/types/tx.go#L19
-type Tx = HexString
+type Tx = Base64.Base64String
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/types/signed_msg_type.go#L4
 data SignedMsgType
