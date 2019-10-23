@@ -1,5 +1,5 @@
 # https://www.stackage.org/lts-13.27
-resolver: lts-13.27
+resolver: lts-14.11
 
 packages:
 - ./hs-abci-types
