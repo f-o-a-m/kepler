@@ -34,6 +34,7 @@ default-extensions:
   - FunctionalDependencies
   - TypeFamilyDependencies
   - DeriveFunctor
+  - StandaloneDeriving
 
 
 dependencies:
@@ -58,6 +59,7 @@ dependencies:
 - lens
 - memory
 - mtl
+- polysemy
 - proto-lens
 - proto-lens-runtime
 - servant
