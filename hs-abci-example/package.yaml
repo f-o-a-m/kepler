@@ -47,6 +47,7 @@ dependencies:
 - conduit
 - cryptonite
 - data-default-class
+- errors
 - exceptions
 - free
 - hs-abci-extra
