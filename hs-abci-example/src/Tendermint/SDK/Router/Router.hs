@@ -1,5 +1,6 @@
 module Tendermint.SDK.Router.Router where
 
+import           Control.Error
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Data.ByteArray.Base64String          (Base64String)
 import           Data.Default.Class                   (def)
@@ -13,7 +14,6 @@ import qualified Network.ABCI.Types.Messages.Response as Response
 import           Network.HTTP.Types                   (decodePathSegments)
 import           Tendermint.SDK.Router.Delayed
 import           Tendermint.SDK.Router.Types
-import Control.Error
 
 
 data Router' env a =

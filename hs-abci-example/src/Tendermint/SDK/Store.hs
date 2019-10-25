@@ -11,12 +11,11 @@ module Tendermint.SDK.Store
   , root
   ) where
 
-import           Control.Lens         (Iso', (^.))
-import qualified Data.ByteString      as BS
-import           GHC.TypeLits         (Symbol)
-import           Tendermint.SDK.Codec
-import Polysemy.Internal.TH.Effect
+import           Control.Lens                (Iso', (^.))
+import qualified Data.ByteString             as BS
+import           GHC.TypeLits                (Symbol)
 import           Polysemy
+import           Tendermint.SDK.Codec
 
 newtype Root = Root BS.ByteString
 

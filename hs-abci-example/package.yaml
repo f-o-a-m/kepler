@@ -35,6 +35,7 @@ default-extensions:
   - TypeFamilyDependencies
   - DeriveFunctor
   - StandaloneDeriving
+  - ConstraintKinds
 
 
 dependencies:

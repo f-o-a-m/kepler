@@ -8,9 +8,9 @@ import qualified Crypto.Data.Auth.Tree.Class      as AT
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Crypto.Hash                      as Cryptonite
 import           Data.ByteArray                   (convert)
-import Data.ByteString (ByteString)
+import           Data.ByteString                  (ByteString)
+import           Polysemy
 import           Tendermint.SDK.Store
-import Polysemy
 --------------------------------------------------------------------------------
 --
 --------------------------------------------------------------------------------
@@ -22,24 +22,30 @@ instance AT.MerkleHash AuthTreeHash where
     hashLeaf k v = AuthTreeHash $ Cryptonite.hashLeaf k v
     concatHashes (AuthTreeHash a) (AuthTreeHash b) = AuthTreeHash $ Cryptonite.concatHashes a b
 
+data AuthTreeDriver = AuthTreeDriver
+  { treeVar :: TVar (AT.Tree ByteString ByteString)
+  }
+
+initAuthTreeDriver :: IO AuthTreeDriver
+initAuthTreeDriver = AuthTreeDriver <$> newTVarIO AT.empty
 
 interpretAuthTreeStore
   :: Member (Embed IO) r
-  => Sem (RawStore ': r) a
+  => AuthTreeDriver
+  -> Sem (RawStore ': r) a
   -> Sem r a
-interpretAuthTreeStore m = do
-  treeV :: TVar (AT.Tree ByteString ByteString) <- liftIO $ newTVarIO AT.empty
+interpretAuthTreeStore AuthTreeDriver{treeVar} =
   interpret
     (\case
       RawStorePut k v -> liftIO . atomically $ do
-        tree <- readTVar treeV
-        writeTVar treeV $ AT.insert k v tree
+        tree <- readTVar treeVar
+        writeTVar treeVar $ AT.insert k v tree
       RawStoreGet _ k -> liftIO . atomically $ do
-        tree <- readTVar treeV
+        tree <- readTVar treeVar
         pure $ AT.lookup k tree
       RawStoreProve _ _ -> pure Nothing
       RawStoreRoot -> liftIO . atomically $ do
-        tree <- readTVar treeV
+        tree <- readTVar treeVar
         let AuthTreeHash r = AT.merkleHash tree :: AuthTreeHash
         pure $ Root $ convert r
-    ) m
+    )

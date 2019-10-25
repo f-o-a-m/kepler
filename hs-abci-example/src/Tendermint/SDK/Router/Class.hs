@@ -1,5 +1,6 @@
 module Tendermint.SDK.Router.Class where
 
+import           Control.Error
 import           Data.Proxy
 import           Data.String.Conversions       (cs)
 import           GHC.TypeLits                  (KnownSymbol, symbolVal)
@@ -7,7 +8,6 @@ import           Servant.API
 import           Tendermint.SDK.Router.Delayed
 import           Tendermint.SDK.Router.Router
 import           Tendermint.SDK.Router.Types
-import Control.Error
 
 --------------------------------------------------------------------------------
 

@@ -1,5 +1,6 @@
 module Tendermint.SDK.Router.Delayed where
 
+import           Control.Error                        (ExceptT, runExceptT)
 import           Control.Monad.Reader                 (MonadReader, ReaderT,
                                                        ask, runReaderT)
 import           Control.Monad.Trans                  (MonadTrans (..))
@@ -8,7 +9,6 @@ import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Tendermint.SDK.Router.Types
-import Control.Error (ExceptT, runExceptT)
 
 --------------------------------------------------------------------------------
 

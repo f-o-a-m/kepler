@@ -2,16 +2,16 @@ module Tendermint.SDK.StoreQueries where
 
 --import Servant.API
 -- import Tendermint.SDK.Routes
+import           Control.Error               (ExceptT, throwE)
 import           Control.Lens                (to, (^.))
 import           Control.Monad.Trans         (lift)
 import           Data.ByteArray.Base64String (fromBytes)
 import           Data.Proxy
+import           Polysemy
 import           Servant.API
 import           Tendermint.SDK.Router.Class
 import           Tendermint.SDK.Router.Types
 import           Tendermint.SDK.Store
-import Polysemy
-import Control.Error (ExceptT, throwE)
 
 class StoreQueryHandler a h where
     storeQueryHandler :: Proxy a -> h
