@@ -1,3 +1,5 @@
+{-# LANGUAGE UndecidableInstances #-}
+
 module SimpleStorage.Application
   ( AppError(..)
   , AppConfig(..)
@@ -8,8 +10,9 @@ module SimpleStorage.Application
   , runHandler
   ) where
 
+import Control.Monad.Catch (throwM)
 import           Control.Exception                    (Exception)
-import           Control.Lens                         (lens, (&), (.~))
+import           Control.Lens                         ((&), (.~))
 import           Data.Default.Class                   (Default (..))
 import           Data.Text                            (Text, pack)
 import           Network.ABCI.Server.App              (MessageType,
@@ -17,19 +20,23 @@ import           Network.ABCI.Server.App              (MessageType,
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Polysemy
 import           Polysemy.Error
-import           Polysemy.Input
-import qualified SimpleStorage.Logging                as Log
-import           Tendermint.SDK.Module
-import           Tendermint.SDK.Subscription
+import           Polysemy.Output
+import           Polysemy.Reader
+import           Tendermint.SDK.AuthTreeStore
+import           Tendermint.SDK.Logger as Logger
+import           Tendermint.SDK.Store
+import SimpleStorage.Modules.SimpleStorage as SimpleStorage
 
 data AppConfig = AppConfig
-  { logConfig       :: Log.LogConfig
+  { logConfig       :: Logger.LogConfig
   }
 
-makeAppConfig :: Log.LogConfig -> IO AppConfig
+makeAppConfig :: Logger.LogConfig -> IO AppConfig
 makeAppConfig logCfg = do
   pure $ AppConfig { logConfig = logCfg
                    }
+
+--------------------------------------------------------------------------------
 
 data AppError = AppError String deriving (Show)
 
@@ -38,14 +45,17 @@ instance Exception AppError
 printAppError :: AppError -> Text
 printAppError (AppError msg) = pack $ "AppError : " <> msg
 
-newtype Handler a = Handler
-  { _runHandler :: Handler (Sem (Input ': BaseAppR) a) }
+type EffR =
+  [ SimpleStorage.SimpleStorage
+  , Output SimpleStorage.Event
+  , RawStore
+  , Logger
+  , Error AppError
+  , Reader LogConfig
+  , Embed IO
+  ]
 
-instance Log.HasLogConfig AppConfig where
-  logConfig = lens g s
-    where
-      g = logConfig
-      s cfg lc = cfg {logConfig = lc}
+newtype Handler a = Handler { _runHandler :: Sem EffR a }
 
 -- NOTE: this should probably go in the library
 defaultHandler
@@ -56,21 +66,35 @@ defaultHandler
   -> m a
 defaultHandler = const $ pure def
 
+runHandler'
+  :: AppConfig
+  -> Handler a
+  -> IO (Either AppError a)
+runHandler' AppConfig{logConfig} (Handler m) = do
+  authTreeD <- initAuthTreeDriver
+  runM .
+    runReader logConfig .
+    runError .
+    Logger.evalKatip .
+    interpretAuthTreeStore authTreeD .
+    ignoreOutput @SimpleStorage.Event .
+    SimpleStorage.eval $ m
+
 runHandler
   :: AppConfig
-  -> forall a. Handler a -> IO a
+  -> Handler a
+  -> IO a
 runHandler cfg m = do
-  eRes <- runExceptT $ runReaderT (_runHandler m) cfg
+  eRes <- runHandler' cfg m
   case eRes of
     Left e  -> throwM e
     Right a -> pure a
-
 
 transformHandler
   :: AppConfig
   -> (forall (t :: MessageType). Handler (Response t) -> IO (Response t))
 transformHandler cfg m = do
-  eRes <- runExceptT $ runReaderT (_runHandler m) cfg
+  eRes <- runHandler' cfg m
   case eRes of
     Left e  -> pure $ ResponseException $
       def & Resp._exceptionError .~ printAppError e

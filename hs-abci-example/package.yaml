@@ -101,7 +101,6 @@ library:
   - SimpleStorage.Handlers
   - SimpleStorage.Modules.SimpleStorage
   - SimpleStorage.Types
-  - SimpleStorage.Logging
 
   generated-exposed-modules:
   - Proto.SimpleStorage.Messages

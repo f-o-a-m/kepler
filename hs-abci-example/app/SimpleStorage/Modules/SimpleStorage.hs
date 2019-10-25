@@ -13,8 +13,10 @@ module SimpleStorage.Modules.SimpleStorage
   , CountStoreContents
 
   -- * Types
+  , Event(..)
   , Count(..)
   , CountKey(..)
+
 
   ) where
 
@@ -63,7 +65,6 @@ instance EncodeQueryResult Count where
 
 instance Queryable Count where
   type Name Count = "count"
-
 data SimpleStorage m a where
     PutCount :: Count -> SimpleStorage m ()
     GetCount :: SimpleStorage m Count
