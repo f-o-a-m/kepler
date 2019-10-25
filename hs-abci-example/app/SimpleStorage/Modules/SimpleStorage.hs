@@ -18,23 +18,23 @@ module SimpleStorage.Modules.SimpleStorage
 
   ) where
 
-import           Control.Lens                 (from, iso, (^.))
-import           Crypto.Hash                  (SHA256 (..), hashWith)
-import qualified Data.Binary                  as Binary
-import           Data.ByteArray               (convert)
-import           Data.ByteArray.Base64String  (fromBytes, toBytes)
-import           Data.ByteString              (ByteString)
-import           Data.Int                     (Int32)
-import           Data.Maybe                   (fromJust)
-import           Data.String.Conversions      (cs)
-import           Servant.API                  ((:>))
+import           Control.Lens                (from, iso, (^.))
+import           Crypto.Hash                 (SHA256 (..), hashWith)
+import qualified Data.Binary                 as Binary
+import           Data.ByteArray              (convert)
+import           Data.ByteArray.Base64String (fromBytes, toBytes)
+import           Data.ByteString             (ByteString)
+import           Data.Int                    (Int32)
+import           Data.Maybe                  (fromJust)
+import           Data.String.Conversions     (cs)
+import           Polysemy
+import           Polysemy.Output
+import           Servant.API                 ((:>))
 import           Tendermint.SDK.Codec
 import           Tendermint.SDK.Module
 import           Tendermint.SDK.Router
 import           Tendermint.SDK.Store
 import           Tendermint.SDK.StoreQueries
-import qualified Tendermint.SDK.Logger as Logger
-import Polysemy
 
 --------------------------------------------------------------------------------
 -- Types
@@ -72,6 +72,10 @@ makeSem ''SimpleStorage
 
 type CountStoreContents = '[Count]
 
+data Event =
+  CountSet
+  deriving (Show)
+
 --------------------------------------------------------------------------------
 -- SimpleStorage Module
 --------------------------------------------------------------------------------
@@ -79,11 +83,12 @@ type CountStoreContents = '[Count]
 eval
   :: forall r.
      BaseApp r
+  => Member (Output Event) r
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> do
     put CountKey count
-    Logger.log "CountSet"
+    output CountSet
 
   GetCount -> fromJust <$> get (undefined :: Root) CountKey
   )

@@ -1,29 +1,16 @@
 module Tendermint.SDK.Module where
 
---import qualified Control.Concurrent.Async as Async
---import qualified Control.Concurrent.MVar  as MVar
---import           Control.Monad            (forM_, forever)
---import           Control.Monad.Free       (Free, foldFree, liftF)
---import           Data.Conduit
---import           Data.Foldable            (traverse_)
---import           Data.Functor             (($>))
---import           Data.Functor.Coyoneda    (Coyoneda (..), liftCoyoneda)
---import qualified Data.IORef               as IORef
---import qualified Data.Map                 as M
---import           Tendermint.SDK.Router
--- import qualified Debug.Trace as Trace
-
---import Tendermint.SDK.Store
-import           Control.Monad.IO.Class   (MonadIO(..))
-import Tendermint.SDK.Store
-import Tendermint.SDK.Logger
-import Polysemy
+import           Control.Monad.IO.Class (MonadIO (..))
+import           Polysemy
+import           Tendermint.SDK.Logger
+import           Tendermint.SDK.Store
 
 type BaseApp r =
   ( Member Logger r
   , Member RawStore r
   )
 
+type BaseAppR = [Logger, RawStore]
 
 interpretBaseAppStandard
   :: MonadIO (Sem r)

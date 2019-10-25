@@ -62,6 +62,7 @@ dependencies:
 - memory
 - mtl
 - polysemy
+- polysemy-plugin
 - proto-lens
 - proto-lens-runtime
 - servant
@@ -81,14 +82,14 @@ library:
   - src
   - app
   ghc-options:
+  - -fplugin=Polysemy.Plugin
   - -Werror
   - -Wall
   exposed-modules:
-  - Tendermint.SDK.DB
-  - Tendermint.SDK.Transaction
   - Tendermint.SDK.Store
   - Tendermint.SDK.Codec
   - Tendermint.SDK.StoreQueries
+  - Tendermint.SDK.Subscription
   - Tendermint.SDK.AuthTreeStore
   - Tendermint.SDK.Router.Types
   - Tendermint.SDK.Router.Class
@@ -98,7 +99,6 @@ library:
   - SimpleStorage.App
   - SimpleStorage.Application
   - SimpleStorage.Handlers
-  - SimpleStorage.StateMachine
   - SimpleStorage.Modules.SimpleStorage
   - SimpleStorage.Types
   - SimpleStorage.Logging

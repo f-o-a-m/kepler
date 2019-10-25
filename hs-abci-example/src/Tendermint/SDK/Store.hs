@@ -11,9 +11,9 @@ module Tendermint.SDK.Store
   , root
   ) where
 
-import           Control.Lens                (Iso', (^.))
-import qualified Data.ByteString             as BS
-import           GHC.TypeLits                (Symbol)
+import           Control.Lens         (Iso', (^.))
+import qualified Data.ByteString      as BS
+import           GHC.TypeLits         (Symbol)
 import           Polysemy
 import           Tendermint.SDK.Codec
 

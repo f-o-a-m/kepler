@@ -10,31 +10,25 @@ module SimpleStorage.Application
 
 import           Control.Exception                    (Exception)
 import           Control.Lens                         (lens, (&), (.~))
-import           Control.Monad.Catch                  (throwM)
-import           Control.Monad.Except                 (ExceptT, MonadError,
-                                                       runExceptT)
-import           Control.Monad.IO.Class               (MonadIO)
-import           Control.Monad.Reader                 (MonadReader, ReaderT,
-                                                       runReaderT)
 import           Data.Default.Class                   (Default (..))
 import           Data.Text                            (Text, pack)
 import           Network.ABCI.Server.App              (MessageType,
                                                        Response (..))
 import qualified Network.ABCI.Types.Messages.Response as Resp
+import           Polysemy
+import           Polysemy.Error
+import           Polysemy.Input
 import qualified SimpleStorage.Logging                as Log
-import           SimpleStorage.StateMachine           (initStateMachine)
-import qualified Tendermint.SDK.DB                    as DB
+import           Tendermint.SDK.Module
+import           Tendermint.SDK.Subscription
 
 data AppConfig = AppConfig
-  { countConnection :: DB.Connection "count"
-  , logConfig       :: Log.LogConfig
+  { logConfig       :: Log.LogConfig
   }
 
 makeAppConfig :: Log.LogConfig -> IO AppConfig
 makeAppConfig logCfg = do
-  conn <- initStateMachine
-  pure $ AppConfig { countConnection = conn
-                   , logConfig = logCfg
+  pure $ AppConfig { logConfig = logCfg
                    }
 
 data AppError = AppError String deriving (Show)
@@ -45,8 +39,7 @@ printAppError :: AppError -> Text
 printAppError (AppError msg) = pack $ "AppError : " <> msg
 
 newtype Handler a = Handler
-  { _runHandler :: ReaderT AppConfig (ExceptT AppError IO) a }
-  deriving (Functor, Applicative, Monad, MonadReader AppConfig, MonadError AppError, MonadIO)
+  { _runHandler :: Handler (Sem (Input ': BaseAppR) a) }
 
 instance Log.HasLogConfig AppConfig where
   logConfig = lens g s
