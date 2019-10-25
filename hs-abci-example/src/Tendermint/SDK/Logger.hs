@@ -1,16 +1,16 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell      #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Tendermint.SDK.Logger where
 
-import           Data.String (fromString)
-import           Polysemy
-import           Polysemy.Reader
 import           Control.Lens    (over)
 import           Control.Lens.TH (makeLenses)
+import           Data.String     (fromString)
 import           Data.Text       (Text)
 import qualified Katip           as K
+import           Polysemy
+import           Polysemy.Reader
 
 data Logger m a where
   Log :: K.Severity -> String -> Logger m ()

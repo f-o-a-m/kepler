@@ -10,9 +10,9 @@ module SimpleStorage.Application
   , runHandler
   ) where
 
-import Control.Monad.Catch (throwM)
 import           Control.Exception                    (Exception)
 import           Control.Lens                         ((&), (.~))
+import           Control.Monad.Catch                  (throwM)
 import           Data.Default.Class                   (Default (..))
 import           Data.Text                            (Text, pack)
 import           Network.ABCI.Server.App              (MessageType,
@@ -22,10 +22,10 @@ import           Polysemy
 import           Polysemy.Error
 import           Polysemy.Output
 import           Polysemy.Reader
+import           SimpleStorage.Modules.SimpleStorage  as SimpleStorage
 import           Tendermint.SDK.AuthTreeStore
-import           Tendermint.SDK.Logger as Logger
+import           Tendermint.SDK.Logger                as Logger
 import           Tendermint.SDK.Store
-import SimpleStorage.Modules.SimpleStorage as SimpleStorage
 
 data AppConfig = AppConfig
   { logConfig       :: Logger.LogConfig
