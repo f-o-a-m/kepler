@@ -3,18 +3,16 @@ module SimpleStorage.Handlers where
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Data.ByteArray                       (convert)
 import           Data.Default.Class                   (def)
-import           Data.Proxy
 import           Network.ABCI.Server.App              (MessageType (..),
                                                        Request (..),
                                                        Response (..))
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
-import           SimpleStorage.Application            (Handler, defaultHandler)
+import           SimpleStorage.Application            (Handler(..), defaultHandler)
 import           SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        UpdateCountTx (..),
                                                        decodeAppTxMessage)
-import           Tendermint.SDK.Router
 
 echoH
   :: Request 'MTEcho
@@ -47,7 +45,7 @@ initChainH = defaultHandler
 queryH
   :: Request 'MTQuery
   -> Handler (Response 'MTQuery)
-queryH (RequestQuery query) = defaultHandler
+queryH = defaultHandler
 --  let serveRoutes :: Application Handler
 --      serveRoutes = serve (Proxy :: Proxy SS.Api) (Proxy :: Proxy Handler) ioServer
 --  queryResp <- serveRoutes query
@@ -68,17 +66,16 @@ checkTxH (RequestCheckTx checkTx) = pure . ResponseCheckTx $
     Right (ATMUpdateCount _) -> def & Resp._checkTxCode .~ 0
 
 deliverTxH
-  :: TendermintIO SS.Query SS.Message SS.Api Handler
-  -> Request 'MTDeliverTx
+  :: Request 'MTDeliverTx
   -> Handler (Response 'MTDeliverTx)
-deliverTxH TendermintIO{ioQuery} (RequestDeliverTx deliverTx) = do
+deliverTxH (RequestDeliverTx deliverTx) = Handler $
   case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of
     Left _ -> return . ResponseDeliverTx $
       def & Resp._deliverTxCode .~ 1
     Right (ATMUpdateCount updateCountTx) -> do
       let count = SS.Count $ updateCountTxCount updateCountTx
-      ioQuery $ tell (SS.PutCount count)
-      return  $ ResponseDeliverTx $ def & Resp._deliverTxCode .~ 0
+      SS.putCount count
+      return $ ResponseDeliverTx $ def & Resp._deliverTxCode .~ 0
 
 endBlockH
   :: Request 'MTEndBlock

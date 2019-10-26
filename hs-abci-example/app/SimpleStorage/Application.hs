@@ -4,7 +4,7 @@ module SimpleStorage.Application
   ( AppError(..)
   , AppConfig(..)
   , makeAppConfig
-  , Handler
+  , Handler(..)
   , defaultHandler
   , transformHandler
   , runHandler
@@ -56,6 +56,7 @@ type EffR =
   ]
 
 newtype Handler a = Handler { _runHandler :: Sem EffR a }
+  deriving (Functor, Applicative, Monad)
 
 -- NOTE: this should probably go in the library
 defaultHandler
