@@ -6,6 +6,8 @@ import           Data.Default.Class                   (def)
 import           Network.ABCI.Server.App              (MessageType (..),
                                                        Request (..),
                                                        Response (..))
+import Tendermint.SDK.Router (serve)
+import Data.Proxy (Proxy(..))
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           SimpleStorage.Application            (Handler(..), defaultHandler)
@@ -45,11 +47,10 @@ initChainH = defaultHandler
 queryH
   :: Request 'MTQuery
   -> Handler (Response 'MTQuery)
-queryH = defaultHandler
---  let serveRoutes :: Application Handler
---      serveRoutes = serve (Proxy :: Proxy SS.Api) (Proxy :: Proxy Handler) ioServer
---  queryResp <- serveRoutes query
---  pure $ ResponseQuery  queryResp
+queryH (RequestQuery query) = Handler $ do
+ let serveRoutes = serve (Proxy :: Proxy SS.Api) SS.simpleStorageServer
+ queryResp <- serveRoutes query
+ pure $ ResponseQuery queryResp
 
 beginBlockH
   :: Request 'MTBeginBlock

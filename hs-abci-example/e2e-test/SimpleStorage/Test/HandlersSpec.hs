@@ -14,15 +14,14 @@ import           Network.ABCI.Server.App              (Request (..),
                                                        Response (..))
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
-import           SimpleStorage.Application            (AppConfig, Handler,
+import           SimpleStorage.Application            (AppConfig,
                                                        makeAppConfig,
-                                                       runHandler,
                                                        transformHandler)
 import           SimpleStorage.Handlers               (deliverTxH, queryH)
-import           SimpleStorage.Logging
+import Tendermint.SDK.Logger
+-- import           SimpleStorage.Logging
 import qualified SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (UpdateCountTx (..))
-import           Tendermint.SDK.Module
 import           Tendermint.SDK.Store
 import           Test.Hspec
 import           Test.QuickCheck
@@ -31,8 +30,8 @@ import           Test.QuickCheck
 spec :: Spec
 spec = beforeAll beforeAction $ do
   describe "SimpleStorage E2E - via handlers" $ do
-    it "Can query the initial count and make sure it's 0" $ \(cfg, io) -> do
-      let handle = transformHandler cfg . queryH io
+    it "Can query the initial count and make sure it's 0" $ \cfg -> do
+      let handle = transformHandler cfg . queryH
       (ResponseQuery queryResp) <- handle
         ( RequestQuery $ defMessage ^. _Unwrapped'
            & Req._queryPath .~ "count/count"
@@ -40,12 +39,12 @@ spec = beforeAll beforeAction $ do
         )
       let foundCount = queryResp ^. Resp._queryValue . to decodeCount
       foundCount `shouldBe` 0
-    it "Can update count and make sure it's increments" $ \(cfg, io) -> do
+    it "Can update count and make sure it's increments" $ \cfg -> do
       genUsername <- pack . getPrintableString <$> generate arbitrary
       genCount    <- abs <$> generate arbitrary
       let
-        handleDeliver = transformHandler cfg . deliverTxH io
-        handleQuery = transformHandler cfg . queryH io
+        handleDeliver = transformHandler cfg . deliverTxH
+        handleQuery = transformHandler cfg . queryH
         updateTx = (defMessage ^. _Unwrapped') { updateCountTxUsername = genUsername
                                                , updateCountTxCount = genCount
                                                }
@@ -66,12 +65,8 @@ spec = beforeAll beforeAction $ do
       let foundCount = queryResp ^. Resp._queryValue . to decodeCount
       foundCount `shouldBe` genCount
 
-beforeAction :: IO (AppConfig, TendermintIO SS.Query SS.Message SS.Api Handler)
-beforeAction = do
-  cfg <- mkLogConfig "handler-spec" >>= makeAppConfig
-  io <- runHandler cfg $ runApp SS.simpleStorageComponent ()
-  pure (cfg, io)
-
+beforeAction :: IO AppConfig
+beforeAction = mkLogConfig "handler-spec" "SimpleStorage" >>= makeAppConfig
 
 encodeCount :: Int32 -> Base64String
 encodeCount = Base64.fromBytes . LBS.toStrict . encode

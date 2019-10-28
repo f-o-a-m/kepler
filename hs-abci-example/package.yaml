@@ -144,8 +144,8 @@ tests:
     main:                Spec.hs
     source-dirs:         sdk-test
     other-modules:
-    - Tendermint.SDK.Test.StoreExample
-    - Tendermint.SDK.Test.StoreExampleSpec
+    # - Tendermint.SDK.Test.StoreExample
+    # - Tendermint.SDK.Test.StoreExampleSpec
     - Tendermint.SDK.Test.ModuleSpec
 
     ghc-options:
