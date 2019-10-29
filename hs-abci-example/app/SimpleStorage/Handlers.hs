@@ -3,18 +3,19 @@ module SimpleStorage.Handlers where
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Data.ByteArray                       (convert)
 import           Data.Default.Class                   (def)
+import           Data.Proxy                           (Proxy (..))
 import           Network.ABCI.Server.App              (MessageType (..),
                                                        Request (..),
                                                        Response (..))
-import Tendermint.SDK.Router (serve)
-import Data.Proxy (Proxy(..))
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
-import           SimpleStorage.Application            (Handler(..), defaultHandler)
+import           SimpleStorage.Application            (Handler (..),
+                                                       defaultHandler)
 import           SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        UpdateCountTx (..),
                                                        decodeAppTxMessage)
+import           Tendermint.SDK.Router                (serve)
 
 echoH
   :: Request 'MTEcho

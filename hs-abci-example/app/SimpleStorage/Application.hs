@@ -28,12 +28,15 @@ import           Tendermint.SDK.Logger                as Logger
 import           Tendermint.SDK.Store
 
 data AppConfig = AppConfig
-  { logConfig       :: Logger.LogConfig
+  { logConfig      :: Logger.LogConfig
+  , authTreeDriver :: AuthTreeDriver
   }
 
 makeAppConfig :: Logger.LogConfig -> IO AppConfig
 makeAppConfig logCfg = do
+  authTreeD <- initAuthTreeDriver
   pure $ AppConfig { logConfig = logCfg
+                   , authTreeDriver = authTreeD
                    }
 
 --------------------------------------------------------------------------------
@@ -71,13 +74,12 @@ runHandler'
   :: AppConfig
   -> Handler a
   -> IO (Either AppError a)
-runHandler' AppConfig{logConfig} (Handler m) = do
-  authTreeD <- initAuthTreeDriver
+runHandler' AppConfig{logConfig, authTreeDriver} (Handler m) = do
   runM .
     runReader logConfig .
     runError .
     Logger.evalKatip .
-    interpretAuthTreeStore authTreeD .
+    interpretAuthTreeStore authTreeDriver .
     ignoreOutput @SimpleStorage.Event .
     SimpleStorage.eval $ m
 

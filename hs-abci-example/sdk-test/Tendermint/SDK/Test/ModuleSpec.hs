@@ -21,7 +21,7 @@ import           Test.Hspec
 
 spec :: Spec
 spec =
-  describe "UserModule" $ undefined
+  describe "UserModule" $ pure ()
     -- it "can create the user module and query it via Query msg and from component" $ do
     --   TendermintIO {ioQuery, ioServer, ioSubscribe} <- runApp userComponent ()
     --   logsVar <- MVar.newMVar []

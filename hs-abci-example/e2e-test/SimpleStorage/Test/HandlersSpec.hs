@@ -14,11 +14,10 @@ import           Network.ABCI.Server.App              (Request (..),
                                                        Response (..))
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
-import           SimpleStorage.Application            (AppConfig,
-                                                       makeAppConfig,
+import           SimpleStorage.Application            (AppConfig, makeAppConfig,
                                                        transformHandler)
 import           SimpleStorage.Handlers               (deliverTxH, queryH)
-import Tendermint.SDK.Logger
+import           Tendermint.SDK.Logger
 -- import           SimpleStorage.Logging
 import qualified SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (UpdateCountTx (..))
@@ -30,15 +29,15 @@ import           Test.QuickCheck
 spec :: Spec
 spec = beforeAll beforeAction $ do
   describe "SimpleStorage E2E - via handlers" $ do
-    it "Can query the initial count and make sure it's 0" $ \cfg -> do
+    it "Can fail to query the count when not initialized" $ \cfg -> do
       let handle = transformHandler cfg . queryH
       (ResponseQuery queryResp) <- handle
         ( RequestQuery $ defMessage ^. _Unwrapped'
            & Req._queryPath .~ "count/count"
            & Req._queryData  .~ SS.CountKey ^. rawKey . to Base64.fromBytes
         )
-      let foundCount = queryResp ^. Resp._queryValue . to decodeCount
-      foundCount `shouldBe` 0
+      let responseCode = queryResp ^. Resp._queryCode
+      responseCode `shouldBe` 1
     it "Can update count and make sure it's increments" $ \cfg -> do
       genUsername <- pack . getPrintableString <$> generate arbitrary
       genCount    <- abs <$> generate arbitrary

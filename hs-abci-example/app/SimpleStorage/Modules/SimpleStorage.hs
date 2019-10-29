@@ -29,8 +29,8 @@ import           Data.ByteArray.Base64String (fromBytes, toBytes)
 import           Data.ByteString             (ByteString)
 import           Data.Int                    (Int32)
 import           Data.Maybe                  (fromJust)
+import           Data.Proxy                  (Proxy (..))
 import           Data.String.Conversions     (cs)
-import Data.Proxy (Proxy(..))
 import           Polysemy
 import           Polysemy.Output
 import           Servant.API                 ((:>))
