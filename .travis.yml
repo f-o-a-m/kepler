@@ -19,7 +19,7 @@ before_install:
 - rm protoc-release.zip
 install:
 - travis_wait stack --skip-ghc-check setup
-- travis_wait stack install --dependencies-only
+- travis_wait 120 stack --skip-ghc-check install --dependencies-only
 script:
 - make hlint
 
