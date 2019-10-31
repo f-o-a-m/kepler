@@ -16,10 +16,11 @@ module SimpleStorage.Modules.SimpleStorage
   , CountStoreContents
 
   -- * Types
-  , Event(..)
   , Count(..)
   , CountKey(..)
 
+  -- * Events
+  , CountSet
 
   ) where
 
@@ -37,6 +38,7 @@ import           Polysemy
 import           Polysemy.Output
 import           Servant.API                 ((:>))
 import           Tendermint.SDK.Codec
+import qualified Tendermint.SDK.Events       as Events
 import           Tendermint.SDK.Module
 import           Tendermint.SDK.Router
 import           Tendermint.SDK.Store
@@ -78,9 +80,15 @@ makeSem ''SimpleStorage
 
 type CountStoreContents = '[Count]
 
-data Event =
-  CountSet
-  deriving (Show)
+data CountSet = CountSet Count deriving (Show)
+
+instance HasCodec CountSet where
+  encode (CountSet c) = encode $ c
+  decode = fmap CountSet . decode
+
+instance Events.IsEvent CountSet where
+  type EventName CountSet = "count_set"
+
 
 --------------------------------------------------------------------------------
 -- SimpleStorage Module
@@ -89,19 +97,18 @@ data Event =
 eval
   :: forall r.
      BaseApp r
-  => Member (Output Event) r
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> do
     put CountKey count
-    output CountSet
+    Events.emit $ CountSet count
 
   GetCount -> fromJust <$> get (undefined :: Root) CountKey
   )
 
 initialize
   :: BaseApp r
-  => Member (Output Event) r
+  => Member (Output Events.Event) r
   => Sem r ()
 initialize = eval $ do
   putCount (Count 0)

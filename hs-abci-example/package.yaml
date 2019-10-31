@@ -97,6 +97,7 @@ library:
   - Tendermint.SDK.Module
   - Tendermint.SDK.Logger
   - Tendermint.SDK.Application
+  - Tendermint.SDK.Events
 
   - SimpleStorage.App
   - SimpleStorage.Application

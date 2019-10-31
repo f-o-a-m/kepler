@@ -53,6 +53,20 @@ packages:
   original:
     git: https://github.com/oscoin/avl-auth
     commit: dfc468845a82cdd7d759943b20853999bc026505
+- completed:
+    hackage: stylish-haskell-0.9.4.3@sha256:98f60e087ee3e661220cd3e1cf77677d4cecd3b90d110f7ce6f36babb5c2f895,4953
+    pantry-tree:
+      size: 2863
+      sha256: 731ad0ffd18ef72bfa4935d717d31598b3286325c9e8d1370ca6406ab104f954
+  original:
+    hackage: stylish-haskell-0.9.4.3@sha256:98f60e087ee3e661220cd3e1cf77677d4cecd3b90d110f7ce6f36babb5c2f895,4953
+- completed:
+    hackage: hlint-2.1.26@sha256:e0489fd31bc4a531aaf27d7e6b9814b50863b2a78c10e1d77e7b652b00933c9b,3231
+    pantry-tree:
+      size: 4036
+      sha256: b424391b338be3eb5da8c0ba97117e8373848830592445828a3cb9694cbf8988
+  original:
+    hackage: hlint-2.1.26@sha256:e0489fd31bc4a531aaf27d7e6b9814b50863b2a78c10e1d77e7b652b00933c9b,3231
 snapshots:
 - completed:
     size: 524786
