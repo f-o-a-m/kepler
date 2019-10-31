@@ -58,8 +58,7 @@ type EffR =
   , Embed IO
   ]
 
-newtype Handler a = Handler { _runHandler :: Sem EffR a }
-  deriving (Functor, Applicative, Monad)
+type Handler = Sem EffR
 
 -- NOTE: this should probably go in the library
 defaultHandler
@@ -74,7 +73,8 @@ runHandler'
   :: AppConfig
   -> Handler a
   -> IO (Either AppError a)
-runHandler' AppConfig{logConfig, authTreeDriver} (Handler m) = do
+runHandler' AppConfig{logConfig} m = do
+  authTreeD <- initAuthTreeDriver
   runM .
     runReader logConfig .
     runError .

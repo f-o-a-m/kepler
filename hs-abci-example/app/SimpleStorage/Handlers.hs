@@ -3,7 +3,6 @@ module SimpleStorage.Handlers where
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Data.ByteArray                       (convert)
 import           Data.Default.Class                   (def)
-import           Data.Proxy                           (Proxy (..))
 import           Network.ABCI.Server.App              (MessageType (..),
                                                        Request (..),
                                                        Response (..))
@@ -46,12 +45,12 @@ initChainH
 initChainH = defaultHandler
 
 queryH
-  :: Request 'MTQuery
+  :: QueryApplication Handler
+  -> Request 'MTQuery
   -> Handler (Response 'MTQuery)
-queryH (RequestQuery query) = Handler $ do
- let serveRoutes = serve (Proxy :: Proxy SS.Api) SS.simpleStorageServer
- queryResp <- serveRoutes query
- pure $ ResponseQuery queryResp
+queryH serveRoutes (RequestQuery query) = do
+  queryResp <- serveRoutes query
+  pure $ ResponseQuery  queryResp
 
 beginBlockH
   :: Request 'MTBeginBlock
@@ -70,14 +69,14 @@ checkTxH (RequestCheckTx checkTx) = pure . ResponseCheckTx $
 deliverTxH
   :: Request 'MTDeliverTx
   -> Handler (Response 'MTDeliverTx)
-deliverTxH (RequestDeliverTx deliverTx) = Handler $
+deliverTxH (RequestDeliverTx deliverTx) = do
   case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of
     Left _ -> return . ResponseDeliverTx $
       def & Resp._deliverTxCode .~ 1
     Right (ATMUpdateCount updateCountTx) -> do
       let count = SS.Count $ updateCountTxCount updateCountTx
-      SS.putCount count
-      return $ ResponseDeliverTx $ def & Resp._deliverTxCode .~ 0
+      putCount count
+      return  $ ResponseDeliverTx $ def & Resp._deliverTxCode .~ 0
 
 endBlockH
   :: Request 'MTEndBlock

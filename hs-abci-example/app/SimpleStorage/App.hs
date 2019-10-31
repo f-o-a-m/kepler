@@ -2,6 +2,7 @@ module SimpleStorage.App (makeAndServeApplication) where
 
 import           Data.Foldable                                 (fold)
 import           Data.Monoid                                   (Endo (..))
+import           Data.Proxy
 import           Network.ABCI.Server                           (serveApp)
 import           Network.ABCI.Server.App                       (App (..),
                                                                 Middleware,
@@ -13,12 +14,15 @@ import           SimpleStorage.Application                     (AppConfig,
                                                                 Handler,
                                                                 transformHandler)
 import           SimpleStorage.Handlers
+import qualified SimpleStorage.Modules.SimpleStorage           as SS
+import           Tendermint.SDK.Router
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do
-  let ioApp = transformApp (transformHandler cfg) app
+  let serveRoutes = serve (Proxy :: Proxy SS.Api) SS.server
+      application = transformApp (transformHandler cfg) $ app serveRoutes
   putStrLn "Starting ABCI application..."
-  serveApp =<< hookInMiddleware ioApp
+  serveApp =<< hookInMiddleware application
   where
     mkMiddleware :: IO (Middleware IO)
     mkMiddleware = do
@@ -32,16 +36,16 @@ makeAndServeApplication cfg = do
       middleware <- mkMiddleware
       pure $ middleware _app
 
-app :: App Handler
-app = App $ \case
-  msg@(RequestEcho _) -> echoH msg
-  msg@(RequestFlush _) -> flushH msg
-  msg@(RequestInfo _) -> infoH msg
-  msg@(RequestSetOption _) -> setOptionH msg
-  msg@(RequestInitChain _) -> initChainH msg
-  msg@(RequestQuery _) -> queryH msg
-  msg@(RequestBeginBlock _) -> beginBlockH msg
-  msg@(RequestCheckTx _) -> checkTxH msg
-  msg@(RequestDeliverTx _) -> deliverTxH msg
-  msg@(RequestEndBlock _) -> endBlockH msg
-  msg@(RequestCommit _) -> commitH msg
+    app :: QueryApplication Handler -> App Handler
+    app serveRoutes = App $ \case
+      msg@(RequestEcho _) -> echoH msg
+      msg@(RequestFlush _) -> flushH msg
+      msg@(RequestInfo _) -> infoH msg
+      msg@(RequestSetOption _) -> setOptionH msg
+      msg@(RequestInitChain _) -> initChainH msg
+      msg@(RequestQuery _) -> queryH serveRoutes msg
+      msg@(RequestBeginBlock _) -> beginBlockH msg
+      msg@(RequestCheckTx _) -> checkTxH msg
+      msg@(RequestDeliverTx _) -> deliverTxH msg
+      msg@(RequestEndBlock _) -> endBlockH msg
+      msg@(RequestCommit _) -> commitH msg

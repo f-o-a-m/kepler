@@ -7,6 +7,7 @@ module SimpleStorage.Modules.SimpleStorage
   , putCount
   , getCount
   , Api
+  , server
   , eval
   , simpleStorageServer
 
@@ -29,7 +30,7 @@ import           Data.ByteArray.Base64String (fromBytes, toBytes)
 import           Data.ByteString             (ByteString)
 import           Data.Int                    (Int32)
 import           Data.Maybe                  (fromJust)
-import           Data.Proxy                  (Proxy (..))
+import           Data.Proxy
 import           Data.String.Conversions     (cs)
 import           Polysemy
 import           Polysemy.Output
@@ -98,8 +99,5 @@ eval = interpret (\case
 
 type Api = "count" :> QueryApi CountStoreContents
 
-simpleStorageServer
-  :: forall r.
-     BaseApp r
-  => RouteT Api (Sem r)
-simpleStorageServer = allStoreHandlers (Proxy :: Proxy CountStoreContents) (Proxy :: Proxy r)
+server :: Member RawStore r => RouteT Api (Sem r)
+server = storeQueryHandlers (Proxy :: Proxy CountStoreContents) (Proxy :: Proxy (Sem r))
