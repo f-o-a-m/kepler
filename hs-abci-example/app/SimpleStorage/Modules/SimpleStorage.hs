@@ -29,6 +29,7 @@ import           Data.ByteArray.Base64String (fromBytes, toBytes)
 import           Data.ByteString             (ByteString)
 import           Data.Int                    (Int32)
 import           Data.Maybe                  (fromJust)
+import           Data.Proxy
 import           Data.String.Conversions     (cs)
 import           Polysemy
 import           Polysemy.Output
@@ -38,7 +39,6 @@ import           Tendermint.SDK.Module
 import           Tendermint.SDK.Router
 import           Tendermint.SDK.Store
 import           Tendermint.SDK.StoreQueries
-import Data.Proxy
 
 --------------------------------------------------------------------------------
 -- Types

@@ -2,6 +2,7 @@ module SimpleStorage.App (makeAndServeApplication) where
 
 import           Data.Foldable                                 (fold)
 import           Data.Monoid                                   (Endo (..))
+import           Data.Proxy
 import           Network.ABCI.Server                           (serveApp)
 import           Network.ABCI.Server.App                       (App (..),
                                                                 Middleware,
@@ -13,9 +14,8 @@ import           SimpleStorage.Application                     (AppConfig,
                                                                 Handler,
                                                                 transformHandler)
 import           SimpleStorage.Handlers
-import  qualified SimpleStorage.Modules.SimpleStorage as SS
-import Tendermint.SDK.Router
-import Data.Proxy
+import qualified SimpleStorage.Modules.SimpleStorage           as SS
+import           Tendermint.SDK.Router
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do
