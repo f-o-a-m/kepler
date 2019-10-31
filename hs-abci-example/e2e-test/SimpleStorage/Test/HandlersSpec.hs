@@ -19,13 +19,13 @@ import           SimpleStorage.Application            (AppConfig, makeAppConfig,
 import           SimpleStorage.Handlers               (deliverTxH, queryH)
 import           Tendermint.SDK.Logger
 -- import           SimpleStorage.Logging
+import           Data.Proxy
 import qualified SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (UpdateCountTx (..))
+import           Tendermint.SDK.Router
 import           Tendermint.SDK.Store
 import           Test.Hspec
 import           Test.QuickCheck
-import Data.Proxy
-import Tendermint.SDK.Router
 
 
 spec :: Spec

@@ -13,8 +13,8 @@ import           SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        UpdateCountTx (..),
                                                        decodeAppTxMessage)
-import           Tendermint.SDK.Router
 import           Tendermint.SDK.Application
+import           Tendermint.SDK.Router
 
 echoH
   :: Request 'MTEcho

@@ -10,12 +10,13 @@ import           Network.ABCI.Server.App                       (App (..),
 import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
 import           SimpleStorage.Application                     (AppConfig,
-                                                                Handler, AppError,
+                                                                AppError,
+                                                                Handler,
                                                                 runHandler)
 import           SimpleStorage.Handlers
 import qualified SimpleStorage.Modules.SimpleStorage           as SS
-import           Tendermint.SDK.Router
 import           Tendermint.SDK.Application
+import           Tendermint.SDK.Router
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do
@@ -29,7 +30,7 @@ makeAndServeApplication cfg = do
         , initialize = [SS.initialize]
         }
   putStrLn "Starting ABCI application..."
-  application <- createApplication makeApplication 
+  application <- createApplication makeApplication
   serveApp =<< hookInMiddleware application
   where
     mkMiddleware :: IO (Middleware IO)

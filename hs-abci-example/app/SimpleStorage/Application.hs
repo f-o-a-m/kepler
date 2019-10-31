@@ -8,15 +8,15 @@ module SimpleStorage.Application
   , runHandler
   ) where
 
-import           Control.Exception                    (Exception)
-import           Control.Monad.Catch                  (throwM)
+import           Control.Exception                   (Exception)
+import           Control.Monad.Catch                 (throwM)
 import           Polysemy
 import           Polysemy.Error
 import           Polysemy.Output
 import           Polysemy.Reader
-import           SimpleStorage.Modules.SimpleStorage  as SimpleStorage
+import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
 import           Tendermint.SDK.AuthTreeStore
-import           Tendermint.SDK.Logger                as Logger
+import           Tendermint.SDK.Logger               as Logger
 import           Tendermint.SDK.Store
 
 data AppConfig = AppConfig
@@ -66,4 +66,4 @@ runHandler AppConfig{logConfig} m = do
   case eRes of
     Left e  -> throwM e
     Right a -> pure a
-  
+

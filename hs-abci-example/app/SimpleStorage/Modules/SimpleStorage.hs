@@ -99,7 +99,7 @@ eval = interpret (\case
   GetCount -> fromJust <$> get (undefined :: Root) CountKey
   )
 
-initialize 
+initialize
   :: BaseApp r
   => Member (Output Event) r
   => Sem r ()
