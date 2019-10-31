@@ -6,22 +6,30 @@ import           Data.Proxy
 import           Network.ABCI.Server                           (serveApp)
 import           Network.ABCI.Server.App                       (App (..),
                                                                 Middleware,
-                                                                Request (..),
-                                                                transformApp)
+                                                                Request (..))
 import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
 import           SimpleStorage.Application                     (AppConfig,
-                                                                Handler,
-                                                                transformHandler)
+                                                                Handler, AppError,
+                                                                runHandler)
 import           SimpleStorage.Handlers
 import qualified SimpleStorage.Modules.SimpleStorage           as SS
 import           Tendermint.SDK.Router
+import           Tendermint.SDK.Application
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do
-  let serveRoutes = serve (Proxy :: Proxy SS.Api) SS.server
-      application = transformApp (transformHandler cfg) $ app serveRoutes
+  let serveRoutes :: QueryApplication Handler
+      serveRoutes = serve (Proxy :: Proxy SS.Api) SS.server
+      makeApplication :: MakeApplication Handler AppError
+      makeApplication = MakeApplication
+        { transformer = runHandler cfg
+        , appErrorP = Proxy
+        , app = app serveRoutes
+        , initialize = [SS.initialize]
+        }
   putStrLn "Starting ABCI application..."
+  application <- createApplication makeApplication 
   serveApp =<< hookInMiddleware application
   where
     mkMiddleware :: IO (Middleware IO)

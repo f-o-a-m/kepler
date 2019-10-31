@@ -4,6 +4,8 @@ import           SimpleStorage.App         (makeAndServeApplication)
 import           SimpleStorage.Application
 import           System.IO                 (stdout)
 import           Tendermint.SDK.Logger
+import Katip as K
+import Control.Exception (bracket)
 
 
 main :: IO ()

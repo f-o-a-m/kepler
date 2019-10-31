@@ -96,6 +96,7 @@ library:
   - Tendermint.SDK.Router
   - Tendermint.SDK.Module
   - Tendermint.SDK.Logger
+  - Tendermint.SDK.Application
 
   - SimpleStorage.App
   - SimpleStorage.Application

@@ -8,13 +8,13 @@ import           Network.ABCI.Server.App              (MessageType (..),
                                                        Response (..))
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
-import           SimpleStorage.Application            (Handler (..),
-                                                       defaultHandler)
+import           SimpleStorage.Application            (Handler)
 import           SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        UpdateCountTx (..),
                                                        decodeAppTxMessage)
-import           Tendermint.SDK.Router                (serve)
+import           Tendermint.SDK.Router
+import           Tendermint.SDK.Application
 
 echoH
   :: Request 'MTEcho

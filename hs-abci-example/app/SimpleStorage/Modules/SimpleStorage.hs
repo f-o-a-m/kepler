@@ -6,10 +6,11 @@ module SimpleStorage.Modules.SimpleStorage
     SimpleStorage
   , putCount
   , getCount
+
   , Api
   , server
   , eval
-  , simpleStorageServer
+  , initialize
 
   -- * Store
   , CountStoreContents
@@ -68,6 +69,7 @@ instance EncodeQueryResult Count where
 
 instance Queryable Count where
   type Name Count = "count"
+
 data SimpleStorage m a where
     PutCount :: Count -> SimpleStorage m ()
     GetCount :: SimpleStorage m Count
@@ -96,6 +98,13 @@ eval = interpret (\case
 
   GetCount -> fromJust <$> get (undefined :: Root) CountKey
   )
+
+initialize 
+  :: BaseApp r
+  => Member (Output Event) r
+  => Sem r ()
+initialize = eval $ do
+  putCount (Count 0)
 
 type Api = "count" :> QueryApi CountStoreContents
 

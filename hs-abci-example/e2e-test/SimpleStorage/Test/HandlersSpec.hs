@@ -15,7 +15,7 @@ import           Network.ABCI.Server.App              (Request (..),
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           SimpleStorage.Application            (AppConfig, makeAppConfig,
-                                                       transformHandler)
+                                                       runHandler)
 import           SimpleStorage.Handlers               (deliverTxH, queryH)
 import           Tendermint.SDK.Logger
 -- import           SimpleStorage.Logging
@@ -24,13 +24,16 @@ import           SimpleStorage.Types                  (UpdateCountTx (..))
 import           Tendermint.SDK.Store
 import           Test.Hspec
 import           Test.QuickCheck
+import Data.Proxy
+import Tendermint.SDK.Router
 
 
 spec :: Spec
 spec = beforeAll beforeAction $ do
   describe "SimpleStorage E2E - via handlers" $ do
+    let serveRoutes = serve (Proxy :: Proxy SS.Api) SS.server
     it "Can fail to query the count when not initialized" $ \cfg -> do
-      let handle = transformHandler cfg . queryH
+      let handle = runHandler cfg . queryH serveRoutes
       (ResponseQuery queryResp) <- handle
         ( RequestQuery $ defMessage ^. _Unwrapped'
            & Req._queryPath .~ "count/count"
@@ -42,8 +45,8 @@ spec = beforeAll beforeAction $ do
       genUsername <- pack . getPrintableString <$> generate arbitrary
       genCount    <- abs <$> generate arbitrary
       let
-        handleDeliver = transformHandler cfg . deliverTxH
-        handleQuery = transformHandler cfg . queryH
+        handleDeliver = runHandler cfg . deliverTxH
+        handleQuery = runHandler cfg . queryH serveRoutes
         updateTx = (defMessage ^. _Unwrapped') { updateCountTxUsername = genUsername
                                                , updateCountTxCount = genCount
                                                }
