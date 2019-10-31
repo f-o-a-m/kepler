@@ -32,15 +32,6 @@ spec :: Spec
 spec = beforeAll beforeAction $ do
   describe "SimpleStorage E2E - via handlers" $ do
     let serveRoutes = serve (Proxy :: Proxy SS.Api) SS.server
-    it "Can fail to query the count when not initialized" $ \cfg -> do
-      let handle = runHandler cfg . queryH serveRoutes
-      (ResponseQuery queryResp) <- handle
-        ( RequestQuery $ defMessage ^. _Unwrapped'
-           & Req._queryPath .~ "count/count"
-           & Req._queryData  .~ SS.CountKey ^. rawKey . to Base64.fromBytes
-        )
-      let responseCode = queryResp ^. Resp._queryCode
-      responseCode `shouldBe` 1
     it "Can update count and make sure it's increments" $ \cfg -> do
       genUsername <- pack . getPrintableString <$> generate arbitrary
       genCount    <- abs <$> generate arbitrary
