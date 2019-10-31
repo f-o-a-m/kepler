@@ -7,6 +7,7 @@ module SimpleStorage.Modules.SimpleStorage
   , putCount
   , getCount
   , Api
+  , server
   , eval
 
   -- * Store
@@ -37,6 +38,7 @@ import           Tendermint.SDK.Module
 import           Tendermint.SDK.Router
 import           Tendermint.SDK.Store
 import           Tendermint.SDK.StoreQueries
+import Data.Proxy
 
 --------------------------------------------------------------------------------
 -- Types
@@ -95,3 +97,6 @@ eval = interpret (\case
   )
 
 type Api = "count" :> QueryApi CountStoreContents
+
+server :: Member RawStore r => RouteT Api (Sem r)
+server = storeQueryHandlers (Proxy :: Proxy CountStoreContents) (Proxy :: Proxy (Sem r))

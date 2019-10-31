@@ -13,7 +13,7 @@ import           SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        UpdateCountTx (..),
                                                        decodeAppTxMessage)
---import           Tendermint.SDK.Router
+import           Tendermint.SDK.Router
 
 echoH
   :: Request 'MTEcho
@@ -44,14 +44,12 @@ initChainH
 initChainH = defaultHandler
 
 queryH
-  :: Request 'MTQuery
+  :: QueryApplication Handler
+  -> Request 'MTQuery
   -> Handler (Response 'MTQuery)
-queryH = defaultHandler
---queryH (RequestQuery query) = do
---  let serveRoutes :: Application Handler
---      serveRoutes = serve (Proxy :: Proxy SS.Api) (Proxy :: Proxy Handler) ioServer
---  queryResp <- serveRoutes query
---  pure $ ResponseQuery  queryResp
+queryH serveRoutes (RequestQuery query) = do
+  queryResp <- serveRoutes query
+  pure $ ResponseQuery  queryResp
 
 beginBlockH
   :: Request 'MTBeginBlock
