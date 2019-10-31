@@ -1,7 +1,7 @@
 module Tendermint.SDK.Router.Router where
 
+import           Control.Error
 import           Control.Lens                         (to, (&), (.~), (^.))
-import           Control.Monad.IO.Class               (MonadIO (..))
 import           Data.ByteArray.Base64String          (Base64String)
 import           Data.Default.Class                   (def)
 import           Data.Map                             (Map)
@@ -14,6 +14,7 @@ import qualified Network.ABCI.Types.Messages.Response as Response
 import           Network.HTTP.Types                   (decodePathSegments)
 import           Tendermint.SDK.Router.Delayed
 import           Tendermint.SDK.Router.Types
+
 
 data Router' env a =
     RChoice (Router' env a) (Router' env a)
@@ -38,9 +39,9 @@ choice router1 router2 = RChoice router1 router2
 
 
 methodRouter
-  :: MonadIO m
+  :: Monad m
   => EncodeQueryResult b
-  => Delayed env (HandlerT m (QueryResult b))
+  => Delayed m env (ExceptT QueryError m (QueryResult b))
   -> Router env m
 methodRouter action = leafRouter route'
   where

@@ -28,7 +28,7 @@ spec = do
       resp <- runRPC RPC.health
       resp `shouldBe` RPC.ResultHealth
 
-    it "Can query the initial count and make sure it's 0" $ do
+    it "Can fail to query the count when not initialized and make sure the response code is 1 (failure)" $ do
       let queryReq =
             def { RPC.requestABCIQueryPath = Just "count/count"
                 , RPC.requestABCIQueryData = SS.CountKey ^. rawKey . to Hex.fromBytes
@@ -36,11 +36,11 @@ spec = do
                 }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
         RPC.abciQuery queryReq
-      let foundCount = queryResp ^. Resp._queryValue . to decodeCount
-      foundCount `shouldBe` 0
+      let responseCode = queryResp ^. Resp._queryCode
+      responseCode `shouldBe` 1
 
     it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
-      let tx = UpdateCountTx "irakli" 1
+      let tx = UpdateCountTx "irakli" 4
           txReq = RPC.RequestBroadcastTxCommit
                     { RPC.requestBroadcastTxCommitTx = Base64.fromBytes . encodeAppTxMessage $ ATMUpdateCount tx
                     }
@@ -48,7 +48,7 @@ spec = do
       let deliverRespCode = deliverResp ^. Response._deliverTxCode
       deliverRespCode `shouldBe` 0
 
-    it "can make sure the synchronous tx transaction worked and the count is now 1" $ do
+    it "can make sure the synchronous tx transaction worked and the count is now 4" $ do
       let queryReq =
             def { RPC.requestABCIQueryPath = Just "count/count"
                 , RPC.requestABCIQueryData = SS.CountKey ^. rawKey . to Hex.fromBytes
@@ -56,7 +56,7 @@ spec = do
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
         RPC.abciQuery queryReq
       let foundCount = queryResp ^. Resp._queryValue . to decodeCount
-      foundCount `shouldBe` 1
+      foundCount `shouldBe` 4
 
 
 encodeCount :: Int32 -> Base64String

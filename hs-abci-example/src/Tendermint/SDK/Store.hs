@@ -1,6 +1,7 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Tendermint.SDK.Store
   ( RawStore(..)
-  , Store(..)
   , HasKey(..)
   , Queryable(..)
   , Root(..)
@@ -13,71 +14,63 @@ module Tendermint.SDK.Store
 import           Control.Lens         (Iso', (^.))
 import qualified Data.ByteString      as BS
 import           GHC.TypeLits         (Symbol)
+import           Polysemy
 import           Tendermint.SDK.Codec
 
 newtype Root = Root BS.ByteString
 
-data RawStore m = RawStore
-  { rawStorePut   :: BS.ByteString -> BS.ByteString -> m ()
-  , rawStoreGet   :: Root -> BS.ByteString -> m (Maybe BS.ByteString)
-  , rawStoreProve :: Root -> BS.ByteString -> m (Maybe BS.ByteString)
-  , rawStoreRoot  :: m Root
-  }
+data RawStore m a where
+  RawStorePut   :: BS.ByteString -> BS.ByteString -> RawStore m ()
+  RawStoreGet   :: Root -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
+  RawStoreProve :: Root -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
+  RawStoreRoot  :: RawStore m Root
 
-class HasKey a where
+makeSem ''RawStore
+
+class HasCodec a => HasKey a where
     type Key a = k | k -> a
     rawKey :: Iso' (Key a) BS.ByteString
 
 class HasKey a => Queryable a where
   type Name a :: Symbol
 
-data Store contents m = Store
-  { storeRawStore :: RawStore m
-  }
-
 root
-  :: Store contents m
-  -> m Root
-root Store{storeRawStore} = rawStoreRoot storeRawStore
+  :: Member RawStore r
+  => Sem r Root
+root = rawStoreRoot
 
 put
-  :: forall a contents m.
-     ContainsCodec a contents
-  => HasKey a
+  :: forall a r.
+     HasKey a
+  => Member RawStore r
   => Key a
   -> a
-  -> Store contents m
-  -> m ()
-put k a Store{storeRawStore} = do
-    let RawStore {rawStorePut} = storeRawStore
-        key = k ^. rawKey
-        val = encode a
-    rawStorePut key val
+  -> Sem r ()
+put k a =
+  let key = k ^. rawKey
+      val = encode a
+  in rawStorePut key val
 
 get
-  :: forall a contents m.
-     ContainsCodec a contents
-  => HasKey a
-  => Monad m
+  :: forall a r.
+     HasKey a
+  => Member RawStore r
   => Root
   -> Key a
-  -> Store contents m
-  -> m (Maybe a)
-get index k Store{storeRawStore} = do
-    let RawStore {rawStoreGet} = storeRawStore
-        key = k ^. rawKey
-    mRes <- rawStoreGet index key
-    pure $ case mRes of
-        Nothing -> Nothing
-        Just raw -> case decode raw of
-          Left e  -> error $ "Impossible codec error "  <> e
-          Right a -> Just a
+  -> Sem r (Maybe a)
+get index k = do
+  let key = k ^. rawKey
+  mRes <- rawStoreGet index key
+  pure $ case mRes of
+    Nothing -> Nothing
+    Just raw -> case decode raw of
+      Left e  -> error $ "Impossible codec error "  <> e
+      Right a -> Just a
 
 prove
   :: HasKey a
-  => Monad m
+  => Member RawStore r
   => Root
   -> Key a
-  -> Store contents m
-  -> m (Maybe BS.ByteString)
-prove _ _ _ = pure Nothing
+  -> Sem r (Maybe BS.ByteString)
+prove r k = rawStoreProve r (k ^. rawKey)

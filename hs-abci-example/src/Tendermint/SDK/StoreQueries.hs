@@ -2,28 +2,31 @@ module Tendermint.SDK.StoreQueries where
 
 --import Servant.API
 -- import Tendermint.SDK.Routes
+import           Control.Error               (ExceptT, throwE)
 import           Control.Lens                (to, (^.))
-import           Control.Monad.Except        (throwError)
 import           Control.Monad.Trans         (lift)
 import           Data.ByteArray.Base64String (fromBytes)
 import           Data.Proxy
+import           Polysemy
 import           Servant.API
-import           Tendermint.SDK.Codec
 import           Tendermint.SDK.Router.Class
 import           Tendermint.SDK.Router.Types
 import           Tendermint.SDK.Store
 
+class StoreQueryHandler a h where
+    storeQueryHandler :: Proxy a -> h
 
-class StoreQueryHandler a store h where
-    storeQueryHandler :: Proxy a -> store -> h
-
-instance (HasKey a, Key a ~ k, ContainsCodec a contents, Monad m)
-   => StoreQueryHandler a (Store contents m) (QueryArgs k -> HandlerT m (QueryResult a)) where
-  storeQueryHandler _ store QueryArgs{..} = do
+instance
+  ( HasKey a
+  , Key a ~ k
+  , Member RawStore r
+  )
+   => StoreQueryHandler a (QueryArgs k -> ExceptT QueryError (Sem r) (QueryResult a)) where
+  storeQueryHandler _ QueryArgs{..} = do
     let key = queryArgsData
-    mRes <- lift $ get undefined key store
+    mRes <- lift $ get undefined key
     case mRes of
-      Nothing -> throwError ResourceNotFound
+      Nothing -> throwE ResourceNotFound
       Just (res :: a) -> pure $ QueryResult
         -- TODO: actually handle proofs
         { queryResultData = res
@@ -33,37 +36,32 @@ instance (HasKey a, Key a ~ k, ContainsCodec a contents, Monad m)
         , queryResultHeight = 0
         }
 
-class StoreQueryHandlers (items :: [*]) (contents :: [*]) m where
+class StoreQueryHandlers (items :: [*]) m where
     type QueryApi items :: *
-    storeQueryHandlers :: Proxy items -> Store contents m -> RouteT (QueryApi items) m
+    storeQueryHandlers :: Proxy items -> Proxy m -> RouteT (QueryApi items) m
 
 instance
-    ( HasKey a
-    , Monad m
-    , HasCodec a
-    , ContainsCodec a contents
-    , Queryable a
-    )  => StoreQueryHandlers (a ': '[]) contents m where
+    ( Queryable a
+    , Member RawStore r
+    )  => StoreQueryHandlers (a ': '[]) (Sem r) where
       type QueryApi (a ': '[])  =  Name a :> QA (Key a) :> Leaf a
-      storeQueryHandlers _ store = storeQueryHandler  (Proxy :: Proxy a) store
+      storeQueryHandlers _ _ = storeQueryHandler (Proxy :: Proxy a)
 
 instance
-    ( HasKey a
-    , Monad m
-    , HasCodec a
-    , Queryable a
-    , ContainsCodec a contents
-    , StoreQueryHandlers (a': as) contents m
-    ) => StoreQueryHandlers (a ': a' : as) contents m where
+    ( Queryable a
+    , StoreQueryHandlers (a': as) (Sem r)
+    , Member RawStore r
+    ) => StoreQueryHandlers (a ': a' : as) (Sem r) where
         type (QueryApi (a ': a' : as)) = (Name a :> QA (Key a) :> Leaf a) :<|> QueryApi (a' ': as)
-        storeQueryHandlers _ store =
-          storeQueryHandler  (Proxy :: Proxy a) store :<|>
-          storeQueryHandlers (Proxy :: Proxy (a' ': as)) store
+        storeQueryHandlers _ pm =
+          storeQueryHandler  (Proxy :: Proxy a) :<|>
+          storeQueryHandlers (Proxy :: Proxy (a' ': as)) pm
 
 allStoreHandlers
-  :: forall (contents :: [*]) m .
-     StoreQueryHandlers contents contents m
-  => Monad m
-  => Store contents m
-  -> RouteT (QueryApi contents) m
-allStoreHandlers = storeQueryHandlers (Proxy :: Proxy contents)
+  :: forall (contents :: [*]) r.
+     StoreQueryHandlers contents (Sem r)
+  => Member RawStore r
+  => Proxy contents
+  -> Proxy r
+  -> RouteT (QueryApi contents) (Sem r)
+allStoreHandlers _ _ = storeQueryHandlers (Proxy :: Proxy contents) (Proxy :: Proxy (Sem r))

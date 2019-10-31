@@ -31,11 +31,10 @@ serve
   :: HasRouter layout
   => MonadIO m
   => Proxy layout
-  -> Proxy m
   -> RouteT layout m
   -> QueryApplication m
-serve p pm server =
-  toApplication (runRouter (route p pm (emptyDelayed (Route server))) ())
+serve p server =
+  toApplication (runRouter (route p (emptyDelayed (Route server))) ())
 
 toApplication
   :: Monad m

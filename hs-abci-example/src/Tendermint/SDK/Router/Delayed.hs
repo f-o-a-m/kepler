@@ -1,6 +1,6 @@
 module Tendermint.SDK.Router.Delayed where
 
-import           Control.Monad.IO.Class               (MonadIO (..))
+import           Control.Error                        (ExceptT, runExceptT)
 import           Control.Monad.Reader                 (MonadReader, ReaderT,
                                                        ask, runReaderT)
 import           Control.Monad.Trans                  (MonadTrans (..))
@@ -13,57 +13,59 @@ import           Tendermint.SDK.Router.Types
 --------------------------------------------------------------------------------
 
 
-newtype DelayedIO a =
-  DelayedIO { runDelayedIO' :: ReaderT Request.Query (RouteResultT IO) a }
-    deriving (Functor, Applicative, Monad, MonadIO, MonadReader Request.Query)
+newtype DelayedM m a =
+  DelayedM { runDelayedM' :: ReaderT Request.Query (RouteResultT m) a }
+    deriving (Functor, Applicative, Monad, MonadReader Request.Query)
 
-liftRouteResult :: RouteResult a -> DelayedIO a
-liftRouteResult x = DelayedIO $ lift  $ RouteResultT . return $ x
+liftRouteResult :: Monad m => RouteResult a -> DelayedM m a
+liftRouteResult x = DelayedM $ lift $ RouteResultT . return $ x
 
-runDelayedIO :: DelayedIO a -> Request.Query -> IO (RouteResult a)
-runDelayedIO m req = runRouteResultT $ runReaderT (runDelayedIO' m) req
+runDelayedM :: DelayedM m a -> Request.Query -> m (RouteResult a)
+runDelayedM m req = runRouteResultT $ runReaderT (runDelayedM' m) req
 
 --------------------------------------------------------------------------------
 
-data Delayed env a where
-  Delayed :: { delayedQueryArgs :: env -> DelayedIO qa
+data Delayed m env a where
+  Delayed :: { delayedQueryArgs :: env -> DelayedM m qa
              , delayedHandler :: qa -> Request.Query -> RouteResult a
-             } -> Delayed env a
+             } -> Delayed m env a
 
-instance Functor (Delayed env) where
+instance Functor (Delayed m env) where
   fmap f Delayed{..} =
     Delayed { delayedHandler = fmap (fmap f) . delayedHandler
             , ..
             }
 
-runDelayed :: Delayed env a
+runDelayed :: Monad m
+           => Delayed m env a
            -> env
            -> Request.Query
-           -> IO (RouteResult a)
-runDelayed Delayed{..} env = runDelayedIO $ do
-   q <- ask
-   qa <- delayedQueryArgs env
-   liftRouteResult $ delayedHandler qa q
+           -> m (RouteResult a)
+runDelayed Delayed{..} env = runDelayedM (do
+    q <- ask
+    qa <- delayedQueryArgs env
+    liftRouteResult $ delayedHandler qa q
+  )
 
-runAction :: MonadIO m
-          => Delayed env (HandlerT m a)
+runAction :: Monad m
+          => Delayed m env (ExceptT QueryError m a)
           -> env
           -> Request.Query
           -> (a -> RouteResult Response.Query)
           -> m (RouteResult Response.Query)
 runAction action env query k =
-  liftIO (runDelayed action env query) >>= go
+  runDelayed action env query >>= go
   where
     go (Fail e) = pure $ Fail e
     go (FailFatal e) = pure $ FailFatal e
     go (Route a) = do
-      e <- runHandlerT a
+      e <- runExceptT a
       case e of
         Left err -> pure $ Route (responseQueryError err)
         Right a' -> pure $ k a'
 
 -- | Fail with the option to recover.
-delayedFail :: QueryError -> DelayedIO a
+delayedFail :: Monad m => QueryError -> DelayedM m a
 delayedFail err = liftRouteResult $ Fail err
 
 responseQueryError :: QueryError -> Response.Query
@@ -77,9 +79,11 @@ responseQueryError e =
          , Response.queryLog = cs msg
         }
 
-addQueryArgs :: Delayed env (a -> b)
-           -> (qa -> DelayedIO a)
-           -> Delayed (qa, env) b
+addQueryArgs
+  :: Monad m
+  => Delayed m env (a -> b)
+  -> (qa -> DelayedM m a)
+  -> Delayed m (qa, env) b
 addQueryArgs Delayed{..} new =
   Delayed
     { delayedQueryArgs = \ (qa, env) -> (,) <$> delayedQueryArgs env <*> new qa
@@ -87,7 +91,7 @@ addQueryArgs Delayed{..} new =
     , ..
     }
 
-emptyDelayed :: RouteResult a -> Delayed b a
+emptyDelayed :: Monad m => RouteResult a -> Delayed m b a
 emptyDelayed response =
   let r = pure ()
   in Delayed (const r) $ \_ _ -> response

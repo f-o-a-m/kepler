@@ -1,84 +1,74 @@
+{-# LANGUAGE UndecidableInstances #-}
+
 module SimpleStorage.Application
   ( AppError(..)
   , AppConfig(..)
   , makeAppConfig
   , Handler
-  , defaultHandler
-  , transformHandler
   , runHandler
   ) where
 
-import           Control.Exception                    (Exception)
-import           Control.Lens                         (lens, (&), (.~))
-import           Control.Monad.Catch                  (throwM)
-import           Control.Monad.Except                 (ExceptT, MonadError,
-                                                       runExceptT)
-import           Control.Monad.IO.Class               (MonadIO)
-import           Control.Monad.Reader                 (MonadReader, ReaderT,
-                                                       runReaderT)
-import           Data.Default.Class                   (Default (..))
-import           Data.Text                            (Text, pack)
-import           Network.ABCI.Server.App              (MessageType,
-                                                       Response (..))
-import qualified Network.ABCI.Types.Messages.Response as Resp
-import qualified SimpleStorage.Logging                as Log
-import           SimpleStorage.StateMachine           (initStateMachine)
-import qualified Tendermint.SDK.DB                    as DB
+import           Control.Exception                   (Exception)
+import           Control.Monad.Catch                 (throwM)
+import           Polysemy
+import           Polysemy.Error
+import           Polysemy.Output
+import           Polysemy.Reader
+import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
+import           Tendermint.SDK.AuthTreeStore
+import qualified Tendermint.SDK.Events               as Events
+import           Tendermint.SDK.Logger               as Logger
+import           Tendermint.SDK.Store
 
 data AppConfig = AppConfig
-  { countConnection :: DB.Connection "count"
-  , logConfig       :: Log.LogConfig
+  { logConfig      :: Logger.LogConfig
+  , authTreeDriver :: AuthTreeDriver
+  , eventBuffer    :: Events.EventBuffer
   }
 
-makeAppConfig :: Log.LogConfig -> IO AppConfig
+makeAppConfig :: Logger.LogConfig -> IO AppConfig
 makeAppConfig logCfg = do
-  conn <- initStateMachine
-  pure $ AppConfig { countConnection = conn
-                   , logConfig = logCfg
+  authTreeD <- initAuthTreeDriver
+  eb <- Events.newEventBuffer
+  pure $ AppConfig { logConfig = logCfg
+                   , authTreeDriver = authTreeD
+                   , eventBuffer = eb
                    }
+
+--------------------------------------------------------------------------------
 
 data AppError = AppError String deriving (Show)
 
 instance Exception AppError
 
-printAppError :: AppError -> Text
-printAppError (AppError msg) = pack $ "AppError : " <> msg
+type EffR =
+  [ SimpleStorage.SimpleStorage
+  , Output Events.Event
+  , RawStore
+  , Logger
+  , Error AppError
+  , Reader LogConfig
+  , Reader Events.EventBuffer
+  , Embed IO
+  ]
 
-newtype Handler a = Handler
-  { _runHandler :: ReaderT AppConfig (ExceptT AppError IO) a }
-  deriving (Functor, Applicative, Monad, MonadReader AppConfig, MonadError AppError, MonadIO)
-
-instance Log.HasLogConfig AppConfig where
-  logConfig = lens g s
-    where
-      g = logConfig
-      s cfg lc = cfg {logConfig = lc}
+type Handler = Sem EffR
 
 -- NOTE: this should probably go in the library
-defaultHandler
-  :: ( Default a
-     , Applicative m
-     )
-  => b
-  -> m a
-defaultHandler = const $ pure def
-
 runHandler
   :: AppConfig
-  -> forall a. Handler a -> IO a
-runHandler cfg m = do
-  eRes <- runExceptT $ runReaderT (_runHandler m) cfg
+  -> Handler a
+  -> IO a
+runHandler AppConfig{logConfig, authTreeDriver, eventBuffer} m = do
+  eRes <- runM .
+    runReader eventBuffer .
+    runReader logConfig .
+    runError .
+    Logger.evalKatip .
+    interpretAuthTreeStore authTreeDriver .
+    Events.eval .
+    SimpleStorage.eval $ m
   case eRes of
     Left e  -> throwM e
     Right a -> pure a
 
-
-transformHandler
-  :: AppConfig
-  -> (forall (t :: MessageType). Handler (Response t) -> IO (Response t))
-transformHandler cfg m = do
-  eRes <- runExceptT $ runReaderT (_runHandler m) cfg
-  case eRes of
-    Left e  -> pure $ ResponseException $
-      def & Resp._exceptionError .~ printAppError e
-    Right a -> pure a

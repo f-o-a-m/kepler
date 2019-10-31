@@ -34,6 +34,8 @@ default-extensions:
   - FunctionalDependencies
   - TypeFamilyDependencies
   - DeriveFunctor
+  - StandaloneDeriving
+  - ConstraintKinds
 
 
 dependencies:
@@ -46,6 +48,7 @@ dependencies:
 - conduit
 - cryptonite
 - data-default-class
+- errors
 - exceptions
 - free
 - hs-abci-extra
@@ -58,6 +61,8 @@ dependencies:
 - lens
 - memory
 - mtl
+- polysemy
+- polysemy-plugin
 - proto-lens
 - proto-lens-runtime
 - servant
@@ -77,27 +82,28 @@ library:
   - src
   - app
   ghc-options:
+  - -fplugin=Polysemy.Plugin
   - -Werror
   - -Wall
   exposed-modules:
-  - Tendermint.SDK.DB
-  - Tendermint.SDK.Transaction
   - Tendermint.SDK.Store
   - Tendermint.SDK.Codec
   - Tendermint.SDK.StoreQueries
+  - Tendermint.SDK.Subscription
   - Tendermint.SDK.AuthTreeStore
   - Tendermint.SDK.Router.Types
   - Tendermint.SDK.Router.Class
   - Tendermint.SDK.Router
   - Tendermint.SDK.Module
+  - Tendermint.SDK.Logger
+  - Tendermint.SDK.Application
+  - Tendermint.SDK.Events
 
   - SimpleStorage.App
   - SimpleStorage.Application
   - SimpleStorage.Handlers
-  - SimpleStorage.StateMachine
   - SimpleStorage.Modules.SimpleStorage
   - SimpleStorage.Types
-  - SimpleStorage.Logging
 
   generated-exposed-modules:
   - Proto.SimpleStorage.Messages
@@ -140,8 +146,8 @@ tests:
     main:                Spec.hs
     source-dirs:         sdk-test
     other-modules:
-    - Tendermint.SDK.Test.StoreExample
-    - Tendermint.SDK.Test.StoreExampleSpec
+    - Tendermint.SDK.Test.AuthTreeStoreSpec
+    # - Tendermint.SDK.Test.StoreExampleSpec
     - Tendermint.SDK.Test.ModuleSpec
 
     ghc-options:

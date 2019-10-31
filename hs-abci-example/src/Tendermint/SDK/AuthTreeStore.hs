@@ -8,8 +8,9 @@ import qualified Crypto.Data.Auth.Tree.Class      as AT
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Crypto.Hash                      as Cryptonite
 import           Data.ByteArray                   (convert)
+import           Data.ByteString                  (ByteString)
+import           Polysemy
 import           Tendermint.SDK.Store
-
 --------------------------------------------------------------------------------
 --
 --------------------------------------------------------------------------------
@@ -21,20 +22,30 @@ instance AT.MerkleHash AuthTreeHash where
     hashLeaf k v = AuthTreeHash $ Cryptonite.hashLeaf k v
     concatHashes (AuthTreeHash a) (AuthTreeHash b) = AuthTreeHash $ Cryptonite.concatHashes a b
 
+data AuthTreeDriver = AuthTreeDriver
+  { treeVar :: TVar (AT.Tree ByteString ByteString)
+  }
 
-mkAuthTreeStore :: MonadIO m => m (RawStore m)
-mkAuthTreeStore = liftIO $ do
-  treeV <- newTVarIO AT.empty
-  pure $ RawStore
-    { rawStorePut = \k v -> liftIO . atomically $ do
-        tree <- readTVar treeV
-        writeTVar treeV $ AT.insert k v tree
-    , rawStoreGet = \_ k -> liftIO . atomically $ do
-        tree <- readTVar treeV
+initAuthTreeDriver :: IO AuthTreeDriver
+initAuthTreeDriver = AuthTreeDriver <$> newTVarIO AT.empty
+
+interpretAuthTreeStore
+  :: Member (Embed IO) r
+  => AuthTreeDriver
+  -> Sem (RawStore ': r) a
+  -> Sem r a
+interpretAuthTreeStore AuthTreeDriver{treeVar} =
+  interpret
+    (\case
+      RawStorePut k v -> liftIO . atomically $ do
+        tree <- readTVar treeVar
+        writeTVar treeVar $ AT.insert k v tree
+      RawStoreGet _ k -> liftIO . atomically $ do
+        tree <- readTVar treeVar
         pure $ AT.lookup k tree
-    , rawStoreProve = \_ _ -> pure Nothing
-    , rawStoreRoot = liftIO . atomically $ do
-        tree <- readTVar treeV
+      RawStoreProve _ _ -> pure Nothing
+      RawStoreRoot -> liftIO . atomically $ do
+        tree <- readTVar treeVar
         let AuthTreeHash r = AT.merkleHash tree :: AuthTreeHash
         pure $ Root $ convert r
-    }
+    )
