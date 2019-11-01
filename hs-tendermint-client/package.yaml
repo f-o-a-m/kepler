@@ -72,8 +72,10 @@ tests:
     dependencies:
       - aeson
       - aeson-pretty
+      - binary
       - hs-abci-types
       - hs-tendermint-client
       - hspec
+      - lens
       - QuickCheck
       - string-conversions

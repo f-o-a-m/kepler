@@ -1,13 +1,15 @@
 module KVStore.Test.KVSpec where
 
--- import           Control.Lens                         (to, (^.))
+import Control.Monad (void)
+-- import           Control.Lens                         ((^.))
 import           Data.Aeson                           (ToJSON)
 import           Data.Aeson.Encode.Pretty             (encodePretty)
--- import           Data.Binary                          (decode, encode)
--- import           Data.ByteArray.Base64String          (Base64String)
--- import qualified Data.ByteArray.Base64String          as Base64
+import           Data.Binary                          (encode,decode)
+import           Data.ByteArray.Base64String          (Base64String)
+import qualified Data.ByteArray.Base64String          as Base64
 -- import qualified Data.ByteArray.HexString             as Hex
--- import qualified Data.ByteString.Lazy                 as LBS
+-- import qualified Data.ByteString                      as BS
+import qualified Data.ByteString.Lazy                 as LBS
 import           Data.Default.Class                   (def)
 -- import           Data.Int                             (Int32)
 import           Data.String.Conversions              (cs)
@@ -25,15 +27,39 @@ spec = do
       resp <- runRPC RPC.health
       resp `shouldBe` RPC.ResultHealth
 
-    -- the following are just testing for parse errors
-    it "Can query /abci_info and parse the result" $ do
-      _ <- runRPC RPC.abciInfo
-      pure ()
+    it "Can query /abci_info and parse the result" $
+      void . runRPC $ RPC.abciInfo
 
-    it "Can query /block and parse the result" $ do
-      -- @NOTE: defaults to latest block
-      _ <- runRPC $ RPC.block def
-      pure ()
+    it "Can query /block and parse the result" $
+      -- @NOTE: this defaults to latest block
+      void . runRPC $ RPC.block def
+
+    it "Can submit a tx and make sure the response code is 0 (success)" $ do
+      let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeName "name=kaen" }
+      deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $
+        RPC.broadcastTxCommit txReq
+      let deliverRespCode = deliverResp ^. Response._deliverTxCode
+      deliverRespCode `shouldBe` 0
+
+    -- it "Can query /abci_query with a key and get its value" $ do
+    --   let queryReq = def { RPC.requestABCIQueryData = "name" }
+    --   queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
+    --     RPC.abciQuery queryReq
+    --   -- let foundName = queryResp ^. Response._queryValue . to decodeName
+    --   -- foundName `shouldBe` "blargo"
+    --   pure ()
+
+    -- it "Can query /tx and parse the result" $ do
+    --   pure ()
+
+    -- it "Can query /tx and parse the result with a proof" $ do
+    --   pure ()
+
+encodeName :: String -> Base64String
+encodeName = Base64.fromBytes . LBS.toStrict . encode
+
+decodeName :: Base64String -> String
+decodeName = decode . LBS.fromStrict . Base64.toBytes
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
 runRPC = RPC.runTendermintM rpcConfig
