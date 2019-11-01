@@ -30,16 +30,16 @@ spec = do
       resp <- runRPC RPC.health
       resp `shouldBe` RPC.ResultHealth
 
-    it "Can fail to query the count when not initialized and make sure the response code is 1 (failure)" $ do
+    it "Can query the count and make sure its initialized to 0" $ do
       let queryReq =
-            def { RPC.requestABCIQueryPath = Just "count/count"
+            def { RPC.requestABCIQueryPath = Just "simple_storage/count"
                 , RPC.requestABCIQueryData = SS.CountKey ^. rawKey . to Hex.fromBytes
 
                 }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
         RPC.abciQuery queryReq
-      let responseCode = queryResp ^. Resp._queryCode
-      responseCode `shouldBe` 1
+      let foundCount = queryResp ^. Resp._queryValue . to decodeCount
+      foundCount `shouldBe` 0
 
     it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
       let tx = UpdateCountTx "irakli" 4
@@ -52,7 +52,7 @@ spec = do
 
     it "can make sure the synchronous tx transaction worked and the count is now 4" $ do
       let queryReq =
-            def { RPC.requestABCIQueryPath = Just "count/count"
+            def { RPC.requestABCIQueryPath = Just "simple_storage/count"
                 , RPC.requestABCIQueryData = SS.CountKey ^. rawKey . to Hex.fromBytes
                 }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
