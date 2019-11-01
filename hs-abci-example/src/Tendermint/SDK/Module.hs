@@ -1,10 +1,10 @@
 module Tendermint.SDK.Module where
 
-import           Polysemy
-import           Polysemy.Output
-import           Tendermint.SDK.Events
-import           Tendermint.SDK.Logger
-import           Tendermint.SDK.Store
+import           Polysemy              (Member)
+import           Polysemy.Output       (Output)
+import           Tendermint.SDK.Events (Event)
+import           Tendermint.SDK.Logger (Logger)
+import           Tendermint.SDK.Store  (RawStore)
 
 type BaseApp r =
   ( Member Logger r

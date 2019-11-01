@@ -7,11 +7,11 @@ import           Control.Lens                (to, (^.))
 import           Control.Monad.Trans         (lift)
 import           Data.ByteArray.Base64String (fromBytes)
 import           Data.Proxy
-import           Polysemy
-import           Servant.API
+import           Polysemy                    (Member, Sem)
+import           Servant.API                 ((:<|>) (..), (:>))
 import           Tendermint.SDK.Router.Class
 import           Tendermint.SDK.Router.Types
-import           Tendermint.SDK.Store
+import           Tendermint.SDK.Store        (HasKey (..), RawStore, get)
 
 class StoreQueryHandler a h where
     storeQueryHandler :: Proxy a -> h

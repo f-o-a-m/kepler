@@ -12,8 +12,8 @@ module Tendermint.SDK.Store
 
 import           Control.Lens         (Iso', (^.))
 import qualified Data.ByteString      as BS
-import           Polysemy
-import           Tendermint.SDK.Codec
+import           Polysemy             (Member, Sem, makeSem)
+import           Tendermint.SDK.Codec (HasCodec (..))
 
 newtype Root = Root BS.ByteString
 

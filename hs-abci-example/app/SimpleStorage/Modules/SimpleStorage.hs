@@ -33,7 +33,7 @@ import           Data.Int                    (Int32)
 import           Data.Maybe                  (fromJust)
 import           Data.Proxy
 import           Data.String.Conversions     (cs)
-import           Polysemy
+import           Polysemy                    (Member, Sem, interpret, makeSem)
 import           Polysemy.Output             (Output)
 import           Servant.API                 ((:>))
 import           Tendermint.SDK.Codec        (HasCodec (..))

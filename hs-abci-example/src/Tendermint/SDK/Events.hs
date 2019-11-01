@@ -20,9 +20,10 @@ import           Data.Proxy
 import           Data.String.Conversions                (cs)
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..),
                                                          KVPair (..))
-import           Polysemy
-import           Polysemy.Output
-import           Polysemy.Reader
+import           Polysemy                               (Embed, Member, Sem,
+                                                         interpret)
+import           Polysemy.Output                        (Output (..), output)
+import           Polysemy.Reader                        (Reader, ask)
 
 class IsEvent e where
   makeEventType :: Proxy e -> String
