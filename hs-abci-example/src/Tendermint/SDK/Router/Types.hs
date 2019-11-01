@@ -3,8 +3,8 @@ module Tendermint.SDK.Router.Types where
 import           Control.Lens                           (from, (^.))
 import           Control.Monad                          (ap)
 import           Control.Monad.Trans                    (MonadTrans (..))
-import           Data.ByteArray.Base64String            (Base64String)
-import           Data.ByteArray.Base64String            (fromBytes, toBytes)
+import           Data.ByteArray.Base64String            (Base64String,
+                                                         fromBytes, toBytes)
 import           GHC.TypeLits                           (Symbol)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof,
                                                          WrappedInt64 (..))
