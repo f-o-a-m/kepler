@@ -8,7 +8,7 @@ import           Data.Aeson.Encode.Pretty             (encodePretty)
 -- import qualified Data.ByteArray.Base64String          as Base64
 -- import qualified Data.ByteArray.HexString             as Hex
 -- import qualified Data.ByteString.Lazy                 as LBS
--- import           Data.Default.Class                   (def)
+import           Data.Default.Class                   (def)
 -- import           Data.Int                             (Int32)
 import           Data.String.Conversions              (cs)
 -- import qualified Network.ABCI.Types.Messages.Response as Resp
@@ -24,6 +24,16 @@ spec = do
     it "Can query /health to make sure the node is alive" $ do
       resp <- runRPC RPC.health
       resp `shouldBe` RPC.ResultHealth
+
+    -- the following are just testing for parse errors
+    it "Can query /abci_info and parse the result" $ do
+      _ <- runRPC RPC.abciInfo
+      pure ()
+
+    it "Can query /block and parse the result" $ do
+      -- @NOTE: defaults to latest block
+      _ <- runRPC $ RPC.block def
+      pure ()
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
 runRPC = RPC.runTendermintM rpcConfig
