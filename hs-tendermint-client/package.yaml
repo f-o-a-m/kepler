@@ -56,3 +56,24 @@ library:
   - -Wall
   exposed-modules:
   - Network.Tendermint.Client
+
+tests:
+  hs-tendermint-client-kv:
+    main:                Spec.hs
+    source-dirs:         kv-test
+    other-modules:
+    - KVStore.Test.KVSpec
+    ghc-options:
+    - -Werror
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+      - aeson
+      - aeson-pretty
+      - hs-abci-types
+      - hs-tendermint-client
+      - hspec
+      - QuickCheck
+      - string-conversions

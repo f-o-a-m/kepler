@@ -44,8 +44,11 @@ deploy-simple-storage-docker: install ## run the simple storage docker network
 deploy-simple-storage-local: install ## run the simple storage locally
 	stack exec simple-storage
 
+test-kv-store: install ## Run the test suite for the client interface
+	stack test hs-tendermint-client
+
 test-simple-storage: install ## Run the test suite for the example application
 	stack test hs-abci-example
 
-test-without-e2e: install ## Run the haskell test suite the example application handlers
+test-simple-storage-without-e2e: install ## Run the haskell test suite the example application handlers
 	stack test --skip hs-abci-example-e2e; stack test hs-abci-example --test-arguments "-m handlers"
