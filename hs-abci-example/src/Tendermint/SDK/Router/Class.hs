@@ -5,9 +5,14 @@ import           Data.Proxy
 import           Data.String.Conversions       (cs)
 import           GHC.TypeLits                  (KnownSymbol, symbolVal)
 import           Servant.API
-import           Tendermint.SDK.Router.Delayed
-import           Tendermint.SDK.Router.Router
-import           Tendermint.SDK.Router.Types
+import           Tendermint.SDK.Router.Delayed (Delayed, addQueryArgs,
+                                                delayedFail)
+import           Tendermint.SDK.Router.Router  (Router, Router' (..), choice,
+                                                methodRouter, pathRouter)
+import           Tendermint.SDK.Router.Types   (EncodeQueryResult (..),
+                                                FromQueryData (..), Leaf, QA,
+                                                QueryArgs (..), QueryError (..),
+                                                QueryResult)
 
 --------------------------------------------------------------------------------
 
