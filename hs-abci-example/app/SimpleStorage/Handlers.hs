@@ -14,6 +14,7 @@ import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        UpdateCountTx (..),
                                                        decodeAppTxMessage)
 import           Tendermint.SDK.Application
+import           Tendermint.SDK.Events                (flushEventBuffer)
 import           Tendermint.SDK.Router
 
 echoH
@@ -76,7 +77,10 @@ deliverTxH (RequestDeliverTx deliverTx) = do
     Right (ATMUpdateCount updateCountTx) -> do
       let count = SS.Count $ updateCountTxCount updateCountTx
       putCount count
-      return  $ ResponseDeliverTx $ def & Resp._deliverTxCode .~ 0
+      events <- flushEventBuffer
+      return $ ResponseDeliverTx $ 
+        def & Resp._deliverTxCode .~ 0
+            & Resp._deliverTxEvents .~ events
 
 endBlockH
   :: Request 'MTEndBlock

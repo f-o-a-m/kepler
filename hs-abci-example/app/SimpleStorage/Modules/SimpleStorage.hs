@@ -24,11 +24,10 @@ module SimpleStorage.Modules.SimpleStorage
 
   ) where
 
-import           Control.Lens                (from, iso, (^.))
+import           Control.Lens                (iso)
 import           Crypto.Hash                 (SHA256 (..), hashWith)
 import qualified Data.Binary                 as Binary
 import           Data.ByteArray              (convert)
-import           Data.ByteArray.Base64String (fromBytes, toBytes)
 import           Data.ByteString             (ByteString)
 import           Data.Int                    (Int32)
 import           Data.Maybe                  (fromJust)
@@ -63,36 +62,32 @@ instance HasKey Count where
         countKey :: ByteString
         countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
 
-instance FromQueryData CountKey where
-  fromQueryData bs = Right (toBytes bs ^. from rawKey)
+instance FromQueryData CountKey
 
-instance EncodeQueryResult Count where
-  encodeQueryResult = fromBytes . encode
+instance EncodeQueryResult Count
 
 instance Queryable Count where
   type Name Count = "count"
+
+--------------------------------------------------------------------------------
+-- Events
+--------------------------------------------------------------------------------
+
+data CountSet = CountSet { newCount :: Count }
+
+instance Events.IsEvent CountSet where
+  makeEventType _ = "count_set"
+  makeEventData CountSet{newCount} = [("new_count", encode newCount)]
+
+--------------------------------------------------------------------------------
+-- SimpleStorage Module
+--------------------------------------------------------------------------------
 
 data SimpleStorage m a where
     PutCount :: Count -> SimpleStorage m ()
     GetCount :: SimpleStorage m Count
 
 makeSem ''SimpleStorage
-
-type CountStoreContents = '[Count]
-
-data CountSet = CountSet Count deriving (Show)
-
-instance HasCodec CountSet where
-  encode (CountSet c) = encode $ c
-  decode = fmap CountSet . decode
-
-instance Events.IsEvent CountSet where
-  type EventName CountSet = "count_set"
-
-
---------------------------------------------------------------------------------
--- SimpleStorage Module
---------------------------------------------------------------------------------
 
 eval
   :: forall r.
@@ -113,7 +108,13 @@ initialize
 initialize = eval $ do
   putCount (Count 0)
 
-type Api = "count" :> QueryApi CountStoreContents
+--------------------------------------------------------------------------------
+-- Query Api
+--------------------------------------------------------------------------------
+
+type CountStoreContents = '[Count]
+
+type Api = "simple_storage" :> QueryApi CountStoreContents
 
 server :: Member RawStore r => RouteT Api (Sem r)
 server = storeQueryHandlers (Proxy :: Proxy CountStoreContents) (Proxy :: Proxy (Sem r))
