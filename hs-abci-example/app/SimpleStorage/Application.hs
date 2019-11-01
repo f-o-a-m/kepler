@@ -10,15 +10,17 @@ module SimpleStorage.Application
 
 import           Control.Exception                   (Exception)
 import           Control.Monad.Catch                 (throwM)
-import           Polysemy
-import           Polysemy.Error
-import           Polysemy.Output
-import           Polysemy.Reader
+import           Polysemy                            (Embed, Sem, runM)
+import           Polysemy.Error                      (Error, runError)
+import           Polysemy.Output                     (Output)
+import           Polysemy.Reader                     (Reader, runReader)
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
-import           Tendermint.SDK.AuthTreeStore
+import           Tendermint.SDK.AuthTreeStore        (AuthTreeDriver,
+                                                      initAuthTreeDriver,
+                                                      interpretAuthTreeStore)
 import qualified Tendermint.SDK.Events               as Events
-import           Tendermint.SDK.Logger               as Logger
-import           Tendermint.SDK.Store
+import qualified Tendermint.SDK.Logger               as Logger
+import qualified Tendermint.SDK.Store                as Store
 
 data AppConfig = AppConfig
   { logConfig      :: Logger.LogConfig
@@ -44,10 +46,10 @@ instance Exception AppError
 type EffR =
   [ SimpleStorage.SimpleStorage
   , Output Events.Event
-  , RawStore
-  , Logger
+  , Store.RawStore
+  , Logger.Logger
   , Error AppError
-  , Reader LogConfig
+  , Reader Logger.LogConfig
   , Reader Events.EventBuffer
   , Embed IO
   ]

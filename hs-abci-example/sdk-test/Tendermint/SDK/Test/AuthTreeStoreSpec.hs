@@ -4,11 +4,12 @@ import           Control.Lens                 (iso)
 import qualified Data.Binary                  as Binary
 import           Data.ByteString              (ByteString)
 import           Data.String.Conversions      (cs)
-import           Polysemy
-
-import           Tendermint.SDK.AuthTreeStore
-import           Tendermint.SDK.Codec
-import           Tendermint.SDK.Store
+import           Polysemy                     (runM)
+import           Tendermint.SDK.AuthTreeStore (AuthTreeDriver,
+                                               initAuthTreeDriver,
+                                               interpretAuthTreeStore)
+import           Tendermint.SDK.Codec         (HasCodec (..))
+import           Tendermint.SDK.Store         (HasKey (..), Root, get, put)
 import           Test.Hspec
 
 spec :: Spec

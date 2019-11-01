@@ -1,12 +1,17 @@
 module Tendermint.SDK.Router.Types where
 
+import           Control.Lens                           (from, (^.))
 import           Control.Monad                          (ap)
 import           Control.Monad.Trans                    (MonadTrans (..))
-import           Data.ByteArray.Base64String            (Base64String)
+import           Data.ByteArray.Base64String            (Base64String,
+                                                         fromBytes, toBytes)
+import           GHC.TypeLits                           (Symbol)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof,
                                                          WrappedInt64 (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
+import           Tendermint.SDK.Codec                   (HasCodec (..))
+import           Tendermint.SDK.Store                   (HasKey (..))
 
 
 data Leaf (a :: *)
@@ -43,11 +48,19 @@ data QueryResult a = QueryResult
 
 --------------------------------------------------------------------------------
 
+class HasKey a => Queryable a where
+  type Name a :: Symbol
+
 class EncodeQueryResult a where
   encodeQueryResult :: a -> Base64String
 
+  default encodeQueryResult :: HasCodec a => a -> Base64String
+  encodeQueryResult = fromBytes . encode
+
 class FromQueryData a where
   fromQueryData :: Base64String -> Either String a
+  default fromQueryData :: (HasKey b, Key b ~ a) => Base64String -> Either String a
+  fromQueryData bs = Right (toBytes bs ^. from rawKey)
 
 --------------------------------------------------------------------------------
 

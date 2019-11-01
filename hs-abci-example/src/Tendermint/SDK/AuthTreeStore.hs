@@ -9,8 +9,9 @@ import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Crypto.Hash                      as Cryptonite
 import           Data.ByteArray                   (convert)
 import           Data.ByteString                  (ByteString)
-import           Polysemy
-import           Tendermint.SDK.Store
+import           Polysemy                         (Embed, Member, Sem,
+                                                   interpret)
+import           Tendermint.SDK.Store             (RawStore (..), Root (..))
 --------------------------------------------------------------------------------
 --
 --------------------------------------------------------------------------------

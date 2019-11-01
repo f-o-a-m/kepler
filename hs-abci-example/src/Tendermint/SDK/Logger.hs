@@ -9,8 +9,8 @@ import           Control.Lens.TH (makeLenses)
 import           Data.String     (fromString)
 import           Data.Text       (Text)
 import qualified Katip           as K
-import           Polysemy
-import           Polysemy.Reader
+import           Polysemy        (Embed, Member, Sem, interpret, makeSem)
+import           Polysemy.Reader (Reader, asks, local)
 
 data Logger m a where
   Log :: K.Severity -> String -> Logger m ()

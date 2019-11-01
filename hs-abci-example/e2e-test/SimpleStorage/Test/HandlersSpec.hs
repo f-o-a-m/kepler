@@ -9,6 +9,7 @@ import qualified Data.ByteString.Lazy                 as LBS
 import           Data.Int                             (Int32)
 import           Data.ProtoLens                       (defMessage)
 import           Data.ProtoLens.Encoding              (encodeMessage)
+import           Data.Proxy
 import           Data.Text                            (pack)
 import           Network.ABCI.Server.App              (Request (..),
                                                        Response (..))
@@ -17,13 +18,11 @@ import qualified Network.ABCI.Types.Messages.Response as Resp
 import           SimpleStorage.Application            (AppConfig, makeAppConfig,
                                                        runHandler)
 import           SimpleStorage.Handlers               (deliverTxH, queryH)
-import           Tendermint.SDK.Logger
--- import           SimpleStorage.Logging
-import           Data.Proxy
 import qualified SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (UpdateCountTx (..))
-import           Tendermint.SDK.Router
-import           Tendermint.SDK.Store
+import           Tendermint.SDK.Logger
+import           Tendermint.SDK.Router                (serve)
+import           Tendermint.SDK.Store                 (rawKey)
 import           Test.Hspec
 import           Test.QuickCheck
 
@@ -50,9 +49,10 @@ spec = beforeAll beforeAction $ do
         .~ encodedUpdateTx
         )
       (deliverResp ^. Resp._deliverTxCode) `shouldBe` 0
+      -- TODO: check for logs
       (ResponseQuery queryResp) <- handleQuery
         ( RequestQuery $ defMessage ^. _Unwrapped'
-            & Req._queryPath .~ "count/count"
+            & Req._queryPath .~ "simple_storage/count"
             & Req._queryData  .~ SS.CountKey ^. rawKey . to Base64.fromBytes
         )
       let foundCount = queryResp ^. Resp._queryValue . to decodeCount

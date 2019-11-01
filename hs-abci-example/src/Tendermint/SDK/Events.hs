@@ -1,6 +1,5 @@
 module Tendermint.SDK.Events
-  ( EventKey(..)
-  , Event(..)
+  ( Event(..)
   , IsEvent(..)
   , emit
 
@@ -12,51 +11,57 @@ module Tendermint.SDK.Events
   , eval
   ) where
 
-import qualified Control.Concurrent.MVar as MVar
-import           Control.Monad.IO.Class  (liftIO)
-import qualified Data.ByteString         as BS
+import qualified Control.Concurrent.MVar                as MVar
+import           Control.Monad.IO.Class
+import qualified Data.ByteArray.Base64String            as Base64
+import qualified Data.ByteString                        as BS
+import qualified Data.List                              as L
 import           Data.Proxy
-import           Data.String.Conversions (cs)
-import           GHC.TypeLits            (KnownSymbol, Symbol, symbolVal)
-import           Polysemy
-import           Polysemy.Output
-import           Polysemy.Reader
-import           Tendermint.SDK.Codec    (HasCodec (..))
+import           Data.String.Conversions                (cs)
+import           Network.ABCI.Types.Messages.FieldTypes (Event (..),
+                                                         KVPair (..))
+import           Polysemy                               (Embed, Member, Sem,
+                                                         interpret)
+import           Polysemy.Output                        (Output (..), output)
+import           Polysemy.Reader                        (Reader, ask)
 
-data EventKey = EventKey BS.ByteString deriving (Eq, Show, Ord)
-
-class HasCodec e => IsEvent e where
-  type EventName e = (s :: Symbol) | s -> e
-
-data Event = Event
-  { eventKey  :: EventKey
-  , eventData :: BS.ByteString
-  }
+class IsEvent e where
+  makeEventType :: Proxy e -> String
+  makeEventData :: e -> [(BS.ByteString, BS.ByteString)]
 
 data EventBuffer = EventBuffer (MVar.MVar [Event])
 
 newEventBuffer :: IO EventBuffer
 newEventBuffer = EventBuffer <$> MVar.newMVar []
 
-appendEvent :: Event -> EventBuffer -> IO ()
-appendEvent e (EventBuffer b) = MVar.modifyMVar_ b (pure . (e :))
+appendEvent
+  :: Member (Reader EventBuffer) r
+  => MonadIO (Sem r)
+  => Event
+  -> Sem r ()
+appendEvent e = do
+  EventBuffer b <- ask
+  liftIO (MVar.modifyMVar_ b (pure . (e :)))
 
-flushEventBuffer :: EventBuffer -> IO [Event]
-flushEventBuffer (EventBuffer b) = MVar.swapMVar b []
+flushEventBuffer
+  :: Member (Reader EventBuffer) r
+  => MonadIO (Sem r)
+  => Sem r [Event]
+flushEventBuffer = do
+  (EventBuffer b) <- ask
+  liftIO (L.reverse <$> MVar.swapMVar b [])
 
 makeEvent
   :: IsEvent e
-  => KnownSymbol (EventName e)
   => e
   -> Event
 makeEvent (e :: e) = Event
-  { eventKey = EventKey . cs $ symbolVal (Proxy :: Proxy (EventName e))
-  , eventData = encode e
+  { eventType = cs $ makeEventType (Proxy :: Proxy e)
+  , eventAttributes = (\(k, v) -> KVPair (Base64.fromBytes k) (Base64.fromBytes v)) <$> makeEventData e
   }
 
 emit
   :: IsEvent e
-  => KnownSymbol (EventName e)
   => Member (Output Event) r
   => e
   -> Sem r ()
@@ -67,7 +72,5 @@ eval
   => Member (Reader EventBuffer) r
   => (forall a. Sem (Output Event ': r) a -> Sem r a)
 eval action = interpret (\case
-  Output e -> do
-    eventBuffer <- ask @EventBuffer
-    liftIO $ appendEvent e eventBuffer
+  Output e -> appendEvent e
   ) action

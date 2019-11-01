@@ -8,7 +8,9 @@ import           Data.Default.Class                   (def)
 import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
-import           Tendermint.SDK.Router.Types
+import           Tendermint.SDK.Router.Types          (QueryError (..),
+                                                       RouteResult (..),
+                                                       RouteResultT (..))
 
 --------------------------------------------------------------------------------
 

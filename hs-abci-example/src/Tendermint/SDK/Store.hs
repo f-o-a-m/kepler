@@ -3,7 +3,6 @@
 module Tendermint.SDK.Store
   ( RawStore(..)
   , HasKey(..)
-  , Queryable(..)
   , Root(..)
   , get
   , put
@@ -13,9 +12,8 @@ module Tendermint.SDK.Store
 
 import           Control.Lens         (Iso', (^.))
 import qualified Data.ByteString      as BS
-import           GHC.TypeLits         (Symbol)
-import           Polysemy
-import           Tendermint.SDK.Codec
+import           Polysemy             (Member, Sem, makeSem)
+import           Tendermint.SDK.Codec (HasCodec (..))
 
 newtype Root = Root BS.ByteString
 
@@ -30,9 +28,6 @@ makeSem ''RawStore
 class HasCodec a => HasKey a where
     type Key a = k | k -> a
     rawKey :: Iso' (Key a) BS.ByteString
-
-class HasKey a => Queryable a where
-  type Name a :: Symbol
 
 root
   :: Member RawStore r

@@ -15,8 +15,10 @@ import           SimpleStorage.Application                     (AppConfig,
                                                                 runHandler)
 import           SimpleStorage.Handlers
 import qualified SimpleStorage.Modules.SimpleStorage           as SS
-import           Tendermint.SDK.Application
-import           Tendermint.SDK.Router
+import           Tendermint.SDK.Application                    (MakeApplication (..),
+                                                                createApplication)
+import           Tendermint.SDK.Router                         (QueryApplication,
+                                                                serve)
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do

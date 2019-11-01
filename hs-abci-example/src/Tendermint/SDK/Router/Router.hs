@@ -12,8 +12,12 @@ import qualified Data.Text.Encoding                   as T
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Network.HTTP.Types                   (decodePathSegments)
-import           Tendermint.SDK.Router.Delayed
-import           Tendermint.SDK.Router.Types
+import           Tendermint.SDK.Router.Delayed        (Delayed, runAction)
+import           Tendermint.SDK.Router.Types          (EncodeQueryResult (..),
+                                                       QueryArgs (..),
+                                                       QueryError (..),
+                                                       QueryResult (..),
+                                                       RouteResult (..))
 
 
 data Router' env a =
