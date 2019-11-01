@@ -36,7 +36,7 @@ import           Data.String.Conversions     (cs)
 import           Polysemy                    (Member, Sem, interpret, makeSem)
 import           Polysemy.Output             (Output)
 import           Servant.API                 ((:>))
-import           Tendermint.SDK.BaseApp      (BaseApp)
+import           Tendermint.SDK.BaseApp      (HasBaseApp)
 import           Tendermint.SDK.Codec        (HasCodec (..))
 import qualified Tendermint.SDK.Events       as Events
 import           Tendermint.SDK.Router       (EncodeQueryResult, FromQueryData,
@@ -93,7 +93,7 @@ makeSem ''SimpleStorage
 
 eval
   :: forall r.
-     BaseApp r
+     HasBaseApp r
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> do
@@ -104,7 +104,7 @@ eval = interpret (\case
   )
 
 initialize
-  :: BaseApp r
+  :: HasBaseApp r
   => Member (Output Events.Event) r
   => Sem r ()
 initialize = eval $ do

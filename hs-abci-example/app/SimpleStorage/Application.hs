@@ -46,10 +46,10 @@ instance Exception AppError
 
 type EffR =
   [ SimpleStorage.SimpleStorage
+  , Error AppError
   , Output Events.Event
   , Store.RawStore
   , Logger.Logger
-  , Error AppError
   , Reader Logger.LogConfig
   , Reader Events.EventBuffer
   , Resource
@@ -68,10 +68,10 @@ runHandler AppConfig{logConfig, authTreeDriver, eventBuffer} m = do
     resourceToIO .
     runReader eventBuffer .
     runReader logConfig .
-    runError .
     Logger.evalKatip .
     interpretAuthTreeStore authTreeDriver .
     Events.eval .
+    runError .
     SimpleStorage.eval $ m
   case eRes of
     Left e  -> throwM e

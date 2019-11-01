@@ -1,4 +1,4 @@
-module SimpleStorage.Handlers (simpleStorageApp) where
+module SimpleStorage.Handlers where
 
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Data.ByteArray                       (convert)
