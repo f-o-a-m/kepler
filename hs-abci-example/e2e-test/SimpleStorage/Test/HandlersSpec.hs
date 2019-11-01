@@ -49,9 +49,10 @@ spec = beforeAll beforeAction $ do
         .~ encodedUpdateTx
         )
       (deliverResp ^. Resp._deliverTxCode) `shouldBe` 0
+      -- TODO: check for logs
       (ResponseQuery queryResp) <- handleQuery
         ( RequestQuery $ defMessage ^. _Unwrapped'
-            & Req._queryPath .~ "count/count"
+            & Req._queryPath .~ "simple_storage/count"
             & Req._queryData  .~ SS.CountKey ^. rawKey . to Base64.fromBytes
         )
       let foundCount = queryResp ^. Resp._queryValue . to decodeCount
