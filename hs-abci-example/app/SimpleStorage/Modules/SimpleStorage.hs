@@ -34,14 +34,16 @@ import           Data.Maybe                  (fromJust)
 import           Data.Proxy
 import           Data.String.Conversions     (cs)
 import           Polysemy
-import           Polysemy.Output
+import           Polysemy.Output             (Output)
 import           Servant.API                 ((:>))
-import           Tendermint.SDK.Codec
+import           Tendermint.SDK.Codec        (HasCodec (..))
 import qualified Tendermint.SDK.Events       as Events
-import           Tendermint.SDK.Module
-import           Tendermint.SDK.Router
-import           Tendermint.SDK.Store
-import           Tendermint.SDK.StoreQueries
+import           Tendermint.SDK.Module       (BaseApp)
+import           Tendermint.SDK.Router       (EncodeQueryResult, FromQueryData,
+                                              Queryable (..), RouteT)
+import           Tendermint.SDK.Store        (HasKey (..), RawStore, Root, get,
+                                              put)
+import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
 
 --------------------------------------------------------------------------------
 -- Types

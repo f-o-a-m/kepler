@@ -13,9 +13,9 @@ import           SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        UpdateCountTx (..),
                                                        decodeAppTxMessage)
-import           Tendermint.SDK.Application
+import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.Events                (flushEventBuffer)
-import           Tendermint.SDK.Router
+import           Tendermint.SDK.Router                (QueryApplication)
 
 echoH
   :: Request 'MTEcho
@@ -78,7 +78,7 @@ deliverTxH (RequestDeliverTx deliverTx) = do
       let count = SS.Count $ updateCountTxCount updateCountTx
       putCount count
       events <- flushEventBuffer
-      return $ ResponseDeliverTx $ 
+      return $ ResponseDeliverTx $
         def & Resp._deliverTxCode .~ 0
             & Resp._deliverTxEvents .~ events
 

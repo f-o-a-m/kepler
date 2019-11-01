@@ -12,7 +12,7 @@ module Tendermint.SDK.Events
   ) where
 
 import qualified Control.Concurrent.MVar                as MVar
-import           Control.Monad.IO.Class                 
+import           Control.Monad.IO.Class
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteString                        as BS
 import qualified Data.List                              as L
@@ -33,7 +33,7 @@ data EventBuffer = EventBuffer (MVar.MVar [Event])
 newEventBuffer :: IO EventBuffer
 newEventBuffer = EventBuffer <$> MVar.newMVar []
 
-appendEvent 
+appendEvent
   :: Member (Reader EventBuffer) r
   => MonadIO (Sem r)
   => Event
@@ -42,7 +42,7 @@ appendEvent e = do
   EventBuffer b <- ask
   liftIO (MVar.modifyMVar_ b (pure . (e :)))
 
-flushEventBuffer 
+flushEventBuffer
   :: Member (Reader EventBuffer) r
   => MonadIO (Sem r)
   => Sem r [Event]
