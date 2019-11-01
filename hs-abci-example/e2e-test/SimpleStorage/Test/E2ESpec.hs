@@ -15,8 +15,10 @@ import qualified Network.ABCI.Types.Messages.Response as Resp
 import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Network.Tendermint.Client            as RPC
 import qualified SimpleStorage.Modules.SimpleStorage  as SS
-import           SimpleStorage.Types
-import           Tendermint.SDK.Store
+import           SimpleStorage.Types                  (AppTxMessage (..),
+                                                       UpdateCountTx (..),
+                                                       encodeAppTxMessage)
+import           Tendermint.SDK.Store                 (rawKey)
 import           Test.Hspec
 
 
