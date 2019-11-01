@@ -7,11 +7,13 @@ module Tendermint.SDK.Events
   , newEventBuffer
   , appendEvent
   , flushEventBuffer
+  , withEventBuffer
 
   , eval
   ) where
 
 import qualified Control.Concurrent.MVar                as MVar
+import           Control.Monad                          (void)
 import           Control.Monad.IO.Class
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteString                        as BS
@@ -24,6 +26,7 @@ import           Polysemy                               (Embed, Member, Sem,
                                                          interpret)
 import           Polysemy.Output                        (Output (..), output)
 import           Polysemy.Reader                        (Reader, ask)
+import           Polysemy.Resource                      (Resource, onException)
 
 class IsEvent e where
   makeEventType :: Proxy e -> String
@@ -50,6 +53,14 @@ flushEventBuffer
 flushEventBuffer = do
   (EventBuffer b) <- ask
   liftIO (L.reverse <$> MVar.swapMVar b [])
+
+withEventBuffer
+  :: Member (Reader EventBuffer) r
+  => Member Resource r
+  => MonadIO (Sem r)
+  => Sem r ()
+  -> Sem r [Event]
+withEventBuffer action = onException (action *> flushEventBuffer) (void $ flushEventBuffer)
 
 makeEvent
   :: IsEvent e

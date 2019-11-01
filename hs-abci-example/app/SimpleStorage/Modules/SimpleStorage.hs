@@ -36,9 +36,9 @@ import           Data.String.Conversions     (cs)
 import           Polysemy                    (Member, Sem, interpret, makeSem)
 import           Polysemy.Output             (Output)
 import           Servant.API                 ((:>))
+import           Tendermint.SDK.BaseApp      (BaseApp)
 import           Tendermint.SDK.Codec        (HasCodec (..))
 import qualified Tendermint.SDK.Events       as Events
-import           Tendermint.SDK.Module       (BaseApp)
 import           Tendermint.SDK.Router       (EncodeQueryResult, FromQueryData,
                                               Queryable (..), RouteT)
 import           Tendermint.SDK.Store        (HasKey (..), RawStore, Root, get,

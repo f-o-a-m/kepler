@@ -1,9 +1,10 @@
-module SimpleStorage.Handlers where
+module SimpleStorage.Handlers (simpleStorageApp) where
 
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Data.ByteArray                       (convert)
 import           Data.Default.Class                   (def)
-import           Network.ABCI.Server.App              (MessageType (..),
+import           Network.ABCI.Server.App              (App (..),
+                                                       MessageType (..),
                                                        Request (..),
                                                        Response (..))
 import qualified Network.ABCI.Types.Messages.Request  as Req
@@ -14,7 +15,7 @@ import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        UpdateCountTx (..),
                                                        decodeAppTxMessage)
 import           Tendermint.SDK.Application           (defaultHandler)
-import           Tendermint.SDK.Events                (flushEventBuffer)
+import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Router                (QueryApplication)
 
 echoH
@@ -76,8 +77,7 @@ deliverTxH (RequestDeliverTx deliverTx) = do
       def & Resp._deliverTxCode .~ 1
     Right (ATMUpdateCount updateCountTx) -> do
       let count = SS.Count $ updateCountTxCount updateCountTx
-      putCount count
-      events <- flushEventBuffer
+      events <- withEventBuffer $ putCount count
       return $ ResponseDeliverTx $
         def & Resp._deliverTxCode .~ 0
             & Resp._deliverTxEvents .~ events
@@ -91,3 +91,17 @@ commitH
   :: Request 'MTCommit
   -> Handler (Response 'MTCommit)
 commitH = defaultHandler
+
+simpleStorageApp :: QueryApplication Handler -> App Handler
+simpleStorageApp serveRoutes = App $ \case
+  msg@(RequestEcho _) -> echoH msg
+  msg@(RequestFlush _) -> flushH msg
+  msg@(RequestInfo _) -> infoH msg
+  msg@(RequestSetOption _) -> setOptionH msg
+  msg@(RequestInitChain _) -> initChainH msg
+  msg@(RequestQuery _) -> queryH serveRoutes msg
+  msg@(RequestBeginBlock _) -> beginBlockH msg
+  msg@(RequestCheckTx _) -> checkTxH msg
+  msg@(RequestDeliverTx _) -> deliverTxH msg
+  msg@(RequestEndBlock _) -> endBlockH msg
+  msg@(RequestCommit _) -> commitH msg

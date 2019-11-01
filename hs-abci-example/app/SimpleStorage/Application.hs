@@ -14,6 +14,7 @@ import           Polysemy                            (Embed, Sem, runM)
 import           Polysemy.Error                      (Error, runError)
 import           Polysemy.Output                     (Output)
 import           Polysemy.Reader                     (Reader, runReader)
+import           Polysemy.Resource                   (Resource, resourceToIO)
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
 import           Tendermint.SDK.AuthTreeStore        (AuthTreeDriver,
                                                       initAuthTreeDriver,
@@ -51,6 +52,7 @@ type EffR =
   , Error AppError
   , Reader Logger.LogConfig
   , Reader Events.EventBuffer
+  , Resource
   , Embed IO
   ]
 
@@ -63,6 +65,7 @@ runHandler
   -> IO a
 runHandler AppConfig{logConfig, authTreeDriver, eventBuffer} m = do
   eRes <- runM .
+    resourceToIO .
     runReader eventBuffer .
     runReader logConfig .
     runError .

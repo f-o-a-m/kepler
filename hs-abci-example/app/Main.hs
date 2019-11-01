@@ -1,11 +1,11 @@
 module Main where
 
 import           Control.Exception         (bracket)
-import           Katip                     as K
-import           SimpleStorage.App         (makeAndServeApplication)
-import           SimpleStorage.Application
+import qualified Katip                     as K
+import           SimpleStorage.Application (makeAppConfig)
+import           SimpleStorage.Server      (makeAndServeApplication)
 import           System.IO                 (stdout)
-import           Tendermint.SDK.Logger
+import           Tendermint.SDK.Logger     (LogConfig (..), mkLogConfig)
 
 
 main :: IO ()

@@ -1,19 +1,17 @@
-module SimpleStorage.App (makeAndServeApplication) where
+module SimpleStorage.Server (makeAndServeApplication) where
 
 import           Data.Foldable                                 (fold)
 import           Data.Monoid                                   (Endo (..))
 import           Data.Proxy
 import           Network.ABCI.Server                           (serveApp)
-import           Network.ABCI.Server.App                       (App (..),
-                                                                Middleware,
-                                                                Request (..))
+import           Network.ABCI.Server.App                       (Middleware)
 import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
 import           SimpleStorage.Application                     (AppConfig,
                                                                 AppError,
                                                                 Handler,
                                                                 runHandler)
-import           SimpleStorage.Handlers
+import           SimpleStorage.Handlers                        (simpleStorageApp)
 import qualified SimpleStorage.Modules.SimpleStorage           as SS
 import           Tendermint.SDK.Application                    (MakeApplication (..),
                                                                 createApplication)
@@ -28,7 +26,7 @@ makeAndServeApplication cfg = do
       makeApplication = MakeApplication
         { transformer = runHandler cfg
         , appErrorP = Proxy
-        , app = app serveRoutes
+        , app = simpleStorageApp serveRoutes
         , initialize = [SS.initialize]
         }
   putStrLn "Starting ABCI application..."
@@ -46,17 +44,3 @@ makeAndServeApplication cfg = do
     hookInMiddleware _app = do
       middleware <- mkMiddleware
       pure $ middleware _app
-
-    app :: QueryApplication Handler -> App Handler
-    app serveRoutes = App $ \case
-      msg@(RequestEcho _) -> echoH msg
-      msg@(RequestFlush _) -> flushH msg
-      msg@(RequestInfo _) -> infoH msg
-      msg@(RequestSetOption _) -> setOptionH msg
-      msg@(RequestInitChain _) -> initChainH msg
-      msg@(RequestQuery _) -> queryH serveRoutes msg
-      msg@(RequestBeginBlock _) -> beginBlockH msg
-      msg@(RequestCheckTx _) -> checkTxH msg
-      msg@(RequestDeliverTx _) -> deliverTxH msg
-      msg@(RequestEndBlock _) -> endBlockH msg
-      msg@(RequestCommit _) -> commitH msg
