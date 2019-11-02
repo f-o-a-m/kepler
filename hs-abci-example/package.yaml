@@ -96,6 +96,7 @@ library:
   - Tendermint.SDK.Router
   - Tendermint.SDK.BaseApp
   - Tendermint.SDK.Logger
+  - Tendermint.SDK.Logger.Katip
   - Tendermint.SDK.Application
   - Tendermint.SDK.Events
 

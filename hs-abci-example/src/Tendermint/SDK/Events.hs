@@ -9,7 +9,7 @@ module Tendermint.SDK.Events
   , flushEventBuffer
   , withEventBuffer
 
-  , eval
+  , evalWithBuffer
   ) where
 
 import qualified Control.Concurrent.MVar                as MVar
@@ -57,7 +57,7 @@ withEventBuffer
   => EventBuffer
   -> Sem r ()
   -> Sem r [Event]
-withEventBuffer buffer action = 
+withEventBuffer buffer action =
   onException (action *> flushEventBuffer buffer) (void $ flushEventBuffer buffer)
 
 makeEvent
@@ -76,10 +76,10 @@ emit
   -> Sem r ()
 emit e = output $ makeEvent e
 
-eval
+evalWithBuffer
   :: Member (Embed IO) r
   => EventBuffer
   -> (forall a. Sem (Output Event ': r) a -> Sem r a)
-eval buffer action = interpret (\case
+evalWithBuffer buffer action = interpret (\case
   Output e -> appendEvent e buffer
   ) action
