@@ -71,7 +71,7 @@ eval
   :: Context
   -> Sem BaseApp a
   -> IO a
-eval (Context{..}) action =
+eval Context{..} action =
   runM .
   runReader contextLogConfig .
   runReader contextEventBuffer .
