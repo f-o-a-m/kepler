@@ -1,7 +1,7 @@
 module KVStore.Test.KVSpec where
 
 import Control.Monad (void)
--- import           Control.Lens                         ((^.))
+import           Control.Lens                         (to,(^.))
 import           Data.Aeson                           (ToJSON)
 import           Data.Aeson.Encode.Pretty             (encodePretty)
 import           Data.Binary                          (encode,decode)
@@ -9,12 +9,13 @@ import           Data.ByteArray.Base64String          (Base64String)
 import qualified Data.ByteArray.Base64String          as Base64
 -- import qualified Data.ByteArray.HexString             as Hex
 -- import qualified Data.ByteString                      as BS
+import           Data.ByteString             (ByteString)
 import qualified Data.ByteString.Lazy                 as LBS
 import           Data.Default.Class                   (def)
 -- import           Data.Int                             (Int32)
 import           Data.String.Conversions              (cs)
 -- import qualified Network.ABCI.Types.Messages.Response as Resp
--- import qualified Network.ABCI.Types.Messages.Response as Response
+import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Network.Tendermint.Client            as RPC
 import           Test.Hspec
 
@@ -35,19 +36,21 @@ spec = do
       void . runRPC $ RPC.block def
 
     it "Can submit a tx and make sure the response code is 0 (success)" $ do
-      let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeName "name=kaen" }
+      let eName = Base64.fromBytes $ cs @String @ByteString "name=satoshi"
+          txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = eName }
       deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $
         RPC.broadcastTxCommit txReq
       let deliverRespCode = deliverResp ^. Response._deliverTxCode
       deliverRespCode `shouldBe` 0
 
-    -- it "Can query /abci_query with a key and get its value" $ do
-    --   let queryReq = def { RPC.requestABCIQueryData = "name" }
-    --   queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
-    --     RPC.abciQuery queryReq
-    --   -- let foundName = queryResp ^. Response._queryValue . to decodeName
-    --   -- foundName `shouldBe` "blargo"
-    --   pure ()
+    it "Can query /abci_query with a key and get its value" $ do
+      let dName = _
+          queryReq = def { RPC.requestABCIQueryData = dName }
+      queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
+        RPC.abciQuery queryReq
+      let foundName = queryResp ^. Response._queryValue . to decodeName
+      foundName `shouldBe` "satoshi"
+      pure ()
 
     -- it "Can query /tx and parse the result" $ do
     --   pure ()
@@ -57,7 +60,7 @@ spec = do
 
 encodeName :: String -> Base64String
 encodeName = Base64.fromBytes . LBS.toStrict . encode
-
+  
 decodeName :: Base64String -> String
 decodeName = decode . LBS.fromStrict . Base64.toBytes
 
