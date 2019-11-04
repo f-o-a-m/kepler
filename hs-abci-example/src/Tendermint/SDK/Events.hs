@@ -5,8 +5,8 @@ module Tendermint.SDK.Events
 
   , EventBuffer
   , newEventBuffer
-  , appendEvent
-  , flushEventBuffer
+  -- , appendEvent
+  -- , flushEventBuffer
   , withEventBuffer
 
   , evalWithBuffer
@@ -25,6 +25,7 @@ import           Network.ABCI.Types.Messages.FieldTypes (Event (..),
 import           Polysemy                               (Embed, Member, Sem,
                                                          interpret)
 import           Polysemy.Output                        (Output (..), output)
+import           Polysemy.Reader                        (Reader (..), ask)
 import           Polysemy.Resource                      (Resource, onException)
 
 class IsEvent e where
@@ -53,11 +54,12 @@ flushEventBuffer (EventBuffer b) = do
 
 withEventBuffer
   :: Member Resource r
+  => Member (Reader EventBuffer) r
   => MonadIO (Sem r)
-  => EventBuffer
-  -> Sem r ()
+  => Sem r ()
   -> Sem r [Event]
-withEventBuffer buffer action =
+withEventBuffer action = do
+  buffer <- ask
   onException (action *> flushEventBuffer buffer) (void $ flushEventBuffer buffer)
 
 makeEvent
@@ -78,8 +80,8 @@ emit e = output $ makeEvent e
 
 evalWithBuffer
   :: Member (Embed IO) r
-  => EventBuffer
-  -> (forall a. Sem (Output Event ': r) a -> Sem r a)
-evalWithBuffer buffer action = interpret (\case
-  Output e -> appendEvent e buffer
+  => Member (Reader EventBuffer) r
+  => (forall a. Sem (Output Event ': r) a -> Sem r a)
+evalWithBuffer action = interpret (\case
+  Output e -> ask >>= appendEvent e
   ) action
