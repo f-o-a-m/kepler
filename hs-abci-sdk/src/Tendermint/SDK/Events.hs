@@ -5,13 +5,15 @@ module Tendermint.SDK.Events
 
   , EventBuffer
   , newEventBuffer
-  , appendEvent
-  , flushEventBuffer
+  -- , appendEvent
+  -- , flushEventBuffer
+  , withEventBuffer
 
-  , eval
+  , evalWithBuffer
   ) where
 
 import qualified Control.Concurrent.MVar                as MVar
+import           Control.Monad                          (void)
 import           Control.Monad.IO.Class
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteString                        as BS
@@ -23,7 +25,8 @@ import           Network.ABCI.Types.Messages.FieldTypes (Event (..),
 import           Polysemy                               (Embed, Member, Sem,
                                                          interpret)
 import           Polysemy.Output                        (Output (..), output)
-import           Polysemy.Reader                        (Reader, ask)
+import           Polysemy.Reader                        (Reader (..), ask)
+import           Polysemy.Resource                      (Resource, onException)
 
 class IsEvent e where
   makeEventType :: Proxy e -> String
@@ -35,21 +38,29 @@ newEventBuffer :: IO EventBuffer
 newEventBuffer = EventBuffer <$> MVar.newMVar []
 
 appendEvent
-  :: Member (Reader EventBuffer) r
-  => MonadIO (Sem r)
+  :: MonadIO (Sem r)
   => Event
+  -> EventBuffer
   -> Sem r ()
-appendEvent e = do
-  EventBuffer b <- ask
+appendEvent e (EventBuffer b) = do
   liftIO (MVar.modifyMVar_ b (pure . (e :)))
 
 flushEventBuffer
-  :: Member (Reader EventBuffer) r
-  => MonadIO (Sem r)
-  => Sem r [Event]
-flushEventBuffer = do
-  (EventBuffer b) <- ask
+  :: MonadIO (Sem r)
+  => EventBuffer
+  -> Sem r [Event]
+flushEventBuffer (EventBuffer b) = do
   liftIO (L.reverse <$> MVar.swapMVar b [])
+
+withEventBuffer
+  :: Member Resource r
+  => Member (Reader EventBuffer) r
+  => MonadIO (Sem r)
+  => Sem r ()
+  -> Sem r [Event]
+withEventBuffer action = do
+  buffer <- ask
+  onException (action *> flushEventBuffer buffer) (void $ flushEventBuffer buffer)
 
 makeEvent
   :: IsEvent e
@@ -67,10 +78,10 @@ emit
   -> Sem r ()
 emit e = output $ makeEvent e
 
-eval
+evalWithBuffer
   :: Member (Embed IO) r
   => Member (Reader EventBuffer) r
   => (forall a. Sem (Output Event ': r) a -> Sem r a)
-eval action = interpret (\case
-  Output e -> appendEvent e
+evalWithBuffer action = interpret (\case
+  Output e -> ask >>= appendEvent e
   ) action

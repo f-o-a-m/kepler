@@ -1,6 +1,6 @@
 name:                hs-abci-sdk
 version:             0.1.0.0
-github:              "f-o-a-m/hs-abci/hs-abci-example"
+github:              "f-o-a-m/hs-abci/hs-abci-sdk"
 license:             Apache
 author:              Martin Allen
 maintainer:          "martin@foam.space"
@@ -48,31 +48,20 @@ dependencies:
 - errors
 - exceptions
 - free
-- hs-abci-extra
-- hs-abci-server
 - hs-abci-types
-- hs-abci-extra
+- hs-abci-server
 - http-types
-- kan-extensions
 - katip
 - lens
 - memory
 - mtl
 - polysemy
 - polysemy-plugin
-- proto-lens
-- proto-lens-runtime
 - servant
 - stm
 - string-conversions
 - text
 - uri-bytestring
-
-custom-setup:
-  dependencies:
-    - base
-    - Cabal
-    - proto-lens-setup
 
 library:
   source-dirs:
@@ -90,25 +79,11 @@ library:
   - Tendermint.SDK.Router.Types
   - Tendermint.SDK.Router.Class
   - Tendermint.SDK.Router
-  - Tendermint.SDK.Module
+  - Tendermint.SDK.BaseApp
   - Tendermint.SDK.Logger
+  - Tendermint.SDK.Logger.Katip
   - Tendermint.SDK.Application
   - Tendermint.SDK.Events
-
-  generated-exposed-modules:
-  - Proto.SimpleStorage.Messages
-  - Proto.SimpleStorage.Messages_Fields
-
-executables:
-  simple-storage:
-    source-dirs:
-    - app
-    main: Main.hs
-    ghc-options:
-    - -Werror
-    - -Wall
-    dependencies:
-    - hs-abci-example
 
 tests:
   hs-abci-sdk-test:
@@ -128,8 +103,8 @@ tests:
 
     dependencies:
       - generic-arbitrary
-      - hs-abci-example
       - hs-abci-server
+      - hs-abci-sdk
       - hspec
       - hspec-core
       - hspec-discover
