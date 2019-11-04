@@ -31,7 +31,7 @@ spec :: Spec
 spec = beforeAll beforeAction $ do
   describe "SimpleStorage E2E - via handlers" $ do
     let serveRoutes = serve (Proxy :: Proxy SS.Api) SS.server
-    it "Can update count and make sure it's increments" $ \cfg -> do
+    it "Can update count and make sure it increments" $ \cfg -> do
       genUsername <- pack . getPrintableString <$> generate arbitrary
       genCount    <- abs <$> generate arbitrary
       let
