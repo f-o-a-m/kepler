@@ -26,6 +26,7 @@ To test locally, first start the KVStore app (you may need to
 ```
 
 Then, start a tendermint core node with
+
 ```bash
 > tendermint init
 > tendermint node

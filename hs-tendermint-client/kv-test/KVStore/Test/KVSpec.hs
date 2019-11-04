@@ -33,49 +33,25 @@ spec = do
       result :: Either RPC.JsonRpcException RPC.ResultBlock <- try $ runRPC (RPC.block def)
       result `shouldSatisfy` isRight
 
-    -- @TODO:
-    -- it "Can query /tx and parse the result " $ do
-    --   pure ()
-
-    it "Can submit async txs and the response code is 0 (success)" $ do
+    it "Can submit a async tx and the response code is 0 (success)" $ do
       let asyncTxReq = RPC.RequestBroadcastTxAsync { RPC.requestBroadcastTxAsyncTx = encodeTx "abcd" }
       -- async returns nothing
       resp <- runRPC $ RPC.broadcastTxAsync asyncTxReq
       RPC.resultBroadcastTxCode resp `shouldBe` 0
-      -- -- /check with /tx endpoint (w+w/o proof)
-      -- let hash = RPC.resultBroadcastTxHash resp
-      --     txReq = def { RPC.requestTxHash = Just hash }
-      --     txReqWP = RPC.RequestTx { RPC.requestTxHash = Just hash
-      --                             , RPC.requestTxProve = True
-      --                             }
-      -- _ <- runRPC $ RPC.tx txReq
-      -- _ <- runRPC $ RPC.tx txReqWP
-      -- -- txResult <- runRPC $ RPC.tx txReq
-      -- -- txResultWP <- runRPC $ RPC.tx txReqWP
-      -- pure ()
 
-    it "Can submit sync txs and the response code is 0 (success)" $ do
+    it "Can submit a sync tx and the response code is 0 (success)" $ do
       let txReq = RPC.RequestBroadcastTxSync { RPC.requestBroadcastTxSyncTx = encodeTx "efgh" }
       -- sync only returns a CheckTx
       resp <- runRPC $ RPC.broadcastTxSync txReq
       RPC.resultBroadcastTxCode resp `shouldBe` 0
-      -- -- check with /tx endpoint (w+w/o proof)
-      -- let hash = RPC.resultBroadcastTxHash resp
-      --     txReq2 = def { RPC.requestTxHash = Just hash }
-      --     txReqWP2 = RPC.RequestTx { RPC.requestTxHash = Just hash
-      --                              , RPC.requestTxProve = True
-      --                              }
-      -- _ <- runRPC $ RPC.tx txReq2
-      -- _ <- runRPC $ RPC.tx txReqWP2
-      -- pure ()
 
-    it "Can submit a commit tx, make sure the response code is 0 (success), and get the result" $ do
+    it "Can submit a commit tx, make sure the response code is 0 (success), and get the result(s)" $ do
       -- /broadcast_tx_commit
       -- set name key
-      let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeTx "name=satoshi" }
-      deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $
-        RPC.broadcastTxCommit txReq
-      let deliverRespCode = deliverResp ^. Response._deliverTxCode
+      let broadcastTxReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeTx "name=satoshi" }
+      broadcastResp <- runRPC $ RPC.broadcastTxCommit broadcastTxReq
+      let deliverResp = RPC.resultBroadcastTxCommitDeliverTx broadcastResp
+          deliverRespCode = deliverResp ^. Response._deliverTxCode
       deliverRespCode `shouldBe` 0
       -- /abci_query (w+w/o proof)
       -- get name key value
@@ -92,6 +68,17 @@ spec = do
           foundNameWProof = queryRespWProof ^. Response._queryValue . to decodeName
       foundName `shouldBe` "satoshi"
       foundName `shouldBe` foundNameWProof
+      -- check with /tx endpoint (w+w/o proof)
+      let hash = Hex.fromBytes . cs @String @ByteString $ "57D835FBBA0DBF922D8A2EDA56922C9B24E7760927F245A7684A736C4769DB8A" -- RPC.resultBroadcastTxCommitHash $ broadcastResp
+          txReq = def { RPC.requestTxHash = Just hash }
+          txReqWP = RPC.RequestTx { RPC.requestTxHash = Just hash
+                                  , RPC.requestTxProve = True
+                                  }
+      _ <- runRPC $ RPC.tx txReq
+      _ <- runRPC $ RPC.tx txReqWP
+      -- txResult <- runRPC $ RPC.tx txReq
+      -- txResultWP <- runRPC $ RPC.tx txReqWP
+      pure ()
 
 encodeTx :: String -> Base64String
 encodeTx = Base64.fromBytes . cs @String @ByteString
