@@ -31,7 +31,7 @@ install: ## Runs stack install to compile library and counter example app
 	stack install
 
 test-libraries: install ## Run the haskell test suite for all haskell libraries
-	stack test hs-abci-types hs-abci-server
+	stack test hs-abci-types hs-abci-server hs-abci-sdk
 
 
 #####################
@@ -46,6 +46,3 @@ deploy-simple-storage-local: install ## run the simple storage locally
 
 test-simple-storage: install ## Run the test suite for the example application
 	stack test hs-abci-example
-
-test-without-e2e: install ## Run the haskell test suite the example application handlers
-	stack test --skip hs-abci-example-e2e; stack test hs-abci-example --test-arguments "-m handlers"
