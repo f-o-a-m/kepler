@@ -21,15 +21,16 @@ import           Tendermint.SDK.AuthTreeStore        (AuthTreeDriver,
                                                       interpretAuthTreeStore)
 import qualified Tendermint.SDK.Events               as Events
 import qualified Tendermint.SDK.Logger               as Logger
+import qualified Tendermint.SDK.Logger.Katip         as KL
 import qualified Tendermint.SDK.Store                as Store
 
 data AppConfig = AppConfig
-  { logConfig      :: Logger.LogConfig
+  { logConfig      :: KL.LogConfig
   , authTreeDriver :: AuthTreeDriver
   , eventBuffer    :: Events.EventBuffer
   }
 
-makeAppConfig :: Logger.LogConfig -> IO AppConfig
+makeAppConfig :: KL.LogConfig -> IO AppConfig
 makeAppConfig logCfg = do
   authTreeD <- initAuthTreeDriver
   eb <- Events.newEventBuffer
@@ -50,7 +51,7 @@ type EffR =
   , Output Events.Event
   , Store.RawStore
   , Logger.Logger
-  , Reader Logger.LogConfig
+  , Reader KL.LogConfig
   , Reader Events.EventBuffer
   , Resource
   , Embed IO
@@ -65,10 +66,9 @@ runHandler
   -> IO a
 runHandler AppConfig{logConfig, authTreeDriver, eventBuffer} m = do
   eRes <- runM .
-    resourceToIO .
     runReader eventBuffer .
     runReader logConfig .
-    Logger.evalKatip .
+    KL.evalKatip .
     interpretAuthTreeStore authTreeDriver .
     Events.eval .
     runError .
