@@ -21,6 +21,7 @@ default-extensions:
 - FlexibleContexts
 - DeriveGeneric
 - TypeFamilies
+- TypeApplications
 - GADTs
 - DataKinds
 - PolyKinds

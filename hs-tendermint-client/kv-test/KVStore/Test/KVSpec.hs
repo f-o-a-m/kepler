@@ -1,13 +1,14 @@
 module KVStore.Test.KVSpec where
 
-import Control.Monad (void)
+import Control.Monad.Catch (try)
+import Data.Either (isRight)
 import           Control.Lens                         (to,(^.))
 import           Data.Aeson                           (ToJSON)
 import           Data.Aeson.Encode.Pretty             (encodePretty)
 import           Data.Binary                          (encode,decode)
 import           Data.ByteArray.Base64String          (Base64String)
 import qualified Data.ByteArray.Base64String          as Base64
--- import qualified Data.ByteArray.HexString             as Hex
+import qualified Data.ByteArray.HexString             as Hex
 -- import qualified Data.ByteString                      as BS
 import           Data.ByteString             (ByteString)
 import qualified Data.ByteString.Lazy                 as LBS
@@ -28,12 +29,14 @@ spec = do
       resp <- runRPC RPC.health
       resp `shouldBe` RPC.ResultHealth
 
-    it "Can query /abci_info and parse the result" $
-      void . runRPC $ RPC.abciInfo
+    it "Can query /abci_info and parse the result" $ do
+      result :: Either IOError RPC.ResultABCIInfo <- try $ runRPC RPC.abciInfo
+      result `shouldSatisfy` isRight
 
-    it "Can query /block and parse the result" $
+    it "Can query /block and parse the result" $ do
       -- @NOTE: this defaults to latest block
-      void . runRPC $ RPC.block def
+      result :: Either IOError RPC.ResultBlock <- try $ runRPC (RPC.block def)
+      result `shouldSatisfy` isRight
 
     it "Can submit a tx and make sure the response code is 0 (success)" $ do
       let eName = Base64.fromBytes $ cs @String @ByteString "name=satoshi"
@@ -44,13 +47,12 @@ spec = do
       deliverRespCode `shouldBe` 0
 
     it "Can query /abci_query with a key and get its value" $ do
-      let dName = _
+      let dName = Hex.fromBytes $ cs @String @ByteString "name"
           queryReq = def { RPC.requestABCIQueryData = dName }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
         RPC.abciQuery queryReq
       let foundName = queryResp ^. Response._queryValue . to decodeName
       foundName `shouldBe` "satoshi"
-      pure ()
 
     -- it "Can query /tx and parse the result" $ do
     --   pure ()
