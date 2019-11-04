@@ -5,17 +5,12 @@ import Data.Either (isRight)
 import           Control.Lens                         (to,(^.))
 import           Data.Aeson                           (ToJSON)
 import           Data.Aeson.Encode.Pretty             (encodePretty)
-import           Data.Binary                          (encode,decode)
 import           Data.ByteArray.Base64String          (Base64String)
 import qualified Data.ByteArray.Base64String          as Base64
 import qualified Data.ByteArray.HexString             as Hex
--- import qualified Data.ByteString                      as BS
 import           Data.ByteString             (ByteString)
-import qualified Data.ByteString.Lazy                 as LBS
 import           Data.Default.Class                   (def)
--- import           Data.Int                             (Int32)
 import           Data.String.Conversions              (cs)
--- import qualified Network.ABCI.Types.Messages.Response as Resp
 import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Network.Tendermint.Client            as RPC
 import           Test.Hspec
@@ -39,8 +34,7 @@ spec = do
       result `shouldSatisfy` isRight
 
     it "Can submit a tx and make sure the response code is 0 (success)" $ do
-      let eName = Base64.fromBytes $ cs @String @ByteString "name=satoshi"
-          txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = eName }
+      let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeName "name=satoshi" }
       deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $
         RPC.broadcastTxCommit txReq
       let deliverRespCode = deliverResp ^. Response._deliverTxCode
@@ -61,10 +55,10 @@ spec = do
     --   pure ()
 
 encodeName :: String -> Base64String
-encodeName = Base64.fromBytes . LBS.toStrict . encode
-  
+encodeName = Base64.fromBytes . cs @String @ByteString
+
 decodeName :: Base64String -> String
-decodeName = decode . LBS.fromStrict . Base64.toBytes
+decodeName = cs @ByteString @String . Base64.toBytes
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
 runRPC = RPC.runTendermintM rpcConfig
