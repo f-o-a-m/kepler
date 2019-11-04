@@ -1,15 +1,12 @@
-name:                hs-abci-example
+name:                hs-abci-sdk
 version:             0.1.0.0
-github:              "f-o-a-m/hs-abci/hs-abci-example"
+github:              "f-o-a-m/hs-abci/hs-abci-sdk"
 license:             Apache
 author:              Martin Allen
 maintainer:          "martin@foam.space"
 copyright:           "2019 Martin Allen"
 
-extra-source-files:
-- protos/**/*.proto
-
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-example#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-sdk#readme>
 
 default-extensions:
   - DeriveGeneric
@@ -51,32 +48,20 @@ dependencies:
 - errors
 - exceptions
 - free
-- hs-abci-extra
-- hs-abci-server
 - hs-abci-types
-- hs-abci-extra
-- hs-abci-sdk
+- hs-abci-server
 - http-types
-- kan-extensions
 - katip
 - lens
 - memory
 - mtl
 - polysemy
 - polysemy-plugin
-- proto-lens
-- proto-lens-runtime
 - servant
 - stm
 - string-conversions
 - text
 - uri-bytestring
-
-custom-setup:
-  dependencies:
-    - base
-    - Cabal
-    - proto-lens-setup
 
 library:
   source-dirs:
@@ -86,45 +71,43 @@ library:
   - -Werror
   - -Wall
   exposed-modules:
-  - SimpleStorage.Server
-  - SimpleStorage.Application
-  - SimpleStorage.Handlers
-  - SimpleStorage.Modules.SimpleStorage
-  - SimpleStorage.Types
-
-  generated-exposed-modules:
-  - Proto.SimpleStorage.Messages
-  - Proto.SimpleStorage.Messages_Fields
-
-executables:
-  simple-storage:
-    source-dirs:
-    - app
-    main: Main.hs
-    ghc-options:
-    - -Werror
-    - -Wall
-    dependencies:
-    - hs-abci-example
+  - Tendermint.SDK.Store
+  - Tendermint.SDK.Codec
+  - Tendermint.SDK.StoreQueries
+  - Tendermint.SDK.Subscription
+  - Tendermint.SDK.AuthTreeStore
+  - Tendermint.SDK.Router.Types
+  - Tendermint.SDK.Router.Class
+  - Tendermint.SDK.Router
+  - Tendermint.SDK.BaseApp
+  - Tendermint.SDK.Logger
+  - Tendermint.SDK.Logger.Katip
+  - Tendermint.SDK.Application
+  - Tendermint.SDK.Events
 
 tests:
-  hs-abci-example-e2e:
+  hs-abci-sdk-test:
     main:                Spec.hs
-    source-dirs:         e2e-test
+    source-dirs:         test
     other-modules:
-    - SimpleStorage.Test.E2ESpec
-    - SimpleStorage.Test.HandlersSpec
+    - Tendermint.SDK.Test.AuthTreeStoreSpec
+    # - Tendermint.SDK.Test.StoreExampleSpec
+    - Tendermint.SDK.Test.ModuleSpec
+
     ghc-options:
     - -Werror
     - -Wall
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+
     dependencies:
-      - aeson
-      - aeson-pretty
-      - hs-abci-example
-      - hs-abci-types
-      - hs-tendermint-client
+      - generic-arbitrary
+      - hs-abci-server
+      - hs-abci-sdk
       - hspec
+      - hspec-core
+      - hspec-discover
+      - binary
       - QuickCheck
+      - quickcheck-instances
