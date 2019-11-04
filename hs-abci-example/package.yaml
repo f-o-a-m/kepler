@@ -94,12 +94,13 @@ library:
   - Tendermint.SDK.Router.Types
   - Tendermint.SDK.Router.Class
   - Tendermint.SDK.Router
-  - Tendermint.SDK.Module
+  - Tendermint.SDK.BaseApp
   - Tendermint.SDK.Logger
+  - Tendermint.SDK.Logger.Katip
   - Tendermint.SDK.Application
   - Tendermint.SDK.Events
 
-  - SimpleStorage.App
+  - SimpleStorage.Server
   - SimpleStorage.Application
   - SimpleStorage.Handlers
   - SimpleStorage.Modules.SimpleStorage
