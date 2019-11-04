@@ -13,8 +13,8 @@ import           Control.Monad.Catch                 (throwM)
 import           Polysemy                            (Sem)
 import           Polysemy.Error                      (Error, runError)
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
-import qualified Tendermint.SDK.Logger.Katip         as KL
 import qualified Tendermint.SDK.BaseApp              as BaseApp
+import qualified Tendermint.SDK.Logger.Katip         as KL
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context

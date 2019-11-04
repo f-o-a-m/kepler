@@ -5,14 +5,16 @@ module Tendermint.SDK.BaseApp where
 
 import           Control.Lens                 (over, view)
 import qualified Katip                        as K
-import           Polysemy                     (Embed, Member, Members, Sem, runM)
+import           Polysemy                     (Embed, Member, Members, Sem,
+                                               runM)
 import           Polysemy.Output              (Output)
-import           Polysemy.Reader              (Reader, runReader, asks, local)
+import           Polysemy.Reader              (Reader, asks, local, runReader)
 import           Polysemy.Resource            (Resource, resourceToIO)
 import           Tendermint.SDK.AuthTreeStore (AuthTreeDriver,
-                                               interpretAuthTreeStore, initAuthTreeDriver)
-import           Tendermint.SDK.Events        (Event, EventBuffer, newEventBuffer,
-                                               evalWithBuffer)
+                                               initAuthTreeDriver,
+                                               interpretAuthTreeStore)
+import           Tendermint.SDK.Events        (Event, EventBuffer,
+                                               evalWithBuffer, newEventBuffer)
 import           Tendermint.SDK.Logger        (Logger)
 import qualified Tendermint.SDK.Logger.Katip  as KL
 import           Tendermint.SDK.Store         (RawStore)
