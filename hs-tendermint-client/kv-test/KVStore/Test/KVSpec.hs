@@ -34,13 +34,13 @@ spec = do
       result `shouldSatisfy` isRight
 
     it "Can submit a tx and make sure the response code is 0 (success)" $ do
+      -- set name key
       let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeName "name=satoshi" }
       deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $
         RPC.broadcastTxCommit txReq
       let deliverRespCode = deliverResp ^. Response._deliverTxCode
       deliverRespCode `shouldBe` 0
-
-    it "Can query /abci_query with a key and get its value" $ do
+      -- get its value
       let dName = Hex.fromBytes $ cs @String @ByteString "name"
           queryReq = def { RPC.requestABCIQueryData = dName }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
