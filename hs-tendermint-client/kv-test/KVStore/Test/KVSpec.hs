@@ -2,13 +2,13 @@ module KVStore.Test.KVSpec where
 
 import Control.Monad.Catch (try)
 import Data.Either (isRight)
+import           Data.ByteString             (ByteString)
 import           Control.Lens                         (to,(^.))
 import           Data.Aeson                           (ToJSON)
 import           Data.Aeson.Encode.Pretty             (encodePretty)
 import           Data.ByteArray.Base64String          (Base64String)
 import qualified Data.ByteArray.Base64String          as Base64
 import qualified Data.ByteArray.HexString             as Hex
-import           Data.ByteString             (ByteString)
 import           Data.Default.Class                   (def)
 import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Response as Response
@@ -25,37 +25,76 @@ spec = do
       resp `shouldBe` RPC.ResultHealth
 
     it "Can query /abci_info and parse the result" $ do
-      result :: Either IOError RPC.ResultABCIInfo <- try $ runRPC RPC.abciInfo
+      result :: Either RPC.JsonRpcException RPC.ResultABCIInfo <- try $ runRPC RPC.abciInfo
       result `shouldSatisfy` isRight
 
     it "Can query /block and parse the result" $ do
       -- @NOTE: this defaults to latest block
-      result :: Either IOError RPC.ResultBlock <- try $ runRPC (RPC.block def)
+      result :: Either RPC.JsonRpcException RPC.ResultBlock <- try $ runRPC (RPC.block def)
       result `shouldSatisfy` isRight
 
-    it "Can submit a tx and make sure the response code is 0 (success)" $ do
+    -- @TODO:
+    -- it "Can query /tx and parse the result " $ do
+    --   pure ()
+
+    it "Can submit async txs and the response code is 0 (success)" $ do
+      let asyncTxReq = RPC.RequestBroadcastTxAsync { RPC.requestBroadcastTxAsyncTx = encodeTx "abcd" }
+      -- async returns nothing
+      resp <- runRPC $ RPC.broadcastTxAsync asyncTxReq
+      RPC.resultBroadcastTxCode resp `shouldBe` 0
+      -- -- /check with /tx endpoint (w+w/o proof)
+      -- let hash = RPC.resultBroadcastTxHash resp
+      --     txReq = def { RPC.requestTxHash = Just hash }
+      --     txReqWP = RPC.RequestTx { RPC.requestTxHash = Just hash
+      --                             , RPC.requestTxProve = True
+      --                             }
+      -- _ <- runRPC $ RPC.tx txReq
+      -- _ <- runRPC $ RPC.tx txReqWP
+      -- -- txResult <- runRPC $ RPC.tx txReq
+      -- -- txResultWP <- runRPC $ RPC.tx txReqWP
+      -- pure ()
+
+    it "Can submit sync txs and the response code is 0 (success)" $ do
+      let txReq = RPC.RequestBroadcastTxSync { RPC.requestBroadcastTxSyncTx = encodeTx "efgh" }
+      -- sync only returns a CheckTx
+      resp <- runRPC $ RPC.broadcastTxSync txReq
+      RPC.resultBroadcastTxCode resp `shouldBe` 0
+      -- -- check with /tx endpoint (w+w/o proof)
+      -- let hash = RPC.resultBroadcastTxHash resp
+      --     txReq2 = def { RPC.requestTxHash = Just hash }
+      --     txReqWP2 = RPC.RequestTx { RPC.requestTxHash = Just hash
+      --                              , RPC.requestTxProve = True
+      --                              }
+      -- _ <- runRPC $ RPC.tx txReq2
+      -- _ <- runRPC $ RPC.tx txReqWP2
+      -- pure ()
+
+    it "Can submit a commit tx, make sure the response code is 0 (success), and get the result" $ do
+      -- /broadcast_tx_commit
       -- set name key
-      let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeName "name=satoshi" }
+      let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeTx "name=satoshi" }
       deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $
         RPC.broadcastTxCommit txReq
       let deliverRespCode = deliverResp ^. Response._deliverTxCode
       deliverRespCode `shouldBe` 0
-      -- get its value
+      -- /abci_query (w+w/o proof)
+      -- get name key value
       let dName = Hex.fromBytes $ cs @String @ByteString "name"
           queryReq = def { RPC.requestABCIQueryData = dName }
+          queryReqWProof = def { RPC.requestABCIQueryData = dName
+                               , RPC.requestABCIQueryProve = True
+                               }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
         RPC.abciQuery queryReq
+      queryRespWProof <- fmap RPC.resultABCIQueryResponse . runRPC $
+        RPC.abciQuery queryReqWProof
       let foundName = queryResp ^. Response._queryValue . to decodeName
+          foundNameWProof = queryRespWProof ^. Response._queryValue . to decodeName
       foundName `shouldBe` "satoshi"
+      foundName `shouldBe` foundNameWProof
 
-    -- it "Can query /tx and parse the result" $ do
-    --   pure ()
-
-    -- it "Can query /tx and parse the result with a proof" $ do
-    --   pure ()
-
-encodeName :: String -> Base64String
-encodeName = Base64.fromBytes . cs @String @ByteString
+encodeTx :: String -> Base64String
+encodeTx = Base64.fromBytes . cs @String @ByteString
 
 decodeName :: Base64String -> String
 decodeName = cs @ByteString @String . Base64.toBytes

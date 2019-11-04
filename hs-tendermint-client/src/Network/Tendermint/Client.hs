@@ -3,6 +3,7 @@ module Network.Tendermint.Client
 
   -- * ReExports
   , RPC.Config(..)
+  , RPC.JsonRpcException(..)
   )
 where
 
