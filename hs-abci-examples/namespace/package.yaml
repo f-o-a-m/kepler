@@ -8,7 +8,6 @@ copyright:           "2019 Author name here"
 
 extra-source-files:
 - README.md
-- ChangeLog.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -19,11 +18,47 @@ extra-source-files:
 # common to point users to the README.md file.
 description:         Please see the README on GitHub at <https://github.com/githubuser/namespace#readme>
 
+default-extensions:
+  - DeriveGeneric
+  - NamedFieldPuns
+  - RecordWildCards
+  - RankNTypes
+  - TypeFamilies
+  - FlexibleContexts
+  - DataKinds
+  - TypeApplications
+  - OverloadedStrings
+  - PolyKinds
+  - GeneralizedNewtypeDeriving
+  - ScopedTypeVariables
+  - TupleSections
+  - LambdaCase
+  - GADTs
+  - TypeOperators
+  - FlexibleInstances
+  - MultiParamTypeClasses
+  - DefaultSignatures
+  - FunctionalDependencies
+  - TypeFamilyDependencies
+  - DeriveFunctor
+  - StandaloneDeriving
+  - ConstraintKinds
+
 dependencies:
 - base >= 4.7 && < 5
+- exceptions
+- hs-abci-extra
+- hs-abci-sdk
+- hs-abci-server
+- hs-abci-types
+- polysemy
+- katip
 
 library:
   source-dirs: src
+  exposed-modules:
+  - Namespace.Application
+  - Namespace.Server
 
 executables:
   namespace-exe:
