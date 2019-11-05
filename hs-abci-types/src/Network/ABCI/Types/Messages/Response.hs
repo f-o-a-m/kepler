@@ -15,18 +15,17 @@ import           Data.Aeson                             (FromJSON (..),
                                                          (.:), (.:?))
 import           Data.ByteArray.Base64String            (Base64String)
 import qualified Data.ByteArray.Base64String            as Base64
-import           Data.ByteArray.HexString               (HexString)
-import qualified Data.ByteArray.HexString               as Hex
 import           Data.Default.Class                     (Default (..))
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
-import           Data.Word                              (Word32, Word64)
+import           Data.Word                              (Word32)
 import           GHC.Generics                           (Generic)
 import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions,
                                                          makeABCILenses)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams, Event,
                                                          Proof, ValidatorUpdate,
-                                                         WrappedInt64 (..))
+                                                         WrappedInt64 (..),
+                                                         WrappedWord64 (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
@@ -90,12 +89,8 @@ data Info = Info
   -- ^ Some arbitrary information
   , infoVersion          :: Text
   -- ^ The application software semantic version
-  , infoAppVersion       :: Word64 -- @NOTE: this is just a string: https://tendermint.com/rpc/#/ABCI/abci_info
+  , infoAppVersion       :: WrappedWord64
   -- ^ The application protocol version
-  , infoLastBlockHeight  :: WrappedInt64
-  -- ^  Latest block for which the app has called Commit
-  , infoLastBlockAppHash :: HexString
-  -- ^  Latest result of Commit
   } deriving (Eq, Show, Generic)
 
 
@@ -116,15 +111,11 @@ instance Wrapped Info where
       defMessage
         & PT.data' .~ infoData
         & PT.version .~ infoVersion
-        & PT.appVersion .~ infoAppVersion
-        & PT.lastBlockHeight .~ unwrapInt64 infoLastBlockHeight
-        & PT.lastBlockAppHash .~ Hex.toBytes infoLastBlockAppHash
+        & PT.appVersion .~ unwrapWord64 infoAppVersion
     f message = Info
       { infoData             = message ^. PT.data'
       , infoVersion          = message ^. PT.version
-      , infoAppVersion       = message ^. PT.appVersion
-      , infoLastBlockHeight  = WrappedInt64 $ message ^. PT.lastBlockHeight
-      , infoLastBlockAppHash = Hex.fromBytes $ message ^. PT.lastBlockAppHash
+      , infoAppVersion       = WrappedWord64 $ message ^. PT.appVersion
       }
 
 instance Default Info where
