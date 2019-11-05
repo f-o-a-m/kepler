@@ -11,10 +11,21 @@ SIMPLE_STORAGE_BINARY := $(shell stack exec -- which simple-storage)
 #####################
 
 hlint: ## Run hlint on all haskell projects
-	stack exec hlint -- -h .hlint.yaml hs-abci-server hs-abci-example hs-tendermint-client hs-abci-extra
+	stack exec hlint -- -h .hlint.yaml hs-abci-server \
+	hs-tendermint-client \
+	hs-abci-extra \
+	hs-abci-sdk \
+	hs-abci-examples/simple-storage \
+	hs-abci-examples/nameservice
 
 stylish: ## Run stylish-haskell over all haskell projects
-	find ./hs-abci-types ./hs-abci-extra ./hs-tendermint-client ./hs-abci-example ./hs-abci-server -name "*.hs" | xargs stack exec stylish-haskell -- -c ./.stylish_haskell.yaml -i
+	find ./hs-abci-types \
+	./hs-abci-extra \
+	./hs-tendermint-client \
+	./hs-abci-examples \
+	./hs-abci-sdk \
+	./hs-abci-server \
+	-name "*.hs" | xargs stack exec stylish-haskell -- -c ./.stylish_haskell.yaml -i
 
 ###################
 # DOCS
@@ -31,7 +42,7 @@ install: ## Runs stack install to compile library and counter example app
 	stack install
 
 test-libraries: install ## Run the haskell test suite for all haskell libraries
-	stack test hs-abci-types hs-abci-server
+	stack test hs-abci-types hs-abci-server hs-abci-sdk
 
 
 #####################
@@ -39,7 +50,7 @@ test-libraries: install ## Run the haskell test suite for all haskell libraries
 #####################
 
 deploy-simple-storage-docker: install ## run the simple storage docker network
-	docker-compose -f hs-abci-example/docker-compose.yaml up --build -d
+	docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml up --build
 
 deploy-simple-storage-local: install ## run the simple storage locally
 	stack exec simple-storage
@@ -48,7 +59,4 @@ test-kv-store: install ## Run the test suite for the client interface
 	stack test hs-tendermint-client
 
 test-simple-storage: install ## Run the test suite for the example application
-	stack test hs-abci-example
-
-test-simple-storage-without-e2e: install ## Run the haskell test suite the example application handlers
-	stack test --skip hs-abci-example-e2e; stack test hs-abci-example --test-arguments "-m handlers"
+	stack test simple-storage
