@@ -6,8 +6,9 @@ packages:
 - ./hs-tendermint-client
 - ./hs-abci-server
 - ./hs-abci-extra
-- ./hs-abci-example
 - ./hs-abci-sdk
+- ./hs-abci-examples/simple-storage
+- ./hs-abci-examples/nameservice
 
 extra-deps:
   - proto-lens-runtime-0.5.0.0

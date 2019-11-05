@@ -12,11 +12,10 @@ COPY hs-abci-types hs-abci-types/
 COPY hs-tendermint-client hs-tendermint-client/
 COPY hs-abci-server hs-abci-server/
 COPY hs-abci-extra hs-abci-extra/
-COPY hs-abci-example/package.yaml hs-abci-example/
-RUN stack build hs-abci-types hs-tendermint-client hs-abci-server hs-abci-extra --only-dependencies
+COPY hs-abci-sdk hs-abci-sdk/
+COPY hs-abci-examples/simple-storage simple-storage/
 
-COPY hs-abci-example hs-abci-example/
-RUN stack build hs-abci-example --copy-bins --local-bin-path /usr/local/bin
+RUN stack build simple-storage --copy-bins --local-bin-path /usr/local/bin
 
 # Run project.
 CMD /usr/local/bin/simple-storage
