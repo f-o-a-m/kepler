@@ -2,8 +2,8 @@ module Main where
 
 import           Control.Exception           (bracket)
 import qualified Katip                       as K
-import           Namespace.Application   (makeAppConfig)
-import           Namespace.Server        (makeAndServeApplication)
+import           Namespace.Application       (makeAppConfig)
+import           Namespace.Server            (makeAndServeApplication)
 import           System.IO                   (stdout)
 import           Tendermint.SDK.Logger.Katip (LogConfig (..), mkLogConfig)
 

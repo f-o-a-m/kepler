@@ -8,12 +8,12 @@ module Namespace.Application
   , runHandler
   ) where
 
-import           Control.Exception                   (Exception)
-import           Control.Monad.Catch                 (throwM)
-import           Polysemy                            (Sem)
-import           Polysemy.Error                      (Error, runError)
-import qualified Tendermint.SDK.BaseApp              as BaseApp
-import qualified Tendermint.SDK.Logger.Katip         as KL
+import           Control.Exception           (Exception)
+import           Control.Monad.Catch         (throwM)
+import           Polysemy                    (Sem)
+import           Polysemy.Error              (Error, runError)
+import qualified Tendermint.SDK.BaseApp      as BaseApp
+import qualified Tendermint.SDK.Logger.Katip as KL
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context

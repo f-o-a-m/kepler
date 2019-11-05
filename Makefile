@@ -11,10 +11,21 @@ SIMPLE_STORAGE_BINARY := $(shell stack exec -- which simple-storage)
 #####################
 
 hlint: ## Run hlint on all haskell projects
-	stack exec hlint -- -h .hlint.yaml hs-abci-server hs-abci-example hs-tendermint-client hs-abci-extra
+	stack exec hlint -- -h .hlint.yaml hs-abci-server \
+	hs-tendermint-client \
+	hs-abci-extra \
+	hs-abci-sdk \
+	hs-abci-examples/simple-storage \
+	hs-abci-examples/namespace
 
 stylish: ## Run stylish-haskell over all haskell projects
-	find ./hs-abci-types ./hs-abci-extra ./hs-tendermint-client ./hs-abci-example ./hs-abci-server -name "*.hs" | xargs stack exec stylish-haskell -- -c ./.stylish_haskell.yaml -i
+	find ./hs-abci-types \
+	./hs-abci-extra \
+	./hs-tendermint-client \
+	./hs-abci-examples \
+	./hs-abci-sdk \
+	./hs-abci-server \
+	-name "*.hs" | xargs stack exec stylish-haskell -- -c ./.stylish_haskell.yaml -i
 
 ###################
 # DOCS
