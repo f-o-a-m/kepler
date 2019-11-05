@@ -76,9 +76,11 @@ spec = do
           txReqWP = RPC.RequestTx { RPC.requestTxHash = Just baseHash
                                   , RPC.requestTxProve = True
                                   }
-      _ <- runRPC $ RPC.tx txReq
-      _ <- runRPC $ RPC.tx txReqWP
-      pure ()
+      -- check the hashes are the same
+      txResultHash <- fmap RPC.resultTxHash . runRPC $ RPC.tx txReq
+      txResultWPHash <- fmap RPC.resultTxHash . runRPC $ RPC.tx txReqWP
+      txResultHash `shouldBe` hash
+      txResultWPHash `shouldBe` hash
 
 encodeTx :: String -> Base64String
 encodeTx = Base64.fromBytes . cs @String @ByteString
