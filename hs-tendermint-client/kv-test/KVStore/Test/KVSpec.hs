@@ -1,15 +1,15 @@
 module KVStore.Test.KVSpec where
 
-import Control.Monad.Catch (try)
-import Data.Either (isRight)
-import           Data.ByteString             (ByteString)
-import           Control.Lens                         (to,(^.))
+import           Control.Lens                         (to, (^.))
+import           Control.Monad.Catch                  (try)
 import           Data.Aeson                           (ToJSON)
 import           Data.Aeson.Encode.Pretty             (encodePretty)
 import           Data.ByteArray.Base64String          (Base64String)
 import qualified Data.ByteArray.Base64String          as Base64
 import qualified Data.ByteArray.HexString             as Hex
+import           Data.ByteString                      (ByteString)
 import           Data.Default.Class                   (def)
+import           Data.Either                          (isRight)
 import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Network.Tendermint.Client            as RPC
