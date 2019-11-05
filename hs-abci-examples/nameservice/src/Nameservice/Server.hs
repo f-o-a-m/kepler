@@ -1,9 +1,9 @@
-module Namespace.Server (makeAndServeApplication) where
+module Nameservice.Server (makeAndServeApplication) where
 
 import           Data.Foldable                                 (fold)
 import           Data.Monoid                                   (Endo (..))
 import           Data.Proxy
-import           Namespace.Application                         (AppConfig,
+import           Nameservice.Application                       (AppConfig,
                                                                 AppError,
                                                                 Handler,
                                                                 runHandler)

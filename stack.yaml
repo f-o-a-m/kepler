@@ -8,7 +8,7 @@ packages:
 - ./hs-abci-extra
 - ./hs-abci-sdk
 - ./hs-abci-examples/simple-storage
-- ./hs-abci-examples/namespace
+- ./hs-abci-examples/nameservice
 
 extra-deps:
   - proto-lens-runtime-0.5.0.0

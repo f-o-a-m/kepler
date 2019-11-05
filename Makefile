@@ -16,7 +16,7 @@ hlint: ## Run hlint on all haskell projects
 	hs-abci-extra \
 	hs-abci-sdk \
 	hs-abci-examples/simple-storage \
-	hs-abci-examples/namespace
+	hs-abci-examples/nameservice
 
 stylish: ## Run stylish-haskell over all haskell projects
 	find ./hs-abci-types \

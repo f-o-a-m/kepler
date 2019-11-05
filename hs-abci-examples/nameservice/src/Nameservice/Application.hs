@@ -1,6 +1,6 @@
 {-# LANGUAGE UndecidableInstances #-}
 
-module Namespace.Application
+module Nameservice.Application
   ( AppError(..)
   , AppConfig(..)
   , makeAppConfig
