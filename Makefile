@@ -39,10 +39,10 @@ test-libraries: install ## Run the haskell test suite for all haskell libraries
 #####################
 
 deploy-simple-storage-docker: install ## run the simple storage docker network
-	docker-compose -f hs-abci-example/docker-compose.yaml up --build -d
+	docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml up --build
 
 deploy-simple-storage-local: install ## run the simple storage locally
 	stack exec simple-storage
 
 test-simple-storage: install ## Run the test suite for the example application
-	stack test hs-abci-example
+	stack test simple-storage

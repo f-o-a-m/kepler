@@ -1,6 +1,6 @@
-name:                hs-abci-example
+name:                simple-storage
 version:             0.1.0.0
-github:              "f-o-a-m/hs-abci/hs-abci-example"
+github:              "f-o-a-m/hs-abci/hs-abci-examples/simple-storage"
 license:             Apache
 author:              Martin Allen
 maintainer:          "martin@foam.space"
@@ -9,7 +9,7 @@ copyright:           "2019 Martin Allen"
 extra-source-files:
 - protos/**/*.proto
 
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-example#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-examples/simple-storage#readme>
 
 default-extensions:
   - DeriveGeneric
@@ -105,12 +105,12 @@ executables:
     - -Werror
     - -Wall
     dependencies:
-    - hs-abci-example
+    - simple-storage
 
 tests:
-  hs-abci-example-e2e:
+  simple-storage-test:
     main:                Spec.hs
-    source-dirs:         e2e-test
+    source-dirs:         test
     other-modules:
     - SimpleStorage.Test.E2ESpec
     - SimpleStorage.Test.HandlersSpec
@@ -123,7 +123,7 @@ tests:
     dependencies:
       - aeson
       - aeson-pretty
-      - hs-abci-example
+      - simple-storage
       - hs-abci-types
       - hs-tendermint-client
       - hspec

@@ -6,7 +6,7 @@ packages:
 - ./hs-tendermint-client
 - ./hs-abci-server
 - ./hs-abci-extra
-- ./hs-abci-example
+- ./hs-abci-examples/simple-storage
 - ./hs-abci-sdk
 
 extra-deps:
