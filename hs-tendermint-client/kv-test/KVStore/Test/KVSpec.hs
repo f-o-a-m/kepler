@@ -67,7 +67,7 @@ spec = do
       let foundName = queryResp ^. Response._queryValue . to decodeName
           foundNameWProof = queryRespWProof ^. Response._queryValue . to decodeName
       foundName `shouldBe` "satoshi"
-      foundName `shouldBe` foundNameWProof
+      foundNameWProof `shouldBe` "satoshi"
       -- check with /tx endpoint (w+w/o proof)
       let hash = RPC.resultBroadcastTxCommitHash $ broadcastResp
           -- convert hex to base64

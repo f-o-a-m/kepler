@@ -66,6 +66,16 @@ instance FromJSON WrappedInt64 where
   parseJSON (String t) = pure . WrappedInt64 . read . unpack $ t
   parseJSON a          = WrappedInt64 <$> parseJSON a
 
+newtype WrappedWord64 =
+  WrappedWord64 { unwrapWord64 :: Word64 } deriving (Eq, Show, Generic, Num)
+
+instance ToJSON WrappedWord64 where
+  toJSON (WrappedWord64 n) = String . pack . show $ n
+
+instance FromJSON WrappedWord64 where
+  parseJSON (String t) = pure . WrappedWord64 . read . unpack $ t
+  parseJSON a          = WrappedWord64 <$> parseJSON a
+
 -- measured in nanoseconds
 data Timestamp =
   Timestamp DiffTime deriving (Eq, Show, Generic)
@@ -401,9 +411,9 @@ instance Wrapped BlockID where
           }
 
 data Version = Version
-  { versionBlock :: Word64 -- @NOTE: this is just a string
+  { versionBlock :: WrappedWord64
   -- ^ Protocol version of the blockchain data structures.
-  , versionApp   :: Word64 -- @NOTE: same thing
+  , versionApp   :: WrappedWord64
   -- ^ Protocol version of the application.
   } deriving (Eq, Show, Generic)
 
@@ -419,12 +429,12 @@ instance Wrapped Version where
     where
       t Version{..} =
         defMessage
-          & PT.block .~ versionBlock
-          & PT.app .~ versionApp
+          & PT.block .~ unwrapWord64 versionBlock
+          & PT.app .~ unwrapWord64 versionApp
       f a =
         Version
-          { versionBlock = a ^. PT.block
-          , versionApp = a ^. PT.app
+          { versionBlock = WrappedWord64 $ a ^. PT.block
+          , versionApp = WrappedWord64 $ a ^. PT.app
           }
 
 data Header = Header
