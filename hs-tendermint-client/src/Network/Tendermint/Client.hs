@@ -15,7 +15,6 @@ import           Data.Aeson                                   (FromJSON (..),
                                                                genericToJSON)
 import qualified Data.Aeson                                   as Aeson
 import           Data.Aeson.Casing                            (aesonDrop,
-                                                               pascalCase,
                                                                snakeCase)
 import qualified Data.ByteArray.Base64String                  as Base64
 import           Data.ByteArray.HexString                     (HexString)
@@ -138,6 +137,8 @@ data ResultTx = ResultTx
   , resultTxIndex    :: Word32
   , resultTxTxResult :: Response.DeliverTx
   , resultTxTx       :: Tx
+  -- @NOTE: this key is entirely absent when a proof is not requested
+  -- i.e., when requestTxProve = false
   , resultTxProof    :: TxProof
   } deriving (Eq, Show, Generic)
 instance FromJSON ResultTx where
@@ -253,13 +254,12 @@ data TxProof = TxProof
   , txProofProof    :: SimpleProof
   } deriving (Eq, Show, Generic)
 instance FromJSON TxProof where
-  parseJSON =
-    genericParseJSON $ aesonDrop (length ("txProof" :: String)) pascalCase
+  parseJSON = genericParseJSON $ defaultRPCOptions "txProof"
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/crypto/merkle/simple_proof.go#L18
 data SimpleProof = SimpleProof
-  { simpleProofTotal    :: Int
-  , simpleProofIndex    :: Int
+  { simpleProofTotal    :: Int -- @NOTE: this is a string
+  , simpleProofIndex    :: Int -- ''
   , simpleProofLeafHash :: HexString
   , simpleProofAunts    :: [HexString]
   } deriving (Eq, Show, Generic)
