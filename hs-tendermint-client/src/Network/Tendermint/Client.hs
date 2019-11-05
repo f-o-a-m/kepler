@@ -121,7 +121,7 @@ tx = RPC.remote (RPC.MethodName "tx")
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/tx.go#L81
 data RequestTx = RequestTx
-  { requestTxHash  :: Maybe HexString
+  { requestTxHash  :: Maybe Tx -- @NOTE: this seems to need a Base64String
   , requestTxProve :: Bool
   } deriving (Eq, Show, Generic)
 instance ToJSON RequestTx where
@@ -139,8 +139,9 @@ data ResultTx = ResultTx
   , resultTxTx       :: Tx
   -- @NOTE: this key is entirely absent when a proof is not requested
   -- i.e., when requestTxProve = false
-  , resultTxProof    :: TxProof
+  , resultTxProof    :: Maybe TxProof
   } deriving (Eq, Show, Generic)
+
 instance FromJSON ResultTx where
   parseJSON = genericParseJSON $ defaultRPCOptions "resultTx"
 
@@ -257,11 +258,20 @@ instance FromJSON TxProof where
   parseJSON = genericParseJSON $ defaultRPCOptions "txProof"
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/crypto/merkle/simple_proof.go#L18
+-- example:
+-- {
+--     "total": "3",
+--     "aunts": [
+--         "J9h6nUSxNEabklxRnNIxlDWC8iuP4ikN4ldOA9db59Y="
+--     ],
+--     "leaf_hash": "O2xyvrxEZebIcC1W6z9VCsZCEjy4urohAS0pAjkGt88=",
+--     "index": "2"
+-- }
 data SimpleProof = SimpleProof
   { simpleProofTotal    :: Int -- @NOTE: this is a string
   , simpleProofIndex    :: Int -- ''
-  , simpleProofLeafHash :: HexString
-  , simpleProofAunts    :: [HexString]
+  , simpleProofLeafHash :: HexString -- @NOTE: this looks like a Base64String (see above)
+  , simpleProofAunts    :: [HexString] -- ''
   } deriving (Eq, Show, Generic)
 instance FromJSON SimpleProof where
   parseJSON = genericParseJSON $ defaultRPCOptions "simpleProof"
