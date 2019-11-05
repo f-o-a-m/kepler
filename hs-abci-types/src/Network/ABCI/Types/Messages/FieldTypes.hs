@@ -401,9 +401,9 @@ instance Wrapped BlockID where
           }
 
 data Version = Version
-  { versionBlock :: Word64
+  { versionBlock :: Word64 -- @NOTE: this is just a string
   -- ^ Protocol version of the blockchain data structures.
-  , versionApp   :: Word64
+  , versionApp   :: Word64 -- @NOTE: same thing
   -- ^ Protocol version of the application.
   } deriving (Eq, Show, Generic)
 

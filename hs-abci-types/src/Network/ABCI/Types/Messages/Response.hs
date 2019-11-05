@@ -90,7 +90,7 @@ data Info = Info
   -- ^ Some arbitrary information
   , infoVersion          :: Text
   -- ^ The application software semantic version
-  , infoAppVersion       :: Word64
+  , infoAppVersion       :: Word64 -- @NOTE: this is just a string: https://tendermint.com/rpc/#/ABCI/abci_info
   -- ^ The application protocol version
   , infoLastBlockHeight  :: WrappedInt64
   -- ^  Latest block for which the app has called Commit
