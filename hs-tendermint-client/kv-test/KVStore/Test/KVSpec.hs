@@ -69,15 +69,14 @@ spec = do
       foundName `shouldBe` "satoshi"
       foundName `shouldBe` foundNameWProof
       -- check with /tx endpoint (w+w/o proof)
-      let hash = Hex.fromBytes . cs @String @ByteString $ "57D835FBBA0DBF922D8A2EDA56922C9B24E7760927F245A7684A736C4769DB8A" -- RPC.resultBroadcastTxCommitHash $ broadcastResp
+      let hash = RPC.resultBroadcastTxCommitHash $ broadcastResp
           txReq = def { RPC.requestTxHash = Just hash }
           txReqWP = RPC.RequestTx { RPC.requestTxHash = Just hash
                                   , RPC.requestTxProve = True
                                   }
       _ <- runRPC $ RPC.tx txReq
       _ <- runRPC $ RPC.tx txReqWP
-      -- txResult <- runRPC $ RPC.tx txReq
-      -- txResultWP <- runRPC $ RPC.tx txReqWP
+      -- @NOTE: this doesn't work
       pure ()
 
 encodeTx :: String -> Base64String
