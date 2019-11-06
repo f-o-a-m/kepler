@@ -43,7 +43,7 @@ import           Data.Time.Clock
                                                                                    picosecondsToDiffTime)
 import           Data.Time.Format
                                                                                    (defaultTimeLocale,
-                                                                                   formatTime,
+                            --                                                       formatTime,
                                                                                    parseTimeOrError)
 import           Data.Time.Orphans
                                                                                    ()
@@ -97,9 +97,9 @@ mkTimestamp ts =
 
 -- parseTimeOrError @DiffTime True defaultTimeLocale "%FT%T%QZ" "2019-11-05T22:49:05.131739Z"
 -- formatTime defaultTimeLocale "%FT%T%QZ" someDiffTime
-instance ToJSON Timestamp where
-  toJSON (Timestamp dt) = String . pack . ft $ dt
-    where ft = formatTime defaultTimeLocale "%FT%T%QZ"
+instance ToJSON Timestamp--  where
+  -- toJSON (Timestamp dt) = String . pack . ft $ dt
+  --   where ft = formatTime defaultTimeLocale "%FT%T%QZ"
 
 parseDiffTimeOrError :: String -> DiffTime
 parseDiffTimeOrError = parseTimeOrError True defaultTimeLocale "%FT%T%QZ"

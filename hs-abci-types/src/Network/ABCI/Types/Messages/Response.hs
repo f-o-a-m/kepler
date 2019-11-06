@@ -15,6 +15,8 @@ import           Data.Aeson                             (FromJSON (..),
                                                          (.:), (.:?))
 import           Data.ByteArray.Base64String            (Base64String)
 import qualified Data.ByteArray.Base64String            as Base64
+import           Data.ByteArray.HexString               (HexString)
+import qualified Data.ByteArray.HexString               as Hex
 import           Data.Default.Class                     (Default (..))
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
@@ -91,6 +93,10 @@ data Info = Info
   -- ^ The application software semantic version
   , infoAppVersion :: WrappedWord64
   -- ^ The application protocol version
+  , infoLastBlockHeight  :: WrappedInt64
+  -- ^  Latest block for which the app has called Commit
+  , infoLastBlockAppHash :: HexString
+  -- ^  Latest result of Commit
   } deriving (Eq, Show, Generic)
 
 
@@ -112,10 +118,14 @@ instance Wrapped Info where
         & PT.data' .~ infoData
         & PT.version .~ infoVersion
         & PT.appVersion .~ unwrapWord64 infoAppVersion
+        & PT.lastBlockHeight .~ unwrapInt64 infoLastBlockHeight
+        & PT.lastBlockAppHash .~ Hex.toBytes infoLastBlockAppHash
     f message = Info
       { infoData             = message ^. PT.data'
       , infoVersion          = message ^. PT.version
       , infoAppVersion       = WrappedWord64 $ message ^. PT.appVersion
+      , infoLastBlockHeight  = WrappedInt64 $ message ^. PT.lastBlockHeight
+      , infoLastBlockAppHash = Hex.fromBytes $ message ^. PT.lastBlockAppHash
       }
 
 instance Default Info where
