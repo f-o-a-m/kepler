@@ -85,11 +85,11 @@ instance Default Flush where
 --------------------------------------------------------------------------------
 
 data Info = Info
-  { infoData             :: Text
+  { infoData       :: Text
   -- ^ Some arbitrary information
-  , infoVersion          :: Text
+  , infoVersion    :: Text
   -- ^ The application software semantic version
-  , infoAppVersion       :: WrappedWord64
+  , infoAppVersion :: WrappedWord64
   -- ^ The application protocol version
   } deriving (Eq, Show, Generic)
 
