@@ -67,6 +67,13 @@ packages:
       sha256: b424391b338be3eb5da8c0ba97117e8373848830592445828a3cb9694cbf8988
   original:
     hackage: hlint-2.1.26@sha256:e0489fd31bc4a531aaf27d7e6b9814b50863b2a78c10e1d77e7b652b00933c9b,3231
+- completed:
+    hackage: bech32-1.0.0@sha256:6bd23abe4a11d61a2d41fdb11db9e1361fc43c215cf2b8602cafaa516c8b6d76,2017
+    pantry-tree:
+      size: 424
+      sha256: 7193ff37729da6c18519a09d88e7e53b5dbd9a1d06399a11fa2676be1bd254f1
+  original:
+    hackage: bech32-1.0.0@sha256:6bd23abe4a11d61a2d41fdb11db9e1361fc43c215cf2b8602cafaa516c8b6d76,2017
 snapshots:
 - completed:
     size: 524786

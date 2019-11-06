@@ -20,6 +20,7 @@ extra-deps:
     commit: dfc468845a82cdd7d759943b20853999bc026505
   - stylish-haskell-0.9.4.3@sha256:98f60e087ee3e661220cd3e1cf77677d4cecd3b90d110f7ce6f36babb5c2f895,4953
   - hlint-2.1.26@sha256:e0489fd31bc4a531aaf27d7e6b9814b50863b2a78c10e1d77e7b652b00933c9b,3231
+  - bech32-1.0.0@sha256:6bd23abe4a11d61a2d41fdb11db9e1361fc43c215cf2b8602cafaa516c8b6d76,2017
 
 explicit-setup-deps:
   hs-abci-server: true

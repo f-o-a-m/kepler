@@ -36,9 +36,12 @@ default-extensions:
 
 
 dependencies:
+- aeson
+- aeson-casing
 - async
 - avl-auth
 - base >= 4.7 && < 5
+- bech32
 - binary
 - bytestring
 - containers
@@ -57,6 +60,7 @@ dependencies:
 - mtl
 - polysemy
 - polysemy-plugin
+- profunctors
 - servant
 - stm
 - string-conversions
@@ -83,6 +87,8 @@ library:
   - Tendermint.SDK.Logger
   - Tendermint.SDK.Logger.Katip
   - Tendermint.SDK.Application
+  - Tendermint.SDK.Auth
+  - Tendermint.SDK.Aeson
   - Tendermint.SDK.Events
 
 tests:
