@@ -10,7 +10,7 @@ import qualified Data.ByteArray.HexString as Hex
 import           Data.ByteString          (ByteString)
 import           Data.Int                 (Int64)
 import           Data.IORef
-import           Data.Monoid              (Endo (..))
+import           Data.Monoid              (Endo (..), All(..))
 import           Data.Proxy               (Proxy (..))
 import           Data.String.Conversions
 import           Data.Text                (Text)
@@ -19,6 +19,9 @@ import           GHC.TypeLits             (KnownSymbol, symbolVal)
 import           Tendermint.SDK.Aeson     (defaultSDKAesonOptions)
 
 newtype Address = Address Hex.HexString deriving (Eq, Show, Ord, A.ToJSON, A.FromJSON)
+
+addressToBytes :: Address -> ByteString
+addressToBytes (Address addrHex) = Hex.toBytes addrHex
 
 newtype AccountAddress prefix = AccountAddress Address deriving (Eq, Show, Ord)
 
@@ -102,10 +105,17 @@ data Msg msg = Msg
   { msgRoute      :: Text
   , msgType       :: Text
   , msgSignBytes  :: ByteString
-  , msgGetSigners :: [Address]
+  , msgGetSigners :: [PubKey]
   , msgValidate   :: Maybe Text
   , msgData       :: msg
   }
+
+verifyAllMsgSignatures :: Msg msg -> Bool
+verifyAllMsgSignatures Msg{msgGetSigners, msgSignBytes} = 
+  let isValid msgBytes PubKey{pubKeyAddress, pubKeyVerifyBytes} =
+        pubKeyVerifyBytes msgBytes (addressToBytes pubKeyAddress)
+  in getAll . mconcat . map (All . isValid msgSignBytes) $ msgGetSigners
+
 
 data Fee = Fee
   { feeAmount :: [Coin]
@@ -116,6 +126,11 @@ data Signature = Signature
   { signaturePubKey :: PubKey
   , signatureBytes  :: ByteString
   }
+
+verifySignature :: Signature -> Bool
+verifySignature Signature{signaturePubKey, signatureBytes} = 
+  let PubKey{pubKeyAddress, pubKeyVerifyBytes} = signaturePubKey
+  in pubKeyVerifyBytes signatureBytes (addressToBytes pubKeyAddress)
 
 data Tx tx msg = Tx
   { txMsgs       :: [Msg msg]
@@ -170,12 +185,9 @@ validateBasicDecorator = Endo $ \next -> do
       expectedSignersN = length $ txSignatures tx
   when (expectedSignersN == 0) $
     error "TODO: There must be signers"
-  when (filter (\signers -> length signers /= expectedSignersN) msgSigners /= []) $
+  when (length (filter (\signers -> length signers /= expectedSignersN) msgSigners) /= 0) $
     error "TODO: fill in error for wrong number of signers"
   let feeAmounts = map coinAmount . feeAmount . txFee $ tx
   when (filter (< 0) feeAmounts /= []) $
     error "TODO: No negative fees"
   next
-
-
-
