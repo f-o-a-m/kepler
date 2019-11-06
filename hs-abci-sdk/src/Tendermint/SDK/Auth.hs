@@ -1,14 +1,8 @@
-module Tendermint.SDK.Auth
-  ( AccountAddress
-  , Address(..)
-  , Account(..)
-  , PubKey(..)
-  , PrivateKey(..)
-  , fromBech32
-  , toBech32
-  ) where
+module Tendermint.SDK.Auth where
 
 import qualified Codec.Binary.Bech32      as Bech32
+import           Control.Monad.Except     (ExceptT)
+import           Control.Monad.Reader     (Reader)
 import qualified Data.Aeson               as A
 import qualified Data.ByteArray.HexString as Hex
 import           Data.ByteString          (ByteString)
@@ -94,3 +88,44 @@ instance A.ToJSON Account where
                  , "number" A..= accountNumber
                  , "sequence" A..= accountSequence
                  ]
+
+verifyAccount :: Account -> Bool
+verifyAccount Account{..} = accountAddress == pubKeyAddress accountPubKey
+
+--------------------------------------------------------------------------------
+
+data Validator a e b = Validator
+  { runValidator :: a -> Either e b
+  , input        :: a
+  }
+
+data Msg = Msg
+  { msgRoute      :: Text
+  , msgType       :: Text
+  , msgSignBytes  :: ByteString
+  , msgGetSigners :: [Address]
+  }
+
+type MsgValidator msg = Validator msg Text Msg
+
+data Fee = Fee
+  { feeAmount :: [Coin]
+  , feeGas    :: Int64
+  }
+
+data Signature = Signature
+  { signaturePubKey :: PubKey
+  , signatureBytes  :: ByteString
+  }
+
+data Tx msg = Tx
+  { txMsgs       :: [msg]
+  , txFee        :: Fee
+  , txSignatures :: [Signature]
+  , txMemo       :: Text
+  }
+
+type TxValidator tx msg = Validator tx Text (Tx msg)
+
+type AnteDecorator tx e = ExceptT e (Reader tx) ()
+
