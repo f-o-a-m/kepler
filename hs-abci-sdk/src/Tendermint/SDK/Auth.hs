@@ -1,12 +1,16 @@
 module Tendermint.SDK.Auth where
 
 import qualified Codec.Binary.Bech32      as Bech32
-import           Control.Monad.Except     (ExceptT)
-import           Control.Monad.Reader     (Reader)
+import           Control.Monad            (when)
+import           Control.Monad.Catch      (Exception, MonadCatch, catch)
+import           Control.Monad.IO.Class   (MonadIO (..))
+import           Control.Monad.Reader     (ReaderT, asks)
 import qualified Data.Aeson               as A
 import qualified Data.ByteArray.HexString as Hex
 import           Data.ByteString          (ByteString)
 import           Data.Int                 (Int64)
+import           Data.IORef
+import           Data.Monoid              (Endo (..))
 import           Data.Proxy               (Proxy (..))
 import           Data.String.Conversions
 import           Data.Text                (Text)
@@ -94,19 +98,14 @@ verifyAccount Account{..} = accountAddress == pubKeyAddress accountPubKey
 
 --------------------------------------------------------------------------------
 
-data Validator a e b = Validator
-  { runValidator :: a -> Either e b
-  , input        :: a
-  }
-
-data Msg = Msg
+data Msg msg = Msg
   { msgRoute      :: Text
   , msgType       :: Text
   , msgSignBytes  :: ByteString
   , msgGetSigners :: [Address]
+  , msgValidate   :: Maybe Text
+  , msgData       :: msg
   }
-
-type MsgValidator msg = Validator msg Text Msg
 
 data Fee = Fee
   { feeAmount :: [Coin]
@@ -118,14 +117,65 @@ data Signature = Signature
   , signatureBytes  :: ByteString
   }
 
-data Tx msg = Tx
-  { txMsgs       :: [msg]
+data Tx tx msg = Tx
+  { txMsgs       :: [Msg msg]
   , txFee        :: Fee
   , txSignatures :: [Signature]
   , txMemo       :: Text
+  , txValidate   :: Maybe Text
+  , txData       :: tx
   }
 
-type TxValidator tx msg = Validator tx Text (Tx msg)
+data GasMeter = GasMeter
+  { gasMeterLimit    :: Int64
+  , gasMeterConsumed :: Int64
+  }
 
-type AnteDecorator tx e = ExceptT e (Reader tx) ()
+data OutOfGasException = OutOfGasException deriving (Show)
+
+instance Exception OutOfGasException
+
+data Context = Context
+  { contextGasMeter :: GasMeter
+  }
+
+data TxEnv tx = TxEnv
+  { transaction :: tx
+  , context     :: IORef Context
+  }
+
+type AnteDecorator m tx msg  = ReaderT (TxEnv (Tx tx msg)) m ()
+
+newContextDecorator
+  :: forall m tx msg.
+     MonadCatch m
+  => MonadIO m
+  => Endo (AnteDecorator m tx msg)
+newContextDecorator = Endo $ \next -> do
+   tx <- asks transaction
+   contextVar <- asks context
+   let gasMeter = GasMeter (feeGas . txFee $ tx) 0
+   liftIO $ writeIORef contextVar (Context gasMeter)
+   next `catch` (\(_ :: OutOfGasException) ->
+     pure ()
+     )
+
+validateBasicDecorator
+  :: forall m tx msg.
+     Monad m
+  => Endo (AnteDecorator m tx msg)
+validateBasicDecorator = Endo $ \next -> do
+  tx <- asks transaction
+  let msgSigners = map msgGetSigners $ txMsgs tx
+      expectedSignersN = length $ txSignatures tx
+  when (expectedSignersN == 0) $
+    error "TODO: There must be signers"
+  when (filter (\signers -> length signers /= expectedSignersN) msgSigners /= []) $
+    error "TODO: fill in error for wrong number of signers"
+  let feeAmounts = map coinAmount . feeAmount . txFee $ tx
+  when (filter (< 0) feeAmounts /= []) $
+    error "TODO: No negative fees"
+  next
+
+
 
