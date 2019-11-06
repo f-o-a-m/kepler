@@ -65,3 +65,4 @@ instance Arbitrary Response.Exception where arbitrary = genericArbitrary
 instance Arbitrary Hex.HexString where arbitrary = Hex.fromBytes <$> (arbitrary :: Gen ByteString)
 instance Arbitrary Base64.Base64String where arbitrary = Base64.fromBytes <$> (arbitrary :: Gen ByteString)
 instance Arbitrary FieldTypes.WrappedInt64 where arbitrary = FieldTypes.WrappedInt64 <$> arbitrary
+instance Arbitrary FieldTypes.WrappedWord64 where arbitrary = FieldTypes.WrappedWord64 <$> arbitrary
