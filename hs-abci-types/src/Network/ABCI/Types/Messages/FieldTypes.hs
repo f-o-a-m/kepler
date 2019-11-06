@@ -41,6 +41,12 @@ import           Data.Time.Clock
                                                                                    (DiffTime,
                                                                                    diffTimeToPicoseconds,
                                                                                    picosecondsToDiffTime)
+import           Data.Time.Format
+                                                                                   (defaultTimeLocale,
+                                                                                   formatTime,
+                                                                                   parseTimeOrError)
+import           Data.Time.Orphans
+                                                                                   ()
 import           Data.Word
                                                                                    (Word64)
 import           GHC.Generics
@@ -89,8 +95,18 @@ mkTimestamp ts =
   in
     Timestamp $ picosecondsToDiffTime nsResolution
 
-instance ToJSON Timestamp
-instance FromJSON Timestamp
+-- parseTimeOrError @DiffTime True defaultTimeLocale "%FT%T%QZ" "2019-11-05T22:49:05.131739Z"
+-- formatTime defaultTimeLocale "%FT%T%QZ" someDiffTime
+instance ToJSON Timestamp where
+  toJSON (Timestamp dt) = String . pack . ft $ dt
+    where ft = formatTime defaultTimeLocale "%FT%T%QZ"
+
+parseDiffTimeOrError :: String -> DiffTime
+parseDiffTimeOrError = parseTimeOrError True defaultTimeLocale "%FT%T%QZ"
+
+instance FromJSON Timestamp where
+  parseJSON (String t) = pure . mkTimestamp . parseDiffTimeOrError . unpack $ t
+  parseJSON a          = mkTimestamp . parseDiffTimeOrError <$> parseJSON a
 
 instance Wrapped Timestamp where
   type Unwrapped Timestamp = T.Timestamp
@@ -670,5 +686,3 @@ instance Wrapped Event where
           { eventType = a ^. PT.type'
           , eventAttributes = a ^.. PT.attributes . traverse . _Unwrapped'
           }
-
-
