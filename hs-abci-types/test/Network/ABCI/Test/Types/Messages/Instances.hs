@@ -4,6 +4,8 @@ module Network.ABCI.Test.Types.Messages.Instances () where
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteArray.HexString               as Hex
 import           Data.ByteString                        (ByteString)
+import           Data.Int                               (Int32, Int64)
+import           Data.Word                              (Word64)
 import qualified Network.ABCI.Types.Messages.FieldTypes as FieldTypes
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
@@ -64,5 +66,6 @@ instance Arbitrary Response.Exception where arbitrary = genericArbitrary
 
 instance Arbitrary Hex.HexString where arbitrary = Hex.fromBytes <$> (arbitrary :: Gen ByteString)
 instance Arbitrary Base64.Base64String where arbitrary = Base64.fromBytes <$> (arbitrary :: Gen ByteString)
-instance Arbitrary FieldTypes.WrappedInt64 where arbitrary = FieldTypes.WrappedInt64 <$> arbitrary
-instance Arbitrary FieldTypes.WrappedWord64 where arbitrary = FieldTypes.WrappedWord64 <$> arbitrary
+instance Arbitrary (FieldTypes.WrappedVal Int32) where arbitrary = FieldTypes.WrappedVal <$> arbitrary
+instance Arbitrary (FieldTypes.WrappedVal Int64) where arbitrary = FieldTypes.WrappedVal <$> arbitrary
+instance Arbitrary (FieldTypes.WrappedVal Word64) where arbitrary = FieldTypes.WrappedVal <$> arbitrary

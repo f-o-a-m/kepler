@@ -5,9 +5,9 @@ import           Control.Monad                          (ap)
 import           Control.Monad.Trans                    (MonadTrans (..))
 import           Data.ByteArray.Base64String            (Base64String,
                                                          fromBytes, toBytes)
+import           Data.Int                               (Int64)
 import           GHC.TypeLits                           (Symbol)
-import           Network.ABCI.Types.Messages.FieldTypes (Proof,
-                                                         WrappedInt64 (..))
+import           Network.ABCI.Types.Messages.FieldTypes (Proof, WrappedVal (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
 import           Tendermint.SDK.Codec                   (HasCodec (..))
@@ -35,15 +35,15 @@ data QueryArgs a = QueryArgs
   { queryArgsProve       :: Bool
   , queryArgsData        :: a
   , queryArgsQueryData   :: Base64String
-  , queryArgsBlockHeight :: WrappedInt64
+  , queryArgsBlockHeight :: WrappedVal Int64
   } deriving Functor
 
 data QueryResult a = QueryResult
   { queryResultData   :: a
-  , queryResultIndex  :: WrappedInt64
+  , queryResultIndex  :: WrappedVal Int64
   , queryResultKey    :: Base64String
   , queryResultProof  :: Maybe Proof
-  , queryResultHeight :: WrappedInt64
+  , queryResultHeight :: WrappedVal Int64
   } deriving Functor
 
 --------------------------------------------------------------------------------

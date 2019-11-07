@@ -20,6 +20,7 @@ import qualified Data.ByteArray.Base64String                  as Base64
 import           Data.ByteArray.HexString                     (HexString)
 import           Data.ByteString                              (ByteString)
 import           Data.Default.Class                           (Default (..))
+import           Data.Int                                     (Int64)
 import           Data.Text                                    (Text)
 import           Data.Word                                    (Word32)
 import           GHC.Generics                                 (Generic)
@@ -62,7 +63,7 @@ abciQuery = RPC.remote (RPC.MethodName "abci_query")
 data RequestABCIQuery = RequestABCIQuery
   { requestABCIQueryPath   :: Maybe Text
   , requestABCIQueryData   :: HexString
-  , requestABCIQueryHeight :: Maybe FieldTypes.WrappedInt64
+  , requestABCIQueryHeight :: Maybe (FieldTypes.WrappedVal Int64)
   , requestABCIQueryProve  :: Bool
   } deriving (Eq, Show, Generic)
 instance ToJSON RequestABCIQuery where
@@ -93,7 +94,7 @@ block = RPC.remote (RPC.MethodName "block")
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/blocks.go#L72
 data RequestBlock = RequestBlock
-  { requestBlockHeightPtr :: Maybe FieldTypes.WrappedInt64
+  { requestBlockHeightPtr :: Maybe (FieldTypes.WrappedVal Int64)
   } deriving (Eq, Show, Generic)
 instance ToJSON RequestBlock where
   toJSON = genericToJSON $ defaultRPCOptions "requestBlock"
@@ -133,7 +134,7 @@ instance Default RequestTx where
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L164
 data ResultTx = ResultTx
   { resultTxHash     :: HexString
-  , resultTxHeight   :: FieldTypes.WrappedInt64
+  , resultTxHeight   :: FieldTypes.WrappedVal Int64
   , resultTxIndex    :: Word32
   , resultTxTxResult :: Response.DeliverTx
   , resultTxTx       :: Tx
@@ -197,7 +198,7 @@ data ResultBroadcastTxCommit = ResultBroadcastTxCommit
   { resultBroadcastTxCommitCheckTx   :: Response.CheckTx
   , resultBroadcastTxCommitDeliverTx :: Response.DeliverTx
   , resultBroadcastTxCommitHash      :: HexString
-  , resultBroadcastTxCommitHeight    :: FieldTypes.WrappedInt64
+  , resultBroadcastTxCommitHeight    :: FieldTypes.WrappedVal Int64
   } deriving (Eq, Show, Generic)
 instance FromJSON ResultBroadcastTxCommit where
   parseJSON = genericParseJSON $ defaultRPCOptions "resultBroadcastTxCommit"
@@ -257,8 +258,8 @@ instance FromJSON TxProof where
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/crypto/merkle/simple_proof.go#L18
 data SimpleProof = SimpleProof
-  { simpleProofTotal    :: FieldTypes.WrappedInt64
-  , simpleProofIndex    :: FieldTypes.WrappedInt64
+  { simpleProofTotal    :: FieldTypes.WrappedVal Int64
+  , simpleProofIndex    :: FieldTypes.WrappedVal Int64
   , simpleProofLeafHash :: Tx
   , simpleProofAunts    :: [Tx]
   } deriving (Eq, Show, Generic)
@@ -285,7 +286,7 @@ instance FromJSON Block where
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/types/block.go#L774
 data Data = Data
-  { dataTxs :: [Tx]
+  { dataTxs :: FieldTypes.WrappedVal [Tx]
   } deriving (Eq, Show, Generic)
 instance FromJSON Data where
   parseJSON = genericParseJSON $ defaultRPCOptions "data"
@@ -298,7 +299,7 @@ instance FromJSON EvidenceData where
   parseJSON = genericParseJSON $ defaultRPCOptions "evidenceData"
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/types/evidence.go#L278
-type EvidenceList = FieldTypes.WrappedList FieldTypes.Evidence
+type EvidenceList = FieldTypes.WrappedVal [FieldTypes.Evidence]
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/types/block.go#L488
 data Commit = Commit
@@ -311,12 +312,12 @@ instance FromJSON Commit where
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/types/vote.go#L51
 data Vote = Vote
   { voteType             :: SignedMsgType
-  , voteHeight           :: FieldTypes.WrappedInt64
-  , voteRound            :: Int
+  , voteHeight           :: FieldTypes.WrappedVal Int64
+  , voteRound            :: FieldTypes.WrappedVal Int
   , voteBlockId          :: FieldTypes.BlockID
   , voteTimestamp        :: FieldTypes.Timestamp
   , voteValidatorAddress :: HexString
-  , voteValidatorIndex   :: Int
+  , voteValidatorIndex   :: FieldTypes.WrappedVal Int
   , voteSignature        :: HexString
   } deriving (Eq, Show, Generic)
 instance FromJSON Vote where

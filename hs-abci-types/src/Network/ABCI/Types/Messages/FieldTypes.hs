@@ -43,7 +43,6 @@ import           Data.Time.Clock
                                                                                    picosecondsToDiffTime)
 import           Data.Time.Format
                                                                                    (defaultTimeLocale,
-                            --                                                       formatTime,
                                                                                    parseTimeOrError)
 import           Data.Time.Orphans
                                                                                    ()
@@ -62,35 +61,51 @@ import qualified Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Field
 import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types           as CT
 import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields    as CT
 
-newtype WrappedInt64 =
-  WrappedInt64 { unwrapInt64 :: Int64 } deriving (Eq, Show, Generic, Num)
+newtype WrappedVal a = WrappedVal { unWrappedVal :: a } deriving (Eq, Show, Generic)
 
-instance ToJSON WrappedInt64 where
-  toJSON (WrappedInt64 n) = String . pack . show $ n
+instance Num a => Num (WrappedVal a) where
+  (WrappedVal x) + (WrappedVal y) = WrappedVal $ x + y
+  (WrappedVal x) - (WrappedVal y) = WrappedVal $ x - y
+  (WrappedVal x) * (WrappedVal y) = WrappedVal $ x * y
+  abs (WrappedVal x) = WrappedVal $ abs x
+  fromInteger x = WrappedVal $ fromInteger x
+  signum (WrappedVal x) = WrappedVal $ signum x
 
-instance FromJSON WrappedInt64 where
-  parseJSON (String t) = pure . WrappedInt64 . read . unpack $ t
-  parseJSON a          = WrappedInt64 <$> parseJSON a
+instance ToJSON (WrappedVal Int) where
+  toJSON (WrappedVal n) = String . pack . show $ n
 
-newtype WrappedWord64 =
-  WrappedWord64 { unwrapWord64 :: Word64 } deriving (Eq, Show, Generic, Num)
+instance FromJSON (WrappedVal Int) where
+  parseJSON (String t) = pure . WrappedVal . read . unpack $ t
+  parseJSON a          = WrappedVal <$> parseJSON a
 
-instance ToJSON WrappedWord64 where
-  toJSON (WrappedWord64 n) = String . pack . show $ n
+instance ToJSON (WrappedVal Int32) where
+  toJSON (WrappedVal n) = String . pack . show $ n
 
-instance FromJSON WrappedWord64 where
-  parseJSON (String t) = pure . WrappedWord64 . read . unpack $ t
-  parseJSON a          = WrappedWord64 <$> parseJSON a
+instance FromJSON (WrappedVal Int32) where
+  parseJSON (String t) = pure . WrappedVal . read . unpack $ t
+  parseJSON a          = WrappedVal <$> parseJSON a
 
-newtype WrappedList a = WrappedList [a] deriving (Eq, Show)
+instance ToJSON (WrappedVal Int64) where
+  toJSON (WrappedVal n) = String . pack . show $ n
 
-instance ToJSON a => ToJSON (WrappedList a) where
-  toJSON (WrappedList as) = toJSON as
+instance FromJSON (WrappedVal Int64) where
+  parseJSON (String t) = pure . WrappedVal . read . unpack $ t
+  parseJSON a          = WrappedVal <$> parseJSON a
 
-instance FromJSON a => FromJSON (WrappedList a) where
-  parseJSON as@(Array _) = WrappedList <$> parseJSON as
-  parseJSON Null = pure $ WrappedList []
-  parseJSON _ = fail "WrappedList must be Array or Null"
+instance ToJSON (WrappedVal Word64) where
+  toJSON (WrappedVal n) = String . pack . show $ n
+
+instance FromJSON (WrappedVal Word64) where
+  parseJSON (String t) = pure . WrappedVal . read . unpack $ t
+  parseJSON a          = WrappedVal <$> parseJSON a
+
+instance ToJSON a => ToJSON (WrappedVal [a]) where
+  toJSON (WrappedVal as) = toJSON as
+
+instance FromJSON a => FromJSON (WrappedVal [a]) where
+  parseJSON as@(Array _) = WrappedVal <$> parseJSON as
+  parseJSON Null         = pure $ WrappedVal []
+  parseJSON _            = fail "WrappedVal for List must be Array or Null"
 
 -- measured in nanoseconds
 data Timestamp =
@@ -141,9 +156,9 @@ instance Wrapped Timestamp where
           mkTimestamp . picosecondsToDiffTime $ ps1 + ps2
 
 data BlockParams = BlockParams
-  { blockParamsMaxBytes :: WrappedInt64
+  { blockParamsMaxBytes :: WrappedVal Int64
   -- ^ Max size of a block, in bytes.
-  , blockParamsMaxGas   :: WrappedInt64
+  , blockParamsMaxGas   :: WrappedVal Int64
   -- ^ Max sum of GasWanted in a proposed block.
   } deriving (Eq, Show, Generic)
 
@@ -159,16 +174,16 @@ instance Wrapped BlockParams where
     where
       t BlockParams{..} =
         defMessage
-          & PT.maxBytes .~ unwrapInt64 blockParamsMaxBytes
-          & PT.maxGas .~ unwrapInt64 blockParamsMaxGas
+          & PT.maxBytes .~ unWrappedVal blockParamsMaxBytes
+          & PT.maxGas .~ unWrappedVal blockParamsMaxGas
       f a =
         BlockParams
-          { blockParamsMaxBytes = WrappedInt64 $ a ^. PT.maxBytes
-          , blockParamsMaxGas = WrappedInt64 $ a ^. PT.maxGas
+          { blockParamsMaxBytes = WrappedVal $ a ^. PT.maxBytes
+          , blockParamsMaxGas = WrappedVal $ a ^. PT.maxGas
           }
 
 data EvidenceParams = EvidenceParams
-  { evidenceParamsMaxAge :: WrappedInt64
+  { evidenceParamsMaxAge :: WrappedVal Int64
   -- ^ Max age of evidence, in blocks.
   } deriving (Eq, Show, Generic)
 
@@ -184,10 +199,10 @@ instance Wrapped EvidenceParams where
     where
       t EvidenceParams{..} =
         defMessage
-          & PT.maxAge .~ unwrapInt64 evidenceParamsMaxAge
+          & PT.maxAge .~ unWrappedVal evidenceParamsMaxAge
       f a =
         EvidenceParams
-          { evidenceParamsMaxAge = WrappedInt64 $ a ^. PT.maxAge
+          { evidenceParamsMaxAge = WrappedVal $ a ^. PT.maxAge
           }
 
 data ValidatorParams = ValidatorParams
@@ -275,7 +290,7 @@ instance Wrapped PubKey where
 data ValidatorUpdate = ValidatorUpdate
   { validatorUpdatePubKey :: Maybe PubKey
   -- ^ Public key of the validator
-  , validatorUpdatePower  :: WrappedInt64
+  , validatorUpdatePower  :: WrappedVal Int64
   -- ^ Voting power of the validator
   } deriving (Eq, Show, Generic)
 
@@ -292,17 +307,17 @@ instance Wrapped ValidatorUpdate where
       t ValidatorUpdate{..} =
         defMessage
           & PT.maybe'pubKey .~ validatorUpdatePubKey ^? _Just . _Wrapped'
-          & PT.power .~ unwrapInt64 validatorUpdatePower
+          & PT.power .~ unWrappedVal validatorUpdatePower
       f a =
         ValidatorUpdate
           { validatorUpdatePubKey = a ^? PT.maybe'pubKey . _Just . _Unwrapped'
-          , validatorUpdatePower = WrappedInt64 $ a ^. PT.power
+          , validatorUpdatePower = WrappedVal $ a ^. PT.power
           }
 
 data Validator = Validator
   { validatorAddress :: HexString
   -- ^ Address of the validator (hash of the public key)
-  , validatorPower   :: WrappedInt64
+  , validatorPower   :: WrappedVal Int64
   -- ^ Voting power of the validator
   } deriving (Eq, Show, Generic)
 
@@ -319,11 +334,11 @@ instance Wrapped Validator where
       t Validator{..} =
         defMessage
           & PT.address .~ Hex.toBytes validatorAddress
-          & PT.power .~ unwrapInt64 validatorPower
+          & PT.power .~ unWrappedVal validatorPower
       f a =
         Validator
           { validatorAddress = Hex.fromBytes (a ^. PT.address)
-          , validatorPower = WrappedInt64 $ a ^. PT.power
+          , validatorPower = WrappedVal $ a ^. PT.power
           }
 
 data VoteInfo = VoteInfo
@@ -354,7 +369,7 @@ instance Wrapped VoteInfo where
           }
 
 data LastCommitInfo = LastCommitInfo
-  { lastCommitInfoRound :: Int32
+  { lastCommitInfoRound :: WrappedVal Int32
   -- ^ Commit round.
   , lastCommitInfoVotes :: [VoteInfo]
   -- ^ List of validators addresses in the last validator set with their voting
@@ -375,16 +390,16 @@ instance Wrapped LastCommitInfo where
     where
       t LastCommitInfo{..} =
         defMessage
-          & PT.round .~ lastCommitInfoRound
+          & PT.round .~ unWrappedVal lastCommitInfoRound
           & PT.votes .~ lastCommitInfoVotes ^.. traverse . _Wrapped'
       f a =
         LastCommitInfo
-          { lastCommitInfoRound = a ^. PT.round
+          { lastCommitInfoRound = WrappedVal $ a ^. PT.round
           , lastCommitInfoVotes = a ^.. PT.votes . traverse . _Unwrapped'
           }
 
 data PartSetHeader = PartSetHeader
-  { partSetHeaderTotal :: Int32
+  { partSetHeaderTotal :: WrappedVal Int32
   -- ^ total number of pieces in a PartSet
   , partSetHeaderHash  :: HexString
   -- ^ Merkle root hash of those pieces
@@ -402,10 +417,10 @@ instance Wrapped PartSetHeader where
     where
       t PartSetHeader{..} =
         defMessage
-          & PT.total .~ partSetHeaderTotal
+          & PT.total .~ unWrappedVal partSetHeaderTotal
           & PT.hash .~ Hex.toBytes partSetHeaderHash
       f a =
-        PartSetHeader { partSetHeaderTotal = a ^. PT.total
+        PartSetHeader { partSetHeaderTotal = WrappedVal $ a ^. PT.total
                       , partSetHeaderHash = Hex.fromBytes (a ^. PT.hash)
                       }
 
@@ -437,9 +452,9 @@ instance Wrapped BlockID where
           }
 
 data Version = Version
-  { versionBlock :: WrappedWord64
+  { versionBlock :: WrappedVal Word64
   -- ^ Protocol version of the blockchain data structures.
-  , versionApp   :: WrappedWord64
+  , versionApp   :: WrappedVal Word64
   -- ^ Protocol version of the application.
   } deriving (Eq, Show, Generic)
 
@@ -455,12 +470,12 @@ instance Wrapped Version where
     where
       t Version{..} =
         defMessage
-          & PT.block .~ unwrapWord64 versionBlock
-          & PT.app .~ unwrapWord64 versionApp
+          & PT.block .~ unWrappedVal versionBlock
+          & PT.app .~ unWrappedVal versionApp
       f a =
         Version
-          { versionBlock = WrappedWord64 $ a ^. PT.block
-          , versionApp = WrappedWord64 $ a ^. PT.app
+          { versionBlock = WrappedVal $ a ^. PT.block
+          , versionApp = WrappedVal $ a ^. PT.app
           }
 
 data Header = Header
@@ -468,13 +483,13 @@ data Header = Header
   -- ^ Version of the blockchain and the application
   , headerChainId            :: Text
   -- ^ ID of the blockchain
-  , headerHeight             :: WrappedInt64
+  , headerHeight             :: WrappedVal Int64
   -- ^ Height of the block in the chain
   , headerTime               :: Maybe Timestamp
   -- ^ Time of the previous block
-  , headerNumTxs             :: WrappedInt64
+  , headerNumTxs             :: WrappedVal Int64
   -- ^ Number of transactions in the block
-  , headerTotalTxs           :: WrappedInt64
+  , headerTotalTxs           :: WrappedVal Int64
   -- ^ Total number of transactions in the blockchain until now
   , headerLastBlockId        :: Maybe BlockID
   -- ^ Hash of the previous (parent) block
@@ -512,10 +527,10 @@ instance Wrapped Header where
         defMessage
           & PT.maybe'version .~ headerVersion ^? _Just . _Wrapped'
           & PT.chainId .~ headerChainId
-          & PT.height .~ unwrapInt64 headerHeight
+          & PT.height .~ unWrappedVal headerHeight
           & PT.maybe'time .~ headerTime ^? _Just . _Wrapped'
-          & PT.numTxs .~ unwrapInt64 headerNumTxs
-          & PT.totalTxs .~ unwrapInt64 headerTotalTxs
+          & PT.numTxs .~ unWrappedVal headerNumTxs
+          & PT.totalTxs .~ unWrappedVal headerTotalTxs
           & PT.maybe'lastBlockId .~ headerLastBlockId ^? _Just . _Wrapped'
           & PT.lastCommitHash .~ Hex.toBytes headerLastCommitHash
           & PT.dataHash .~ Hex.toBytes headerDataHash
@@ -530,10 +545,10 @@ instance Wrapped Header where
         Header
           { headerVersion = a ^? PT.maybe'version . _Just . _Unwrapped'
           , headerChainId = a ^. PT.chainId
-          , headerHeight = WrappedInt64 $ a ^. PT.height
+          , headerHeight = WrappedVal $ a ^. PT.height
           , headerTime = a ^? PT.maybe'time . _Just . _Unwrapped'
-          , headerNumTxs = WrappedInt64 $ a ^. PT.numTxs
-          , headerTotalTxs = WrappedInt64 $ a ^. PT.totalTxs
+          , headerNumTxs = WrappedVal $ a ^. PT.numTxs
+          , headerTotalTxs = WrappedVal $ a ^. PT.totalTxs
           , headerLastBlockId = a ^? PT.maybe'lastBlockId . _Just . _Unwrapped'
           , headerLastCommitHash = Hex.fromBytes $ a ^. PT.lastCommitHash
           , headerDataHash = Hex.fromBytes $ a ^. PT.dataHash
@@ -551,11 +566,11 @@ data Evidence = Evidence
   -- ^ Type of the evidence.
   , evidenceValidator        :: Maybe Validator
   -- ^ The offending validator
-  , evidenceHeight           :: WrappedInt64
+  , evidenceHeight           :: WrappedVal Int64
   -- ^ Height when the offense was committed
   , evidenceTime             :: Maybe Timestamp
   -- ^ Time of the block at height Height.
-  , evidenceTotalVotingPower :: WrappedInt64
+  , evidenceTotalVotingPower :: WrappedVal Int64
   -- ^ Total voting power of the validator set at height Height
   } deriving (Eq, Show, Generic)
 
@@ -573,16 +588,16 @@ instance Wrapped Evidence where
         defMessage
           & PT.type' .~ evidenceType
           & PT.maybe'validator .~ evidenceValidator ^? _Just . _Wrapped'
-          & PT.height .~ unwrapInt64 evidenceHeight
+          & PT.height .~ unWrappedVal evidenceHeight
           & PT.maybe'time .~ evidenceTime ^? _Just . _Wrapped'
-          & PT.totalVotingPower .~ unwrapInt64 evidenceTotalVotingPower
+          & PT.totalVotingPower .~ unWrappedVal evidenceTotalVotingPower
       f a =
         Evidence
           { evidenceType = a ^. PT.type'
           , evidenceValidator = a ^? PT.maybe'validator . _Just . _Unwrapped'
-          , evidenceHeight = WrappedInt64 $ a ^. PT.height
+          , evidenceHeight = WrappedVal $ a ^. PT.height
           , evidenceTime = a ^? PT.maybe'time . _Just . _Unwrapped'
-          , evidenceTotalVotingPower = WrappedInt64 $ a ^. PT.totalVotingPower
+          , evidenceTotalVotingPower = WrappedVal $ a ^. PT.totalVotingPower
           }
 
 data KVPair = KVPair
