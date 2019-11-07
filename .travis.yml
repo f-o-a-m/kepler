@@ -27,3 +27,7 @@ script:
 - if [ "$TRAVIS_BRANCH" == "master" ]; then make stylish && git diff-index --quiet HEAD; fi
 
 - make test-libraries
+
+- curl https://nixos.org/nix/install | sh
+- . $HOME/.nix-profile/etc/profile.d/nix.sh
+- stack --nix test hs-abci-types hs-abci-server hs-abci-sdk
