@@ -318,7 +318,7 @@ data Vote = Vote
   , voteTimestamp        :: FieldTypes.Timestamp
   , voteValidatorAddress :: HexString
   , voteValidatorIndex   :: FieldTypes.WrappedVal Int
-  , voteSignature        :: HexString
+  , voteSignature        :: Tx
   } deriving (Eq, Show, Generic)
 instance FromJSON Vote where
   parseJSON = genericParseJSON $ defaultRPCOptions "vote"
