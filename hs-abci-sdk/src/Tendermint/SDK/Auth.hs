@@ -1,24 +1,34 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Tendermint.SDK.Auth where
 
 import qualified Codec.Binary.Bech32      as Bech32
+import           Control.Lens             (iso)
 import           Control.Monad            (when)
 import           Control.Monad.Catch      (Exception, MonadCatch, catch)
 import           Control.Monad.IO.Class   (MonadIO (..))
 import           Control.Monad.Reader     (ReaderT, asks)
 import qualified Data.Aeson               as A
+import qualified Data.Binary              as Binary
 import qualified Data.ByteArray.HexString as Hex
 import           Data.ByteString          (ByteString)
 import           Data.Int                 (Int64)
 import           Data.IORef
-import           Data.Monoid              (Endo (..), All(..))
+import           Data.Monoid              (All (..), Endo (..))
 import           Data.Proxy               (Proxy (..))
 import           Data.String.Conversions
 import           Data.Text                (Text)
 import           GHC.Generics             (Generic)
 import           GHC.TypeLits             (KnownSymbol, symbolVal)
-import           Tendermint.SDK.Aeson     (defaultSDKAesonOptions)
+import           Polysemy
+import           Tendermint.SDK.Codec     (HasCodec (..))
+import           Tendermint.SDK.Store     (HasKey (..))
 
 newtype Address = Address Hex.HexString deriving (Eq, Show, Ord, A.ToJSON, A.FromJSON)
+
+instance Binary.Binary Address where
+    put (Address a) = Binary.put @ByteString . Hex.toBytes $ a
+    get = Address . Hex.fromBytes <$> Binary.get @ByteString
 
 addressToBytes :: Address -> ByteString
 addressToBytes (Address addrHex) = Hex.toBytes addrHex
@@ -59,45 +69,63 @@ class KnownSymbol prefix => IsHumanReadable prefix where
       Left err  -> error $ show err
       Right hrp -> hrp
 
--- | 'pubKeyVerifyBytes' takes a message and a signature and verifies that
--- | the message was signed by this PubKey, i.e. it is a signature recovery.
 data PubKey = PubKey
-  { pubKeyAddress     :: Address
-  , pubKeyVerifyBytes :: ByteString -> ByteString -> Bool
-  }
+  { pubKeyAddress :: Address
+  , pubKeyRaw     :: ByteString
+  } deriving (Eq, Ord, Generic)
+
+instance Binary.Binary PubKey
 
 data PrivateKey = PrivateKey
-  { privateKeyPubKey :: PubKey
-  , privateKeySign   :: ByteString -> Either Text ByteString
-  , privateKeyRaw    :: Hex.HexString
+  { privateKeyPubKey :: ByteString
+  , privateKeyRaw    :: ByteString
   }
+
+newtype Signature = Signature ByteString deriving Eq
+
+data Signer = Signer
+  { signerSign    :: PrivateKey -> ByteString -> Either Text Signature
+  , signerRecover :: Signature -> ByteString -> PubKey
+  }
+
+signerVerify
+  :: Signer
+  -> PubKey
+  -> Signature
+  -> ByteString
+  -> Bool
+signerVerify Signer{signerRecover} pubKey sig msg =
+    signerRecover sig msg == pubKey
 
 data Coin = Coin
   { coinDenomination :: Text
   , coinAmount       :: Int64
   } deriving Generic
 
-instance A.ToJSON Coin where
-  toJSON = A.genericToJSON (defaultSDKAesonOptions "coin")
+instance Binary.Binary Coin
 
 data Account = Account
-  { accountAddress  :: Address
-  , accountPubKey   :: PubKey
+  { accountPubKey   :: PubKey
   , accountCoins    :: [Coin]
   , accountNumber   :: Int64
   , accountSequence :: Int64
-  }
+  } deriving Generic
 
-instance A.ToJSON Account where
-    toJSON Account{..} =
-        A.object [ "address" A..= accountAddress
-                 , "coins" A..= accountCoins
-                 , "number" A..= accountNumber
-                 , "sequence" A..= accountSequence
-                 ]
+instance Binary.Binary Account
 
-verifyAccount :: Account -> Bool
-verifyAccount Account{..} = accountAddress == pubKeyAddress accountPubKey
+data Accounts m a where
+  PutAccount :: Account -> Accounts m ()
+  GetAccount :: Address -> Accounts m Account
+
+makeSem ''Accounts
+
+instance HasCodec Account where
+    encode = cs . Binary.encode
+    decode = Right . Binary.decode . cs
+
+instance HasKey Account where
+    type Key Account = Address
+    rawKey = iso (\(Address a) -> Hex.toBytes a) (Address . Hex.fromBytes)
 
 --------------------------------------------------------------------------------
 
@@ -105,32 +133,21 @@ data Msg msg = Msg
   { msgRoute      :: Text
   , msgType       :: Text
   , msgSignBytes  :: ByteString
-  , msgGetSigners :: [PubKey]
+  , msgGetSigners :: [(PubKey, Signature)]
   , msgValidate   :: Maybe Text
   , msgData       :: msg
   }
 
-verifyAllMsgSignatures :: Msg msg -> Bool
-verifyAllMsgSignatures Msg{msgGetSigners, msgSignBytes} = 
-  let isValid msgBytes PubKey{pubKeyAddress, pubKeyVerifyBytes} =
-        pubKeyVerifyBytes msgBytes (addressToBytes pubKeyAddress)
-  in getAll . mconcat . map (All . isValid msgSignBytes) $ msgGetSigners
+verifyAllMsgSignatures :: Signer -> Msg msg -> Bool
+verifyAllMsgSignatures signer Msg{msgGetSigners, msgSignBytes} =
+  let isValid (pubKey, sig) = signerVerify signer pubKey sig msgSignBytes
+  in getAll . mconcat . map (All . isValid) $ msgGetSigners
 
 
 data Fee = Fee
   { feeAmount :: [Coin]
   , feeGas    :: Int64
   }
-
-data Signature = Signature
-  { signaturePubKey :: PubKey
-  , signatureBytes  :: ByteString
-  }
-
-verifySignature :: Signature -> Bool
-verifySignature Signature{signaturePubKey, signatureBytes} = 
-  let PubKey{pubKeyAddress, pubKeyVerifyBytes} = signaturePubKey
-  in pubKeyVerifyBytes signatureBytes (addressToBytes pubKeyAddress)
 
 data Tx tx msg = Tx
   { txMsgs       :: [Msg msg]
