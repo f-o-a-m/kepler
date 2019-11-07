@@ -106,8 +106,12 @@ makeABCILenses ''Info
 instance ToJSON Info where
   toJSON = genericToJSON $ defaultABCIOptions "info"
 instance FromJSON Info where
-  parseJSON = genericParseJSON $ defaultABCIOptions "info"
-
+  parseJSON = withObject "Info" $ \v -> Info
+    <$> v .: "data"
+    <*> v .: "version"
+    <*> v .: "app_version"
+    <*> v .:? "last_block_height" .!= 0
+    <*> v .:? "last_block_app_hash" .!= ""
 
 instance Wrapped Info where
   type Unwrapped Info = PT.ResponseInfo
