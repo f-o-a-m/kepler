@@ -277,7 +277,7 @@ instance FromJSON BlockMeta where
 data Block = Block
   { blockHeader     :: FieldTypes.Header
   , blockData       :: Data
-  , blockEvidence   :: EvidenceData
+  , blockEvidence   :: FieldTypes.WrappedEvidenceData
   , blockLastCommit :: Maybe Commit
   } deriving (Eq, Show, Generic)
 instance FromJSON Block where
@@ -289,16 +289,6 @@ data Data = Data
   } deriving (Eq, Show, Generic)
 instance FromJSON Data where
   parseJSON = genericParseJSON $ defaultRPCOptions "data"
-
--- https://github.com/tendermint/tendermint/blob/v0.32.2/types/block.go#L819~
-data EvidenceData = EvidenceData
-  { evidenceDataEvidence :: EvidenceList
-  } deriving (Eq, Show, Generic)
-instance FromJSON EvidenceData where
-  parseJSON = genericParseJSON $ defaultRPCOptions "evidenceData"
-
--- https://github.com/tendermint/tendermint/blob/v0.32.2/types/evidence.go#L278
-type EvidenceList = [FieldTypes.Evidence]
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/types/block.go#L488
 data Commit = Commit

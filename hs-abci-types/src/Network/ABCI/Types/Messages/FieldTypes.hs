@@ -82,6 +82,18 @@ instance FromJSON WrappedWord64 where
   parseJSON (String t) = pure . WrappedWord64 . read . unpack $ t
   parseJSON a          = WrappedWord64 <$> parseJSON a
 
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/types/block.go#L819~
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/types/evidence.go#L278
+newtype WrappedEvidenceData = WrappedEvidenceData
+  { unwrapEvidenceData :: [Evidence]
+  } deriving (Eq, Show, Generic)
+
+instance ToJSON WrappedEvidenceData where
+  toJSON (WrappedEvidenceData ls) = toJSONList ls
+instance FromJSON WrappedEvidenceData where
+  parseJSON = withObject "WrappedEvidenceData" $ \v -> WrappedEvidenceData
+    <$> v .:? "evidence" .!= []
+
 -- measured in nanoseconds
 data Timestamp =
   Timestamp DiffTime deriving (Eq, Show, Generic)
