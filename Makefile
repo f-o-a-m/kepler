@@ -55,5 +55,8 @@ deploy-simple-storage-docker: install ## run the simple storage docker network
 deploy-simple-storage-local: install ## run the simple storage locally
 	stack exec simple-storage
 
+test-kv-store: install ## Run the test suite for the client interface
+	stack test hs-tendermint-client
+
 test-simple-storage: install ## Run the test suite for the example application
 	stack test simple-storage
