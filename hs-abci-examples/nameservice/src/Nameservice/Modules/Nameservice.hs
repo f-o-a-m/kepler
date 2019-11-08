@@ -2,36 +2,38 @@
 
 module Nameservice.Modules.Nameservice
 
-  ( 
-    -- * types  
+  (
+    -- * types
     Name(..)
   , Whois (..)
-  , whoisPrefix
+  , nameserviceKey
 
   -- * effects
   , getWhois
   , nameIsAvailable
+  , buyName
 
   -- * query API
 
   ) where
 
-import           Control.Lens            (iso)
-import qualified Data.Binary             as Binary
-import           Data.ByteString         (ByteString)
-import           Data.ByteString         as BS
-import           Data.Int                (Int32)
-import           Data.Maybe              (fromJust, isNothing)
-import           Data.String.Conversions (cs)
-import           GHC.Generics            (Generic)
-import           Polysemy                (Member, Sem, makeSem)
-import           Polysemy.Output         (Output)
-import           Tendermint.SDK.Codec    (HasCodec (..))
-import           Tendermint.SDK.Events   (IsEvent(..), Event, emit)
-import qualified Tendermint.SDK.Store    as Store
-import Data.Bifunctor (bimap)
-import Polysemy.Error (Error, throw)
-
+import           Control.Lens              (iso)
+import           Data.Bifunctor            (bimap)
+import qualified Data.Binary               as Binary
+import           Data.ByteString           (ByteString)
+import           Data.ByteString           as BS
+import           Data.Int                  (Int32)
+import           Data.Maybe                (fromJust, isNothing)
+import           Data.String.Conversions   (cs)
+import           GHC.Generics              (Generic)
+import           Nameservice.Modules.Token (Address, Token, mkAmount, transfer)
+import qualified Nameservice.Modules.Token as Token
+import           Polysemy                  (Member, Sem, makeSem)
+import           Polysemy.Error            (Error, throw)
+import           Polysemy.Output           (Output)
+import           Tendermint.SDK.Codec      (HasCodec (..))
+import           Tendermint.SDK.Events     (Event, IsEvent (..), emit)
+import qualified Tendermint.SDK.Store      as Store
 
 newtype Name = Name String deriving (Eq, Show, Binary.Binary)
 
@@ -41,7 +43,7 @@ nameserviceKey = "02"
 
 data Whois = Whois
   { whoisValue :: String
-  , whoisOwner :: String
+  , whoisOwner :: Address
   , whoisPrice :: Int32
   } deriving (Eq, Show, Generic)
 
@@ -68,8 +70,8 @@ makeSem ''Nameservice
 --------------------------------------------------------------------------------
 
 data OwnerChanged = OwnerChanged
-  { ownerChangedNewOwner :: String
-  , ownerChangedName :: Name
+  { ownerChangedNewOwner :: Address
+  , ownerChangedName     :: Name
   , ownerChangedNewValue :: String
   , ownerChangedNewPrice :: Int32
   }
@@ -88,7 +90,7 @@ instance IsEvent OwnerChanged where
 --------------------------------------------------------------------------------
 
 data Exception =
-    InvalidPurchaseAttempt String
+  InvalidPurchaseAttempt String
 
 --------------------------------------------------------------------------------
 
@@ -100,8 +102,10 @@ nameIsAvailable = fmap isNothing . getWhois
 
 buyName
   :: Member Nameservice r
+  => Member Token r
   => Member (Output Event) r
   => Member (Error Exception) r
+  => Member (Error Token.Exception) r
   => Name
   -> Whois
   -> Sem r ()
@@ -110,15 +114,17 @@ buyName name whois@Whois{whoisPrice=offerPrice} = do
   mWhois <- getWhois name
   case mWhois of
     Nothing -> putWhois name whois
-    Just Whois{whoisPrice = forsalePrice} ->
+    Just Whois{ whoisPrice = forsalePrice
+              , whoisOwner = previousOwner
+              } ->
       if offerPrice > forsalePrice
-         then do
-           -- TODO: transfer money
-            putWhois name whois
-            emit $ OwnerChanged
-              { ownerChangedNewOwner = whoisOwner whois
-              , ownerChangedName = name
-              , ownerChangedNewValue = whoisValue whois
-              , ownerChangedNewPrice = whoisPrice whois
-              }
-         else throw (InvalidPurchaseAttempt "Offer too low")
+        then do
+          transfer (whoisOwner whois) (mkAmount offerPrice) previousOwner
+          putWhois name whois
+          emit $ OwnerChanged
+            { ownerChangedNewOwner = whoisOwner whois
+            , ownerChangedName = name
+            , ownerChangedNewValue = whoisValue whois
+            , ownerChangedNewPrice = whoisPrice whois
+            }
+        else throw (InvalidPurchaseAttempt "Offer too low")
