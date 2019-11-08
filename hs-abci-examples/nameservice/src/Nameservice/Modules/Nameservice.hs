@@ -7,14 +7,17 @@ module Nameservice.Modules.Nameservice
     Name(..)
   , Whois (..)
   , nameserviceKey
+  , NameserviceException(..)
 
   -- * effects
   , getWhois
   , nameIsAvailable
   , buyName
 
-  -- * query API
+  -- * interpreter
+  , eval
 
+  -- * query API
   ) where
 
 import           Control.Lens              (iso)
@@ -25,14 +28,17 @@ import           Data.ByteString           as BS
 import           Data.Int                  (Int32)
 import           Data.Maybe                (fromJust, isNothing)
 import           Data.String.Conversions   (cs)
+import           Data.Text                 (Text)
 import           GHC.Generics              (Generic)
-import           Nameservice.Modules.Token (Address, Token, mkAmount, transfer)
-import qualified Nameservice.Modules.Token as Token
-import           Polysemy                  (Member, Sem, interpret, makeSem)
-import           Polysemy.Error            (Error, runError, throw)
+import           Nameservice.Modules.Token (Address, Token, TokenException,
+                                            mkAmount, transfer)
+import           Polysemy                  (Member, Members, Sem, interpret,
+                                            makeSem)
+import           Polysemy.Error            (Error, mapError, throw)
 import           Polysemy.Output           (Output)
 import           Tendermint.SDK.BaseApp    (HasBaseApp)
 import           Tendermint.SDK.Codec      (HasCodec (..))
+import           Tendermint.SDK.Errors     (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Events     (Event, IsEvent (..), emit)
 import qualified Tendermint.SDK.Store      as Store
 
@@ -90,8 +96,16 @@ instance IsEvent OwnerChanged where
 -- Exceptions
 --------------------------------------------------------------------------------
 
-data Exception =
-  InvalidPurchaseAttempt String
+data NameserviceException =
+  InvalidPurchaseAttempt Text
+
+instance IsAppError NameserviceException where
+  makeAppError (InvalidPurchaseAttempt msg) =
+    AppError
+      { appErrorCode = 1
+      , appErrorCodeSpace = "nameservice"
+      , appErrorMessage = msg
+      }
 
 --------------------------------------------------------------------------------
 
@@ -105,8 +119,7 @@ buyName
   :: Member Nameservice r
   => Member Token r
   => Member (Output Event) r
-  => Member (Error Exception) r
-  => Member (Error Token.Exception) r
+  => Members '[Error NameserviceException, Error TokenException] r
   => Name
   -> Whois
   -> Sem r ()
@@ -130,17 +143,20 @@ buyName name whois@Whois{whoisPrice=offerPrice} = do
             }
         else throw (InvalidPurchaseAttempt "Offer too low")
 
-eval
+evalNameservice
   :: HasBaseApp r
-  => Sem (Nameservice ': Error Exception ': r) a
+  => Sem (Nameservice ': r) a
   -> Sem r a
-eval action = do
-  eRes <- runError $ interpret (\case
+evalNameservice =
+  interpret (\case
       GetWhois name ->
         Store.get (undefined :: Store.Root) name
       PutWhois name whois ->
         Store.put name whois
-    ) action
-  case eRes of
-    Right a -> return a
-    Left _  -> undefined
+    )
+
+eval
+  :: HasBaseApp r
+  => Sem (Nameservice ': Error NameserviceException ': r) a
+  -> Sem r a
+eval = mapError makeAppError . evalNameservice

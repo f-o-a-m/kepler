@@ -6,13 +6,13 @@ module Nameservice.Modules.Token
     Address
   , Amount
   , mkAmount
+  , tokenKey
   , TokenException(..)
 
   -- * effects
   , Token
   , TokenEffR
   , HasTokenEff
-
   , getBalance
   , transfer
 
@@ -45,8 +45,6 @@ tokenKey = "01"
 
 -- NOTE : comes from auth module eventually
 newtype Address = Address String deriving (Eq, Show, Binary.Binary, Generic)
-
--- newtype Balance = Balance Int32 deriving (Eq, Show, Binary.Binary, Generic)
 
 newtype Amount = Amount Int32 deriving (Eq, Show, Binary.Binary, Generic)
 
@@ -142,13 +140,13 @@ evalToken
   :: HasBaseApp r
   => Sem (Token ': r) a
   -> Sem r a
-evalToken action = do
+evalToken = do
   interpret (\case
       GetBalance' address ->
         Store.get (undefined :: Store.Root) address
       PutBalance address balance ->
         Store.put address balance
-    ) action
+    )
 
 eval
   :: HasBaseApp r
