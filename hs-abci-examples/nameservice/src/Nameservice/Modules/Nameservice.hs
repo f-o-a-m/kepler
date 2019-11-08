@@ -28,9 +28,10 @@ import           Data.String.Conversions   (cs)
 import           GHC.Generics              (Generic)
 import           Nameservice.Modules.Token (Address, Token, mkAmount, transfer)
 import qualified Nameservice.Modules.Token as Token
-import           Polysemy                  (Member, Sem, makeSem)
-import           Polysemy.Error            (Error, throw)
+import           Polysemy                  (Member, Sem, interpret, makeSem)
+import           Polysemy.Error            (Error, runError, throw)
 import           Polysemy.Output           (Output)
+import           Tendermint.SDK.BaseApp    (HasBaseApp)
 import           Tendermint.SDK.Codec      (HasCodec (..))
 import           Tendermint.SDK.Events     (Event, IsEvent (..), emit)
 import qualified Tendermint.SDK.Store      as Store
@@ -78,7 +79,7 @@ data OwnerChanged = OwnerChanged
 
 instance IsEvent OwnerChanged where
   makeEventType _ = "OwnerChanged"
-  makeEventData OwnerChanged{..} = (bimap cs cs) <$>
+  makeEventData OwnerChanged{..} = bimap cs cs <$>
     [ (Binary.encode @String "newOwner", Binary.encode ownerChangedNewOwner)
     , (Binary.encode @String "name", Binary.encode ownerChangedName)
     , (Binary.encode @String "newValue", Binary.encode ownerChangedNewValue)
@@ -128,3 +129,18 @@ buyName name whois@Whois{whoisPrice=offerPrice} = do
             , ownerChangedNewPrice = whoisPrice whois
             }
         else throw (InvalidPurchaseAttempt "Offer too low")
+
+eval
+  :: HasBaseApp r
+  => Sem (Nameservice ': Error Exception ': r) a
+  -> Sem r a
+eval action = do
+  eRes <- runError $ interpret (\case
+      GetWhois name ->
+        Store.get (undefined :: Store.Root) name
+      PutWhois name whois ->
+        Store.put name whois
+    ) action
+  case eRes of
+    Right a -> return a
+    Left _  -> undefined

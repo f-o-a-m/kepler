@@ -84,6 +84,7 @@ library:
   - Tendermint.SDK.Logger.Katip
   - Tendermint.SDK.Application
   - Tendermint.SDK.Events
+  - Tendermint.SDK.Errors
 
 tests:
   hs-abci-sdk-test:

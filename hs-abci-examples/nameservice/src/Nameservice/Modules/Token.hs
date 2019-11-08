@@ -6,11 +6,19 @@ module Nameservice.Modules.Token
     Address
   , Amount
   , mkAmount
+  , TokenException(..)
+
   -- * effects
   , Token
-  , Exception
+  , TokenEffR
+  , HasTokenEff
+
   , getBalance
   , transfer
+
+  -- * interpreter
+  , eval
+
   ) where
 
 import           Control.Lens            (iso)
@@ -21,11 +29,14 @@ import qualified Data.ByteString         as BS
 import           Data.Int                (Int32)
 import           Data.Maybe              (fromJust, fromMaybe)
 import           Data.String.Conversions (cs)
+import           Data.Text               (Text)
 import           GHC.Generics            (Generic)
 import           Polysemy
-import           Polysemy.Error          (Error, throw)
+import           Polysemy.Error          (Error, mapError, throw)
 import           Polysemy.Output         (Output)
+import           Tendermint.SDK.BaseApp  (HasBaseApp)
 import           Tendermint.SDK.Codec    (HasCodec (..))
+import           Tendermint.SDK.Errors   (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Events   (Event, IsEvent (..), emit)
 import qualified Tendermint.SDK.Store    as Store
 
@@ -57,13 +68,13 @@ instance Store.HasKey Amount where
 
 data TransferSuccessful = TransferSuccessful
   { transferSuccessfulAmount :: Amount
-  , transferSuccessfulTo :: Address
-  , transferSuccessfulFrom :: Address
+  , transferSuccessfulTo     :: Address
+  , transferSuccessfulFrom   :: Address
   }
 
 instance IsEvent TransferSuccessful where
   makeEventType _ = "TransferSuccessful"
-  makeEventData TransferSuccessful{..} = (bimap cs cs) <$>
+  makeEventData TransferSuccessful{..} = bimap cs cs <$>
     [ (Binary.encode @String "amount", Binary.encode transferSuccessfulAmount)
     , (Binary.encode @String "to", Binary.encode transferSuccessfulTo)
     , (Binary.encode @String "from", Binary.encode transferSuccessfulFrom)
@@ -73,8 +84,16 @@ instance IsEvent TransferSuccessful where
 -- Exceptions
 --------------------------------------------------------------------------------
 
-data Exception =
-  InvalidTransfer String
+data TokenException =
+    InvalidTransfer Text
+
+instance IsAppError TokenException where
+    makeAppError (InvalidTransfer msg) =
+      AppError
+        { appErrorCode = 1
+        , appErrorCodeSpace = "token"
+        , appErrorMessage = msg
+        }
 
 --------------------------------------------------------------------------------
 
@@ -83,6 +102,9 @@ data Token m a where
     GetBalance' :: Address -> Token m (Maybe Amount)
 
 makeSem ''Token
+
+type TokenEffR = '[Token, Error TokenException]
+type HasTokenEff r = Members TokenEffR r
 
 getBalance
   :: Member Token r
@@ -93,8 +115,7 @@ getBalance address =
 
 transfer
   :: Member Token r
-  => Member (Output Event) r
-  => Member (Error Exception) r
+  => Members '[Output Event, Error TokenException] r
   => Address
   -> Amount
   -> Address
@@ -116,3 +137,21 @@ transfer addr1 amount@(Amount amt) addr2 = do
         , transferSuccessfulFrom = addr1
         }
     else throw (InvalidTransfer "Insufficient funds")
+
+evalToken
+  :: HasBaseApp r
+  => Sem (Token ': r) a
+  -> Sem r a
+evalToken action = do
+  interpret (\case
+      GetBalance' address ->
+        Store.get (undefined :: Store.Root) address
+      PutBalance address balance ->
+        Store.put address balance
+    ) action
+
+eval
+  :: HasBaseApp r
+  => Sem (Token ': Error TokenException ': r) a
+  -> Sem r a
+eval = mapError makeAppError . evalToken

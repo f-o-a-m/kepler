@@ -57,6 +57,7 @@ dependencies:
 - polysemy
 - katip
 - string-conversions
+- text
 
 library:
   source-dirs: src
