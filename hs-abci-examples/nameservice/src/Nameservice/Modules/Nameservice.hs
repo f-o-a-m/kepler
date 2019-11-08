@@ -35,7 +35,7 @@ import           Data.Proxy
 import           Data.String.Conversions     (cs)
 import           Data.Text                   (Text)
 import           GHC.Generics                (Generic)
-import           Nameservice.Modules.Token   (Address, Amount, Token, TokenException,
+import           Nameservice.Modules.Token   (Address, Amount, HasTokenEff,
                                               mkAmount, transfer)
 import           Polysemy                    (Member, Members, Sem, interpret,
                                               makeSem)
@@ -54,7 +54,6 @@ newtype Name = Name String deriving (Eq, Show, Binary.Binary)
 
 nameserviceKey :: ByteString
 nameserviceKey = "02"
-
 
 data Whois = Whois
   { whoisValue :: String
@@ -177,10 +176,9 @@ nameIsAvailable
 nameIsAvailable = fmap isNothing . getWhois
 
 buyName
-  :: Member Nameservice r
-  => Member Token r
+  :: HasTokenEff r
+  => HasNameserviceEff r
   => Member (Output Event) r
-  => Members '[Error NameserviceException, Error TokenException] r
   => Name
   -> Whois
   -> Sem r ()
