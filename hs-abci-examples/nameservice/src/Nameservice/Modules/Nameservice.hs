@@ -20,27 +20,31 @@ module Nameservice.Modules.Nameservice
   -- * query API
   ) where
 
-import           Control.Lens              (iso)
-import           Data.Bifunctor            (bimap)
-import qualified Data.Binary               as Binary
-import           Data.ByteString           (ByteString)
-import           Data.ByteString           as BS
-import           Data.Int                  (Int32)
-import           Data.Maybe                (fromJust, isNothing)
-import           Data.String.Conversions   (cs)
-import           Data.Text                 (Text)
-import           GHC.Generics              (Generic)
-import           Nameservice.Modules.Token (Address, Token, TokenException,
-                                            mkAmount, transfer)
-import           Polysemy                  (Member, Members, Sem, interpret,
-                                            makeSem)
-import           Polysemy.Error            (Error, mapError, throw)
-import           Polysemy.Output           (Output)
-import           Tendermint.SDK.BaseApp    (HasBaseApp)
-import           Tendermint.SDK.Codec      (HasCodec (..))
-import           Tendermint.SDK.Errors     (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Events     (Event, IsEvent (..), emit)
-import qualified Tendermint.SDK.Store      as Store
+import           Control.Lens                (iso)
+import           Data.Bifunctor              (bimap)
+import qualified Data.Binary                 as Binary
+import           Data.ByteString             (ByteString)
+import           Data.ByteString             as BS
+import           Data.Int                    (Int32)
+import           Data.Maybe                  (fromJust, isNothing)
+import           Data.Proxy
+import           Data.String.Conversions     (cs)
+import           Data.Text                   (Text)
+import           GHC.Generics                (Generic)
+import           Nameservice.Modules.Token   (Address, Token, TokenException,
+                                              mkAmount, transfer)
+import           Polysemy                    (Member, Members, Sem, interpret,
+                                              makeSem)
+import           Polysemy.Error              (Error, mapError, throw)
+import           Polysemy.Output             (Output)
+import           Servant.API                 ((:>))
+import           Tendermint.SDK.BaseApp      (HasBaseApp)
+import           Tendermint.SDK.Codec        (HasCodec (..))
+import           Tendermint.SDK.Errors       (AppError (..), IsAppError (..))
+import           Tendermint.SDK.Events       (Event, IsEvent (..), emit)
+import qualified Tendermint.SDK.Router       as R
+import qualified Tendermint.SDK.Store        as Store
+import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
 
 newtype Name = Name String deriving (Eq, Show, Binary.Binary)
 
@@ -66,11 +70,8 @@ instance Store.HasKey Whois where
     rawKey = iso (\(Name n) -> nameserviceKey <> cs n)
       (Name . cs . fromJust . BS.stripPrefix nameserviceKey)
 
-data Nameservice m a where
-  PutWhois :: Name -> Whois -> Nameservice m ()
-  GetWhois :: Name -> Nameservice m (Maybe Whois)
-
-makeSem ''Nameservice
+instance R.Queryable Whois where
+  type Name Whois = "whois"
 
 --------------------------------------------------------------------------------
 -- Events
@@ -109,6 +110,43 @@ instance IsAppError NameserviceException where
 
 --------------------------------------------------------------------------------
 
+data Nameservice m a where
+  PutWhois :: Name -> Whois -> Nameservice m ()
+  GetWhois :: Name -> Nameservice m (Maybe Whois)
+
+makeSem ''Nameservice
+
+eval
+  :: HasBaseApp r
+  => Sem (Nameservice ': Error NameserviceException ': r) a
+  -> Sem r a
+eval = mapError makeAppError . evalNameservice
+  where
+    evalNameservice
+      :: HasBaseApp r
+      => Sem (Nameservice ': r) a
+      -> Sem r a
+    evalNameservice =
+      interpret (\case
+          GetWhois name ->
+            Store.get (undefined :: Store.Root) name
+          PutWhois name whois ->
+            Store.put name whois
+        )
+
+--------------------------------------------------------------------------------
+-- | Server
+--------------------------------------------------------------------------------
+
+type NameserviceContents = '[Whois]
+
+type Api = "nameservice" :> QueryApi NameserviceContents
+
+server :: Member Store.RawStore r => R.RouteT Api (Sem r)
+server = storeQueryHandlers (Proxy :: Proxy NameserviceContents) (Proxy :: Proxy (Sem r))
+
+--------------------------------------------------------------------------------
+
 nameIsAvailable
   :: Member Nameservice r
   => Name
@@ -142,21 +180,3 @@ buyName name whois@Whois{whoisPrice=offerPrice} = do
             , ownerChangedNewPrice = whoisPrice whois
             }
         else throw (InvalidPurchaseAttempt "Offer too low")
-
-evalNameservice
-  :: HasBaseApp r
-  => Sem (Nameservice ': r) a
-  -> Sem r a
-evalNameservice =
-  interpret (\case
-      GetWhois name ->
-        Store.get (undefined :: Store.Root) name
-      PutWhois name whois ->
-        Store.put name whois
-    )
-
-eval
-  :: HasBaseApp r
-  => Sem (Nameservice ': Error NameserviceException ': r) a
-  -> Sem r a
-eval = mapError makeAppError . evalNameservice
