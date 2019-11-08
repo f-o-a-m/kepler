@@ -6,10 +6,11 @@ module Nameservice.Modules.Nameservice
     -- * types
     Name(..)
   , Whois (..)
-  , nameserviceKey
   , NameserviceException(..)
 
   -- * effects
+  , NameserviceEffR
+  , HasNameserviceEff
   , getWhois
   , nameIsAvailable
   , buyName
@@ -18,6 +19,9 @@ module Nameservice.Modules.Nameservice
   , eval
 
   -- * query API
+  , Api
+  , server
+
   ) where
 
 import           Control.Lens                (iso)
@@ -115,6 +119,9 @@ data Nameservice m a where
   GetWhois :: Name -> Nameservice m (Maybe Whois)
 
 makeSem ''Nameservice
+
+type NameserviceEffR = '[Nameservice, Error NameserviceException]
+type HasNameserviceEff r = Members NameserviceEffR r
 
 eval
   :: HasBaseApp r

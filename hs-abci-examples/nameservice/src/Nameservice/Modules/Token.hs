@@ -6,7 +6,6 @@ module Nameservice.Modules.Token
     Address
   , Amount
   , mkAmount
-  , tokenKey
   , TokenException(..)
 
   -- * effects
@@ -19,7 +18,7 @@ module Nameservice.Modules.Token
   -- * interpreter
   , eval
 
-  -- * server
+  -- * Query Api
   , Api
   , server
 
