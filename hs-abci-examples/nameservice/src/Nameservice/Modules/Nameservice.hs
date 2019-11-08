@@ -35,7 +35,7 @@ import           Data.Proxy
 import           Data.String.Conversions     (cs)
 import           Data.Text                   (Text)
 import           GHC.Generics                (Generic)
-import           Nameservice.Modules.Token   (Address, Token, TokenException,
+import           Nameservice.Modules.Token   (Address, Amount, Token, TokenException,
                                               mkAmount, transfer)
 import           Polysemy                    (Member, Members, Sem, interpret,
                                               makeSem)
@@ -76,6 +76,22 @@ instance Store.HasKey Whois where
 
 instance R.Queryable Whois where
   type Name Whois = "whois"
+
+--------------------------------------------------------------------------------
+-- Messages
+--------------------------------------------------------------------------------
+
+data MsgSetName = MsgSetName
+  { msgSetNameName  :: Name
+  , msgSetNameValue :: String
+  , msgSetNameOwner :: Address
+  }
+
+data MsgBuyName = MsgBuyName
+  { msgBuyNameName  :: Name
+  , msgBuyNameBig   :: Amount
+  , msgBuyNameBuyer :: Address
+  }
 
 --------------------------------------------------------------------------------
 -- Events
