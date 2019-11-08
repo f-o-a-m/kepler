@@ -46,13 +46,17 @@ default-extensions:
 
 dependencies:
 - base >= 4.7 && < 5
+- binary
+- bytestring
 - exceptions
 - hs-abci-extra
 - hs-abci-sdk
 - hs-abci-server
 - hs-abci-types
+- lens
 - polysemy
 - katip
+- string-conversions
 
 library:
   source-dirs: src
