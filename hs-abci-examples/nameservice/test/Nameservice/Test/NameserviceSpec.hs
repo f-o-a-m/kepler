@@ -13,3 +13,9 @@ spec = do
 
     it "Can buy a name" $ do
       pending
+
+    it "Can fail to buy a name" $ do
+      pending
+
+    it "Can fail a transfer" $ do
+      pending
