@@ -37,7 +37,7 @@ let
 
     # dependency of avl-auth
     # marked as broken, fails with some `ld` error
-    xxhash = self.unmarkBroken super.xxhash;
+    xxhash = pkgs.haskell.lib.unmarkBroken super.xxhash;
   };
 
   localOverrides = self: super:
