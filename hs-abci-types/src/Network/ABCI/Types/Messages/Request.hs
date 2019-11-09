@@ -17,6 +17,7 @@ import           Data.ByteArray.Base64String            (Base64String)
 import qualified Data.ByteArray.Base64String            as Base64
 import           Data.ByteArray.HexString               (HexString)
 import qualified Data.ByteArray.HexString               as Hex
+import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
 import           Data.Word                              (Word64)
@@ -29,7 +30,7 @@ import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams (..),
                                                          LastCommitInfo (..),
                                                          Timestamp (..),
                                                          ValidatorUpdate (..),
-                                                         WrappedInt64 (..))
+                                                         WrappedVal (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
@@ -207,7 +208,7 @@ data Query = Query
   -- ^  Raw query bytes. Can be used with or in lieu of Path.
   , queryPath   :: Text
   -- ^ Path of request, like an HTTP GET path. Can be used with or in liue of Data.
-  , queryHeight :: WrappedInt64
+  , queryHeight :: WrappedVal Int64
   -- ^ The block height for which you want the query
   , queryProve  :: Bool
   -- ^ Return Merkle proof with response if possible
@@ -231,11 +232,11 @@ instance Wrapped Query where
       defMessage
         &  PT.data' .~ Base64.toBytes queryData
         &  PT.path .~ queryPath
-        &  PT.height .~ unwrapInt64 queryHeight
+        &  PT.height .~ unWrappedVal queryHeight
         &  PT.prove .~ queryProve
     f message = Query { queryData   = Base64.fromBytes $ message ^. PT.data'
                       , queryPath   = message ^. PT.path
-                      , queryHeight = WrappedInt64 $ message ^. PT.height
+                      , queryHeight = WrappedVal $ message ^. PT.height
                       , queryProve  = message ^. PT.prove
                       }
 
@@ -346,7 +347,7 @@ instance Wrapped DeliverTx where
 --------------------------------------------------------------------------------
 
 data EndBlock = EndBlock
-  { endBlockHeight :: WrappedInt64
+  { endBlockHeight :: WrappedVal Int64
   -- ^ Height of the block just executed.
   } deriving (Eq, Show, Generic)
 
@@ -364,10 +365,10 @@ instance Wrapped EndBlock where
 
   _Wrapped' = iso t f
    where
-    t EndBlock {..} = defMessage & PT.height .~ unwrapInt64 endBlockHeight
+    t EndBlock {..} = defMessage & PT.height .~ unWrappedVal endBlockHeight
 
     f message =
-      EndBlock { endBlockHeight = WrappedInt64 $ message ^. PT.height }
+      EndBlock { endBlockHeight = WrappedVal $ message ^. PT.height }
 
 --------------------------------------------------------------------------------
 -- Commit

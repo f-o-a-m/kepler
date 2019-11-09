@@ -18,15 +18,17 @@ import qualified Data.ByteArray.Base64String            as Base64
 import           Data.ByteArray.HexString               (HexString)
 import qualified Data.ByteArray.HexString               as Hex
 import           Data.Default.Class                     (Default (..))
+import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
-import           Data.Word                              (Word32, Word64)
+import           Data.Word                              (Word64)
+import           Data.Word                              (Word32)
 import           GHC.Generics                           (Generic)
 import           Network.ABCI.Types.Messages.Common     (defaultABCIOptions,
                                                          makeABCILenses)
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams, Event,
                                                          Proof, ValidatorUpdate,
-                                                         WrappedInt64 (..))
+                                                         WrappedVal (..))
 import qualified Proto.Types                            as PT
 import qualified Proto.Types_Fields                     as PT
 
@@ -90,9 +92,9 @@ data Info = Info
   -- ^ Some arbitrary information
   , infoVersion          :: Text
   -- ^ The application software semantic version
-  , infoAppVersion       :: Word64
+  , infoAppVersion       :: WrappedVal Word64
   -- ^ The application protocol version
-  , infoLastBlockHeight  :: WrappedInt64
+  , infoLastBlockHeight  :: WrappedVal Int64
   -- ^  Latest block for which the app has called Commit
   , infoLastBlockAppHash :: HexString
   -- ^  Latest result of Commit
@@ -104,8 +106,12 @@ makeABCILenses ''Info
 instance ToJSON Info where
   toJSON = genericToJSON $ defaultABCIOptions "info"
 instance FromJSON Info where
-  parseJSON = genericParseJSON $ defaultABCIOptions "info"
-
+  parseJSON = withObject "Info" $ \v -> Info
+    <$> v .: "data"
+    <*> v .: "version"
+    <*> v .: "app_version"
+    <*> v .:? "last_block_height" .!= 0
+    <*> v .:? "last_block_app_hash" .!= ""
 
 instance Wrapped Info where
   type Unwrapped Info = PT.ResponseInfo
@@ -116,14 +122,14 @@ instance Wrapped Info where
       defMessage
         & PT.data' .~ infoData
         & PT.version .~ infoVersion
-        & PT.appVersion .~ infoAppVersion
-        & PT.lastBlockHeight .~ unwrapInt64 infoLastBlockHeight
+        & PT.appVersion .~ unWrappedVal infoAppVersion
+        & PT.lastBlockHeight .~ unWrappedVal infoLastBlockHeight
         & PT.lastBlockAppHash .~ Hex.toBytes infoLastBlockAppHash
     f message = Info
       { infoData             = message ^. PT.data'
       , infoVersion          = message ^. PT.version
-      , infoAppVersion       = message ^. PT.appVersion
-      , infoLastBlockHeight  = WrappedInt64 $ message ^. PT.lastBlockHeight
+      , infoAppVersion       = WrappedVal  $ message ^. PT.appVersion
+      , infoLastBlockHeight  = WrappedVal $ message ^. PT.lastBlockHeight
       , infoLastBlockAppHash = Hex.fromBytes $ message ^. PT.lastBlockAppHash
       }
 
@@ -220,7 +226,7 @@ data Query = Query
   -- ^ The output of the application's logger. May be non-deterministic.
   , queryInfo      :: Text
   -- ^ Additional information. May be non-deterministic.
-  , queryIndex     :: WrappedInt64
+  , queryIndex     :: WrappedVal Int64
   -- ^ The index of the key in the tree.
   , queryKey       :: Base64String
   -- ^ The key of the matching data.
@@ -229,7 +235,7 @@ data Query = Query
   , queryProof     :: Maybe Proof
   -- ^ Serialized proof for the value data, if requested, to be verified against
   -- the AppHash for the given Height.
-  , queryHeight    :: WrappedInt64
+  , queryHeight    :: WrappedVal Int64
   -- ^ The block height from which data was derived.
   , queryCodespace :: Text
   -- ^ Namespace for the Code.
@@ -254,21 +260,21 @@ instance Wrapped Query where
         & PT.code .~ queryCode
         & PT.log .~ queryLog
         & PT.info .~ queryInfo
-        & PT.index .~ unwrapInt64 queryIndex
+        & PT.index .~ unWrappedVal queryIndex
         & PT.key .~ Base64.toBytes queryKey
         & PT.value .~ Base64.toBytes queryValue
         & PT.maybe'proof .~ queryProof ^? _Just .  _Wrapped'
-        & PT.height .~ unwrapInt64 queryHeight
+        & PT.height .~ unWrappedVal queryHeight
         & PT.codespace .~ queryCodespace
     f message = Query
       { queryCode      = message ^. PT.code
       , queryLog       = message ^. PT.log
       , queryInfo      = message ^. PT.info
-      , queryIndex     = WrappedInt64 $ message ^. PT.index
+      , queryIndex     = WrappedVal $ message ^. PT.index
       , queryKey       = Base64.fromBytes $ message ^. PT.key
       , queryValue     = Base64.fromBytes $ message ^. PT.value
       , queryProof     = message ^? PT.maybe'proof . _Just . _Unwrapped'
-      , queryHeight    = WrappedInt64 $ message ^. PT.height
+      , queryHeight    = WrappedVal $ message ^. PT.height
       , queryCodespace = message ^. PT.codespace
       }
 
@@ -321,9 +327,9 @@ data CheckTx = CheckTx
   -- ^ The output of the application's logger.
   , checkTxInfo      :: Text
   -- ^ Additional information.
-  , checkTxGasWanted :: WrappedInt64
+  , checkTxGasWanted :: WrappedVal Int64
   -- ^ Amount of gas requested for transaction.
-  , checkTxGasUsed   :: WrappedInt64
+  , checkTxGasUsed   :: WrappedVal Int64
   -- ^ Amount of gas consumed by transaction.
   , checkTxEvents    :: [Event]
   -- ^ Events
@@ -359,8 +365,8 @@ instance Wrapped CheckTx where
         & PT.data' .~ Base64.toBytes checkTxData
         & PT.log .~ checkTxLog
         & PT.info .~ checkTxInfo
-        & PT.gasWanted .~ unwrapInt64 checkTxGasWanted
-        & PT.gasUsed .~ unwrapInt64 checkTxGasUsed
+        & PT.gasWanted .~ unWrappedVal checkTxGasWanted
+        & PT.gasUsed .~ unWrappedVal checkTxGasUsed
         & PT.events .~ checkTxEvents ^.. traverse . _Wrapped'
         & PT.codespace .~ checkTxCodespace
     f message = CheckTx
@@ -368,8 +374,8 @@ instance Wrapped CheckTx where
       , checkTxData      = Base64.fromBytes $ message ^. PT.data'
       , checkTxLog       = message ^. PT.log
       , checkTxInfo      = message ^. PT.info
-      , checkTxGasWanted = WrappedInt64 $ message ^. PT.gasWanted
-      , checkTxGasUsed   = WrappedInt64 $ message ^. PT.gasUsed
+      , checkTxGasWanted = WrappedVal $ message ^. PT.gasWanted
+      , checkTxGasUsed   = WrappedVal $ message ^. PT.gasUsed
       , checkTxEvents    = message ^.. PT.events . traverse . _Unwrapped'
       , checkTxCodespace = message ^. PT.codespace
       }
@@ -390,9 +396,9 @@ data DeliverTx = DeliverTx
   -- ^ The output of the application's logger. May be non-deterministic.
   , deliverTxInfo      :: Text
   -- ^ Additional information.
-  , deliverTxGasWanted :: WrappedInt64
+  , deliverTxGasWanted :: WrappedVal Int64
   -- ^ Amount of gas requested for transaction.
-  , deliverTxGasUsed   :: WrappedInt64
+  , deliverTxGasUsed   :: WrappedVal Int64
   -- ^ Amount of gas consumed by transaction.
   , deliverTxEvents    :: [Event]
   -- ^ Events
@@ -428,8 +434,8 @@ instance Wrapped DeliverTx where
         & PT.data' .~ Base64.toBytes deliverTxData
         & PT.log .~ deliverTxLog
         & PT.info .~ deliverTxInfo
-        & PT.gasWanted .~ unwrapInt64 deliverTxGasWanted
-        & PT.gasUsed .~ unwrapInt64 deliverTxGasUsed
+        & PT.gasWanted .~ unWrappedVal deliverTxGasWanted
+        & PT.gasUsed .~ unWrappedVal deliverTxGasUsed
         & PT.events .~ deliverTxEvents ^.. traverse . _Wrapped'
         & PT.codespace .~ deliverTxCodespace
     f responseDeliverTx = DeliverTx
@@ -437,8 +443,8 @@ instance Wrapped DeliverTx where
       , deliverTxData      = Base64.fromBytes $ responseDeliverTx ^. PT.data'
       , deliverTxLog       = responseDeliverTx ^. PT.log
       , deliverTxInfo      = responseDeliverTx ^. PT.info
-      , deliverTxGasWanted = WrappedInt64 $ responseDeliverTx ^. PT.gasWanted
-      , deliverTxGasUsed   = WrappedInt64 $ responseDeliverTx ^. PT.gasUsed
+      , deliverTxGasWanted = WrappedVal $ responseDeliverTx ^. PT.gasWanted
+      , deliverTxGasUsed   = WrappedVal $ responseDeliverTx ^. PT.gasUsed
       , deliverTxEvents    = responseDeliverTx ^.. PT.events . traverse . _Unwrapped'
       , deliverTxCodespace = responseDeliverTx ^. PT.codespace
       }
