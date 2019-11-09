@@ -7,11 +7,13 @@ let
   }) { inherit config; };
 
   packages = {
-    hs-abci-example = ./hs-abci-example;
     hs-abci-extra = ./hs-abci-extra;
+    hs-abci-sdk = ./hs-abci-sdk;
     hs-abci-server = ./hs-abci-server;
     hs-abci-types = ./hs-abci-types;
     hs-tendermint-client = ./hs-tendermint-client;
+    nameservice = ./hs-abci-examples/nameservice;
+    simple-storage = ./hs-abci-examples/simple-storage;
   };
 
   repos = {
@@ -29,15 +31,22 @@ let
 
   extra-build-inputs = with pkgs; {
     hs-abci-types = [protobuf];
+    simple-storage = [protobuf];
   };
 
   addBuildInputs = inputs: { buildInputs ? [], ... }: { buildInputs = inputs ++ buildInputs; };
 
   hackageOverrides = self: super: {
-
-    # dependency of avl-auth
-    # marked as broken, fails with some `ld` error
-    xxhash = pkgs.haskell.lib.unmarkBroken super.xxhash;
+    polysemy-plugin = self.callHackageDirect {
+      pkg = "polysemy-plugin";
+      ver = "0.2.4.0";
+      sha256 = "1bjngyns49j76hgvw3220l9sns554jkqqc9y00dc3pfnik7hva56";
+    } {};
+    polysemy = self.callHackageDirect {
+      pkg = "polysemy";
+      ver = "1.2.0.0";
+      sha256 = "1ih4n468h9g2pdiqg292g20r43a6z1qsbnbvi1hns6nbhwddibzd";
+    } {};
   };
 
   localOverrides = self: super:
@@ -59,6 +68,12 @@ let
       haskellPackages = pkgs.haskellPackages.override {
         overrides = pkgs.lib.foldr pkgs.lib.composeExtensions (_: _: {}) [
           overrides
+          (self: super: {
+            # https://github.com/haskell-haskey/xxhash-ffi/issues/2
+            avl-auth = pkgs.haskell.lib.dontCheck super.avl-auth;
+            hs-tendermint-client = pkgs.haskell.lib.dontCheck super.hs-tendermint-client;
+            simple-storage = pkgs.haskell.lib.dontCheck super.simple-storage;
+          })
         ];
       };
     };
@@ -69,11 +84,13 @@ in {
 
   packages = {
     inherit (pkgs.haskellPackages)
-      #hs-abci-example
       hs-abci-extra
+      hs-abci-sdk
       hs-abci-server
       hs-abci-types
       hs-tendermint-client
+      nameservice
+      simple-storage
     ;
   };
 }
