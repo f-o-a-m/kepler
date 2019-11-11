@@ -34,6 +34,11 @@ import           Polysemy.Output                        (Output (..), output)
 import           Polysemy.Reader                        (Reader (..), ask)
 import           Polysemy.Resource                      (Resource, onException)
 
+{-
+TODO : These JSON instances are fragile but convenient. We
+should come up with a custom solution.
+-}
+
 class ToEvent e where
   makeEventType :: Proxy e -> String
   makeEventData :: e -> [(BS.ByteString, BS.ByteString)]
