@@ -75,6 +75,10 @@ library:
   exposed-modules:
   - Nameservice.Application
   - Nameservice.Server
+  - Nameservice.Modules.Nameservice.Messages
+  - Nameservice.Modules.Nameservice.Types
+  - Nameservice.Modules.Nameservice.Keeper
+  - Nameservice.Modules.Nameservice.Query
 
   generated-exposed-modules:
   - Proto.Nameservice.Messages
