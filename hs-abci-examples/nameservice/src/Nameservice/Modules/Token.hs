@@ -99,7 +99,7 @@ instance IsAppError TokenException where
     makeAppError (InvalidTransfer msg) =
       AppError
         { appErrorCode = 1
-        , appErrorCodeSpace = "token"
+        , appErrorCodespace = "token"
         , appErrorMessage = msg
         }
 
@@ -116,6 +116,7 @@ type HasTokenEff r = Members TokenEffR r
 
 eval
   :: HasBaseApp r
+  => Member (Error AppError) r
   => Sem (Token ': Error TokenException ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalToken

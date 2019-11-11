@@ -42,6 +42,6 @@ toApplication
 toApplication ra query = do
   res <- ra query
   case res of
-    Fail e      -> pure $ responseQueryError e
-    FailFatal e -> pure $ responseQueryError e
+    Fail e      -> pure $ responseQueryError query e
+    FailFatal e -> pure $ responseQueryError query e
     Route a     -> pure a

@@ -7,14 +7,12 @@ import           Control.Lens                 (over, view)
 import qualified Katip                        as K
 import           Polysemy                     (Embed, Member, Members, Sem,
                                                runM)
-import           Polysemy.Error               (Error, runError)
 import           Polysemy.Output              (Output)
 import           Polysemy.Reader              (Reader, asks, local, runReader)
 import           Polysemy.Resource            (Resource, resourceToIO)
 import           Tendermint.SDK.AuthTreeStore (AuthTreeDriver,
                                                initAuthTreeDriver,
                                                interpretAuthTreeStore)
-import           Tendermint.SDK.Errors
 import           Tendermint.SDK.Events        (Event, EventBuffer,
                                                evalWithBuffer, newEventBuffer)
 import           Tendermint.SDK.Logger        (Logger)
@@ -25,7 +23,6 @@ type HasBaseApp r =
   ( Member Logger r
   , Member RawStore r
   , Member (Output Event) r
-  , Member (Error AppError) r
   , Member Resource r
   )
 
@@ -45,7 +42,6 @@ type BaseApp =
   ': RawStore
   ': Logger
   ': Resource
-  ': Error AppError
   ': Reader EventBuffer
   ': CoreEff
   )
@@ -81,8 +77,9 @@ eval Context{..} action =
   runM .
   runReader contextLogConfig .
   runReader contextEventBuffer .
-  (fmap (either (error "TODO: implement erorr handler") id) . runError) .
   resourceToIO .
   KL.evalKatip .
   interpretAuthTreeStore contextAuthTreeDriver .
   evalWithBuffer $ action
+
+--------------------------------------------------------------------------------

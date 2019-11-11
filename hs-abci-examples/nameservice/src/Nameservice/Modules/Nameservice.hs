@@ -69,7 +69,6 @@ instance HasCodec Whois where
 
 instance Store.HasKey Whois where
     type Key Whois = Name
-    -- TODO probably should add prefix and then strip prefix
     rawKey = iso (\(Name n) -> nameserviceKey <> cs n)
       (Name . cs . fromJust . BS.stripPrefix nameserviceKey)
 
@@ -123,7 +122,7 @@ instance IsAppError NameserviceException where
   makeAppError (InvalidPurchaseAttempt msg) =
     AppError
       { appErrorCode = 1
-      , appErrorCodeSpace = "nameservice"
+      , appErrorCodespace = "nameservice"
       , appErrorMessage = msg
       }
 
@@ -140,6 +139,8 @@ type HasNameserviceEff r = Members NameserviceEffR r
 
 eval
   :: HasBaseApp r
+  => HasTokenEff r
+  => Member (Error AppError) r
   => Sem (Nameservice ': Error NameserviceException ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalNameservice
