@@ -6,6 +6,7 @@ module Nameservice.Modules.Token
     Address
   , Amount
   , TokenException(..)
+  , Transfer
 
   -- * effects
   , Token
@@ -13,6 +14,8 @@ module Nameservice.Modules.Token
   , HasTokenEff
   , getBalance
   , transfer
+  , mint
+  , burn
 
   -- * interpreter
   , eval
@@ -70,18 +73,18 @@ instance Store.HasKey Amount where
 -- Events
 --------------------------------------------------------------------------------
 
-data TransferSuccessful = TransferSuccessful
-  { transferSuccessfulAmount :: Amount
-  , transferSuccessfulTo     :: Address
-  , transferSuccessfulFrom   :: Address
+data Transfer = Transfer
+  { transferAmount :: Amount
+  , transferTo     :: Address
+  , transferFrom   :: Address
   }
 
-instance IsEvent TransferSuccessful where
-  makeEventType _ = "TransferSuccessful"
-  makeEventData TransferSuccessful{..} = bimap cs cs <$>
-    [ (Binary.encode @String "amount", Binary.encode transferSuccessfulAmount)
-    , (Binary.encode @String "to", Binary.encode transferSuccessfulTo)
-    , (Binary.encode @String "from", Binary.encode transferSuccessfulFrom)
+instance IsEvent Transfer where
+  makeEventType _ = "Transfer"
+  makeEventData Transfer{..} = bimap cs cs <$>
+    [ (Binary.encode @String "amount", Binary.encode transferAmount)
+    , (Binary.encode @String "to", Binary.encode transferTo)
+    , (Binary.encode @String "from", Binary.encode transferFrom)
     ]
 
 --------------------------------------------------------------------------------
@@ -89,10 +92,10 @@ instance IsEvent TransferSuccessful where
 --------------------------------------------------------------------------------
 
 data TokenException =
-    InvalidTransfer Text
+    InsufficientFunds Text
 
 instance IsAppError TokenException where
-    makeAppError (InvalidTransfer msg) =
+    makeAppError (InsufficientFunds msg) =
       AppError
         { appErrorCode = 1
         , appErrorCodespace = "token"
@@ -154,20 +157,41 @@ transfer
   -> Amount
   -> Address
   -> Sem r ()
-transfer addr1 amount@(Amount amt) addr2 = do
+transfer addr1 amount addr2 = do
   -- check if addr1 has amt
-  (Amount addr1Bal) <- getBalance addr1
-  if addr1Bal > amt
+  addr1Bal <- getBalance addr1
+  if addr1Bal > amount
     then do
-      (Amount addr2Bal) <- getBalance addr2
-      let newBalance1 = Amount $ addr1Bal - amt
-          newBalance2 = Amount $ addr2Bal + amt
+      addr2Bal <- getBalance addr2
+      let newBalance1 = addr1Bal - amount
+          newBalance2 = addr2Bal + amount
       -- update both balances
       putBalance addr1 newBalance1
       putBalance addr2 newBalance2
-      emit $ TransferSuccessful
-        { transferSuccessfulAmount = amount
-        , transferSuccessfulTo = addr2
-        , transferSuccessfulFrom = addr1
+      emit $ Transfer
+        { transferAmount = amount
+        , transferTo = addr2
+        , transferFrom = addr1
         }
-    else throw (InvalidTransfer "Insufficient funds")
+    else throw (InsufficientFunds "Insufficient funds for transfer.")
+
+burn
+  :: Members '[Token, Error TokenException] r
+  => Address
+  -> Amount
+  -> Sem r ()
+burn addr amount = do
+  bal <- getBalance addr
+  if bal < amount
+    then throw $ InsufficientFunds "Insuffient funds for burn."
+    else putBalance addr (bal - amount)
+
+mint
+  :: Members '[Token, Error TokenException] r
+  => Address
+  -> Amount
+  -> Sem r ()
+mint addr amount = do
+  bal <- getBalance addr
+  putBalance addr (bal + amount)
+

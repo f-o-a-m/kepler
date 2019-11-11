@@ -36,7 +36,7 @@ import           Data.String.Conversions     (cs)
 import           Data.Text                   (Text)
 import           GHC.Generics                (Generic)
 import           Nameservice.Modules.Token   (Address, Amount, HasTokenEff,
-                                              transfer)
+                                              burn, mint, transfer)
 import           Polysemy                    (Member, Members, Sem, interpret,
                                               makeSem)
 import           Polysemy.Error              (Error, mapError, throw)
@@ -80,19 +80,43 @@ instance R.Queryable Whois where
 --------------------------------------------------------------------------------
 
 data NameClaimed = NameClaimed
-  { nameClaimedNewOwner :: Address
-  , nameClaimedName     :: Name
-  , nameClaimedNewValue :: String
-  , nameClaimedNewPrice :: Amount
+  { nameClaimedOwner :: Address
+  , nameClaimedName  :: Name
+  , nameClaimedValue :: String
+  , nameClaimedBid   :: Amount
   }
 
 instance IsEvent NameClaimed where
   makeEventType _ = "NameClaimed"
   makeEventData NameClaimed{..} = bimap cs cs <$>
-    [ (Binary.encode @String "newOwner", Binary.encode nameClaimedNewOwner)
+    [ (Binary.encode @String "owner", Binary.encode nameClaimedOwner)
     , (Binary.encode @String "name", Binary.encode nameClaimedName)
-    , (Binary.encode @String "newValue", Binary.encode nameClaimedNewValue)
-    , (Binary.encode @String "newPrice", Binary.encode nameClaimedNewPrice)
+    , (Binary.encode @String "value", Binary.encode nameClaimedValue)
+    , (Binary.encode @String "bid", Binary.encode nameClaimedBid)
+    ]
+
+data NameRemapped = NameRemapped
+  { nameRemappedName     :: Name
+  , nameRemappedOldValue :: String
+  , nameRemappedNewValue :: String
+  }
+
+instance IsEvent NameRemapped where
+  makeEventType _ = "NameRemapped"
+  makeEventData NameRemapped{..} = bimap cs cs <$>
+    [ (Binary.encode @String "name", Binary.encode nameRemappedName)
+    , (Binary.encode @String "oldValue", Binary.encode nameRemappedOldValue)
+    , (Binary.encode @String "newValue", Binary.encode nameRemappedNewValue)
+    ]
+
+data NameDeleted = NameDeleted
+  { nameDeletedName :: Name
+  }
+
+instance IsEvent NameDeleted where
+  makeEventType _ = "NameDeleted"
+  makeEventData NameDeleted{..} = bimap cs cs <$>
+    [ (Binary.encode @String "name", Binary.encode nameDeletedName)
     ]
 
 --------------------------------------------------------------------------------
@@ -100,17 +124,17 @@ instance IsEvent NameClaimed where
 --------------------------------------------------------------------------------
 
 data NameserviceException =
-    InvalidPurchaseAttempt Text
-  | InvalidSetAttempt Text
+    InsufficientBid Text
+  | UnauthorizedSet Text
 
 instance IsAppError NameserviceException where
-  makeAppError (InvalidPurchaseAttempt msg) =
+  makeAppError (InsufficientBid msg) =
     AppError
       { appErrorCode = 1
       , appErrorCodespace = "nameservice"
       , appErrorMessage = msg
       }
-  makeAppError (InvalidSetAttempt msg) =
+  makeAppError (UnauthorizedSet msg) =
     AppError
       { appErrorCode = 2
       , appErrorCodespace = "nameservice"
@@ -163,42 +187,46 @@ server = storeQueryHandlers (Proxy :: Proxy NameserviceContents) (Proxy :: Proxy
 --  Message Handlers
 --------------------------------------------------------------------------------
 
-data NameserviceMessage =
-    MsgSetName
-      { msgSetNameName  :: Name
-      , msgSetNameValue :: String
-      , msgSetNameOwner :: Address
-      , msgSetNamePrice :: Amount
-      }
-  | MsgBuyName
+data MsgSetName =  MsgSetName
+  { msgSetNameName  :: Name
+  , msgSetNameValue :: String
+  , msgSetNameOwner :: Address
+  }
+
+data MsgDeletename = MsgDeleteName
+  { msgDeleteNameName  :: Name
+  , msgDeleteNameOwner :: Address
+  }
+
+data MsgBuyName = MsgBuyName
     { msgBuyNameName  :: Name
     , msgBuyNameValue :: String
     , msgBuyNameBuyer :: Address
-    , msgBuyNamePrice :: Amount
+    , msgBuyNameBid   :: Amount
     }
 
-router
-  :: HasTokenEff r
-  => HasNameserviceEff r
-  => Member (Output Event) r
-  => NameserviceMessage
-  -> Sem r ()
-router = \case
-  MsgSetName {..} ->
-    let whois = Whois
-          { whoisOwner = msgSetNameOwner
-          , whoisValue = msgSetNameValue
-          , whoisPrice = msgSetNamePrice
-          }
-    in setName msgSetNameName whois
-  MsgBuyName{..} ->
-    let whois = Whois
-          { whoisOwner = msgBuyNameBuyer
-          , whoisValue = msgBuyNameValue
-          , whoisPrice = msgBuyNamePrice
-          }
-    in buyName msgBuyNameName whois
+--router
+--  :: HasTokenEff r
+--  => HasNameserviceEff r
+--  => Member (Output Event) r
+--  => NameserviceMessage
+--  -> Sem r ()
+--router = \case
+--  MsgSetName {..} ->
+--    let whois = Whois
+--          { whoisOwner = msgSetNameOwner
+--          , whoisValue = msgSetNameValue
+--          }
+--    in setName msgSetNameName whois
+--  MsgBuyName{..} ->
+--    let whois = Whois
+--          { whoisOwner = msgBuyNameBuyer
+--          , whoisValue = msgBuyNameValue
+--          , whoisPrice = msgBuyNamePrice
+--          }
+--    in buyName msgBuyNameName whois
 
+--------------------------------------------------------------------------------
 
 nameIsAvailable
   :: Member Nameservice r
@@ -210,45 +238,72 @@ setName
   :: HasTokenEff r
   => HasNameserviceEff r
   => Member (Output Event) r
-  => Name
-  -> Whois
+  => MsgSetName
   -> Sem r ()
-setName name whois = do
-  isAvailable <- nameIsAvailable name
-  if isAvailable
-    then do
-      emit NameClaimed
-        { nameClaimedName = name
-        , nameClaimedNewOwner = whoisOwner whois
-        , nameClaimedNewValue = whoisValue whois
-        , nameClaimedNewPrice = whoisPrice whois
+setName MsgSetName{..} = do
+  mwhois <- getWhois msgSetNameName
+  case mwhois of
+    Nothing -> throw $ UnauthorizedSet "Cannot claim name with SetMessage tx."
+    Just currentWhois@Whois{..} ->
+      if whoisOwner /= msgSetNameOwner
+        then throw $ UnauthorizedSet "Setter must be the owner of the Name."
+        else do
+          putWhois msgSetNameName currentWhois {whoisValue = msgSetNameValue}
+          emit NameRemapped
+             { nameRemappedName = msgSetNameName
+             , nameRemappedNewValue = msgSetNameValue
+             , nameRemappedOldValue = whoisValue
+             }
+
+buyUnclaimedName
+  :: HasTokenEff r
+  => HasNameserviceEff r
+  => Member (Output Event) r
+  => MsgBuyName
+  -> Sem r ()
+buyUnclaimedName MsgBuyName{..} = do
+  burn msgBuyNameBuyer msgBuyNameBid
+  let whois = Whois
+        { whoisOwner = msgBuyNameBuyer
+        , whoisValue = msgBuyNameValue
+        , whoisPrice = msgBuyNameBid
         }
-      putWhois name whois
-    else throw $ InvalidSetAttempt "Name is not available."
+  putWhois msgBuyNameName whois
+  emit NameClaimed
+    { nameClaimedOwner = msgBuyNameBuyer
+    , nameClaimedName = msgBuyNameName
+    , nameClaimedValue = msgBuyNameValue
+    , nameClaimedBid = msgBuyNameBid
+    }
 
 buyName
   :: HasTokenEff r
   => HasNameserviceEff r
   => Member (Output Event) r
-  => Name
-  -> Whois
+  => MsgBuyName
   -> Sem r ()
 -- ^ did it succeed
-buyName name whois@Whois{whoisPrice=offerPrice} = do
+buyName msg@MsgBuyName{..} = do
+  let name =  msgBuyNameName
   mWhois <- getWhois name
   case mWhois of
-    Nothing -> setName name whois
-    Just Whois{ whoisPrice = forsalePrice
-              , whoisOwner = previousOwner
-              } ->
-      if offerPrice > forsalePrice
+    -- The name is unclaimed, go ahead and debit the account
+    -- and create it.
+    Nothing -> buyUnclaimedName msg
+    -- The name is currently claimed, we will transfer the
+    -- funds and ownership
+    Just currentWhois@Whois
+           { whoisPrice = forsalePrice
+           , whoisOwner = previousOwner
+           } ->
+      if msgBuyNameBid > forsalePrice
         then do
-          transfer (whoisOwner whois) offerPrice previousOwner
-          putWhois name whois
+          transfer msgBuyNameBuyer msgBuyNameBid previousOwner
+          putWhois name currentWhois {whoisOwner = msgBuyNameBuyer}
           emit NameClaimed
-            { nameClaimedNewOwner = whoisOwner whois
+            { nameClaimedOwner = msgBuyNameBuyer
             , nameClaimedName = name
-            , nameClaimedNewValue = whoisValue whois
-            , nameClaimedNewPrice = whoisPrice whois
+            , nameClaimedValue = msgBuyNameValue
+            , nameClaimedBid = msgBuyNameBid
             }
-        else throw (InvalidPurchaseAttempt "Offer too low")
+        else throw (InsufficientBid "Bid must exceed the price.")
