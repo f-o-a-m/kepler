@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module Nameservice.Modules.Nameservice
 
   (
