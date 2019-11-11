@@ -5,7 +5,6 @@ module Nameservice.Modules.Token
   -- * types
     Address
   , Amount
-  , mkAmount
   , TokenException(..)
 
   -- * effects
@@ -53,13 +52,10 @@ tokenKey = "01"
 -- NOTE : comes from auth module eventually
 newtype Address = Address String deriving (Eq, Show, Binary.Binary, Generic)
 
-newtype Amount = Amount Int32 deriving (Eq, Show, Binary.Binary, Generic)
+newtype Amount = Amount Int32 deriving (Eq, Show, Binary.Binary, Num, Generic, Ord)
 
 instance Queryable Amount where
   type Name Amount = "balance"
-
-mkAmount :: Int32 -> Amount
-mkAmount = Amount
 
 instance HasCodec Amount where
     encode (Amount b) = cs $ Binary.encode b

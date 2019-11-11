@@ -36,7 +36,7 @@ import           Data.String.Conversions     (cs)
 import           Data.Text                   (Text)
 import           GHC.Generics                (Generic)
 import           Nameservice.Modules.Token   (Address, Amount, HasTokenEff,
-                                              mkAmount, transfer)
+                                              transfer)
 import           Polysemy                    (Member, Members, Sem, interpret,
                                               makeSem)
 import           Polysemy.Error              (Error, mapError, throw)
@@ -58,7 +58,7 @@ nameserviceKey = "02"
 data Whois = Whois
   { whoisValue :: String
   , whoisOwner :: Address
-  , whoisPrice :: Int32
+  , whoisPrice :: Amount
   } deriving (Eq, Show, Generic)
 
 instance Binary.Binary Whois
@@ -76,39 +76,23 @@ instance R.Queryable Whois where
   type Name Whois = "whois"
 
 --------------------------------------------------------------------------------
--- Messages
---------------------------------------------------------------------------------
-
-data MsgSetName = MsgSetName
-  { msgSetNameName  :: Name
-  , msgSetNameValue :: String
-  , msgSetNameOwner :: Address
-  }
-
-data MsgBuyName = MsgBuyName
-  { msgBuyNameName  :: Name
-  , msgBuyNameBig   :: Amount
-  , msgBuyNameBuyer :: Address
-  }
-
---------------------------------------------------------------------------------
 -- Events
 --------------------------------------------------------------------------------
 
-data OwnerChanged = OwnerChanged
-  { ownerChangedNewOwner :: Address
-  , ownerChangedName     :: Name
-  , ownerChangedNewValue :: String
-  , ownerChangedNewPrice :: Int32
+data NameClaimed = NameClaimed
+  { nameClaimedNewOwner :: Address
+  , nameClaimedName     :: Name
+  , nameClaimedNewValue :: String
+  , nameClaimedNewPrice :: Amount
   }
 
-instance IsEvent OwnerChanged where
-  makeEventType _ = "OwnerChanged"
-  makeEventData OwnerChanged{..} = bimap cs cs <$>
-    [ (Binary.encode @String "newOwner", Binary.encode ownerChangedNewOwner)
-    , (Binary.encode @String "name", Binary.encode ownerChangedName)
-    , (Binary.encode @String "newValue", Binary.encode ownerChangedNewValue)
-    , (Binary.encode @String "newPrice", Binary.encode ownerChangedNewPrice)
+instance IsEvent NameClaimed where
+  makeEventType _ = "NameClaimed"
+  makeEventData NameClaimed{..} = bimap cs cs <$>
+    [ (Binary.encode @String "newOwner", Binary.encode nameClaimedNewOwner)
+    , (Binary.encode @String "name", Binary.encode nameClaimedName)
+    , (Binary.encode @String "newValue", Binary.encode nameClaimedNewValue)
+    , (Binary.encode @String "newPrice", Binary.encode nameClaimedNewPrice)
     ]
 
 --------------------------------------------------------------------------------
@@ -116,12 +100,19 @@ instance IsEvent OwnerChanged where
 --------------------------------------------------------------------------------
 
 data NameserviceException =
-  InvalidPurchaseAttempt Text
+    InvalidPurchaseAttempt Text
+  | InvalidSetAttempt Text
 
 instance IsAppError NameserviceException where
   makeAppError (InvalidPurchaseAttempt msg) =
     AppError
       { appErrorCode = 1
+      , appErrorCodespace = "nameservice"
+      , appErrorMessage = msg
+      }
+  makeAppError (InvalidSetAttempt msg) =
+    AppError
+      { appErrorCode = 2
       , appErrorCodespace = "nameservice"
       , appErrorMessage = msg
       }
@@ -158,7 +149,7 @@ eval = mapError makeAppError . evalNameservice
         )
 
 --------------------------------------------------------------------------------
--- | Server
+-- | Query API
 --------------------------------------------------------------------------------
 
 type NameserviceContents = '[Whois]
@@ -169,12 +160,71 @@ server :: Member Store.RawStore r => R.RouteT Api (Sem r)
 server = storeQueryHandlers (Proxy :: Proxy NameserviceContents) (Proxy :: Proxy (Sem r))
 
 --------------------------------------------------------------------------------
+--  Message Handlers
+--------------------------------------------------------------------------------
+
+data NameserviceMessage =
+    MsgSetName
+      { msgSetNameName  :: Name
+      , msgSetNameValue :: String
+      , msgSetNameOwner :: Address
+      , msgSetNamePrice :: Amount
+      }
+  | MsgBuyName
+    { msgBuyNameName  :: Name
+    , msgBuyNameValue :: String
+    , msgBuyNameBuyer :: Address
+    , msgBuyNamePrice :: Amount
+    }
+
+router
+  :: HasTokenEff r
+  => HasNameserviceEff r
+  => Member (Output Event) r
+  => NameserviceMessage
+  -> Sem r ()
+router = \case
+  MsgSetName {..} ->
+    let whois = Whois
+          { whoisOwner = msgSetNameOwner
+          , whoisValue = msgSetNameValue
+          , whoisPrice = msgSetNamePrice
+          }
+    in setName msgSetNameName whois
+  MsgBuyName{..} ->
+    let whois = Whois
+          { whoisOwner = msgBuyNameBuyer
+          , whoisValue = msgBuyNameValue
+          , whoisPrice = msgBuyNamePrice
+          }
+    in buyName msgBuyNameName whois
+
 
 nameIsAvailable
   :: Member Nameservice r
   => Name
   -> Sem r Bool
 nameIsAvailable = fmap isNothing . getWhois
+
+setName
+  :: HasTokenEff r
+  => HasNameserviceEff r
+  => Member (Output Event) r
+  => Name
+  -> Whois
+  -> Sem r ()
+setName name whois = do
+  isAvailable <- nameIsAvailable name
+  if isAvailable
+    then do
+      emit NameClaimed
+        { nameClaimedName = name
+        , nameClaimedNewOwner = whoisOwner whois
+        , nameClaimedNewValue = whoisValue whois
+        , nameClaimedNewPrice = whoisPrice whois
+        }
+      putWhois name whois
+    else throw $ InvalidSetAttempt "Name is not available."
 
 buyName
   :: HasTokenEff r
@@ -187,18 +237,18 @@ buyName
 buyName name whois@Whois{whoisPrice=offerPrice} = do
   mWhois <- getWhois name
   case mWhois of
-    Nothing -> putWhois name whois
+    Nothing -> setName name whois
     Just Whois{ whoisPrice = forsalePrice
               , whoisOwner = previousOwner
               } ->
       if offerPrice > forsalePrice
         then do
-          transfer (whoisOwner whois) (mkAmount offerPrice) previousOwner
+          transfer (whoisOwner whois) offerPrice previousOwner
           putWhois name whois
-          emit $ OwnerChanged
-            { ownerChangedNewOwner = whoisOwner whois
-            , ownerChangedName = name
-            , ownerChangedNewValue = whoisValue whois
-            , ownerChangedNewPrice = whoisPrice whois
+          emit NameClaimed
+            { nameClaimedNewOwner = whoisOwner whois
+            , nameClaimedName = name
+            , nameClaimedNewValue = whoisValue whois
+            , nameClaimedNewPrice = whoisPrice whois
             }
         else throw (InvalidPurchaseAttempt "Offer too low")
