@@ -6,8 +6,6 @@ author:              "Author name here"
 maintainer:          "example@example.com"
 copyright:           "2019 Author name here"
 
-extra-source-files:
-- README.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -17,6 +15,16 @@ extra-source-files:
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
 description:         Please see the README on GitHub at <https://github.com/githubuser/nameservice#readme>
+
+extra-source-files:
+- README.md
+- protos/**/*.proto
+
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-setup
 
 default-extensions:
   - DeriveGeneric
@@ -55,6 +63,8 @@ dependencies:
 - hs-abci-types
 - lens
 - polysemy
+- proto-lens
+- proto-lens-runtime
 - katip
 - servant
 - string-conversions
@@ -65,6 +75,10 @@ library:
   exposed-modules:
   - Nameservice.Application
   - Nameservice.Server
+
+  generated-exposed-modules:
+  - Proto.Nameservice.Messages
+  - Proto.Nameservice.Messages_Fields
 
 executables:
   nameservice-exe:
