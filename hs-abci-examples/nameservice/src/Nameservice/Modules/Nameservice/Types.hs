@@ -69,7 +69,7 @@ instance IsAppError NameserviceException where
       }
   makeAppError (InvalidDelete msg) =
     AppError
-      { appErrorCode = 2
+      { appErrorCode = 3
       , appErrorCodespace = "nameservice"
       , appErrorMessage = msg
       }

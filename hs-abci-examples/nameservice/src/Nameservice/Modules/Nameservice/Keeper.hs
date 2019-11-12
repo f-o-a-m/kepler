@@ -52,6 +52,7 @@ eval = mapError makeAppError . evalNameservice
         )
 
 --------------------------------------------------------------------------------
+
 setName
   :: HasTokenEff r
   => HasNameserviceEff r
@@ -132,7 +133,7 @@ buyName msg@MsgBuyName{..} = do
           , nameClaimedValue = msgBuyNameValue
           , nameClaimedBid = msgBuyNameBid
           }
-      
+
       buyClaimedName
         :: HasNameserviceEff r
         => HasTokenEff r
@@ -153,4 +154,3 @@ buyName msg@MsgBuyName{..} = do
                  , nameClaimedBid = msgBuyNameBid
                  }
              else throw (InsufficientBid "Bid must exceed the price.")
-
