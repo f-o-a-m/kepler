@@ -1,6 +1,5 @@
 module Nameservice.Modules.Nameservice.Messages where
 
-
 import           Control.Lens                          ((^.))
 import           Data.Either                           (Either)
 import           Data.String.Conversions               (cs)
@@ -32,6 +31,14 @@ data MsgDeleteName = MsgDeleteName
   { msgDeleteNameName  :: Name
   , msgDeleteNameOwner :: Address
   }
+
+fromProtoMsgDeleteName :: M.DeleteName -> Either Text MsgDeleteName
+fromProtoMsgDeleteName msg = do
+  msgName <- nonEmpty "MsgDeleteNameName" . T.unpack $ msg ^. M.name
+  msgOwner <- nonEmpty "MsgDeleteNameOwner" . cs $ msg ^. M.owner
+  return MsgDeleteName { msgDeleteNameName = Name msgName
+                       , msgDeleteNameOwner = Address msgOwner
+                       }
 
 data MsgBuyName = MsgBuyName
     { msgBuyNameName  :: Name
