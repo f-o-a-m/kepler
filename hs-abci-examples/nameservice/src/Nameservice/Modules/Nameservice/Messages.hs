@@ -9,6 +9,12 @@ import           Nameservice.Modules.Token             (Address (..), Amount(..)
 import           Proto.Nameservice.Messages            as M
 import           Proto.Nameservice.Messages_Fields     as M
 
+data NameserviceMessage =
+    SetName MsgSetName
+  | BuyName MsgBuyName
+  | DeleteName MsgDeleteName
+
+
 data MsgSetName =  MsgSetName
   { msgSetNameName  :: Name
   , msgSetNameValue :: String

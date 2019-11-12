@@ -25,7 +25,7 @@ data Nameservice m a where
 makeSem ''Nameservice
 
 type NameserviceEffR = '[Nameservice, Error NameserviceException]
-type HasNameserviceEff r = Members NameserviceEffR r
+type HasNameserviceEff r = (Members NameserviceEffR r, Member (Output Event) r)
 
 eval
   :: HasBaseApp r
@@ -54,7 +54,6 @@ eval = mapError makeAppError . evalNameservice
 setName
   :: HasTokenEff r
   => HasNameserviceEff r
-  => Member (Output Event) r
   => MsgSetName
   -> Sem r ()
 setName MsgSetName{..} = do

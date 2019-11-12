@@ -119,7 +119,7 @@ data Token m a where
 makeSem ''Token
 
 type TokenEffR = '[Token, Error TokenException]
-type HasTokenEff r = Members TokenEffR r
+type HasTokenEff r = (Members TokenEffR r, Member (Output Event) r)
 
 eval
   :: HasBaseApp r
@@ -160,7 +160,7 @@ getBalance address =
   fromMaybe (Amount 0) <$> getBalance' address
 
 transfer
-  :: Members '[Token, Output Event, Error TokenException] r
+  :: HasTokenEff r
   => Address
   -> Amount
   -> Address
