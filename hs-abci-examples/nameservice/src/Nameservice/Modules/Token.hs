@@ -4,8 +4,7 @@ module Nameservice.Modules.Token
   (
   -- * types
     Address(..)
-  , Amount
-  , fromProtoAmountVal
+  , Amount(..)
   , TokenException(..)
   , Transfer
 
@@ -32,7 +31,6 @@ import           Data.Aeson                  as A
 import qualified Data.Binary                 as Binary
 import           Data.ByteString             (ByteString)
 import qualified Data.ByteString             as BS
-import           Data.Int                    (Int32)
 import           Data.Maybe                  (fromJust, fromMaybe)
 import           Data.Proxy
 import           Data.String.Conversions     (cs)
@@ -59,12 +57,7 @@ tokenKey = "01"
 -- NOTE : comes from auth module eventually
 newtype Address = Address String deriving (Eq, Show, Binary.Binary, Generic, A.ToJSON, A.FromJSON)
 
-newtype Amount = Amount Int32 deriving (Eq, Show, Binary.Binary, Num, Generic, Ord, A.ToJSON, A.FromJSON)
-
-fromProtoAmountVal :: Word64 -> Amount
-fromProtoAmountVal word =
-  let convert = fromIntegral :: Word64 -> Int32
-  in Amount . convert $ word
+newtype Amount = Amount Word64 deriving (Eq, Show, Binary.Binary, Num, Generic, Ord, A.ToJSON, A.FromJSON)
 
 instance Queryable Amount where
   type Name Amount = "balance"
