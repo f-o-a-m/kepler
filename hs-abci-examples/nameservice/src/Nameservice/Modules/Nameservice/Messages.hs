@@ -67,7 +67,3 @@ fromProtoMsgBuyName msg = do
 nonEmpty :: (Eq a, Monoid a) => String -> a -> Either Text a
 nonEmpty field x | x == mempty = Left . cs $ (show field ++ ": value cannot be empty")
                  | otherwise = Right x
-
-nonNegativeAmount :: (Ord a, Num a) => a -> Either Text a
-nonNegativeAmount x | x > 0     = Right x
-                    | otherwise = Left . cs @Text $ "Bid cannot be negative"
