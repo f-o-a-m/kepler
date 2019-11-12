@@ -1,5 +1,8 @@
 module Nameservice.Modules.Nameservice.Types where
 
+import qualified Proto.Nameservice.Whois            as W
+import qualified Proto.Nameservice.Whois_Fields     as W
+import           Control.Lens.Wrapped (Wrapped (..), _Unwrapped')
 import           Control.Lens              (iso)
 import           Data.Aeson                as A
 import qualified Data.Binary               as Binary
@@ -41,6 +44,14 @@ instance Store.HasKey Whois where
 
 instance R.Queryable Whois where
   type Name Whois = "whois"
+
+instance Wrapped Whois where
+  type Unwrapped Whois = W.Whois
+  
+  _Wrapped' = iso t f
+    where
+      t = undefined
+      f = undefined
 
 --------------------------------------------------------------------------------
 -- Exceptions
