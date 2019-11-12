@@ -6,7 +6,8 @@ import           Data.String.Conversions               (cs)
 import           Data.Text                             (Text)
 import           Data.Text                             as T
 import           Nameservice.Modules.Nameservice.Types (Name (..))
-import           Nameservice.Modules.Token             (Address (..), Amount)
+import           Nameservice.Modules.Token             (Address (..), Amount,
+                                                        fromProtoAmountVal)
 import           Proto.Nameservice.Messages            as M
 import           Proto.Nameservice.Messages_Fields     as M
 
@@ -52,17 +53,17 @@ fromProtoMsgBuyName msg = do
   msgName <- nonEmpty "MsgBuyNameName" . T.unpack $ msg ^. M.name
   msgValue <- nonEmpty "MsgBuyNameValue" . T.unpack $ msg ^. M.value
   msgBuyer <- nonEmpty "MsgBuyNameBuyer" . cs $ msg ^. M.buyer
-  msgBid <- undefined $ msg ^. M.bid
+  msgBid <- nonNegativeAmount . fromProtoAmountVal $ msg ^. M.bid
   return MsgBuyName { msgBuyNameName = Name msgName
                     , msgBuyNameValue = msgValue
                     , msgBuyNameBuyer = Address msgBuyer
-                    , msgBuyNameBid = undefined
+                    , msgBuyNameBid = msgBid
                     }
 
-nonEmpty :: String -> String -> Either Text String
-nonEmpty field str | str == "" = Left . T.pack $ (show field ++ ": message value cannot be empty")
-                   | otherwise = Right str
+nonEmpty :: (Eq a, Monoid a) => String -> a -> Either Text a
+nonEmpty field x | x == mempty = Left . T.pack $ (show field ++ ": value cannot be empty")
+                 | otherwise = Right x
 
--- nonNegative :: Num a => a -> Either Text a
--- nonNegative x | x > 0 = Right x
---               | otherwise = Left . T.pack $ "Bid cannot be negative"
+nonNegativeAmount :: (Ord a, Num a) => a -> Either Text a
+nonNegativeAmount x | x > 0     = Right x
+                    | otherwise = Left . T.pack $ "Bid cannot be negative"

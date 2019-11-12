@@ -5,6 +5,7 @@ module Nameservice.Modules.Token
   -- * types
     Address(..)
   , Amount
+  , fromProtoAmountVal
   , TokenException(..)
   , Transfer
 
@@ -36,6 +37,7 @@ import           Data.Maybe                  (fromJust, fromMaybe)
 import           Data.Proxy
 import           Data.String.Conversions     (cs)
 import           Data.Text                   (Text)
+import           Data.Word                   (Word64)
 import           GHC.Generics                (Generic)
 import           Nameservice.Aeson           (defaultNameserviceOptions)
 import           Polysemy
@@ -58,6 +60,11 @@ tokenKey = "01"
 newtype Address = Address String deriving (Eq, Show, Binary.Binary, Generic, A.ToJSON, A.FromJSON)
 
 newtype Amount = Amount Int32 deriving (Eq, Show, Binary.Binary, Num, Generic, Ord, A.ToJSON, A.FromJSON)
+
+fromProtoAmountVal :: Word64 -> Amount
+fromProtoAmountVal word =
+  let w64_to_i32 = fromIntegral :: Word64 -> Int32
+  in Amount . w64_to_i32 $ word
 
 instance Queryable Amount where
   type Name Amount = "balance"
