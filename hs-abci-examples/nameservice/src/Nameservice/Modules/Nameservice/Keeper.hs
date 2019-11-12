@@ -94,48 +94,6 @@ deleteName MsgDeleteName{..} = do
             }
 
 
-buyUnclaimedName
-  :: HasTokenEff r
-  => HasNameserviceEff r
-  => Member (Output Event) r
-  => MsgBuyName
-  -> Sem r ()
-buyUnclaimedName MsgBuyName{..} = do
-  burn msgBuyNameBuyer msgBuyNameBid
-  let whois = Whois
-        { whoisOwner = msgBuyNameBuyer
-        , whoisValue = msgBuyNameValue
-        , whoisPrice = msgBuyNameBid
-        }
-  putWhois msgBuyNameName whois
-  emit NameClaimed
-    { nameClaimedOwner = msgBuyNameBuyer
-    , nameClaimedName = msgBuyNameName
-    , nameClaimedValue = msgBuyNameValue
-    , nameClaimedBid = msgBuyNameBid
-    }
-
-buyClaimedName
-  :: HasNameserviceEff r
-  => HasTokenEff r
-  => Member (Output Event) r
-  => MsgBuyName
-  -> Whois
-  -> Sem r ()
-buyClaimedName MsgBuyName{..} currentWhois =
-  let Whois{ whoisPrice = forsalePrice, whoisOwner = previousOwner } = currentWhois
-  in if msgBuyNameBid > forsalePrice
-       then do
-         transfer msgBuyNameBuyer msgBuyNameBid previousOwner
-         putWhois msgBuyNameName currentWhois {whoisOwner = msgBuyNameBuyer}
-         emit NameClaimed
-           { nameClaimedOwner = msgBuyNameBuyer
-           , nameClaimedName = msgBuyNameName
-           , nameClaimedValue = msgBuyNameValue
-           , nameClaimedBid = msgBuyNameBid
-           }
-       else throw (InsufficientBid "Bid must exceed the price.")
-
 buyName
   :: HasTokenEff r
   => HasNameserviceEff r
@@ -153,3 +111,46 @@ buyName msg@MsgBuyName{..} = do
     -- The name is currently claimed, we will transfer the
     -- funds and ownership
     Just whois -> buyClaimedName msg whois
+    where
+      buyUnclaimedName
+        :: HasTokenEff r
+        => HasNameserviceEff r
+        => Member (Output Event) r
+        => MsgBuyName
+        -> Sem r ()
+      buyUnclaimedName MsgBuyName{..} = do
+        burn msgBuyNameBuyer msgBuyNameBid
+        let whois = Whois
+              { whoisOwner = msgBuyNameBuyer
+              , whoisValue = msgBuyNameValue
+              , whoisPrice = msgBuyNameBid
+              }
+        putWhois msgBuyNameName whois
+        emit NameClaimed
+          { nameClaimedOwner = msgBuyNameBuyer
+          , nameClaimedName = msgBuyNameName
+          , nameClaimedValue = msgBuyNameValue
+          , nameClaimedBid = msgBuyNameBid
+          }
+      
+      buyClaimedName
+        :: HasNameserviceEff r
+        => HasTokenEff r
+        => Member (Output Event) r
+        => MsgBuyName
+        -> Whois
+        -> Sem r ()
+      buyClaimedName MsgBuyName{..} currentWhois =
+        let Whois{ whoisPrice = forsalePrice, whoisOwner = previousOwner } = currentWhois
+        in if msgBuyNameBid > forsalePrice
+             then do
+               transfer msgBuyNameBuyer msgBuyNameBid previousOwner
+               putWhois msgBuyNameName currentWhois {whoisOwner = msgBuyNameBuyer}
+               emit NameClaimed
+                 { nameClaimedOwner = msgBuyNameBuyer
+                 , nameClaimedName = msgBuyNameName
+                 , nameClaimedValue = msgBuyNameValue
+                 , nameClaimedBid = msgBuyNameBid
+                 }
+             else throw (InsufficientBid "Bid must exceed the price.")
+
