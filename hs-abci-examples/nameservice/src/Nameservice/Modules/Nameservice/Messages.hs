@@ -1,5 +1,6 @@
 module Nameservice.Modules.Nameservice.Messages where
 
+
 import           Control.Lens                          ((^.))
 import           Data.Either                           (Either)
 import           Data.String.Conversions               (cs)
@@ -19,9 +20,9 @@ data MsgSetName =  MsgSetName
 -- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg
 fromProtoMsgSetName :: M.SetName -> Either Text MsgSetName
 fromProtoMsgSetName msg = do
-  msgName <- nonEmpty . T.unpack $ msg ^. M.name
-  msgValue <- nonEmpty . T.unpack $ msg ^. M.value
-  msgOwner <- nonEmpty . cs $ msg ^. M.owner
+  msgName <- nonEmpty "MsgSetNameName" . T.unpack $ msg ^. M.name
+  msgValue <- nonEmpty "MsgSetNameValue" . T.unpack $ msg ^. M.value
+  msgOwner <- nonEmpty "MsgSetNameOwner" . cs $ msg ^. M.owner
   return MsgSetName { msgSetNameName = Name msgName
                     , msgSetNameValue = msgValue
                     , msgSetNameOwner = Address msgOwner
@@ -40,8 +41,21 @@ data MsgBuyName = MsgBuyName
     }
 
 fromProtoMsgBuyName :: M.BuyName -> Either Text MsgBuyName
-fromProtoMsgBuyName = undefined
+fromProtoMsgBuyName msg = do
+  msgName <- nonEmpty "MsgBuyNameName" . T.unpack $ msg ^. M.name
+  msgValue <- nonEmpty "MsgBuyNameValue" . T.unpack $ msg ^. M.value
+  msgBuyer <- nonEmpty "MsgBuyNameBuyer" . cs $ msg ^. M.buyer
+  msgBid <- undefined $ msg ^. M.bid
+  return MsgBuyName { msgBuyNameName = Name msgName
+                    , msgBuyNameValue = msgValue
+                    , msgBuyNameBuyer = Address msgBuyer
+                    , msgBuyNameBid = undefined
+                    }
 
-nonEmpty :: String -> Either Text String
-nonEmpty str | str == "" = Left . T.pack $ "name cannot be empty"
-             | otherwise = Right $ str
+nonEmpty :: String -> String -> Either Text String
+nonEmpty field str | str == "" = Left . T.pack $ (show field ++ ": message value cannot be empty")
+                   | otherwise = Right str
+
+-- nonNegative :: Num a => a -> Either Text a
+-- nonNegative x | x > 0 = Right x
+--               | otherwise = Left . T.pack $ "Bid cannot be negative"
