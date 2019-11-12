@@ -2,6 +2,8 @@ module Nameservice.Modules.Nameservice.Messages where
 
 import           Nameservice.Modules.Nameservice.Types (Name)
 import           Nameservice.Modules.Token             (Address, Amount)
+import Proto.Nameservice.Messages ()
+import Proto.Nameservice.Messages_Fields ()
 
 data MsgSetName =  MsgSetName
   { msgSetNameName  :: Name
