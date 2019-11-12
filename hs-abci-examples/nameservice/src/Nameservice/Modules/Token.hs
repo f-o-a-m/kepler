@@ -63,8 +63,8 @@ newtype Amount = Amount Int32 deriving (Eq, Show, Binary.Binary, Num, Generic, O
 
 fromProtoAmountVal :: Word64 -> Amount
 fromProtoAmountVal word =
-  let w64_to_i32 = fromIntegral :: Word64 -> Int32
-  in Amount . w64_to_i32 $ word
+  let convert = fromIntegral :: Word64 -> Int32
+  in Amount . convert $ word
 
 instance Queryable Amount where
   type Name Amount = "balance"
