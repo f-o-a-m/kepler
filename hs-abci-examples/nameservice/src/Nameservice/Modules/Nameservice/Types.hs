@@ -1,6 +1,7 @@
 module Nameservice.Modules.Nameservice.Types where
 
 import           Control.Lens              (iso)
+import           Data.Aeson                as A
 import           Data.Bifunctor            (bimap)
 import qualified Data.Binary               as Binary
 import           Data.ByteString           (ByteString)
@@ -10,15 +11,16 @@ import           Data.Maybe                (fromJust)
 import           Data.String.Conversions   (cs)
 import           Data.Text                 (Text)
 import           GHC.Generics              (Generic)
+import           Nameservice.Aeson         (defaultNameserviceOptions)
 import           Nameservice.Modules.Token (Address, Amount)
 import           Tendermint.SDK.Codec      (HasCodec (..))
 import           Tendermint.SDK.Errors     (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Events     (Event, IsEvent (..), emit)
+import           Tendermint.SDK.Events     (Event, FromEvent (..), ToEvent (..),
+                                            emit)
 import qualified Tendermint.SDK.Router     as R
 import qualified Tendermint.SDK.Store      as Store
 
-
-newtype Name = Name String deriving (Eq, Show, Binary.Binary)
+newtype Name = Name String deriving (Eq, Show, Binary.Binary, A.ToJSON, A.FromJSON)
 
 nameserviceKey :: ByteString
 nameserviceKey = "02"
@@ -74,37 +76,46 @@ data NameClaimed = NameClaimed
   , nameClaimedName  :: Name
   , nameClaimedValue :: String
   , nameClaimedBid   :: Amount
-  }
+  } deriving (Generic)
 
-instance IsEvent NameClaimed where
+nameClaimedAesonOptions :: A.Options
+nameClaimedAesonOptions = defaultNameserviceOptions "nameClaimed"
+
+instance ToJSON NameClaimed where
+  toJSON = A.genericToJSON nameClaimedAesonOptions
+instance FromJSON NameClaimed where
+  parseJSON = A.genericParseJSON nameClaimedAesonOptions
+instance ToEvent NameClaimed where
   makeEventType _ = "NameClaimed"
-  makeEventData NameClaimed{..} = bimap cs cs <$>
-    [ (Binary.encode @String "owner", Binary.encode nameClaimedOwner)
-    , (Binary.encode @String "name", Binary.encode nameClaimedName)
-    , (Binary.encode @String "value", Binary.encode nameClaimedValue)
-    , (Binary.encode @String "bid", Binary.encode nameClaimedBid)
-    ]
 
 data NameRemapped = NameRemapped
   { nameRemappedName     :: Name
   , nameRemappedOldValue :: String
   , nameRemappedNewValue :: String
-  }
+  } deriving Generic
 
-instance IsEvent NameRemapped where
+nameRemappedAesonOptions :: A.Options
+nameRemappedAesonOptions = defaultNameserviceOptions "nameRemapped"
+
+instance ToJSON NameRemapped where
+  toJSON = A.genericToJSON nameRemappedAesonOptions
+instance FromJSON NameRemapped where
+  parseJSON = A.genericParseJSON nameRemappedAesonOptions
+instance ToEvent NameRemapped where
   makeEventType _ = "NameRemapped"
-  makeEventData NameRemapped{..} = bimap cs cs <$>
-    [ (Binary.encode @String "name", Binary.encode nameRemappedName)
-    , (Binary.encode @String "oldValue", Binary.encode nameRemappedOldValue)
-    , (Binary.encode @String "newValue", Binary.encode nameRemappedNewValue)
-    ]
+instance FromEvent NameRemapped
 
 data NameDeleted = NameDeleted
   { nameDeletedName :: Name
-  }
+  } deriving Generic
 
-instance IsEvent NameDeleted where
+nameDeletedAesonOptions :: A.Options
+nameDeletedAesonOptions = defaultNameserviceOptions "nameDeleted"
+
+instance ToJSON NameDeleted where
+  toJSON = A.genericToJSON nameDeletedAesonOptions
+instance FromJSON NameDeleted where
+  parseJSON = A.genericParseJSON nameDeletedAesonOptions
+instance ToEvent NameDeleted where
   makeEventType _ = "NameDeleted"
-  makeEventData NameDeleted{..} = bimap cs cs <$>
-    [ (Binary.encode @String "name", Binary.encode nameDeletedName)
-    ]
+instance FromEvent NameDeleted

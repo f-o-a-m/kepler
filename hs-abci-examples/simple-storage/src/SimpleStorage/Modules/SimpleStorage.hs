@@ -26,6 +26,7 @@ module SimpleStorage.Modules.SimpleStorage
 
 import           Control.Lens                (iso)
 import           Crypto.Hash                 (SHA256 (..), hashWith)
+import qualified Data.Aeson                  as A
 import qualified Data.Binary                 as Binary
 import           Data.ByteArray              (convert)
 import           Data.ByteString             (ByteString)
@@ -33,6 +34,7 @@ import           Data.Int                    (Int32)
 import           Data.Maybe                  (fromJust)
 import           Data.Proxy
 import           Data.String.Conversions     (cs)
+import           GHC.Generics                (Generic)
 import           Polysemy                    (Member, Sem, interpret, makeSem)
 import           Polysemy.Output             (Output)
 import           Servant.API                 ((:>))
@@ -49,7 +51,7 @@ import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
 -- Types
 --------------------------------------------------------------------------------
 
-newtype Count = Count Int32 deriving (Eq, Show)
+newtype Count = Count Int32 deriving (Eq, Show, A.ToJSON, A.FromJSON)
 
 data CountKey = CountKey
 
@@ -75,11 +77,19 @@ instance Queryable Count where
 -- Events
 --------------------------------------------------------------------------------
 
-data CountSet = CountSet { newCount :: Count }
+data CountSet = CountSet { newCount :: Count } deriving Generic
 
-instance Events.IsEvent CountSet where
+countSetOptions :: A.Options
+countSetOptions = A.defaultOptions
+
+instance A.ToJSON CountSet where
+  toJSON = A.genericToJSON countSetOptions
+
+instance A.FromJSON CountSet where
+  parseJSON = A.genericParseJSON countSetOptions
+
+instance Events.ToEvent CountSet where
   makeEventType _ = "count_set"
-  makeEventData CountSet{newCount} = [("new_count", encode newCount)]
 
 --------------------------------------------------------------------------------
 -- SimpleStorage Module

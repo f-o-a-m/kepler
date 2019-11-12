@@ -27,6 +27,7 @@ module Nameservice.Modules.Token
   ) where
 
 import           Control.Lens                (iso)
+import           Data.Aeson                  as A
 import           Data.Bifunctor              (bimap)
 import qualified Data.Binary                 as Binary
 import           Data.ByteString             (ByteString)
@@ -37,6 +38,7 @@ import           Data.Proxy
 import           Data.String.Conversions     (cs)
 import           Data.Text                   (Text)
 import           GHC.Generics                (Generic)
+import           Nameservice.Aeson           (defaultNameserviceOptions)
 import           Polysemy
 import           Polysemy.Error              (Error, mapError, throw)
 import           Polysemy.Output             (Output)
@@ -44,7 +46,8 @@ import           Servant.API                 ((:>))
 import           Tendermint.SDK.BaseApp      (HasBaseApp)
 import           Tendermint.SDK.Codec        (HasCodec (..))
 import           Tendermint.SDK.Errors       (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Events       (Event, IsEvent (..), emit)
+import           Tendermint.SDK.Events       (Event, FromEvent, ToEvent (..),
+                                              emit)
 import           Tendermint.SDK.Router       (Queryable (..), RouteT)
 import qualified Tendermint.SDK.Store        as Store
 import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
@@ -53,9 +56,9 @@ tokenKey :: ByteString
 tokenKey = "01"
 
 -- NOTE : comes from auth module eventually
-newtype Address = Address String deriving (Eq, Show, Binary.Binary, Generic)
+newtype Address = Address String deriving (Eq, Show, Binary.Binary, Generic, A.ToJSON, A.FromJSON)
 
-newtype Amount = Amount Int32 deriving (Eq, Show, Binary.Binary, Num, Generic, Ord)
+newtype Amount = Amount Int32 deriving (Eq, Show, Binary.Binary, Num, Generic, Ord, A.ToJSON, A.FromJSON)
 
 instance Queryable Amount where
   type Name Amount = "balance"
@@ -77,15 +80,21 @@ data Transfer = Transfer
   { transferAmount :: Amount
   , transferTo     :: Address
   , transferFrom   :: Address
-  }
+  } deriving Generic
 
-instance IsEvent Transfer where
+transferAesonOptions :: A.Options
+transferAesonOptions = defaultNameserviceOptions "transfer"
+
+instance A.ToJSON Transfer where
+  toJSON = A.genericToJSON transferAesonOptions
+
+instance A.FromJSON Transfer where
+  parseJSON = A.genericParseJSON transferAesonOptions
+
+instance ToEvent Transfer where
   makeEventType _ = "Transfer"
-  makeEventData Transfer{..} = bimap cs cs <$>
-    [ (Binary.encode @String "amount", Binary.encode transferAmount)
-    , (Binary.encode @String "to", Binary.encode transferTo)
-    , (Binary.encode @String "from", Binary.encode transferFrom)
-    ]
+
+instance FromEvent Transfer
 
 --------------------------------------------------------------------------------
 -- Exceptions

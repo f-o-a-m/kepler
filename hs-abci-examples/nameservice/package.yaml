@@ -53,6 +53,8 @@ default-extensions:
   - ConstraintKinds
 
 dependencies:
+- aeson
+- aeson-casing
 - base >= 4.7 && < 5
 - binary
 - bytestring
@@ -105,3 +107,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - nameservice
+    - hspec
