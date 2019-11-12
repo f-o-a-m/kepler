@@ -2,7 +2,6 @@
 
 module Nameservice.Modules.Nameservice.Keeper where
 
-import           Data.Maybe                               (isNothing)
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Types
 import           Nameservice.Modules.Token                (Address, Amount,
@@ -103,7 +102,7 @@ buyName
   -> Sem r ()
 -- ^ did it succeed
 buyName msg@MsgBuyName{..} = do
-  let name =  msgBuyNameName
+  let name = msgBuyNameName
   mWhois <- getWhois name
   case mWhois of
     -- The name is unclaimed, go ahead and debit the account

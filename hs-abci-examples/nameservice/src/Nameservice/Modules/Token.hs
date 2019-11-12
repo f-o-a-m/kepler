@@ -3,7 +3,7 @@
 module Nameservice.Modules.Token
   (
   -- * types
-    Address
+    Address(..)
   , Amount
   , TokenException(..)
   , Transfer
@@ -28,7 +28,6 @@ module Nameservice.Modules.Token
 
 import           Control.Lens                (iso)
 import           Data.Aeson                  as A
-import           Data.Bifunctor              (bimap)
 import qualified Data.Binary                 as Binary
 import           Data.ByteString             (ByteString)
 import qualified Data.ByteString             as BS

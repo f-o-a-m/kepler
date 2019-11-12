@@ -2,11 +2,9 @@ module Nameservice.Modules.Nameservice.Types where
 
 import           Control.Lens              (iso)
 import           Data.Aeson                as A
-import           Data.Bifunctor            (bimap)
 import qualified Data.Binary               as Binary
 import           Data.ByteString           (ByteString)
 import           Data.ByteString           as BS
-import           Data.Int                  (Int32)
 import           Data.Maybe                (fromJust)
 import           Data.String.Conversions   (cs)
 import           Data.Text                 (Text)
@@ -15,8 +13,7 @@ import           Nameservice.Aeson         (defaultNameserviceOptions)
 import           Nameservice.Modules.Token (Address, Amount)
 import           Tendermint.SDK.Codec      (HasCodec (..))
 import           Tendermint.SDK.Errors     (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Events     (Event, FromEvent (..), ToEvent (..),
-                                            emit)
+import           Tendermint.SDK.Events     (FromEvent (..), ToEvent (..))
 import qualified Tendermint.SDK.Router     as R
 import qualified Tendermint.SDK.Store      as Store
 

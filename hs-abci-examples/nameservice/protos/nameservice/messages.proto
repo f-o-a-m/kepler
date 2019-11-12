@@ -13,7 +13,7 @@ message DeleteName {
 }
 
 message BuyName {
-    bytes owner = 1;
+    bytes buyer = 1;
     string name = 2;
     string value = 3;
     uint64 bid = 4;
