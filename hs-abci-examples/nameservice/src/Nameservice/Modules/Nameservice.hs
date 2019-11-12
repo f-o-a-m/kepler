@@ -10,8 +10,9 @@ module Nameservice.Modules.Nameservice
   , NameserviceEffR
   , HasNameserviceEff
   , getWhois
-  , nameIsAvailable
   , buyName
+  , setName
+  , deleteName
 
   -- * interpreter
   , eval

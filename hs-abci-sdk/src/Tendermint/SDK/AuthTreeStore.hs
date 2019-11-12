@@ -45,6 +45,9 @@ interpretAuthTreeStore AuthTreeDriver{treeVar} =
         tree <- readTVar treeVar
         pure $ AT.lookup k tree
       RawStoreProve _ _ -> pure Nothing
+      RawStoreDelete _ k -> liftIO . atomically $ do
+        tree <- readTVar treeVar
+        writeTVar treeVar $ AT.delete k tree
       RawStoreRoot -> liftIO . atomically $ do
         tree <- readTVar treeVar
         let AuthTreeHash r = AT.merkleHash tree :: AuthTreeHash

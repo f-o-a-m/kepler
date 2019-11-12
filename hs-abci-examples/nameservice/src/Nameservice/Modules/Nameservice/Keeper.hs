@@ -22,6 +22,7 @@ import qualified Tendermint.SDK.Store                     as Store
 data Nameservice m a where
   PutWhois :: Name -> Whois -> Nameservice m ()
   GetWhois :: Name -> Nameservice m (Maybe Whois)
+  DeleteWhois :: Name -> Nameservice m ()
 
 makeSem ''Nameservice
 
@@ -46,16 +47,11 @@ eval = mapError makeAppError . evalNameservice
             Store.get (undefined :: Store.Root) name
           PutWhois name whois ->
             Store.put name whois
+          DeleteWhois name ->
+            Store.delete (undefined :: Store.Root) name
         )
 
 --------------------------------------------------------------------------------
-
-nameIsAvailable
-  :: Member Nameservice r
-  => Name
-  -> Sem r Bool
-nameIsAvailable = fmap isNothing . getWhois
-
 setName
   :: HasTokenEff r
   => HasNameserviceEff r
@@ -76,6 +72,27 @@ setName MsgSetName{..} = do
              , nameRemappedNewValue = msgSetNameValue
              , nameRemappedOldValue = whoisValue
              }
+
+deleteName
+  :: HasTokenEff r
+  => HasNameserviceEff r
+  => Member (Output Event) r
+  => MsgDeleteName
+  -> Sem r ()
+deleteName MsgDeleteName{..} = do
+  mWhois <- getWhois msgDeleteNameName
+  case mWhois of
+    Nothing -> throw $ InvalidDelete "Can't remove unassigned name."
+    Just Whois{..} ->
+      if whoisOwner /= msgDeleteNameOwner
+        then throw $ InvalidDelete "Deleter must be the owner."
+        else do
+          mint msgDeleteNameOwner whoisPrice
+          deleteWhois msgDeleteNameName
+          emit NameDeleted
+            { nameDeletedName = msgDeleteNameName
+            }
+
 
 buyUnclaimedName
   :: HasTokenEff r
@@ -98,6 +115,27 @@ buyUnclaimedName MsgBuyName{..} = do
     , nameClaimedBid = msgBuyNameBid
     }
 
+buyClaimedName
+  :: HasNameserviceEff r
+  => HasTokenEff r
+  => Member (Output Event) r
+  => MsgBuyName
+  -> Whois
+  -> Sem r ()
+buyClaimedName MsgBuyName{..} currentWhois =
+  let Whois{ whoisPrice = forsalePrice, whoisOwner = previousOwner } = currentWhois
+  in if msgBuyNameBid > forsalePrice
+       then do
+         transfer msgBuyNameBuyer msgBuyNameBid previousOwner
+         putWhois msgBuyNameName currentWhois {whoisOwner = msgBuyNameBuyer}
+         emit NameClaimed
+           { nameClaimedOwner = msgBuyNameBuyer
+           , nameClaimedName = msgBuyNameName
+           , nameClaimedValue = msgBuyNameValue
+           , nameClaimedBid = msgBuyNameBid
+           }
+       else throw (InsufficientBid "Bid must exceed the price.")
+
 buyName
   :: HasTokenEff r
   => HasNameserviceEff r
@@ -111,21 +149,7 @@ buyName msg@MsgBuyName{..} = do
   case mWhois of
     -- The name is unclaimed, go ahead and debit the account
     -- and create it.
-    Nothing -> buyUnclaimedName msg
+    Nothing    -> buyUnclaimedName msg
     -- The name is currently claimed, we will transfer the
     -- funds and ownership
-    Just currentWhois@Whois
-           { whoisPrice = forsalePrice
-           , whoisOwner = previousOwner
-           } ->
-      if msgBuyNameBid > forsalePrice
-        then do
-          transfer msgBuyNameBuyer msgBuyNameBid previousOwner
-          putWhois name currentWhois {whoisOwner = msgBuyNameBuyer}
-          emit NameClaimed
-            { nameClaimedOwner = msgBuyNameBuyer
-            , nameClaimedName = name
-            , nameClaimedValue = msgBuyNameValue
-            , nameClaimedBid = msgBuyNameBid
-            }
-        else throw (InsufficientBid "Bid must exceed the price.")
+    Just whois -> buyClaimedName msg whois

@@ -52,6 +52,7 @@ instance R.Queryable Whois where
 data NameserviceException =
     InsufficientBid Text
   | UnauthorizedSet Text
+  | InvalidDelete Text
 
 instance IsAppError NameserviceException where
   makeAppError (InsufficientBid msg) =
@@ -61,6 +62,12 @@ instance IsAppError NameserviceException where
       , appErrorMessage = msg
       }
   makeAppError (UnauthorizedSet msg) =
+    AppError
+      { appErrorCode = 2
+      , appErrorCodespace = "nameservice"
+      , appErrorMessage = msg
+      }
+  makeAppError (InvalidDelete msg) =
     AppError
       { appErrorCode = 2
       , appErrorCodespace = "nameservice"

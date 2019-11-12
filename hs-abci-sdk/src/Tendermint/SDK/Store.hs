@@ -6,6 +6,7 @@ module Tendermint.SDK.Store
   , Root(..)
   , get
   , put
+  , delete
   , prove
   , root
   ) where
@@ -20,6 +21,7 @@ newtype Root = Root BS.ByteString
 data RawStore m a where
   RawStorePut   :: BS.ByteString -> BS.ByteString -> RawStore m ()
   RawStoreGet   :: Root -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
+  RawStoreDelete :: Root -> BS.ByteString -> RawStore m ()
   RawStoreProve :: Root -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
   RawStoreRoot  :: RawStore m Root
 
@@ -61,6 +63,14 @@ get index k = do
     Just raw -> case decode raw of
       Left e  -> error $ "Impossible codec error "  <> e
       Right a -> Just a
+
+delete
+  :: HasKey a
+  => Member RawStore r
+  => Root
+  -> Key a
+  -> Sem r ()
+delete r k = rawStoreDelete r (k ^. rawKey)
 
 prove
   :: HasKey a

@@ -9,7 +9,7 @@ data MsgSetName =  MsgSetName
   , msgSetNameOwner :: Address
   }
 
-data MsgDeletename = MsgDeleteName
+data MsgDeleteName = MsgDeleteName
   { msgDeleteNameName  :: Name
   , msgDeleteNameOwner :: Address
   }
