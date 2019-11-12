@@ -3,7 +3,7 @@ module Nameservice.Modules.Nameservice.Types where
 import qualified Proto.Nameservice.Whois            as W
 import qualified Proto.Nameservice.Whois_Fields     as W
 import           Control.Lens.Wrapped (Wrapped (..), _Unwrapped')
-import           Control.Lens              (iso)
+import           Control.Lens              (iso, (^.))
 import           Data.Aeson                as A
 import qualified Data.Binary               as Binary
 import           Data.ByteString           (ByteString)
@@ -13,7 +13,7 @@ import           Data.String.Conversions   (cs)
 import           Data.Text                 (Text)
 import           GHC.Generics              (Generic)
 import           Nameservice.Aeson         (defaultNameserviceOptions)
-import           Nameservice.Modules.Token (Address, Amount)
+import           Nameservice.Modules.Token (Address (..), Amount (..))
 import           Tendermint.SDK.Codec      (HasCodec (..))
 import           Tendermint.SDK.Errors     (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Events     (FromEvent (..), ToEvent (..))
@@ -50,8 +50,15 @@ instance Wrapped Whois where
   
   _Wrapped' = iso t f
     where
-      t = undefined
-      f = undefined
+      t (Whois{..}) = undefined
+      f msg =
+        let msgValue = cs $ msg ^. W.value
+            msgOwner = Address . cs $ msg ^. W.owner
+            msgPrice = Amount $ msg ^. W.price
+        in Whois { whoisValue = msgValue
+                 , whoisOwner = msgOwner
+                 , whoisPrice = msgPrice
+                 }
 
 --------------------------------------------------------------------------------
 -- Exceptions
