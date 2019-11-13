@@ -4,7 +4,7 @@ module Tendermint.SDK.Auth where
 
 import qualified Codec.Binary.Bech32      as Bech32
 import           Control.Lens             (iso)
-import           Control.Monad            (when)
+import           Control.Monad            (when, unless)
 import           Control.Monad.Catch      (Exception, MonadCatch, catch)
 import           Control.Monad.IO.Class   (MonadIO (..))
 import           Control.Monad.Reader     (ReaderT, asks)
@@ -202,9 +202,9 @@ validateBasicDecorator = Endo $ \next -> do
       expectedSignersN = length $ txSignatures tx
   when (expectedSignersN == 0) $
     error "TODO: There must be signers"
-  when (length (filter (\signers -> length signers /= expectedSignersN) msgSigners) /= 0) $
+  unless (not (any (\signers -> length signers /= expectedSignersN) msgSigners)) $
     error "TODO: fill in error for wrong number of signers"
   let feeAmounts = map coinAmount . feeAmount . txFee $ tx
-  when (filter (< 0) feeAmounts /= []) $
+  when (any (< 0) feeAmounts) $
     error "TODO: No negative fees"
   next
