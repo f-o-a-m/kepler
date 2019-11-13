@@ -6,8 +6,6 @@ author:              "Author name here"
 maintainer:          "example@example.com"
 copyright:           "2019 Author name here"
 
-extra-source-files:
-- README.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -17,6 +15,16 @@ extra-source-files:
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
 description:         Please see the README on GitHub at <https://github.com/githubuser/nameservice#readme>
+
+extra-source-files:
+- README.md
+- protos/**/*.proto
+
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-setup
 
 default-extensions:
   - DeriveGeneric
@@ -45,20 +53,41 @@ default-extensions:
   - ConstraintKinds
 
 dependencies:
+- aeson
+- aeson-casing
 - base >= 4.7 && < 5
+- binary
+- bytestring
 - exceptions
 - hs-abci-extra
 - hs-abci-sdk
 - hs-abci-server
 - hs-abci-types
+- lens
 - polysemy
+- proto-lens
+- proto-lens-runtime
 - katip
+- servant
+- string-conversions
+- text
 
 library:
   source-dirs: src
   exposed-modules:
   - Nameservice.Application
   - Nameservice.Server
+  - Nameservice.Modules.Nameservice.Messages
+  - Nameservice.Modules.Nameservice.Types
+  - Nameservice.Modules.Nameservice.Keeper
+  - Nameservice.Modules.Nameservice.Query
+  - Nameservice.Modules.Nameservice.Router
+
+  generated-exposed-modules:
+  - Proto.Nameservice.Messages
+  - Proto.Nameservice.Messages_Fields
+  - Proto.Nameservice.Whois
+  - Proto.Nameservice.Whois_Fields
 
 executables:
   nameservice-exe:
@@ -81,3 +110,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - nameservice
+    - hspec

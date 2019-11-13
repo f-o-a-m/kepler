@@ -7,11 +7,10 @@ import qualified Crypto.Data.Auth.Tree            as AT
 import qualified Crypto.Data.Auth.Tree.Class      as AT
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Crypto.Hash                      as Cryptonite
-import           Data.ByteArray                   (convert)
 import           Data.ByteString                  (ByteString)
 import           Polysemy                         (Embed, Member, Sem,
                                                    interpret)
-import           Tendermint.SDK.Store             (RawStore (..), Root (..))
+import           Tendermint.SDK.Store             (RawStore (..), StoreKey (..))
 --------------------------------------------------------------------------------
 --
 --------------------------------------------------------------------------------
@@ -38,15 +37,14 @@ interpretAuthTreeStore
 interpretAuthTreeStore AuthTreeDriver{treeVar} =
   interpret
     (\case
-      RawStorePut k v -> liftIO . atomically $ do
+      RawStorePut (StoreKey sk) k v -> liftIO . atomically $ do
         tree <- readTVar treeVar
-        writeTVar treeVar $ AT.insert k v tree
-      RawStoreGet _ k -> liftIO . atomically $ do
+        writeTVar treeVar $ AT.insert (sk <> k) v tree
+      RawStoreGet (StoreKey sk) k -> liftIO . atomically $ do
         tree <- readTVar treeVar
-        pure $ AT.lookup k tree
+        pure $ AT.lookup (sk <> k) tree
       RawStoreProve _ _ -> pure Nothing
-      RawStoreRoot -> liftIO . atomically $ do
+      RawStoreDelete (StoreKey sk) k -> liftIO . atomically $ do
         tree <- readTVar treeVar
-        let AuthTreeHash r = AT.merkleHash tree :: AuthTreeHash
-        pure $ Root $ convert r
+        writeTVar treeVar $ AT.delete (sk <> k) tree
     )

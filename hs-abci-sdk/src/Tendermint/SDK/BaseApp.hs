@@ -81,3 +81,5 @@ eval Context{..} action =
   KL.evalKatip .
   interpretAuthTreeStore contextAuthTreeDriver .
   evalWithBuffer $ action
+
+--------------------------------------------------------------------------------

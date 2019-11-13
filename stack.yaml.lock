@@ -54,19 +54,47 @@ packages:
     git: https://github.com/oscoin/avl-auth
     commit: dfc468845a82cdd7d759943b20853999bc026505
 - completed:
-    hackage: stylish-haskell-0.9.4.3@sha256:98f60e087ee3e661220cd3e1cf77677d4cecd3b90d110f7ce6f36babb5c2f895,4953
+    cabal-file:
+      size: 5720
+      sha256: 51545a2592f22d1bf612a2f55ca3af8b0083fb5c620c8996bc6d48f742d1faa1
+    name: proto3-suite
+    version: 0.4.0.0
+    git: https://github.com/awakesecurity/proto3-suite
     pantry-tree:
-      size: 2863
-      sha256: 731ad0ffd18ef72bfa4935d717d31598b3286325c9e8d1370ca6406ab104f954
+      size: 4272
+      sha256: c8dfec249b4db1d4f0e15332153ed539cb10343ae73345d8cdbf1cf09c714cfc
+    commit: 3f6dd6f612cf2eba3c05798926ff924b0d5ab4fa
   original:
-    hackage: stylish-haskell-0.9.4.3@sha256:98f60e087ee3e661220cd3e1cf77677d4cecd3b90d110f7ce6f36babb5c2f895,4953
+    git: https://github.com/awakesecurity/proto3-suite
+    commit: 3f6dd6f612cf2eba3c05798926ff924b0d5ab4fa
 - completed:
-    hackage: hlint-2.1.26@sha256:e0489fd31bc4a531aaf27d7e6b9814b50863b2a78c10e1d77e7b652b00933c9b,3231
+    cabal-file:
+      size: 1928
+      sha256: 5e750211a8fdae75ffcdd0a70581ae635be5510b321924c5196ac44189fd1432
+    name: proto3-wire
+    version: 1.1.0
+    git: https://github.com/awakesecurity/proto3-wire
     pantry-tree:
-      size: 4036
-      sha256: b424391b338be3eb5da8c0ba97117e8373848830592445828a3cb9694cbf8988
+      size: 978
+      sha256: d3a5d569e005d87e4eb343b150a1c4cbc455cc9833e7713efb937d66b6679b87
+    commit: 23015cf6363d1962fde6bdff0de111f7ec59ab75
   original:
-    hackage: hlint-2.1.26@sha256:e0489fd31bc4a531aaf27d7e6b9814b50863b2a78c10e1d77e7b652b00933c9b,3231
+    git: https://github.com/awakesecurity/proto3-wire
+    commit: 23015cf6363d1962fde6bdff0de111f7ec59ab75
+- completed:
+    hackage: bech32-1.0.0@sha256:6bd23abe4a11d61a2d41fdb11db9e1361fc43c215cf2b8602cafaa516c8b6d76,2017
+    pantry-tree:
+      size: 424
+      sha256: 7193ff37729da6c18519a09d88e7e53b5dbd9a1d06399a11fa2676be1bd254f1
+  original:
+    hackage: bech32-1.0.0@sha256:6bd23abe4a11d61a2d41fdb11db9e1361fc43c215cf2b8602cafaa516c8b6d76,2017
+- completed:
+    hackage: polysemy-1.2.0.0@sha256:9313315be0746936c65bc02a5b9bc2abd3bd02bcef9329db272a991939e5b037,5776
+    pantry-tree:
+      size: 3622
+      sha256: d7b017cc60394fd87330c577e8c8e48e0fcff3f72cb6c518a20a7fd5cfc8ddab
+  original:
+    hackage: polysemy-1.2.0.0
 snapshots:
 - completed:
     size: 524786
