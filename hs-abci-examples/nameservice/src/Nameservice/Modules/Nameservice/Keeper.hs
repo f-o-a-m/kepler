@@ -27,6 +27,9 @@ makeSem ''Nameservice
 type NameserviceEffR = '[Nameservice, Error NameserviceException]
 type HasNameserviceEff r = (Members NameserviceEffR r, Member (Output Event) r)
 
+storeKey :: Store.StoreKey "nameservice"
+storeKey = Store.StoreKey "nameservice"
+
 eval
   :: HasBaseApp r
   => HasTokenEff r
@@ -42,11 +45,11 @@ eval = mapError makeAppError . evalNameservice
     evalNameservice =
       interpret (\case
           GetWhois name ->
-            Store.get (undefined :: Store.Root) name
+            Store.get storeKey name
           PutWhois name whois ->
-            Store.put name whois
+            Store.put storeKey name whois
           DeleteWhois name ->
-            Store.delete (undefined :: Store.Root) name
+            Store.delete storeKey name
         )
 
 --------------------------------------------------------------------------------

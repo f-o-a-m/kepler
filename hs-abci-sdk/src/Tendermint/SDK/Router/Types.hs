@@ -11,7 +11,7 @@ import           Network.ABCI.Types.Messages.FieldTypes (Proof, WrappedVal (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
 import           Tendermint.SDK.Codec                   (HasCodec (..))
-import           Tendermint.SDK.Store                   (HasKey (..))
+import           Tendermint.SDK.Store                   (RawKey (..))
 
 
 data Leaf (a :: *)
@@ -48,7 +48,7 @@ data QueryResult a = QueryResult
 
 --------------------------------------------------------------------------------
 
-class HasKey a => Queryable a where
+class Queryable a where
   type Name a :: Symbol
 
 class EncodeQueryResult a where
@@ -59,7 +59,7 @@ class EncodeQueryResult a where
 
 class FromQueryData a where
   fromQueryData :: Base64String -> Either String a
-  default fromQueryData :: (HasKey b, Key b ~ a) => Base64String -> Either String a
+  default fromQueryData :: RawKey a => Base64String -> Either String a
   fromQueryData bs = Right (toBytes bs ^. from rawKey)
 
 --------------------------------------------------------------------------------

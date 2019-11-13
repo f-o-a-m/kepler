@@ -43,8 +43,8 @@ import           Tendermint.SDK.Codec        (HasCodec (..))
 import qualified Tendermint.SDK.Events       as Events
 import           Tendermint.SDK.Router       (EncodeQueryResult, FromQueryData,
                                               Queryable (..), RouteT)
-import           Tendermint.SDK.Store        (HasKey (..), RawStore, Root, get,
-                                              put)
+import           Tendermint.SDK.Store        (IsKey (..), RawKey (..), RawStore,
+                                              StoreKey (..), get, put)
 import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
 
 --------------------------------------------------------------------------------
@@ -59,12 +59,14 @@ instance HasCodec Count where
     encode (Count c) = cs . Binary.encode $ c
     decode = Right . Count . Binary.decode . cs
 
-instance HasKey Count where
-    type Key Count = CountKey
+instance RawKey CountKey where
     rawKey = iso (\_ -> cs countKey) (const CountKey)
       where
         countKey :: ByteString
         countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
+
+instance IsKey CountKey "simple_storage" where
+    type Value CountKey "simple_storage" = Count
 
 instance FromQueryData CountKey
 
@@ -95,6 +97,9 @@ instance Events.ToEvent CountSet where
 -- SimpleStorage Module
 --------------------------------------------------------------------------------
 
+storeKey :: StoreKey "simple_storage"
+storeKey = StoreKey "simple_storage"
+
 data SimpleStorage m a where
     PutCount :: Count -> SimpleStorage m ()
     GetCount :: SimpleStorage m Count
@@ -107,10 +112,10 @@ eval
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> do
-    put CountKey count
+    put storeKey CountKey count
     Events.emit $ CountSet count
 
-  GetCount -> fromJust <$> get (undefined :: Root) CountKey
+  GetCount -> fromJust <$> get storeKey CountKey
   )
 
 initialize
@@ -124,9 +129,10 @@ initialize = eval $ do
 -- Query Api
 --------------------------------------------------------------------------------
 
-type CountStoreContents = '[Count]
+type CountStoreContents = '[(CountKey, Count)]
 
 type Api = "simple_storage" :> QueryApi CountStoreContents
 
 server :: Member RawStore r => RouteT Api (Sem r)
-server = storeQueryHandlers (Proxy :: Proxy CountStoreContents) (Proxy :: Proxy (Sem r))
+server =
+  storeQueryHandlers (Proxy :: Proxy CountStoreContents) (Proxy :: Proxy "simple_storage") (Proxy :: Proxy (Sem r))

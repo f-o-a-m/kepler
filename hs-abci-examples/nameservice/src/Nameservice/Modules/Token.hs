@@ -42,6 +42,8 @@ import           Polysemy
 import           Polysemy.Error              (Error, mapError, throw)
 import           Polysemy.Output             (Output)
 import           Servant.API                 ((:>))
+import           Tendermint.SDK.Auth         (Address, addressFromBytes,
+                                              addressToBytes)
 import           Tendermint.SDK.BaseApp      (HasBaseApp)
 import           Tendermint.SDK.Codec        (HasCodec (..))
 import           Tendermint.SDK.Errors       (AppError (..), IsAppError (..))
@@ -66,10 +68,8 @@ instance HasCodec Amount where
     encode (Amount b) = cs $ Binary.encode b
     decode = Right . Amount . Binary.decode . cs
 
-instance Store.HasKey Amount where
-    type Key Amount = Address
-    rawKey = iso (\(Address a) -> tokenKey <> cs a)
-      (Address . cs . fromJust . BS.stripPrefix tokenKey)
+instance Store.IsKey Address "token" where
+    type Value Address "token" = Amount
 
 --------------------------------------------------------------------------------
 -- Events
@@ -121,6 +121,9 @@ makeSem ''Token
 type TokenEffR = '[Token, Error TokenException]
 type HasTokenEff r = (Members TokenEffR r, Member (Output Event) r)
 
+storeKey :: Store.StoreKey "token"
+storeKey = Store.StoreKey "token"
+
 eval
   :: HasBaseApp r
   => Member (Error AppError) r
@@ -135,20 +138,21 @@ eval = mapError makeAppError . evalToken
   evalToken =
     interpret (\case
         GetBalance' address ->
-          Store.get (undefined :: Store.Root) address
+          Store.get storeKey address
         PutBalance address balance ->
-          Store.put address balance
+          Store.put storeKey address balance
       )
 --------------------------------------------------------------------------------
 -- | Server
 --------------------------------------------------------------------------------
 
-type TokenContents = '[Amount]
+type TokenContents = '[(Address, Amount)]
 
 type Api = "token" :> QueryApi TokenContents
 
 server :: Member Store.RawStore r => RouteT Api (Sem r)
-server = storeQueryHandlers (Proxy :: Proxy TokenContents) (Proxy :: Proxy (Sem r))
+server =
+  storeQueryHandlers (Proxy :: Proxy TokenContents) (Proxy :: Proxy "token") (Proxy :: Proxy (Sem r))
 
 --------------------------------------------------------------------------------
 

@@ -2,13 +2,13 @@
 
 module Tendermint.SDK.Store
   ( RawStore(..)
-  , HasKey(..)
-  , Root(..)
+  , RawKey(..)
+  , IsKey(..)
+  , StoreKey(..)
   , get
   , put
   , delete
   , prove
-  , root
   ) where
 
 import           Control.Lens         (Iso', (^.))
@@ -16,48 +16,47 @@ import qualified Data.ByteString      as BS
 import           Polysemy             (Member, Sem, makeSem)
 import           Tendermint.SDK.Codec (HasCodec (..))
 
-newtype Root = Root BS.ByteString
+newtype StoreKey n = StoreKey BS.ByteString
 
 data RawStore m a where
-  RawStorePut   :: BS.ByteString -> BS.ByteString -> RawStore m ()
-  RawStoreGet   :: Root -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
-  RawStoreDelete :: Root -> BS.ByteString -> RawStore m ()
-  RawStoreProve :: Root -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
-  RawStoreRoot  :: RawStore m Root
+  RawStorePut   :: StoreKey ns -> BS.ByteString -> BS.ByteString -> RawStore m ()
+  RawStoreGet   :: StoreKey ns -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
+  RawStoreDelete :: StoreKey ns -> BS.ByteString -> RawStore m ()
+  RawStoreProve :: StoreKey ns -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
 
 makeSem ''RawStore
 
-class HasCodec a => HasKey a where
-    type Key a = k | k -> a
-    rawKey :: Iso' (Key a) BS.ByteString
+class RawKey k where
+  rawKey :: Iso' k BS.ByteString
 
-root
-  :: Member RawStore r
-  => Sem r Root
-root = rawStoreRoot
+class RawKey k => IsKey k ns where
+  type Value k ns = a | a -> ns k
 
 put
-  :: forall a r.
-     HasKey a
+  :: forall k r ns.
+     IsKey k ns
+  => HasCodec (Value k ns)
   => Member RawStore r
-  => Key a
-  -> a
+  => StoreKey ns
+  -> k
+  -> Value k ns
   -> Sem r ()
-put k a =
+put sk k a =
   let key = k ^. rawKey
       val = encode a
-  in rawStorePut key val
+  in rawStorePut sk key val
 
 get
-  :: forall a r.
-     HasKey a
+  :: forall k r ns.
+     IsKey k ns
+  => HasCodec (Value k ns)
   => Member RawStore r
-  => Root
-  -> Key a
-  -> Sem r (Maybe a)
-get index k = do
+  => StoreKey ns
+  -> k
+  -> Sem r (Maybe (Value k ns))
+get sk k = do
   let key = k ^. rawKey
-  mRes <- rawStoreGet index key
+  mRes <- rawStoreGet sk key
   pure $ case mRes of
     Nothing -> Nothing
     Just raw -> case decode raw of
@@ -65,17 +64,17 @@ get index k = do
       Right a -> Just a
 
 delete
-  :: HasKey a
+  :: IsKey k ns
   => Member RawStore r
-  => Root
-  -> Key a
+  => StoreKey ns
+  -> k
   -> Sem r ()
-delete r k = rawStoreDelete r (k ^. rawKey)
+delete sk k = rawStoreDelete sk (k ^. rawKey)
 
 prove
-  :: HasKey a
+  :: IsKey k ns
   => Member RawStore r
-  => Root
-  -> Key a
+  => StoreKey ns
+  -> k
   -> Sem r (Maybe BS.ByteString)
-prove r k = rawStoreProve r (k ^. rawKey)
+prove sk k = rawStoreProve sk (k ^. rawKey)
