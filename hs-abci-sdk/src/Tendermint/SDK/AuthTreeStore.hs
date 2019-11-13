@@ -7,11 +7,11 @@ import qualified Crypto.Data.Auth.Tree            as AT
 import qualified Crypto.Data.Auth.Tree.Class      as AT
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Crypto.Hash                      as Cryptonite
-import           Data.ByteArray                   (convert)
 import           Data.ByteString                  (ByteString)
 import           Polysemy                         (Embed, Member, Sem,
                                                    interpret)
-import           Tendermint.SDK.Store             (RawStore (..), Root (..))
+import           Tendermint.SDK.Store             (MultiStore (..),
+                                                   StoreKey (..))
 --------------------------------------------------------------------------------
 --
 --------------------------------------------------------------------------------
@@ -33,23 +33,19 @@ initAuthTreeDriver = AuthTreeDriver <$> newTVarIO AT.empty
 interpretAuthTreeStore
   :: Member (Embed IO) r
   => AuthTreeDriver
-  -> Sem (RawStore ': r) a
+  -> Sem (MultiStore ': r) a
   -> Sem r a
 interpretAuthTreeStore AuthTreeDriver{treeVar} =
   interpret
     (\case
-      RawStorePut k v -> liftIO . atomically $ do
+      MultiStorePut (StoreKey storeKey) k v -> liftIO . atomically $ do
         tree <- readTVar treeVar
-        writeTVar treeVar $ AT.insert k v tree
-      RawStoreGet _ k -> liftIO . atomically $ do
+        writeTVar treeVar $ AT.insert (storeKey <> k) v tree
+      MultiStoreGet (StoreKey storeKey) k -> liftIO . atomically $ do
         tree <- readTVar treeVar
-        pure $ AT.lookup k tree
-      RawStoreProve _ _ -> pure Nothing
-      RawStoreDelete _ k -> liftIO . atomically $ do
+        pure $ AT.lookup (storeKey <> k) tree
+      MultiStoreProve _ _ -> pure Nothing
+      MultiStoreDelete (StoreKey storeKey) k -> liftIO . atomically $ do
         tree <- readTVar treeVar
-        writeTVar treeVar $ AT.delete k tree
-      RawStoreRoot -> liftIO . atomically $ do
-        tree <- readTVar treeVar
-        let AuthTreeHash r = AT.merkleHash tree :: AuthTreeHash
-        pure $ Root $ convert r
+        writeTVar treeVar $ AT.delete (storeKey <> k) tree
     )

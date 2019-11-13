@@ -15,6 +15,7 @@ import           Polysemy.Error                      (Error, runError)
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
 import qualified Tendermint.SDK.BaseApp              as BaseApp
 import qualified Tendermint.SDK.Logger.Katip         as KL
+import           Tendermint.SDK.Store                (Store)
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context
@@ -33,7 +34,7 @@ data AppError = AppError String deriving (Show)
 instance Exception AppError
 
 type EffR =
-  ( SimpleStorage
+  (  Store "simple_storage"
   ': Error AppError
   ': BaseApp.BaseApp
   )

@@ -14,7 +14,7 @@ import qualified Data.ByteArray.HexString as Hex
 import           Data.ByteString          (ByteString)
 import           Data.Int                 (Int64)
 import           Data.IORef
-import           Data.Monoid              (All (..), Endo (..))
+import           Data.Monoid              (Endo (..))
 import           Data.Proxy               (Proxy (..))
 import           Data.String.Conversions
 import           Data.Text                (Text)
@@ -22,7 +22,7 @@ import           GHC.Generics             (Generic)
 import           GHC.TypeLits             (KnownSymbol, symbolVal)
 import           Polysemy
 import           Tendermint.SDK.Codec     (HasCodec (..))
-import           Tendermint.SDK.Store     (HasKey (..))
+import           Tendermint.SDK.Store     (IsKey (..), IsRawKey (..))
 
 newtype Address = Address Hex.HexString deriving (Eq, Show, Ord, A.ToJSON, A.FromJSON)
 
@@ -32,6 +32,10 @@ instance Binary.Binary Address where
 
 addressToBytes :: Address -> ByteString
 addressToBytes (Address addrHex) = Hex.toBytes addrHex
+
+addressFromBytes :: ByteString -> Address
+addressFromBytes a = Address $ Hex.fromBytes a
+
 
 newtype AccountAddress prefix = AccountAddress Address deriving (Eq, Show, Ord)
 
@@ -123,9 +127,11 @@ instance HasCodec Account where
     encode = cs . Binary.encode
     decode = Right . Binary.decode . cs
 
-instance HasKey Account where
-    type Key Account = Address
+instance IsRawKey Address where
     rawKey = iso (\(Address a) -> Hex.toBytes a) (Address . Hex.fromBytes)
+
+instance IsKey "auth" Address where
+  type Value "auth" Address = Account
 
 --------------------------------------------------------------------------------
 
@@ -133,16 +139,13 @@ data Msg msg = Msg
   { msgRoute      :: Text
   , msgType       :: Text
   , msgSignBytes  :: ByteString
-  , msgGetSigners :: [(PubKey, Signature)]
+  , msgGetSigners :: [Address]
   , msgValidate   :: Maybe Text
   , msgData       :: msg
   }
 
-verifyAllMsgSignatures :: Signer -> Msg msg -> Bool
-verifyAllMsgSignatures signer Msg{msgGetSigners, msgSignBytes} =
-  let isValid (pubKey, sig) = signerVerify signer pubKey sig msgSignBytes
-  in getAll . mconcat . map (All . isValid) $ msgGetSigners
-
+class IsTxMessage msg where
+  makeTxMessage :: msg -> Msg msg
 
 data Fee = Fee
   { feeAmount :: [Coin]
@@ -205,6 +208,6 @@ validateBasicDecorator = Endo $ \next -> do
   when (length (filter (\signers -> length signers /= expectedSignersN) msgSigners) /= 0) $
     error "TODO: fill in error for wrong number of signers"
   let feeAmounts = map coinAmount . feeAmount . txFee $ tx
-  when (filter (< 0) feeAmounts /= []) $
+  when (any (< 0) feeAmounts) $
     error "TODO: No negative fees"
   next

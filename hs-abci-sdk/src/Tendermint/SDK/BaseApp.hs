@@ -17,11 +17,11 @@ import           Tendermint.SDK.Events        (Event, EventBuffer,
                                                evalWithBuffer, newEventBuffer)
 import           Tendermint.SDK.Logger        (Logger)
 import qualified Tendermint.SDK.Logger.Katip  as KL
-import           Tendermint.SDK.Store         (RawStore)
+import           Tendermint.SDK.Store         (MultiStore)
 
 type HasBaseApp r =
   ( Member Logger r
-  , Member RawStore r
+  , Member MultiStore r
   , Member (Output Event) r
   , Member Resource r
   )
@@ -39,7 +39,7 @@ type CoreEff =
 
 type BaseApp =
   (  Output Event
-  ': RawStore
+  ': MultiStore
   ': Logger
   ': Resource
   ': Reader EventBuffer

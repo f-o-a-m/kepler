@@ -1,63 +1,88 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Tendermint.SDK.Store
-  ( RawStore(..)
-  , HasKey(..)
-  , Root(..)
+  ( MultiStore(..)
+  , Store
+  , eval
+  , StoreKey(..)
+  , IsRawKey(..)
+  , IsKey(..)
   , get
   , put
   , delete
   , prove
-  , root
   ) where
 
-import           Control.Lens         (Iso', (^.))
-import qualified Data.ByteString      as BS
-import           Polysemy             (Member, Sem, makeSem)
-import           Tendermint.SDK.Codec (HasCodec (..))
+import           Control.Lens            (Iso', (^.))
+import qualified Data.ByteString         as BS
+import           Data.Proxy
+import           Data.String.Conversions (cs)
+import           GHC.TypeLits            (KnownSymbol, Symbol, symbolVal)
+import           Polysemy                (Member, Sem, interpret, makeSem)
+import           Tendermint.SDK.Codec    (HasCodec (..))
 
-newtype Root = Root BS.ByteString
+newtype StoreKey = StoreKey BS.ByteString
 
-data RawStore m a where
-  RawStorePut   :: BS.ByteString -> BS.ByteString -> RawStore m ()
-  RawStoreGet   :: Root -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
-  RawStoreDelete :: Root -> BS.ByteString -> RawStore m ()
-  RawStoreProve :: Root -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
-  RawStoreRoot  :: RawStore m Root
+data MultiStore m a where
+  MultiStorePut   :: StoreKey -> BS.ByteString -> BS.ByteString -> MultiStore m ()
+  MultiStoreGet   :: StoreKey -> BS.ByteString -> MultiStore m (Maybe BS.ByteString)
+  MultiStoreDelete :: StoreKey -> BS.ByteString -> MultiStore m ()
+  MultiStoreProve :: StoreKey -> BS.ByteString -> MultiStore m (Maybe BS.ByteString)
 
-makeSem ''RawStore
+makeSem ''MultiStore
 
-class HasCodec a => HasKey a where
-    type Key a = k | k -> a
-    rawKey :: Iso' (Key a) BS.ByteString
+data Store (storeKey :: Symbol) m a where
+  StorePut   :: BS.ByteString -> BS.ByteString -> Store storeKey m ()
+  StoreGet   :: BS.ByteString -> Store storeKey m (Maybe BS.ByteString)
+  StoreDelete :: BS.ByteString -> Store storeKey m ()
+  StoreProve :: BS.ByteString -> Store storeKey m (Maybe BS.ByteString)
 
-root
-  :: Member RawStore r
-  => Sem r Root
-root = rawStoreRoot
+makeSem ''Store
+
+eval
+  :: forall r storeKey.
+     KnownSymbol storeKey
+  => Member MultiStore r
+  => (forall a. Sem (Store storeKey ': r) a -> Sem r a)
+eval = interpret (\case
+  StorePut k v -> multiStorePut (StoreKey . cs . symbolVal $ Proxy @storeKey) k v
+  StoreGet k -> multiStoreGet (StoreKey . cs . symbolVal $ Proxy @storeKey) k
+  StoreDelete k -> multiStoreDelete (StoreKey . cs . symbolVal $ Proxy @storeKey) k
+  StoreProve k -> multiStoreProve (StoreKey . cs . symbolVal $ Proxy @storeKey) k
+  )
+
+--------------------------------------------------------------------------------
+
+class IsRawKey k where
+  rawKey :: Iso' k BS.ByteString
+
+class IsRawKey k => IsKey storeKey k where
+  type Value storeKey k = a | a -> storeKey k
+
 
 put
-  :: forall a r.
-     HasKey a
-  => Member RawStore r
-  => Key a
-  -> a
+  :: forall k storeKey r.
+     IsKey storeKey k
+  => HasCodec (Value storeKey k)
+  => Member (Store storeKey) r
+  => k
+  -> Value storeKey k
   -> Sem r ()
 put k a =
   let key = k ^. rawKey
       val = encode a
-  in rawStorePut key val
+  in storePut key val
 
 get
-  :: forall a r.
-     HasKey a
-  => Member RawStore r
-  => Root
-  -> Key a
-  -> Sem r (Maybe a)
-get index k = do
+  :: forall k storeKey r.
+     IsKey storeKey k
+  => HasCodec (Value storeKey k)
+  => Member (Store storeKey) r
+  => k
+  -> Sem r (Maybe (Value storeKey k))
+get k = do
   let key = k ^. rawKey
-  mRes <- rawStoreGet index key
+  mRes <- storeGet key
   pure $ case mRes of
     Nothing -> Nothing
     Just raw -> case decode raw of
@@ -65,17 +90,17 @@ get index k = do
       Right a -> Just a
 
 delete
-  :: HasKey a
-  => Member RawStore r
-  => Root
-  -> Key a
+  :: forall storeKey k r.
+     IsKey storeKey k
+  => Member (Store storeKey) r
+  => k
   -> Sem r ()
-delete r k = rawStoreDelete r (k ^. rawKey)
+delete k = storeDelete (k ^. rawKey)
 
 prove
-  :: HasKey a
-  => Member RawStore r
-  => Root
-  -> Key a
+  :: forall storeKey k r.
+     IsKey storeKey k
+  => Member (Store storeKey) r
+  => k
   -> Sem r (Maybe BS.ByteString)
-prove r k = rawStoreProve r (k ^. rawKey)
+prove k = storeProve (k ^. rawKey)

@@ -1,3 +1,4 @@
+{-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.StoreQueries where
 
 --import Servant.API
@@ -9,22 +10,25 @@ import           Data.ByteArray.Base64String (fromBytes)
 import           Data.Proxy
 import           Polysemy                    (Member, Sem)
 import           Servant.API                 ((:<|>) (..), (:>))
+import           Tendermint.SDK.Codec        (HasCodec)
 import           Tendermint.SDK.Router.Class
 import           Tendermint.SDK.Router.Types
-import           Tendermint.SDK.Store        (HasKey (..), RawStore, get)
+import           Tendermint.SDK.Store        (IsKey (..), IsRawKey (..), Store,
+                                              get)
 
 class StoreQueryHandler a h where
     storeQueryHandler :: Proxy a -> h
 
 instance
-  ( HasKey a
-  , Key a ~ k
-  , Member RawStore r
+  ( IsKey storeKey k
+  , Value storeKey k ~ a
+  , HasCodec a
+  , Member (Store storeKey) r
   )
    => StoreQueryHandler a (QueryArgs k -> ExceptT QueryError (Sem r) (QueryResult a)) where
   storeQueryHandler _ QueryArgs{..} = do
     let key = queryArgsData
-    mRes <- lift $ get undefined key
+    mRes <- lift $ get key
     case mRes of
       Nothing -> throwE ResourceNotFound
       Just (res :: a) -> pure $ QueryResult
@@ -36,32 +40,38 @@ instance
         , queryResultHeight = 0
         }
 
-class StoreQueryHandlers (items :: [*]) m where
-    type QueryApi items :: *
-    storeQueryHandlers :: Proxy items -> Proxy m -> RouteT (QueryApi items) m
+class StoreQueryHandlers (kvs :: [*]) m where
+    type QueryApi kvs :: *
+    storeQueryHandlers :: Proxy kvs -> Proxy m -> RouteT (QueryApi kvs) m
 
-instance
+instance forall k a r storeKey.
     ( Queryable a
-    , Member RawStore r
-    )  => StoreQueryHandlers (a ': '[]) (Sem r) where
-      type QueryApi (a ': '[])  =  Name a :> QA (Key a) :> Leaf a
+    , HasCodec a
+    , IsKey storeKey k
+    , Value storeKey k ~ a
+    , Member (Store storeKey) r
+    )  => StoreQueryHandlers '[(k,a)] (Sem r) where
+      type QueryApi '[(k,a)] =  Name a :> QA k :> Leaf a
       storeQueryHandlers _ _ = storeQueryHandler (Proxy :: Proxy a)
 
 instance
     ( Queryable a
-    , StoreQueryHandlers (a': as) (Sem r)
-    , Member RawStore r
-    ) => StoreQueryHandlers (a ': a' : as) (Sem r) where
-        type (QueryApi (a ': a' : as)) = (Name a :> QA (Key a) :> Leaf a) :<|> QueryApi (a' ': as)
+    , IsKey storeKey k
+    , Value storeKey k ~ a
+    , HasCodec a
+    , StoreQueryHandlers  ((k',a') ': kas) (Sem r)
+    , Member (Store storeKey) r
+    ) => StoreQueryHandlers ((k, a) ': (k', a') ': kas) (Sem r) where
+        type (QueryApi ((k, a) ': (k', a') ': kas)) = (Name a :> QA k :> Leaf a) :<|> QueryApi ((k',a') ': kas)
         storeQueryHandlers _ pm =
           storeQueryHandler  (Proxy :: Proxy a) :<|>
-          storeQueryHandlers (Proxy :: Proxy (a' ': as)) pm
+          storeQueryHandlers (Proxy :: Proxy ((k',a') ': kas)) pm
 
 allStoreHandlers
-  :: forall (contents :: [*]) r.
-     StoreQueryHandlers contents (Sem r)
-  => Member RawStore r
-  => Proxy contents
+  :: forall (kvs :: [*]) storeKey r.
+     StoreQueryHandlers kvs (Sem r)
+  => Member (Store storeKey) r
+  => Proxy kvs
   -> Proxy r
-  -> RouteT (QueryApi contents) (Sem r)
-allStoreHandlers _ _ = storeQueryHandlers (Proxy :: Proxy contents) (Proxy :: Proxy (Sem r))
+  -> RouteT (QueryApi kvs) (Sem r)
+allStoreHandlers pkvs _ = storeQueryHandlers pkvs (Proxy :: Proxy (Sem r))
