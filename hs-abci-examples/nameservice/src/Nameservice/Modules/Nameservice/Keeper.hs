@@ -3,6 +3,9 @@
 module Nameservice.Modules.Nameservice.Keeper where
 
 import           Data.Maybe                               (isNothing)
+import           Data.Proxy
+import           Data.String.Conversions                  (cs)
+import           GHC.TypeLits                             (symbolVal)
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Types
 import           Nameservice.Modules.Token                (Address, Amount,
@@ -29,8 +32,8 @@ makeSem ''Nameservice
 type NameserviceEffR = '[Nameservice, Error NameserviceException]
 type HasNameserviceEff r = (Members NameserviceEffR r, Member (Output Event) r)
 
-storeKey :: Store.StoreKey "nameservice"
-storeKey = Store.StoreKey "nameservice"
+storeKey :: Store.StoreKey NameserviceModule
+storeKey = Store.StoreKey . cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
 
 eval
   :: HasBaseApp r

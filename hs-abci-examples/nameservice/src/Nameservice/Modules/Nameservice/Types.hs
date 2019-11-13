@@ -20,10 +20,13 @@ import           Tendermint.SDK.Events     (Event, FromEvent (..), ToEvent (..),
 import qualified Tendermint.SDK.Router     as R
 import qualified Tendermint.SDK.Store      as Store
 
-newtype Name = Name String deriving (Eq, Show, Binary.Binary, A.ToJSON, A.FromJSON)
+--------------------------------------------------------------------------------
 
-nameserviceKey :: ByteString
-nameserviceKey = "02"
+type NameserviceModule = "nameservice"
+
+--------------------------------------------------------------------------------
+
+newtype Name = Name String deriving (Eq, Show, Binary.Binary, A.ToJSON, A.FromJSON)
 
 data Whois = Whois
   { whoisValue :: String
@@ -38,11 +41,10 @@ instance HasCodec Whois where
   decode = Right . Binary.decode . cs
 
 instance Store.RawKey Name where
-    rawKey = iso (\(Name n) -> nameserviceKey <> cs n)
-      (Name . cs . fromJust . BS.stripPrefix nameserviceKey)
+    rawKey = iso (\(Name n) -> cs n) (Name . cs)
 
-instance Store.IsKey Name "nameservice" where
-    type Value Name "nameservice" = Whois
+instance Store.IsKey Name NameserviceModule where
+    type Value Name NameserviceModule = Whois
 
 instance R.Queryable Whois where
   type Name Whois = "whois"
