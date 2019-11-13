@@ -37,10 +37,12 @@ instance HasCodec Whois where
   encode = cs . Binary.encode
   decode = Right . Binary.decode . cs
 
-instance Store.HasKey Whois where
-    type Key Whois = Name
+instance Store.RawKey Name where
     rawKey = iso (\(Name n) -> nameserviceKey <> cs n)
       (Name . cs . fromJust . BS.stripPrefix nameserviceKey)
+
+instance Store.IsKey Name "nameservice" where
+    type Value Name "nameservice" = Whois
 
 instance R.Queryable Whois where
   type Name Whois = "whois"
