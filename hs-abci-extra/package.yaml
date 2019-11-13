@@ -30,6 +30,8 @@ dependencies:
 - text
 - lens
 - bytestring
+- time
+- containers
 
 default-extensions:
 - NamedFieldPuns

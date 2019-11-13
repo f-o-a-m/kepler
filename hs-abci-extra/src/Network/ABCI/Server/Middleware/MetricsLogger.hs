@@ -1,84 +1,115 @@
 module Network.ABCI.Server.Middleware.MetricsLogger
     ( -- * Basic stdout logging
-      mkLogStdout
-    , mkLogStdoutDev
+      mkMetricsLogStdout
       -- * Custom Loggers
     , mkMetricsLogger
     , mkMetricsLoggerM
     ) where
-import           Control.Lens            (at, (?~))
+import           Control.Concurrent.MVar (MVar, modifyMVar, newMVar)
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import qualified Data.Aeson              as A
-import qualified Data.HashMap.Strict     as H
-import           Data.Text               (Text)
+import           Data.Map.Strict         (Map)
+import qualified Data.Map.Strict         as Map
+import           Data.Time               (NominalDiffTime, diffUTCTime,
+                                          getCurrentTime)
 import           Katip
-import           Network.ABCI.Server.App (App (..), MessageType, Middleware,
-                                          Request (..))
-import Control.Concurrent.MVar (MVar, newMVar, withMVar)
-import Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
+import           Network.ABCI.Server.App (App (..), MessageType (..),
+                                          Middleware, Request (..), msgTypeKey)
 import           System.IO               (stdout)
 
 ---------------------------------------------------------------------------
--- mkLogStdout
---------------------------------------------------------------------------
--- | Creates a production request logger as middleware for ABCI requests.
--- Uses lowest possible verbosity.
-mkLogStdout :: (MonadIO m) => m (Middleware m)
-mkLogStdout = do
+-- mkMetricsLogStdout
+---------------------------------------------------------------------------
+-- | Creates a production Metrics logger as middleware for ABCI Server.
+-- Uses lowest possible verbosity, however, with the current minimal metrics
+-- verbosity has no effect on which metrics logged.
+mkMetricsLogStdout :: (MonadIO m) => m (Middleware m)
+mkMetricsLogStdout = do
   handleScribe <- liftIO $ mkHandleScribe ColorIfTerminal stdout (permitItem InfoS) V0
   le <- liftIO (registerScribe "stdout" handleScribe defaultScribeSettings
         =<< initLogEnv "ABCI" "production")
   let ns = "Server"
-  mvarReqC <- liftIO $ newMVar initRequestCounter
-  pure $ mkMetricsLogger mvarReqC le ns
-
----------------------------------------------------------------------------
--- mkLogStdoutDev
---------------------------------------------------------------------------
--- | Creates a request logger as middleware for ABCI requests.
--- Uses highest possible verbosity.
-mkLogStdoutDev :: (MonadIO m) => m (Middleware m)
-mkLogStdoutDev = do
-  handleScribe <- liftIO $ mkHandleScribe ColorIfTerminal stdout (permitItem DebugS) V3
-  le <- liftIO (registerScribe "stdout" handleScribe defaultScribeSettings
-        =<< initLogEnv "ABCI" "development")
-  let ns = "Server"
-  mvarReqC <- liftIO $ newMVar initRequestCounter
+  mvarReqC <- liftIO $ newMVar Map.empty
   pure $ mkMetricsLogger mvarReqC le ns
 
 ---------------------------------------------------------------------------
 -- mkRequestLogger
 ---------------------------------------------------------------------------
--- | Request logger middleware for ABCI requests with custom 'Katip.LogEnv'
--- and 'Katip.Namespace'. This method makes it easy use various scribes such as
--- <http://hackage.haskell.org/package/katip-elasticsearch-0.5.1.1/docs/Katip-Scribes-ElasticSearch.html elastic-search>.
-mkMetricsLogger :: (MonadIO m) => MVar (Map MessageType Integer) -> LogEnv -> Namespace -> Middleware m
+-- | Request logger middleware for ABCI metrics with custom 'Katip.LogEnv'
+-- and 'Katip.Namespace'.
+mkMetricsLogger :: (MonadIO m) => MVar (Map OrderedMessageType Integer) -> LogEnv -> Namespace -> Middleware m
 mkMetricsLogger mvarMap le ns (App app) = App $ \ req -> do
-  runKatipContextT le () ns $ logMetrics req
-  app req
-
+  startTime <- liftIO getCurrentTime
+  res <- app req
+  endTime <- liftIO getCurrentTime
+  metrics <- liftIO $ modifyMVar mvarMap $ \metMap ->
+    let mt        = requestToMessageType req
+        count     = maybe 1 (+1) (metMap Map.!? mt)
+        metrics   = Metrics mt count (diffUTCTime endTime startTime)
+        newMetMap = Map.insert mt count metMap
+    in  pure (newMetMap, metrics)
+  runKatipContextT le () ns $ logMetrics metrics
+  pure res
 ---------------------------------------------------------------------------
--- mkRequestLoggerM
+-- mkMetricsLoggerM
 ---------------------------------------------------------------------------
--- | Request logger middleware for ABCI requests in app with KatipContext.
+-- | Metrics logger middleware for ABCI server already within the KatipContext.
 -- Great for `App m` with a `KatipContext` instance.
-mkMetricsLoggerM :: (KatipContext m) => Middleware m
-mkMetricsLoggerM (App app) = App $ \ req -> logMetrics req >> app req
+mkMetricsLoggerM :: (KatipContext m, MonadIO m) => MVar (Map OrderedMessageType Integer) -> Middleware m
+mkMetricsLoggerM mvarMap (App app) = App $ \ req -> do
+  startTime <- liftIO getCurrentTime
+  res <- app req
+  endTime <- liftIO getCurrentTime
+  metrics <- liftIO $ modifyMVar mvarMap $ \metMap ->
+    let mt        = requestToMessageType req
+        count     = maybe 1 (+1) (metMap Map.!? mt)
+        metrics   = Metrics mt count (diffUTCTime endTime startTime)
+        newMetMap = Map.insert mt count metMap
+    in  pure (newMetMap, metrics)
+  logMetrics metrics
+  pure res
 
 ---------------------------------------------------------------------------
 -- Common
 ---------------------------------------------------------------------------
--- | Request logger function.
-logMetrics :: (KatipContext m) => Request t -> m ()
-logMetrics req =  logFM InfoS "Request Received"
+-- | Metrics logger function.
+logMetrics :: (KatipContext m) => Metrics -> m ()
+logMetrics metrics = katipAddContext metrics $ logFM InfoS ""
 
----------------------------------------------------------------------------
--- initRequestCounter
----------------------------------------------------------------------------
-initRequestCounter :: Map MessageType Integer
-initRequestCounter = undefined
 
----------------------------------------------------------------------------
--- initRequestCounter
----------------------------------------------------------------------------
+data Metrics = Metrics
+  { metricsMessageType  :: OrderedMessageType
+  , metricsMessageCount :: Integer
+  , metricsResponseTime :: NominalDiffTime
+  }
+instance A.ToJSON Metrics where
+  toJSON Metrics{..} = A.object
+    [ "message_type"  A..= A.toJSON ((msgTypeKey $ unOrderedMessageType metricsMessageType) :: String)
+    , "message_count" A..= A.toJSON metricsMessageCount
+    , "response_time" A..= A.toJSON metricsResponseTime
+    ]
+
+instance ToObject Metrics
+instance LogItem Metrics where
+  payloadKeys _ _  = AllKeys
+
+newtype OrderedMessageType = OrderedMessageType {unOrderedMessageType :: MessageType}
+
+instance Eq OrderedMessageType where
+  (==) (OrderedMessageType a) (OrderedMessageType b) = msgTypeKey a == msgTypeKey b
+
+instance Ord OrderedMessageType where
+  (<=) (OrderedMessageType a) (OrderedMessageType b) = msgTypeKey a <= msgTypeKey b
+
+requestToMessageType :: Request (t :: MessageType) -> OrderedMessageType
+requestToMessageType  (RequestEcho _)       = OrderedMessageType MTEcho
+requestToMessageType  (RequestInfo _)       = OrderedMessageType MTInfo
+requestToMessageType  (RequestSetOption _)  = OrderedMessageType MTSetOption
+requestToMessageType  (RequestQuery _)      = OrderedMessageType MTQuery
+requestToMessageType  (RequestCheckTx _)    = OrderedMessageType MTCheckTx
+requestToMessageType  (RequestFlush _)      = OrderedMessageType MTFlush
+requestToMessageType  (RequestInitChain _)  = OrderedMessageType MTInitChain
+requestToMessageType  (RequestBeginBlock _) = OrderedMessageType MTBeginBlock
+requestToMessageType  (RequestDeliverTx _)  = OrderedMessageType MTDeliverTx
+requestToMessageType  (RequestEndBlock _)   = OrderedMessageType MTEndBlock
+requestToMessageType  (RequestCommit _)     = OrderedMessageType MTCommit

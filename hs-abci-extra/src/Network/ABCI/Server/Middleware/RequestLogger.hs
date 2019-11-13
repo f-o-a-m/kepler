@@ -6,11 +6,9 @@ module Network.ABCI.Server.Middleware.RequestLogger
     , mkRequestLogger
     , mkRequestLoggerM
     ) where
-import           Control.Lens            (at, (?~))
+
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import qualified Data.Aeson              as A
-import qualified Data.HashMap.Strict     as H
-import           Data.Text               (Text)
 import           Katip
 import           Network.ABCI.Server.App (App (..), MessageType, Middleware,
                                           Request (..))
