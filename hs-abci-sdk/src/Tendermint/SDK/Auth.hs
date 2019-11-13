@@ -72,6 +72,8 @@ class KnownSymbol prefix => IsHumanReadable prefix where
       Left err  -> error $ show err
       Right hrp -> hrp
 
+--------------------------------------------------------------------------------
+
 data PubKey = PubKey
   { pubKeyAddress :: Address
   , pubKeyRaw     :: ByteString
@@ -117,8 +119,8 @@ data Account = Account
 instance Binary.Binary Account
 
 data Accounts m a where
-  PutAccount :: Account -> Accounts m ()
-  GetAccount :: Address -> Accounts m Account
+  PutAccount :: Address -> Account -> Accounts m ()
+  GetAccount :: Address -> Accounts m (Maybe Account)
 
 makeSem ''Accounts
 
@@ -135,19 +137,16 @@ instance IsKey Address "auth" where
 --------------------------------------------------------------------------------
 
 data Msg msg = Msg
-  { msgRoute      :: Text
-  , msgType       :: Text
-  , msgSignBytes  :: ByteString
-  , msgGetSigners :: [Address]
-  , msgValidate   :: Maybe Text
-  , msgData       :: msg
+  { msgRoute     :: Text
+  , msgType      :: Text
+  , msgSignBytes :: ByteString
+  , msgGetSigner :: Address
+  , msgValidate  :: Maybe Text
+  , msgData      :: msg
   }
 
---verifyAllMsgSignatures :: Signer -> Msg msg -> Bool
---verifyAllMsgSignatures signer Msg{msgGetSigners, msgSignBytes} =
---  let isValid (pubKey, sig) = signerVerify signer pubKey sig msgSignBytes
---  in getAll . mconcat . map (All . isValid) $ msgGetSigners
-
+class MakeMessage msg where
+  makeMessage :: msg -> Msg msg
 
 data Fee = Fee
   { feeAmount :: [Coin]
@@ -155,13 +154,16 @@ data Fee = Fee
   }
 
 data Tx tx msg = Tx
-  { txMsgs       :: [Msg msg]
-  , txFee        :: Fee
-  , txSignatures :: [Signature]
-  , txMemo       :: Text
-  , txValidate   :: Maybe Text
-  , txData       :: tx
+  { txMsg       :: Msg msg
+  , txFee       :: Fee
+  , txSignature :: Signature
+  , txMemo      :: Text
+  , txValidate  :: Maybe Text
+  , txData      :: tx
   }
+
+class MakeTx tx msg where
+  makeTx :: tx -> Tx tx msg
 
 data GasMeter = GasMeter
   { gasMeterLimit    :: Int64
@@ -203,12 +205,6 @@ validateBasicDecorator
   => Endo (AnteDecorator m tx msg)
 validateBasicDecorator = Endo $ \next -> do
   tx <- asks transaction
-  let msgSigners = map msgGetSigners $ txMsgs tx
-      expectedSignersN = length $ txSignatures tx
-  when (expectedSignersN == 0) $
-    error "TODO: There must be signers"
-  when (any (\signers -> length signers /= expectedSignersN) msgSigners) $
-    error "TODO: fill in error for wrong number of signers"
   let feeAmounts = map coinAmount . feeAmount . txFee $ tx
   when (any (< 0) feeAmounts) $
     error "TODO: No negative fees"
