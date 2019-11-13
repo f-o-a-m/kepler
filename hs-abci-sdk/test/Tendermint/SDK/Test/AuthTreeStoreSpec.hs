@@ -9,19 +9,20 @@ import           Tendermint.SDK.AuthTreeStore (AuthTreeDriver,
                                                initAuthTreeDriver,
                                                interpretAuthTreeStore)
 import           Tendermint.SDK.Codec         (HasCodec (..))
-import           Tendermint.SDK.Store         (HasKey (..), Root, get, put)
+import           Tendermint.SDK.Store         (IsKey (..), RawKey (..),
+                                               StoreKey (..), get, put)
 import           Test.Hspec
 
 spec :: Spec
 spec = beforeAll beforeAction $
   describe "AuthTreeStore" $ do
     it "can fail to query an empty AuthTreeStore" $ \driver -> do
-      mv <- runM . interpretAuthTreeStore driver $ get (undefined :: Root) IntStoreKey
+      mv <- runM . interpretAuthTreeStore driver $ get storeKey IntStoreKey
       mv `shouldBe` Nothing
     it "can set a value and query the value" $ \driver -> do
       mv <- runM . interpretAuthTreeStore driver $ do
-        put IntStoreKey (IntStore 1)
-        get (undefined :: Root) IntStoreKey
+        put storeKey IntStoreKey (IntStore 1)
+        get storeKey IntStoreKey
       mv `shouldBe` Just (IntStore 1)
 
 
@@ -36,9 +37,14 @@ instance HasCodec IntStore where
     encode (IntStore c) = cs . Binary.encode $ c
     decode = Right . IntStore . Binary.decode . cs
 
-instance HasKey IntStore where
-    type Key IntStore = IntStoreKey
+instance RawKey IntStoreKey where
     rawKey = iso (\_ -> cs intStoreKey) (const IntStoreKey)
       where
         intStoreKey :: ByteString
         intStoreKey = "IntStore"
+
+instance IsKey IntStoreKey "int_store" where
+    type Value IntStoreKey "int_store" = IntStore
+
+storeKey :: StoreKey "int_store"
+storeKey = StoreKey "int_store"
