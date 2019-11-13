@@ -5,9 +5,10 @@ import           Data.Either                           (Either)
 import           Data.String.Conversions               (cs)
 import           Data.Text                             (Text)
 import           Nameservice.Modules.Nameservice.Types (Name (..))
-import           Nameservice.Modules.Token             (Address (..), Amount(..))
-import           Proto.Nameservice.Messages            as M
-import           Proto.Nameservice.Messages_Fields     as M
+import           Nameservice.Modules.Token             (Address (..),
+                                                        Amount (..))
+import qualified Proto.Nameservice.Messages            as M
+import qualified Proto.Nameservice.Messages_Fields     as M
 
 data NameserviceMessage =
     SetName MsgSetName
