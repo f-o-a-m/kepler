@@ -207,9 +207,9 @@ validateBasicDecorator = Endo $ \next -> do
       expectedSignersN = length $ txSignatures tx
   when (expectedSignersN == 0) $
     error "TODO: There must be signers"
-  when (length (filter (\signers -> length signers /= expectedSignersN) msgSigners) /= 0) $
+  when (any (\signers -> length signers /= expectedSignersN) msgSigners) $
     error "TODO: fill in error for wrong number of signers"
   let feeAmounts = map coinAmount . feeAmount . txFee $ tx
-  when (filter (< 0) feeAmounts /= []) $
+  when (any (< 0) feeAmounts) $
     error "TODO: No negative fees"
   next
