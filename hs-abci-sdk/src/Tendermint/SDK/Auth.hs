@@ -4,7 +4,7 @@ module Tendermint.SDK.Auth where
 
 import qualified Codec.Binary.Bech32      as Bech32
 import           Control.Lens             (iso)
-import           Control.Monad            (when, unless)
+import           Control.Monad            (when)
 import           Control.Monad.Catch      (Exception, MonadCatch, catch)
 import           Control.Monad.IO.Class   (MonadIO (..))
 import           Control.Monad.Reader     (ReaderT, asks)
