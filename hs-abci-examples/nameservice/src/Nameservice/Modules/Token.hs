@@ -43,8 +43,6 @@ import           Polysemy
 import           Polysemy.Error              (Error, mapError, throw)
 import           Polysemy.Output             (Output)
 import           Servant.API                 ((:>))
-import           Tendermint.SDK.Auth         (Address, addressFromBytes,
-                                              addressToBytes)
 import           Tendermint.SDK.BaseApp      (HasBaseApp)
 import           Tendermint.SDK.Codec        (HasCodec (..))
 import           Tendermint.SDK.Errors       (AppError (..), IsAppError (..))
@@ -53,6 +51,12 @@ import           Tendermint.SDK.Events       (Event, FromEvent, ToEvent (..),
 import           Tendermint.SDK.Router       (Queryable (..), RouteT)
 import qualified Tendermint.SDK.Store        as Store
 import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
+
+tokenKey :: ByteString
+tokenKey = "01"
+
+-- NOTE : comes from auth module eventually
+newtype Address = Address String deriving (Eq, Show, Binary.Binary, Generic, A.ToJSON, A.FromJSON)
 
 newtype Amount = Amount Int32 deriving (Eq, Show, Binary.Binary, Num, Generic, Ord, A.ToJSON, A.FromJSON)
 
@@ -63,8 +67,10 @@ instance HasCodec Amount where
     encode (Amount b) = cs $ Binary.encode b
     decode = Right . Amount . Binary.decode . cs
 
-instance Store.IsKey "token" Address where
-    type Value "token" Address = Amount
+instance Store.HasKey Amount where
+    type Key Amount = Address
+    rawKey = iso (\(Address a) -> tokenKey <> cs a)
+      (Address . cs . fromJust . BS.stripPrefix tokenKey)
 
 --------------------------------------------------------------------------------
 -- Events
@@ -130,7 +136,7 @@ eval = mapError makeAppError . evalToken
   evalToken =
     interpret (\case
         GetBalance' address ->
-          Store.get address
+          Store.get (undefined :: Store.Root) address
         PutBalance address balance ->
           Store.put address balance
       )

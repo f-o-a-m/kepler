@@ -17,7 +17,6 @@ import           SimpleStorage.Types                  (AppTxMessage (..),
 import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Router                (QueryApplication)
-import           Tendermint.SDK.Store                 (put)
 
 echoH
   :: Request 'MTEcho
@@ -78,7 +77,7 @@ deliverTxH (RequestDeliverTx deliverTx) = do
       def & Resp._deliverTxCode .~ 1
     Right (ATMUpdateCount updateCountTx) -> do
       let count = SS.Count $ updateCountTxCount updateCountTx
-      events <- withEventBuffer $ put CountKey count
+      events <- withEventBuffer $ putCount count
       return $ ResponseDeliverTx $
         def & Resp._deliverTxCode .~ 0
             & Resp._deliverTxEvents .~ events

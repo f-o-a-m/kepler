@@ -1,8 +1,11 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module SimpleStorage.Modules.SimpleStorage
   (
   -- * Component
-    SimpleStorageEffR
-  , HasSimpleStorageEff
+    SimpleStorage
+  , putCount
+  , getCount
 
   , Api
   , server
@@ -28,10 +31,11 @@ import qualified Data.Binary                 as Binary
 import           Data.ByteArray              (convert)
 import           Data.ByteString             (ByteString)
 import           Data.Int                    (Int32)
+import           Data.Maybe                  (fromJust)
 import           Data.Proxy
 import           Data.String.Conversions     (cs)
 import           GHC.Generics                (Generic)
-import           Polysemy                    (Member, Members, Sem)
+import           Polysemy                    (Member, Sem, interpret, makeSem)
 import           Polysemy.Output             (Output)
 import           Servant.API                 ((:>))
 import           Tendermint.SDK.BaseApp      (HasBaseApp)
@@ -39,9 +43,8 @@ import           Tendermint.SDK.Codec        (HasCodec (..))
 import qualified Tendermint.SDK.Events       as Events
 import           Tendermint.SDK.Router       (EncodeQueryResult, FromQueryData,
                                               Queryable (..), RouteT)
-import           Tendermint.SDK.Store        (IsKey (..), IsRawKey (..), Store,
+import           Tendermint.SDK.Store        (HasKey (..), RawStore, Root, get,
                                               put)
-import qualified Tendermint.SDK.Store        as Store
 import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
 
 --------------------------------------------------------------------------------
@@ -56,14 +59,12 @@ instance HasCodec Count where
     encode (Count c) = cs . Binary.encode $ c
     decode = Right . Count . Binary.decode . cs
 
-instance IsRawKey CountKey where
-  rawKey = iso (\_ -> cs countKey) (const CountKey)
-    where
-      countKey :: ByteString
-      countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
-
-instance IsKey "simple_storage" CountKey where
-    type Value "simple_storage" CountKey = Count
+instance HasKey Count where
+    type Key Count = CountKey
+    rawKey = iso (\_ -> cs countKey) (const CountKey)
+      where
+        countKey :: ByteString
+        countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
 
 instance FromQueryData CountKey
 
@@ -94,31 +95,38 @@ instance Events.ToEvent CountSet where
 -- SimpleStorage Module
 --------------------------------------------------------------------------------
 
-type SimpleStorageEffR = '[Store "simple_storage"]
+data SimpleStorage m a where
+    PutCount :: Count -> SimpleStorage m ()
+    GetCount :: SimpleStorage m Count
 
-type HasSimpleStorageEff r =
-  (Members SimpleStorageEffR r, Member (Output Events.Event) r)
+makeSem ''SimpleStorage
 
 eval
-  :: HasBaseApp r
-  => Sem (Store "simple_storage" ': r) a
-  -> Sem r a
-eval = Store.eval
+  :: forall r.
+     HasBaseApp r
+  => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
+eval = interpret (\case
+  PutCount count -> do
+    put CountKey count
+    Events.emit $ CountSet count
+
+  GetCount -> fromJust <$> get (undefined :: Root) CountKey
+  )
 
 initialize
   :: HasBaseApp r
   => Member (Output Events.Event) r
   => Sem r ()
 initialize = eval $ do
-  put CountKey (Count 0)
+  putCount (Count 0)
 
 --------------------------------------------------------------------------------
 -- Query Api
 --------------------------------------------------------------------------------
 
-type CountStoreContents = '[(CountKey, Count)]
+type CountStoreContents = '[Count]
 
 type Api = "simple_storage" :> QueryApi CountStoreContents
 
-server :: Member (Store "simple_storage") r => RouteT Api (Sem r)
+server :: Member RawStore r => RouteT Api (Sem r)
 server = storeQueryHandlers (Proxy :: Proxy CountStoreContents) (Proxy :: Proxy (Sem r))
