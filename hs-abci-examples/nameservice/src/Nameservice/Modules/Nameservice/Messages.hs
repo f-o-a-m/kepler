@@ -1,9 +1,16 @@
 module Nameservice.Modules.Nameservice.Messages where
 
-import           Nameservice.Modules.Nameservice.Types (Name)
-import           Nameservice.Modules.Token             (Address, Amount)
-import           Proto.Nameservice.Messages            ()
-import           Proto.Nameservice.Messages_Fields     ()
+import           Control.Lens                          ((^.))
+import           Data.Either                           (Either)
+import           Data.String.Conversions               (cs)
+import           Data.Text                             (Text)
+import           Nameservice.Modules.Nameservice.Types (Name (..))
+import           Nameservice.Modules.Token             (Address (..),
+                                                        Amount (..))
+import qualified Proto.Nameservice.Messages            as M
+import qualified Proto.Nameservice.Messages_Fields     as M
+import           Tendermint.SDK.Auth                   (Address,
+                                                        addressFromBytes)
 
 data NameserviceMessage =
     SetName MsgSetName
@@ -17,14 +24,49 @@ data MsgSetName =  MsgSetName
   , msgSetNameOwner :: Address
   }
 
+-- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg
+fromProtoMsgSetName :: M.SetName -> Either Text MsgSetName
+fromProtoMsgSetName msg = do
+  msgName <- nonEmpty "Name" . cs $ msg ^. M.name
+  msgValue <- nonEmpty "Value" . cs $ msg ^. M.value
+  msgOwner <- nonEmpty "Owner" $ msg ^. M.owner
+  return MsgSetName { msgSetNameName = Name msgName
+                    , msgSetNameValue = msgValue
+                    , msgSetNameOwner = addressFromBytes msgOwner
+                    }
+
 data MsgDeleteName = MsgDeleteName
   { msgDeleteNameName  :: Name
   , msgDeleteNameOwner :: Address
   }
 
+fromProtoMsgDeleteName :: M.DeleteName -> Either Text MsgDeleteName
+fromProtoMsgDeleteName msg = do
+  msgName <- nonEmpty "Name" . cs $ msg ^. M.name
+  msgOwner <- nonEmpty "Owner" $ msg ^. M.owner
+  return MsgDeleteName { msgDeleteNameName = Name msgName
+                       , msgDeleteNameOwner = addressFromBytes msgOwner
+                       }
+
 data MsgBuyName = MsgBuyName
-  { msgBuyNameName  :: Name
-  , msgBuyNameValue :: String
-  , msgBuyNameBuyer :: Address
-  , msgBuyNameBid   :: Amount
-  }
+    { msgBuyNameName  :: Name
+    , msgBuyNameValue :: String
+    , msgBuyNameBuyer :: Address
+    , msgBuyNameBid   :: Amount
+    }
+
+fromProtoMsgBuyName :: M.BuyName -> Either Text MsgBuyName
+fromProtoMsgBuyName msg = do
+  msgName <- nonEmpty "Name" . cs $ msg ^. M.name
+  msgValue <- nonEmpty "Value" . cs $ msg ^. M.value
+  msgBuyer <- nonEmpty "Buyer"  $ msg ^. M.buyer
+  msgBid <- Right . Amount $ msg ^. M.bid
+  return MsgBuyName { msgBuyNameName = Name msgName
+                    , msgBuyNameValue = msgValue
+                    , msgBuyNameBuyer = addressFromBytes msgBuyer
+                    , msgBuyNameBid = msgBid
+                    }
+
+nonEmpty :: (Eq a, Monoid a) => String -> a -> Either Text a
+nonEmpty field x | x == mempty = Left . cs $ (show field ++ ": value cannot be empty")
+                 | otherwise = Right x
