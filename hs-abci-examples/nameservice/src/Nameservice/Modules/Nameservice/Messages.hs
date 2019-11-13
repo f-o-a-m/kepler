@@ -26,6 +26,11 @@ data NameserviceMessage =
   | BuyName MsgBuyName
   | DeleteName MsgDeleteName
 
+instance MakeMessage NameserviceMessage where
+  makeMessage m = case m of
+    SetName msg -> (makeMessage msg) {msgData = m}
+    BuyName msg -> (makeMessage msg) {msgData = m}
+    DeleteName msg -> (makeMessage msg) {msgData = m}
 
 data MsgSetName =  MsgSetName
   { msgSetNameName  :: Name
@@ -110,7 +115,7 @@ instance MakeMessage MsgBuyName where
     { msgRoute = cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
     , msgType = "BuyName"
     , msgSignBytes = cs . A.encode $ msg
-    , msgGetSigner = msgBuyNameOwner
+    , msgGetSigner = msgBuyNameBuyer
     , msgValidate = Nothing
     , msgData = msg
     }

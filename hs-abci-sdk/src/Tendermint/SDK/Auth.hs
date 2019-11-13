@@ -4,17 +4,17 @@ module Tendermint.SDK.Auth where
 
 import qualified Codec.Binary.Bech32      as Bech32
 import           Control.Lens             (iso)
-import           Control.Monad            (when)
-import           Control.Monad.Catch      (Exception, MonadCatch, catch)
-import           Control.Monad.IO.Class   (MonadIO (..))
-import           Control.Monad.Reader     (ReaderT, asks)
+--import           Control.Monad            (when)
+--import           Control.Monad.Catch      (Exception, MonadCatch, catch)
+--import           Control.Monad.IO.Class   (MonadIO (..))
+--import           Control.Monad.Reader     (ReaderT, asks)
 import qualified Data.Aeson               as A
 import qualified Data.Binary              as Binary
-import qualified Data.ByteArray.HexString as Hex
+import "hs-abci-types" Data.ByteArray.HexString as Hex
 import           Data.ByteString          (ByteString)
 import           Data.Int                 (Int64)
-import           Data.IORef
-import           Data.Monoid              (Endo (..))
+--import           Data.IORef
+--import           Data.Monoid              (Endo (..))
 import           Data.Proxy               (Proxy (..))
 import           Data.String.Conversions
 import           Data.Text                (Text)
@@ -23,6 +23,8 @@ import           GHC.TypeLits             (KnownSymbol, symbolVal)
 import           Polysemy
 import           Tendermint.SDK.Codec     (HasCodec (..))
 import           Tendermint.SDK.Store     (IsKey (..), RawKey (..))
+
+
 
 newtype Address = Address Hex.HexString deriving (Eq, Show, Ord, A.ToJSON, A.FromJSON)
 
@@ -165,6 +167,9 @@ data Tx tx msg = Tx
 class MakeTx tx msg where
   makeTx :: tx -> Tx tx msg
 
+--------------------------------------------------------------------------------
+{-
+
 data GasMeter = GasMeter
   { gasMeterLimit    :: Int64
   , gasMeterConsumed :: Int64
@@ -209,3 +214,4 @@ validateBasicDecorator = Endo $ \next -> do
   when (any (< 0) feeAmounts) $
     error "TODO: No negative fees"
   next
+-}

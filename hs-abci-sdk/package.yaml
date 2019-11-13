@@ -33,6 +33,7 @@ default-extensions:
   - DeriveFunctor
   - StandaloneDeriving
   - ConstraintKinds
+  - PackageImports
 
 
 dependencies:
@@ -66,6 +67,7 @@ dependencies:
 - string-conversions
 - text
 - uri-bytestring
+- web3
 
 library:
   source-dirs:
