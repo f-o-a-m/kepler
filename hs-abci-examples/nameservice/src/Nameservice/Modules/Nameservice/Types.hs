@@ -1,24 +1,25 @@
 module Nameservice.Modules.Nameservice.Types where
 
-import           Control.Lens              (iso)
-import           Data.Aeson                as A
-import           Data.Bifunctor            (bimap)
-import qualified Data.Binary               as Binary
-import           Data.ByteString           (ByteString)
-import           Data.ByteString           as BS
-import           Data.Int                  (Int32)
-import           Data.Maybe                (fromJust)
-import           Data.String.Conversions   (cs)
-import           Data.Text                 (Text)
-import           GHC.Generics              (Generic)
-import           Nameservice.Aeson         (defaultNameserviceOptions)
-import           Nameservice.Modules.Token (Address, Amount)
-import           Tendermint.SDK.Codec      (HasCodec (..))
-import           Tendermint.SDK.Errors     (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Events     (Event, FromEvent (..), ToEvent (..),
-                                            emit)
-import qualified Tendermint.SDK.Router     as R
-import qualified Tendermint.SDK.Store      as Store
+import           Control.Lens                   (iso, (&), (.~), (^.))
+import           Control.Lens.Wrapped           (Wrapped (..))
+import           Data.Aeson                     as A
+import qualified Data.Binary                    as Binary
+import           Data.ByteString                (ByteString)
+import           Data.ByteString                as BS
+import           Data.Maybe                     (fromJust)
+import           Data.ProtoLens.Message         (Message (defMessage))
+import           Data.String.Conversions        (cs)
+import           Data.Text                      (Text)
+import           GHC.Generics                   (Generic)
+import           Nameservice.Aeson              (defaultNameserviceOptions)
+import           Nameservice.Modules.Token      (Address (..), Amount (..))
+import qualified Proto.Nameservice.Whois        as W
+import qualified Proto.Nameservice.Whois_Fields as W
+import           Tendermint.SDK.Codec           (HasCodec (..))
+import           Tendermint.SDK.Errors          (AppError (..), IsAppError (..))
+import           Tendermint.SDK.Events          (FromEvent (..), ToEvent (..))
+import qualified Tendermint.SDK.Router          as R
+import qualified Tendermint.SDK.Store           as Store
 
 newtype Name = Name String deriving (Eq, Show, Binary.Binary, A.ToJSON, A.FromJSON)
 
@@ -46,6 +47,29 @@ instance Store.IsKey Name "nameservice" where
 
 instance R.Queryable Whois where
   type Name Whois = "whois"
+
+instance Wrapped Whois where
+  type Unwrapped Whois = W.Whois
+
+  _Wrapped' = iso t f
+    where
+      t Whois{..} =
+        let value = cs whoisValue
+            Address addr = whoisOwner
+            owner = cs addr
+            Amount price = whoisPrice
+        in defMessage
+          & W.value .~ value
+          & W.owner .~ owner
+          & W.price .~ price
+      f msg =
+        let msgValue = cs $ msg ^. W.value
+            msgOwner = Address . cs $ msg ^. W.owner
+            msgPrice = Amount $ msg ^. W.price
+        in Whois { whoisValue = msgValue
+                 , whoisOwner = msgOwner
+                 , whoisPrice = msgPrice
+                 }
 
 --------------------------------------------------------------------------------
 -- Exceptions

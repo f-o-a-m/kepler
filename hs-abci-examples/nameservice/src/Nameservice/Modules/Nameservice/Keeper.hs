@@ -2,11 +2,9 @@
 
 module Nameservice.Modules.Nameservice.Keeper where
 
-import           Data.Maybe                               (isNothing)
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Types
-import           Nameservice.Modules.Token                (Address, Amount,
-                                                           HasTokenEff, burn,
+import           Nameservice.Modules.Token                (HasTokenEff, burn,
                                                            mint, transfer)
 import           Polysemy                                 (Member, Members, Sem,
                                                            interpret, makeSem)
@@ -104,8 +102,8 @@ buyName
   => MsgBuyName
   -> Sem r ()
 -- ^ did it succeed
-buyName msg@MsgBuyName{..} = do
-  let name =  msgBuyNameName
+buyName msg = do
+  let name = msgBuyNameName msg
   mWhois <- getWhois name
   case mWhois of
     -- The name is unclaimed, go ahead and debit the account
