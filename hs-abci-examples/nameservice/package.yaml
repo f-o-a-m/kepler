@@ -64,6 +64,7 @@ dependencies:
 - hs-abci-types
 - lens
 - polysemy
+- pretty
 - proto-lens
 - proto-lens-runtime
 - proto3-suite
