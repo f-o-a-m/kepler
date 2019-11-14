@@ -8,33 +8,35 @@ import           Proto3.Suite                          (Message, Named)
 import           Tendermint.SDK.Auth                   (Address)
 
 data NameserviceMessage =
-    SetName MsgSetName
-  | BuyName MsgBuyName
-  | DeleteName MsgDeleteName
+    NSetName SetName
+  | NBuyName BuyName
+  | NDeleteName DeleteName
 
-data MsgSetName =  MsgSetName
-  { msgSetNameName  :: Name
-  , msgSetNameValue :: Text
-  , msgSetNameOwner :: Address
+-- @NOTE: .proto genration will use these type names as is
+-- only field names stripped of prefixes during generation
+data SetName = SetName
+  { setNameName  :: Name
+  , setNameValue :: Text
+  , setNameOwner :: Address
   } deriving (Eq, Show, Generic)
 
-instance Message MsgSetName
-instance Named MsgSetName
+instance Message SetName
+instance Named SetName
 
-data MsgDeleteName = MsgDeleteName
-  { msgDeleteNameName  :: Name
-  , msgDeleteNameOwner :: Address
+data DeleteName = DeleteName
+  { deleteNameName  :: Name
+  , deleteNameOwner :: Address
   } deriving (Eq, Show, Generic)
 
-instance Message MsgBuyName
-instance Named MsgBuyName
+instance Message DeleteName
+instance Named DeleteName
 
-data MsgBuyName = MsgBuyName
-  { msgBuyNameName  :: Name
-  , msgBuyNameValue :: Text
-  , msgBuyNameBuyer :: Address
-  , msgBuyNameBid   :: Amount
+data BuyName = BuyName
+  { buyNameName  :: Name
+  , buyNameValue :: Text
+  , buyNameBuyer :: Address
+  , buyNameBid   :: Amount
   } deriving (Eq, Show, Generic)
 
-instance Message MsgDeleteName
-instance Named MsgDeleteName
+instance Message BuyName
+instance Named BuyName

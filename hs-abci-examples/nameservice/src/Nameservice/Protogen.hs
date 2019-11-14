@@ -8,9 +8,9 @@ module Nameservice.Protogen where
 import           Data.Aeson.Casing                        (snakeCase)
 import qualified Data.ByteString.Lazy                     as BL
 import           GHC.Exts                                 (Proxy#, proxy#)
-import           Nameservice.Modules.Nameservice.Messages (MsgBuyName (..),
-                                                           MsgDeleteName (..),
-                                                           MsgSetName (..))
+import           Nameservice.Modules.Nameservice.Messages (BuyName (..),
+                                                           DeleteName (..),
+                                                           SetName (..))
 import           Nameservice.Modules.Nameservice.Types    (Name (..),
                                                            Whois (..))
 import           Nameservice.Modules.Token                (Address (..),
@@ -31,14 +31,14 @@ import qualified Text.PrettyPrint                         as PP
 -- test
 --------------------------------------------------------------------------------
 
-testSN :: MsgSetName
-testSN = MsgSetName (Name "satoshi") "cool cats" (Address "01")
+testSN :: SetName
+testSN = SetName (Name "satoshi") "cool cats" (Address "01")
 
-testBN :: MsgBuyName
-testBN = MsgBuyName (Name "satoshi") "cool cats" (Address "01") (Amount 999)
+testBN :: BuyName
+testBN = BuyName (Name "satoshi") "cool cats" (Address "01") (Amount 999)
 
-testDN :: MsgDeleteName
-testDN = MsgDeleteName (Name "satoshi") (Address "01")
+testDN :: DeleteName
+testDN = DeleteName (Name "satoshi") (Address "01")
 
 -- @NOTE: for some reason, encoding results in a lazy bytestring
 -- while the provided decoder only accepts a strict bytestring
@@ -62,9 +62,9 @@ msgStripPrefixOptions = defRenderingOptions { roSelectorName = stripPrefixName }
 
 messagesProtoFile :: String
 messagesProtoFile = toProtoFile msgStripPrefixOptions $ packageFromDefs "nameservice"
-  ([ message (proxy# :: Proxy# MsgSetName)
-   , message (proxy# :: Proxy# MsgBuyName)
-   , message (proxy# :: Proxy# MsgDeleteName)
+  ([ message (proxy# :: Proxy# SetName)
+   , message (proxy# :: Proxy# BuyName)
+   , message (proxy# :: Proxy# DeleteName)
    ] :: [DotProtoDefinition])
 
 whoisProtoFile :: String
