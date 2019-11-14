@@ -98,7 +98,7 @@ instance IsAppError NameserviceException where
 data NameClaimed = NameClaimed
   { nameClaimedOwner :: Address
   , nameClaimedName  :: Name
-  , nameClaimedValue :: String
+  , nameClaimedValue :: Text
   , nameClaimedBid   :: Amount
   } deriving (Generic)
 
@@ -114,8 +114,8 @@ instance ToEvent NameClaimed where
 
 data NameRemapped = NameRemapped
   { nameRemappedName     :: Name
-  , nameRemappedOldValue :: String
-  , nameRemappedNewValue :: String
+  , nameRemappedOldValue :: Text
+  , nameRemappedNewValue :: Text
   } deriving Generic
 
 nameRemappedAesonOptions :: A.Options

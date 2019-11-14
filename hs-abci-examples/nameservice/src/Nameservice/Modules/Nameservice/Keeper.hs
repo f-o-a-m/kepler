@@ -2,7 +2,6 @@
 
 module Nameservice.Modules.Nameservice.Keeper where
 
-import           Data.Maybe                               (isNothing)
 import           Data.Proxy
 import           Data.String.Conversions                  (cs)
 import           GHC.TypeLits                             (symbolVal)
@@ -61,20 +60,20 @@ eval = mapError makeAppError . evalNameservice
 setName
   :: HasTokenEff r
   => HasNameserviceEff r
-  => MsgSetName
+  => SetName
   -> Sem r ()
-setName MsgSetName{..} = do
-  mwhois <- getWhois msgSetNameName
+setName SetName{..} = do
+  mwhois <- getWhois setNameName
   case mwhois of
     Nothing -> throw $ UnauthorizedSet "Cannot claim name with SetMessage tx."
     Just currentWhois@Whois{..} ->
-      if whoisOwner /= msgSetNameOwner
+      if whoisOwner /= setNameOwner
         then throw $ UnauthorizedSet "Setter must be the owner of the Name."
         else do
-          putWhois msgSetNameName currentWhois {whoisValue = msgSetNameValue}
+          putWhois setNameName currentWhois {whoisValue = setNameValue}
           emit NameRemapped
-             { nameRemappedName = msgSetNameName
-             , nameRemappedNewValue = msgSetNameValue
+             { nameRemappedName = setNameName
+             , nameRemappedNewValue = setNameValue
              , nameRemappedOldValue = whoisValue
              }
 
@@ -82,20 +81,20 @@ deleteName
   :: HasTokenEff r
   => HasNameserviceEff r
   => Member (Output Event) r
-  => MsgDeleteName
+  => DeleteName
   -> Sem r ()
-deleteName MsgDeleteName{..} = do
-  mWhois <- getWhois msgDeleteNameName
+deleteName DeleteName{..} = do
+  mWhois <- getWhois deleteNameName
   case mWhois of
     Nothing -> throw $ InvalidDelete "Can't remove unassigned name."
     Just Whois{..} ->
-      if whoisOwner /= msgDeleteNameOwner
+      if whoisOwner /= deleteNameOwner
         then throw $ InvalidDelete "Deleter must be the owner."
         else do
-          mint msgDeleteNameOwner whoisPrice
-          deleteWhois msgDeleteNameName
+          mint deleteNameOwner whoisPrice
+          deleteWhois deleteNameName
           emit NameDeleted
-            { nameDeletedName = msgDeleteNameName
+            { nameDeletedName = deleteNameName
             }
 
 
@@ -103,11 +102,11 @@ buyName
   :: HasTokenEff r
   => HasNameserviceEff r
   => Member (Output Event) r
-  => MsgBuyName
+  => BuyName
   -> Sem r ()
 -- ^ did it succeed
 buyName msg = do
-  let name = msgBuyNameName msg
+  let name = buyNameName msg
   mWhois <- getWhois name
   case mWhois of
     -- The name is unclaimed, go ahead and debit the account
@@ -121,40 +120,40 @@ buyName msg = do
         :: HasTokenEff r
         => HasNameserviceEff r
         => Member (Output Event) r
-        => MsgBuyName
+        => BuyName
         -> Sem r ()
-      buyUnclaimedName MsgBuyName{..} = do
-        burn msgBuyNameBuyer msgBuyNameBid
+      buyUnclaimedName BuyName{..} = do
+        burn buyNameBuyer buyNameBid
         let whois = Whois
-              { whoisOwner = msgBuyNameBuyer
-              , whoisValue = msgBuyNameValue
-              , whoisPrice = msgBuyNameBid
+              { whoisOwner = buyNameBuyer
+              , whoisValue = buyNameValue
+              , whoisPrice = buyNameBid
               }
-        putWhois msgBuyNameName whois
+        putWhois buyNameName whois
         emit NameClaimed
-          { nameClaimedOwner = msgBuyNameBuyer
-          , nameClaimedName = msgBuyNameName
-          , nameClaimedValue = msgBuyNameValue
-          , nameClaimedBid = msgBuyNameBid
+          { nameClaimedOwner = buyNameBuyer
+          , nameClaimedName = buyNameName
+          , nameClaimedValue = buyNameValue
+          , nameClaimedBid = buyNameBid
           }
 
       buyClaimedName
         :: HasNameserviceEff r
         => HasTokenEff r
         => Member (Output Event) r
-        => MsgBuyName
+        => BuyName
         -> Whois
         -> Sem r ()
-      buyClaimedName MsgBuyName{..} currentWhois =
+      buyClaimedName BuyName{..} currentWhois =
         let Whois{ whoisPrice = forsalePrice, whoisOwner = previousOwner } = currentWhois
-        in if msgBuyNameBid > forsalePrice
+        in if buyNameBid > forsalePrice
              then do
-               transfer msgBuyNameBuyer msgBuyNameBid previousOwner
-               putWhois msgBuyNameName currentWhois {whoisOwner = msgBuyNameBuyer}
+               transfer buyNameBuyer buyNameBid previousOwner
+               putWhois buyNameName currentWhois {whoisOwner = buyNameBuyer}
                emit NameClaimed
-                 { nameClaimedOwner = msgBuyNameBuyer
-                 , nameClaimedName = msgBuyNameName
-                 , nameClaimedValue = msgBuyNameValue
-                 , nameClaimedBid = msgBuyNameBid
+                 { nameClaimedOwner = buyNameBuyer
+                 , nameClaimedName = buyNameName
+                 , nameClaimedValue = buyNameValue
+                 , nameClaimedBid = buyNameBid
                  }
              else throw (InsufficientBid "Bid must exceed the price.")
