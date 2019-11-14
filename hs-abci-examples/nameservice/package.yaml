@@ -18,7 +18,6 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 extra-source-files:
 - README.md
-- protos/**/*.proto
 
 custom-setup:
   dependencies:
@@ -67,6 +66,8 @@ dependencies:
 - polysemy
 - proto-lens
 - proto-lens-runtime
+- proto3-suite
+- proto3-wire
 - katip
 - servant
 - string-conversions
