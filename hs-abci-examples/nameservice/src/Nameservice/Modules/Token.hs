@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-} 
 
 module Nameservice.Modules.Token
   (
@@ -70,14 +71,13 @@ instance HasCodec Amount where
     encode (Amount b) = cs $ Binary.encode b
     decode = Right . Amount . Binary.decode . cs
 
--- Address orphans
+-- orphans
 instance Primitive Address where
   encodePrimitive n (Address hx) = Encode.byteString n (Hex.toBytes hx)
   decodePrimitive = Address . Hex.fromBytes <$> Decode.byteString
   primType _ = DotProto.Bytes
-instance HasDefault Address where -- @NOTE: deriving generic gets rid of this; see below
-  def = Address ""
-  isDefault = (==) def
+instance HasDefault Hex.HexString
+instance HasDefault Address
 instance MessageField Address
 
 instance Store.IsKey Address "token" where
