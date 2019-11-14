@@ -56,8 +56,8 @@ dependencies:
 - aeson
 - aeson-casing
 - base >= 4.7 && < 5
-- binary
 - bytestring
+- cereal
 - exceptions
 - hs-abci-extra
 - hs-abci-sdk

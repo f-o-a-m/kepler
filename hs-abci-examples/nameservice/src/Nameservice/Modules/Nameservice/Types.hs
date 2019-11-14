@@ -3,11 +3,11 @@ module Nameservice.Modules.Nameservice.Types where
 import           Control.Lens                   (iso, (&), (.~), (^.))
 import           Control.Lens.Wrapped           (Wrapped (..))
 import           Data.Aeson                     as A
-import qualified Data.Binary                    as Binary
 import           Data.ByteString                (ByteString)
 import           Data.ByteString                as BS
 import           Data.Maybe                     (fromJust)
 import           Data.ProtoLens.Message         (Message (defMessage))
+import qualified Data.Serialize                 as Serialize
 import           Data.String.Conversions        (cs)
 import           Data.Text                      (Text)
 import           GHC.Generics                   (Generic)
@@ -29,7 +29,7 @@ type NameserviceModule = "nameservice"
 
 --------------------------------------------------------------------------------
 
-newtype Name = Name String deriving (Eq, Show, Binary.Binary, A.ToJSON, A.FromJSON)
+newtype Name = Name String deriving (Eq, Show, Serialize.Serialize, A.ToJSON, A.FromJSON)
 
 data Whois = Whois
   { whoisValue :: String
@@ -37,11 +37,11 @@ data Whois = Whois
   , whoisPrice :: Amount
   } deriving (Eq, Show, Generic)
 
-instance Binary.Binary Whois
+instance Serialize.Serialize Whois
 
 instance HasCodec Whois where
-  encode = cs . Binary.encode
-  decode = Right . Binary.decode . cs
+  encode = Serialize.encode
+  decode = Serialize.decode
 
 instance Store.RawKey Name where
     rawKey = iso (\(Name n) -> cs n) (Name . cs)

@@ -205,3 +205,4 @@ language_extensions:
    - ExistentialQuantification
    - FunctionalDependencies
    - ViewPatterns
+   - PackageImports

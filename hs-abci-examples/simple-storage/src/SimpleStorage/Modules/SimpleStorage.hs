@@ -27,12 +27,12 @@ module SimpleStorage.Modules.SimpleStorage
 import           Control.Lens                (iso)
 import           Crypto.Hash                 (SHA256 (..), hashWith)
 import qualified Data.Aeson                  as A
-import qualified Data.Binary                 as Binary
 import           Data.ByteArray              (convert)
 import           Data.ByteString             (ByteString)
 import           Data.Int                    (Int32)
 import           Data.Maybe                  (fromJust)
 import           Data.Proxy
+import qualified Data.Serialize              as Serialize
 import           Data.String.Conversions     (cs)
 import           GHC.Generics                (Generic)
 import           Polysemy                    (Member, Sem, interpret, makeSem)
@@ -51,13 +51,13 @@ import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
 -- Types
 --------------------------------------------------------------------------------
 
-newtype Count = Count Int32 deriving (Eq, Show, A.ToJSON, A.FromJSON)
+newtype Count = Count Int32 deriving (Eq, Show, A.ToJSON, A.FromJSON, Serialize.Serialize)
 
 data CountKey = CountKey
 
 instance HasCodec Count where
-    encode (Count c) = cs . Binary.encode $ c
-    decode = Right . Count . Binary.decode . cs
+    encode = Serialize.encode
+    decode = Serialize.decode
 
 instance RawKey CountKey where
     rawKey = iso (\_ -> cs countKey) (const CountKey)

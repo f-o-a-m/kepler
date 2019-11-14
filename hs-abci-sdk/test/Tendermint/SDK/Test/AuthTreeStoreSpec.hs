@@ -1,8 +1,8 @@
 module Tendermint.SDK.Test.AuthTreeStoreSpec where
 
 import           Control.Lens                 (iso)
-import qualified Data.Binary                  as Binary
 import           Data.ByteString              (ByteString)
+import qualified Data.Serialize               as Serialize
 import           Data.String.Conversions      (cs)
 import           Polysemy                     (runM)
 import           Tendermint.SDK.AuthTreeStore (AuthTreeDriver,
@@ -29,13 +29,13 @@ spec = beforeAll beforeAction $
 beforeAction :: IO AuthTreeDriver
 beforeAction = initAuthTreeDriver
 
-newtype IntStore = IntStore Int deriving (Eq, Show)
+newtype IntStore = IntStore Int deriving (Eq, Show, Serialize.Serialize)
 
 data IntStoreKey = IntStoreKey
 
 instance HasCodec IntStore where
-    encode (IntStore c) = cs . Binary.encode $ c
-    decode = Right . IntStore . Binary.decode . cs
+    encode = Serialize.encode
+    decode = Serialize.decode
 
 instance RawKey IntStoreKey where
     rawKey = iso (\_ -> cs intStoreKey) (const IntStoreKey)

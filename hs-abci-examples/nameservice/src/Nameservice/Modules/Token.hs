@@ -28,11 +28,11 @@ module Nameservice.Modules.Token
 
 import           Control.Lens                (iso)
 import           Data.Aeson                  as A
-import qualified Data.Binary                 as Binary
 import           Data.ByteString             (ByteString)
 import qualified Data.ByteString             as BS
 import           Data.Maybe                  (fromJust, fromMaybe)
 import           Data.Proxy
+import qualified Data.Serialize              as Serialize
 import           Data.String.Conversions     (cs)
 import           Data.Text                   (Text)
 import           Data.Word                   (Word64)
@@ -53,14 +53,14 @@ import           Tendermint.SDK.Router       (Queryable (..), RouteT)
 import qualified Tendermint.SDK.Store        as Store
 import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
 
-newtype Amount = Amount Word64 deriving (Eq, Show, Binary.Binary, Num, Generic, Ord, A.ToJSON, A.FromJSON)
+newtype Amount = Amount Word64 deriving (Eq, Show, Serialize.Serialize, Num, Generic, Ord, A.ToJSON, A.FromJSON)
 
 instance Queryable Amount where
   type Name Amount = "balance"
 
 instance HasCodec Amount where
-    encode (Amount b) = cs $ Binary.encode b
-    decode = Right . Amount . Binary.decode . cs
+    encode = Serialize.encode
+    decode = Serialize.decode
 
 instance Store.IsKey Address "token" where
     type Value Address "token" = Amount

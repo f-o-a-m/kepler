@@ -42,9 +42,9 @@ dependencies:
 - async
 - avl-auth
 - base >= 4.7 && < 5
-- bech32
-- binary
 - bytestring
+- cereal
+- cereal-text
 - containers
 - conduit
 - cryptonite
@@ -62,12 +62,12 @@ dependencies:
 - polysemy
 - polysemy-plugin
 - profunctors
+- secp256k1-haskell
 - servant
 - stm
 - string-conversions
 - text
 - uri-bytestring
-- web3
 
 library:
   source-dirs:
@@ -117,6 +117,6 @@ tests:
       - hspec
       - hspec-core
       - hspec-discover
-      - binary
+      - cereal
       - QuickCheck
       - quickcheck-instances
