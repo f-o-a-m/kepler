@@ -79,6 +79,7 @@ library:
   exposed-modules:
   - Nameservice.Application
   - Nameservice.Server
+  - Nameservice.Modules.Token
   - Nameservice.Modules.Nameservice.Messages
   - Nameservice.Modules.Nameservice.Types
   - Nameservice.Modules.Nameservice.Keeper
@@ -89,6 +90,16 @@ executables:
   nameservice-exe:
     main:                Main.hs
     source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - nameservice
+
+  gen-protos-exe:
+    main:                Main.hs
+    source-dirs:         protogen
     ghc-options:
     - -threaded
     - -rtsopts

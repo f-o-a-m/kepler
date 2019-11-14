@@ -3,7 +3,7 @@
 -- @NOTE: ^ possibly the only language extension needed from tutorial
 -- Seems to be the only requirement for generating the .proto string
 
-module Nameservice.Protogen where
+module Protogen where
 
 import           Data.Aeson.Casing                        (snakeCase)
 import qualified Data.ByteString.Lazy                     as BL
@@ -70,4 +70,3 @@ messagesProtoFile = toProtoFile msgStripPrefixOptions $ packageFromDefs "nameser
 whoisProtoFile :: String
 whoisProtoFile = toProtoFile msgStripPrefixOptions $ packageFromDefs "nameservice"
   ([ message (proxy# :: Proxy# Whois) ] :: [DotProtoDefinition])
-
