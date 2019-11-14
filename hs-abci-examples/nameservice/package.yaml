@@ -85,12 +85,6 @@ library:
   - Nameservice.Modules.Nameservice.Query
   - Nameservice.Modules.Nameservice.Router
 
-  generated-exposed-modules:
-  - Proto.Nameservice.Messages
-  - Proto.Nameservice.Messages_Fields
-  - Proto.Nameservice.Whois
-  - Proto.Nameservice.Whois_Fields
-
 executables:
   nameservice-exe:
     main:                Main.hs
