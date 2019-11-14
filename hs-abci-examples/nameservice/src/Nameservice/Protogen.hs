@@ -56,7 +56,10 @@ instance Primitive Amount where
 instance HasDefault Amount
 instance MessageField Amount
 
+--------------------------------------------------------------------------------
 -- messages
+--------------------------------------------------------------------------------
+
 data SetName = SetName
   { setNameName  :: Name
   , setNameValue :: Text
@@ -65,6 +68,26 @@ data SetName = SetName
 
 instance Message SetName
 instance Named SetName
+
+-- same order of fields
+data AnotherSetName = AnotherSetName
+  { anotherSetNameName  :: Name
+  , anotherSetNameValue :: Text
+  , anotherSetNameOwner :: Address
+  } deriving (Show, Eq, Generic)
+
+instance Message AnotherSetName
+instance Named AnotherSetName
+
+-- different order of fields
+data DifferentSetName = DifferentSetName
+  { differentSetNameName  :: Name
+  , differentSetNameOwner :: Address
+  , differentSetNameValue :: Text
+  } deriving (Show, Eq, Generic)
+
+instance Message DifferentSetName
+instance Named DifferentSetName
 
 data BuyName = BuyName
   { buyNameName  :: Name
@@ -102,13 +125,22 @@ testDN = DeleteName (Name "satoshi") (Address "01")
 fromLazyByteString :: Message a => BL.ByteString -> Either Decode.ParseError a
 fromLazyByteString = fromByteString . BL.toStrict
 
--- Encode/Decode
+-- -- Encode/Decode
 -- λ> fromLazyByteString $ Proto3.Suite.toLazyByteString testSN :: Either Decode.ParseError SetName
 -- Right (SetName {setName = Name "satoshi", setValue = "cool cats", setOwner = Address HexString "0x01"})
 -- λ> fromLazyByteString $ Proto3.Suite.toLazyByteString testBN :: Either Decode.ParseError BuyName
 -- Right (BuyName {buyName = Name "satoshi", buyValue = "cool cats", buyBuyer = Address HexString "0x01", buyBid = Amount 999})
 -- λ> fromLazyByteString $ Proto3.Suite.toLazyByteString testDN :: Either Decode.ParseError DeleteName
 -- Right (DeleteName {deleteName = Name "satoshi", deleteOwner = Address HexString "0x01"})
+
+
+-- -- from different types
+-- WORKS
+-- λ> fromLazyByteString $ Proto3.Suite.toLazyByteString testSN :: Either Decode.ParseError AnotherSetName
+-- Right (AnotherSetName {anotherSetNameName = Name "satoshi", anotherSetNameValue = "cool cats", anotherSetNameOwner = Address HexString "0x01"})
+-- NOPE - decodes incorrectly
+-- λ> fromLazyByteString $ Proto3.Suite.toLazyByteString testSN :: Either Decode.ParseError DifferentSetName
+-- Right (DifferentSetName {differentSetNameName = Name "satoshi", differentSetNameOwner = Address HexString "0x636f6f6c2063617473", differentSetNameValue = "\SOH"})
 
 --------------------------------------------------------------------------------
 -- Requires magic hash extension
