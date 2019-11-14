@@ -26,12 +26,10 @@ module Nameservice.Modules.Token
 
   ) where
 
-import           Control.Lens                (iso)
 import           Data.Aeson                  as A
 import qualified Data.Binary                 as Binary
-import           Data.ByteString             (ByteString)
-import qualified Data.ByteString             as BS
-import           Data.Maybe                  (fromJust, fromMaybe)
+import qualified Data.ByteArray.HexString    as Hex
+import           Data.Maybe                  (fromMaybe)
 import           Data.Proxy
 import           Data.String.Conversions     (cs)
 import           Data.Text                   (Text)
@@ -41,9 +39,13 @@ import           Nameservice.Aeson           (defaultNameserviceOptions)
 import           Polysemy
 import           Polysemy.Error              (Error, mapError, throw)
 import           Polysemy.Output             (Output)
+import           Proto3.Suite                (HasDefault (..), MessageField,
+                                              Primitive (..))
+import qualified Proto3.Suite.DotProto       as DotProto
+import qualified Proto3.Wire.Decode          as Decode
+import qualified Proto3.Wire.Encode          as Encode
 import           Servant.API                 ((:>))
-import           Tendermint.SDK.Auth         (Address, addressFromBytes,
-                                              addressToBytes)
+import           Tendermint.SDK.Auth         (Address (..))
 import           Tendermint.SDK.BaseApp      (HasBaseApp)
 import           Tendermint.SDK.Codec        (HasCodec (..))
 import           Tendermint.SDK.Errors       (AppError (..), IsAppError (..))
@@ -54,6 +56,12 @@ import qualified Tendermint.SDK.Store        as Store
 import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
 
 newtype Amount = Amount Word64 deriving (Eq, Show, Binary.Binary, Num, Generic, Ord, A.ToJSON, A.FromJSON)
+instance Primitive Amount where
+  encodePrimitive n (Amount amt) = Encode.uint64 n amt
+  decodePrimitive = Amount <$> Decode.uint64
+  primType _ = DotProto.UInt64
+instance HasDefault Amount
+instance MessageField Amount
 
 instance Queryable Amount where
   type Name Amount = "balance"
@@ -61,6 +69,16 @@ instance Queryable Amount where
 instance HasCodec Amount where
     encode (Amount b) = cs $ Binary.encode b
     decode = Right . Amount . Binary.decode . cs
+
+-- Address orphans
+instance Primitive Address where
+  encodePrimitive n (Address hx) = Encode.byteString n (Hex.toBytes hx)
+  decodePrimitive = Address . Hex.fromBytes <$> Decode.byteString
+  primType _ = DotProto.Bytes
+instance HasDefault Address where -- @NOTE: deriving generic gets rid of this; see below
+  def = Address ""
+  isDefault = (==) def
+instance MessageField Address
 
 instance Store.IsKey Address "token" where
     type Value Address "token" = Amount
