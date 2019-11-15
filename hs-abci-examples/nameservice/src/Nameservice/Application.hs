@@ -14,6 +14,9 @@ import           Polysemy                    (Sem)
 import           Polysemy.Error              (Error, runError)
 import qualified Tendermint.SDK.BaseApp      as BaseApp
 import qualified Tendermint.SDK.Logger.Katip as KL
+import qualified Tendermint.SDK.Auth as A
+import qualified Nameservice.Modules.Nameservice as N
+import qualified Nameservice.Modules.Token as T
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context
@@ -31,10 +34,12 @@ data AppError = AppError String deriving (Show)
 
 instance Exception AppError
 
+type family (as :: [a]) :& (bs :: [a]) :: [a] where 
+  '[] :& bs = bs
+  (a ': as) :& bs = a ': (as :& bs)
+
 type EffR =
-  (  Error AppError
-  ': BaseApp.BaseApp
-  )
+  N.NameserviceEffR :& (T.TokenEffR :& (A.AuthEffR :& BaseApp.BaseApp))
 
 type Handler = Sem EffR
 
@@ -44,8 +49,7 @@ runHandler
   -> Handler a
   -> IO a
 runHandler AppConfig{baseAppContext} m = do
-  eRes <- BaseApp.eval baseAppContext .
-    runError $ m
-  case eRes of
-    Left e  -> throwM e
-    Right a -> pure a
+  BaseApp.eval baseAppContext .
+    A.eval .
+    T.eval .
+    N.eval $ m

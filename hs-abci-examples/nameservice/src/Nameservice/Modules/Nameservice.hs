@@ -17,6 +17,9 @@ module Nameservice.Modules.Nameservice
   -- * interpreter
   , eval
 
+  -- * message router
+  , router
+
   -- * query API
   , Api
   , server
@@ -27,3 +30,4 @@ import           Nameservice.Modules.Nameservice.Keeper
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Query
 import           Nameservice.Modules.Nameservice.Types
+import           Nameservice.Modules.Nameservice.Router

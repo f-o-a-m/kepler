@@ -9,11 +9,11 @@ import           Polysemy                                 (Members, Sem)
 import           Polysemy.Error                           (Error)
 import           Tendermint.SDK.Auth                      (AuthError, Msg (..),
                                                            Transaction, Tx (..))
-import           Tendermint.SDK.Errors                    (SDKError)
+import           Tendermint.SDK.Errors                    (AppError)
 import qualified Tendermint.SDK.TxRouter                  as R
 
 router
-  :: Members [Error SDKError, Error AuthError] r
+  :: Members [Error AppError, Error AuthError] r
   => HasTokenEff r
   => HasNameserviceEff r
   => Transaction
@@ -27,6 +27,6 @@ router = R.router handler
     handler Tx{txMsg} =
       let Msg{msgData=msg} = txMsg
       in case msg of
-           SetName txMsg    -> setName txMsg
-           BuyName txMsg    -> buyName txMsg
-           DeleteName txMsg -> deleteName txMsg
+           NSetName txMsg    -> setName txMsg
+           NBuyName txMsg    -> buyName txMsg
+           NDeleteName txMsg -> deleteName txMsg

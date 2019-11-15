@@ -36,7 +36,6 @@ storeKey = Store.StoreKey . cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
 eval
   :: HasBaseApp r
   => HasTokenEff r
-  => Member (Error AppError) r
   => Sem (Nameservice ': Error NameserviceException ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalNameservice

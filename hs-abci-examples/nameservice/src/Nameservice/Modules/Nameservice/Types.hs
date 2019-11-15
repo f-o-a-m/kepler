@@ -3,13 +3,11 @@ module Nameservice.Modules.Nameservice.Types where
 import           Control.Lens                   (iso, (&), (.~), (^.))
 import           Control.Lens.Wrapped           (Wrapped (..))
 import           Data.Aeson                     as A
-import qualified Data.Binary                    as Binary
 import           Data.ByteString                (ByteString)
 import           Data.ByteString                as BS
 import qualified Data.ByteString.Lazy           as BL
 import           Data.Either.Combinators        (mapLeft)
 import           Data.Maybe                     (fromJust)
-import           Data.ProtoLens.Message         (Message (defMessage))
 import qualified Data.Serialize                 as Serialize
 import           Data.String.Conversions        (cs)
 import           Data.Text                      (Text)
@@ -17,8 +15,6 @@ import qualified Data.Text.Lazy                 as TL
 import           GHC.Generics                   (Generic)
 import           Nameservice.Aeson              (defaultNameserviceOptions)
 import           Nameservice.Modules.Token      (Address (..), Amount (..))
-import qualified Proto.Nameservice.Whois        as W
-import qualified Proto.Nameservice.Whois_Fields as W
 import           Proto3.Suite                   (HasDefault, Message,
                                                  MessageField, Named,
                                                  Primitive (..), fromByteString,
@@ -40,7 +36,7 @@ type NameserviceModule = "nameservice"
 
 --------------------------------------------------------------------------------
 
-newtype Name = Name Text deriving (Eq, Show, Generic, Binary.Binary, A.ToJSON, A.FromJSON)
+newtype Name = Name Text deriving (Eq, Show, Generic, A.ToJSON, A.FromJSON)
 instance Primitive Name where
   encodePrimitive n (Name txt) = Encode.text n . TL.fromStrict $ txt
   decodePrimitive = Name . TL.toStrict <$> Decode.text

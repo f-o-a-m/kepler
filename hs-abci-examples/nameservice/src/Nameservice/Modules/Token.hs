@@ -147,7 +147,6 @@ storeKey = Store.StoreKey "token"
 
 eval
   :: HasBaseApp r
-  => Member (Error AppError) r
   => Sem (Token ': Error TokenException ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalToken

@@ -5,7 +5,6 @@ import           Control.Lens                          (( # ), (^.))
 import qualified Data.Aeson                            as A
 import           Data.Either                           (Either)
 import           Data.Foldable                         (sequenceA_)
-import qualified Data.ProtoLens                        as PL
 import           Data.Proxy
 import           Data.String.Conversions               (cs)
 import           Data.Text                             (Text)
@@ -17,8 +16,6 @@ import           Nameservice.Modules.Nameservice.Types (Name (..),
                                                         NameserviceModule)
 import           Nameservice.Modules.Token             (Address (..),
                                                         Amount (..))
-import qualified Proto.Nameservice.Messages            as M
-import qualified Proto.Nameservice.Messages_Fields     as M
 import           Proto3.Suite                          (Message, Named)
 import           Tendermint.SDK.Auth                   (Address, IsMessage (..),
                                                         MessageError (..),
@@ -65,41 +62,38 @@ instance IsMessage NameserviceMessage where
     --fmap BuyName fromMessage <|>
     --fmap DeleteName fromMessage
   validateMessage m@Msg{msgData} = case msgData of
-    SetName msg    -> validateMessage m {msgData = msg}
-    BuyName msg    -> validateMessage m {msgData = msg}
-    DeleteName msg -> validateMessage m {msgData = msg}
+    NSetName msg    -> validateMessage m {msgData = msg}
+    NBuyName msg    -> validateMessage m {msgData = msg}
+    NDeleteName msg -> validateMessage m {msgData = msg}
 
 -- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg
-instance IsMessage MsgSetName where
-  fromMessage = error "TODO: implement parseMessage SetName"
+instance IsMessage SetName where
   validateMessage msg@Msg{..} =
-    let MsgSetName{msgSetNameName, msgSetNameValue} = msgData
-        Name name = msgSetNameName
+    let SetName{setNameName, setNameValue} = msgData
+        Name name = setNameName
     in sequenceA_
         [ nonEmptyCheck "Name" name
-        , nonEmptyCheck "Value" msgSetNameValue
-        , isAuthorCheck "Owner" msg msgSetNameOwner
+        , nonEmptyCheck "Value" setNameValue
+        , isAuthorCheck "Owner" msg setNameOwner
         ]
 
-instance IsMessage MsgDeleteName where
-  fromMessage = error "TODO: implement parseMessage DeleteName"
+instance IsMessage DeleteName where
   validateMessage msg@Msg{..} =
-    let MsgDeleteName{msgDeleteNameName} = msgData
-        Name name = msgDeleteNameName
+    let DeleteName{deleteNameName} = msgData
+        Name name = deleteNameName
     in sequenceA_
        [ nonEmptyCheck "Name" name
-       , isAuthorCheck "Owner" msg msgDeleteNameOwner
+       , isAuthorCheck "Owner" msg deleteNameOwner
        ]
 
-instance IsMessage MsgBuyName where
-  fromMessage = error "TODO: implement parseMessage BuyName"
+instance IsMessage BuyName where
   validateMessage msg@Msg{..} =
-    let MsgBuyName{msgBuyNameName, msgBuyNameValue} = msgData
-        Name name = msgBuyNameName
+    let BuyName{buyNameName, buyNameValue} = msgData
+        Name name = buyNameName
     in sequenceA_
         [ nonEmptyCheck "Name" name
-        , nonEmptyCheck "Value" msgBuyNameValue
-        , isAuthorCheck "Owner" msg msgBuyNameBuyer
+        , nonEmptyCheck "Value" buyNameValue
+        , isAuthorCheck "Owner" msg buyNameBuyer
         ]
 
 --------------------------------------------------------------------------------

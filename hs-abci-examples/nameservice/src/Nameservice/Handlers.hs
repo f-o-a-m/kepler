@@ -4,6 +4,7 @@ import           Control.Lens                         (to, (&), (.~), (^.))
 import           Data.Default.Class                   (def)
 import           Nameservice.Application              (Handler)
 import           Nameservice.Modules.Nameservice      as N
+import qualified Data.ByteArray.Base64String as Base64
 import           Network.ABCI.Server.App              (App (..),
                                                        MessageType (..),
                                                        Request (..),
@@ -13,6 +14,8 @@ import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Router                (QueryApplication)
+import Tendermint.SDK.Auth (parseTransaction)
+import Polysemy.Error (catch)
 
 echoH
   :: Request 'MTEcho
@@ -69,7 +72,15 @@ checkTxH = undefined--(RequestCheckTx checkTx) =
 deliverTxH
   :: Request 'MTDeliverTx
   -> Handler (Response 'MTDeliverTx)
-deliverTxH = undefined--(RequestDeliverTx deliverTx) = do
+deliverTxH (RequestDeliverTx deliverTx) = do
+  tx <- parseTransaction $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
+  let tryToRespond = do
+    events <- withEventBuffer $ N.router tx
+    return $ ResponseDeliverTx $
+      def & Resp._deliverTxCode .~ 0
+          & Resp._deliverTxEvents .~ events
+  tryToRespond `catch`
+  
   --case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of
   --  Left _ -> return . ResponseDeliverTx $
   --    def & Resp._deliverTxCode .~ 1
