@@ -28,11 +28,11 @@ module Nameservice.Modules.Token
   ) where
 
 import           Data.Aeson                  as A
-import qualified Data.Binary                 as Binary
 import qualified Data.ByteArray.HexString    as Hex
+import qualified Data.ByteString.Lazy        as BL
+import           Data.Either.Combinators     (mapBoth)
 import           Data.Maybe                  (fromMaybe)
 import           Data.Proxy
-import           Data.String.Conversions     (cs)
 import           Data.Text                   (Text)
 import           Data.Word                   (Word64)
 import           GHC.Generics                (Generic)
@@ -45,6 +45,7 @@ import           Proto3.Suite                (HasDefault (..), MessageField,
 import qualified Proto3.Suite.DotProto       as DotProto
 import qualified Proto3.Wire.Decode          as Decode
 import qualified Proto3.Wire.Encode          as Encode
+import           Proto3.Wire.Types           (fieldNumber)
 import           Servant.API                 ((:>))
 import           Tendermint.SDK.Auth         (Address (..))
 import           Tendermint.SDK.BaseApp      (HasBaseApp)
@@ -56,7 +57,7 @@ import           Tendermint.SDK.Router       (Queryable (..), RouteT)
 import qualified Tendermint.SDK.Store        as Store
 import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
 
-newtype Amount = Amount Word64 deriving (Eq, Show, Binary.Binary, Num, Generic, Ord, A.ToJSON, A.FromJSON)
+newtype Amount = Amount Word64 deriving (Eq, Show, Num, Generic, Ord, A.ToJSON, A.FromJSON)
 instance Primitive Amount where
   encodePrimitive n (Amount amt) = Encode.uint64 n amt
   decodePrimitive = Amount <$> Decode.uint64
@@ -67,9 +68,16 @@ instance MessageField Amount
 instance Queryable Amount where
   type Name Amount = "balance"
 
+-- @NOTE: hacks
 instance HasCodec Amount where
-    encode (Amount b) = cs $ Binary.encode b
-    decode = Right . Amount . Binary.decode . cs
+  encode (Amount b) =
+    -- encodes to dummy message
+    BL.toStrict . Encode.toLazyByteString . Encode.uint64 1 $ b
+  decode = mapBoth show Amount . Decode.parse dummyMsgParser
+    where
+      -- field is always present; 0 is an arbitrary default value
+      fieldParser = Decode.one Decode.uint64 0
+      dummyMsgParser = Decode.at fieldParser (fieldNumber 1)
 
 -- orphans
 instance Primitive Address where
@@ -81,7 +89,7 @@ instance HasDefault Address
 instance MessageField Address
 
 instance Store.IsKey Address "token" where
-    type Value Address "token" = Amount
+  type Value Address "token" = Amount
 
 --------------------------------------------------------------------------------
 -- Events
