@@ -24,7 +24,7 @@ import           Polysemy
 import           Tendermint.SDK.Codec     (HasCodec (..))
 import           Tendermint.SDK.Store     (IsKey (..), RawKey (..))
 
-newtype Address = Address Hex.HexString deriving (Eq, Show, Ord, A.ToJSON, A.FromJSON)
+newtype Address = Address Hex.HexString deriving (Eq, Show, Generic, Ord, A.ToJSON, A.FromJSON)
 
 instance Binary.Binary Address where
     put (Address a) = Binary.put @ByteString . Hex.toBytes $ a

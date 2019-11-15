@@ -13,6 +13,6 @@ router
   => NameserviceMessage
   -> Sem r ()
 router = \case
-  SetName msg -> setName msg
-  BuyName msg -> buyName msg
-  DeleteName msg -> deleteName msg
+  NSetName msg -> setName msg
+  NBuyName msg -> buyName msg
+  NDeleteName msg -> deleteName msg
