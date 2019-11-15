@@ -1,8 +1,0 @@
-syntax = "proto3";
-package nameservice;
-
-message Whois {
-    string value = 1;
-    bytes owner = 2;
-    uint64 price = 3;
-}

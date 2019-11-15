@@ -19,15 +19,45 @@ import           Nameservice.Modules.Token             (Address (..),
                                                         Amount (..))
 import qualified Proto.Nameservice.Messages            as M
 import qualified Proto.Nameservice.Messages_Fields     as M
+import           Proto3.Suite                          (Message, Named)
 import           Tendermint.SDK.Auth                   (Address, IsMessage (..),
                                                         MessageError (..),
                                                         Msg (..),
                                                         addressFromBytes)
 
 data NameserviceMessage =
-    SetName MsgSetName
-  | BuyName MsgBuyName
-  | DeleteName MsgDeleteName
+    NSetName SetName
+  | NBuyName BuyName
+  | NDeleteName DeleteName
+
+-- @NOTE: .proto genration will use these type names as is
+-- only field names stripped of prefixes during generation
+data SetName = SetName
+  { setNameName  :: Name
+  , setNameValue :: Text
+  , setNameOwner :: Address
+  } deriving (Eq, Show, Generic)
+
+instance Message SetName
+instance Named SetName
+
+data DeleteName = DeleteName
+  { deleteNameName  :: Name
+  , deleteNameOwner :: Address
+  } deriving (Eq, Show, Generic)
+
+instance Message DeleteName
+instance Named DeleteName
+
+data BuyName = BuyName
+  { buyNameName  :: Name
+  , buyNameValue :: Text
+  , buyNameBuyer :: Address
+  , buyNameBid   :: Amount
+  } deriving (Eq, Show, Generic)
+
+instance Message BuyName
+instance Named BuyName
 
 instance IsMessage NameserviceMessage where
   fromMessage = undefined
@@ -38,12 +68,6 @@ instance IsMessage NameserviceMessage where
     SetName msg    -> validateMessage m {msgData = msg}
     BuyName msg    -> validateMessage m {msgData = msg}
     DeleteName msg -> validateMessage m {msgData = msg}
-
-data MsgSetName =  MsgSetName
-  { msgSetNameName  :: Name
-  , msgSetNameValue :: String
-  , msgSetNameOwner :: Address
-  } deriving Generic
 
 -- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg
 instance IsMessage MsgSetName where
@@ -57,11 +81,6 @@ instance IsMessage MsgSetName where
         , isAuthorCheck "Owner" msg msgSetNameOwner
         ]
 
-data MsgDeleteName = MsgDeleteName
-  { msgDeleteNameName  :: Name
-  , msgDeleteNameOwner :: Address
-  } deriving Generic
-
 instance IsMessage MsgDeleteName where
   fromMessage = error "TODO: implement parseMessage DeleteName"
   validateMessage msg@Msg{..} =
@@ -71,13 +90,6 @@ instance IsMessage MsgDeleteName where
        [ nonEmptyCheck "Name" name
        , isAuthorCheck "Owner" msg msgDeleteNameOwner
        ]
-
-data MsgBuyName = MsgBuyName
-    { msgBuyNameName  :: Name
-    , msgBuyNameValue :: String
-    , msgBuyNameBuyer :: Address
-    , msgBuyNameBid   :: Amount
-    } deriving Generic
 
 instance IsMessage MsgBuyName where
   fromMessage = error "TODO: implement parseMessage BuyName"

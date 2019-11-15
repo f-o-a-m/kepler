@@ -42,7 +42,7 @@ type AuthModule = "auth"
 
 --------------------------------------------------------------------------------
 
-newtype Address = Address Hex.HexString deriving (Eq, Show, Ord, A.ToJSON, A.FromJSON)
+newtype Address = Address Hex.HexString deriving (Eq, Show, Generic, Ord, A.ToJSON, A.FromJSON)
 
 instance Serialize.Serialize Address where
     put (Address a) = Serialize.put @ByteString . Hex.toBytes $ a

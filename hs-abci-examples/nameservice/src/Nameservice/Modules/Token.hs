@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Nameservice.Modules.Token
   (
@@ -26,14 +27,12 @@ module Nameservice.Modules.Token
 
   ) where
 
-import           Control.Lens                (iso)
 import           Data.Aeson                  as A
-import           Data.ByteString             (ByteString)
-import qualified Data.ByteString             as BS
-import           Data.Maybe                  (fromJust, fromMaybe)
+import qualified Data.ByteArray.HexString    as Hex
+import qualified Data.ByteString.Lazy        as BL
+import           Data.Either.Combinators     (mapBoth)
+import           Data.Maybe                  (fromMaybe)
 import           Data.Proxy
-import qualified Data.Serialize              as Serialize
-import           Data.String.Conversions     (cs)
 import           Data.Text                   (Text)
 import           Data.Word                   (Word64)
 import           GHC.Generics                (Generic)
@@ -41,9 +40,14 @@ import           Nameservice.Aeson           (defaultNameserviceOptions)
 import           Polysemy
 import           Polysemy.Error              (Error, mapError, throw)
 import           Polysemy.Output             (Output)
+import           Proto3.Suite                (HasDefault (..), MessageField,
+                                              Primitive (..))
+import qualified Proto3.Suite.DotProto       as DotProto
+import qualified Proto3.Wire.Decode          as Decode
+import qualified Proto3.Wire.Encode          as Encode
+import           Proto3.Wire.Types           (fieldNumber)
 import           Servant.API                 ((:>))
-import           Tendermint.SDK.Auth         (Address, addressFromBytes,
-                                              addressToBytes)
+import           Tendermint.SDK.Auth         (Address (..))
 import           Tendermint.SDK.BaseApp      (HasBaseApp)
 import           Tendermint.SDK.Codec        (HasCodec (..))
 import           Tendermint.SDK.Errors       (AppError (..), IsAppError (..))
@@ -53,17 +57,40 @@ import           Tendermint.SDK.Router       (Queryable (..), RouteT)
 import qualified Tendermint.SDK.Store        as Store
 import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
 
-newtype Amount = Amount Word64 deriving (Eq, Show, Serialize.Serialize, Num, Generic, Ord, A.ToJSON, A.FromJSON)
+newtype Amount = Amount Word64 deriving (Eq, Show, Num, Generic, Ord, A.ToJSON, A.FromJSON)
+instance Primitive Amount where
+  encodePrimitive n (Amount amt) = Encode.uint64 n amt
+  decodePrimitive = Amount <$> Decode.uint64
+  primType _ = DotProto.UInt64
+instance HasDefault Amount
+instance MessageField Amount
 
 instance Queryable Amount where
   type Name Amount = "balance"
 
+-- @NOTE: hacks
 instance HasCodec Amount where
-    encode = Serialize.encode
-    decode = Serialize.decode
+  encode (Amount b) =
+    -- proto3-wire only exports encoders for message types
+    let dummyMsgEncoder = Encode.uint64 (fieldNumber 1)
+    in BL.toStrict . Encode.toLazyByteString . dummyMsgEncoder $ b
+  decode = mapBoth show Amount . Decode.parse dummyMsgParser
+    where
+      -- field is always present; 0 is an arbitrary value
+      fieldParser = Decode.one Decode.uint64 0
+      dummyMsgParser = Decode.at fieldParser (fieldNumber 1)
+
+-- orphans
+instance Primitive Address where
+  encodePrimitive n (Address hx) = Encode.byteString n (Hex.toBytes hx)
+  decodePrimitive = Address . Hex.fromBytes <$> Decode.byteString
+  primType _ = DotProto.Bytes
+instance HasDefault Hex.HexString
+instance HasDefault Address
+instance MessageField Address
 
 instance Store.IsKey Address "token" where
-    type Value Address "token" = Amount
+  type Value Address "token" = Amount
 
 --------------------------------------------------------------------------------
 -- Events
