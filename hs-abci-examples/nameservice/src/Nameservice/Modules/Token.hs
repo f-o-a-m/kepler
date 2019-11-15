@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-} 
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Nameservice.Modules.Token
   (

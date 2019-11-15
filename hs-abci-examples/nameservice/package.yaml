@@ -58,6 +58,7 @@ dependencies:
 - binary
 - bytestring
 - exceptions
+- either
 - hs-abci-extra
 - hs-abci-sdk
 - hs-abci-server

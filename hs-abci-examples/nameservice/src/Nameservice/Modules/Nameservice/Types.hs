@@ -3,6 +3,8 @@ module Nameservice.Modules.Nameservice.Types where
 import           Control.Lens              (iso)
 import           Data.Aeson                as A
 import qualified Data.Binary               as Binary
+import qualified Data.ByteString.Lazy      as BL
+import           Data.Either.Combinators   (mapLeft)
 import           Data.String.Conversions   (cs)
 import           Data.Text                 (Text)
 import qualified Data.Text.Lazy            as TL
@@ -10,7 +12,8 @@ import           GHC.Generics              (Generic)
 import           Nameservice.Aeson         (defaultNameserviceOptions)
 import           Nameservice.Modules.Token (Amount (..))
 import           Proto3.Suite              (HasDefault, Message, MessageField,
-                                            Named, Primitive (..))
+                                            Named, Primitive (..),
+                                            fromByteString, toLazyByteString)
 import qualified Proto3.Suite.DotProto     as DotProto
 import qualified Proto3.Wire.Decode        as Decode
 import qualified Proto3.Wire.Encode        as Encode
@@ -47,11 +50,9 @@ instance Message Whois
 
 instance Named Whois
 
-instance Binary.Binary Whois
-
 instance HasCodec Whois where
-  encode = cs . Binary.encode
-  decode = Right . Binary.decode . cs
+  encode = BL.toStrict . toLazyByteString
+  decode = mapLeft show . fromByteString
 
 instance Store.RawKey Name where
     rawKey = iso (\(Name n) -> cs n) (Name . cs)
