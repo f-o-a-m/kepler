@@ -198,7 +198,7 @@ data Transaction = Transaction
   -- ^ module name
   }
 
-parseTransaction 
+parseTransaction
   :: Member (Error AppError) r
   => ByteString
   -> Sem r Transaction

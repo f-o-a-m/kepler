@@ -22,6 +22,7 @@ import Polysemy.Error (Error, runError)
 import Tendermint.SDK.Errors (AppError)
 import Control.Exception (throwIO)
 
+-- @TODO: change to HasBassAppEff
 type HasBaseApp r =
   ( Member Logger r
   , Member (Error AppError) r
@@ -41,6 +42,7 @@ type CoreEff =
    , Embed IO
    ]
 
+-- @TODO: change to BaseAppEffR
 type BaseApp =
   (  Output Event
   ': RawStore

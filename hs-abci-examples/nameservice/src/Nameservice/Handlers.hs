@@ -2,7 +2,7 @@ module Nameservice.Handlers where
 
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Data.Default.Class                   (def)
-import           Nameservice.Application              (Handler)
+import           Nameservice.Application              (Handler, compileToBaseApp)
 import           Nameservice.Modules.Nameservice      as N
 import qualified Data.ByteArray.Base64String as Base64
 import           Network.ABCI.Server.App              (App (..),
@@ -14,54 +14,57 @@ import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Router                (QueryApplication)
+import Polysemy (Sem)
+import Tendermint.SDK.BaseApp (BaseApp)
+import Tendermint.SDK.Errors (AppError,HasAppError(..))
 import Tendermint.SDK.Auth (parseTransaction)
 import Polysemy.Error (catch)
 
 echoH
   :: Request 'MTEcho
-  -> Handler (Response 'MTEcho)
+  -> Sem BaseApp (Response 'MTEcho)
 echoH (RequestEcho echo) =
   pure . ResponseEcho $ def & Resp._echoMessage .~ echo ^. Req._echoMessage
 
 flushH
   :: Request 'MTFlush
-  -> Handler (Response 'MTFlush)
+  -> Sem BaseApp (Response 'MTFlush)
 flushH = defaultHandler
 
 infoH
   :: Request 'MTInfo
-  -> Handler (Response 'MTInfo)
+  -> Sem BaseApp (Response 'MTInfo)
 infoH = defaultHandler
 
 setOptionH
   :: Request 'MTSetOption
-  -> Handler (Response 'MTSetOption)
+  -> Sem BaseApp (Response 'MTSetOption)
 setOptionH = defaultHandler
 
 -- TODO: this one might be useful for initializing to 0
 -- instead of doing that manually in code
 initChainH
   :: Request 'MTInitChain
-  -> Handler (Response 'MTInitChain)
+  -> Sem BaseApp (Response 'MTInitChain)
 initChainH = defaultHandler
 
 queryH
-  :: QueryApplication Handler
+  :: QueryApplication (Sem BaseApp)
   -> Request 'MTQuery
-  -> Handler (Response 'MTQuery)
+  -> Sem BaseApp (Response 'MTQuery)
 queryH serveRoutes (RequestQuery query) = do
   queryResp <- serveRoutes query
   pure $ ResponseQuery  queryResp
 
 beginBlockH
   :: Request 'MTBeginBlock
-  -> Handler (Response 'MTBeginBlock)
+  -> Sem BaseApp (Response 'MTBeginBlock)
 beginBlockH = defaultHandler
 
 -- only checks to see if the tx parses
 checkTxH
   :: Request 'MTCheckTx
-  -> Handler (Response 'MTCheckTx)
+  -> Sem BaseApp (Response 'MTCheckTx)
 checkTxH = undefined--(RequestCheckTx checkTx) =
 
  --   pure . ResponseCheckTx $
@@ -71,15 +74,17 @@ checkTxH = undefined--(RequestCheckTx checkTx) =
 
 deliverTxH
   :: Request 'MTDeliverTx
-  -> Handler (Response 'MTDeliverTx)
+  -> Sem BaseApp (Response 'MTDeliverTx) -- Sem BaseApp (Response 'MTDeliverTx)
 deliverTxH (RequestDeliverTx deliverTx) = do
   tx <- parseTransaction $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
   let tryToRespond = do
-    events <- withEventBuffer $ N.router tx
-    return $ ResponseDeliverTx $
-      def & Resp._deliverTxCode .~ 0
-          & Resp._deliverTxEvents .~ events
-  tryToRespond `catch`
+       events <- withEventBuffer . compileToBaseApp $ N.router tx
+       return $ ResponseDeliverTx $
+         def & Resp._deliverTxCode .~ 0
+             & Resp._deliverTxEvents .~ events
+  tryToRespond `catch` \(err :: AppError) ->
+    return . ResponseDeliverTx $ def & appError .~ err
+
   
   --case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of
   --  Left _ -> return . ResponseDeliverTx $
@@ -93,15 +98,15 @@ deliverTxH (RequestDeliverTx deliverTx) = do
 
 endBlockH
   :: Request 'MTEndBlock
-  -> Handler (Response 'MTEndBlock)
+  -> Sem BaseApp (Response 'MTEndBlock)
 endBlockH = defaultHandler
 
 commitH
   :: Request 'MTCommit
-  -> Handler (Response 'MTCommit)
+  -> Sem BaseApp (Response 'MTCommit)
 commitH = defaultHandler
 
-nameserviceApp :: QueryApplication Handler -> App Handler
+nameserviceApp :: QueryApplication (Sem BaseApp) -> App (Sem BaseApp)
 nameserviceApp serveRoutes = App $ \case
   msg@(RequestEcho _) -> echoH msg
   msg@(RequestFlush _) -> flushH msg

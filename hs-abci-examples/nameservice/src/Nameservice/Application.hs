@@ -5,13 +5,12 @@ module Nameservice.Application
   , AppConfig(..)
   , makeAppConfig
   , Handler
+  , compileToBaseApp
   , runHandler
   ) where
 
 import           Control.Exception           (Exception)
-import           Control.Monad.Catch         (throwM)
 import           Polysemy                    (Sem)
-import           Polysemy.Error              (Error, runError)
 import qualified Tendermint.SDK.BaseApp      as BaseApp
 import qualified Tendermint.SDK.Logger.Katip as KL
 import qualified Tendermint.SDK.Auth as A
@@ -43,13 +42,13 @@ type EffR =
 
 type Handler = Sem EffR
 
+compileToBaseApp :: Sem EffR a -> Sem BaseApp.BaseApp a
+compileToBaseApp = A.eval . T.eval . N.eval
+
 -- NOTE: this should probably go in the library
 runHandler
   :: AppConfig
   -> Handler a
   -> IO a
-runHandler AppConfig{baseAppContext} m = do
-  BaseApp.eval baseAppContext .
-    A.eval .
-    T.eval .
-    N.eval $ m
+runHandler AppConfig{baseAppContext} =
+  BaseApp.eval baseAppContext . compileToBaseApp
