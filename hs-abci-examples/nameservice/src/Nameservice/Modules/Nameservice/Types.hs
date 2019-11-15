@@ -1,34 +1,33 @@
 module Nameservice.Modules.Nameservice.Types where
 
-import           Control.Lens                   (iso, (&), (.~), (^.))
-import           Control.Lens.Wrapped           (Wrapped (..))
-import           Data.Aeson                     as A
-import           Data.ByteString                (ByteString)
-import           Data.ByteString                as BS
-import qualified Data.ByteString.Lazy           as BL
-import           Data.Either.Combinators        (mapLeft)
-import           Data.Maybe                     (fromJust)
-import qualified Data.Serialize                 as Serialize
-import           Data.String.Conversions        (cs)
-import           Data.Text                      (Text)
-import qualified Data.Text.Lazy                 as TL
-import           GHC.Generics                   (Generic)
-import           Nameservice.Aeson              (defaultNameserviceOptions)
-import           Nameservice.Modules.Token      (Address (..), Amount (..))
-import           Proto3.Suite                   (HasDefault, Message,
-                                                 MessageField, Named,
-                                                 Primitive (..), fromByteString,
-                                                 toLazyByteString)
-import qualified Proto3.Suite.DotProto          as DotProto
-import qualified Proto3.Wire.Decode             as Decode
-import qualified Proto3.Wire.Encode             as Encode
-import           Tendermint.SDK.Auth            (Address, addressFromBytes,
-                                                 addressToBytes)
-import           Tendermint.SDK.Codec           (HasCodec (..))
-import           Tendermint.SDK.Errors          (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Events          (FromEvent (..), ToEvent (..))
-import qualified Tendermint.SDK.Router          as R
-import qualified Tendermint.SDK.Store           as Store
+import           Control.Lens              (iso, (&), (.~), (^.))
+import           Control.Lens.Wrapped      (Wrapped (..))
+import           Data.Aeson                as A
+import           Data.ByteString           (ByteString)
+import           Data.ByteString           as BS
+import qualified Data.ByteString.Lazy      as BL
+import           Data.Either.Combinators   (mapLeft)
+import           Data.Maybe                (fromJust)
+import qualified Data.Serialize            as Serialize
+import           Data.String.Conversions   (cs)
+import           Data.Text                 (Text)
+import qualified Data.Text.Lazy            as TL
+import           GHC.Generics              (Generic)
+import           Nameservice.Aeson         (defaultNameserviceOptions)
+import           Nameservice.Modules.Token (Address (..), Amount (..))
+import           Proto3.Suite              (HasDefault, Message, MessageField,
+                                            Named, Primitive (..),
+                                            fromByteString, toLazyByteString)
+import qualified Proto3.Suite.DotProto     as DotProto
+import qualified Proto3.Wire.Decode        as Decode
+import qualified Proto3.Wire.Encode        as Encode
+import           Tendermint.SDK.Auth       (Address, addressFromBytes,
+                                            addressToBytes)
+import           Tendermint.SDK.Codec      (HasCodec (..))
+import           Tendermint.SDK.Errors     (AppError (..), IsAppError (..))
+import           Tendermint.SDK.Events     (FromEvent (..), ToEvent (..))
+import qualified Tendermint.SDK.Router     as R
+import qualified Tendermint.SDK.Store      as Store
 
 --------------------------------------------------------------------------------
 

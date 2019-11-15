@@ -48,7 +48,7 @@ import qualified Proto3.Wire.Encode          as Encode
 import           Proto3.Wire.Types           (fieldNumber)
 import           Servant.API                 ((:>))
 import           Tendermint.SDK.Auth         (Address (..))
-import           Tendermint.SDK.BaseApp      (HasBaseApp)
+import           Tendermint.SDK.BaseApp      (HasBaseAppEff)
 import           Tendermint.SDK.Codec        (HasCodec (..))
 import           Tendermint.SDK.Errors       (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Events       (Event, FromEvent, ToEvent (..),
@@ -146,13 +146,13 @@ storeKey :: Store.StoreKey "token"
 storeKey = Store.StoreKey "token"
 
 eval
-  :: HasBaseApp r
+  :: HasBaseAppEff r
   => Sem (Token ': Error TokenException ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalToken
  where
   evalToken
-    :: HasBaseApp r
+    :: HasBaseAppEff r
     => Sem (Token ': r) a
     -> Sem r a
   evalToken =
@@ -226,4 +226,3 @@ mint
 mint addr amount = do
   bal <- getBalance addr
   putBalance addr (bal + amount)
-

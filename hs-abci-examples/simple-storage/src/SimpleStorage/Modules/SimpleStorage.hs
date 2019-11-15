@@ -38,7 +38,7 @@ import           GHC.Generics                (Generic)
 import           Polysemy                    (Member, Sem, interpret, makeSem)
 import           Polysemy.Output             (Output)
 import           Servant.API                 ((:>))
-import           Tendermint.SDK.BaseApp      (HasBaseApp)
+import           Tendermint.SDK.BaseApp      (HasBaseAppEff)
 import           Tendermint.SDK.Codec        (HasCodec (..))
 import qualified Tendermint.SDK.Events       as Events
 import           Tendermint.SDK.Router       (EncodeQueryResult, FromQueryData,
@@ -108,7 +108,7 @@ makeSem ''SimpleStorage
 
 eval
   :: forall r.
-     HasBaseApp r
+     HasBaseAppEff r
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> do
@@ -119,7 +119,7 @@ eval = interpret (\case
   )
 
 initialize
-  :: HasBaseApp r
+  :: HasBaseAppEff r
   => Member (Output Events.Event) r
   => Sem r ()
 initialize = eval $ do

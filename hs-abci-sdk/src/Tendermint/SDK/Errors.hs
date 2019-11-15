@@ -6,13 +6,13 @@ module Tendermint.SDK.Errors
   , throwSDKError
   ) where
 
+import           Control.Exception                    (Exception)
 import           Control.Lens                         (Lens', lens)
 import           Data.Text                            (Text)
 import           Data.Word                            (Word32)
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Polysemy
 import           Polysemy.Error                       (Error, throw)
-import Control.Exception (Exception)
 
 data AppError = AppError
   { appErrorCode      :: Word32
@@ -81,7 +81,7 @@ data SDKError =
   | ParseError Text
 
 
-throwSDKError 
+throwSDKError
   :: Member (Error AppError) r
   => SDKError
   -> Sem r a

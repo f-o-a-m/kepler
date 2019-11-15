@@ -29,5 +29,5 @@ module Nameservice.Modules.Nameservice
 import           Nameservice.Modules.Nameservice.Keeper
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Query
-import           Nameservice.Modules.Nameservice.Types
 import           Nameservice.Modules.Nameservice.Router
+import           Nameservice.Modules.Nameservice.Types

@@ -9,13 +9,14 @@ module Nameservice.Application
   , runHandler
   ) where
 
-import           Control.Exception           (Exception)
-import           Polysemy                    (Sem)
-import qualified Tendermint.SDK.BaseApp      as BaseApp
-import qualified Tendermint.SDK.Logger.Katip as KL
-import qualified Tendermint.SDK.Auth as A
+import           Control.Exception               (Exception)
 import qualified Nameservice.Modules.Nameservice as N
-import qualified Nameservice.Modules.Token as T
+import qualified Nameservice.Modules.Token       as T
+import           Polysemy                        (Sem)
+import qualified Tendermint.SDK.Auth             as A
+import           Tendermint.SDK.BaseApp          ((:&))
+import qualified Tendermint.SDK.BaseApp          as BaseApp
+import qualified Tendermint.SDK.Logger.Katip     as KL
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context
@@ -33,16 +34,14 @@ data AppError = AppError String deriving (Show)
 
 instance Exception AppError
 
-type family (as :: [a]) :& (bs :: [a]) :: [a] where 
-  '[] :& bs = bs
-  (a ': as) :& bs = a ': (as :& bs)
-
 type EffR =
-  N.NameserviceEffR :& (T.TokenEffR :& (A.AuthEffR :& BaseApp.BaseApp))
+  N.NameserviceEffR :& T.TokenEffR :& A.AuthEffR :& BaseApp.BaseApp
 
 type Handler = Sem EffR
 
-compileToBaseApp :: Sem EffR a -> Sem BaseApp.BaseApp a
+compileToBaseApp
+  :: Sem EffR a
+  -> Sem BaseApp.BaseApp a
 compileToBaseApp = A.eval . T.eval . N.eval
 
 -- NOTE: this should probably go in the library

@@ -1,24 +1,26 @@
 module Nameservice.Handlers where
 
 import           Control.Lens                         (to, (&), (.~), (^.))
+import qualified Data.ByteArray.Base64String          as Base64
 import           Data.Default.Class                   (def)
-import           Nameservice.Application              (Handler, compileToBaseApp)
+import           Nameservice.Application              (Handler,
+                                                       compileToBaseApp)
 import           Nameservice.Modules.Nameservice      as N
-import qualified Data.ByteArray.Base64String as Base64
 import           Network.ABCI.Server.App              (App (..),
                                                        MessageType (..),
                                                        Request (..),
                                                        Response (..))
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
+import           Polysemy                             (Sem)
+import           Polysemy.Error                       (catch)
 import           Tendermint.SDK.Application           (defaultHandler)
+import           Tendermint.SDK.Auth                  (parseTransaction)
+import           Tendermint.SDK.BaseApp               (BaseApp)
+import           Tendermint.SDK.Errors                (AppError,
+                                                       HasAppError (..))
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Router                (QueryApplication)
-import Polysemy (Sem)
-import Tendermint.SDK.BaseApp (BaseApp)
-import Tendermint.SDK.Errors (AppError,HasAppError(..))
-import Tendermint.SDK.Auth (parseTransaction)
-import Polysemy.Error (catch)
 
 echoH
   :: Request 'MTEcho
@@ -85,7 +87,7 @@ deliverTxH (RequestDeliverTx deliverTx) = do
   tryToRespond `catch` \(err :: AppError) ->
     return . ResponseDeliverTx $ def & appError .~ err
 
-  
+
   --case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of
   --  Left _ -> return . ResponseDeliverTx $
   --    def & Resp._deliverTxCode .~ 1

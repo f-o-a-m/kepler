@@ -2,7 +2,8 @@ module Tendermint.SDK.TxRouter where
 
 import           Polysemy              (Members, Sem)
 import           Polysemy.Error        (Error)
-import           Tendermint.SDK.Auth   (AuthError, IsMessage, Tx, parseTx, Transaction)
+import           Tendermint.SDK.Auth   (AuthError, IsMessage, Transaction, Tx,
+                                        parseTx)
 import           Tendermint.SDK.Errors (AppError)
 
 type Handler r msg = Tx msg -> Sem r ()

@@ -22,12 +22,14 @@ import           GHC.TypeLits                           (symbolVal)
 import qualified Network.ABCI.Types.Messages.FieldTypes as FT
 import           Polysemy
 import           Polysemy.Error                         (Error, mapError, throw)
-import           Proto3.Wire.Decode                     as Wire
 import           Proto3.Suite                           as Wire
-import           Tendermint.SDK.BaseApp                 (HasBaseApp)
+import           Proto3.Wire.Decode                     as Wire
+import           Tendermint.SDK.BaseApp                 (HasBaseAppEff)
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 import           Tendermint.SDK.Errors                  (AppError (..),
-                                                         IsAppError (..), SDKError(..), throwSDKError)
+                                                         IsAppError (..),
+                                                         SDKError (..),
+                                                         throwSDKError)
 import           Tendermint.SDK.Store                   (IsKey (..),
                                                          RawKey (..),
                                                          StoreKey (..), get,
@@ -114,14 +116,14 @@ storeKey :: StoreKey AuthModule
 storeKey = StoreKey "auth"
 
 eval
-  :: HasBaseApp r
+  :: HasBaseAppEff r
   => Member (Error AppError) r
   => Sem (Accounts ': Error AuthError ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalAuth
   where
     evalAuth
-      :: HasBaseApp r
+      :: HasBaseAppEff r
       => Sem (Accounts ': r) a
       -> Sem r a
     evalAuth =
@@ -230,7 +232,7 @@ parseTx Transaction{..} = do
     Just s -> return s
     Nothing -> throw . RecoveryError $ "Invalid Recovery Signature: " <> cs (show compactRecSig)
   pubKey <- recoverSignature recSig signBytes
-  case (fromMessage @msg) transactionData of
+  case fromMessage @msg transactionData of
     Left err -> throwSDKError $ ParseError $ formatWireParseError err
     Right (msg :: msg) -> return Tx
       { txMsg = Msg

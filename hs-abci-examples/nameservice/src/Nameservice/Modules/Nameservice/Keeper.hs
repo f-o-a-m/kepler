@@ -14,7 +14,7 @@ import           Polysemy                                 (Member, Members, Sem,
 import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
-import           Tendermint.SDK.BaseApp                   (HasBaseApp)
+import           Tendermint.SDK.BaseApp                   (HasBaseAppEff)
 import           Tendermint.SDK.Errors                    (AppError (..),
                                                            IsAppError (..))
 import           Tendermint.SDK.Events                    (Event, emit)
@@ -34,14 +34,14 @@ storeKey :: Store.StoreKey NameserviceModule
 storeKey = Store.StoreKey . cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
 
 eval
-  :: HasBaseApp r
+  :: HasBaseAppEff r
   => HasTokenEff r
   => Sem (Nameservice ': Error NameserviceException ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalNameservice
   where
     evalNameservice
-      :: HasBaseApp r
+      :: HasBaseAppEff r
       => Sem (Nameservice ': r) a
       -> Sem r a
     evalNameservice =
@@ -156,3 +156,4 @@ buyName msg = do
                  , nameClaimedBid = buyNameBid
                  }
              else throw (InsufficientBid "Bid must exceed the price.")
+
