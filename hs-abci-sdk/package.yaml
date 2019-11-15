@@ -63,6 +63,7 @@ dependencies:
 - polysemy-plugin
 - profunctors
 - proto3-wire
+- proto3-suite
 - secp256k1-haskell
 - servant
 - stm

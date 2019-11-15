@@ -23,10 +23,11 @@ import qualified Network.ABCI.Types.Messages.FieldTypes as FT
 import           Polysemy
 import           Polysemy.Error                         (Error, mapError, throw)
 import           Proto3.Wire.Decode                     as Wire
+import           Proto3.Suite                           as Wire
 import           Tendermint.SDK.BaseApp                 (HasBaseApp)
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 import           Tendermint.SDK.Errors                  (AppError (..),
-                                                         IsAppError (..))
+                                                         IsAppError (..), SDKError(..), throwSDKError)
 import           Tendermint.SDK.Store                   (IsKey (..),
                                                          RawKey (..),
                                                          StoreKey (..), get,
@@ -169,7 +170,11 @@ data MessageError =
 -- note invalid messages should fail after signature verification,
 -- because it could depend on a permission failure for example
 class IsMessage msg where
-  fromMessage :: Wire.Parser Wire.RawMessage msg
+  fromMessage :: ByteString -> Either Wire.ParseError msg
+
+  default fromMessage :: Message msg => ByteString -> Either Wire.ParseError msg
+  fromMessage = Wire.fromByteString
+
   validateMessage :: Msg msg -> V.Validation [MessageError] ()
 
 data Tx msg = Tx
@@ -186,9 +191,18 @@ keccak256 = convert . hashWith Keccak_256
 
 data Transaction = Transaction
   { transactionData      :: ByteString
+  -- ^ the encoded message via protobuf encoding
   , transactionSignature :: ByteString
+  -- ^ signature (encoded via Data.Serialize.encode $ (sig :: Crypto.Secp256k1.CompactRecoverySignature)
   , transactionRoute     :: ByteString
+  -- ^ module name
   }
+
+parseTransaction 
+  :: Member (Error AppError) r
+  => ByteString
+  -> Sem r Transaction
+parseTransaction = error "TODO: implement parseTransaction"
 
 formatWireParseError :: Wire.ParseError -> Text
 formatWireParseError = cs . go
@@ -203,9 +217,10 @@ formatWireParseError = cs . go
 parseTx
   :: forall msg r.
      Member (Error AuthError) r
+  => Member (Error AppError) r
   => IsMessage msg
   => Transaction
-  -> Sem r (Either Wire.ParseError (Tx msg))
+  -> Sem r (Tx msg)
 parseTx Transaction{..} = do
   let signBytes = fromJust . Crypto.msg . keccak256 $ transactionData
   compactRecSig <- case Serialize.decode transactionSignature of
@@ -215,9 +230,9 @@ parseTx Transaction{..} = do
     Just s -> return s
     Nothing -> throw . RecoveryError $ "Invalid Recovery Signature: " <> cs (show compactRecSig)
   pubKey <- recoverSignature recSig signBytes
-  return $ case Wire.parse (fromMessage @msg) transactionData of
-    Left err -> Left err
-    Right (msg :: msg) -> Right Tx
+  case (fromMessage @msg) transactionData of
+    Left err -> throwSDKError $ ParseError $ formatWireParseError err
+    Right (msg :: msg) -> return Tx
       { txMsg = Msg
         { msgAuthor = pubKeyToAddress pubKey
         , msgData = msg

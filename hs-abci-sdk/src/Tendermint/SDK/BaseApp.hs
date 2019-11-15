@@ -18,9 +18,13 @@ import           Tendermint.SDK.Events        (Event, EventBuffer,
 import           Tendermint.SDK.Logger        (Logger)
 import qualified Tendermint.SDK.Logger.Katip  as KL
 import           Tendermint.SDK.Store         (RawStore)
+import Polysemy.Error (Error, runError)
+import Tendermint.SDK.Errors (AppError)
+import Control.Exception (throwIO)
 
 type HasBaseApp r =
   ( Member Logger r
+  , Member (Error AppError) r
   , Member RawStore r
   , Member (Output Event) r
   , Member Resource r
@@ -42,6 +46,7 @@ type BaseApp =
   ': RawStore
   ': Logger
   ': Resource
+  ': Error AppError
   ': Reader EventBuffer
   ': CoreEff
   )
@@ -73,13 +78,15 @@ eval
   :: Context
   -> Sem BaseApp a
   -> IO a
-eval Context{..} action =
-  runM .
-  runReader contextLogConfig .
-  runReader contextEventBuffer .
-  resourceToIO .
-  KL.evalKatip .
-  interpretAuthTreeStore contextAuthTreeDriver .
-  evalWithBuffer $ action
+eval Context{..} action = do
+  eRes <- runM .
+    runReader contextLogConfig .
+    runReader contextEventBuffer .
+    runError .
+    resourceToIO .
+    KL.evalKatip .
+    interpretAuthTreeStore contextAuthTreeDriver .
+    evalWithBuffer $ action
+  either throwIO return eRes
 
 --------------------------------------------------------------------------------

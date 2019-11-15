@@ -3,22 +3,24 @@ module Tendermint.SDK.Errors
   , IsAppError(..)
   , HasAppError(..)
   , SDKError(..)
-  , catchAppError
+  , throwSDKError
   ) where
 
-import           Control.Lens                         (Lens', lens, (&), (.~))
-import           Data.Default.Class                   (Default (..))
+import           Control.Lens                         (Lens', lens)
 import           Data.Text                            (Text)
 import           Data.Word                            (Word32)
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Polysemy
-import           Polysemy.Error                       (Error, runError)
+import           Polysemy.Error                       (Error, throw)
+import Control.Exception (Exception)
 
 data AppError = AppError
   { appErrorCode      :: Word32
   , appErrorCodespace :: Text
   , appErrorMessage   :: Text
-  }
+  } deriving Show
+
+instance Exception AppError
 
 class IsAppError e where
   makeAppError :: e -> AppError
@@ -70,17 +72,6 @@ instance HasAppError Response.DeliverTx where
         , Response.deliverTxLog = appErrorMessage
         }
 
-catchAppError
-  :: HasAppError resp
-  => Default resp
-  => Sem (Error AppError ': r) resp
-  -> Sem r resp
-catchAppError action = do
-  eRes <- runError action
-  case eRes of
-    Right res -> pure res
-    Left err  -> pure $ def & appError .~ err
-
 --------------------------------------------------------------------------------
 -- Stock SDK Errors
 --------------------------------------------------------------------------------
@@ -88,6 +79,13 @@ catchAppError action = do
 data SDKError =
     InternalError
   | ParseError Text
+
+
+throwSDKError 
+  :: Member (Error AppError) r
+  => SDKError
+  -> Sem r a
+throwSDKError = throw . makeAppError
 
 instance IsAppError SDKError where
   makeAppError InternalError = AppError
