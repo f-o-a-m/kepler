@@ -95,6 +95,7 @@ library:
   - Tendermint.SDK.Aeson
   - Tendermint.SDK.Events
   - Tendermint.SDK.Errors
+  - Tendermint.SDK.TxRouter
   
 tests:
   hs-abci-sdk-test:

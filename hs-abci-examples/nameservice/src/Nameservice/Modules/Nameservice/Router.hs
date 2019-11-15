@@ -6,34 +6,11 @@ import           Nameservice.Modules.Nameservice.Keeper   (HasNameserviceEff,
 import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (..))
 import           Nameservice.Modules.Token                (HasTokenEff)
 import           Polysemy                                 (Members, Sem)
-import           Polysemy.Error                           (Error, throw)
+import           Polysemy.Error                           (Error)
+import qualified Tendermint.SDK.TxRouter as R
 import           Tendermint.SDK.Auth                      (AuthError, Msg (..),
-                                                           Transaction, Tx (..),
-                                                           formatWireParseError,
-                                                           parseTx)
-import           Tendermint.SDK.Errors                    (SDKError (..))
-
-routerMsg
-  :: Members [Error SDKError, Error AuthError] r
-  => Transaction
-  -> Sem r (Tx NameserviceMessage)
-routerMsg tx = do
-  eRes <- parseTx tx
-  case eRes of
-    Left err  -> throw @SDKError (ParseError $ formatWireParseError err)
-    Right res -> return res
-
-routerHandler
-  :: HasTokenEff r
-  => HasNameserviceEff r
-  => Tx NameserviceMessage
-  -> Sem r ()
-routerHandler Tx{txMsg} =
-  let Msg{msgData=msg} = txMsg
-  in case msg of
-       SetName txMsg    -> setName txMsg
-       BuyName txMsg    -> buyName txMsg
-       DeleteName txMsg -> deleteName txMsg
+                                                           Transaction, Tx (..))
+import           Tendermint.SDK.Errors                    (SDKError)
 
 router
   :: Members [Error SDKError, Error AuthError] r
@@ -41,4 +18,15 @@ router
   => HasNameserviceEff r
   => Transaction
   -> Sem r ()
-router tx = routerMsg tx >>= routerHandler
+router = R.router handler
+  where
+    handler
+      :: HasTokenEff r
+      => HasNameserviceEff r
+      => R.Handler r NameserviceMessage
+    handler Tx{txMsg} =
+      let Msg{msgData=msg} = txMsg
+      in case msg of
+           SetName txMsg    -> setName txMsg
+           BuyName txMsg    -> buyName txMsg
+           DeleteName txMsg -> deleteName txMsg
