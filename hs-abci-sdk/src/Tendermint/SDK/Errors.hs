@@ -85,7 +85,7 @@ catchAppError action = do
 -- Stock SDK Errors
 --------------------------------------------------------------------------------
 
-data SDKError = 
+data SDKError =
     InternalError
   | ParseError Text
 
@@ -101,4 +101,4 @@ instance IsAppError SDKError where
     , appErrorCodespace = "sdk"
     , appErrorMessage = msg
     }
-  
+

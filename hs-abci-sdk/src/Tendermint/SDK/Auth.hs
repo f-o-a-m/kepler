@@ -192,8 +192,8 @@ data Transaction = Transaction
 
 formatWireParseError :: Wire.ParseError -> Text
 formatWireParseError = cs . go
-  where 
-    go err = 
+  where
+    go err =
       let (context,msg) = case err of
              Wire.WireTypeError txt -> ("Wire Type Error", txt)
              Wire.BinaryError txt -> ("Binary Error", txt)
