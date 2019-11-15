@@ -71,11 +71,13 @@ instance Queryable Amount where
 -- @NOTE: hacks
 instance HasCodec Amount where
   encode (Amount b) =
-    -- encodes to dummy message
+    -- encodes to a dummy message
+    -- proto3-wire only exports encoders for message types
     BL.toStrict . Encode.toLazyByteString . Encode.uint64 1 $ b
   decode = mapBoth show Amount . Decode.parse dummyMsgParser
     where
-      -- field is always present; 0 is an arbitrary default value
+      -- field is always present
+      -- 0 is an arbitrary value
       fieldParser = Decode.one Decode.uint64 0
       dummyMsgParser = Decode.at fieldParser (fieldNumber 1)
 
