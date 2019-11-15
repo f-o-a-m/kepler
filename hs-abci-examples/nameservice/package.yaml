@@ -58,6 +58,7 @@ dependencies:
 - base >= 4.7 && < 5
 - bytestring
 - cereal
+- data-default-class
 - errors
 - exceptions
 - hs-abci-extra
@@ -79,6 +80,7 @@ library:
   exposed-modules:
   - Nameservice.Application
   - Nameservice.Server
+  - Nameservice.Handlers
   - Nameservice.Modules.Nameservice.Messages
   - Nameservice.Modules.Nameservice.Types
   - Nameservice.Modules.Nameservice.Keeper

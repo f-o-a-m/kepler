@@ -7,10 +7,10 @@ import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (.
 import           Nameservice.Modules.Token                (HasTokenEff)
 import           Polysemy                                 (Members, Sem)
 import           Polysemy.Error                           (Error)
-import qualified Tendermint.SDK.TxRouter as R
 import           Tendermint.SDK.Auth                      (AuthError, Msg (..),
                                                            Transaction, Tx (..))
 import           Tendermint.SDK.Errors                    (SDKError)
+import qualified Tendermint.SDK.TxRouter                  as R
 
 router
   :: Members [Error SDKError, Error AuthError] r
