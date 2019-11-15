@@ -2,6 +2,7 @@ module Tendermint.SDK.Errors
   ( AppError(..)
   , IsAppError(..)
   , HasAppError(..)
+  , SDKError(..)
   , catchAppError
   ) where
 
@@ -79,3 +80,25 @@ catchAppError action = do
   case eRes of
     Right res -> pure res
     Left err  -> pure $ def & appError .~ err
+
+--------------------------------------------------------------------------------
+-- Stock SDK Errors
+--------------------------------------------------------------------------------
+
+data SDKError = 
+    InternalError
+  | ParseError Text
+
+instance IsAppError SDKError where
+  makeAppError InternalError = AppError
+    { appErrorCode = 1
+    , appErrorCodespace = "sdk"
+    , appErrorMessage = "Internal Error"
+    }
+
+  makeAppError (ParseError msg) = AppError
+    { appErrorCode = 2
+    , appErrorCodespace = "sdk"
+    , appErrorMessage = msg
+    }
+  

@@ -190,6 +190,16 @@ data Transaction = Transaction
   , transactionRoute     :: ByteString
   }
 
+formatWireParseError :: Wire.ParseError -> Text
+formatWireParseError = cs . go
+  where 
+    go err = 
+      let (context,msg) = case err of
+             Wire.WireTypeError txt -> ("Wire Type Error", txt)
+             Wire.BinaryError txt -> ("Binary Error", txt)
+             Wire.EmbeddedError txt err' -> ("Embedded Error", txt <> ". " <>  maybe "" go err')
+      in "Parse Error [" <> context <> "]: " <> msg
+
 parseTx
   :: forall msg r.
      Member (Error AuthError) r

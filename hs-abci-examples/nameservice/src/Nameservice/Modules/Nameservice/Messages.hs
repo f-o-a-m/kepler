@@ -30,10 +30,10 @@ data NameserviceMessage =
   | DeleteName MsgDeleteName
 
 instance IsMessage NameserviceMessage where
-  fromMessage =
-    fmap SetName fromMessage <|>
-    fmap BuyName fromMessage <|>
-    fmap DeleteName fromMessage
+  fromMessage = undefined
+    --fmap SetName fromMessage <|>
+    --fmap BuyName fromMessage <|>
+    --fmap DeleteName fromMessage
   validateMessage m@Msg{msgData} = case msgData of
     SetName msg    -> validateMessage m {msgData = msg}
     BuyName msg    -> validateMessage m {msgData = msg}

@@ -5,14 +5,37 @@ import           Nameservice.Modules.Nameservice.Keeper   (HasNameserviceEff,
                                                            setName)
 import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (..))
 import           Nameservice.Modules.Token                (HasTokenEff)
-import           Polysemy                                 (Sem)
+import           Polysemy                                 (Sem, Members)
+import Tendermint.SDK.Auth (Transaction, Msg(..), AuthError, Tx(..), parseTx, formatWireParseError, )
+import Tendermint.SDK.Errors (SDKError(..))
+import Polysemy.Error (Error, throw)
 
-router
+routerMsg
+  :: Members [Error SDKError, Error AuthError] r
+  => Transaction
+  -> Sem r (Tx NameserviceMessage)
+routerMsg tx = do
+  eRes <- parseTx tx
+  case eRes of
+    Left err -> throw @SDKError (ParseError $ formatWireParseError err)
+    Right res -> return res
+
+routerHandler
   :: HasTokenEff r
   => HasNameserviceEff r
-  => NameserviceMessage
+  => Tx NameserviceMessage
   -> Sem r ()
-router = \case
-  SetName msg -> setName msg
-  BuyName msg -> buyName msg
-  DeleteName msg -> deleteName msg
+routerHandler Tx{txMsg} = 
+  let Msg{msgData=msg} = txMsg 
+  in case msg of
+       SetName txMsg -> setName txMsg
+       BuyName txMsg -> buyName txMsg
+       DeleteName txMsg -> deleteName txMsg
+
+router 
+  :: Members [Error SDKError, Error AuthError] r
+  => HasTokenEff r
+  => HasNameserviceEff r
+  => Transaction
+  -> Sem r ()
+router tx = routerMsg tx >>= routerHandler
