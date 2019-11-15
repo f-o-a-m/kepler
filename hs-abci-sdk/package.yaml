@@ -68,6 +68,7 @@ dependencies:
 - string-conversions
 - text
 - uri-bytestring
+- validation
 
 library:
   source-dirs:

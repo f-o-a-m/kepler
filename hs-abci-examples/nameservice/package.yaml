@@ -71,6 +71,7 @@ dependencies:
 - servant
 - string-conversions
 - text
+- validation
 
 library:
   source-dirs: src

@@ -2,29 +2,44 @@
 
 module Tendermint.SDK.Auth where
 
-import           Control.Error                            (note)
---import qualified Codec.Binary.Bech32                      as Bech32
-import           Control.Lens                             (iso)
---import           Control.Monad            (when)
---import           Control.Monad.Catch      (Exception, MonadCatch, catch)
---import           Control.Monad.IO.Class   (MonadIO (..))
---import           Control.Monad.Reader     (ReaderT, asks)
-import qualified Crypto.Secp256k1                         as Crypto
-import qualified Data.Aeson                               as A
-import           Data.ByteArray.Base64String              as Base64
-import           "hs-abci-types" Data.ByteArray.HexString as Hex
-import           Data.ByteString                          (ByteString)
-import           Data.Int                                 (Int64)
-import           Data.Maybe                               (fromJust)
-import qualified Data.Serialize                           as Serialize
-import           Data.Serialize.Text                      ()
-import           Data.Text                                (Text)
-import           GHC.Generics                             (Generic)
-import qualified Network.ABCI.Types.Messages.FieldTypes   as FT
+import           Control.Error                          (note)
+import           Control.Lens                           (iso)
+import           Crypto.Hash                            (hashWith)
+import           Crypto.Hash.Algorithms                 (Keccak_256 (..))
+import qualified Crypto.Secp256k1                       as Crypto
+import qualified Data.Aeson                             as A
+import           Data.ByteArray.Base64String            as Base64
+import           Data.ByteArray.HexString               as Hex
+import           Data.ByteString                        (ByteString)
+import           Data.Maybe                             (fromJust)
+import           Data.Proxy
+import qualified Data.Serialize                         as Serialize
+import           Data.Serialize.Text                    ()
+import           Data.String.Conversions                (cs)
+import           Data.Text                              (Text)
+import           GHC.Generics                           (Generic)
+import           GHC.TypeLits                           (symbolVal)
+import qualified Network.ABCI.Types.Messages.FieldTypes as FT
 import           Polysemy
-import           Tendermint.SDK.Codec                     (HasCodec (..))
-import           Tendermint.SDK.Store                     (IsKey (..),
-                                                           RawKey (..))
+import           Polysemy.Error                         (Error, mapError, throw)
+import           Tendermint.SDK.BaseApp                 (HasBaseApp)
+import           Tendermint.SDK.Codec                   (HasCodec (..))
+import           Tendermint.SDK.Errors                  (AppError (..),
+                                                         IsAppError (..))
+import           Tendermint.SDK.Store                   (IsKey (..),
+                                                         RawKey (..),
+                                                         StoreKey (..), get,
+                                                         put)
+
+
+import           Data.ByteArray                         (convert)
+import qualified Data.Validation                        as V
+
+--------------------------------------------------------------------------------
+
+type AuthModule = "auth"
+
+--------------------------------------------------------------------------------
 
 newtype Address = Address Hex.HexString deriving (Eq, Show, Ord, A.ToJSON, A.FromJSON)
 
@@ -38,57 +53,27 @@ addressToBytes (Address addrHex) = Hex.toBytes addrHex
 addressFromBytes :: ByteString -> Address
 addressFromBytes = Address . Hex.fromBytes
 
---------------------------------------------------------------------------------
+pubKeyToAddress :: Crypto.PubKey -> Address
+pubKeyToAddress = addressFromBytes . Crypto.exportPubKey False
 
-data PubKey = PubKey
-  { pubKeyAddress :: Address
-  , pubKeyRaw     :: Crypto.PubKey
-  } deriving (Eq, Generic)
-
-parsePubKey :: FT.PubKey -> Either Text PubKey
+parsePubKey :: FT.PubKey -> Either Text Crypto.PubKey
 parsePubKey FT.PubKey{..}
-  | pubKeyType == "secp256k1" = do
-      pubKey <- note "Couldn't parse PubKey" $ Crypto.importPubKey . Base64.toBytes $ pubKeyData
-      return PubKey
-        { pubKeyAddress = Address . Hex.fromBytes . Crypto.exportPubKey False $ pubKey
-        , pubKeyRaw = pubKey
-        }
+  | pubKeyType == "secp256k1" =
+      note "Couldn't parse PubKey" $ Crypto.importPubKey . Base64.toBytes $ pubKeyData
   | otherwise = Left $ "Unsupported curve: " <> pubKeyType
 
-instance Serialize.Serialize PubKey where
-  put PubKey{..} = Serialize.put (pubKeyAddress, Crypto.exportPubKey False pubKeyRaw)
-  get = (\(a,r) ->
-          let pk = fromJust . Crypto.importPubKey $ r
-          in PubKey a pk
-        ) <$> Serialize.get
-
-data PrivateKey = PrivateKey
-  { privateKeyPubKey :: ByteString
-  , privateKeyRaw    :: ByteString
-  }
-
-data Coin = Coin
-  { coinDenomination :: Text
-  , coinAmount       :: Int64
-  } deriving Generic
-
-instance Serialize.Serialize Coin
-
 data Account = Account
-  { accountPubKey   :: PubKey
-  , accountCoins    :: [Coin]
-  , accountNumber   :: Int64
-  , accountSequence :: Int64
+  { accountPubKey   :: Crypto.PubKey
   } deriving Generic
 
-instance Serialize.Serialize Account
-
-data Accounts m a where
-  PutAccount :: Account -> Accounts m ()
-  GetAccountByAddress :: Address -> Accounts m (Maybe Account)
-  GetAccountByPubKey :: PubKey -> Accounts m (Maybe Account)
-
-makeSem ''Accounts
+instance Serialize.Serialize Account where
+  put Account{..} = Serialize.put $ Crypto.exportPubKey False accountPubKey
+  get = do
+    pubKeyBs <- Serialize.get
+    pubKey <- maybe (fail "Couldn't deserialize PubKey") return $ Crypto.importPubKey pubKeyBs
+    return Account
+      { accountPubKey = pubKey
+      }
 
 instance HasCodec Account where
     encode = Serialize.encode
@@ -97,36 +82,136 @@ instance HasCodec Account where
 instance RawKey Address where
     rawKey = iso (\(Address a) -> Hex.toBytes a) (Address . Hex.fromBytes)
 
-instance IsKey Address "auth" where
-    type Value Address "auth" = Account
+instance IsKey Address AuthModule where
+    type Value Address AuthModule = Account
+
+--------------------------------------------------------------------------------
+
+data AuthError =
+  RecoveryError Text
+
+instance IsAppError AuthError where
+  makeAppError (RecoveryError msg) = AppError
+    { appErrorCode = 1
+    , appErrorCodespace = cs . symbolVal $ (Proxy :: Proxy AuthModule)
+    , appErrorMessage = "Signature Recovery Error: " <> msg
+    }
+
+--------------------------------------------------------------------------------
+
+data Accounts m a where
+  PutAccount :: Address -> Account -> Accounts m ()
+  GetAccount :: Address -> Accounts m (Maybe Account)
+
+makeSem ''Accounts
+
+type AuthEffR = [Accounts, Error AuthError]
+type HasAuthEff r = Members AuthEffR r
+
+storeKey :: StoreKey AuthModule
+storeKey = StoreKey "auth"
+
+eval
+  :: HasBaseApp r
+  => Member (Error AppError) r
+  => Sem (Accounts ': Error AuthError ': r) a
+  -> Sem r a
+eval = mapError makeAppError . evalAuth
+  where
+    evalAuth
+      :: HasBaseApp r
+      => Sem (Accounts ': r) a
+      -> Sem r a
+    evalAuth =
+      interpret (\case
+          GetAccount addr ->
+            get storeKey addr
+          PutAccount addr acnt ->
+            put storeKey addr acnt
+        )
+
+--------------------------------------------------------------------------------
+
+recoverSignature
+  :: Member (Error AuthError) r
+  => Crypto.RecSig
+  -> Crypto.Msg
+  -> Sem r Crypto.PubKey
+recoverSignature sig msg =
+  case Crypto.recover sig msg of
+    Nothing ->
+       let hint = cs . show $ (sig, msg)
+       in throw $ RecoveryError hint
+    Just pk -> return pk
+
+verifySignature
+  :: Member (Error AuthError) r
+  => Crypto.PubKey
+  -> Crypto.RecSig
+  -> Crypto.Msg
+  -> Sem r Bool
+verifySignature expectedKey sig msg = do
+  foundKey <- recoverSignature sig msg
+  return $ foundKey == expectedKey
 
 --------------------------------------------------------------------------------
 
 data Msg msg = Msg
-  { msgRoute     :: Text
-  , msgType      :: Text
-  , msgSignBytes :: ByteString
-  , msgGetSigner :: Address
-  , msgValidate  :: Maybe Text
-  , msgData      :: msg
+  { msgAuthor :: Address
+  , msgData   :: msg
   }
 
-class MakeMessage msg where
-  makeMessage :: msg -> Msg msg
+data MessageError =
+    PermissionError Text Text
+  | InvalidFieldError Text Text
 
-data Fee = Fee
-  { feeAmount :: [Coin]
-  , feeGas    :: Int64
-  }
+-- note invalid messages should fail after signature verification,
+-- because it could depend on a permission failure for example
+class IsMessage msg where
+  parseMessage :: ByteString -> Either Text msg
+  validateMessage :: Msg msg -> V.Validation [MessageError] ()
 
-data Tx tx msg = Tx
+data Tx msg = Tx
   { txMsg       :: Msg msg
-  , txFee       :: Fee
   , txSignature :: Crypto.RecSig
-  , txMemo      :: Text
-  , txValidate  :: Maybe Text
-  , txData      :: tx
+  , txSignBytes :: Crypto.Msg
+  , txSigner    :: Crypto.PubKey
   }
 
-class MakeTx tx msg where
-  makeTx :: tx -> Tx tx msg
+--------------------------------------------------------------------------------
+
+keccak256 :: ByteString -> ByteString
+keccak256 = convert . hashWith Keccak_256
+
+data Transaction = Transaction
+  { transactionData      :: ByteString
+  , transactionSignature :: ByteString
+  , transactionRoute     :: ByteString
+  }
+
+parseTx
+  :: forall msg r.
+     Member (Error AuthError) r
+  => IsMessage msg
+  => Transaction
+  -> Sem r (Either Text (Tx msg))
+parseTx Transaction{..} = do
+  let signBytes = fromJust . Crypto.msg . keccak256 $ transactionData
+  compactRecSig <- case Serialize.decode transactionSignature of
+    Right s -> return s
+    Left err -> throw . RecoveryError $ "Invalid Compact Recovery Signature: " <> cs err
+  recSig <- case Crypto.importCompactRecSig compactRecSig of
+    Just s -> return s
+    Nothing -> throw . RecoveryError $ "Invalid Recovery Signature: " <> cs (show compactRecSig)
+  pubKey <- recoverSignature recSig signBytes
+  return $ case parseMessage @msg transactionData of
+    Left err -> Left err
+    Right (msg :: msg) -> Right Tx
+      { txMsg = Msg
+        { msgAuthor = pubKeyToAddress pubKey
+        , msgData = msg
+        }
+      , txSignature = recSig
+      , txSignBytes = signBytes
+      , txSigner = pubKey
+      }

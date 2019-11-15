@@ -1,12 +1,14 @@
 module Nameservice.Modules.Nameservice.Messages where
 
-import           Control.Lens                          ((^.))
+import           Control.Lens                          (( # ), (^.))
 import qualified Data.Aeson                            as A
 import           Data.Either                           (Either)
+import           Data.Foldable                         (sequenceA_)
 import qualified Data.ProtoLens                        as PL
 import           Data.Proxy
 import           Data.String.Conversions               (cs)
 import           Data.Text                             (Text)
+import qualified Data.Validation                       as V
 import           GHC.Generics                          (Generic)
 import           GHC.TypeLits                          (symbolVal)
 import           Nameservice.Aeson                     (defaultNameserviceOptions)
@@ -16,8 +18,8 @@ import           Nameservice.Modules.Token             (Address (..),
                                                         Amount (..))
 import qualified Proto.Nameservice.Messages            as M
 import qualified Proto.Nameservice.Messages_Fields     as M
-import           Tendermint.SDK.Auth                   (Address,
-                                                        MakeMessage (..),
+import           Tendermint.SDK.Auth                   (Address, IsMessage (..),
+                                                        MessageError (..),
                                                         Msg (..),
                                                         addressFromBytes)
 
@@ -26,11 +28,11 @@ data NameserviceMessage =
   | BuyName MsgBuyName
   | DeleteName MsgDeleteName
 
-instance MakeMessage NameserviceMessage where
-  makeMessage m = case m of
-    SetName msg    -> (makeMessage msg) {msgData = m}
-    BuyName msg    -> (makeMessage msg) {msgData = m}
-    DeleteName msg -> (makeMessage msg) {msgData = m}
+--instance IsMessage NameserviceMessage where
+--  makeMessage m = case m of
+--    SetName msg    -> (makeMessage msg) {msgData = m}
+--    BuyName msg    -> (makeMessage msg) {msgData = m}
+--    DeleteName msg -> (makeMessage msg) {msgData = m}
 
 data MsgSetName =  MsgSetName
   { msgSetNameName  :: Name
@@ -38,55 +40,32 @@ data MsgSetName =  MsgSetName
   , msgSetNameOwner :: Address
   } deriving Generic
 
-instance A.ToJSON MsgSetName where
-  toJSON = A.genericToJSON (defaultNameserviceOptions "msgSetName")
-
 -- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg
-fromProtoMsgSetName :: M.SetName -> Either Text MsgSetName
-fromProtoMsgSetName msg = do
-  msgName <- nonEmpty "Name" . cs $ msg ^. M.name
-  msgValue <- nonEmpty "Value" . cs $ msg ^. M.value
-  msgOwner <- nonEmpty "Owner" $ msg ^. M.owner
-  return MsgSetName { msgSetNameName = Name msgName
-                    , msgSetNameValue = msgValue
-                    , msgSetNameOwner = addressFromBytes msgOwner
-                    }
-
-instance MakeMessage MsgSetName where
-  makeMessage msg@MsgSetName{..} = Msg
-    { msgRoute = cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
-    , msgType = "SetName"
-    , msgSignBytes = cs . A.encode $ msg
-    , msgGetSigner = msgSetNameOwner
-    , msgValidate = Nothing
-    , msgData = msg
-    }
+instance IsMessage MsgSetName where
+  parseMessage = error "TODO: implement parseMessage SetName"
+  validateMessage msg@Msg{..} =
+    let MsgSetName{msgSetNameName, msgSetNameValue} = msgData
+        Name name = msgSetNameName
+    in sequenceA_
+        [ nonEmptyCheck "Name" name
+        , nonEmptyCheck "Value" msgSetNameValue
+        , isAuthorCheck "Owner" msg msgSetNameOwner
+        ]
 
 data MsgDeleteName = MsgDeleteName
   { msgDeleteNameName  :: Name
   , msgDeleteNameOwner :: Address
   } deriving Generic
 
-instance A.ToJSON MsgDeleteName where
-  toJSON = A.genericToJSON (defaultNameserviceOptions "msgDeleteName")
-
-fromProtoMsgDeleteName :: M.DeleteName -> Either Text MsgDeleteName
-fromProtoMsgDeleteName msg = do
-  msgName <- nonEmpty "Name" . cs $ msg ^. M.name
-  msgOwner <- nonEmpty "Owner" $ msg ^. M.owner
-  return MsgDeleteName { msgDeleteNameName = Name msgName
-                       , msgDeleteNameOwner = addressFromBytes msgOwner
-                       }
-
-instance MakeMessage MsgDeleteName where
-  makeMessage msg@MsgDeleteName{..} = Msg
-    { msgRoute = cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
-    , msgType = "DeleteName"
-    , msgSignBytes = cs . A.encode $ msg
-    , msgGetSigner = msgDeleteNameOwner
-    , msgValidate = Nothing
-    , msgData = msg
-    }
+instance IsMessage MsgDeleteName where
+  parseMessage = error "TODO: implement parseMessage DeleteName"
+  validateMessage msg@Msg{..} =
+    let MsgDeleteName{msgDeleteNameName} = msgData
+        Name name = msgDeleteNameName
+    in sequenceA_
+       [ nonEmptyCheck "Name" name
+       , isAuthorCheck "Owner" msg msgDeleteNameOwner
+       ]
 
 data MsgBuyName = MsgBuyName
     { msgBuyNameName  :: Name
@@ -95,31 +74,34 @@ data MsgBuyName = MsgBuyName
     , msgBuyNameBid   :: Amount
     } deriving Generic
 
-instance A.ToJSON MsgBuyName where
-  toJSON = A.genericToJSON (defaultNameserviceOptions "msgBuyName")
+instance IsMessage MsgBuyName where
+  parseMessage = error "TODO: implement parseMessage BuyName"
+  validateMessage msg@Msg{..} =
+    let MsgBuyName{msgBuyNameName, msgBuyNameValue} = msgData
+        Name name = msgBuyNameName
+    in sequenceA_
+        [ nonEmptyCheck "Name" name
+        , nonEmptyCheck "Value" msgBuyNameValue
+        , isAuthorCheck "Owner" msg msgBuyNameBuyer
+        ]
 
-fromProtoMsgBuyName :: M.BuyName -> Either Text MsgBuyName
-fromProtoMsgBuyName msg = do
-  msgName <- nonEmpty "Name" . cs $ msg ^. M.name
-  msgValue <- nonEmpty "Value" . cs $ msg ^. M.value
-  msgBuyer <- nonEmpty "Buyer"  $ msg ^. M.buyer
-  msgBid <- Right . Amount $ msg ^. M.bid
-  return MsgBuyName { msgBuyNameName = Name msgName
-                    , msgBuyNameValue = msgValue
-                    , msgBuyNameBuyer = addressFromBytes msgBuyer
-                    , msgBuyNameBid = msgBid
-                    }
+--------------------------------------------------------------------------------
 
-instance MakeMessage MsgBuyName where
-  makeMessage msg@MsgBuyName{..} = Msg
-    { msgRoute = cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
-    , msgType = "BuyName"
-    , msgSignBytes = cs . A.encode $ msg
-    , msgGetSigner = msgBuyNameBuyer
-    , msgValidate = Nothing
-    , msgData = msg
-    }
+nonEmptyCheck
+  :: Eq a
+  => Monoid a
+  => Text
+  -> a
+  -> V.Validation [MessageError] ()
+nonEmptyCheck field x
+  | x == mempty = V._Failure # [InvalidFieldError field "Must be nonempty."]
+  | otherwise = mempty
 
-nonEmpty :: (Eq a, Monoid a) => String -> a -> Either Text a
-nonEmpty field x | x == mempty = Left . cs $ (show field ++ ": value cannot be empty")
-                 | otherwise = Right x
+isAuthorCheck
+  :: Text
+  -> Msg msg
+  -> (msg -> Address)
+  -> V.Validation [MessageError] ()
+isAuthorCheck field Msg{msgAuthor, msgData} getAuthor
+  | getAuthor msgData /= msgAuthor = V._Failure # [PermissionError field "Must be message author."]
+  | otherwise = mempty
