@@ -22,6 +22,7 @@ import           GHC.TypeLits                           (symbolVal)
 import qualified Network.ABCI.Types.Messages.FieldTypes as FT
 import           Polysemy
 import           Polysemy.Error                         (Error, mapError, throw)
+import           Proto3.Wire.Decode                     as Wire
 import           Tendermint.SDK.BaseApp                 (HasBaseApp)
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 import           Tendermint.SDK.Errors                  (AppError (..),
@@ -168,7 +169,7 @@ data MessageError =
 -- note invalid messages should fail after signature verification,
 -- because it could depend on a permission failure for example
 class IsMessage msg where
-  parseMessage :: ByteString -> Either Text msg
+  fromMessage :: Wire.Parser Wire.RawMessage msg
   validateMessage :: Msg msg -> V.Validation [MessageError] ()
 
 data Tx msg = Tx
@@ -194,7 +195,7 @@ parseTx
      Member (Error AuthError) r
   => IsMessage msg
   => Transaction
-  -> Sem r (Either Text (Tx msg))
+  -> Sem r (Either Wire.ParseError (Tx msg))
 parseTx Transaction{..} = do
   let signBytes = fromJust . Crypto.msg . keccak256 $ transactionData
   compactRecSig <- case Serialize.decode transactionSignature of
@@ -204,7 +205,7 @@ parseTx Transaction{..} = do
     Just s -> return s
     Nothing -> throw . RecoveryError $ "Invalid Recovery Signature: " <> cs (show compactRecSig)
   pubKey <- recoverSignature recSig signBytes
-  return $ case parseMessage @msg transactionData of
+  return $ case Wire.parse (fromMessage @msg) transactionData of
     Left err -> Left err
     Right (msg :: msg) -> Right Tx
       { txMsg = Msg

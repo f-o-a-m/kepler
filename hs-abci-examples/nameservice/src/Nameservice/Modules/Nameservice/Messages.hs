@@ -1,5 +1,6 @@
 module Nameservice.Modules.Nameservice.Messages where
 
+import           Control.Applicative                   ((<|>))
 import           Control.Lens                          (( # ), (^.))
 import qualified Data.Aeson                            as A
 import           Data.Either                           (Either)
@@ -28,11 +29,15 @@ data NameserviceMessage =
   | BuyName MsgBuyName
   | DeleteName MsgDeleteName
 
---instance IsMessage NameserviceMessage where
---  makeMessage m = case m of
---    SetName msg    -> (makeMessage msg) {msgData = m}
---    BuyName msg    -> (makeMessage msg) {msgData = m}
---    DeleteName msg -> (makeMessage msg) {msgData = m}
+instance IsMessage NameserviceMessage where
+  fromMessage =
+    fmap SetName fromMessage <|>
+    fmap BuyName fromMessage <|>
+    fmap DeleteName fromMessage
+  validateMessage m@Msg{msgData} = case msgData of
+    SetName msg    -> validateMessage m {msgData = msg}
+    BuyName msg    -> validateMessage m {msgData = msg}
+    DeleteName msg -> validateMessage m {msgData = msg}
 
 data MsgSetName =  MsgSetName
   { msgSetNameName  :: Name
@@ -42,7 +47,7 @@ data MsgSetName =  MsgSetName
 
 -- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg
 instance IsMessage MsgSetName where
-  parseMessage = error "TODO: implement parseMessage SetName"
+  fromMessage = error "TODO: implement parseMessage SetName"
   validateMessage msg@Msg{..} =
     let MsgSetName{msgSetNameName, msgSetNameValue} = msgData
         Name name = msgSetNameName
@@ -58,7 +63,7 @@ data MsgDeleteName = MsgDeleteName
   } deriving Generic
 
 instance IsMessage MsgDeleteName where
-  parseMessage = error "TODO: implement parseMessage DeleteName"
+  fromMessage = error "TODO: implement parseMessage DeleteName"
   validateMessage msg@Msg{..} =
     let MsgDeleteName{msgDeleteNameName} = msgData
         Name name = msgDeleteNameName
@@ -75,7 +80,7 @@ data MsgBuyName = MsgBuyName
     } deriving Generic
 
 instance IsMessage MsgBuyName where
-  parseMessage = error "TODO: implement parseMessage BuyName"
+  fromMessage = error "TODO: implement parseMessage BuyName"
   validateMessage msg@Msg{..} =
     let MsgBuyName{msgBuyNameName, msgBuyNameValue} = msgData
         Name name = msgBuyNameName

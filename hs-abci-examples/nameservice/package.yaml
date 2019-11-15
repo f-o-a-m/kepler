@@ -58,6 +58,7 @@ dependencies:
 - base >= 4.7 && < 5
 - bytestring
 - cereal
+- errors
 - exceptions
 - hs-abci-extra
 - hs-abci-sdk
