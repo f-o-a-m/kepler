@@ -38,20 +38,19 @@ data Context = Context
   }
 
 type CoreEff =
-  '[ Reader KL.LogConfig
+  '[ Reader EventBuffer
+   , Reader KL.LogConfig
    , Embed IO
    ]
 
 -- @TODO: change to BaseAppEffR
 type BaseApp =
-  (  Output Event
-  ': RawStore
-  ': Logger
-  ': Resource
-  ': Error AppError
-  ': Reader EventBuffer
-  ': CoreEff
-  )
+  [ Output Event
+  , RawStore
+  , Logger
+  , Resource
+  , Error AppError
+  ]
 
 instance (Members CoreEff r) => K.Katip (Sem r)  where
   getLogEnv = asks $ view KL.logEnv
@@ -74,21 +73,25 @@ makeContext logCfg = do
     , contextAuthTreeDriver = authTreeD
     }
 
+compileToCoreEff :: Context -> Sem BaseApp a -> Sem CoreEff (Either AppError a)
+compileToCoreEff Context{contextAuthTreeDriver}=
+  runError .
+    resourceToIO .
+    KL.evalKatip .
+    interpretAuthTreeStore contextAuthTreeDriver
+
 -- NOTE: Do we need this step? I think so because of the logger.
 -- You don't want to run against a fresh katip context every time.
 eval
   :: Context
   -> Sem BaseApp a
   -> IO a
-eval Context{..} action = do
+eval ctx@Context{..} action = do
   eRes <- runM .
     runReader contextLogConfig .
     runReader contextEventBuffer .
-    runError .
-    resourceToIO .
-    KL.evalKatip .
-    interpretAuthTreeStore contextAuthTreeDriver .
-    evalWithBuffer $ action
+    evalWithBuffer .
+    compileToCoreEff ctx $ action
   either throwIO return eRes
 
 --------------------------------------------------------------------------------
