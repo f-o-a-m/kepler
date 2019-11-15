@@ -35,9 +35,7 @@ instance Primitive Name where
   encodePrimitive n (Name txt) = Encode.text n . TL.fromStrict $ txt
   decodePrimitive = Name . TL.toStrict <$> Decode.text
   primType _ = DotProto.String
-
 instance HasDefault Name
-
 instance MessageField Name
 
 data Whois = Whois
@@ -45,9 +43,7 @@ data Whois = Whois
   , whoisOwner :: Address
   , whoisPrice :: Amount
   } deriving (Eq, Show, Generic)
-
 instance Message Whois
-
 instance Named Whois
 
 instance HasCodec Whois where
