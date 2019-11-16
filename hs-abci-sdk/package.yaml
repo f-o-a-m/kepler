@@ -47,6 +47,7 @@ dependencies:
 - cereal-text
 - containers
 - conduit
+- constraint
 - cryptonite
 - data-default-class
 - errors
@@ -62,6 +63,7 @@ dependencies:
 - polysemy
 - polysemy-plugin
 - profunctors
+- proto-lens
 - proto3-wire
 - proto3-suite
 - secp256k1-haskell
@@ -97,6 +99,10 @@ library:
   - Tendermint.SDK.Events
   - Tendermint.SDK.Errors
   - Tendermint.SDK.TxRouter
+  - Tendermint.SDK.Crypto
+  - Tendermint.SDK.Types.Message
+  - Tendermint.SDK.Types.Transaction
+  - Tendermint.SDK.Types.Address
   
 tests:
   hs-abci-sdk-test:
