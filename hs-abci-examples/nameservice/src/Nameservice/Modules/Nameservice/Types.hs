@@ -43,6 +43,8 @@ instance Primitive Name where
 instance HasDefault Name
 instance MessageField Name
 
+instance R.FromQueryData Name
+
 data Whois = Whois
   { whoisValue :: Text
   , whoisOwner :: Address
@@ -63,6 +65,8 @@ instance Store.IsKey Name NameserviceModule where
 
 instance R.Queryable Whois where
   type Name Whois = "whois"
+
+instance R.EncodeQueryResult Whois
 
 --------------------------------------------------------------------------------
 -- Exceptions

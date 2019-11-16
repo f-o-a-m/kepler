@@ -1,22 +1,23 @@
-{-# LANGUAGE UndecidableInstances #-}
-
 module Nameservice.Application
-  ( AppError(..)
-  , AppConfig(..)
+  ( AppConfig(..)
   , makeAppConfig
   , Handler
   , compileToBaseApp
   , runHandler
+  , queryServer
   ) where
 
 import           Control.Exception               (Exception)
+import           Data.Proxy
 import qualified Nameservice.Modules.Nameservice as N
 import qualified Nameservice.Modules.Token       as T
 import           Polysemy                        (Sem)
+import           Servant.API                     ((:<|>) (..))
 import qualified Tendermint.SDK.Auth             as A
 import           Tendermint.SDK.BaseApp          ((:&))
 import qualified Tendermint.SDK.BaseApp          as BaseApp
 import qualified Tendermint.SDK.Logger.Katip     as KL
+import           Tendermint.SDK.Router           (QueryApplication, serve)
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context
@@ -29,10 +30,6 @@ makeAppConfig logCfg = do
                    }
 
 --------------------------------------------------------------------------------
-
-data AppError = AppError String deriving (Show)
-
-instance Exception AppError
 
 type EffR =
   N.NameserviceEffR :& T.TokenEffR :& A.AuthEffR :& BaseApp.BaseApp
@@ -51,3 +48,13 @@ runHandler
   -> IO a
 runHandler AppConfig{baseAppContext} =
   BaseApp.eval baseAppContext . compileToBaseApp
+
+--------------------------------------------------------------------------------
+
+type QueryApi = T.Api :<|> N.Api
+
+apiP :: Proxy QueryApi
+apiP = Proxy
+
+queryServer :: QueryApplication (Sem BaseApp.BaseApp)
+queryServer = serve (Proxy :: Proxy QueryApi) (T.server :<|> N.server)

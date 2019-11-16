@@ -135,4 +135,4 @@ type Api = "simple_storage" :> QueryApi CountStoreContents
 
 server :: Member RawStore r => RouteT Api (Sem r)
 server =
-  storeQueryHandlers (Proxy :: Proxy CountStoreContents) (Proxy :: Proxy "simple_storage") (Proxy :: Proxy (Sem r))
+  storeQueryHandlers (Proxy :: Proxy CountStoreContents) storeKey (Proxy :: Proxy (Sem r))

@@ -8,6 +8,7 @@ import           Crypto.Hash                            (hashWith)
 import           Crypto.Hash.Algorithms                 (Keccak_256 (..))
 import qualified Crypto.Secp256k1                       as Crypto
 import qualified Data.Aeson                             as A
+import           Data.ByteArray                         (convert)
 import           Data.ByteArray.Base64String            as Base64
 import           Data.ByteArray.HexString               as Hex
 import           Data.ByteString                        (ByteString)
@@ -17,6 +18,7 @@ import qualified Data.Serialize                         as Serialize
 import           Data.Serialize.Text                    ()
 import           Data.String.Conversions                (cs)
 import           Data.Text                              (Text)
+import qualified Data.Validation                        as V
 import           GHC.Generics                           (Generic)
 import           GHC.TypeLits                           (symbolVal)
 import qualified Network.ABCI.Types.Messages.FieldTypes as FT
@@ -30,14 +32,12 @@ import           Tendermint.SDK.Errors                  (AppError (..),
                                                          IsAppError (..),
                                                          SDKError (..),
                                                          throwSDKError)
+import           Tendermint.SDK.Router                  (EncodeQueryResult (..),
+                                                         FromQueryData (..))
 import           Tendermint.SDK.Store                   (IsKey (..),
                                                          RawKey (..),
                                                          StoreKey (..), get,
                                                          put)
-
-
-import           Data.ByteArray                         (convert)
-import qualified Data.Validation                        as V
 
 --------------------------------------------------------------------------------
 
@@ -50,6 +50,8 @@ newtype Address = Address Hex.HexString deriving (Eq, Show, Generic, Ord, A.ToJS
 instance Serialize.Serialize Address where
     put (Address a) = Serialize.put @ByteString . Hex.toBytes $ a
     get = Address . Hex.fromBytes <$> Serialize.get @ByteString
+
+instance FromQueryData Address
 
 addressToBytes :: Address -> ByteString
 addressToBytes (Address addrHex) = Hex.toBytes addrHex
@@ -88,6 +90,8 @@ instance RawKey Address where
 
 instance IsKey Address AuthModule where
     type Value Address AuthModule = Account
+
+instance EncodeQueryResult Account
 
 --------------------------------------------------------------------------------
 

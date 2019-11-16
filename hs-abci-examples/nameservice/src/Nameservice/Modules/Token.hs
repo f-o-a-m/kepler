@@ -53,7 +53,8 @@ import           Tendermint.SDK.Codec        (HasCodec (..))
 import           Tendermint.SDK.Errors       (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Events       (Event, FromEvent, ToEvent (..),
                                               emit)
-import           Tendermint.SDK.Router       (Queryable (..), RouteT)
+import           Tendermint.SDK.Router       (EncodeQueryResult, FromQueryData,
+                                              Queryable (..), RouteT)
 import qualified Tendermint.SDK.Store        as Store
 import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
 
@@ -116,6 +117,8 @@ instance ToEvent Transfer where
 
 instance FromEvent Transfer
 
+instance EncodeQueryResult Amount
+
 --------------------------------------------------------------------------------
 -- Exceptions
 --------------------------------------------------------------------------------
@@ -172,7 +175,7 @@ type Api = "token" :> QueryApi TokenContents
 
 server :: Member Store.RawStore r => RouteT Api (Sem r)
 server =
-  storeQueryHandlers (Proxy :: Proxy TokenContents) (Proxy :: Proxy "token") (Proxy :: Proxy (Sem r))
+  storeQueryHandlers (Proxy :: Proxy TokenContents) storeKey (Proxy :: Proxy (Sem r))
 
 --------------------------------------------------------------------------------
 
