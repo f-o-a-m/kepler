@@ -26,6 +26,7 @@ data NameserviceMessage =
     NSetName SetName
   | NBuyName BuyName
   | NDeleteName DeleteName
+  deriving (Eq, Show, Generic)
 
 -- @NOTE: .proto genration will use these type names as is
 -- only field names stripped of prefixes during generation
@@ -57,10 +58,10 @@ instance Message BuyName
 instance Named BuyName
 
 instance IsMessage NameserviceMessage where
-  fromMessage = undefined
-    --fmap SetName fromMessage <|>
-    --fmap BuyName fromMessage <|>
-    --fmap DeleteName fromMessage
+  fromMessage bs =
+    fmap NSetName (fromMessage bs) <>
+    fmap NBuyName (fromMessage bs) <>
+    fmap NDeleteName (fromMessage bs)
   validateMessage m@Msg{msgData} = case msgData of
     NSetName msg    -> validateMessage m {msgData = msg}
     NBuyName msg    -> validateMessage m {msgData = msg}

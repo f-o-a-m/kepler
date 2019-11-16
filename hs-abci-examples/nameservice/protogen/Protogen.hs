@@ -55,7 +55,7 @@ stripPrefixName (Single typeName) (Single fieldName) _ =
       fieldName' = Single . snakeCase . drop prefixLen $ fieldName
   in pPrint fieldName'
 -- @NOTE: we don't yet need for other identifiers
-stripPrefixName _ _ _ = undefined
+stripPrefixName _ _ _ = error "stripPrefixName unused case"
 
 msgStripPrefixOptions :: RenderingOptions
 msgStripPrefixOptions = defRenderingOptions { roSelectorName = stripPrefixName }

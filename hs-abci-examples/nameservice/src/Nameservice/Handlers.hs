@@ -67,7 +67,7 @@ beginBlockH = defaultHandler
 checkTxH
   :: Request 'MTCheckTx
   -> Sem BaseApp (Response 'MTCheckTx)
-checkTxH = undefined--(RequestCheckTx checkTx) =
+checkTxH = defaultHandler--(RequestCheckTx checkTx) =
 
  --   pure . ResponseCheckTx $
  -- case decodeAppTxMessage $ checkTx ^. Req._checkTxTx . to convert of
