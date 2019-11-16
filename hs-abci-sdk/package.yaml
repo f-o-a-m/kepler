@@ -101,6 +101,8 @@ library:
   - Tendermint.SDK.TxRouter
   - Tendermint.SDK.Crypto
   - Tendermint.SDK.Types.Message
+  - Tendermint.SDK.Types.Message.Decode.Proto3
+  - Tendermint.SDK.Types.Message.Decode.ProtoLens
   - Tendermint.SDK.Types.Transaction
   - Tendermint.SDK.Types.Address
   

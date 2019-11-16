@@ -1,23 +1,73 @@
 module Tendermint.SDK.Types.Transaction where
 
-import qualified Crypto.Secp256k1             as Crypto
+import           Control.Error                (note)
+import           Crypto.Hash                  (Digest, hashWith)
+import           Crypto.Hash.Algorithms       (SHA256 (..))
 import           Data.ByteString              (ByteString)
-import           Tendermint.SDK.Types.Message (Msg)
+import           Data.Proxy
+import qualified Data.Serialize               as Serialize
+import           Data.Text                    (Text)
+import           GHC.Generics                 (Generic)
+import           Tendermint.SDK.Crypto        (MakeDigest (..),
+                                               RecoverableSignatureSchema (..),
+                                               SignatureSchema (..))
+import           Tendermint.SDK.Types.Message (Msg (..))
 
-data Tx msg = Tx
+data Tx alg msg = Tx
   { txMsg       :: Msg msg
-  , txSignature :: Crypto.RecSig
-  , txSignBytes :: Crypto.Msg
-  , txSigner    :: Crypto.PubKey
+  , txSignature :: RecoverableSignature alg
+  , txSignBytes :: Message alg
+  , txSigner    :: PubKey alg
   }
 
 --------------------------------------------------------------------------------
 
-data Transaction = Transaction
-  { transactionData      :: ByteString
+-- TODO: figure out what the actual standards are for these things, if there
+-- even are any.
+
+-- | Raw transaction type coming in over the wire
+data RawTransaction = RawTransaction
+  { rawTransactionData      :: ByteString
   -- ^ the encoded message via protobuf encoding
-  , transactionSignature :: ByteString
-  -- ^ signature (encoded via Data.Serialize.encode $ (sig :: Crypto.Secp256k1.CompactRecoverySignature)
-  , transactionRoute     :: ByteString
+  , rawTransactionRoute     :: ByteString
   -- ^ module name
-  }
+  , rawTransactionSignature :: ByteString
+  } deriving Generic
+
+instance Serialize.Serialize RawTransaction
+
+instance MakeDigest RawTransaction where
+  makeDigest tx = hashWith SHA256 . Serialize.encode $ tx {rawTransactionSignature = ""}
+
+signRawTransaction
+  :: forall alg.
+     RecoverableSignatureSchema alg
+  => Message alg ~ Digest SHA256
+  => Proxy alg
+  -> PrivateKey alg
+  -> RawTransaction
+  -> RecoverableSignature alg
+signRawTransaction p priv tx = signRecoverableMessage p priv (makeDigest tx)
+
+parseRawTransactionSigner
+  :: forall alg.
+     RecoverableSignatureSchema alg
+  => Message alg ~ Digest SHA256
+  => Proxy alg
+  -> RawTransaction
+  -> Either Text (Tx alg ByteString)
+parseRawTransactionSigner p rawTx@RawTransaction{..} = do
+  recSig <- note "Unable to parse transaction signature as a recovery signature" $
+       makeRecoverableSignature p rawTransactionSignature
+  let txForSigning = rawTx {rawTransactionSignature = ""}
+      signBytes = makeDigest txForSigning
+  signerPubKey <- note "Signature recovery failed" $ recover p recSig signBytes
+  return Tx
+    { txMsg = Msg
+      { msgData = rawTransactionData
+      , msgAuthor = addressFromPubKey p signerPubKey
+      }
+    , txSignature = recSig
+    , txSignBytes = signBytes
+    , txSigner = signerPubKey
+    }

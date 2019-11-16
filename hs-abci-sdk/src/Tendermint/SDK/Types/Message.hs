@@ -1,17 +1,11 @@
-{-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.Types.Message where
 
 import           Control.Lens                 (( # ))
-import           Data.Bifunctor               (first)
 import           Data.ByteString              (ByteString)
-import           Data.Constraint              (Constraint)
-import qualified Data.ProtoLens               as PL
 import           Data.Proxy
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
 import qualified Data.Validation              as V
-import qualified Proto3.Suite                 as Wire
-import qualified Proto3.Wire.Decode           as Wire
 import           Tendermint.SDK.Types.Address (Address)
 
 -- | The basic message format embedded in any transaction.
@@ -56,18 +50,8 @@ formatMessageParseError = cs . go
 -- | The constraint parameter is used to avoid ambiguous instances, if you would
 -- | like to write custom parsers you can use the 'CustomMessage' class constraint
 -- | with the empty implementation.
-class ParseMessage (c :: * -> Constraint) msg where
-  decodeMessage :: Proxy c -> ByteString -> Either MessageParseError msg
-
-instance PL.Message msg => ParseMessage PL.Message msg where
-  decodeMessage _ = first (OtherParseError . cs) . PL.decodeMessage
-
-instance Wire.Message msg => ParseMessage Wire.Message msg where
-  decodeMessage _ = first mkErr . Wire.fromByteString
-    where
-        mkErr (Wire.WireTypeError txt) = WireTypeError (cs txt)
-        mkErr (Wire.BinaryError txt) = BinaryError (cs txt)
-        mkErr (Wire.EmbeddedError txt merr) = EmbeddedError (cs txt) (mkErr <$> merr)
+class ParseMessage codec msg | msg -> codec where
+  decodeMessage :: Proxy codec -> ByteString -> Either MessageParseError msg
 
 -- | An empty typeclass used as a placeholder for the 'ParseMessage' parameter.
 class CustomMessage msg where
