@@ -13,6 +13,8 @@ import           Tendermint.SDK.Crypto        (MakeDigest (..),
                                                SignatureSchema (..))
 import           Tendermint.SDK.Types.Message (Msg (..))
 
+-- Our standard transaction type parameterized by the signature schema 'alg'
+-- and an underlying message type 'msg'.
 data Tx alg msg = Tx
   { txMsg       :: Msg msg
   , txSignature :: RecoverableSignature alg
@@ -49,19 +51,23 @@ signRawTransaction
   -> RecoverableSignature alg
 signRawTransaction p priv tx = signRecoverableMessage p priv (makeDigest tx)
 
-parseRawTransactionSigner
+-- | Attempt to parse a 'RawTransaction' as a 'Tx' without attempting
+-- | to parse the underlying message. This is done as a preprocessing
+-- | step to the router, allowing for failure before the router is ever
+-- | reached.
+parseTx
   :: forall alg.
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => Proxy alg
   -> RawTransaction
   -> Either Text (Tx alg ByteString)
-parseRawTransactionSigner p rawTx@RawTransaction{..} = do
-  recSig <- note "Unable to parse transaction signature as a recovery signature" $
+parseTx p rawTx@RawTransaction{..} = do
+  recSig <- note "Unable to parse transaction signature as a recovery signature." $
        makeRecoverableSignature p rawTransactionSignature
   let txForSigning = rawTx {rawTransactionSignature = ""}
       signBytes = makeDigest txForSigning
-  signerPubKey <- note "Signature recovery failed" $ recover p recSig signBytes
+  signerPubKey <- note "Signature recovery failed." $ recover p recSig signBytes
   return Tx
     { txMsg = Msg
       { msgData = rawTransactionData

@@ -11,10 +11,10 @@ import           Crypto.Hash.Algorithms       (Keccak_256 (..), SHA256)
 import qualified Crypto.Secp256k1             as Secp256k1
 import           Data.ByteArray               (convert)
 import qualified Data.ByteString              as B
+import           Data.Maybe                   (fromMaybe)
 import           Data.Proxy
 import qualified Data.Serialize               as Serialize
 import           Tendermint.SDK.Types.Address (Address, addressFromBytes)
-import Data.Maybe (fromMaybe)
 
 -- | Class encapsulating data which can hashed.
 class MakeDigest a where
@@ -46,7 +46,7 @@ class SignatureSchema alg => RecoverableSignatureSchema alg where
 data Secp256k1
 
 msgFromSHA256 :: Digest SHA256 -> Secp256k1.Msg
-msgFromSHA256 dig = fromMaybe (error "Digest SHA256 wasn't 32 bytes.") $ 
+msgFromSHA256 dig = fromMaybe (error "Digest SHA256 wasn't 32 bytes.") $
   Secp256k1.msg $ convert dig
 
 instance SignatureSchema Secp256k1 where

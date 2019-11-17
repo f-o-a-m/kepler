@@ -114,6 +114,7 @@ tests:
     - Tendermint.SDK.Test.AuthTreeStoreSpec
     # - Tendermint.SDK.Test.StoreExampleSpec
     - Tendermint.SDK.Test.ModuleSpec
+    - Tendermint.SDK.Test.CryptoSpec
 
     ghc-options:
     - -Werror
