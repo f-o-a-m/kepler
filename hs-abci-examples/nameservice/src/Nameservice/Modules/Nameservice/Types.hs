@@ -3,10 +3,9 @@ module Nameservice.Modules.Nameservice.Types where
 import           Control.Lens                 (iso, (&), (.~), (^.))
 import           Control.Lens.Wrapped         (Wrapped (..))
 import           Data.Aeson                   as A
+import           Data.Bifunctor               (first)
 import           Data.ByteString              (ByteString)
 import           Data.ByteString              as BS
-import qualified Data.ByteString.Lazy         as BL
-import           Data.Either.Combinators      (mapLeft)
 import           Data.Maybe                   (fromJust)
 import qualified Data.Serialize               as Serialize
 import           Data.String.Conversions      (cs)
@@ -55,8 +54,8 @@ instance Message Whois
 instance Named Whois
 
 instance HasCodec Whois where
-  encode = BL.toStrict . toLazyByteString
-  decode = mapLeft show . fromByteString
+  encode = cs . toLazyByteString
+  decode = first (cs . show) . fromByteString
 
 instance Store.RawKey Name where
     rawKey = iso (\(Name n) -> cs n) (Name . cs)

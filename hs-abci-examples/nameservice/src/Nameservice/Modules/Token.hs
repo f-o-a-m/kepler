@@ -28,11 +28,11 @@ module Nameservice.Modules.Token
   ) where
 
 import           Data.Aeson                   as A
+import           Data.Bifunctor               (bimap)
 import qualified Data.ByteArray.HexString     as Hex
-import qualified Data.ByteString.Lazy         as BL
-import           Data.Either.Combinators      (mapBoth)
 import           Data.Maybe                   (fromMaybe)
 import           Data.Proxy
+import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
 import           Data.Word                    (Word64)
 import           GHC.Generics                 (Generic)
@@ -75,8 +75,8 @@ instance HasCodec Amount where
   encode (Amount b) =
     -- proto3-wire only exports encoders for message types
     let dummyMsgEncoder = Encode.uint64 (fieldNumber 1)
-    in BL.toStrict . Encode.toLazyByteString . dummyMsgEncoder $ b
-  decode = mapBoth show Amount . Decode.parse dummyMsgParser
+    in cs . Encode.toLazyByteString . dummyMsgEncoder $ b
+  decode = bimap (cs . show) Amount . Decode.parse dummyMsgParser
     where
       -- field is always present; 0 is an arbitrary value
       fieldParser = Decode.one Decode.uint64 0

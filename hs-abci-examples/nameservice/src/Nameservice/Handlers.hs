@@ -18,9 +18,8 @@ import           Polysemy.Error                       (catch)
 import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.BaseApp               (BaseApp)
 import           Tendermint.SDK.Crypto                (Secp256k1)
-import           Tendermint.SDK.Errors                (AppError,
-                                                       HasAppError (..),
-                                                       SDKError (..),
+import           Tendermint.SDK.Errors                (AppError, SDKError (..),
+                                                       deliverTxAppError,
                                                        throwSDKError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Router                (QueryApplication)
@@ -92,7 +91,7 @@ deliverTxH (RequestDeliverTx deliverTx) =
           def & Resp._deliverTxCode .~ 0
               & Resp._deliverTxEvents .~ events
   in tryToRespond `catch` \(err :: AppError) ->
-       return . ResponseDeliverTx $ def & appError .~ err
+       return . ResponseDeliverTx $ def & deliverTxAppError .~ err
 
 
   --case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of

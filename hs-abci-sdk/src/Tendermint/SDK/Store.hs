@@ -11,10 +11,11 @@ module Tendermint.SDK.Store
   , prove
   ) where
 
-import           Control.Lens         (Iso', (^.))
-import qualified Data.ByteString      as BS
-import           Polysemy             (Member, Sem, makeSem)
-import           Tendermint.SDK.Codec (HasCodec (..))
+import           Control.Lens            (Iso', (^.))
+import qualified Data.ByteString         as BS
+import           Data.String.Conversions (cs)
+import           Polysemy                (Member, Sem, makeSem)
+import           Tendermint.SDK.Codec    (HasCodec (..))
 
 newtype StoreKey n = StoreKey BS.ByteString
 
@@ -60,7 +61,7 @@ get sk k = do
   pure $ case mRes of
     Nothing -> Nothing
     Just raw -> case decode raw of
-      Left e  -> error $ "Impossible codec error "  <> e
+      Left e  -> error $ "Impossible codec error "  <> cs e
       Right a -> Just a
 
 delete

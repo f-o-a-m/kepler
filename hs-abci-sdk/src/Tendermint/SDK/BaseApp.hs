@@ -12,9 +12,7 @@ import           Polysemy.Error               (Error, runError)
 import           Polysemy.Output              (Output)
 import           Polysemy.Reader              (Reader, asks, local, runReader)
 import           Polysemy.Resource            (Resource, resourceToIO)
-import           Tendermint.SDK.AuthTreeStore (AuthTreeDriver,
-                                               initAuthTreeDriver,
-                                               interpretAuthTreeStore)
+import qualified Tendermint.SDK.AuthTreeStore as AT
 import           Tendermint.SDK.Errors        (AppError)
 import           Tendermint.SDK.Events        (Event, EventBuffer,
                                                evalWithBuffer, newEventBuffer)
@@ -32,9 +30,9 @@ type HasBaseAppEff r =
   )
 
 data Context = Context
-  { contextLogConfig      :: KL.LogConfig
-  , contextEventBuffer    :: EventBuffer
-  , contextAuthTreeDriver :: AuthTreeDriver
+  { contextLogConfig   :: KL.LogConfig
+  , contextEventBuffer :: EventBuffer
+  , contextAuthTree    :: AT.AuthTree
   }
 
 type CoreEffR =
@@ -66,12 +64,12 @@ instance (Members CoreEffR r) => K.KatipContext (Sem r) where
 
 makeContext :: KL.LogConfig -> IO Context
 makeContext logCfg = do
-  authTreeD <- initAuthTreeDriver
+  authTree <- AT.initAuthTree
   eb <- newEventBuffer
   pure $ Context
     { contextLogConfig = logCfg
     , contextEventBuffer = eb
-    , contextAuthTreeDriver = authTreeD
+    , contextAuthTree = authTree
     }
 
 type family (as :: [a]) :& (bs :: [a]) :: [a] where
@@ -85,11 +83,11 @@ compileToCoreEff
   :: Context
   -> Sem BaseApp a
   -> Sem CoreEffR (Either AppError a)
-compileToCoreEff Context{contextAuthTreeDriver} =
+compileToCoreEff Context{contextAuthTree} =
   runError .
     resourceToIO .
     KL.evalKatip .
-    interpretAuthTreeStore contextAuthTreeDriver .
+    AT.eval contextAuthTree .
     evalWithBuffer
 
 eval

@@ -27,6 +27,7 @@ module SimpleStorage.Modules.SimpleStorage
 import           Control.Lens                (iso)
 import           Crypto.Hash                 (SHA256 (..), hashWith)
 import qualified Data.Aeson                  as A
+import           Data.Bifunctor              (first)
 import           Data.ByteArray              (convert)
 import           Data.ByteString             (ByteString)
 import           Data.Int                    (Int32)
@@ -57,7 +58,7 @@ data CountKey = CountKey
 
 instance HasCodec Count where
     encode = Serialize.encode
-    decode = Serialize.decode
+    decode = first cs . Serialize.decode
 
 instance RawKey CountKey where
     rawKey = iso (\_ -> cs countKey) (const CountKey)

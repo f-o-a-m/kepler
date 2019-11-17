@@ -2,6 +2,7 @@
 
 module Tendermint.SDK.Auth where
 
+import           Data.Bifunctor               (first)
 import           Data.Proxy
 import qualified Data.Serialize               as Serialize
 import           Data.Serialize.Text          ()
@@ -43,7 +44,7 @@ instance Serialize.Serialize Account
 
 instance HasCodec Account where
     encode = Serialize.encode
-    decode = Serialize.decode
+    decode = first cs . Serialize.decode
 
 instance IsKey Address AuthModule where
     type Value Address AuthModule = Account
