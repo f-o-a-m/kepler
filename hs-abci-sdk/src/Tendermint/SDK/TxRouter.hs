@@ -1,18 +1,23 @@
 module Tendermint.SDK.TxRouter where
 
-import           Polysemy              (Members, Sem)
-import           Polysemy.Error        (Error)
-import           Tendermint.SDK.Auth   (AuthError, IsMessage, Transaction, Tx,
-                                        parseTx)
-import           Tendermint.SDK.Errors (AppError)
+import           Data.ByteString                  (ByteString)
+import           Data.Proxy
+import           Polysemy                         (Member, Sem)
+import           Polysemy.Error                   (Error, throw)
+import           Tendermint.SDK.Auth              (AuthError (..))
+import           Tendermint.SDK.Crypto            (Secp256k1)
+import           Tendermint.SDK.Types.Transaction (RawTransaction, Tx (..),
+                                                   parseTx)
 
-type Handler r msg = Tx msg -> Sem r ()
+type Handler r msg = Tx Secp256k1 msg -> Sem r ()
 
 router
-  :: forall msg r.
-     Members [Error AppError, Error AuthError] r
-  => IsMessage msg
-  => Handler r msg
-  -> Transaction
+  :: forall r .
+     Member (Error AuthError) r
+  => Handler r ByteString
+  -> RawTransaction
   -> Sem r ()
-router h tx = parseTx tx >>= h
+router h rawTx =
+  case parseTx (Proxy @Secp256k1) rawTx of
+    Left errMsg -> throw $ TransactionParseError errMsg
+    Right tx    -> h tx

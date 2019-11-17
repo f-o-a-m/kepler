@@ -2,19 +2,25 @@ module Tendermint.SDK.Crypto
   ( MakeDigest(..)
   , SignatureSchema(..)
   , RecoverableSignatureSchema(..)
+  , parsePubKey
   , Secp256k1
   ) where
 
-import           Control.Error                (hush)
-import           Crypto.Hash                  (Digest, hashWith)
-import           Crypto.Hash.Algorithms       (Keccak_256 (..), SHA256)
-import qualified Crypto.Secp256k1             as Secp256k1
-import           Data.ByteArray               (convert)
-import qualified Data.ByteString              as B
-import           Data.Maybe                   (fromMaybe)
+import           Control.Error                          (hush, note)
+import           Crypto.Hash                            (Digest, hashWith)
+import           Crypto.Hash.Algorithms                 (Keccak_256 (..),
+                                                         SHA256)
+import qualified Crypto.Secp256k1                       as Secp256k1
+import           Data.ByteArray                         (convert)
+import qualified Data.ByteArray.Base64String            as Base64
+import qualified Data.ByteString                        as B
+import           Data.Maybe                             (fromMaybe)
 import           Data.Proxy
-import qualified Data.Serialize               as Serialize
-import           Tendermint.SDK.Types.Address (Address, addressFromBytes)
+import qualified Data.Serialize                         as Serialize
+import           Data.Text                              (Text)
+import qualified Network.ABCI.Types.Messages.FieldTypes as FT
+import           Tendermint.SDK.Types.Address           (Address,
+                                                         addressFromBytes)
 
 -- | Class encapsulating data which can hashed.
 class MakeDigest a where
@@ -27,6 +33,7 @@ class SignatureSchema alg where
     type Signature alg :: *
     type Message alg :: *
 
+    algorithm :: Proxy alg -> Text
     sign :: Proxy alg -> PrivateKey alg -> Message alg -> Signature alg
     verify :: Proxy alg -> PubKey alg -> Signature alg -> Message alg -> Bool
 
@@ -55,6 +62,7 @@ instance SignatureSchema Secp256k1 where
     type Signature Secp256k1 = Secp256k1.Sig
     type Message Secp256k1 = Digest SHA256
 
+    algorithm _ = "secp256k1"
     sign _ priv dig = Secp256k1.signMsg priv (msgFromSHA256 dig)
     verify _ pub sig dig = Secp256k1.verifySig pub sig (msgFromSHA256 dig)
 
@@ -72,3 +80,13 @@ instance RecoverableSignatureSchema Secp256k1 where
     -- NOTE: I think the use of Data.Serialize is harmless here, because it basically
     -- just peels off bytes <https://github.com/haskoin/secp256k1-haskell/blob/master/src/Crypto/Secp256k1/Internal.hs>
     makeRecoverableSignature _ bs = Secp256k1.importCompactRecSig =<< hush (Serialize.decode bs)
+
+parsePubKey
+  :: SignatureSchema alg
+  => Proxy alg
+  -> FT.PubKey
+  -> Either Text (PubKey alg)
+parsePubKey p FT.PubKey{..}
+  | pubKeyType == algorithm p =
+      note "Couldn't parse PubKey" $ makePubKey p (Base64.toBytes pubKeyData)
+  | otherwise = Left $ "Unsupported curve: " <> pubKeyType
