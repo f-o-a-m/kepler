@@ -1,11 +1,15 @@
 module Tendermint.SDK.Types.Message where
 
 import           Control.Lens                 (( # ))
+import           Data.Bifunctor               (first)
 import           Data.ByteString              (ByteString)
+import qualified Data.ProtoLens               as PL
 import           Data.Proxy
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
 import qualified Data.Validation              as V
+import qualified Proto3.Suite                 as Wire
+import qualified Proto3.Wire.Decode           as Wire
 import           Tendermint.SDK.Types.Address (Address)
 
 -- | The basic message format embedded in any transaction.
@@ -44,17 +48,27 @@ formatMessageParseError = cs . go
              OtherParseError txt -> ("Other Error", txt)
       in "Parse Error [" <> context <> "]: " <> msg
 
+data DecodingOption = Proto3Suite | ProtoLens | Custom
+
 -- | Used for parsing messages, default instances given to accomodate both the
 -- | the [proto3-wire](https://hackage.haskell.org/package/proto3-wire)
 -- | and [proto-lens](https://hackage.haskell.org/package/proto-lens) libraries.
 -- | The constraint parameter is used to avoid ambiguous instances, if you would
 -- | like to write custom parsers you can use the 'CustomMessage' class constraint
 -- | with the empty implementation.
-class ParseMessage codec msg | msg -> codec where
+class ParseMessage (codec :: DecodingOption) msg where
   decodeMessage :: Proxy codec -> ByteString -> Either MessageParseError msg
 
--- | An empty typeclass used as a placeholder for the 'ParseMessage' parameter.
-class CustomMessage msg where
+
+instance {-# OVERLAPPABLE #-} Wire.Message msg => ParseMessage 'Proto3Suite msg where
+  decodeMessage _ = first mkErr . Wire.fromByteString
+    where
+        mkErr (Wire.WireTypeError txt) = WireTypeError (cs txt)
+        mkErr (Wire.BinaryError txt) = BinaryError (cs txt)
+        mkErr (Wire.EmbeddedError txt merr) = EmbeddedError (cs txt) (mkErr <$> merr)
+
+instance PL.Message msg => ParseMessage 'ProtoLens msg where
+  decodeMessage _ = first (OtherParseError . cs) . PL.decodeMessage
 
 -- | Used during message validation to indicate that although the message has parsed
 -- | correctly, it fails certain sanity checks.

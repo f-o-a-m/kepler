@@ -3,6 +3,7 @@ module Nameservice.Handlers where
 import           Control.Lens                         (to, (&), (.~), (^.))
 import qualified Data.ByteArray.Base64String          as Base64
 import           Data.Default.Class                   (def)
+import           Data.Proxy
 import           Nameservice.Application              (Handler,
                                                        compileToBaseApp)
 import           Nameservice.Modules.Nameservice      as N
@@ -15,12 +16,16 @@ import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Polysemy                             (Sem)
 import           Polysemy.Error                       (catch)
 import           Tendermint.SDK.Application           (defaultHandler)
-import           Tendermint.SDK.Auth                  (parseTransaction)
 import           Tendermint.SDK.BaseApp               (BaseApp)
+import           Tendermint.SDK.Crypto                (Secp256k1)
 import           Tendermint.SDK.Errors                (AppError,
-                                                       HasAppError (..))
+                                                       HasAppError (..),
+                                                       SDKError (..),
+                                                       throwSDKError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Router                (QueryApplication)
+import           Tendermint.SDK.Types.Transaction     (parseRawTransaction,
+                                                       parseTx)
 
 echoH
   :: Request 'MTEcho
@@ -77,15 +82,17 @@ checkTxH = defaultHandler--(RequestCheckTx checkTx) =
 deliverTxH
   :: Request 'MTDeliverTx
   -> Sem BaseApp (Response 'MTDeliverTx) -- Sem BaseApp (Response 'MTDeliverTx)
-deliverTxH (RequestDeliverTx deliverTx) = do
-  tx <- parseTransaction $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
+deliverTxH (RequestDeliverTx deliverTx) =
   let tryToRespond = do
-       events <- withEventBuffer . compileToBaseApp $ N.router tx
-       return $ ResponseDeliverTx $
-         def & Resp._deliverTxCode .~ 0
-             & Resp._deliverTxEvents .~ events
-  tryToRespond `catch` \(err :: AppError) ->
-    return . ResponseDeliverTx $ def & appError .~ err
+        tx <- either (throwSDKError . ParseError) return $ do
+          rawTx <- parseRawTransaction $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
+          parseTx (Proxy @Secp256k1) rawTx
+        events <- withEventBuffer . compileToBaseApp $ N.router tx
+        return $ ResponseDeliverTx $
+          def & Resp._deliverTxCode .~ 0
+              & Resp._deliverTxEvents .~ events
+  in tryToRespond `catch` \(err :: AppError) ->
+       return . ResponseDeliverTx $ def & appError .~ err
 
 
   --case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of

@@ -38,6 +38,11 @@ data RawTransaction = RawTransaction
 
 instance Serialize.Serialize RawTransaction
 
+parseRawTransaction
+  :: ByteString
+  -> Either Text RawTransaction
+parseRawTransaction = error "TODO: implement parseRawTransaction"
+
 instance MakeDigest RawTransaction where
   makeDigest tx = hashWith SHA256 . Serialize.encode $ tx {rawTransactionSignature = ""}
 

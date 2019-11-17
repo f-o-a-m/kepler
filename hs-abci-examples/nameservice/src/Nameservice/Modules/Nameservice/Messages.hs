@@ -14,13 +14,16 @@ import           GHC.TypeLits                          (symbolVal)
 import           Nameservice.Aeson                     (defaultNameserviceOptions)
 import           Nameservice.Modules.Nameservice.Types (Name (..),
                                                         NameserviceModule)
-import           Nameservice.Modules.Token             (Address (..),
-                                                        Amount (..))
+import           Nameservice.Modules.Token             (Amount (..))
 import           Proto3.Suite                          (Message, Named)
-import           Tendermint.SDK.Auth                   (Address, IsMessage (..),
-                                                        MessageError (..),
-                                                        Msg (..),
+import           Tendermint.SDK.Types.Address          (Address,
                                                         addressFromBytes)
+import           Tendermint.SDK.Types.Message          (DecodingOption (..),
+                                                        Msg (..),
+                                                        ParseMessage (..),
+                                                        ValidateMessage (..),
+                                                        isAuthorCheck,
+                                                        nonEmptyCheck)
 
 data NameserviceMessage =
     NSetName SetName
@@ -57,18 +60,20 @@ data BuyName = BuyName
 instance Message BuyName
 instance Named BuyName
 
-instance IsMessage NameserviceMessage where
-  fromMessage bs =
-    fmap NSetName (fromMessage bs) <>
-    fmap NBuyName (fromMessage bs) <>
-    fmap NDeleteName (fromMessage bs)
+instance {-# OVERLAPPING #-} ParseMessage 'Proto3Suite NameserviceMessage where
+  decodeMessage p bs =
+    fmap NSetName (decodeMessage p bs) <>
+    fmap NBuyName (decodeMessage p bs) <>
+    fmap NDeleteName (decodeMessage p bs)
+
+instance ValidateMessage NameserviceMessage where
   validateMessage m@Msg{msgData} = case msgData of
     NSetName msg    -> validateMessage m {msgData = msg}
     NBuyName msg    -> validateMessage m {msgData = msg}
     NDeleteName msg -> validateMessage m {msgData = msg}
 
 -- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg
-instance IsMessage SetName where
+instance ValidateMessage SetName where
   validateMessage msg@Msg{..} =
     let SetName{setNameName, setNameValue} = msgData
         Name name = setNameName
@@ -78,7 +83,7 @@ instance IsMessage SetName where
         , isAuthorCheck "Owner" msg setNameOwner
         ]
 
-instance IsMessage DeleteName where
+instance ValidateMessage DeleteName where
   validateMessage msg@Msg{..} =
     let DeleteName{deleteNameName} = msgData
         Name name = deleteNameName
@@ -87,7 +92,7 @@ instance IsMessage DeleteName where
        , isAuthorCheck "Owner" msg deleteNameOwner
        ]
 
-instance IsMessage BuyName where
+instance ValidateMessage BuyName where
   validateMessage msg@Msg{..} =
     let BuyName{buyNameName, buyNameValue} = msgData
         Name name = buyNameName
@@ -96,24 +101,3 @@ instance IsMessage BuyName where
         , nonEmptyCheck "Value" buyNameValue
         , isAuthorCheck "Owner" msg buyNameBuyer
         ]
-
---------------------------------------------------------------------------------
-
-nonEmptyCheck
-  :: Eq a
-  => Monoid a
-  => Text
-  -> a
-  -> V.Validation [MessageError] ()
-nonEmptyCheck field x
-  | x == mempty = V._Failure # [InvalidFieldError field "Must be nonempty."]
-  | otherwise = mempty
-
-isAuthorCheck
-  :: Text
-  -> Msg msg
-  -> (msg -> Address)
-  -> V.Validation [MessageError] ()
-isAuthorCheck field Msg{msgAuthor, msgData} getAuthor
-  | getAuthor msgData /= msgAuthor = V._Failure # [PermissionError field "Must be message author."]
-  | otherwise = mempty

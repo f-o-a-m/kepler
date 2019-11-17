@@ -13,8 +13,7 @@ import           Nameservice.Modules.Nameservice.Messages (BuyName (..),
                                                            SetName (..))
 import           Nameservice.Modules.Nameservice.Types    (Name (..),
                                                            Whois (..))
-import           Nameservice.Modules.Token                (Address (..),
-                                                           Amount (..))
+import           Nameservice.Modules.Token                (Amount (..))
 import           Proto3.Suite                             (DotProtoDefinition,
                                                            Message,
                                                            fromByteString,
@@ -25,6 +24,7 @@ import           Proto3.Suite.DotProto.Rendering          (RenderingOptions,
                                                            defRenderingOptions)
 import qualified Proto3.Wire.Decode                       as Decode
 import           Proto3.Wire.Types                        (FieldNumber (..))
+import           Tendermint.SDK.Types.Address             (Address (..))
 import qualified Text.PrettyPrint                         as PP
 
 --------------------------------------------------------------------------------

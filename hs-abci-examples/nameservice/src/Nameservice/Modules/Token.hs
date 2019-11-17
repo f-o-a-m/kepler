@@ -27,36 +27,37 @@ module Nameservice.Modules.Token
 
   ) where
 
-import           Data.Aeson                  as A
-import qualified Data.ByteArray.HexString    as Hex
-import qualified Data.ByteString.Lazy        as BL
-import           Data.Either.Combinators     (mapBoth)
-import           Data.Maybe                  (fromMaybe)
+import           Data.Aeson                   as A
+import qualified Data.ByteArray.HexString     as Hex
+import qualified Data.ByteString.Lazy         as BL
+import           Data.Either.Combinators      (mapBoth)
+import           Data.Maybe                   (fromMaybe)
 import           Data.Proxy
-import           Data.Text                   (Text)
-import           Data.Word                   (Word64)
-import           GHC.Generics                (Generic)
-import           Nameservice.Aeson           (defaultNameserviceOptions)
+import           Data.Text                    (Text)
+import           Data.Word                    (Word64)
+import           GHC.Generics                 (Generic)
+import           Nameservice.Aeson            (defaultNameserviceOptions)
 import           Polysemy
-import           Polysemy.Error              (Error, mapError, throw)
-import           Polysemy.Output             (Output)
-import           Proto3.Suite                (HasDefault (..), MessageField,
-                                              Primitive (..))
-import qualified Proto3.Suite.DotProto       as DotProto
-import qualified Proto3.Wire.Decode          as Decode
-import qualified Proto3.Wire.Encode          as Encode
-import           Proto3.Wire.Types           (fieldNumber)
-import           Servant.API                 ((:>))
-import           Tendermint.SDK.Auth         (Address (..))
-import           Tendermint.SDK.BaseApp      (HasBaseAppEff)
-import           Tendermint.SDK.Codec        (HasCodec (..))
-import           Tendermint.SDK.Errors       (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Events       (Event, FromEvent, ToEvent (..),
-                                              emit)
-import           Tendermint.SDK.Router       (EncodeQueryResult, FromQueryData,
-                                              Queryable (..), RouteT)
-import qualified Tendermint.SDK.Store        as Store
-import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
+import           Polysemy.Error               (Error, mapError, throw)
+import           Polysemy.Output              (Output)
+import           Proto3.Suite                 (HasDefault (..), MessageField,
+                                               Primitive (..))
+import qualified Proto3.Suite.DotProto        as DotProto
+import qualified Proto3.Wire.Decode           as Decode
+import qualified Proto3.Wire.Encode           as Encode
+import           Proto3.Wire.Types            (fieldNumber)
+import           Servant.API                  ((:>))
+import           Tendermint.SDK.BaseApp       (HasBaseAppEff)
+import           Tendermint.SDK.Codec         (HasCodec (..))
+import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
+import           Tendermint.SDK.Events        (Event, FromEvent, ToEvent (..),
+                                               emit)
+import           Tendermint.SDK.Router        (EncodeQueryResult, FromQueryData,
+                                               Queryable (..), RouteT)
+import qualified Tendermint.SDK.Store         as Store
+import           Tendermint.SDK.StoreQueries  (QueryApi, storeQueryHandlers)
+import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
+                                               addressToBytes)
 
 newtype Amount = Amount Word64 deriving (Eq, Show, Num, Generic, Ord, A.ToJSON, A.FromJSON)
 instance Primitive Amount where
@@ -83,8 +84,8 @@ instance HasCodec Amount where
 
 -- orphans
 instance Primitive Address where
-  encodePrimitive n (Address hx) = Encode.byteString n (Hex.toBytes hx)
-  decodePrimitive = Address . Hex.fromBytes <$> Decode.byteString
+  encodePrimitive n a = Encode.byteString n $ addressToBytes a
+  decodePrimitive = addressFromBytes <$> Decode.byteString
   primType _ = DotProto.Bytes
 instance HasDefault Hex.HexString
 instance HasDefault Address

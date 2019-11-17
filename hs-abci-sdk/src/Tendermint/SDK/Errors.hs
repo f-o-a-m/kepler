@@ -79,6 +79,7 @@ instance HasAppError Response.DeliverTx where
 data SDKError =
     InternalError
   | ParseError Text
+  | UnmatchedRoute Text
 
 
 throwSDKError
@@ -100,3 +101,8 @@ instance IsAppError SDKError where
     , appErrorMessage = msg
     }
 
+  makeAppError (UnmatchedRoute route) = AppError
+    { appErrorCode = 3
+    , appErrorCodespace = "sdk"
+    , appErrorMessage = "Route not recognized: " <> route <> "."
+    }

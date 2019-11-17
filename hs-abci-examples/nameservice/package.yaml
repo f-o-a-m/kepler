@@ -19,12 +19,6 @@ description:         Please see the README on GitHub at <https://github.com/gith
 extra-source-files:
 - README.md
 
-custom-setup:
-  dependencies:
-    - base
-    - Cabal
-    - proto-lens-setup
-
 default-extensions:
   - DeriveGeneric
   - NamedFieldPuns
