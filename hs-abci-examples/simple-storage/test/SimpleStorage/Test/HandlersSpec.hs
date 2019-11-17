@@ -20,7 +20,7 @@ import           SimpleStorage.Handlers               (deliverTxH, queryH)
 import qualified SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (UpdateCountTx (..))
 import           Tendermint.SDK.Logger.Katip
-import           Tendermint.SDK.Router                (serve)
+import           Tendermint.SDK.Query
 import           Tendermint.SDK.Store                 (rawKey)
 import           Test.Hspec
 import           Test.QuickCheck
