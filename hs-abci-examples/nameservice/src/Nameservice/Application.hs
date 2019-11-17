@@ -17,7 +17,7 @@ import qualified Tendermint.SDK.Auth             as A
 import           Tendermint.SDK.BaseApp          ((:&))
 import qualified Tendermint.SDK.BaseApp          as BaseApp
 import qualified Tendermint.SDK.Logger.Katip     as KL
-import           Tendermint.SDK.Router           (QueryApplication, serve)
+import           Tendermint.SDK.Query            (QueryApplication, serve)
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context

@@ -80,28 +80,30 @@ library:
   - -Werror
   - -Wall
   exposed-modules:
-  - Tendermint.SDK.Store
-  - Tendermint.SDK.Codec
-  - Tendermint.SDK.StoreQueries
-  - Tendermint.SDK.Subscription
+  - Tendermint.SDK.Application
+  - Tendermint.SDK.Aeson
+  - Tendermint.SDK.Auth
   - Tendermint.SDK.AuthTreeStore
-  - Tendermint.SDK.Router.Types
-  - Tendermint.SDK.Router.Class
-  - Tendermint.SDK.Router
   - Tendermint.SDK.BaseApp
+  - Tendermint.SDK.Codec
+  - Tendermint.SDK.Crypto
+  - Tendermint.SDK.Errors
+  - Tendermint.SDK.Events
+  - Tendermint.SDK.Query
+  - Tendermint.SDK.Query.Class
+  - Tendermint.SDK.Query.Delayed
+  - Tendermint.SDK.Query.Router
+  - Tendermint.SDK.Query.Store
+  - Tendermint.SDK.Query.Types
   - Tendermint.SDK.Logger
   - Tendermint.SDK.Logger.Katip
-  - Tendermint.SDK.Application
-  - Tendermint.SDK.Auth
-  - Tendermint.SDK.Aeson
-  - Tendermint.SDK.Events
-  - Tendermint.SDK.Errors
-  - Tendermint.SDK.TxRouter
-  - Tendermint.SDK.Crypto
+  - Tendermint.SDK.Store
+  - Tendermint.SDK.Subscription
   - Tendermint.SDK.Types.Message
   - Tendermint.SDK.Types.Transaction
   - Tendermint.SDK.Types.Address
-  
+  - Tendermint.SDK.TxRouter
+
 tests:
   hs-abci-sdk-test:
     main:                Spec.hs

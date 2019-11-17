@@ -1,22 +1,23 @@
-module Tendermint.SDK.Router.Class where
+module Tendermint.SDK.Query.Class where
 
 import           Control.Error
 import           Data.Proxy
-import           Data.String.Conversions       (cs)
-import           GHC.TypeLits                  (KnownSymbol, symbolVal)
+import           Data.String.Conversions      (cs)
+import           GHC.TypeLits                 (KnownSymbol, symbolVal)
 import           Servant.API
-import           Tendermint.SDK.Router.Delayed (Delayed, addQueryArgs,
-                                                delayedFail)
-import           Tendermint.SDK.Router.Router  (Router, Router' (..), choice,
-                                                methodRouter, pathRouter)
-import           Tendermint.SDK.Router.Types   (EncodeQueryResult (..),
-                                                FromQueryData (..), Leaf, QA,
-                                                QueryArgs (..), QueryError (..),
-                                                QueryResult)
+import           Tendermint.SDK.Query.Delayed (Delayed, addQueryArgs,
+                                               delayedFail)
+import           Tendermint.SDK.Query.Router  (Router, Router' (..), choice,
+                                               methodRouter, pathRouter)
+import           Tendermint.SDK.Query.Types   (FromQueryData (..), Leaf, QA,
+                                               QueryArgs (..), QueryError (..),
+                                               QueryResult, Queryable (..))
 
 --------------------------------------------------------------------------------
 
-
+-- | This class is used to construct a router given a 'layout' type. The layout
+-- | is constructed using the combinators that appear in the instances here, no other
+-- | Servant combinators are recognized.
 class HasRouter layout where
   -- | A route handler.
   type RouteT layout (m :: * -> *) :: *
@@ -41,7 +42,7 @@ instance (HasRouter sublayout, KnownSymbol path) => HasRouter (path :> sublayout
     where proxyPath = Proxy :: Proxy path
 
 
-instance EncodeQueryResult a => HasRouter (Leaf a) where
+instance Queryable a => HasRouter (Leaf a) where
 
    type RouteT (Leaf a) m = ExceptT QueryError m (QueryResult a)
    route _  = methodRouter

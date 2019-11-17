@@ -6,7 +6,7 @@ import qualified Data.Aeson               as A
 import qualified Data.ByteArray.HexString as Hex
 import           Data.ByteString          (ByteString)
 import           GHC.Generics             (Generic)
-import           Tendermint.SDK.Router    (FromQueryData)
+import           Tendermint.SDK.Query     (FromQueryData)
 import           Tendermint.SDK.Store     (RawKey (..))
 
 -- | Used as a unique identifier for an account.

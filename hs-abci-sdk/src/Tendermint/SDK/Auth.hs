@@ -16,7 +16,7 @@ import           Polysemy.Error               (Error, mapError)
 import           Tendermint.SDK.BaseApp       (HasBaseAppEff)
 import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Router        (EncodeQueryResult (..))
+import           Tendermint.SDK.Query         (Queryable (..))
 import           Tendermint.SDK.Store         (IsKey (..), StoreKey (..), get,
                                                put)
 import           Tendermint.SDK.Types.Address (Address)
@@ -49,7 +49,8 @@ instance HasCodec Account where
 instance IsKey Address AuthModule where
     type Value Address AuthModule = Account
 
-instance EncodeQueryResult Account
+instance Queryable Account where
+  type Name Account = "account"
 
 --------------------------------------------------------------------------------
 

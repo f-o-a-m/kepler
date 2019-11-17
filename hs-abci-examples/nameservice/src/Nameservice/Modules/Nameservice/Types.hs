@@ -24,7 +24,7 @@ import qualified Proto3.Wire.Encode           as Encode
 import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Events        (FromEvent (..), ToEvent (..))
-import qualified Tendermint.SDK.Router        as R
+import qualified Tendermint.SDK.Query         as Q
 import qualified Tendermint.SDK.Store         as Store
 import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
                                                addressToBytes)
@@ -43,7 +43,7 @@ instance Primitive Name where
 instance HasDefault Name
 instance MessageField Name
 
-instance R.FromQueryData Name
+instance Q.FromQueryData Name
 
 data Whois = Whois
   { whoisValue :: Text
@@ -63,10 +63,8 @@ instance Store.RawKey Name where
 instance Store.IsKey Name NameserviceModule where
     type Value Name NameserviceModule = Whois
 
-instance R.Queryable Whois where
+instance Q.Queryable Whois where
   type Name Whois = "whois"
-
-instance R.EncodeQueryResult Whois
 
 --------------------------------------------------------------------------------
 -- Exceptions

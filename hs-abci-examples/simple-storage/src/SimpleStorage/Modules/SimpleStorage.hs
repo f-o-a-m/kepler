@@ -24,29 +24,29 @@ module SimpleStorage.Modules.SimpleStorage
 
   ) where
 
-import           Control.Lens                (iso)
-import           Crypto.Hash                 (SHA256 (..), hashWith)
-import qualified Data.Aeson                  as A
-import           Data.Bifunctor              (first)
-import           Data.ByteArray              (convert)
-import           Data.ByteString             (ByteString)
-import           Data.Int                    (Int32)
-import           Data.Maybe                  (fromJust)
+import           Control.Lens            (iso)
+import           Crypto.Hash             (SHA256 (..), hashWith)
+import qualified Data.Aeson              as A
+import           Data.Bifunctor          (first)
+import           Data.ByteArray          (convert)
+import           Data.ByteString         (ByteString)
+import           Data.Int                (Int32)
+import           Data.Maybe              (fromJust)
 import           Data.Proxy
-import qualified Data.Serialize              as Serialize
-import           Data.String.Conversions     (cs)
-import           GHC.Generics                (Generic)
-import           Polysemy                    (Member, Sem, interpret, makeSem)
-import           Polysemy.Output             (Output)
-import           Servant.API                 ((:>))
-import           Tendermint.SDK.BaseApp      (HasBaseAppEff)
-import           Tendermint.SDK.Codec        (HasCodec (..))
-import qualified Tendermint.SDK.Events       as Events
-import           Tendermint.SDK.Router       (EncodeQueryResult, FromQueryData,
-                                              Queryable (..), RouteT)
-import           Tendermint.SDK.Store        (IsKey (..), RawKey (..), RawStore,
-                                              StoreKey (..), get, put)
-import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
+import qualified Data.Serialize          as Serialize
+import           Data.String.Conversions (cs)
+import           GHC.Generics            (Generic)
+import           Polysemy                (Member, Sem, interpret, makeSem)
+import           Polysemy.Output         (Output)
+import           Servant.API             ((:>))
+import           Tendermint.SDK.BaseApp  (HasBaseAppEff)
+import           Tendermint.SDK.Codec    (HasCodec (..))
+import qualified Tendermint.SDK.Events   as Events
+import           Tendermint.SDK.Query    (FromQueryData, QueryApi,
+                                          Queryable (..), RouteT,
+                                          storeQueryHandlers)
+import           Tendermint.SDK.Store    (IsKey (..), RawKey (..), RawStore,
+                                          StoreKey (..), get, put)
 
 --------------------------------------------------------------------------------
 -- Types
@@ -70,8 +70,6 @@ instance IsKey CountKey "simple_storage" where
     type Value CountKey "simple_storage" = Count
 
 instance FromQueryData CountKey
-
-instance EncodeQueryResult Count
 
 instance Queryable Count where
   type Name Count = "count"

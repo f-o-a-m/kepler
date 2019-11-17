@@ -1,7 +1,5 @@
-module Tendermint.SDK.StoreQueries where
+module Tendermint.SDK.Query.Store where
 
---import Servant.API
--- import Tendermint.SDK.Routes
 import           Control.Error               (ExceptT, throwE)
 import           Control.Lens                (to, (^.))
 import           Control.Monad.Trans         (lift)
@@ -11,8 +9,8 @@ import           GHC.TypeLits                (Symbol)
 import           Polysemy                    (Member, Sem)
 import           Servant.API                 ((:<|>) (..), (:>))
 import           Tendermint.SDK.Codec        (HasCodec)
-import           Tendermint.SDK.Router.Class
-import           Tendermint.SDK.Router.Types
+import           Tendermint.SDK.Query.Class
+import           Tendermint.SDK.Query.Types
 import           Tendermint.SDK.Store        (IsKey (..), RawKey (..), RawStore,
                                               StoreKey, get)
 

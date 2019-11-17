@@ -22,7 +22,7 @@ import           Tendermint.SDK.Errors                (AppError, SDKError (..),
                                                        deliverTxAppError,
                                                        throwSDKError)
 import           Tendermint.SDK.Events                (withEventBuffer)
-import           Tendermint.SDK.Router                (QueryApplication)
+import           Tendermint.SDK.Query                 (QueryApplication)
 import           Tendermint.SDK.Types.Transaction     (parseRawTransaction,
                                                        parseTx)
 
