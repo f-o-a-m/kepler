@@ -3,6 +3,7 @@ module Tendermint.SDK.Events
   , ToEvent(..)
   , FromEvent(..)
   , emit
+  , makeEvent
   , EventBuffer
   , newEventBuffer
   , withEventBuffer
@@ -48,19 +49,23 @@ class ToEvent e where
 
 -- | A class that can parse event log items in the deliverTx response. Primarily
 -- | useful for client applications and testing.
-class FromEvent e where
+class ToEvent e => FromEvent e where
   fromEvent :: Event -> Either Text e
 
   default fromEvent :: A.FromJSON e => Event -> Either Text e
-  fromEvent Event{eventAttributes} =
-    let fromKVPair :: KVPair -> Either String (Text, A.Value)
-        fromKVPair (KVPair k v) = do
-          value <- A.eitherDecode . cs @BS.ByteString . Base64.toBytes $ v
-          return (cs @BS.ByteString . Base64.toBytes $ k, value)
-    in fmapL cs $ do
-      kvPairs <- traverse fromKVPair eventAttributes
-      A.eitherDecode . A.encode . A.Object . fromList $ kvPairs
-
+  fromEvent Event{eventType, eventAttributes} =
+    let expectedType = makeEventType (Proxy @e)
+    in if cs eventType /= expectedType
+         then fail ("Couldn't math expected event type " <> expectedType <>
+                " with found type " <> cs eventType)
+         else
+           let fromKVPair :: KVPair -> Either String (Text, A.Value)
+               fromKVPair (KVPair k v) = do
+                 value <- A.eitherDecode . cs @BS.ByteString . Base64.toBytes $ v
+                 return (cs @BS.ByteString . Base64.toBytes $ k, value)
+           in fmapL cs $ do
+             kvPairs <- traverse fromKVPair eventAttributes
+             A.eitherDecode . A.encode . A.Object . fromList $ kvPairs
 
 -- This is the internal implementation of the interpreter for event
 -- logging. We allocate a buffer that can queue events as they are thrown,
