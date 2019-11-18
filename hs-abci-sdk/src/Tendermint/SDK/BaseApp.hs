@@ -20,7 +20,8 @@ import           Tendermint.SDK.Logger        (Logger)
 import qualified Tendermint.SDK.Logger.Katip  as KL
 import           Tendermint.SDK.Store         (RawStore)
 
--- @TODO: change to HasBassAppEff
+
+-- | A constraint listing all externally visible effects in the 'BaseApp'.
 type HasBaseAppEff r =
   ( Member Logger r
   , Member (Error AppError) r
@@ -29,18 +30,7 @@ type HasBaseAppEff r =
   , Member Resource r
   )
 
-data Context = Context
-  { contextLogConfig   :: KL.LogConfig
-  , contextEventBuffer :: EventBuffer
-  , contextAuthTree    :: AT.AuthTree
-  }
-
-type CoreEffR =
-  '[ Reader EventBuffer
-   , Reader KL.LogConfig
-   , Embed IO
-   ]
-
+-- | Concrete row of effects for the BaseApp
 type BaseAppEffR =
   [ Output Event
   , RawStore
@@ -49,6 +39,25 @@ type BaseAppEffR =
   , Error AppError
   ]
 
+-- | CoreEff is one level below BaseApp, it as a seperation of BaseApp from
+-- | its interpretation.
+type CoreEffR =
+  '[ Reader EventBuffer
+   , Reader KL.LogConfig
+   , Embed IO
+   ]
+
+-- | This type family gives a nice syntax for combining multiple lists of effects.
+type family (as :: [a]) :& (bs :: [a]) :: [a] where
+  '[] :& bs = bs
+  (a ': as) :& bs = a ': (as :& bs)
+
+infixr 5 :&
+
+
+-- TODO: it would be really nice to not have this CoreEff here, but to just
+-- interpret into it as an intermediate step in the total evaluation of BaseApp.
+-- Polysemy probably has a way to do this already.
 type BaseApp = BaseAppEffR :& CoreEffR
 
 instance (Members CoreEffR r) => K.Katip (Sem r)  where
@@ -61,6 +70,12 @@ instance (Members CoreEffR r) => K.KatipContext (Sem r) where
   getKatipNamespace = asks $ view KL.logNamespace
   localKatipNamespace f m = local (over KL.logNamespace f) m
 
+-- | 'Context' is the environment required to run 'CoreEff' to 'IO'
+data Context = Context
+  { contextLogConfig   :: KL.LogConfig
+  , contextEventBuffer :: EventBuffer
+  , contextAuthTree    :: AT.AuthTree
+  }
 
 makeContext :: KL.LogConfig -> IO Context
 makeContext logCfg = do
@@ -72,13 +87,7 @@ makeContext logCfg = do
     , contextAuthTree = authTree
     }
 
-type family (as :: [a]) :& (bs :: [a]) :: [a] where
-  '[] :& bs = bs
-  (a ': as) :& bs = a ': (as :& bs)
-
-infixr 5 :&
-
--- NOTE: Look into using 'reinterpretH'
+-- | An intermediary interpeter, bringing 'BaseApp' down to 'CoreEff'.
 compileToCoreEff
   :: Context
   -> Sem BaseApp a
@@ -90,6 +99,7 @@ compileToCoreEff Context{contextAuthTree} =
     AT.eval contextAuthTree .
     evalWithBuffer
 
+-- | The standard interpeter for 'BaseApp'.
 eval
   :: Context
   -> Sem BaseApp a
