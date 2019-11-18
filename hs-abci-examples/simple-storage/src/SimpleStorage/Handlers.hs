@@ -16,7 +16,7 @@ import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        decodeAppTxMessage)
 import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.Events                (withEventBuffer)
-import           Tendermint.SDK.Router                (QueryApplication)
+import           Tendermint.SDK.Query                 (QueryApplication)
 
 echoH
   :: Request 'MTEcho

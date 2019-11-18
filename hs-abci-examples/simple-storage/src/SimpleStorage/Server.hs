@@ -15,7 +15,7 @@ import           SimpleStorage.Handlers                        (simpleStorageApp
 import qualified SimpleStorage.Modules.SimpleStorage           as SS
 import           Tendermint.SDK.Application                    (MakeApplication (..),
                                                                 createApplication)
-import           Tendermint.SDK.Router                         (QueryApplication,
+import           Tendermint.SDK.Query                          (QueryApplication,
                                                                 serve)
 
 makeAndServeApplication :: AppConfig -> IO ()

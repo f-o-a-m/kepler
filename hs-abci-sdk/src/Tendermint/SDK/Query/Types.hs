@@ -1,4 +1,4 @@
-module Tendermint.SDK.Router.Types where
+module Tendermint.SDK.Query.Types where
 
 import           Control.Lens                           (from, (^.))
 import           Control.Monad                          (ap)
@@ -48,21 +48,27 @@ data QueryResult a = QueryResult
 
 --------------------------------------------------------------------------------
 
+-- | class representing objects which can be queried via the hs-abci query message.
+-- | Here the 'Name' is the leaf of the query url, e.g. if you can access a token
+-- | balance of type `Balance` at "token/balance", then 'Name Balance ~ "balance"'.
 class Queryable a where
   type Name a :: Symbol
-
-class EncodeQueryResult a where
   encodeQueryResult :: a -> Base64String
 
   default encodeQueryResult :: HasCodec a => a -> Base64String
   encodeQueryResult = fromBytes . encode
 
+-- | This class is used to parse the 'data' field of the query request message.
+-- | The default method assumes that the 'data' is simply the key for the
+-- | value being queried.
 class FromQueryData a where
   fromQueryData :: Base64String -> Either String a
+
   default fromQueryData :: RawKey a => Base64String -> Either String a
   fromQueryData bs = Right (toBytes bs ^. from rawKey)
 
 --------------------------------------------------------------------------------
+-- NOTE: most of this was vendored and repurposed from servant.
 
 data RouteResult a =
     Fail QueryError

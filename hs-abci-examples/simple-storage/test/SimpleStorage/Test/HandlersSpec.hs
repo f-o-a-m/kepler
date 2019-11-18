@@ -2,14 +2,13 @@ module SimpleStorage.Test.HandlersSpec where
 
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Control.Lens.Wrapped                 (_Unwrapped', _Wrapped')
-import           Data.Binary                          (decode, encode)
 import           Data.ByteArray.Base64String          (Base64String)
 import qualified Data.ByteArray.Base64String          as Base64
-import qualified Data.ByteString.Lazy                 as LBS
 import           Data.Int                             (Int32)
 import           Data.ProtoLens                       (defMessage)
 import           Data.ProtoLens.Encoding              (encodeMessage)
 import           Data.Proxy
+import           Data.Serialize                       (decode, encode)
 import           Data.Text                            (pack)
 import           Network.ABCI.Server.App              (Request (..),
                                                        Response (..))
@@ -21,7 +20,7 @@ import           SimpleStorage.Handlers               (deliverTxH, queryH)
 import qualified SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (UpdateCountTx (..))
 import           Tendermint.SDK.Logger.Katip
-import           Tendermint.SDK.Router                (serve)
+import           Tendermint.SDK.Query
 import           Tendermint.SDK.Store                 (rawKey)
 import           Test.Hspec
 import           Test.QuickCheck
@@ -62,7 +61,7 @@ beforeAction :: IO AppConfig
 beforeAction = mkLogConfig "handler-spec" "SimpleStorage" >>= makeAppConfig
 
 encodeCount :: Int32 -> Base64String
-encodeCount = Base64.fromBytes . LBS.toStrict . encode
+encodeCount = Base64.fromBytes . encode
 
 decodeCount :: Base64String -> Int32
-decodeCount = decode . LBS.fromStrict . Base64.toBytes
+decodeCount = (\(Right a) -> a) . decode . Base64.toBytes

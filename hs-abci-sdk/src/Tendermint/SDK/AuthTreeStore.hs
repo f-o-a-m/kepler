@@ -1,4 +1,8 @@
-module Tendermint.SDK.AuthTreeStore where
+module Tendermint.SDK.AuthTreeStore
+  ( AuthTree
+  , initAuthTree
+  , eval
+  ) where
 
 import           Control.Concurrent.STM           (atomically)
 import           Control.Concurrent.STM.TVar
@@ -11,9 +15,10 @@ import           Data.ByteString                  (ByteString)
 import           Polysemy                         (Embed, Member, Sem,
                                                    interpret)
 import           Tendermint.SDK.Store             (RawStore (..), StoreKey (..))
---------------------------------------------------------------------------------
---
---------------------------------------------------------------------------------
+
+-- At the moment, the 'AuthTreeStore' is our only interpreter for the 'RawStore' effect.
+-- It is an in memory merklized key value store. You can find the repository here
+-- https://github.com/oscoin/avl-auth
 
 newtype AuthTreeHash =  AuthTreeHash (Cryptonite.Digest Cryptonite.SHA256)
 
@@ -22,19 +27,19 @@ instance AT.MerkleHash AuthTreeHash where
     hashLeaf k v = AuthTreeHash $ Cryptonite.hashLeaf k v
     concatHashes (AuthTreeHash a) (AuthTreeHash b) = AuthTreeHash $ Cryptonite.concatHashes a b
 
-data AuthTreeDriver = AuthTreeDriver
+data AuthTree = AuthTree
   { treeVar :: TVar (AT.Tree ByteString ByteString)
   }
 
-initAuthTreeDriver :: IO AuthTreeDriver
-initAuthTreeDriver = AuthTreeDriver <$> newTVarIO AT.empty
+initAuthTree :: IO AuthTree
+initAuthTree = AuthTree <$> newTVarIO AT.empty
 
-interpretAuthTreeStore
+eval
   :: Member (Embed IO) r
-  => AuthTreeDriver
+  => AuthTree
   -> Sem (RawStore ': r) a
   -> Sem r a
-interpretAuthTreeStore AuthTreeDriver{treeVar} =
+eval AuthTree{treeVar} =
   interpret
     (\case
       RawStorePut (StoreKey sk) k v -> liftIO . atomically $ do

@@ -11,6 +11,7 @@ import           Polysemy  (makeSem)
 
 data Severity = Debug | Info | Warning | Error | Exception deriving (Eq, Ord)
 
+-- | Effect allowing for console logging.
 data Logger m a where
   Log :: Severity -> Text -> Logger m ()
 

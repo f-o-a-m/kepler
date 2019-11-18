@@ -82,13 +82,6 @@ packages:
     git: https://github.com/awakesecurity/proto3-wire
     commit: 23015cf6363d1962fde6bdff0de111f7ec59ab75
 - completed:
-    hackage: bech32-1.0.0@sha256:6bd23abe4a11d61a2d41fdb11db9e1361fc43c215cf2b8602cafaa516c8b6d76,2017
-    pantry-tree:
-      size: 424
-      sha256: 7193ff37729da6c18519a09d88e7e53b5dbd9a1d06399a11fa2676be1bd254f1
-  original:
-    hackage: bech32-1.0.0@sha256:6bd23abe4a11d61a2d41fdb11db9e1361fc43c215cf2b8602cafaa516c8b6d76,2017
-- completed:
     hackage: polysemy-1.2.0.0@sha256:9313315be0746936c65bc02a5b9bc2abd3bd02bcef9329db272a991939e5b037,5776
     pantry-tree:
       size: 3622

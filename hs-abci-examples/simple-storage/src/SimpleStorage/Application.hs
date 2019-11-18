@@ -1,5 +1,3 @@
-{-# LANGUAGE UndecidableInstances #-}
-
 module SimpleStorage.Application
   ( AppError(..)
   , AppConfig(..)

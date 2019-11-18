@@ -27,35 +27,37 @@ module Nameservice.Modules.Token
 
   ) where
 
-import           Data.Aeson                  as A
-import qualified Data.ByteArray.HexString    as Hex
-import qualified Data.ByteString.Lazy        as BL
-import           Data.Either.Combinators     (mapBoth)
-import           Data.Maybe                  (fromMaybe)
+import           Data.Aeson                   as A
+import           Data.Bifunctor               (bimap)
+import qualified Data.ByteArray.HexString     as Hex
+import           Data.Maybe                   (fromMaybe)
 import           Data.Proxy
-import           Data.Text                   (Text)
-import           Data.Word                   (Word64)
-import           GHC.Generics                (Generic)
-import           Nameservice.Aeson           (defaultNameserviceOptions)
+import           Data.String.Conversions      (cs)
+import           Data.Text                    (Text)
+import           Data.Word                    (Word64)
+import           GHC.Generics                 (Generic)
+import           Nameservice.Aeson            (defaultNameserviceOptions)
 import           Polysemy
-import           Polysemy.Error              (Error, mapError, throw)
-import           Polysemy.Output             (Output)
-import           Proto3.Suite                (HasDefault (..), MessageField,
-                                              Primitive (..))
-import qualified Proto3.Suite.DotProto       as DotProto
-import qualified Proto3.Wire.Decode          as Decode
-import qualified Proto3.Wire.Encode          as Encode
-import           Proto3.Wire.Types           (fieldNumber)
-import           Servant.API                 ((:>))
-import           Tendermint.SDK.Auth         (Address (..))
-import           Tendermint.SDK.BaseApp      (HasBaseApp)
-import           Tendermint.SDK.Codec        (HasCodec (..))
-import           Tendermint.SDK.Errors       (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Events       (Event, FromEvent, ToEvent (..),
-                                              emit)
-import           Tendermint.SDK.Router       (Queryable (..), RouteT)
-import qualified Tendermint.SDK.Store        as Store
-import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
+import           Polysemy.Error               (Error, mapError, throw)
+import           Polysemy.Output              (Output)
+import           Proto3.Suite                 (HasDefault (..), MessageField,
+                                               Primitive (..))
+import qualified Proto3.Suite.DotProto        as DotProto
+import qualified Proto3.Wire.Decode           as Decode
+import qualified Proto3.Wire.Encode           as Encode
+import           Proto3.Wire.Types            (fieldNumber)
+import           Servant.API                  ((:>))
+import           Tendermint.SDK.BaseApp       (HasBaseAppEff)
+import           Tendermint.SDK.Codec         (HasCodec (..))
+import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
+import           Tendermint.SDK.Events        (Event, FromEvent, ToEvent (..),
+                                               emit)
+import           Tendermint.SDK.Query         (FromQueryData, Queryable (..),
+                                               RouteT)
+import           Tendermint.SDK.Query.Store   (QueryApi, storeQueryHandlers)
+import qualified Tendermint.SDK.Store         as Store
+import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
+                                               addressToBytes)
 
 newtype Amount = Amount Word64 deriving (Eq, Show, Num, Generic, Ord, A.ToJSON, A.FromJSON)
 instance Primitive Amount where
@@ -73,8 +75,8 @@ instance HasCodec Amount where
   encode (Amount b) =
     -- proto3-wire only exports encoders for message types
     let dummyMsgEncoder = Encode.uint64 (fieldNumber 1)
-    in BL.toStrict . Encode.toLazyByteString . dummyMsgEncoder $ b
-  decode = mapBoth show Amount . Decode.parse dummyMsgParser
+    in cs . Encode.toLazyByteString . dummyMsgEncoder $ b
+  decode = bimap (cs . show) Amount . Decode.parse dummyMsgParser
     where
       -- field is always present; 0 is an arbitrary value
       fieldParser = Decode.one Decode.uint64 0
@@ -82,8 +84,8 @@ instance HasCodec Amount where
 
 -- orphans
 instance Primitive Address where
-  encodePrimitive n (Address hx) = Encode.byteString n (Hex.toBytes hx)
-  decodePrimitive = Address . Hex.fromBytes <$> Decode.byteString
+  encodePrimitive n a = Encode.byteString n $ addressToBytes a
+  decodePrimitive = addressFromBytes <$> Decode.byteString
   primType _ = DotProto.Bytes
 instance HasDefault Hex.HexString
 instance HasDefault Address
@@ -146,14 +148,13 @@ storeKey :: Store.StoreKey "token"
 storeKey = Store.StoreKey "token"
 
 eval
-  :: HasBaseApp r
-  => Member (Error AppError) r
+  :: HasBaseAppEff r
   => Sem (Token ': Error TokenException ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalToken
  where
   evalToken
-    :: HasBaseApp r
+    :: HasBaseAppEff r
     => Sem (Token ': r) a
     -> Sem r a
   evalToken =
@@ -173,7 +174,7 @@ type Api = "token" :> QueryApi TokenContents
 
 server :: Member Store.RawStore r => RouteT Api (Sem r)
 server =
-  storeQueryHandlers (Proxy :: Proxy TokenContents) (Proxy :: Proxy "token") (Proxy :: Proxy (Sem r))
+  storeQueryHandlers (Proxy :: Proxy TokenContents) storeKey (Proxy :: Proxy (Sem r))
 
 --------------------------------------------------------------------------------
 
@@ -227,4 +228,3 @@ mint
 mint addr amount = do
   bal <- getBalance addr
   putBalance addr (bal + amount)
-

@@ -19,12 +19,6 @@ description:         Please see the README on GitHub at <https://github.com/gith
 extra-source-files:
 - README.md
 
-custom-setup:
-  dependencies:
-    - base
-    - Cabal
-    - proto-lens-setup
-
 default-extensions:
   - DeriveGeneric
   - NamedFieldPuns
@@ -55,8 +49,10 @@ dependencies:
 - aeson
 - aeson-casing
 - base >= 4.7 && < 5
-- binary
 - bytestring
+- cereal
+- data-default-class
+- errors
 - exceptions
 - either
 - hs-abci-extra
@@ -74,12 +70,14 @@ dependencies:
 - servant
 - string-conversions
 - text
+- validation
 
 library:
   source-dirs: src
   exposed-modules:
   - Nameservice.Application
   - Nameservice.Server
+  - Nameservice.Handlers
   - Nameservice.Modules.Token
   - Nameservice.Modules.Nameservice.Messages
   - Nameservice.Modules.Nameservice.Types

@@ -13,8 +13,7 @@ import           Nameservice.Modules.Nameservice.Messages (BuyName (..),
                                                            SetName (..))
 import           Nameservice.Modules.Nameservice.Types    (Name (..),
                                                            Whois (..))
-import           Nameservice.Modules.Token                (Address (..),
-                                                           Amount (..))
+import           Nameservice.Modules.Token                (Amount (..))
 import           Proto3.Suite                             (DotProtoDefinition,
                                                            Message,
                                                            fromByteString,
@@ -25,6 +24,7 @@ import           Proto3.Suite.DotProto.Rendering          (RenderingOptions,
                                                            defRenderingOptions)
 import qualified Proto3.Wire.Decode                       as Decode
 import           Proto3.Wire.Types                        (FieldNumber (..))
+import           Tendermint.SDK.Types.Address             (Address (..))
 import qualified Text.PrettyPrint                         as PP
 
 --------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ stripPrefixName (Single typeName) (Single fieldName) _ =
       fieldName' = Single . snakeCase . drop prefixLen $ fieldName
   in pPrint fieldName'
 -- @NOTE: we don't yet need for other identifiers
-stripPrefixName _ _ _ = undefined
+stripPrefixName _ _ _ = error "stripPrefixName unused case"
 
 msgStripPrefixOptions :: RenderingOptions
 msgStripPrefixOptions = defRenderingOptions { roSelectorName = stripPrefixName }

@@ -1,28 +1,33 @@
 module Nameservice.Modules.Nameservice.Types where
 
-import           Control.Lens              (iso)
-import           Data.Aeson                as A
-import qualified Data.Binary               as Binary
-import qualified Data.ByteString.Lazy      as BL
-import           Data.Either.Combinators   (mapLeft)
-import           Data.String.Conversions   (cs)
-import           Data.Text                 (Text)
-import qualified Data.Text.Lazy            as TL
-import           GHC.Generics              (Generic)
-import           Nameservice.Aeson         (defaultNameserviceOptions)
-import           Nameservice.Modules.Token (Amount (..))
-import           Proto3.Suite              (HasDefault, Message, MessageField,
-                                            Named, Primitive (..),
-                                            fromByteString, toLazyByteString)
-import qualified Proto3.Suite.DotProto     as DotProto
-import qualified Proto3.Wire.Decode        as Decode
-import qualified Proto3.Wire.Encode        as Encode
-import           Tendermint.SDK.Auth       (Address)
-import           Tendermint.SDK.Codec      (HasCodec (..))
-import           Tendermint.SDK.Errors     (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Events     (FromEvent (..), ToEvent (..))
-import qualified Tendermint.SDK.Router     as R
-import qualified Tendermint.SDK.Store      as Store
+import           Control.Lens                 (iso, (&), (.~), (^.))
+import           Control.Lens.Wrapped         (Wrapped (..))
+import           Data.Aeson                   as A
+import           Data.Bifunctor               (first)
+import           Data.ByteString              (ByteString)
+import           Data.ByteString              as BS
+import           Data.Maybe                   (fromJust)
+import qualified Data.Serialize               as Serialize
+import           Data.String.Conversions      (cs)
+import           Data.Text                    (Text)
+import qualified Data.Text.Lazy               as TL
+import           GHC.Generics                 (Generic)
+import           Nameservice.Aeson            (defaultNameserviceOptions)
+import           Nameservice.Modules.Token    (Amount (..))
+import           Proto3.Suite                 (HasDefault, Message,
+                                               MessageField, Named,
+                                               Primitive (..), fromByteString,
+                                               toLazyByteString)
+import qualified Proto3.Suite.DotProto        as DotProto
+import qualified Proto3.Wire.Decode           as Decode
+import qualified Proto3.Wire.Encode           as Encode
+import           Tendermint.SDK.Codec         (HasCodec (..))
+import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
+import           Tendermint.SDK.Events        (FromEvent (..), ToEvent (..))
+import qualified Tendermint.SDK.Query         as Q
+import qualified Tendermint.SDK.Store         as Store
+import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
+                                               addressToBytes)
 
 --------------------------------------------------------------------------------
 
@@ -30,13 +35,15 @@ type NameserviceModule = "nameservice"
 
 --------------------------------------------------------------------------------
 
-newtype Name = Name Text deriving (Eq, Show, Generic, Binary.Binary, A.ToJSON, A.FromJSON)
+newtype Name = Name Text deriving (Eq, Show, Generic, A.ToJSON, A.FromJSON)
 instance Primitive Name where
   encodePrimitive n (Name txt) = Encode.text n . TL.fromStrict $ txt
   decodePrimitive = Name . TL.toStrict <$> Decode.text
   primType _ = DotProto.String
 instance HasDefault Name
 instance MessageField Name
+
+instance Q.FromQueryData Name
 
 data Whois = Whois
   { whoisValue :: Text
@@ -47,8 +54,8 @@ instance Message Whois
 instance Named Whois
 
 instance HasCodec Whois where
-  encode = BL.toStrict . toLazyByteString
-  decode = mapLeft show . fromByteString
+  encode = cs . toLazyByteString
+  decode = first (cs . show) . fromByteString
 
 instance Store.RawKey Name where
     rawKey = iso (\(Name n) -> cs n) (Name . cs)
@@ -56,7 +63,7 @@ instance Store.RawKey Name where
 instance Store.IsKey Name NameserviceModule where
     type Value Name NameserviceModule = Whois
 
-instance R.Queryable Whois where
+instance Q.Queryable Whois where
   type Name Whois = "whois"
 
 --------------------------------------------------------------------------------

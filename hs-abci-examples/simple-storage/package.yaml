@@ -43,8 +43,9 @@ dependencies:
 - async
 - avl-auth
 - base >= 4.7 && < 5
-- binary
 - bytestring
+- cereal
+- cereal-text
 - containers
 - conduit
 - cryptonite
