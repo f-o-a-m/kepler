@@ -10,7 +10,7 @@ cache:
 before_install:
 # Download and unpack the stack executable
 - sudo apt-get update -y
-- sudo apt-get install -y libsecp256k1
+- sudo apt-get install -y libsecp256k1-dev
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
 - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
