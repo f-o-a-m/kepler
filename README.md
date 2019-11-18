@@ -17,6 +17,22 @@ At the moment the project's build is managed by `stack`. You can find everything
 #### protoc
 We use a custom setup to generate Haskell bindings to the protobuf files, using the proto-lens library from Google. In order for this to work you need to have the protobuf compiler `protoc` on your machine. You can get installation instructions [here](https://google.github.io/proto-lens/installing-protoc.html)
 
+#### libsecp256k1
+In order to build with stack you will need this. On MacOS you can use brew:
+
+```
+> brew tap cuber/homebrew-libsecp256k1
+> brew install libsecp256k1
+```
+
+On linux:
+
+```
+> sudo add-apt-repository ppa:tah83/secp256k1
+> sudo apt-get update
+> sudo apt-get install libsecp256k1
+```
+
 #### style
 You will also need to install `hlint` and `stylish-haskell` for code hygiene during development. In the project root simply run
 
