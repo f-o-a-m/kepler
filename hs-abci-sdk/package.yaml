@@ -110,8 +110,6 @@ tests:
     source-dirs:         test
     other-modules:
     - Tendermint.SDK.Test.AuthTreeStoreSpec
-    # - Tendermint.SDK.Test.StoreExampleSpec
-    - Tendermint.SDK.Test.ModuleSpec
     - Tendermint.SDK.Test.CryptoSpec
     - Tendermint.SDK.Test.EventSpec
 
