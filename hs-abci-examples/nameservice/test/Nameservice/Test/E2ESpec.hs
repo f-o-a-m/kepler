@@ -19,7 +19,8 @@ import           Data.String.Conversions                  (cs)
 import           Nameservice.Modules.Nameservice.Messages (BuyName (..),
                                                            DeleteName (..),
                                                            NameserviceMessage (..),
-                                                           SetName (..))
+                                                           SetName (..),
+                                                           FaucetAccount (..))
 import           Nameservice.Modules.Nameservice.Types    (Name (..),
                                                            Whois (..))
 import           Nameservice.Modules.Token                (Amount (..))
@@ -42,78 +43,79 @@ spec = do
       addr1 = Address "0x01"
       addr2 = Address "0x02"
 
-  describe "Nameservice Spec" $ do
-    it "Can query /health to make sure the node is alive" $ do
-      resp <- runRPC RPC.health
-      resp `shouldBe` RPC.ResultHealth
+  beforeAll (do faucetAccount addr1; faucetAccount addr2) $
+    describe "Nameservice Spec" $ do
+      it "Can query /health to make sure the node is alive" $ do
+        resp <- runRPC RPC.health
+        resp `shouldBe` RPC.ResultHealth
 
-    it "Can create a name" $ do
-      let msg = BuyName 0 satoshi "hello world" addr1
-          rawTx = mkSignedRawTransactionWithRoute "nameservice" msg
-          txReq =
-            RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-      deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-      let deliverRespCode = deliverResp ^. Response._deliverTxCode
-      deliverRespCode `shouldBe` 0
+      it "Can query account balances" $ do
+        let queryReq = def { RPC.requestABCIQueryPath = Just "token/balance"
+                           , RPC.requestABCIQueryData = "0x01"
+                           }
+        queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
+          RPC.abciQuery queryReq
+        let foundAmount = queryResp ^. Response._queryValue . to decodeValue
+        foundAmount `shouldBe` (Amount 1000)
 
-    it "Can query for a name" $ do
-      let queryReq = def { RPC.requestABCIQueryPath = Just "nameservice/whois"
-                         , RPC.requestABCIQueryData = satoshi ^. rawKey . to Hex.fromBytes
-                         }
-      queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
-        RPC.abciQuery queryReq
-      let foundWhois = queryResp ^. Response._queryValue . to decodeValue
-      whoisValue foundWhois `shouldBe` "hello world"
-      whoisOwner foundWhois `shouldBe` addr1
-      whoisPrice foundWhois `shouldBe` 0
+      it "Can create a name" $ do
+        let msg = BuyName 0 satoshi "hello world" addr1
+            rawTx = mkSignedRawTransactionWithRoute "nameservice" msg
+            txReq =
+              RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+        deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
+        let deliverRespCode = deliverResp ^. Response._deliverTxCode
+        deliverRespCode `shouldBe` 0
 
-    it "Can query for a name that doesn't exist" $ do
-      let nope = Name "nope"
-          queryReq = def { RPC.requestABCIQueryPath = Just "nameservice/whois"
-                         , RPC.requestABCIQueryData = nope ^. rawKey . to Hex.fromBytes
-                         }
-      queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
-        RPC.abciQuery queryReq
-      let queryRespCode = queryResp ^. Response._queryCode
-      queryRespCode `shouldBe` 1
+      it "Can query for a name" $ do
+        let queryReq = def { RPC.requestABCIQueryPath = Just "nameservice/whois"
+                           , RPC.requestABCIQueryData = satoshi ^. rawKey . to Hex.fromBytes
+                           }
+        queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
+          RPC.abciQuery queryReq
+        let foundWhois = queryResp ^. Response._queryValue . to decodeValue
+        whoisValue foundWhois `shouldBe` "hello world"
+        whoisOwner foundWhois `shouldBe` addr1
+        whoisPrice foundWhois `shouldBe` 0
 
-    it "Can query balances" $ do
-      let queryReq = def { RPC.requestABCIQueryPath = Just "token/balance"
-                         , RPC.requestABCIQueryData = "0x01"
-                         }
-      queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
-        RPC.abciQuery queryReq
-      let foundAmount = queryResp ^. Response._queryValue . to decodeValue
-      foundAmount `shouldBe` (Amount 0)
+      it "Can query for a name that doesn't exist" $ do
+        let nope = Name "nope"
+            queryReq = def { RPC.requestABCIQueryPath = Just "nameservice/whois"
+                           , RPC.requestABCIQueryData = nope ^. rawKey . to Hex.fromBytes
+                           }
+        queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
+          RPC.abciQuery queryReq
+        let queryRespCode = queryResp ^. Response._queryCode
+        queryRespCode `shouldBe` 1
 
-    it "Can set a name value" $ do
-      let msg = SetName satoshi addr1 "goodbye to a world"
-          rawTx = mkSignedRawTransactionWithRoute "nameservice" msg
-          txReq =
-            RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-      deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-      let deliverRespCode = deliverResp ^. Response._deliverTxCode
-      deliverRespCode `shouldBe` 0
-      -- check for changes
-      let queryReq = def { RPC.requestABCIQueryPath = Just "nameservice/whois"
-                         , RPC.requestABCIQueryData = satoshi ^. rawKey . to Hex.fromBytes
-                         }
-      queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
-        RPC.abciQuery queryReq
-      let foundWhois = queryResp ^. Response._queryValue . to decodeValue
-      whoisValue foundWhois `shouldBe` "goodbye to a world"
-      -- eveyrthing else should remain the same
-      whoisOwner foundWhois `shouldBe` addr1
-      whoisPrice foundWhois `shouldBe` 0
+      it "Can set a name value" $ do
+        let msg = SetName satoshi addr1 "goodbye to a world"
+            rawTx = mkSignedRawTransactionWithRoute "nameservice" msg
+            txReq =
+              RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+        deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
+        let deliverRespCode = deliverResp ^. Response._deliverTxCode
+        deliverRespCode `shouldBe` 0
+        -- check for changes
+        let queryReq = def { RPC.requestABCIQueryPath = Just "nameservice/whois"
+                           , RPC.requestABCIQueryData = satoshi ^. rawKey . to Hex.fromBytes
+                           }
+        queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
+          RPC.abciQuery queryReq
+        let foundWhois = queryResp ^. Response._queryValue . to decodeValue
+        whoisValue foundWhois `shouldBe` "goodbye to a world"
+        -- eveyrthing else should remain the same
+        whoisOwner foundWhois `shouldBe` addr1
+        whoisPrice foundWhois `shouldBe` 0
 
-    it "Can buy an existing name" $ do
-      pending
+      it "Can buy an existing name" $ do
+        pending
 
-    it "Can fail to buy a name" $ do
-      pending
+      it "Can fail to buy a name" $ do
+        pending
 
-    it "Can fail a transfer" $ do
-      pending
+      it "Can fail a transfer" $ do
+        pending
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
 runRPC = RPC.runTendermintM rpcConfig
@@ -124,6 +126,15 @@ runRPC = RPC.runTendermintM rpcConfig
           prettyPrint :: forall b. ToJSON b => String -> b -> IO ()
           prettyPrint prefix a = putStrLn $ prefix <> "\n" <> (cs . encodePretty $ a)
       in RPC.Config baseReq (prettyPrint "RPC Request") (prettyPrint "RPC Response")
+
+faucetAccount :: Address -> IO ()
+faucetAccount addr = do
+  let msg = FaucetAccount addr 1000
+      rawTx = mkSignedRawTransactionWithRoute "nameservice" msg -- why is this `nameservice` and not `token`?
+      txReq =
+        RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+  _ <- runRPC $ RPC.broadcastTxCommit txReq
+  return ()
 
 decodeValue :: HasCodec a => Base64.Base64String -> a
 decodeValue = (\(Right a) -> a) . decode . Base64.toBytes

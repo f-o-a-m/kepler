@@ -74,7 +74,8 @@ instance {-# OVERLAPPING #-} ParseMessage 'Proto3Suite NameserviceMessage where
     -- NBuyName should be first
     fmap NBuyName (decodeMessage p bs) <>
     fmap NSetName (decodeMessage p bs) <>
-    fmap NDeleteName (decodeMessage p bs)
+    fmap NDeleteName (decodeMessage p bs) <>
+    fmap NFaucetAccount (decodeMessage p bs)
 
 instance ValidateMessage NameserviceMessage where
   validateMessage m@Msg{msgData} = case msgData of

@@ -102,7 +102,7 @@ instance IsAppError NameserviceException where
 data Faucetted = Faucetted
   { faucettedAccount :: Address
   , faucettedAmount  :: Amount
-  }
+  } deriving (Generic)
 
 faucettedAesonOptions :: A.Options
 faucettedAesonOptions = defaultNameserviceOptions "faucetted"
