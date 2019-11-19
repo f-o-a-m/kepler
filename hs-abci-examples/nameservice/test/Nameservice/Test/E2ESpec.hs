@@ -42,7 +42,7 @@ spec = do
       resp `shouldBe` RPC.ResultHealth
 
     it "Can create a name" $ do
-      let msg = BuyName satoshi "hello world" addr1 1
+      let msg = BuyName 0 satoshi "hello world" addr1
           rawTx = mkSignedRawTransactionWithRoute "nameservice" msg
           txReq =
             RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
@@ -58,25 +58,31 @@ spec = do
       pending
 
     it "Can query for a name that doesn't exist" $ do
+      let nope = Name "nope"
+          queryReq = def { RPC.requestABCIQueryPath = Just "nameservice/whois"
+                         , RPC.requestABCIQueryData = nope ^. rawKey . to Hex.fromBytes
+                         }
+      queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
+        RPC.abciQuery queryReq
       pending
 
     it "Can query balances" $ do
-      -- let aAddress = Address undefined
-      --     queryReq = def { RPC.requestABCIQueryPath = Just "token/balance"
-      --                    , RPC.requestABCIQueryData = undefined
-      --                    }
-      -- queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
-      --   RPC.abciQuery queryReq
+      let queryReq = def { RPC.requestABCIQueryPath = Just "token/balance"
+                         , RPC.requestABCIQueryData = "0x01"
+                         }
+      queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
+        RPC.abciQuery queryReq
       pending
 
     it "Can set a name value" $ do
-      -- let msg = SetName satoshi "goodbye to a world" addr1
-      --     rawTx = mkSignedRawTransactionWithRoute "nameservice" msg
-      --     txReq =
-      --       RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+      let msg = SetName satoshi addr1 "goodbye to a world"
+          rawTx = mkSignedRawTransactionWithRoute "nameservice" msg
+          txReq =
+            RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+      deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
       pending
 
-    it "Can buy a name" $ do
+    it "Can buy an existing name" $ do
       pending
 
     it "Can fail to buy a name" $ do

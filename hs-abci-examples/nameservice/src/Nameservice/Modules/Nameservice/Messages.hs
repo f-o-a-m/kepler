@@ -35,8 +35,8 @@ data NameserviceMessage =
 -- only field names stripped of prefixes during generation
 data SetName = SetName
   { setNameName  :: Name
-  , setNameValue :: Text
   , setNameOwner :: Address
+  , setNameValue :: Text
   } deriving (Eq, Show, Generic)
 
 instance Message SetName
@@ -51,10 +51,10 @@ instance Message DeleteName
 instance Named DeleteName
 
 data BuyName = BuyName
-  { buyNameName  :: Name
+  { buyNameBid   :: Amount
+  , buyNameName  :: Name
   , buyNameValue :: Text
   , buyNameBuyer :: Address
-  , buyNameBid   :: Amount
   } deriving (Eq, Show, Generic)
 
 instance Message BuyName
