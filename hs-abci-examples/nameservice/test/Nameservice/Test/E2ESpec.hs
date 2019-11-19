@@ -109,12 +109,31 @@ spec = do
         whoisPrice foundWhois `shouldBe` 0
 
       it "Can buy an existing name" $ do
-        pending
+        let msg = BuyName 300 satoshi "hello (again) world" addr2
+            rawTx = mkSignedRawTransactionWithRoute "nameservice" msg
+            txReq =
+              RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+        deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
+        let deliverRespCode = deliverResp ^. Response._deliverTxCode
+        deliverRespCode `shouldBe` 0
+        -- check for ownership changes
+        let queryReq = def { RPC.requestABCIQueryPath = Just "nameservice/whois"
+                           , RPC.requestABCIQueryData = satoshi ^. rawKey . to Hex.fromBytes
+                           }
+        queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
+          RPC.abciQuery queryReq
+        let foundWhois = queryResp ^. Response._queryValue . to decodeValue
+        whoisOwner foundWhois `shouldBe` addr2
+        whoisPrice foundWhois `shouldBe` 300
+        whoisValue foundWhois `shouldBe` "hello (again) world"
 
       it "Can fail to buy a name" $ do
+        -- try to buy at a lower price
+        -- try to buy at a price without having that much
         pending
 
       it "Can fail a transfer" $ do
+        -- try to give addr1 2000 from addr2
         pending
 
 runRPC :: forall a. RPC.TendermintM a -> IO a

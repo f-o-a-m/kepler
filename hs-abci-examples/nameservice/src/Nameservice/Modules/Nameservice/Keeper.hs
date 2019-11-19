@@ -160,7 +160,11 @@ buyName msg = do
         in if buyNameBid > forsalePrice
              then do
                transfer buyNameBuyer buyNameBid previousOwner
-               putWhois buyNameName currentWhois {whoisOwner = buyNameBuyer}
+               -- update new owner, price and value based on BuyName
+               putWhois buyNameName currentWhois { whoisOwner = buyNameBuyer
+                                                 , whoisPrice = buyNameBid
+                                                 , whoisValue = buyNameValue
+                                                 }
                emit NameClaimed
                  { nameClaimedOwner = buyNameBuyer
                  , nameClaimedName = buyNameName
