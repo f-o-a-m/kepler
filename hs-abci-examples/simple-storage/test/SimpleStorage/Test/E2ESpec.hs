@@ -24,7 +24,7 @@ import           SimpleStorage.Types                  (AppTxMessage (..),
 import           Tendermint.SDK.Query.StoreClient     (ClientResponse (..),
                                                        HasClient (..),
                                                        RunClient (..))
-import           Tendermint.SDK.Query.Types           (QueryArgs(..))
+import           Tendermint.SDK.Query.Types           (QueryArgs (..))
 import           Tendermint.SDK.Store                 (rawKey)
 import           Test.Hspec
 
@@ -46,7 +46,7 @@ spec = do
       SS.Count foundCount <- do
         eResp <- runQueryRunner $ getCount queryReq
         case eResp of
-          Left e -> error $ "Parse Error: " <> show e
+          Left e                   -> error $ "Parse Error: " <> show e
           Right ClientResponse{..} -> return $ clientResponseData
       foundCount `shouldBe` 0
 

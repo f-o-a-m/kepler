@@ -33,9 +33,9 @@ data QueryError =
   deriving (Show)
 
 data QueryArgs a = QueryArgs
-  { queryArgsProve     :: Bool
-  , queryArgsData      :: a
-  , queryArgsHeight    :: WrappedVal Int64
+  { queryArgsProve  :: Bool
+  , queryArgsData   :: a
+  , queryArgsHeight :: WrappedVal Int64
   } deriving Functor
 
 data QueryResult a = QueryResult
