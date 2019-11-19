@@ -3,17 +3,17 @@ module Tendermint.SDK.Types.Transaction where
 import           Control.Error                (note)
 import           Crypto.Hash                  (Digest, hashWith)
 import           Crypto.Hash.Algorithms       (SHA256 (..))
+import           Data.Bifunctor               (first)
 import           Data.ByteString              (ByteString)
 import           Data.Proxy
 import qualified Data.Serialize               as Serialize
+import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
 import           GHC.Generics                 (Generic)
 import           Tendermint.SDK.Crypto        (MakeDigest (..),
                                                RecoverableSignatureSchema (..),
                                                SignatureSchema (..))
 import           Tendermint.SDK.Types.Message (Msg (..))
-import Data.Bifunctor (first)
-import Data.String.Conversions (cs)
 
 -- Our standard transaction type parameterized by the signature schema 'alg'
 -- and an underlying message type 'msg'.

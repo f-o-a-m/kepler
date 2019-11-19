@@ -1,33 +1,39 @@
 module Nameservice.Test.E2ESpec where
 
-import           Control.Lens                          (to, (^.))
-import           Data.Aeson                            (ToJSON)
-import           Data.Aeson.Encode.Pretty              (encodePretty)
-import qualified Data.ByteArray.HexString              as Hex
-import           Data.Default.Class                    (def)
-import           Data.String.Conversions               (cs)
-import           Nameservice.Modules.Nameservice.Types (Name (..))
-import qualified Network.Tendermint.Client             as RPC
-import           Tendermint.SDK.Store                  (rawKey)
-import           Tendermint.SDK.Types.Address          (Address (..),
-                                                        addressToBytes)
-import qualified Data.ByteArray.Base64String          as Base64
-import qualified Data.ByteString.Lazy as BL
-import qualified Data.ByteString as BS
-import Proto3.Suite (Message, toLazyByteString)
-import Nameservice.Modules.Nameservice.Messages (NameserviceMessage(..),
-                                                 SetName(..),
-                                                 BuyName(..),
-                                                 DeleteName(..))
-import Tendermint.SDK.Types.Transaction (RawTransaction(..), signRawTransaction)
-import qualified Data.Serialize as Serialize
-import           Tendermint.SDK.Crypto            (Secp256k1)
-import           Crypto.Secp256k1                 (SecKey,
-                                                   secKey,
-                                                   exportCompactRecSig)
-import           Data.Maybe                       (fromJust)
-import           Data.String                      (fromString)
+import           Control.Lens                             (to, (^.))
+import           Crypto.Secp256k1                         (SecKey,
+                                                           exportCompactRecSig,
+                                                           secKey)
+import           Data.Aeson                               (ToJSON)
+import           Data.Aeson.Encode.Pretty                 (encodePretty)
+import qualified Data.ByteArray.Base64String              as Base64
+import qualified Data.ByteArray.HexString                 as Hex
+import qualified Data.ByteString                          as BS
+import qualified Data.ByteString.Lazy                     as BL
+import           Data.Default.Class                       (def)
+import           Data.Maybe                               (fromJust)
 import           Data.Proxy
+import qualified Data.Serialize                           as Serialize
+import           Data.String                              (fromString)
+import           Data.String.Conversions                  (cs)
+import           Nameservice.Modules.Nameservice.Messages (BuyName (..),
+                                                           DeleteName (..),
+                                                           NameserviceMessage (..),
+                                                           SetName (..))
+import           Nameservice.Modules.Nameservice.Types    (Name (..),
+                                                           Whois (..))
+import           Nameservice.Modules.Token                (Amount (..))
+import qualified Network.ABCI.Types.Messages.Response     as Response
+import qualified Network.Tendermint.Client                as RPC
+import           Proto3.Suite                             (Message,
+                                                           toLazyByteString)
+import           Tendermint.SDK.Codec                     (HasCodec (..))
+import           Tendermint.SDK.Crypto                    (Secp256k1)
+import           Tendermint.SDK.Store                     (rawKey)
+import           Tendermint.SDK.Types.Address             (Address (..),
+                                                           addressToBytes)
+import           Tendermint.SDK.Types.Transaction         (RawTransaction (..),
+                                                           signRawTransaction)
 import           Test.Hspec
 
 spec :: Spec
@@ -35,7 +41,7 @@ spec = do
   let satoshi = Name "satoshi"
       addr1 = Address "0x01"
       addr2 = Address "0x02"
-      
+
   describe "Nameservice Spec" $ do
     it "Can query /health to make sure the node is alive" $ do
       resp <- runRPC RPC.health
@@ -47,7 +53,8 @@ spec = do
           txReq =
             RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
       deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-      pending
+      let deliverRespCode = deliverResp ^. Response._deliverTxCode
+      deliverRespCode `shouldBe` 0
 
     it "Can query for a name" $ do
       let queryReq = def { RPC.requestABCIQueryPath = Just "nameservice/whois"
@@ -55,7 +62,10 @@ spec = do
                          }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
         RPC.abciQuery queryReq
-      pending
+      let foundWhois = queryResp ^. Response._queryValue . to decodeValue
+      whoisValue foundWhois `shouldBe` "hello world"
+      whoisOwner foundWhois `shouldBe` addr1
+      whoisPrice foundWhois `shouldBe` 0
 
     it "Can query for a name that doesn't exist" $ do
       let nope = Name "nope"
@@ -64,7 +74,8 @@ spec = do
                          }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
         RPC.abciQuery queryReq
-      pending
+      let queryRespCode = queryResp ^. Response._queryCode
+      queryRespCode `shouldBe` 1
 
     it "Can query balances" $ do
       let queryReq = def { RPC.requestABCIQueryPath = Just "token/balance"
@@ -72,7 +83,8 @@ spec = do
                          }
       queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
         RPC.abciQuery queryReq
-      pending
+      let foundAmount = queryResp ^. Response._queryValue . to decodeValue
+      foundAmount `shouldBe` (Amount 0)
 
     it "Can set a name value" $ do
       let msg = SetName satoshi addr1 "goodbye to a world"
@@ -80,7 +92,19 @@ spec = do
           txReq =
             RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
       deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-      pending
+      let deliverRespCode = deliverResp ^. Response._deliverTxCode
+      deliverRespCode `shouldBe` 0
+      -- check for changes
+      let queryReq = def { RPC.requestABCIQueryPath = Just "nameservice/whois"
+                         , RPC.requestABCIQueryData = satoshi ^. rawKey . to Hex.fromBytes
+                         }
+      queryResp <- fmap RPC.resultABCIQueryResponse . runRPC $
+        RPC.abciQuery queryReq
+      let foundWhois = queryResp ^. Response._queryValue . to decodeValue
+      whoisValue foundWhois `shouldBe` "goodbye to a world"
+      -- eveyrthing else should remain the same
+      whoisOwner foundWhois `shouldBe` addr1
+      whoisPrice foundWhois `shouldBe` 0
 
     it "Can buy an existing name" $ do
       pending
@@ -100,6 +124,9 @@ runRPC = RPC.runTendermintM rpcConfig
           prettyPrint :: forall b. ToJSON b => String -> b -> IO ()
           prettyPrint prefix a = putStrLn $ prefix <> "\n" <> (cs . encodePretty $ a)
       in RPC.Config baseReq (prettyPrint "RPC Request") (prettyPrint "RPC Response")
+
+decodeValue :: HasCodec a => Base64.Base64String -> a
+decodeValue = (\(Right a) -> a) . decode . Base64.toBytes
 
 encodeRawTx :: RawTransaction -> Base64.Base64String
 encodeRawTx = Base64.fromBytes . Serialize.encode
