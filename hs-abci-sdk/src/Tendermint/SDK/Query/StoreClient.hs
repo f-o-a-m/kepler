@@ -10,7 +10,6 @@ import           Control.Lens                         (to, (^.))
 import qualified Data.ByteArray.Base64String          as Base64
 import           Data.Proxy
 import           Data.String.Conversions              (cs)
-import           Data.Text                            (Text)
 import           GHC.TypeLits                         (KnownSymbol, symbolVal)
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
@@ -51,11 +50,11 @@ data ClientResponse a = ClientResponse
   }
 
 instance (RunClient m, Queryable a, name ~  Name a, KnownSymbol name ) => HasClient m (Leaf a) where
-    type ClientT m (Leaf a) = m (Either Text (ClientResponse a))
+    type ClientT m (Leaf a) = m (ClientResponse a)
     genClient _ _ q =
         let leaf = symbolVal (Proxy @(Name a))
         in do
             r@Resp.Query{..} <- runQuery q { Req.queryPath = Req.queryPath q <> "/" <> cs leaf }
             return $ case decodeQueryResult queryValue of
-                Left err -> Left err
-                Right a  -> Right $ ClientResponse a r
+                Left err -> error $ "Impossible parse error: " <> cs err
+                Right a  -> ClientResponse a r

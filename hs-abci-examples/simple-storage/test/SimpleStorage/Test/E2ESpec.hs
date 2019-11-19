@@ -13,7 +13,6 @@ import           Data.Int                             (Int32)
 import           Data.Proxy
 import           Data.Serialize                       (decode, encode)
 import           Data.String.Conversions              (cs)
-import           Data.Text                            (Text)
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import qualified Network.Tendermint.Client            as RPC
@@ -43,12 +42,8 @@ spec = do
             , queryArgsHeight = 0
             , queryArgsProve = False
             }
-      SS.Count foundCount <- do
-        eResp <- runQueryRunner $ getCount queryReq
-        case eResp of
-          Left e                   -> error $ "Parse Error: " <> show e
-          Right ClientResponse{..} -> return $ clientResponseData
-      foundCount `shouldBe` 0
+      ClientResponse{clientResponseData}<- runQueryRunner $ getCount queryReq
+      clientResponseData `shouldBe` SS.Count 0
 
     it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
       let tx = UpdateCountTx "irakli" 4
@@ -103,7 +98,7 @@ instance RunClient QueryRunner where
           }
     in RPC.resultABCIQueryResponse <$> QueryRunner (RPC.abciQuery rpcQ)
 
-getCount :: QueryArgs SS.CountKey -> QueryRunner (Either Text (ClientResponse SS.Count))
+getCount :: QueryArgs SS.CountKey -> QueryRunner (ClientResponse SS.Count)
 getCount = genClient (Proxy :: Proxy QueryRunner) (Proxy :: Proxy SS.Api) def
 
 
