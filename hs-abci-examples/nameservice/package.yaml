@@ -120,4 +120,5 @@ tests:
     - nameservice
     - aeson-pretty
     - hspec
+    - secp256k1-haskell
     - hs-tendermint-client
