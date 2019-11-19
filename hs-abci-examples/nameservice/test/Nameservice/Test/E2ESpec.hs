@@ -36,6 +36,12 @@ import           Tendermint.SDK.Types.Address             (Address (..),
 import           Tendermint.SDK.Types.Transaction         (RawTransaction (..),
                                                            signRawTransaction)
 import           Test.Hspec
+import Nameservice.Application (QueryApi)
+import           Tendermint.SDK.Query.Client          (ClientResponse (..),
+                                                       HasClient (..),
+                                                       RunClient (..))
+import           Tendermint.SDK.Query.Types           (QueryArgs (..))
+import Servant.API ((:<|>)(..))
 
 spec :: Spec
 spec = do
@@ -179,3 +185,11 @@ privateKey = fromJust . secKey . Hex.toBytes . fromString $
 
 algProxy :: Proxy Secp256k1
 algProxy = Proxy
+
+
+
+getWhois :: QueryArgs Name -> RPC.TendermintM (ClientResponse Whois)
+getBalance :: QueryArgs Address -> RPC.TendermintM (ClientResponse Amount) 
+
+(getBalance :<|> getWhois) = 
+  genClient (Proxy :: Proxy RPC.TendermintM) (Proxy :: Proxy QueryApi) def
