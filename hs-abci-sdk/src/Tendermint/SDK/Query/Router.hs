@@ -78,7 +78,6 @@ runRouter router env query =
     RQueryArgs r' ->
       let qa = QueryArgs
             { queryArgsData = query ^. Request._queryData
-            , queryArgsQueryData = query ^. Request._queryData
             , queryArgsHeight = query ^. Request._queryHeight
             , queryArgsProve = query ^. Request._queryProve
             }

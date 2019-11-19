@@ -35,7 +35,6 @@ data QueryError =
 data QueryArgs a = QueryArgs
   { queryArgsProve     :: Bool
   , queryArgsData      :: a
-  , queryArgsQueryData :: Base64String
   , queryArgsHeight    :: WrappedVal Int64
   } deriving Functor
 
