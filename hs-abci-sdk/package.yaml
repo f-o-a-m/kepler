@@ -95,6 +95,7 @@ library:
   - Tendermint.SDK.Query.Router
   - Tendermint.SDK.Query.Store
   - Tendermint.SDK.Query.Types
+  - Tendermint.SDK.Query.StoreClient
   - Tendermint.SDK.Logger
   - Tendermint.SDK.Logger.Katip
   - Tendermint.SDK.Store
