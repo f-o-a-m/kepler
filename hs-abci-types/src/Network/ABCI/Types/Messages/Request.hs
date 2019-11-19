@@ -17,6 +17,7 @@ import           Data.ByteArray.Base64String            (Base64String)
 import qualified Data.ByteArray.Base64String            as Base64
 import           Data.ByteArray.HexString               (HexString)
 import qualified Data.ByteArray.HexString               as Hex
+import           Data.Default.Class                     (Default (..))
 import           Data.Int                               (Int64)
 import           Data.ProtoLens.Message                 (Message (defMessage))
 import           Data.Text                              (Text)
@@ -60,6 +61,9 @@ instance Wrapped Echo where
     t Echo {..} = defMessage & PT.message .~ echoMessage
     f message = Echo { echoMessage = message ^. PT.message }
 
+instance Default Echo where
+  def = defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- Flush
 --------------------------------------------------------------------------------
@@ -79,6 +83,9 @@ instance Wrapped Flush where
    where
     t = const defMessage
     f = const Flush
+
+instance Default Flush where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- Info
@@ -117,6 +124,9 @@ instance Wrapped Info where
                      , infoP2pVersion   = message ^. PT.p2pVersion
                      }
 
+instance Default Info where
+  def = defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- SetOption
 --------------------------------------------------------------------------------
@@ -147,6 +157,9 @@ instance Wrapped SetOption where
     f message = SetOption { setOptionKey   = message ^. PT.key
                           , setOptionValue = message ^. PT.value
                           }
+
+instance Default SetOption where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- InitChain
@@ -199,6 +212,9 @@ instance Wrapped InitChain where
       , initChainAppState = Base64.fromBytes $ message ^. PT.appStateBytes
       }
 
+instance Default InitChain where
+  def = defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- Query
 --------------------------------------------------------------------------------
@@ -239,6 +255,9 @@ instance Wrapped Query where
                       , queryHeight = WrappedVal $ message ^. PT.height
                       , queryProve  = message ^. PT.prove
                       }
+
+instance Default Query where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- BeginBlock
@@ -287,6 +306,9 @@ instance Wrapped BeginBlock where
       , beginBlockByzantineValidators = message ^.. PT.byzantineValidators . traverse . _Unwrapped'
       }
 
+instance Default BeginBlock where
+  def = defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- CheckTx
 --------------------------------------------------------------------------------
@@ -315,6 +337,9 @@ instance Wrapped CheckTx where
 
     f message = CheckTx { checkTxTx = Base64.fromBytes $ message ^. PT.tx }
 
+instance Default CheckTx where
+  def = defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- DeliverTx
 --------------------------------------------------------------------------------
@@ -341,6 +366,9 @@ instance Wrapped DeliverTx where
     t DeliverTx {..} = defMessage & PT.tx .~ Base64.toBytes deliverTxTx
 
     f message = DeliverTx { deliverTxTx = Base64.fromBytes $ message ^. PT.tx }
+
+instance Default DeliverTx where
+  def = defMessage ^. _Unwrapped'
 
 --------------------------------------------------------------------------------
 -- EndBlock
@@ -370,6 +398,9 @@ instance Wrapped EndBlock where
     f message =
       EndBlock { endBlockHeight = WrappedVal $ message ^. PT.height }
 
+instance Default EndBlock where
+  def = defMessage ^. _Unwrapped'
+
 --------------------------------------------------------------------------------
 -- Commit
 --------------------------------------------------------------------------------
@@ -394,3 +425,6 @@ instance Wrapped Commit where
     t Commit = defMessage
 
     f _ = Commit
+
+instance Default Commit where
+  def = defMessage ^. _Unwrapped'

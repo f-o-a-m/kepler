@@ -6,6 +6,7 @@ import           Control.Monad.Trans                    (MonadTrans (..))
 import           Data.ByteArray.Base64String            (Base64String,
                                                          fromBytes, toBytes)
 import           Data.Int                               (Int64)
+import           Data.Text                              (Text)
 import           GHC.TypeLits                           (Symbol)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof, WrappedVal (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
@@ -32,10 +33,9 @@ data QueryError =
   deriving (Show)
 
 data QueryArgs a = QueryArgs
-  { queryArgsProve       :: Bool
-  , queryArgsData        :: a
-  , queryArgsQueryData   :: Base64String
-  , queryArgsBlockHeight :: WrappedVal Int64
+  { queryArgsProve  :: Bool
+  , queryArgsData   :: a
+  , queryArgsHeight :: WrappedVal Int64
   } deriving Functor
 
 data QueryResult a = QueryResult
@@ -54,9 +54,13 @@ data QueryResult a = QueryResult
 class Queryable a where
   type Name a :: Symbol
   encodeQueryResult :: a -> Base64String
+  decodeQueryResult :: Base64String -> Either Text a
 
   default encodeQueryResult :: HasCodec a => a -> Base64String
   encodeQueryResult = fromBytes . encode
+
+  default decodeQueryResult :: HasCodec a => Base64String -> Either Text a
+  decodeQueryResult = decode . toBytes
 
 -- | This class is used to parse the 'data' field of the query request message.
 -- | The default method assumes that the 'data' is simply the key for the
