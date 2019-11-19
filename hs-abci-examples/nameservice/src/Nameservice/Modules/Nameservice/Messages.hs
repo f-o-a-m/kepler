@@ -29,7 +29,16 @@ data NameserviceMessage =
     NSetName SetName
   | NBuyName BuyName
   | NDeleteName DeleteName
+  | NFaucetAccount FaucetAccount
   deriving (Eq, Show, Generic)
+
+data FaucetAccount = FaucetAccount
+  { faucetAccountTo     :: Address
+  , faucetAccountAmount :: Amount
+  } deriving (Eq, Show, Generic)
+
+instance Message FaucetAccount
+instance Named FaucetAccount
 
 -- @NOTE: .proto genration will use these type names as is
 -- only field names stripped of prefixes during generation

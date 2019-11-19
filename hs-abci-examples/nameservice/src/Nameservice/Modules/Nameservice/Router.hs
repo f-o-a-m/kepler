@@ -4,9 +4,10 @@ import           Data.ByteString                          (ByteString)
 import           Data.Proxy
 import           Nameservice.Modules.Nameservice.Keeper   (HasNameserviceEff,
                                                            buyName, deleteName,
+                                                           faucetAccount,
                                                            setName)
 import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (..))
-import           Nameservice.Modules.Token                (HasTokenEff)
+import           Nameservice.Modules.Token                (HasTokenEff, mint)
 import           Polysemy                                 (Members, Sem)
 import           Polysemy.Error                           (Error)
 import           Tendermint.SDK.Auth                      (AuthError)
@@ -39,6 +40,7 @@ router tx@Tx{txMsg} =
     handler Tx{txMsg} =
       let Msg{msgData=msg} = txMsg
       in case msg of
-           NSetName txMsg    -> setName txMsg
-           NBuyName txMsg    -> buyName txMsg
-           NDeleteName txMsg -> deleteName txMsg
+           NSetName txMsg       -> setName txMsg
+           NBuyName txMsg       -> buyName txMsg
+           NDeleteName txMsg    -> deleteName txMsg
+           NFaucetAccount txMsg -> faucetAccount txMsg

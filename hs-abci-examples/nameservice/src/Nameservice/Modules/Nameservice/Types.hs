@@ -99,6 +99,21 @@ instance IsAppError NameserviceException where
 -- Events
 --------------------------------------------------------------------------------
 
+data Faucetted = Faucetted
+  { faucettedAccount :: Address
+  , faucettedAmount  :: Amount
+  }
+
+faucettedAesonOptions :: A.Options
+faucettedAesonOptions = defaultNameserviceOptions "faucetted"
+
+instance ToJSON Faucetted where
+  toJSON = A.genericToJSON faucettedAesonOptions
+instance FromJSON Faucetted where
+  parseJSON = A.genericParseJSON faucettedAesonOptions
+instance ToEvent Faucetted where
+  makeEventType _ = "Faucetted"
+
 data NameClaimed = NameClaimed
   { nameClaimedOwner :: Address
   , nameClaimedName  :: Name
