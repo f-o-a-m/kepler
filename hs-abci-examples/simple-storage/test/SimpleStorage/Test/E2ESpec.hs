@@ -20,7 +20,7 @@ import qualified SimpleStorage.Modules.SimpleStorage  as SS
 import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        UpdateCountTx (..),
                                                        encodeAppTxMessage)
-import           Tendermint.SDK.Query.StoreClient     (ClientResponse (..),
+import           Tendermint.SDK.Query.Client          (ClientResponse (..),
                                                        HasClient (..),
                                                        RunClient (..))
 import           Tendermint.SDK.Query.Types           (QueryArgs (..))
