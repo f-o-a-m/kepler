@@ -110,10 +110,14 @@ tests:
   nameservice-test:
     main:                Spec.hs
     source-dirs:         test
+    other-modules:
+    - Nameservice.Test.E2ESpec
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
     - nameservice
+    - aeson-pretty
     - hspec
+    - hs-tendermint-client
