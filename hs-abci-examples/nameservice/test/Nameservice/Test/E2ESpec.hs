@@ -70,10 +70,10 @@ spec = do
       pending
 
     it "Can set a name value" $ do
-      let msg = SetName satoshi "goodbye to a world" addr1
-          rawTx = mkSignedRawTransactionWithRoute "nameservice" msg
-          txReq =
-            RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+      -- let msg = SetName satoshi "goodbye to a world" addr1
+      --     rawTx = mkSignedRawTransactionWithRoute "nameservice" msg
+      --     txReq =
+      --       RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
       pending
 
     it "Can buy a name" $ do
@@ -98,12 +98,12 @@ runRPC = RPC.runTendermintM rpcConfig
 encodeRawTx :: RawTransaction -> Base64.Base64String
 encodeRawTx = Base64.fromBytes . Serialize.encode
 
-encodeTxMsgData :: Message a => a -> BS.ByteString
-encodeTxMsgData = BL.toStrict . toLazyByteString
+encodeMsgData :: Message a => a -> BS.ByteString
+encodeMsgData = BL.toStrict . toLazyByteString
 
 mkSignedRawTransactionWithRoute :: Message a => BS.ByteString -> a -> RawTransaction
 mkSignedRawTransactionWithRoute route msg = sign unsigned
-  where unsigned = RawTransaction { rawTransactionData = encodeTxMsgData msg
+  where unsigned = RawTransaction { rawTransactionData = encodeMsgData msg
                                   , rawTransactionRoute = route
                                   , rawTransactionSignature = ""
                                   }
