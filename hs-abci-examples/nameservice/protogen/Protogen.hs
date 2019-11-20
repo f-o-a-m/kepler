@@ -38,7 +38,7 @@ testBN :: BuyName
 testBN = BuyName (Amount 999) (Name "satoshi") "cool cats" (Address "01")
 
 testDN :: DeleteName
-testDN = DeleteName (Name "satoshi") (Address "01")
+testDN = DeleteName (Address "01") (Name "satoshi")
 
 -- @NOTE: for some reason, encoding results in a lazy bytestring
 -- while the provided decoder only accepts a strict bytestring

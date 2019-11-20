@@ -1,8 +1,7 @@
 module Nameservice.Test.E2ESpec where
 
-import           Control.Lens                         (to, (^.))
-import           Crypto.Secp256k1                     (SecKey,
-                                                       derivePubKey,
+import           Control.Lens                         ((^.))
+import           Crypto.Secp256k1                     (SecKey, derivePubKey,
                                                        exportCompactRecSig,
                                                        secKey)
 import           Data.Aeson                           (ToJSON)
@@ -22,7 +21,6 @@ import           Nameservice.Modules.Nameservice      (BuyName (..),
                                                        DeleteName (..),
                                                        FaucetAccount (..),
                                                        Name (..),
-                                                       NameserviceMessage (..),
                                                        SetName (..), Whois (..))
 import           Nameservice.Modules.Token            (Amount (..))
 import qualified Network.ABCI.Types.Messages.Response as Response
@@ -33,7 +31,8 @@ import           Servant.API                          ((:<|>) (..))
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Crypto                (Secp256k1,
                                                        addressFromPubKey)
-import           Tendermint.SDK.Query.Client          (ClientResponse (..), genClient)
+import           Tendermint.SDK.Query.Client          (ClientResponse (..),
+                                                       genClient)
 import           Tendermint.SDK.Query.Types           (QueryArgs (..))
 import           Tendermint.SDK.Types.Address         (Address (..))
 import           Tendermint.SDK.Types.Transaction     (RawTransaction (..),
@@ -43,8 +42,6 @@ import           Test.Hspec
 spec :: Spec
 spec = do
   let satoshi = Name "satoshi"
-      addr0 = userAddress user0
-      privateKey0 = userPrivKey user0
       addr1 = userAddress user1
       privateKey1 = userPrivKey user1
       addr2 = userAddress user2
@@ -186,10 +183,35 @@ spec = do
         let deliverRespCode = deliverResp ^. Response._deliverTxCode
         deliverRespCode `shouldBe` 1
 
+      it "Can delete names" $ do
+        let msg = DeleteName addr2 satoshi
+            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
+            txReq =
+              RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+        deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
+        let deliverRespCode = deliverResp ^. Response._deliverTxCode
+        deliverRespCode `shouldBe` 0
+        -- shouldn't exist
+        let queryReq = QueryArgs
+              { queryArgsData = satoshi
+              , queryArgsHeight = 0
+              , queryArgsProve = False
+              }
+        ClientResponse{ clientResponseData = emptyWhois
+                      , clientResponseRaw
+                      } <- runRPC $ getWhois queryReq
+        let queryRespCode = clientResponseRaw ^. Response._queryCode
+        -- storage failure
+        queryRespCode `shouldBe` 1
+        -- should be a default whois
+        whoisPrice emptyWhois `shouldBe` 0
+        whoisOwner emptyWhois `shouldBe` (Address "")
+        whoisValue emptyWhois `shouldBe` ""
+
       -- @TODO: make transfer messages
       it "Can fail a transfer" $ do
         -- try to give addr1 2000 from addr2
-        pending
+        pendingWith "Split token module"
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
 runRPC = RPC.runTendermintM rpcConfig
@@ -236,9 +258,6 @@ data User = User
   { userPrivKey :: SecKey
   , userAddress :: Address
   }
-
-user0 :: User
-user0 = makeUser "0000000000000000000000000000000000000000000000000000000000000000"
 
 user1 :: User
 user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
