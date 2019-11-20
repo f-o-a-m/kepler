@@ -1,0 +1,12 @@
+FROM golang:1.12-alpine
+ARG TENDERMINT_VERSION=0.32.8
+RUN apk add --no-cache ca-certificates git make && \
+    mkdir -p $GOPATH/src/github.com/tendermint && \
+    cd $GOPATH/src/github.com/tendermint && \
+    git clone --branch "${TENDERMINT_VERSION}" https://github.com/tendermint/tendermint.git && \
+    cd tendermint && \
+    make tools && \
+    make install_abci && \
+    ln -s `which abci-cli` /abci-cli && \
+    apk del git make
+ENTRYPOINT ["/abci-cli"]

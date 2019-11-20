@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+  tendermint-init:
+    image: tendermint/tendermint:v0.32.2
+    command: init
+    volumes:
+        - /tmp:/tendermint
+  tendermint:
+    depends_on:
+      - tendermint-init
+      - kvstore
+    image: tendermint/tendermint:v0.32.2
+    command: node --proxy_app=tcp://simple_storage:26658
+    volumes:
+      - /tmp:/tendermint
+    restart: always
+    ports:
+      - "26656-26657:26656-26657"
+  kvstore:
+    build:
+      context: ./
+      dockerfile: Dockerfile.abci-cli
+      args:
+        TENDERMINT_VERSION: v0.32.2
+    restart: always
+    command: kvstore
+    expose:
+      - "26658"

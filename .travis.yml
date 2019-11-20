@@ -3,6 +3,10 @@ ghc:
   - "8.6.1"
 cabal: "2.4"
 sudo: required
+
+services:
+- docker
+
 # Cache .stack for build_times--
 addons:
   apt:
@@ -32,6 +36,11 @@ jobs:
   include:
   - stage: "Test Libraries"
     script: make test-libraries
+  - stage: "Test Tendermint Client"
+    script:
+    - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client up -d
+    - make test-kv-store
+    - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client down -v --rmi local
   - stage: "Ensure that code matches style guide"
     # When branch is `master` we run `haskell-stylish` and fail if git working directory becomes dirty
     if: branch = master
