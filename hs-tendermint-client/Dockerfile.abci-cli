@@ -1,6 +1,7 @@
-FROM golang:1.12-alpine
-ARG TENDERMINT_VERSION=0.32.8
-RUN apk add --no-cache ca-certificates git make && \
+FROM golang:1.13-alpine
+ARG TENDERMINT_VERSION
+RUN echo "Will clone tendermint/tendermint#${TENDERMINT_VERSION}" && \
+    apk add --no-cache ca-certificates git make && \
     mkdir -p $GOPATH/src/github.com/tendermint && \
     cd $GOPATH/src/github.com/tendermint && \
     git clone --branch "${TENDERMINT_VERSION}" https://github.com/tendermint/tendermint.git && \
