@@ -227,3 +227,5 @@ mint
 mint addr amount = do
   bal <- getBalance addr
   putBalance addr (bal + amount)
+
+--------------------------------------------------------------------------------

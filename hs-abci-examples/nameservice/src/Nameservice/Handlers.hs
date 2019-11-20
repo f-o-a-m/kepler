@@ -5,8 +5,8 @@ import qualified Data.ByteArray.Base64String          as Base64
 import           Data.Default.Class                   (def)
 import           Data.Proxy
 import           Nameservice.Application              (Handler,
-                                                       compileToBaseApp)
-import           Nameservice.Modules.Nameservice      as N
+                                                       compileToBaseApp, router)
+import qualified Nameservice.Modules.Nameservice      as N
 import           Network.ABCI.Server.App              (App (..),
                                                        MessageType (..),
                                                        Request (..),
@@ -83,10 +83,9 @@ deliverTxH
   -> Sem BaseApp (Response 'MTDeliverTx) -- Sem BaseApp (Response 'MTDeliverTx)
 deliverTxH (RequestDeliverTx deliverTx) =
   let tryToRespond = do
-        tx <- either (throwSDKError . ParseError) return $ do
-          rawTx <- parseRawTransaction $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
-          parseTx (Proxy @Secp256k1) rawTx
-        events <- withEventBuffer . compileToBaseApp $ N.router tx
+        tx <- either (throwSDKError . ParseError) return $
+          parseRawTransaction $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
+        events <- withEventBuffer . compileToBaseApp $ router tx
         return $ ResponseDeliverTx $
           def & Resp._deliverTxCode .~ 0
               & Resp._deliverTxEvents .~ events

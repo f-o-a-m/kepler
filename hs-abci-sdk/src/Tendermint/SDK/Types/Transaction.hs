@@ -19,6 +19,7 @@ import           Tendermint.SDK.Types.Message (Msg (..))
 -- and an underlying message type 'msg'.
 data Tx alg msg = Tx
   { txMsg       :: Msg msg
+  , txRoute     :: Text
   , txSignature :: RecoverableSignature alg
   , txSignBytes :: Message alg
   , txSigner    :: PubKey alg
@@ -82,7 +83,12 @@ parseTx p rawTx@RawTransaction{..} = do
       { msgData = rawTransactionData
       , msgAuthor = addressFromPubKey p signerPubKey
       }
+    , txRoute = cs rawTransactionRoute
     , txSignature = recSig
     , txSignBytes = signBytes
     , txSigner = signerPubKey
     }
+
+data RoutedTx msg where
+  RoutedTx :: Tx alg msg -> RoutedTx msg
+
