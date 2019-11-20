@@ -1,8 +1,8 @@
 module Nameservice.Modules.Nameservice.Messages where
 
-import Data.String.Conversions (cs)
 import           Data.Bifunctor                        (first)
 import           Data.Foldable                         (sequenceA_)
+import           Data.String.Conversions               (cs)
 import           Data.Text                             (Text)
 import           GHC.Generics                          (Generic)
 import           Nameservice.Modules.Nameservice.Types (Name (..))

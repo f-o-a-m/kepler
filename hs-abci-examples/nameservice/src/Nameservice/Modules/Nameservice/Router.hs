@@ -28,7 +28,7 @@ router
 router (RoutedTx Tx{txMsg}) =
   let Msg{msgData=msg} = txMsg
   in case msg of
-       NSetName txMsg    -> setName txMsg
-       NBuyName txMsg    -> buyName txMsg
-       NDeleteName txMsg -> deleteName txMsg
+       NSetName txMsg       -> setName txMsg
+       NBuyName txMsg       -> buyName txMsg
+       NDeleteName txMsg    -> deleteName txMsg
        NFaucetAccount txMsg -> faucetAccount txMsg
