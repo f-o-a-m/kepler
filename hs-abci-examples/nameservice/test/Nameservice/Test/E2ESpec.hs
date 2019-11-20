@@ -139,12 +139,8 @@ spec = do
         let msg = DeleteName addr2 satoshi
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         ensureTxCommitResponseCode rawTx 0
-        -- shouldn't exist
-        let queryReq = QueryArgs
-              { queryArgsData = satoshi
-              , queryArgsHeight = 0
-              , queryArgsProve = False
-              }
+        -- name shouldn't exist
+        let queryReq = defaultReqWithData satoshi
         ClientResponse{ clientResponseData = emptyWhois
                       , clientResponseRaw
                       } <- runRPC $ getWhois queryReq
