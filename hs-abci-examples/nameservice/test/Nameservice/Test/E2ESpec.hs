@@ -43,10 +43,13 @@ import           Test.Hspec
 spec :: Spec
 spec = do
   let satoshi = Name "satoshi"
+      addr0 = userAddress user0
+      privateKey0 = userPrivKey user0
       addr1 = userAddress user1
       privateKey1 = userPrivKey user1
       addr2 = userAddress user2
       privateKey2 = userPrivKey user2
+
   beforeAll (do faucetAccount user1; faucetAccount user2) $
     describe "Nameservice Spec" $ do
       it "Can query /health to make sure the node is alive" $ do
@@ -93,6 +96,7 @@ spec = do
                       , clientResponseRaw
                       } <- runRPC $ getWhois queryReq
         let queryRespCode = clientResponseRaw ^. Response._queryCode
+        -- storage failure
         queryRespCode `shouldBe` 1
         -- empty whois (defaults)
         whoisPrice emptyWhois `shouldBe` 0
@@ -119,6 +123,17 @@ spec = do
         whoisOwner foundWhois `shouldBe` addr1
         whoisPrice foundWhois `shouldBe` 0
 
+      it "Can fail to set a name" $ do
+        -- try to set a name without being the owner
+        let msg = SetName satoshi addr2 "goodbye to a world"
+            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
+            txReq =
+              RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+        deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
+        let deliverRespCode = deliverResp ^. Response._deliverTxCode
+        -- response code 2
+        deliverRespCode `shouldBe` 2
+
       it "Can buy an existing name" $ do
         let msg = BuyName 300 satoshi "hello (again) world" addr2
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
@@ -138,14 +153,43 @@ spec = do
         whoisPrice foundWhois `shouldBe` 300
         whoisValue foundWhois `shouldBe` "hello (again) world"
 
-      -- it "Can fail to buy a name" $ do
-      --   -- try to buy at a lower price
-      --   -- try to buy at a price without having that much
-      --   pending
+      -- -- @TODO: this is a problem
+      -- it "Can buy self-owned names without profiting" $ do
+      --   let queryReq = QueryArgs
+      --         { queryArgsData = addr2
+      --         , queryArgsHeight = 0
+      --         , queryArgsProve = False
+      --         }
+      --   ClientResponse{clientResponseData = beforeBuyAmount} <- runRPC $ getBalance queryReq
+      --   let msg = BuyName 500 satoshi "hello (again) world" addr2
+      --       rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
+      --       txReq =
+      --         RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+      --   deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
+      --   let deliverRespCode = deliverResp ^. Response._deliverTxCode
+      --   deliverRespCode `shouldBe` 0
+      --   let queryReq = QueryArgs
+      --         { queryArgsData = addr2
+      --         , queryArgsHeight = 0
+      --         , queryArgsProve = False
+      --         }
+      --   ClientResponse{clientResponseData = afterBuyAmount} <- runRPC $ getBalance queryReq
+      --   beforeBuyAmount `shouldSatisfy` (_ > afterBuyAmount) afterBuyAmount
 
-      -- it "Can fail a transfer" $ do
-      --   -- try to give addr1 2000 from addr2
-      --   pending
+      it "Can fail to buy a name" $ do
+        -- try to buy at a lower price
+        let msg = BuyName 100 satoshi "hello (again) world" addr1
+            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
+            txReq =
+              RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+        deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
+        let deliverRespCode = deliverResp ^. Response._deliverTxCode
+        deliverRespCode `shouldBe` 1
+
+      -- @TODO: make transfer messages
+      it "Can fail a transfer" $ do
+        -- try to give addr1 2000 from addr2
+        pending
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
 runRPC = RPC.runTendermintM rpcConfig
