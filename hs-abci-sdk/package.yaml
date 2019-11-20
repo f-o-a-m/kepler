@@ -104,6 +104,7 @@ library:
   - Tendermint.SDK.Types.Transaction
   - Tendermint.SDK.Types.Address
   - Tendermint.SDK.TxRouter
+  - Tendermint.SDK.Module
 
 tests:
   hs-abci-sdk-test:
