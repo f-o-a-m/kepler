@@ -16,12 +16,13 @@ import           Data.Proxy
 import qualified Data.Serialize                       as Serialize
 import           Data.String                          (fromString)
 import           Data.String.Conversions              (cs)
+import           Data.Word                            (Word32)
 import           Nameservice.Application              (QueryApi)
 import           Nameservice.Modules.Nameservice      (BuyName (..),
                                                        DeleteName (..),
                                                        FaucetAccount (..),
-                                                       Name (..),
-                                                       SetName (..), Whois (..))
+                                                       Name (..), SetName (..),
+                                                       Whois (..))
 import           Nameservice.Modules.Token            (Amount (..))
 import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Network.Tendermint.Client            as RPC
@@ -54,29 +55,17 @@ spec = do
         resp `shouldBe` RPC.ResultHealth
 
       it "Can query account balances" $ do
-        let queryReq = QueryArgs
-              { queryArgsData = addr1
-              , queryArgsHeight = 0
-              , queryArgsProve = False
-              }
+        let queryReq = defaultReqWithData addr1
         ClientResponse{clientResponseData = foundAmount} <- runRPC $ getBalance queryReq
         foundAmount `shouldBe` (Amount 1000)
 
       it "Can create a name" $ do
         let msg = BuyName 0 satoshi "hello world" addr1
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-            txReq =
-              RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-        deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-        let deliverRespCode = deliverResp ^. Response._deliverTxCode
-        deliverRespCode `shouldBe` 0
+        ensureTxCommitResponseCode rawTx 0
 
       it "Can query for a name" $ do
-        let queryReq = QueryArgs
-              { queryArgsData = satoshi
-              , queryArgsHeight = 0
-              , queryArgsProve = False
-              }
+        let queryReq = defaultReqWithData satoshi
         ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
         whoisValue foundWhois `shouldBe` "hello world"
         whoisOwner foundWhois `shouldBe` addr1
@@ -84,11 +73,7 @@ spec = do
 
       it "Can query for a name that doesn't exist" $ do
         let nope = Name "nope"
-            queryReq = QueryArgs
-              { queryArgsData = nope
-              , queryArgsHeight = 0
-              , queryArgsProve = False
-              }
+            queryReq = defaultReqWithData nope
         ClientResponse{ clientResponseData = emptyWhois
                       , clientResponseRaw
                       } <- runRPC $ getWhois queryReq
@@ -103,17 +88,9 @@ spec = do
       it "Can set a name value" $ do
         let msg = SetName satoshi addr1 "goodbye to a world"
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-            txReq =
-              RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-        deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-        let deliverRespCode = deliverResp ^. Response._deliverTxCode
-        deliverRespCode `shouldBe` 0
+        ensureTxCommitResponseCode rawTx 0
         -- check for changes
-        let queryReq = QueryArgs
-              { queryArgsData = satoshi
-              , queryArgsHeight = 0
-              , queryArgsProve = False
-              }
+        let queryReq = defaultReqWithData satoshi
         ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
         whoisValue foundWhois `shouldBe` "goodbye to a world"
         -- eveyrthing else should remain the same
@@ -124,27 +101,14 @@ spec = do
         -- try to set a name without being the owner
         let msg = SetName satoshi addr2 "goodbye to a world"
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-            txReq =
-              RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-        deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-        let deliverRespCode = deliverResp ^. Response._deliverTxCode
-        -- response code 2
-        deliverRespCode `shouldBe` 2
+        ensureTxCommitResponseCode rawTx 2
 
       it "Can buy an existing name" $ do
         let msg = BuyName 300 satoshi "hello (again) world" addr2
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-            txReq =
-              RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-        deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-        let deliverRespCode = deliverResp ^. Response._deliverTxCode
-        deliverRespCode `shouldBe` 0
+        ensureTxCommitResponseCode rawTx 0
         -- check for ownership changes
-        let queryReq = QueryArgs
-              { queryArgsData = satoshi
-              , queryArgsHeight = 0
-              , queryArgsProve = False
-              }
+        let queryReq = defaultReqWithData satoshi
         ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
         whoisOwner foundWhois `shouldBe` addr2
         whoisPrice foundWhois `shouldBe` 300
@@ -152,45 +116,27 @@ spec = do
 
       -- -- @TODO: this is a problem
       -- it "Can buy self-owned names without profiting" $ do
-      --   let queryReq = QueryArgs
-      --         { queryArgsData = addr2
-      --         , queryArgsHeight = 0
-      --         , queryArgsProve = False
-      --         }
+      --   -- check balance before
+      --   let queryReq = defaultReqWithData addr2
       --   ClientResponse{clientResponseData = beforeBuyAmount} <- runRPC $ getBalance queryReq
+      --   -- buy
       --   let msg = BuyName 500 satoshi "hello (again) world" addr2
       --       rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-      --       txReq =
-      --         RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-      --   deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-      --   let deliverRespCode = deliverResp ^. Response._deliverTxCode
-      --   deliverRespCode `shouldBe` 0
-      --   let queryReq = QueryArgs
-      --         { queryArgsData = addr2
-      --         , queryArgsHeight = 0
-      --         , queryArgsProve = False
-      --         }
+      --   ensureTxCommitResponseCode rawTx 0
+      --   -- check balance after
       --   ClientResponse{clientResponseData = afterBuyAmount} <- runRPC $ getBalance queryReq
-      --   beforeBuyAmount `shouldSatisfy` (_ > afterBuyAmount) afterBuyAmount
+      --   beforeBuyAmount `shouldSatisfy` (\x -> x < afterBuyAmount)
 
       it "Can fail to buy a name" $ do
         -- try to buy at a lower price
         let msg = BuyName 100 satoshi "hello (again) world" addr1
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-            txReq =
-              RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-        deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-        let deliverRespCode = deliverResp ^. Response._deliverTxCode
-        deliverRespCode `shouldBe` 1
+        ensureTxCommitResponseCode rawTx 1
 
       it "Can delete names" $ do
         let msg = DeleteName addr2 satoshi
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-            txReq =
-              RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-        deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-        let deliverRespCode = deliverResp ^. Response._deliverTxCode
-        deliverRespCode `shouldBe` 0
+        ensureTxCommitResponseCode rawTx 0
         -- shouldn't exist
         let queryReq = QueryArgs
               { queryArgsData = satoshi
@@ -232,6 +178,22 @@ faucetAccount User{userAddress, userPrivKey} = do
         RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
   _ <- runRPC $ RPC.broadcastTxCommit txReq
   return ()
+
+-- executes a request, then checks for a specific response code
+ensureTxCommitResponseCode :: RawTransaction -> Word32 -> IO ()
+ensureTxCommitResponseCode rawTx code = do
+  let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+  deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
+  let deliverRespCode = deliverResp ^. Response._deliverTxCode
+  deliverRespCode `shouldBe` code
+
+-- this probably should be in a default type class
+defaultReqWithData :: a -> QueryArgs a
+defaultReqWithData x = QueryArgs
+  { queryArgsData = x
+  , queryArgsHeight = 0
+  , queryArgsProve = False
+  }
 
 --------------------------------------------------------------------------------
 
