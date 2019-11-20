@@ -42,6 +42,7 @@ jobs:
     - make test-kv-store
     - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client down -v --rmi local
   - name: "Test SimpleStorage Example E2E"
+    script:
     - docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e up -d
     - make test-simple-storage
     - docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e down -v --rmi local
