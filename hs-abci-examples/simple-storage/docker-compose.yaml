@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   tendermint-init:
-    image: tendermint/tendermint:v0.32.2
+    image: tendermint/tendermint:v0.32.8
     command: init
     volumes:
         - /tmp:/tendermint
@@ -9,8 +9,8 @@ services:
     depends_on:
       - tendermint-init
       - simple_storage
-    image: tendermint/tendermint:v0.32.2
-    command: node --proxy_app=tcp://simple_storage:26658
+    image: tendermint/tendermint:v0.32.8
+    command: node --rpc.laddr=tcp://0.0.0.0:25567 --proxy_app=tcp://simple_storage:26658
     volumes:
       - /tmp:/tendermint
     restart: always

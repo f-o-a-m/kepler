@@ -34,17 +34,18 @@ install:
 
 jobs:
   include:
-  - stage: "Tests"
-    name: "Test Libraries"
+  - name: "Test Libraries"
     script: make test-libraries
-  - stage: "Tests"
-    name: "Test Tendermint Client"
+  - name: "Test Tendermint Client"
     script:
     - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client up -d
     - make test-kv-store
     - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client down -v --rmi local
-  - stage: "Master Checks"
-    name: "Ensure that code matches style guide"
+  - name: "Test SimpleStorage Example E2E"
+    - docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e up -d
+    - make test-simple-storage
+    - docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e down -v --rmi local
+  - name: "Ensure that code matches style guidelines"
     # When branch is `master` we run `haskell-stylish` and fail if git working directory becomes dirty
     if: branch = master
     script:
