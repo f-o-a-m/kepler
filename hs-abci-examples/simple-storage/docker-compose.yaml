@@ -19,8 +19,9 @@ services:
   simple-storage:
     build:
       context: ../../.
-      dockerfile: hs-abci-examples/simple-storage/Dockerfile
+      dockerfile: Dockerfile
     restart: always
+    entrypoint: /usr/local/bin/simple-storage
     expose:
       - "26658"
 volumes:
