@@ -8,6 +8,8 @@ module Tendermint.SDK.Query.Client
 
 import           Control.Lens                         (to, (^.))
 import qualified Data.ByteArray.Base64String          as Base64
+import qualified Data.ByteArray.HexString as Hex
+import Data.ByteString (ByteString)
 import           Data.Proxy
 import           Data.String.Conversions              (cs)
 import           GHC.TypeLits                         (KnownSymbol, symbolVal)
@@ -17,10 +19,22 @@ import           Servant.API                          ((:<|>) (..), (:>))
 import           Tendermint.SDK.Query.Types           (Leaf, QA, QueryArgs (..),
                                                        Queryable (..))
 import           Tendermint.SDK.Store                 (RawKey (..))
+import qualified Network.Tendermint.Client as RPC
+import Control.Monad.Reader (ReaderT)
 
 class Monad m => RunClient m where
     -- | How to make a request.
     runQuery :: Req.Query -> m Resp.Query
+  
+instance RunClient (ReaderT RPC.Config IO) where
+  runQuery Req.Query{..} =
+    let rpcQ = RPC.RequestABCIQuery
+          { RPC.requestABCIQueryPath = Just queryPath
+          , RPC.requestABCIQueryData = Hex.fromBytes @ByteString . Base64.toBytes $ queryData
+          , RPC.requestABCIQueryHeight = Just $ queryHeight
+          , RPC.requestABCIQueryProve  = queryProve
+          }
+    in RPC.resultABCIQueryResponse <$> RPC.abciQuery rpcQ
 
 class HasClient m layout where
 

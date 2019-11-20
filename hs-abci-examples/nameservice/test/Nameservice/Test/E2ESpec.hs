@@ -1,9 +1,9 @@
 module Nameservice.Test.E2ESpec where
 
 import           Control.Lens                             (to, (^.))
-import           Crypto.Secp256k1                         (SecKey,
+import           Crypto.Secp256k1                         (SecKey, PubKey,
                                                            exportCompactRecSig,
-                                                           secKey)
+                                                           secKey, derivePubKey)
 import           Data.Aeson                               (ToJSON)
 import           Data.Aeson.Encode.Pretty                 (encodePretty)
 import qualified Data.ByteArray.Base64String              as Base64
@@ -29,13 +29,19 @@ import qualified Network.Tendermint.Client                as RPC
 import           Proto3.Suite                             (Message,
                                                            toLazyByteString)
 import           Tendermint.SDK.Codec                     (HasCodec (..))
-import           Tendermint.SDK.Crypto                    (Secp256k1)
+import           Tendermint.SDK.Crypto                    (Secp256k1, addressFromPubKey)
 import           Tendermint.SDK.Store                     (rawKey)
 import           Tendermint.SDK.Types.Address             (Address (..),
                                                            addressToBytes)
 import           Tendermint.SDK.Types.Transaction         (RawTransaction (..),
                                                            signRawTransaction)
 import           Test.Hspec
+import Nameservice.Application (QueryApi)
+import           Tendermint.SDK.Query.Client          (ClientResponse (..),
+                                                       HasClient (..),
+                                                       RunClient (..))
+import           Tendermint.SDK.Query.Types           (QueryArgs (..))
+import Servant.API ((:<|>)(..))
 
 spec :: Spec
 spec = do
@@ -173,9 +179,30 @@ mkSignedRawTransactionWithRoute route msg = sign unsigned
         sig = signRawTransaction algProxy privateKey unsigned
         sign rt = rt { rawTransactionSignature = Serialize.encode $ exportCompactRecSig sig }
 
-privateKey :: SecKey
-privateKey = fromJust . secKey . Hex.toBytes . fromString $
-  "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
+
+data User = User
+  { userPrivKey :: SecKey
+  , userAddress :: Address
+  }
+
+user1 :: User
+user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
+
+makeUser :: String -> User
+makeUser privKeyStr = 
+  let privateKey = fromJust . secKey . Hex.toBytes . fromString $ privKeyStr
+      pubKey = derivePubKey privateKey
+      address = addressFromPubKey (Proxy @Secp256k1) pubKey
+  
+  in User privateKey address
 
 algProxy :: Proxy Secp256k1
 algProxy = Proxy
+
+
+
+getWhois :: QueryArgs Name -> RPC.TendermintM (ClientResponse Whois)
+getBalance :: QueryArgs Address -> RPC.TendermintM (ClientResponse Amount) 
+
+(getBalance :<|> getWhois) = 
+  genClient (Proxy :: Proxy RPC.TendermintM) (Proxy :: Proxy QueryApi) def
