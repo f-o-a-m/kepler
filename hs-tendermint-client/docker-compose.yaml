@@ -10,7 +10,7 @@ services:
       - tendermint-init
       - kvstore
     image: tendermint/tendermint:v0.32.2
-    command: node --proxy_app=tcp://simple_storage:26658
+    command: node --proxy_app=tcp://kvstore:26658
     volumes:
       - /tmp:/tendermint
     restart: always
