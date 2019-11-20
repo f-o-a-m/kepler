@@ -10,19 +10,18 @@ module Nameservice.Modules.Nameservice
   , Whois (..)
   , NameserviceException(..)
   , NameserviceMessage(..)
+  , BuyName(..)
+  , SetName(..)
+  , DeleteName(..)
+  , FaucetAccount(..)
 
   -- * effects
   , NameserviceEffR
   , HasNameserviceEff
   , getWhois
-  , NameserviceMessage(..)
-  , BuyName(..)
   , buyName
-  , SetName(..)
   , setName
-  , DeleteName(..)
   , deleteName
-  , FaucetAccount(..)
   , faucetAccount
 
   -- * interpreter
