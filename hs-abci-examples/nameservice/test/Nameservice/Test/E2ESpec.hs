@@ -127,7 +127,7 @@ spec = do
         -- check balance after
         ClientResponse{clientResponseData = afterBuyAmount} <- runRPC $ getBalance queryReq
         -- owner/buyer still profits
-        beforeBuyAmount `shouldSatisfy` (\x -> x < afterBuyAmount)
+        beforeBuyAmount `shouldSatisfy` (< afterBuyAmount)
 
       it "Can fail to buy a name" $ do
         -- try to buy at a lower price
