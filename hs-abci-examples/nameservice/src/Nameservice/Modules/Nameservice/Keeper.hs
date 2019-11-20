@@ -15,8 +15,7 @@ import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
 import           Tendermint.SDK.BaseApp                   (HasBaseAppEff)
-import           Tendermint.SDK.Errors                    (AppError (..),
-                                                           IsAppError (..))
+import           Tendermint.SDK.Errors                    (IsAppError (..))
 import           Tendermint.SDK.Events                    (Event, emit)
 import qualified Tendermint.SDK.Store                     as Store
 

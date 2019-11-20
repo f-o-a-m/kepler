@@ -8,7 +8,6 @@ module Nameservice.Application
   , queryServer
   ) where
 
-import           Control.Exception               (Exception)
 import           Data.Proxy
 import qualified Nameservice.Modules.Nameservice as N
 import qualified Nameservice.Modules.Token       as T

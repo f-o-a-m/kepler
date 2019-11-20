@@ -7,7 +7,7 @@ import           Nameservice.Modules.Nameservice.Keeper   (HasNameserviceEff,
                                                            faucetAccount,
                                                            setName)
 import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (..))
-import           Nameservice.Modules.Token                (HasTokenEff, mint)
+import           Nameservice.Modules.Token                (HasTokenEff)
 import           Polysemy                                 (Members, Sem)
 import           Polysemy.Error                           (Error)
 import           Tendermint.SDK.Auth                      (AuthError)

@@ -52,7 +52,7 @@ import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Events        (Event, FromEvent, ToEvent (..),
                                                emit)
-import           Tendermint.SDK.Query         (FromQueryData, Queryable (..),
+import           Tendermint.SDK.Query         (Queryable (..),
                                                RouteT)
 import           Tendermint.SDK.Query.Store   (QueryApi, storeQueryHandlers)
 import qualified Tendermint.SDK.Store         as Store
