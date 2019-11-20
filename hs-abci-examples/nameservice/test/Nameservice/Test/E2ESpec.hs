@@ -57,7 +57,7 @@ spec = do
       it "Can query account balances" $ do
         let queryReq = defaultReqWithData addr1
         ClientResponse{clientResponseData = foundAmount} <- runRPC $ getBalance queryReq
-        foundAmount `shouldBe` (Amount 1000)
+        foundAmount `shouldBe` Amount 1000
 
       it "Can create a name" $ do
         let msg = BuyName 0 satoshi "hello world" addr1
@@ -82,7 +82,7 @@ spec = do
         queryRespCode `shouldBe` 1
         -- empty whois (defaults)
         whoisPrice emptyWhois `shouldBe` 0
-        whoisOwner emptyWhois `shouldBe` (Address "")
+        whoisOwner emptyWhois `shouldBe` Address ""
         whoisValue emptyWhois `shouldBe` ""
 
       it "Can set a name value" $ do
@@ -151,7 +151,7 @@ spec = do
         queryRespCode `shouldBe` 1
         -- should be a default whois
         whoisPrice emptyWhois `shouldBe` 0
-        whoisOwner emptyWhois `shouldBe` (Address "")
+        whoisOwner emptyWhois `shouldBe` Address ""
         whoisValue emptyWhois `shouldBe` ""
 
       -- @TODO: make transfer messages
