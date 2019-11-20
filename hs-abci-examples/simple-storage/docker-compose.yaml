@@ -10,7 +10,7 @@ services:
       - tendermint-init
       - simple-storage
     image: tendermint/tendermint:v0.32.8
-    command: node --rpc.laddr=tcp://0.0.0.0:25567 --proxy_app=tcp://simple-storage:26658
+    command: node --rpc.laddr=tcp://0.0.0.0:26657 --proxy_app=tcp://simple-storage:26658
     volumes:
       - tendermint-storage:/tendermint
     restart: always
