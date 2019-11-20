@@ -78,6 +78,7 @@ library:
   - Nameservice.Application
   - Nameservice.Server
   - Nameservice.Handlers
+  - Nameservice.Modules.Nameservice
   - Nameservice.Modules.Token
   - Nameservice.Modules.Nameservice.Messages
   - Nameservice.Modules.Nameservice.Types

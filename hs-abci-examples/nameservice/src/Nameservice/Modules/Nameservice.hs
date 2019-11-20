@@ -10,9 +10,15 @@ module Nameservice.Modules.Nameservice
   , NameserviceEffR
   , HasNameserviceEff
   , getWhois
+  , NameserviceMessage(..)
+  , BuyName(..)
   , buyName
+  , SetName(..)
   , setName
+  , DeleteName(..)
   , deleteName
+  , FaucetAccount(..)
+  , faucetAccount
 
   -- * interpreter
   , eval
