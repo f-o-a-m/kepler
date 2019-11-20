@@ -20,6 +20,7 @@ services:
     build:
       context: ../../.
       dockerfile: Dockerfile
+    image: hs-abci:test
     restart: always
     entrypoint: /usr/local/bin/simple-storage
     expose:
