@@ -14,6 +14,7 @@ addons:
 cache:
   directories:
   - $HOME/.stack
+
 before_install:
 # Download and unpack the stack executable
 - mkdir -p ~/.local/bin
@@ -26,14 +27,18 @@ before_install:
 - rm protoc-release.zip
 install:
 - travis_wait 120 stack --skip-ghc-check setup
-- travis_wait 120 stack --skip-ghc-check install hlint-2.1.26 stylish-haskell-0.9.4.3
-script:
-- make hlint
 
-# When branch is `master` we run `haskell-stylish` and fail if git working directory becomes dirty
-- if [ "$TRAVIS_BRANCH" == "master" ]; then make stylish && git diff-index --quiet HEAD; fi
+jobs:
+  include:
+  - stage: "Test Libraries"
+    script: make test-libraries
+  - stage: "Ensure that code matches style guide"
+    # When branch is `master` we run `haskell-stylish` and fail if git working directory becomes dirty
+    if: branch = master
+    script:
+    - travis_wait 120 stack --skip-ghc-check install hlint-2.1.26 stylish-haskell-0.9.4.3
+    - make stylish && git diff-index --quiet HEAD
 
-- make test-libraries
 # commenting for now as this build is broken with the addition of secp256k1
 # and will uncomment and fix  when we are using again.
 #- curl https://nixos.org/nix/install | sh
