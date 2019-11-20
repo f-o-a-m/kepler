@@ -114,18 +114,20 @@ spec = do
         whoisPrice foundWhois `shouldBe` 300
         whoisValue foundWhois `shouldBe` "hello (again) world"
 
-      -- -- @TODO: this is a problem
-      -- it "Can buy self-owned names without profiting" $ do
-      --   -- check balance before
-      --   let queryReq = defaultReqWithData addr2
-      --   ClientResponse{clientResponseData = beforeBuyAmount} <- runRPC $ getBalance queryReq
-      --   -- buy
-      --   let msg = BuyName 500 satoshi "hello (again) world" addr2
-      --       rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-      --   ensureTxCommitResponseCode rawTx 0
-      --   -- check balance after
-      --   ClientResponse{clientResponseData = afterBuyAmount} <- runRPC $ getBalance queryReq
-      --   beforeBuyAmount `shouldSatisfy` (\x -> x < afterBuyAmount)
+      -- @NOTE: this is possibly a problem with the go application too
+      -- https://cosmos.network/docs/tutorial/buy-name.html#msg
+      it "Can buy self-owned names (and make a profit)" $ do
+        -- check balance before
+        let queryReq = defaultReqWithData addr2
+        ClientResponse{clientResponseData = beforeBuyAmount} <- runRPC $ getBalance queryReq
+        -- buy
+        let msg = BuyName 500 satoshi "hello (again) world" addr2
+            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
+        ensureTxCommitResponseCode rawTx 0
+        -- check balance after
+        ClientResponse{clientResponseData = afterBuyAmount} <- runRPC $ getBalance queryReq
+        -- owner/buyer still profits
+        beforeBuyAmount `shouldSatisfy` (\x -> x < afterBuyAmount)
 
       it "Can fail to buy a name" $ do
         -- try to buy at a lower price
