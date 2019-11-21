@@ -62,7 +62,8 @@ spec = do
       it "Can create a name" $ do
         let msg = BuyName 0 satoshi "hello world" addr1
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        ensureTxCommitResponseCode rawTx 0
+        deliverResp <- txDeliverResponse rawTx
+        ensureDeliveryResponseCode deliverResp 0
 
       it "Can query for a name" $ do
         let queryReq = defaultReqWithData satoshi
@@ -88,7 +89,8 @@ spec = do
       it "Can set a name value" $ do
         let msg = SetName satoshi addr1 "goodbye to a world"
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        ensureTxCommitResponseCode rawTx 0
+        deliverResp <- txDeliverResponse rawTx
+        ensureDeliveryResponseCode deliverResp 0
         -- check for changes
         let queryReq = defaultReqWithData satoshi
         ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
@@ -101,12 +103,14 @@ spec = do
         -- try to set a name without being the owner
         let msg = SetName satoshi addr2 "goodbye to a world"
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        ensureTxCommitResponseCode rawTx 2
+        deliverResp <- txDeliverResponse rawTx
+        ensureDeliveryResponseCode deliverResp 2
 
       it "Can buy an existing name" $ do
         let msg = BuyName 300 satoshi "hello (again) world" addr2
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        ensureTxCommitResponseCode rawTx 0
+        deliverResp <- txDeliverResponse rawTx
+        ensureDeliveryResponseCode deliverResp 0
         -- check for ownership changes
         let queryReq = defaultReqWithData satoshi
         ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
@@ -123,7 +127,8 @@ spec = do
         -- buy
         let msg = BuyName 500 satoshi "hello (again) world" addr2
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        ensureTxCommitResponseCode rawTx 0
+        deliverResp <- txDeliverResponse rawTx
+        ensureDeliveryResponseCode deliverResp 0
         -- check balance after
         ClientResponse{clientResponseData = afterBuyAmount} <- runRPC $ getBalance queryReq
         -- owner/buyer still profits
@@ -133,12 +138,14 @@ spec = do
         -- try to buy at a lower price
         let msg = BuyName 100 satoshi "hello (again) world" addr1
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        ensureTxCommitResponseCode rawTx 1
+        deliverResp <- txDeliverResponse rawTx
+        ensureDeliveryResponseCode deliverResp 1
 
       it "Can delete names" $ do
         let msg = DeleteName addr2 satoshi
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        ensureTxCommitResponseCode rawTx 0
+        deliverResp <- txDeliverResponse rawTx
+        ensureDeliveryResponseCode deliverResp 0
         -- name shouldn't exist
         let queryReq = defaultReqWithData satoshi
         ClientResponse{ clientResponseData = emptyWhois
@@ -177,11 +184,16 @@ faucetAccount User{userAddress, userPrivKey} = do
   _ <- runRPC $ RPC.broadcastTxCommit txReq
   return ()
 
--- executes a request, then checks for a specific response code
-ensureTxCommitResponseCode :: RawTransaction -> Word32 -> IO ()
-ensureTxCommitResponseCode rawTx code = do
+-- executes a request, then returns the deliveryTx response
+txDeliverResponse :: RawTransaction -> IO (Response.DeliverTx)
+txDeliverResponse rawTx = do
   let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
   deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
+  return deliverResp
+
+-- executes a request, then checks for a specific response code
+ensureDeliveryResponseCode :: Response.DeliverTx -> Word32 -> IO ()
+ensureDeliveryResponseCode deliverResp code = do
   let deliverRespCode = deliverResp ^. Response._deliverTxCode
   deliverRespCode `shouldBe` code
 
