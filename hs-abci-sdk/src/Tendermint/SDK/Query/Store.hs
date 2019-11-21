@@ -49,7 +49,7 @@ instance
     , HasCodec a
     , Member RawStore r
     )  => StoreQueryHandlers '[(k,a)] ns (Sem r) where
-      type QueryApi '[(k,a)] =  Name a :> QA k :> Leaf a
+      type QueryApi '[(k,a)] =  QA k :> Leaf a
       storeQueryHandlers _ storeKey _ = storeQueryHandler (Proxy :: Proxy a) storeKey
 
 instance
@@ -60,7 +60,7 @@ instance
     , StoreQueryHandlers ((k', a') ': as) ns (Sem r)
     , Member RawStore r
     ) => StoreQueryHandlers ((k,a) ': (k', a') : as) ns (Sem r) where
-        type (QueryApi ((k, a) ': (k', a') : as)) = (Name a :> QA k :> Leaf a) :<|> QueryApi ((k', a') ': as)
+        type (QueryApi ((k, a) ': (k', a') : as)) = (QA k :> Leaf a) :<|> QueryApi ((k', a') ': as)
         storeQueryHandlers _ storeKey pm =
           storeQueryHandler  (Proxy :: Proxy a) storeKey :<|>
           storeQueryHandlers (Proxy :: Proxy ((k', a') ': as)) storeKey pm
