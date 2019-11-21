@@ -58,8 +58,11 @@ deploy-simple-storage-local: install ## run the simple storage locally
 test-kv-store: install ## Run the test suite for the client interface
 	stack test hs-tendermint-client
 
-test-simple-storage: install ## Run the test suite for the example application
+test-simple-storage: install ## Run the test suite for the simple-storage example application
 	stack test simple-storage
+
+test-nameservice: install ## Run the test suite for the nameservice example application
+	stack test nameservice
 
 
 #####################
