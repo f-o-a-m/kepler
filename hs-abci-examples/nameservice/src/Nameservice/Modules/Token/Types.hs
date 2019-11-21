@@ -84,22 +84,22 @@ instance IsAppError TokenException where
 -- Events
 --------------------------------------------------------------------------------
 
-data Transfer = Transfer
-  { transferAmount :: Amount
-  , transferTo     :: Address
-  , transferFrom   :: Address
+data TransferEvent = TransferEvent
+  { transferEventAmount :: Amount
+  , transferEventTo     :: Address
+  , transferEventFrom   :: Address
   } deriving Generic
 
-transferAesonOptions :: A.Options
-transferAesonOptions = defaultNameserviceOptions "transfer"
+transferEventAesonOptions :: A.Options
+transferEventAesonOptions = defaultNameserviceOptions "transferEvent"
 
-instance A.ToJSON Transfer where
-  toJSON = A.genericToJSON transferAesonOptions
+instance A.ToJSON TransferEvent where
+  toJSON = A.genericToJSON transferEventAesonOptions
 
-instance A.FromJSON Transfer where
-  parseJSON = A.genericParseJSON transferAesonOptions
+instance A.FromJSON TransferEvent where
+  parseJSON = A.genericParseJSON transferEventAesonOptions
 
-instance ToEvent Transfer where
-  makeEventType _ = "Transfer"
+instance ToEvent TransferEvent where
+  makeEventType _ = "TransferEvent"
 
-instance FromEvent Transfer
+instance FromEvent TransferEvent

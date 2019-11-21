@@ -2,16 +2,18 @@
 
 module Nameservice.Modules.Token.Keeper where
 
-import qualified Tendermint.SDK.Store            as Store
-import           Nameservice.Modules.Token.Types (Amount(..), TokenException(..), Transfer(..))
-import           Tendermint.SDK.Types.Address    (Address)
+import           Data.Maybe                      (fromMaybe)
+import           Nameservice.Modules.Token.Types (Amount (..),
+                                                  TokenException (..),
+                                                  TransferEvent (..))
 import           Polysemy
 import           Polysemy.Error                  (Error, mapError, throw)
 import           Polysemy.Output                 (Output)
 import           Tendermint.SDK.BaseApp          (HasBaseAppEff)
-import           Tendermint.SDK.Events           (Event, emit)
 import           Tendermint.SDK.Errors           (IsAppError (..))
-import           Data.Maybe                      (fromMaybe)
+import           Tendermint.SDK.Events           (Event, emit)
+import qualified Tendermint.SDK.Store            as Store
+import           Tendermint.SDK.Types.Address    (Address)
 
 
 data Token m a where
@@ -70,10 +72,10 @@ transfer addr1 amount addr2 = do
       -- update both balances
       putBalance addr1 newBalance1
       putBalance addr2 newBalance2
-      emit $ Transfer
-        { transferAmount = amount
-        , transferTo = addr2
-        , transferFrom = addr1
+      emit $ TransferEvent
+        { transferEventAmount = amount
+        , transferEventTo = addr2
+        , transferEventFrom = addr1
         }
     else throw (InsufficientFunds "Insufficient funds for transfer.")
 
