@@ -37,7 +37,7 @@ import           Nameservice.Modules.Nameservice.Query
 import           Nameservice.Modules.Nameservice.Router
 import           Nameservice.Modules.Nameservice.Types
 import           Nameservice.Modules.Token                (HasTokenEff)
-import           Tendermint.SDK.BaseApp                   ((:&), HasBaseAppEff)
+import           Tendermint.SDK.BaseApp                   (HasBaseAppEff)
 import           Tendermint.SDK.Module                    (Module (..))
 
 type NameserviceM r = Module "nameservice" NameserviceMessage Api r
