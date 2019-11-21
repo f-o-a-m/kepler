@@ -81,8 +81,9 @@ instance HasCodec BuyName where
 
 instance HasCodec NameserviceMessage where
   decode bs =
-    fmap NSetName (decode bs) <>
+    -- @NOTE: tests pass iff NBuyName is first
     fmap NBuyName (decode bs) <>
+    fmap NSetName (decode bs) <>
     fmap NDeleteName (decode bs) <>
     fmap NFaucetAccount (decode bs)
   encode = \case
