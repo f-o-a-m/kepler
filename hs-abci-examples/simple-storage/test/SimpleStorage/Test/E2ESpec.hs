@@ -1,6 +1,6 @@
 module SimpleStorage.Test.E2ESpec where
 
-import           Control.Lens                         (to, (^.))
+import           Control.Lens                         ((^.))
 import           Control.Monad.Reader                 (ReaderT)
 import           Data.Aeson                           (ToJSON)
 import           Data.Aeson.Encode.Pretty             (encodePretty)
@@ -24,7 +24,6 @@ import           Tendermint.SDK.Query.Client          (ClientResponse (..),
                                                        HasClient (..),
                                                        RunClient (..))
 import           Tendermint.SDK.Query.Types           (QueryArgs (..))
-import           Tendermint.SDK.Store                 (rawKey)
 import           Test.Hspec
 
 
