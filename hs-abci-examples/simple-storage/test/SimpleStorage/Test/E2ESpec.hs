@@ -99,5 +99,3 @@ instance RunClient QueryRunner where
 
 getCount :: QueryArgs SS.CountKey -> QueryRunner (ClientResponse SS.Count)
 getCount = genClient (Proxy :: Proxy QueryRunner) (Proxy :: Proxy SS.Api) def
-
-
