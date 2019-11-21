@@ -1,3 +1,4 @@
+{-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.Query.Class where
 
 import           Control.Error
@@ -42,10 +43,12 @@ instance (HasRouter sublayout, KnownSymbol path) => HasRouter (path :> sublayout
     where proxyPath = Proxy :: Proxy path
 
 
-instance Queryable a => HasRouter (Leaf a) where
+instance (Queryable a, KnownSymbol (Name a)) => HasRouter (Leaf a) where
 
    type RouteT (Leaf a) m = ExceptT QueryError m (QueryResult a)
-   route _  = methodRouter
+   route _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter
+     where proxyPath = Proxy :: Proxy (Name a)
+
 
 
 instance (FromQueryData a, HasRouter layout)
