@@ -1,10 +1,9 @@
 {-# LANGUAGE TemplateHaskell #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Nameservice.Modules.Token
   (
   -- * types
-    Address(..)
+    Address
   , Amount(..)
   , TokenException(..)
   , Transfer
@@ -27,112 +26,18 @@ module Nameservice.Modules.Token
 
   ) where
 
-import           Data.Aeson                   as A
-import           Data.Bifunctor               (bimap)
-import qualified Data.ByteArray.HexString     as Hex
-import           Data.Maybe                   (fromMaybe)
-import           Data.Proxy
-import           Data.String.Conversions      (cs)
-import           Data.Text                    (Text)
-import           Data.Word                    (Word64)
-import           GHC.Generics                 (Generic)
-import           Nameservice.Aeson            (defaultNameserviceOptions)
+import           Data.Maybe                      (fromMaybe)
+import           Nameservice.Modules.Token.Types
+import           Nameservice.Modules.Token.Query
+import           Nameservice.Modules.Token.Keeper
 import           Polysemy
-import           Polysemy.Error               (Error, mapError, throw)
-import           Polysemy.Output              (Output)
-import           Proto3.Suite                 (HasDefault (..), MessageField,
-                                               Primitive (..))
-import qualified Proto3.Suite.DotProto        as DotProto
-import qualified Proto3.Wire.Decode           as Decode
-import qualified Proto3.Wire.Encode           as Encode
-import           Proto3.Wire.Types            (fieldNumber)
-import           Servant.API                  ((:>))
-import           Tendermint.SDK.BaseApp       (HasBaseAppEff)
-import           Tendermint.SDK.Codec         (HasCodec (..))
-import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Events        (Event, FromEvent, ToEvent (..),
-                                               emit)
-import           Tendermint.SDK.Query         (FromQueryData, Queryable (..),
-                                               RouteT)
-import           Tendermint.SDK.Query.Store   (QueryApi, storeQueryHandlers)
-import qualified Tendermint.SDK.Store         as Store
-import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
-                                               addressToBytes)
-
-newtype Amount = Amount Word64 deriving (Eq, Show, Num, Generic, Ord, A.ToJSON, A.FromJSON)
-instance Primitive Amount where
-  encodePrimitive n (Amount amt) = Encode.uint64 n amt
-  decodePrimitive = Amount <$> Decode.uint64
-  primType _ = DotProto.UInt64
-instance HasDefault Amount
-instance MessageField Amount
-
-instance Queryable Amount where
-  type Name Amount = "balance"
-
--- @NOTE: hacks
-instance HasCodec Amount where
-  encode (Amount b) =
-    -- proto3-wire only exports encoders for message types
-    let dummyMsgEncoder = Encode.uint64 (fieldNumber 1)
-    in cs . Encode.toLazyByteString . dummyMsgEncoder $ b
-  decode = bimap (cs . show) Amount . Decode.parse dummyMsgParser
-    where
-      -- field is always present; 0 is an arbitrary value
-      fieldParser = Decode.one Decode.uint64 0
-      dummyMsgParser = Decode.at fieldParser (fieldNumber 1)
-
--- orphans
-instance Primitive Address where
-  encodePrimitive n a = Encode.byteString n $ addressToBytes a
-  decodePrimitive = addressFromBytes <$> Decode.byteString
-  primType _ = DotProto.Bytes
-instance HasDefault Hex.HexString
-instance HasDefault Address
-instance MessageField Address
-
-instance Store.IsKey Address "token" where
-  type Value Address "token" = Amount
-
---------------------------------------------------------------------------------
--- Events
---------------------------------------------------------------------------------
-
-data Transfer = Transfer
-  { transferAmount :: Amount
-  , transferTo     :: Address
-  , transferFrom   :: Address
-  } deriving Generic
-
-transferAesonOptions :: A.Options
-transferAesonOptions = defaultNameserviceOptions "transfer"
-
-instance A.ToJSON Transfer where
-  toJSON = A.genericToJSON transferAesonOptions
-
-instance A.FromJSON Transfer where
-  parseJSON = A.genericParseJSON transferAesonOptions
-
-instance ToEvent Transfer where
-  makeEventType _ = "Transfer"
-
-instance FromEvent Transfer
-
---------------------------------------------------------------------------------
--- Exceptions
---------------------------------------------------------------------------------
-
-data TokenException =
-    InsufficientFunds Text
-
-instance IsAppError TokenException where
-    makeAppError (InsufficientFunds msg) =
-      AppError
-        { appErrorCode = 1
-        , appErrorCodespace = "token"
-        , appErrorMessage = msg
-        }
-
+import           Polysemy.Error                  (Error, mapError, throw)
+import           Polysemy.Output                 (Output)
+import           Tendermint.SDK.BaseApp          (HasBaseAppEff)
+import           Tendermint.SDK.Errors           (IsAppError (..))
+import           Tendermint.SDK.Events           (Event, emit)
+import qualified Tendermint.SDK.Store            as Store
+import           Tendermint.SDK.Types.Address    (Address)
 --------------------------------------------------------------------------------
 
 data Token m a where
@@ -143,9 +48,6 @@ makeSem ''Token
 
 type TokenEffR = '[Token, Error TokenException]
 type HasTokenEff r = (Members TokenEffR r, Member (Output Event) r)
-
-storeKey :: Store.StoreKey "token"
-storeKey = Store.StoreKey "token"
 
 eval
   :: HasBaseAppEff r
@@ -164,17 +66,6 @@ eval = mapError makeAppError . evalToken
         PutBalance address balance ->
           Store.put storeKey address balance
       )
---------------------------------------------------------------------------------
--- | Server
---------------------------------------------------------------------------------
-
-type TokenContents = '[(Address, Amount)]
-
-type Api = "token" :> QueryApi TokenContents
-
-server :: Member Store.RawStore r => RouteT Api (Sem r)
-server =
-  storeQueryHandlers (Proxy :: Proxy TokenContents) storeKey (Proxy :: Proxy (Sem r))
 
 --------------------------------------------------------------------------------
 
