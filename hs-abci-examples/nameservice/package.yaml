@@ -87,7 +87,7 @@ library:
   - Nameservice.Modules.Nameservice.Router
 
 executables:
-  nameservice-exe:
+  nameservice:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
