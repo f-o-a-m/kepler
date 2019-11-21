@@ -1,2 +1,5 @@
 */docker-compose*
-*/test*
+**/.stack-work
+**/.stack
+**/stack.yaml.lock
+**/.git

@@ -60,3 +60,12 @@ test-kv-store: install ## Run the test suite for the client interface
 
 test-simple-storage: install ## Run the test suite for the example application
 	stack test simple-storage
+
+
+#####################
+# CI Support
+#####################
+docker-test-prebake: # Precompile all binaries externally and copy them into a docker image to speed up testing instead of building in Docker. Note that this only works on Linux systems.
+	mkdir -p .ci-bins
+	stack build --copy-bins --local-bin-path .ci-bins
+	docker build -t hs-abci:test -f Dockerfile.prebake .
