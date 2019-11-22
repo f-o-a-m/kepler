@@ -138,7 +138,13 @@ spec = do
         (errs, events) <- deliverTxEvents deliverResp "NameClaimed"
         errs `shouldBe` mempty
         events `shouldSatisfy` elem claimedLog
-        -- events `shouldSatisfy` elem transferLog
+        -- check for updated balances - seller: addr1, buyer: addr2
+        let sellerQueryReq = defaultReqWithData addr1
+        ClientResponse{clientResponseData = sellerFoundAmount} <- runRPC $ getBalance sellerQueryReq
+        sellerFoundAmount `shouldBe` Amount 1300
+        let buyerQueryReq = defaultReqWithData addr2
+        ClientResponse{clientResponseData = buyerFoundAmount} <- runRPC $ getBalance buyerQueryReq
+        buyerFoundAmount `shouldBe` Amount 700
         -- check for ownership changes
         let queryReq = defaultReqWithData satoshi
         ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
