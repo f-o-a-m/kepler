@@ -1,7 +1,8 @@
 module Nameservice.Modules.Token.Router where
 
-import           Nameservice.Modules.Token.Keeper   (HasTokenEff, burn, mint,
-                                                     transfer, faucetAccount)
+import           Nameservice.Modules.Token.Keeper   (HasTokenEff, burn,
+                                                     faucetAccount, mint,
+                                                     transfer)
 import           Nameservice.Modules.Token.Messages (Burn (..), Mint (..),
                                                      TokenMessage (..),
                                                      Transfer (..))

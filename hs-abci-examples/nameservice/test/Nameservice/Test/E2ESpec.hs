@@ -30,9 +30,9 @@ import           Nameservice.Modules.Nameservice        (BuyName (..),
                                                          Whois (..))
 import           Nameservice.Modules.Token              (Amount (..),
                                                          FaucetAccount (..),
-                                                         TransferEvent(..),
-                                                         Faucetted(..),
-                                                         Transfer (..))
+                                                         Faucetted (..),
+                                                         Transfer (..),
+                                                         TransferEvent (..))
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..))
 import qualified Network.ABCI.Types.Messages.Response   as Response
 import qualified Network.Tendermint.Client              as RPC

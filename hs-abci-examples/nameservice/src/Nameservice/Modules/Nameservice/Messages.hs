@@ -79,9 +79,9 @@ instance HasCodec NameserviceMessage where
 
 instance ValidateMessage NameserviceMessage where
   validateMessage m@Msg{msgData} = case msgData of
-    NBuyName msg       -> validateMessage m {msgData = msg}
-    NSetName msg       -> validateMessage m {msgData = msg}
-    NDeleteName msg    -> validateMessage m {msgData = msg}
+    NBuyName msg    -> validateMessage m {msgData = msg}
+    NSetName msg    -> validateMessage m {msgData = msg}
+    NDeleteName msg -> validateMessage m {msgData = msg}
 
 -- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg
 instance ValidateMessage SetName where

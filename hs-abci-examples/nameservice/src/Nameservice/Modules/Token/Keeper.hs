@@ -2,20 +2,20 @@
 
 module Nameservice.Modules.Token.Keeper where
 
-import           Data.Maybe                      (fromMaybe)
-import           Nameservice.Modules.Token.Types (Amount (..),
-                                                  TokenException (..),
-                                                  TransferEvent (..),
-                                                  Faucetted(..))
-import Nameservice.Modules.Token.Messages (FaucetAccount(..))
+import           Data.Maybe                         (fromMaybe)
+import           Nameservice.Modules.Token.Messages (FaucetAccount (..))
+import           Nameservice.Modules.Token.Types    (Amount (..),
+                                                     Faucetted (..),
+                                                     TokenException (..),
+                                                     TransferEvent (..))
 import           Polysemy
-import           Polysemy.Error                  (Error, mapError, throw)
-import           Polysemy.Output                 (Output)
-import           Tendermint.SDK.BaseApp          (HasBaseAppEff)
-import           Tendermint.SDK.Errors           (IsAppError (..))
-import           Tendermint.SDK.Events           (Event, emit)
-import qualified Tendermint.SDK.Store            as Store
-import           Tendermint.SDK.Types.Address    (Address)
+import           Polysemy.Error                     (Error, mapError, throw)
+import           Polysemy.Output                    (Output)
+import           Tendermint.SDK.BaseApp             (HasBaseAppEff)
+import           Tendermint.SDK.Errors              (IsAppError (..))
+import           Tendermint.SDK.Events              (Event, emit)
+import qualified Tendermint.SDK.Store               as Store
+import           Tendermint.SDK.Types.Address       (Address)
 
 
 data Token m a where
