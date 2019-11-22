@@ -94,9 +94,9 @@ instance HasCodec NameserviceMessage where
 
 instance ValidateMessage NameserviceMessage where
   validateMessage m@Msg{msgData} = case msgData of
-    NBuyName msg    -> validateMessage m {msgData = msg}
-    NSetName msg    -> validateMessage m {msgData = msg}
-    NDeleteName msg -> validateMessage m {msgData = msg}
+    NBuyName msg       -> validateMessage m {msgData = msg}
+    NSetName msg       -> validateMessage m {msgData = msg}
+    NDeleteName msg    -> validateMessage m {msgData = msg}
     NFaucetAccount msg -> validateMessage m {msgData = msg}
 
 -- @TODO: Move this to token module

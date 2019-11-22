@@ -1,50 +1,52 @@
 module Nameservice.Test.E2ESpec where
 
-import           Control.Lens                         ((^.))
-import           Crypto.Secp256k1                     (SecKey, derivePubKey,
-                                                       exportCompactRecSig,
-                                                       secKey)
-import           Data.Aeson                           (ToJSON)
-import           Data.Aeson.Encode.Pretty             (encodePretty)
-import qualified Data.ByteArray.Base64String          as Base64
-import qualified Data.ByteArray.HexString             as Hex
-import qualified Data.ByteString                      as BS
-import qualified Data.ByteString.Lazy                 as BL
-import           Data.Default.Class                   (def)
-import           Data.Maybe                           (fromJust)
+import           Control.Lens                           ((^.))
+import           Crypto.Secp256k1                       (SecKey, derivePubKey,
+                                                         exportCompactRecSig,
+                                                         secKey)
+import           Data.Aeson                             (ToJSON)
+import           Data.Aeson.Encode.Pretty               (encodePretty)
+import qualified Data.ByteArray.Base64String            as Base64
+import qualified Data.ByteArray.HexString               as Hex
+import qualified Data.ByteString                        as BS
+import qualified Data.ByteString.Lazy                   as BL
+import           Data.Default.Class                     (def)
+import           Data.Either                            (partitionEithers)
+import           Data.Maybe                             (fromJust)
 import           Data.Proxy
-import qualified Data.Serialize                       as Serialize
-import           Data.String                          (fromString)
-import           Data.String.Conversions              (cs)
-import           Data.Word                            (Word32)
-import           Nameservice.Application              (QueryApi)
-import           Nameservice.Modules.Nameservice      (BuyName (..),
-                                                       DeleteName (..),
-                                                       FaucetAccount (..),
-                                                       Name (..), SetName (..),
-                                                       Whois (..),
-                                                       NameClaimed(..),
-                                                       NameDeleted(..),
-                                                       NameRemapped(..))
-import           Nameservice.Modules.Token            (Amount (..), Transfer(..))
-import qualified Network.ABCI.Types.Messages.Response as Response
-import qualified Network.Tendermint.Client            as RPC
-import           Proto3.Suite                         (Message,
-                                                       toLazyByteString)
-import           Servant.API                          ((:<|>) (..))
-import           Tendermint.SDK.Codec                 (HasCodec (..))
-import           Tendermint.SDK.Crypto                (Secp256k1,
-                                                       addressFromPubKey)
-import           Tendermint.SDK.Query.Client          (ClientResponse (..),
-                                                       genClient)
-import           Tendermint.SDK.Query.Types           (QueryArgs (..))
-import           Tendermint.SDK.Types.Address         (Address (..))
-import           Tendermint.SDK.Types.Transaction     (RawTransaction (..),
-                                                       signRawTransaction)
-import           Tendermint.SDK.Events        (FromEvent (..))
-import Network.ABCI.Types.Messages.FieldTypes (Event(..))
-import Data.Text (Text)
-import Data.Either (partitionEithers)
+import qualified Data.Serialize                         as Serialize
+import           Data.String                            (fromString)
+import           Data.String.Conversions                (cs)
+import           Data.Text                              (Text)
+import           Data.Word                              (Word32)
+import           Nameservice.Application                (QueryApi)
+import           Nameservice.Modules.Nameservice        (BuyName (..),
+                                                         DeleteName (..),
+                                                         FaucetAccount (..),
+                                                         Name (..),
+                                                         NameClaimed (..),
+                                                         NameDeleted (..),
+                                                         NameRemapped (..),
+                                                         SetName (..),
+                                                         Whois (..))
+import           Nameservice.Modules.Token              (Amount (..),
+                                                         Transfer (..))
+import           Network.ABCI.Types.Messages.FieldTypes (Event (..))
+import qualified Network.ABCI.Types.Messages.Response   as Response
+import qualified Network.Tendermint.Client              as RPC
+import           Proto3.Suite                           (Message,
+                                                         toLazyByteString)
+import           Servant.API                            ((:<|>) (..))
+import           Tendermint.SDK.Codec                   (HasCodec (..))
+import           Tendermint.SDK.Crypto                  (Secp256k1,
+                                                         addressFromPubKey)
+import           Tendermint.SDK.Events                  (FromEvent (..))
+import           Tendermint.SDK.Query.Client            (ClientResponse (..),
+                                                         genClient)
+import           Tendermint.SDK.Query.Types             (QueryArgs (..))
+import           Tendermint.SDK.Types.Address           (Address (..))
+import           Tendermint.SDK.Types.Transaction       (RawTransaction (..),
+                                                         signRawTransaction)
 import           Test.Hspec
 
 spec :: Spec
@@ -224,8 +226,8 @@ faucetAccount User{userAddress, userPrivKey} = do
 getDeliverTxResponse :: RawTransaction -> IO Response.DeliverTx
 getDeliverTxResponse rawTx = do
   let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-  deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-  return deliverResp
+  fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $
+    RPC.broadcastTxCommit txReq
 
 -- get the logged events from a deliver response,
 -- ensures there are no errors when parsing event logs
