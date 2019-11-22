@@ -14,9 +14,9 @@ import           Tendermint.SDK.Types.Message    (coerceProto3Error,
 
 data TokenMessage =
     TTransfer Transfer
+  | TFaucetAccount FaucetAccount
   | TBurn Burn
   | TMint Mint
-  | TFaucetAccount FaucetAccount
   deriving (Eq, Show, Generic)
 
 data FaucetAccount = FaucetAccount
@@ -71,9 +71,10 @@ instance HasCodec Mint where
 instance HasCodec TokenMessage where
   decode bs =
     fmap TTransfer (decode bs) <>
+    -- @NOTE: TFaucetAccount and TBurn have to be in this order
+    fmap TFaucetAccount (decode bs) <>
     fmap TBurn (decode bs) <>
-    fmap TMint (decode bs) <>
-    fmap TFaucetAccount (decode bs)
+    fmap TMint (decode bs)
   encode = \case
     TTransfer msg -> encode msg
     TBurn msg -> encode msg
