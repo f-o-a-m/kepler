@@ -56,7 +56,6 @@ eval = mapError makeAppError . evalNameservice
 
 faucetAccount
   :: HasTokenEff r
-  => HasNameserviceEff r
   => FaucetAccount
   -> Sem r ()
 faucetAccount FaucetAccount{..} = do

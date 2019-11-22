@@ -17,9 +17,9 @@ router
   => RoutedTx NameserviceMessage
   -> Sem r ()
 router (RoutedTx Tx{txMsg}) =
-  let Msg{msgData=msg} = txMsg
-  in case msg of
-       NSetName txMsg       -> setName txMsg
-       NBuyName txMsg       -> buyName txMsg
-       NDeleteName txMsg    -> deleteName txMsg
-       NFaucetAccount txMsg -> faucetAccount txMsg
+  let Msg{msgData} = txMsg
+  in case msgData of
+       NSetName msg       -> setName msg
+       NBuyName msg       -> buyName msg
+       NDeleteName msg    -> deleteName msg
+       NFaucetAccount msg -> faucetAccount msg
