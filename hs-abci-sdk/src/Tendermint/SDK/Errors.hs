@@ -10,7 +10,7 @@ module Tendermint.SDK.Errors
 
 import           Control.Exception                    (Exception)
 import           Control.Lens                         (Lens', lens)
-import           Data.Text                            (Text)
+import           Data.Text                            (Text, intercalate)
 import           Data.Word                            (Word32)
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Polysemy
@@ -93,6 +93,8 @@ data SDKError =
   | UnmatchedRoute Text
   -- ^ The name of the route that failed to match.
   | OutOfGasException
+  | MessageValidation [Text]
+  -- ^ Message validation errors.
 
 -- | As of right now it's not expected that one can recover from an 'SDKError',
 -- | so we are throwing them as 'AppError's directly.
@@ -125,4 +127,10 @@ instance IsAppError SDKError where
     { appErrorCode = 4
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Out of gas exception"
+    }
+
+  makeAppError (MessageValidation errors) = AppError
+    { appErrorCode = 5
+    , appErrorCodespace = "sdk"
+    , appErrorMessage = "Message failed validation: " <> intercalate "\n" errors
     }

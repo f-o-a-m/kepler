@@ -9,6 +9,7 @@ import           Crypto.Hash.Algorithms           (SHA256)
 import           Data.ByteString                  (ByteString)
 import           Data.Proxy
 import           Data.String.Conversions          (cs)
+import           Data.Validation                  (Validation (..))
 import           GHC.TypeLits                     (KnownSymbol, symbolVal)
 import           Polysemy                         (Member, Sem)
 import           Polysemy.Error                   (Error, throw)
@@ -19,7 +20,10 @@ import           Tendermint.SDK.Crypto            (RecoverableSignatureSchema,
 import           Tendermint.SDK.Errors            (AppError, SDKError (..),
                                                    throwSDKError)
 import           Tendermint.SDK.Module
-import           Tendermint.SDK.Types.Message     (Msg (..))
+import           Tendermint.SDK.Types.Message     (Msg (..),
+                                                   ValidateMessage (..),
+                                                   formatMessageSemanticError)
+-- import           Tendermint.SDK.Types.Message     (Msg (..))
 import           Tendermint.SDK.Types.Transaction (RawTransaction (..),
                                                    RoutedTx (..), Tx (..),
                                                    parseTx)
@@ -46,7 +50,7 @@ instance (Member (Error AppError) r) => Router '[] r where
   route NilModules Tx{txRoute}  =
     throwSDKError $ UnmatchedRoute txRoute
 
-instance (Member (Error AppError) r, Router ms r, HasCodec msg, KnownSymbol name) => Router (Module name msg api r ': ms) r where
+instance (Member (Error AppError) r, Router ms r, HasCodec msg, ValidateMessage msg, KnownSymbol name) => Router (Module name msg api r ': ms) r where
   route (ConsModule m rest) tx@Tx{..}
     | symbolVal (Proxy :: Proxy name) == cs txRoute = do
         msg <- case decode $ msgData txMsg of
@@ -54,5 +58,8 @@ instance (Member (Error AppError) r, Router ms r, HasCodec msg, KnownSymbol name
           Right (msg :: msg) -> return msg
         let msg' = txMsg {msgData = msg}
             tx' = RoutedTx $ tx {txMsg = msg'}
+        case validateMessage msg' of
+          Failure err -> throwSDKError . MessageValidation . map formatMessageSemanticError $ err
+          Success _ -> pure ()
         moduleRouter m tx'
     | otherwise = route rest tx
