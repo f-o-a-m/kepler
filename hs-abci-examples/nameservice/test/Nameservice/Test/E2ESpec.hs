@@ -14,6 +14,7 @@ import           Data.Default.Class                     (def)
 import           Data.Either                            (partitionEithers)
 import           Data.Maybe                             (fromJust)
 import           Data.Proxy
+import qualified Data.Serialize                         as Serialize
 import           Data.String                            (fromString)
 import           Data.String.Conversions                (cs)
 import           Data.Text                              (Text)
@@ -47,7 +48,6 @@ import           Tendermint.SDK.Types.Address           (Address (..))
 import           Tendermint.SDK.Types.Transaction       (RawTransaction (..),
                                                          signRawTransaction)
 import           Test.Hspec
-import qualified Data.Serialize as Serialize
 
 spec :: Spec
 spec = do
