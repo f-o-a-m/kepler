@@ -1,13 +1,8 @@
 module Nameservice.Modules.Nameservice.Types where
 
-import           Control.Lens                 (iso, (&), (.~), (^.))
-import           Control.Lens.Wrapped         (Wrapped (..))
+import           Control.Lens                 (iso)
 import           Data.Aeson                   as A
 import           Data.Bifunctor               (first)
-import           Data.ByteString              (ByteString)
-import           Data.ByteString              as BS
-import           Data.Maybe                   (fromJust)
-import qualified Data.Serialize               as Serialize
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
 import qualified Data.Text.Lazy               as TL
@@ -26,8 +21,7 @@ import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Events        (FromEvent (..), ToEvent (..))
 import qualified Tendermint.SDK.Query         as Q
 import qualified Tendermint.SDK.Store         as Store
-import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
-                                               addressToBytes)
+import           Tendermint.SDK.Types.Address (Address)
 
 --------------------------------------------------------------------------------
 
@@ -99,12 +93,28 @@ instance IsAppError NameserviceException where
 -- Events
 --------------------------------------------------------------------------------
 
+data Faucetted = Faucetted
+  { faucettedAccount :: Address
+  , faucettedAmount  :: Amount
+  } deriving (Eq, Show, Generic)
+
+faucettedAesonOptions :: A.Options
+faucettedAesonOptions = defaultNameserviceOptions "faucetted"
+
+instance ToJSON Faucetted where
+  toJSON = A.genericToJSON faucettedAesonOptions
+instance FromJSON Faucetted where
+  parseJSON = A.genericParseJSON faucettedAesonOptions
+instance ToEvent Faucetted where
+  makeEventType _ = "Faucetted"
+instance FromEvent Faucetted
+
 data NameClaimed = NameClaimed
   { nameClaimedOwner :: Address
   , nameClaimedName  :: Name
   , nameClaimedValue :: Text
   , nameClaimedBid   :: Amount
-  } deriving (Generic)
+  } deriving (Eq, Show, Generic)
 
 nameClaimedAesonOptions :: A.Options
 nameClaimedAesonOptions = defaultNameserviceOptions "nameClaimed"
@@ -115,12 +125,13 @@ instance FromJSON NameClaimed where
   parseJSON = A.genericParseJSON nameClaimedAesonOptions
 instance ToEvent NameClaimed where
   makeEventType _ = "NameClaimed"
+instance FromEvent NameClaimed
 
 data NameRemapped = NameRemapped
   { nameRemappedName     :: Name
   , nameRemappedOldValue :: Text
   , nameRemappedNewValue :: Text
-  } deriving Generic
+  } deriving (Eq, Show, Generic)
 
 nameRemappedAesonOptions :: A.Options
 nameRemappedAesonOptions = defaultNameserviceOptions "nameRemapped"
@@ -135,7 +146,7 @@ instance FromEvent NameRemapped
 
 data NameDeleted = NameDeleted
   { nameDeletedName :: Name
-  } deriving Generic
+  } deriving (Eq, Show, Generic)
 
 nameDeletedAesonOptions :: A.Options
 nameDeletedAesonOptions = defaultNameserviceOptions "nameDeleted"

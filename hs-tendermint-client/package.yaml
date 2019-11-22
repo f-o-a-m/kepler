@@ -55,6 +55,10 @@ library:
   ghc-options:
   - -Werror
   - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-record-updates
+  - -Wredundant-constraints
   exposed-modules:
   - Network.Tendermint.Client
 

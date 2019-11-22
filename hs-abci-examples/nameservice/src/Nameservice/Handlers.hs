@@ -3,10 +3,7 @@ module Nameservice.Handlers where
 import           Control.Lens                         (to, (&), (.~), (^.))
 import qualified Data.ByteArray.Base64String          as Base64
 import           Data.Default.Class                   (def)
-import           Data.Proxy
-import           Nameservice.Application              (Handler,
-                                                       compileToBaseApp, router)
-import qualified Nameservice.Modules.Nameservice      as N
+import           Nameservice.Application              (compileToBaseApp, router)
 import           Network.ABCI.Server.App              (App (..),
                                                        MessageType (..),
                                                        Request (..),
@@ -18,7 +15,6 @@ import           Polysemy.Error                       (catch)
 import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.BaseApp               (BaseApp)
 import           Tendermint.SDK.Codec                 (HasCodec (..))
-import           Tendermint.SDK.Crypto                (Secp256k1)
 import           Tendermint.SDK.Errors                (AppError, SDKError (..),
                                                        deliverTxAppError,
                                                        throwSDKError)

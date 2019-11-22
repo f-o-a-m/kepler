@@ -4,8 +4,7 @@ import           Data.Foldable                                 (fold)
 import           Data.Monoid                                   (Endo (..))
 import           Data.Proxy
 import           Nameservice.Application                       (AppConfig (..),
-                                                                queryServer,
-                                                                runHandler)
+                                                                queryServer)
 import           Nameservice.Handlers                          (nameserviceApp)
 import           Network.ABCI.Server                           (serveApp)
 import           Network.ABCI.Server.App                       (Middleware)

@@ -86,7 +86,6 @@ storeKey = StoreKey "auth"
 
 eval
   :: HasBaseAppEff r
-  => Member (Error AppError) r
   => Sem (Accounts ': Error AuthError ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalAuth

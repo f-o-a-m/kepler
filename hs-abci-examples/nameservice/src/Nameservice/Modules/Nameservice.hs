@@ -10,6 +10,14 @@ module Nameservice.Modules.Nameservice
   , Whois (..)
   , NameserviceException(..)
   , NameserviceMessage(..)
+  , NameClaimed(..)
+  , NameRemapped(..)
+  , NameDeleted(..)
+  , Faucetted(..)
+  , BuyName(..)
+  , SetName(..)
+  , DeleteName(..)
+  , FaucetAccount(..)
 
   -- * effects
   , NameserviceEffR
@@ -18,6 +26,7 @@ module Nameservice.Modules.Nameservice
   , buyName
   , setName
   , deleteName
+  , faucetAccount
 
   -- * interpreter
   , eval
@@ -37,7 +46,7 @@ import           Nameservice.Modules.Nameservice.Query
 import           Nameservice.Modules.Nameservice.Router
 import           Nameservice.Modules.Nameservice.Types
 import           Nameservice.Modules.Token                (HasTokenEff)
-import           Tendermint.SDK.BaseApp                   ((:&), HasBaseAppEff)
+import           Tendermint.SDK.BaseApp                   (HasBaseAppEff)
 import           Tendermint.SDK.Module                    (Module (..))
 
 type NameserviceM r = Module "nameservice" NameserviceMessage Api r

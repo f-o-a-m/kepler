@@ -4,10 +4,9 @@
 module Nameservice.Modules.Token
   (
   -- * types
-    Address(..)
-  , Amount(..)
+    Amount(..)
   , TokenException(..)
-  , Transfer
+  , Transfer(..)
 
   -- * effects
   , Token
@@ -52,8 +51,7 @@ import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Events        (Event, FromEvent, ToEvent (..),
                                                emit)
-import           Tendermint.SDK.Query         (FromQueryData, Queryable (..),
-                                               RouteT)
+import           Tendermint.SDK.Query         (Queryable (..), RouteT)
 import           Tendermint.SDK.Query.Store   (QueryApi, storeQueryHandlers)
 import qualified Tendermint.SDK.Store         as Store
 import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
@@ -102,7 +100,7 @@ data Transfer = Transfer
   { transferAmount :: Amount
   , transferTo     :: Address
   , transferFrom   :: Address
-  } deriving Generic
+  } deriving (Eq, Show, Generic)
 
 transferAesonOptions :: A.Options
 transferAesonOptions = defaultNameserviceOptions "transfer"
@@ -217,7 +215,7 @@ burn
 burn addr amount = do
   bal <- getBalance addr
   if bal < amount
-    then throw $ InsufficientFunds "Insuffient funds for burn."
+    then throw $ InsufficientFunds "Insufficient funds for burn."
     else putBalance addr (bal - amount)
 
 mint

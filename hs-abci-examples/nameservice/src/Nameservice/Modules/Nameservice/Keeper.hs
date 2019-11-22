@@ -15,8 +15,7 @@ import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
 import           Tendermint.SDK.BaseApp                   (HasBaseAppEff)
-import           Tendermint.SDK.Errors                    (AppError (..),
-                                                           IsAppError (..))
+import           Tendermint.SDK.Errors                    (IsAppError (..))
 import           Tendermint.SDK.Events                    (Event, emit)
 import qualified Tendermint.SDK.Store                     as Store
 
@@ -35,7 +34,6 @@ storeKey = Store.StoreKey . cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
 
 eval
   :: HasBaseAppEff r
-  => HasTokenEff r
   => Sem (Nameservice ': Error NameserviceException ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalNameservice
@@ -55,6 +53,17 @@ eval = mapError makeAppError . evalNameservice
         )
 
 --------------------------------------------------------------------------------
+
+faucetAccount
+  :: HasTokenEff r
+  => FaucetAccount
+  -> Sem r ()
+faucetAccount FaucetAccount{..} = do
+  mint faucetAccountTo faucetAccountAmount
+  emit Faucetted
+    { faucettedAccount = faucetAccountTo
+    , faucettedAmount = faucetAccountAmount
+    }
 
 setName
   :: HasTokenEff r
@@ -79,7 +88,6 @@ setName SetName{..} = do
 deleteName
   :: HasTokenEff r
   => HasNameserviceEff r
-  => Member (Output Event) r
   => DeleteName
   -> Sem r ()
 deleteName DeleteName{..} = do
@@ -100,7 +108,6 @@ deleteName DeleteName{..} = do
 buyName
   :: HasTokenEff r
   => HasNameserviceEff r
-  => Member (Output Event) r
   => BuyName
   -> Sem r ()
 -- ^ did it succeed
@@ -118,7 +125,6 @@ buyName msg = do
       buyUnclaimedName
         :: HasTokenEff r
         => HasNameserviceEff r
-        => Member (Output Event) r
         => BuyName
         -> Sem r ()
       buyUnclaimedName BuyName{..} = do
@@ -139,7 +145,6 @@ buyName msg = do
       buyClaimedName
         :: HasNameserviceEff r
         => HasTokenEff r
-        => Member (Output Event) r
         => BuyName
         -> Whois
         -> Sem r ()
@@ -148,7 +153,11 @@ buyName msg = do
         in if buyNameBid > forsalePrice
              then do
                transfer buyNameBuyer buyNameBid previousOwner
-               putWhois buyNameName currentWhois {whoisOwner = buyNameBuyer}
+               -- update new owner, price and value based on BuyName
+               putWhois buyNameName currentWhois { whoisOwner = buyNameBuyer
+                                                 , whoisPrice = buyNameBid
+                                                 , whoisValue = buyNameValue
+                                                 }
                emit NameClaimed
                  { nameClaimedOwner = buyNameBuyer
                  , nameClaimedName = buyNameName

@@ -72,7 +72,7 @@ signRawTransaction
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => Proxy alg
-  -> PrivateKey alg
+  -> PrivateKey alg --
   -> RawTransaction
   -> RecoverableSignature alg
 signRawTransaction p priv tx = signRecoverableMessage p priv (makeDigest tx)
