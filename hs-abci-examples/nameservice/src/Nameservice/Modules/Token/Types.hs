@@ -104,7 +104,7 @@ data TransferEvent = TransferEvent
   { transferEventAmount :: Amount
   , transferEventTo     :: Address
   , transferEventFrom   :: Address
-  } deriving Generic
+  } deriving (Eq, Show, Generic)
 
 transferEventAesonOptions :: A.Options
 transferEventAesonOptions = defaultNameserviceOptions "transferEvent"

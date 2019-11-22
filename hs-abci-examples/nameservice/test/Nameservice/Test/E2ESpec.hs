@@ -30,6 +30,8 @@ import           Nameservice.Modules.Nameservice        (BuyName (..),
                                                          Whois (..))
 import           Nameservice.Modules.Token              (Amount (..),
                                                          FaucetAccount (..),
+                                                         TransferEvent(..),
+                                                         Faucetted(..),
                                                          Transfer (..))
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..))
 import qualified Network.ABCI.Types.Messages.Response   as Response
@@ -203,9 +205,31 @@ spec = do
         whoisValue emptyWhois `shouldBe` ""
 
       -- @TODO: make transfer messages
-      it "Can fail a transfer" $ do
-        -- try to give addr1 2000 from addr2
-        pendingWith "Split token module"
+      it "Can fail a transfer (failure 1)" $ do
+        let msg = Transfer addr2 addr1 2000
+            rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
+        deliverResp <- getDeliverTxResponse rawTx
+        ensureDeliverResponseCode deliverResp 1
+
+      it "Can transfer (success 0)" $ do
+        let senderBeforeQueryReq = defaultReqWithData addr2
+        ClientResponse{clientResponseData = senderBeforeFoundAmount} <- runRPC $ getBalance senderBeforeQueryReq
+        senderBeforeFoundAmount `shouldBe` Amount 1700
+        let msg = Transfer addr1 addr2 500
+            transferEvent = TransferEvent 500 addr1 addr2
+            rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
+        deliverResp <- getDeliverTxResponse rawTx
+        ensureDeliverResponseCode deliverResp 0
+        (errs, events) <- deliverTxEvents deliverResp "TransferEvent"
+        errs `shouldBe` mempty
+        events `shouldSatisfy` elem transferEvent
+        -- check balances
+        let receiverQueryReq = defaultReqWithData addr1
+        ClientResponse{clientResponseData = receiverFoundAmount} <- runRPC $ getBalance receiverQueryReq
+        receiverFoundAmount `shouldBe` Amount 1800
+        let senderAfterQueryReq = defaultReqWithData addr2
+        ClientResponse{clientResponseData = senderAfterFoundAmount} <- runRPC $ getBalance senderAfterQueryReq
+        senderAfterFoundAmount `shouldBe` Amount 1200
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
 runRPC = RPC.runTendermintM rpcConfig
@@ -220,11 +244,13 @@ runRPC = RPC.runTendermintM rpcConfig
 faucetAccount :: User -> IO ()
 faucetAccount User{userAddress, userPrivKey} = do
   let msg = FaucetAccount userAddress 1000
+      faucetEvent = Faucetted userAddress 1000
       -- @NOTE: why is this `nameservice` and not `token`?
       rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey msg
-      txReq =
-        RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-  _ <- runRPC $ RPC.broadcastTxCommit txReq
+  deliverResp <- getDeliverTxResponse rawTx
+  (errs, events) <- deliverTxEvents deliverResp "Faucetted"
+  errs `shouldBe` mempty
+  events `shouldSatisfy` elem faucetEvent
   return ()
 
 -- executes a request, then returns the deliverTx response

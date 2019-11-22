@@ -15,6 +15,7 @@ module Nameservice.Modules.Token
   , TokenEffR
   , HasTokenEff
   , Faucetted(..)
+  , TransferEvent(..)
   , FaucetAccount(..)
   , getBalance
   , faucetAccount
