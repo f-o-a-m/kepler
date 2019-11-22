@@ -2,6 +2,7 @@
 
 module Tendermint.SDK.Test.GasSpec where
 
+import Control.Monad.IO.Class (MonadIO(..))
 import           Data.Either           (isRight)
 import           Data.Int              (Int64)
 import qualified Data.IORef            as Ref
@@ -44,11 +45,17 @@ spec = describe "Gas Tests" $ do
 
     it "Can perform a computation and run out of gas"  $ do
       meter <- Ref.newIORef 0
-      eRes <- eval meter $ G.withGas 1 bark
+      var <- Ref.newIORef (1 :: Int)
+      eRes <- eval meter $ do
+        G.withGas 1 bark
+        -- this shouldn't execute
+        liftIO $ Ref.modifyIORef var (+ 1)
       let AppError{..} = case eRes of
             Left e  -> e
             Right _ -> error "Was supposed to run out of gas"
       appErrorCode `shouldBe` 4
       remainingGas <- Ref.readIORef meter
       remainingGas `shouldBe` 0
+      varVal <- Ref.readIORef var
+      varVal `shouldBe` 1
 
