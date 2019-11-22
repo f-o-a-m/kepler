@@ -56,7 +56,7 @@ class ToEvent e => FromEvent e where
   fromEvent Event{eventType, eventAttributes} =
     let expectedType = makeEventType (Proxy @e)
     in if cs eventType /= expectedType
-         then fail ("Couldn't math expected event type " <> expectedType <>
+         then fail ("Couldn't match expected event type " <> expectedType <>
                 " with found type " <> cs eventType)
          else
            let fromKVPair :: KVPair -> Either String (Text, A.Value)
