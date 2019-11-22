@@ -54,6 +54,17 @@ eval = mapError makeAppError . evalNameservice
 
 --------------------------------------------------------------------------------
 
+faucetAccount
+  :: HasTokenEff r
+  => FaucetAccount
+  -> Sem r ()
+faucetAccount FaucetAccount{..} = do
+  mint faucetAccountTo faucetAccountAmount
+  emit Faucetted
+    { faucettedAccount = faucetAccountTo
+    , faucettedAmount = faucetAccountAmount
+    }
+
 setName
   :: HasTokenEff r
   => HasNameserviceEff r
@@ -142,7 +153,11 @@ buyName msg = do
         in if buyNameBid > forsalePrice
              then do
                transfer buyNameBuyer buyNameBid previousOwner
-               putWhois buyNameName currentWhois {whoisOwner = buyNameBuyer}
+               -- update new owner, price and value based on BuyName
+               putWhois buyNameName currentWhois { whoisOwner = buyNameBuyer
+                                                 , whoisPrice = buyNameBid
+                                                 , whoisValue = buyNameValue
+                                                 }
                emit NameClaimed
                  { nameClaimedOwner = buyNameBuyer
                  , nameClaimedName = buyNameName

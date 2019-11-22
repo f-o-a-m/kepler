@@ -14,7 +14,6 @@ import qualified Network.ABCI.Types.Messages.Response   as Response
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 import           Tendermint.SDK.Store                   (RawKey (..))
 
-
 data Leaf (a :: *)
 
 data QA (a :: *)

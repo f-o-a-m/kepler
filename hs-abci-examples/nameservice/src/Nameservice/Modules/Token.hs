@@ -6,7 +6,7 @@ module Nameservice.Modules.Token
   -- * types
     Amount(..)
   , TokenException(..)
-  , Transfer
+  , Transfer(..)
 
   -- * effects
   , Token
@@ -100,7 +100,7 @@ data Transfer = Transfer
   { transferAmount :: Amount
   , transferTo     :: Address
   , transferFrom   :: Address
-  } deriving Generic
+  } deriving (Eq, Show, Generic)
 
 transferAesonOptions :: A.Options
 transferAesonOptions = defaultNameserviceOptions "transfer"
@@ -215,7 +215,7 @@ burn
 burn addr amount = do
   bal <- getBalance addr
   if bal < amount
-    then throw $ InsufficientFunds "Insuffient funds for burn."
+    then throw $ InsufficientFunds "Insufficient funds for burn."
     else putBalance addr (bal - amount)
 
 mint

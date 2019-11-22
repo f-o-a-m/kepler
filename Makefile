@@ -52,14 +52,23 @@ test-libraries: install ## Run the haskell test suite for all haskell libraries
 deploy-simple-storage-docker: install ## run the simple storage docker network
 	docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml up --build
 
+deploy-nameservice-docker: install ## run the nameservice docker network
+	docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml up --build
+
 deploy-simple-storage-local: install ## run the simple storage locally
 	stack exec simple-storage
+
+deploy-nameservice-local: install ## run the nameservice locally
+	stack exec nameservice
 
 test-kv-store: install ## Run the test suite for the client interface
 	stack test hs-tendermint-client
 
-test-simple-storage: install ## Run the test suite for the example application
+test-simple-storage: install ## Run the test suite for the simple-storage example application
 	stack test simple-storage
+
+test-nameservice: install ## Run the test suite for the nameservice example application
+	stack test nameservice
 
 
 #####################

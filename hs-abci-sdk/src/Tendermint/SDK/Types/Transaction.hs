@@ -3,6 +3,7 @@ module Tendermint.SDK.Types.Transaction where
 import           Control.Error                (note)
 import           Crypto.Hash                  (Digest, hashWith)
 import           Crypto.Hash.Algorithms       (SHA256 (..))
+import           Data.Bifunctor               (first)
 import           Data.ByteString              (ByteString)
 import           Data.Proxy
 import qualified Data.Serialize               as Serialize
@@ -38,12 +39,14 @@ data RawTransaction = RawTransaction
   , rawTransactionSignature :: ByteString
   } deriving Generic
 
+-- basically also a message type
 instance Serialize.Serialize RawTransaction
 
 parseRawTransaction
   :: ByteString
   -> Either Text RawTransaction
-parseRawTransaction = error "TODO: implement parseRawTransaction"
+parseRawTransaction = first cs . Serialize.decode
+-- error "TODO: implement parseRawTransaction"
 
 instance MakeDigest RawTransaction where
   makeDigest tx = hashWith SHA256 . Serialize.encode $ tx {rawTransactionSignature = ""}
@@ -53,7 +56,7 @@ signRawTransaction
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => Proxy alg
-  -> PrivateKey alg
+  -> PrivateKey alg --
   -> RawTransaction
   -> RecoverableSignature alg
 signRawTransaction p priv tx = signRecoverableMessage p priv (makeDigest tx)

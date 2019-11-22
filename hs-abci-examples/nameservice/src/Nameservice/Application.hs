@@ -4,6 +4,7 @@ module Nameservice.Application
   , Handler
   , compileToBaseApp
   , runHandler
+  , QueryApi
   , queryServer
   , router
   ) where

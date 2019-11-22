@@ -86,6 +86,7 @@ library:
   - Nameservice.Application
   - Nameservice.Server
   - Nameservice.Handlers
+  - Nameservice.Modules.Nameservice
   - Nameservice.Modules.Token
   - Nameservice.Modules.Nameservice.Messages
   - Nameservice.Modules.Nameservice.Types
@@ -94,7 +95,7 @@ library:
   - Nameservice.Modules.Nameservice.Router
 
 executables:
-  nameservice-exe:
+  nameservice:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -118,10 +119,15 @@ tests:
   nameservice-test:
     main:                Spec.hs
     source-dirs:         test
+    other-modules:
+    - Nameservice.Test.E2ESpec
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
     - nameservice
+    - aeson-pretty
     - hspec
+    - secp256k1-haskell
+    - hs-tendermint-client

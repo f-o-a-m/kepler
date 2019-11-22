@@ -32,13 +32,13 @@ import qualified Text.PrettyPrint                         as PP
 --------------------------------------------------------------------------------
 
 testSN :: SetName
-testSN = SetName (Name "satoshi") "cool cats" (Address "01")
+testSN = SetName (Name "satoshi") (Address "01") "cool cats"
 
 testBN :: BuyName
-testBN = BuyName (Name "satoshi") "cool cats" (Address "01") (Amount 999)
+testBN = BuyName (Amount 999) (Name "satoshi") "cool cats" (Address "01")
 
 testDN :: DeleteName
-testDN = DeleteName (Name "satoshi") (Address "01")
+testDN = DeleteName (Address "01") (Name "satoshi")
 
 -- @NOTE: for some reason, encoding results in a lazy bytestring
 -- while the provided decoder only accepts a strict bytestring
