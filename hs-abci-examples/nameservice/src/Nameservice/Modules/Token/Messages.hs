@@ -18,6 +18,18 @@ data TokenMessage =
   | TMint Mint
   deriving (Eq, Show, Generic)
 
+data FaucetAccount = FaucetAccount
+  { faucetAccountTo     :: Address
+  , faucetAccountAmount :: Amount
+  } deriving (Eq, Show, Generic)
+
+instance Message FaucetAccount
+instance Named FaucetAccount
+
+instance HasCodec FaucetAccount where
+  encode = cs . toLazyByteString
+  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+
 data Transfer = Transfer
   { transferTo     :: Address
   , transferFrom   :: Address
@@ -59,8 +71,10 @@ instance HasCodec TokenMessage where
   decode bs =
     fmap TTransfer (decode bs) <>
     fmap TBurn (decode bs) <>
-    fmap TMint (decode bs)
+    fmap TMint (decode bs) <>
+    fmap TFaucetAccount (decode bs)
   encode = \case
     TTransfer msg -> encode msg
     TBurn msg -> encode msg
     TMint msg -> encode msg
+    TFaucetAccount msg -> encode msg

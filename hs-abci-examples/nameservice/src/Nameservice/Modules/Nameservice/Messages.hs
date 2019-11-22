@@ -23,20 +23,7 @@ data NameserviceMessage =
     NSetName SetName
   | NBuyName BuyName
   | NDeleteName DeleteName
-  | NFaucetAccount FaucetAccount
   deriving (Eq, Show, Generic)
-
-data FaucetAccount = FaucetAccount
-  { faucetAccountTo     :: Address
-  , faucetAccountAmount :: Amount
-  } deriving (Eq, Show, Generic)
-
-instance Message FaucetAccount
-instance Named FaucetAccount
-
-instance HasCodec FaucetAccount where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
 -- @NOTE: .proto genration will use these type names as is
 -- only field names stripped of prefixes during generation
@@ -84,24 +71,17 @@ instance HasCodec NameserviceMessage where
     -- @NOTE: tests pass iff NBuyName is first
     fmap NBuyName (decode bs) <>
     fmap NSetName (decode bs) <>
-    fmap NDeleteName (decode bs) <>
-    fmap NFaucetAccount (decode bs)
+    fmap NDeleteName (decode bs)
   encode = \case
     NSetName msg -> encode msg
     NBuyName msg -> encode msg
     NDeleteName msg -> encode msg
-    NFaucetAccount msg -> encode msg
 
 instance ValidateMessage NameserviceMessage where
   validateMessage m@Msg{msgData} = case msgData of
     NBuyName msg       -> validateMessage m {msgData = msg}
     NSetName msg       -> validateMessage m {msgData = msg}
     NDeleteName msg    -> validateMessage m {msgData = msg}
-    NFaucetAccount msg -> validateMessage m {msgData = msg}
-
--- @TODO: Move this to token module
-instance ValidateMessage FaucetAccount where
-  validateMessage _ = mempty
 
 -- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg
 instance ValidateMessage SetName where
