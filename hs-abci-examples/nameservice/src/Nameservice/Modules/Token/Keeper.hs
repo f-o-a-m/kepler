@@ -5,7 +5,9 @@ module Nameservice.Modules.Token.Keeper where
 import           Data.Maybe                      (fromMaybe)
 import           Nameservice.Modules.Token.Types (Amount (..),
                                                   TokenException (..),
-                                                  TransferEvent (..))
+                                                  TransferEvent (..),
+                                                  Faucetted(..))
+import Nameservice.Modules.Token.Messages (FaucetAccount(..))
 import           Polysemy
 import           Polysemy.Error                  (Error, mapError, throw)
 import           Polysemy.Output                 (Output)

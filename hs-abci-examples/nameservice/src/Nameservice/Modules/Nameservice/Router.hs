@@ -2,7 +2,6 @@ module Nameservice.Modules.Nameservice.Router where
 
 import           Nameservice.Modules.Nameservice.Keeper   (HasNameserviceEff,
                                                            buyName, deleteName,
-                                                           faucetAccount,
                                                            setName)
 import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (..))
 import           Nameservice.Modules.Token                (HasTokenEff)
