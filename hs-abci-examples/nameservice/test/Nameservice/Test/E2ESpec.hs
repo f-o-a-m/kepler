@@ -22,8 +22,11 @@ import           Nameservice.Modules.Nameservice      (BuyName (..),
                                                        DeleteName (..),
                                                        FaucetAccount (..),
                                                        Name (..), SetName (..),
-                                                       Whois (..))
-import           Nameservice.Modules.Token            (Amount (..))
+                                                       Whois (..),
+                                                       NameClaimed(..),
+                                                       NameDeleted(..),
+                                                       NameRemapped(..))
+import           Nameservice.Modules.Token            (Amount (..), Transfer(..))
 import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Network.Tendermint.Client            as RPC
 import           Proto3.Suite                         (Message,
@@ -38,6 +41,9 @@ import           Tendermint.SDK.Query.Types           (QueryArgs (..))
 import           Tendermint.SDK.Types.Address         (Address (..))
 import           Tendermint.SDK.Types.Transaction     (RawTransaction (..),
                                                        signRawTransaction)
+import           Tendermint.SDK.Events        (FromEvent (..))
+import Data.Text (Text)
+import Data.Either (partitionEithers)
 import           Test.Hspec
 
 spec :: Spec
@@ -60,10 +66,15 @@ spec = do
         foundAmount `shouldBe` Amount 1000
 
       it "Can create a name" $ do
-        let msg = BuyName 0 satoshi "hello world" addr1
+        let val = "hello world"
+            msg = BuyName 0 satoshi val addr1
+            claimedLog = NameClaimed addr1 satoshi val 0
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        deliverResp <- txDeliverResponse rawTx
-        ensureDeliveryResponseCode deliverResp 0
+        deliverResp <- getDeliverTxResponse rawTx
+        ensureDeliverResponseCode deliverResp 0
+        (errs, events) <- deliverTxEvents deliverResp
+        errs `shouldBe` mempty
+        events `shouldSatisfy` elem claimedLog
 
       it "Can query for a name" $ do
         let queryReq = defaultReqWithData satoshi
@@ -87,10 +98,16 @@ spec = do
         whoisValue emptyWhois `shouldBe` ""
 
       it "Can set a name value" $ do
-        let msg = SetName satoshi addr1 "goodbye to a world"
+        let oldVal = "hello world"
+            newVal = "goodbye to a world"
+            msg = SetName satoshi addr1 newVal
+            remappedLog = NameRemapped satoshi oldVal newVal
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        deliverResp <- txDeliverResponse rawTx
-        ensureDeliveryResponseCode deliverResp 0
+        deliverResp <- getDeliverTxResponse rawTx
+        ensureDeliverResponseCode deliverResp 0
+        (errs, events) <- deliverTxEvents deliverResp
+        errs `shouldBe` mempty
+        events `shouldSatisfy` elem remappedLog
         -- check for changes
         let queryReq = defaultReqWithData satoshi
         ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
@@ -103,14 +120,23 @@ spec = do
         -- try to set a name without being the owner
         let msg = SetName satoshi addr2 "goodbye to a world"
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        deliverResp <- txDeliverResponse rawTx
-        ensureDeliveryResponseCode deliverResp 2
+        deliverResp <- getDeliverTxResponse rawTx
+        ensureDeliverResponseCode deliverResp 2
 
       it "Can buy an existing name" $ do
-        let msg = BuyName 300 satoshi "hello (again) world" addr2
+        -- how to do both types of logs?
+        let oldVal = "goodbye to a world"
+            newVal = "hello (again) world"
+            msg = BuyName 300 satoshi newVal addr2
+            claimedLog = NameClaimed addr2 satoshi newVal 300
+            -- transferLog = Transfer 300 addr1 addr2
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        deliverResp <- txDeliverResponse rawTx
-        ensureDeliveryResponseCode deliverResp 0
+        deliverResp <- getDeliverTxResponse rawTx
+        ensureDeliverResponseCode deliverResp 0
+        (errs, events) <- deliverTxEvents deliverResp
+        errs `shouldBe` mempty
+        events `shouldSatisfy` elem claimedLog
+        -- events `shouldSatisfy` elem transferLog
         -- check for ownership changes
         let queryReq = defaultReqWithData satoshi
         ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
@@ -125,10 +151,15 @@ spec = do
         let queryReq = defaultReqWithData addr2
         ClientResponse{clientResponseData = beforeBuyAmount} <- runRPC $ getBalance queryReq
         -- buy
-        let msg = BuyName 500 satoshi "hello (again) world" addr2
+        let val = "hello (again) world"
+            msg = BuyName 500 satoshi val addr2
+            claimedLog = NameClaimed addr2 satoshi val 500
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        deliverResp <- txDeliverResponse rawTx
-        ensureDeliveryResponseCode deliverResp 0
+        deliverResp <- getDeliverTxResponse rawTx
+        ensureDeliverResponseCode deliverResp 0
+        (errs, events) <- deliverTxEvents deliverResp
+        errs `shouldBe` mempty
+        events `shouldSatisfy` elem claimedLog
         -- check balance after
         ClientResponse{clientResponseData = afterBuyAmount} <- runRPC $ getBalance queryReq
         -- owner/buyer still profits
@@ -138,14 +169,18 @@ spec = do
         -- try to buy at a lower price
         let msg = BuyName 100 satoshi "hello (again) world" addr1
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        deliverResp <- txDeliverResponse rawTx
-        ensureDeliveryResponseCode deliverResp 1
+        deliverResp <- getDeliverTxResponse rawTx
+        ensureDeliverResponseCode deliverResp 1
 
       it "Can delete names" $ do
         let msg = DeleteName addr2 satoshi
+            deletedLog = NameDeleted satoshi
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        deliverResp <- txDeliverResponse rawTx
-        ensureDeliveryResponseCode deliverResp 0
+        deliverResp <- getDeliverTxResponse rawTx
+        ensureDeliverResponseCode deliverResp 0
+        (errs, events) <- deliverTxEvents deliverResp
+        errs `shouldBe` mempty
+        events `shouldSatisfy` elem deletedLog
         -- name shouldn't exist
         let queryReq = defaultReqWithData satoshi
         ClientResponse{ clientResponseData = emptyWhois
@@ -184,16 +219,23 @@ faucetAccount User{userAddress, userPrivKey} = do
   _ <- runRPC $ RPC.broadcastTxCommit txReq
   return ()
 
--- executes a request, then returns the deliveryTx response
-txDeliverResponse :: RawTransaction -> IO (Response.DeliverTx)
-txDeliverResponse rawTx = do
+-- executes a request, then returns the deliverTx response
+getDeliverTxResponse :: RawTransaction -> IO Response.DeliverTx
+getDeliverTxResponse rawTx = do
   let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
   deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
   return deliverResp
 
--- executes a request, then checks for a specific response code
-ensureDeliveryResponseCode :: Response.DeliverTx -> Word32 -> IO ()
-ensureDeliveryResponseCode deliverResp code = do
+-- get the logged events from a deliver response,
+-- ensures there are no errors when parsing event logs
+deliverTxEvents :: FromEvent e => Response.DeliverTx -> IO ([Text],[e])
+deliverTxEvents deliverResp = do
+  let deliverEvents = deliverResp ^. Response._deliverTxEvents
+  return . partitionEithers . map fromEvent $ deliverEvents
+
+-- check for a specific deliver response code
+ensureDeliverResponseCode :: Response.DeliverTx -> Word32 -> IO ()
+ensureDeliverResponseCode deliverResp code = do
   let deliverRespCode = deliverResp ^. Response._deliverTxCode
   deliverRespCode `shouldBe` code
 

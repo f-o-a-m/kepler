@@ -7,7 +7,7 @@ module Nameservice.Modules.Token
     Address(..)
   , Amount(..)
   , TokenException(..)
-  , Transfer
+  , Transfer(..)
 
   -- * effects
   , Token
@@ -101,7 +101,7 @@ data Transfer = Transfer
   { transferAmount :: Amount
   , transferTo     :: Address
   , transferFrom   :: Address
-  } deriving Generic
+  } deriving (Eq, Show, Generic)
 
 transferAesonOptions :: A.Options
 transferAesonOptions = defaultNameserviceOptions "transfer"
