@@ -97,6 +97,11 @@ instance ValidateMessage NameserviceMessage where
     NBuyName msg    -> validateMessage m {msgData = msg}
     NSetName msg    -> validateMessage m {msgData = msg}
     NDeleteName msg -> validateMessage m {msgData = msg}
+    NFaucetAccount msg -> validateMessage m {msgData = msg}
+
+-- @TODO: Move this to token module
+instance ValidateMessage FaucetAccount where
+  validateMessage m@Msg{msgData} = mempty
 
 -- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg
 instance ValidateMessage SetName where
