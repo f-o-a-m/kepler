@@ -109,6 +109,7 @@ library:
   - Tendermint.SDK.Types.Address
   - Tendermint.SDK.TxRouter
   - Tendermint.SDK.Module
+  - Tendermint.SDK.Gas
 
 tests:
   hs-abci-sdk-test:
@@ -118,6 +119,7 @@ tests:
     - Tendermint.SDK.Test.AuthTreeStoreSpec
     - Tendermint.SDK.Test.CryptoSpec
     - Tendermint.SDK.Test.EventSpec
+    - Tendermint.SDK.Test.GasSpec
 
     ghc-options:
     - -Werror
