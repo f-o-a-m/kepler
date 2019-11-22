@@ -17,13 +17,13 @@ import           Polysemy                             (Sem)
 import           Polysemy.Error                       (catch)
 import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.BaseApp               (BaseApp)
+import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Crypto                (Secp256k1)
 import           Tendermint.SDK.Errors                (AppError, SDKError (..),
                                                        deliverTxAppError,
                                                        throwSDKError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
-import Tendermint.SDK.Codec (HasCodec(..))
 
 echoH
   :: Request 'MTEcho

@@ -1,24 +1,24 @@
 module Tendermint.SDK.Types.Transaction where
 
-import           Control.Error                (note)
-import           Control.Lens                 (Wrapped (..), from, iso, view,
-                                               (&), (.~), (^.))
-import           Crypto.Hash                  (Digest, hashWith)
-import           Crypto.Hash.Algorithms       (SHA256 (..))
-import           Data.Bifunctor               (bimap)
-import           Data.ByteString              (ByteString)
-import qualified Data.ProtoLens               as P
+import           Control.Error                  (note)
+import           Control.Lens                   (Wrapped (..), from, iso, view,
+                                                 (&), (.~), (^.))
+import           Crypto.Hash                    (Digest, hashWith)
+import           Crypto.Hash.Algorithms         (SHA256 (..))
+import           Data.Bifunctor                 (bimap)
+import           Data.ByteString                (ByteString)
+import qualified Data.ProtoLens                 as P
 import           Data.Proxy
-import           Data.String.Conversions      (cs)
-import           Data.Text                    (Text)
-import           GHC.Generics                 (Generic)
-import qualified Proto.Types.Transaction            as T
-import qualified Proto.Types.Transaction_Fields     as T
-import           Tendermint.SDK.Codec         (HasCodec (..))
-import           Tendermint.SDK.Crypto        (MakeDigest (..),
-                                               RecoverableSignatureSchema (..),
-                                               SignatureSchema (..))
-import           Tendermint.SDK.Types.Message (Msg (..))
+import           Data.String.Conversions        (cs)
+import           Data.Text                      (Text)
+import           GHC.Generics                   (Generic)
+import qualified Proto.Types.Transaction        as T
+import qualified Proto.Types.Transaction_Fields as T
+import           Tendermint.SDK.Codec           (HasCodec (..))
+import           Tendermint.SDK.Crypto          (MakeDigest (..),
+                                                 RecoverableSignatureSchema (..),
+                                                 SignatureSchema (..))
+import           Tendermint.SDK.Types.Message   (Msg (..))
 
 -- Our standard transaction type parameterized by the signature schema 'alg'
 -- and an underlying message type 'msg'.
