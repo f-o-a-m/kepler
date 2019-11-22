@@ -2,7 +2,7 @@ module Network.Tendermint.Client.Internal.RPCClient where
 
 import           Control.Applicative    ((<|>))
 import           Control.Exception      (Exception)
-import           Control.Monad.Catch    (MonadThrow, throwM)
+import           Control.Monad.Catch    (throwM)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Control.Monad.Reader   (MonadReader, ask)
 import           Data.Aeson             (FromJSON (..), Result (..),
@@ -99,7 +99,6 @@ data Config = Config
 
 remote ::
   ( MonadIO m
-  , MonadThrow m
   , MonadReader Config m
   , FromJSON output
   , ToJSON input

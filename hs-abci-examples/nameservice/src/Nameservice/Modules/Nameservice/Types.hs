@@ -93,12 +93,28 @@ instance IsAppError NameserviceException where
 -- Events
 --------------------------------------------------------------------------------
 
+data Faucetted = Faucetted
+  { faucettedAccount :: Address
+  , faucettedAmount  :: Amount
+  } deriving (Eq, Show, Generic)
+
+faucettedAesonOptions :: A.Options
+faucettedAesonOptions = defaultNameserviceOptions "faucetted"
+
+instance ToJSON Faucetted where
+  toJSON = A.genericToJSON faucettedAesonOptions
+instance FromJSON Faucetted where
+  parseJSON = A.genericParseJSON faucettedAesonOptions
+instance ToEvent Faucetted where
+  makeEventType _ = "Faucetted"
+instance FromEvent Faucetted
+
 data NameClaimed = NameClaimed
   { nameClaimedOwner :: Address
   , nameClaimedName  :: Name
   , nameClaimedValue :: Text
   , nameClaimedBid   :: Amount
-  } deriving (Generic)
+  } deriving (Eq, Show, Generic)
 
 nameClaimedAesonOptions :: A.Options
 nameClaimedAesonOptions = defaultNameserviceOptions "nameClaimed"
@@ -109,12 +125,13 @@ instance FromJSON NameClaimed where
   parseJSON = A.genericParseJSON nameClaimedAesonOptions
 instance ToEvent NameClaimed where
   makeEventType _ = "NameClaimed"
+instance FromEvent NameClaimed
 
 data NameRemapped = NameRemapped
   { nameRemappedName     :: Name
   , nameRemappedOldValue :: Text
   , nameRemappedNewValue :: Text
-  } deriving Generic
+  } deriving (Eq, Show, Generic)
 
 nameRemappedAesonOptions :: A.Options
 nameRemappedAesonOptions = defaultNameserviceOptions "nameRemapped"
@@ -129,7 +146,7 @@ instance FromEvent NameRemapped
 
 data NameDeleted = NameDeleted
   { nameDeletedName :: Name
-  } deriving Generic
+  } deriving (Eq, Show, Generic)
 
 nameDeletedAesonOptions :: A.Options
 nameDeletedAesonOptions = defaultNameserviceOptions "nameDeleted"

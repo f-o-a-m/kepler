@@ -31,7 +31,7 @@ import qualified Network.Tendermint.Client.Internal.RPCClient as RPC
 
 
 
-type TendermintM a = ReaderT RPC.Config IO a
+type TendermintM = ReaderT RPC.Config IO
 
 -- | Execute an RPC request with the given configuration.
 runTendermintM :: RPC.Config -> TendermintM a -> IO a

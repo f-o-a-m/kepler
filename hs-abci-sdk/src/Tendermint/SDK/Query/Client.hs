@@ -7,12 +7,16 @@ module Tendermint.SDK.Query.Client
   ) where
 
 import           Control.Lens                         (to, (^.))
+import           Control.Monad.Reader                 (ReaderT)
 import qualified Data.ByteArray.Base64String          as Base64
+import qualified Data.ByteArray.HexString             as Hex
+import           Data.ByteString                      (ByteString)
 import           Data.Proxy
 import           Data.String.Conversions              (cs)
 import           GHC.TypeLits                         (KnownSymbol, symbolVal)
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
+import qualified Network.Tendermint.Client            as RPC
 import           Servant.API                          ((:<|>) (..), (:>))
 import           Tendermint.SDK.Query.Types           (Leaf, QA, QueryArgs (..),
                                                        Queryable (..))
@@ -21,6 +25,16 @@ import           Tendermint.SDK.Store                 (RawKey (..))
 class Monad m => RunClient m where
     -- | How to make a request.
     runQuery :: Req.Query -> m Resp.Query
+
+instance RunClient (ReaderT RPC.Config IO) where
+  runQuery Req.Query{..} =
+    let rpcQ = RPC.RequestABCIQuery
+          { RPC.requestABCIQueryPath = Just queryPath
+          , RPC.requestABCIQueryData = Hex.fromBytes @ByteString . Base64.toBytes $ queryData
+          , RPC.requestABCIQueryHeight = Just $ queryHeight
+          , RPC.requestABCIQueryProve  = queryProve
+          }
+    in RPC.resultABCIQueryResponse <$> RPC.abciQuery rpcQ
 
 class HasClient m layout where
 
@@ -54,7 +68,7 @@ instance (RunClient m, Queryable a, name ~  Name a, KnownSymbol name ) => HasCli
     genClient _ _ q =
         let leaf = symbolVal (Proxy @(Name a))
         in do
-            r@Resp.Query{..} <- runQuery q { Req.queryPath = Req.queryPath q <> "/" <> cs leaf }
-            return $ case decodeQueryResult queryValue of
-                Left err -> error $ "Impossible parse error: " <> cs err
-                Right a  -> ClientResponse a r
+          r@Resp.Query{..} <- runQuery q { Req.queryPath = Req.queryPath q <> "/" <> cs leaf }
+          return $ case decodeQueryResult queryValue of
+                     Left err -> error $ "Impossible parse error: " <> cs err
+                     Right a  -> ClientResponse a r

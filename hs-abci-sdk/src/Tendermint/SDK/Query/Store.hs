@@ -43,8 +43,7 @@ class StoreQueryHandlers (kvs :: [*]) (ns :: Symbol) m where
     storeQueryHandlers :: Proxy kvs -> StoreKey ns -> Proxy m -> RouteT (QueryApi kvs) m
 
 instance
-    ( Queryable a
-    , IsKey k ns
+    ( IsKey k ns
     , a ~ Value k ns
     , HasCodec a
     , Member RawStore r
@@ -53,8 +52,7 @@ instance
       storeQueryHandlers _ storeKey _ = storeQueryHandler (Proxy :: Proxy a) storeKey
 
 instance
-    ( Queryable a
-    , IsKey k ns
+    ( IsKey k ns
     , a ~ Value k ns
     , HasCodec a
     , StoreQueryHandlers ((k', a') ': as) ns (Sem r)
@@ -68,7 +66,6 @@ instance
 allStoreHandlers
   :: forall (contents :: [*]) ns r.
      StoreQueryHandlers contents ns (Sem r)
-  => Member RawStore r
   => Proxy contents
   -> StoreKey ns
   -> Proxy r

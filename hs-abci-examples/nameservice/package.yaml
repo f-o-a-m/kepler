@@ -74,10 +74,19 @@ dependencies:
 
 library:
   source-dirs: src
+  ghc-options:
+  - -Werror
+  - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
   exposed-modules:
   - Nameservice.Application
   - Nameservice.Server
   - Nameservice.Handlers
+  - Nameservice.Modules.Nameservice
   - Nameservice.Modules.Token
   - Nameservice.Modules.Token.Messages
   - Nameservice.Modules.Token.Types
@@ -91,7 +100,7 @@ library:
   - Nameservice.Modules.Nameservice.Router
 
 executables:
-  nameservice-exe:
+  nameservice:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -115,10 +124,15 @@ tests:
   nameservice-test:
     main:                Spec.hs
     source-dirs:         test
+    other-modules:
+    - Nameservice.Test.E2ESpec
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
     - nameservice
+    - aeson-pretty
     - hspec
+    - secp256k1-haskell
+    - hs-tendermint-client

@@ -8,7 +8,7 @@ module Nameservice.Modules.Token
   , Address
   , Amount(..)
   , TokenException(..)
-  , Transfer
+  , Transfer(..)
 
   -- * effects
   , Token

@@ -53,6 +53,7 @@ dependencies:
 - exceptions
 - hs-abci-types
 - hs-abci-server
+- hs-tendermint-client
 - http-types
 - katip
 - lens
@@ -79,6 +80,10 @@ library:
   - -fplugin=Polysemy.Plugin
   - -Werror
   - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
   exposed-modules:
   - Tendermint.SDK.Application
   - Tendermint.SDK.Aeson
