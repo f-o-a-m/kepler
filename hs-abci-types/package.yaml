@@ -57,6 +57,10 @@ library:
   ghc-options:
   - -Werror
   - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
   exposed-modules:
   - Data.ByteArray.HexString
   - Data.ByteArray.Base64String

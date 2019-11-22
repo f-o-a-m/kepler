@@ -1,27 +1,17 @@
 module Nameservice.Modules.Nameservice.Messages where
 
-import           Control.Applicative                   ((<|>))
-import           Control.Lens                          (( # ), (^.))
-import qualified Data.Aeson                            as A
 import           Data.Bifunctor                        (first)
-import           Data.Either                           (Either)
 import           Data.Foldable                         (sequenceA_)
-import           Data.Proxy
 import           Data.String.Conversions               (cs)
 import           Data.Text                             (Text)
-import qualified Data.Validation                       as V
 import           GHC.Generics                          (Generic)
-import           GHC.TypeLits                          (symbolVal)
-import           Nameservice.Aeson                     (defaultNameserviceOptions)
-import           Nameservice.Modules.Nameservice.Types (Name (..),
-                                                        NameserviceModule)
+import           Nameservice.Modules.Nameservice.Types (Name (..))
 import           Nameservice.Modules.Token             (Amount (..))
 import           Proto3.Suite                          (Message, Named,
                                                         fromByteString,
                                                         toLazyByteString)
 import           Tendermint.SDK.Codec                  (HasCodec (..))
-import           Tendermint.SDK.Types.Address          (Address,
-                                                        addressFromBytes)
+import           Tendermint.SDK.Types.Address          (Address)
 import           Tendermint.SDK.Types.Message          (Msg (..),
                                                         ValidateMessage (..),
                                                         coerceProto3Error,

@@ -8,7 +8,6 @@ module Nameservice.Application
   , router
   ) where
 
-import           Control.Exception                (Exception)
 import           Data.Proxy
 import qualified Nameservice.Modules.Nameservice  as N
 import qualified Nameservice.Modules.Token        as T
@@ -65,9 +64,6 @@ router = R.router (Proxy @Secp256k1) modules
 --------------------------------------------------------------------------------
 
 type QueryApi = T.Api :<|> N.Api
-
-apiP :: Proxy QueryApi
-apiP = Proxy
 
 queryServer :: QueryApplication (Sem BaseApp.BaseApp)
 queryServer = serve (Proxy :: Proxy QueryApi) (T.server :<|> N.server)
