@@ -42,6 +42,7 @@ import           Tendermint.SDK.Types.Address         (Address (..))
 import           Tendermint.SDK.Types.Transaction     (RawTransaction (..),
                                                        signRawTransaction)
 import           Tendermint.SDK.Events        (FromEvent (..))
+import Network.ABCI.Types.Messages.FieldTypes (Event(..))
 import Data.Text (Text)
 import Data.Either (partitionEithers)
 import           Test.Hspec
@@ -72,7 +73,7 @@ spec = do
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp
+        (errs, events) <- deliverTxEvents deliverResp "NameClaimed"
         errs `shouldBe` mempty
         events `shouldSatisfy` elem claimedLog
 
@@ -105,7 +106,7 @@ spec = do
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp
+        (errs, events) <- deliverTxEvents deliverResp "NameRemapped"
         errs `shouldBe` mempty
         events `shouldSatisfy` elem remappedLog
         -- check for changes
@@ -133,7 +134,7 @@ spec = do
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp
+        (errs, events) <- deliverTxEvents deliverResp "NameClaimed"
         errs `shouldBe` mempty
         events `shouldSatisfy` elem claimedLog
         -- events `shouldSatisfy` elem transferLog
@@ -157,7 +158,7 @@ spec = do
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp
+        (errs, events) <- deliverTxEvents deliverResp "NameClaimed"
         errs `shouldBe` mempty
         events `shouldSatisfy` elem claimedLog
         -- check balance after
@@ -178,7 +179,7 @@ spec = do
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp
+        (errs, events) <- deliverTxEvents deliverResp "NameDeleted"
         errs `shouldBe` mempty
         events `shouldSatisfy` elem deletedLog
         -- name shouldn't exist
@@ -228,10 +229,11 @@ getDeliverTxResponse rawTx = do
 
 -- get the logged events from a deliver response,
 -- ensures there are no errors when parsing event logs
-deliverTxEvents :: FromEvent e => Response.DeliverTx -> IO ([Text],[e])
-deliverTxEvents deliverResp = do
+deliverTxEvents :: FromEvent e => Response.DeliverTx -> Text -> IO ([Text],[e])
+deliverTxEvents deliverResp eventName = do
   let deliverEvents = deliverResp ^. Response._deliverTxEvents
-  return . partitionEithers . map fromEvent $ deliverEvents
+      filtered = filter ((== eventName) . eventType) deliverEvents
+  return . partitionEithers . map fromEvent $ filtered
 
 -- check for a specific deliver response code
 ensureDeliverResponseCode :: Response.DeliverTx -> Word32 -> IO ()
