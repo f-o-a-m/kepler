@@ -66,8 +66,5 @@ router = R.router (Proxy @Secp256k1) modules
 
 type QueryApi = T.Api :<|> N.Api
 
-apiP :: Proxy QueryApi
-apiP = Proxy
-
 queryServer :: QueryApplication (Sem BaseApp.BaseApp)
 queryServer = serve (Proxy :: Proxy QueryApi) (T.server :<|> N.server)

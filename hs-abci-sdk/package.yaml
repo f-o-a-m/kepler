@@ -80,6 +80,10 @@ library:
   - -fplugin=Polysemy.Plugin
   - -Werror
   - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
   exposed-modules:
   - Tendermint.SDK.Application
   - Tendermint.SDK.Aeson

@@ -4,8 +4,7 @@
 module Nameservice.Modules.Token
   (
   -- * types
-    Address(..)
-  , Amount(..)
+    Amount(..)
   , TokenException(..)
   , Transfer(..)
 

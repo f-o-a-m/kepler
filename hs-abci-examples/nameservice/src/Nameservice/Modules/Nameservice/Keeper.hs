@@ -34,7 +34,6 @@ storeKey = Store.StoreKey . cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
 
 eval
   :: HasBaseAppEff r
-  => HasTokenEff r
   => Sem (Nameservice ': Error NameserviceException ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalNameservice
@@ -90,7 +89,6 @@ setName SetName{..} = do
 deleteName
   :: HasTokenEff r
   => HasNameserviceEff r
-  => Member (Output Event) r
   => DeleteName
   -> Sem r ()
 deleteName DeleteName{..} = do
@@ -111,7 +109,6 @@ deleteName DeleteName{..} = do
 buyName
   :: HasTokenEff r
   => HasNameserviceEff r
-  => Member (Output Event) r
   => BuyName
   -> Sem r ()
 -- ^ did it succeed
@@ -129,7 +126,6 @@ buyName msg = do
       buyUnclaimedName
         :: HasTokenEff r
         => HasNameserviceEff r
-        => Member (Output Event) r
         => BuyName
         -> Sem r ()
       buyUnclaimedName BuyName{..} = do
@@ -150,7 +146,6 @@ buyName msg = do
       buyClaimedName
         :: HasNameserviceEff r
         => HasTokenEff r
-        => Member (Output Event) r
         => BuyName
         -> Whois
         -> Sem r ()

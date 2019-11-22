@@ -3,10 +3,7 @@ module Nameservice.Handlers where
 import           Control.Lens                         (to, (&), (.~), (^.))
 import qualified Data.ByteArray.Base64String          as Base64
 import           Data.Default.Class                   (def)
-import           Data.Proxy
-import           Nameservice.Application              (Handler,
-                                                       compileToBaseApp, router)
-import qualified Nameservice.Modules.Nameservice      as N
+import           Nameservice.Application              (compileToBaseApp, router)
 import           Network.ABCI.Server.App              (App (..),
                                                        MessageType (..),
                                                        Request (..),
@@ -17,14 +14,12 @@ import           Polysemy                             (Sem)
 import           Polysemy.Error                       (catch)
 import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.BaseApp               (BaseApp)
-import           Tendermint.SDK.Crypto                (Secp256k1)
 import           Tendermint.SDK.Errors                (AppError, SDKError (..),
                                                        deliverTxAppError,
                                                        throwSDKError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
-import           Tendermint.SDK.Types.Transaction     (parseRawTransaction,
-                                                       parseTx)
+import           Tendermint.SDK.Types.Transaction     (parseRawTransaction)
 
 echoH
   :: Request 'MTEcho
