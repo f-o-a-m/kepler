@@ -84,6 +84,22 @@ instance IsAppError TokenException where
 -- Events
 --------------------------------------------------------------------------------
 
+data Faucetted = Faucetted
+  { faucettedAccount :: Address
+  , faucettedAmount  :: Amount
+  } deriving (Eq, Show, Generic)
+
+faucettedAesonOptions :: A.Options
+faucettedAesonOptions = defaultNameserviceOptions "faucetted"
+
+instance ToJSON Faucetted where
+  toJSON = A.genericToJSON faucettedAesonOptions
+instance FromJSON Faucetted where
+  parseJSON = A.genericParseJSON faucettedAesonOptions
+instance ToEvent Faucetted where
+  makeEventType _ = "Faucetted"
+instance FromEvent Faucetted
+
 data TransferEvent = TransferEvent
   { transferEventAmount :: Amount
   , transferEventTo     :: Address

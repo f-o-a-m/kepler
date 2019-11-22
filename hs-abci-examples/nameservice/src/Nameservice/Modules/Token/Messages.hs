@@ -16,6 +16,7 @@ data TokenMessage =
     TTransfer Transfer
   | TBurn Burn
   | TMint Mint
+  | TFaucetAccount FaucetAccount
   deriving (Eq, Show, Generic)
 
 data FaucetAccount = FaucetAccount

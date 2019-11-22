@@ -48,6 +48,17 @@ eval = mapError makeAppError . evalToken
 
 --------------------------------------------------------------------------------
 
+faucetAccount
+  :: HasTokenEff r
+  => FaucetAccount
+  -> Sem r ()
+faucetAccount FaucetAccount{..} = do
+  mint faucetAccountTo faucetAccountAmount
+  emit Faucetted
+    { faucettedAccount = faucetAccountTo
+    , faucettedAmount = faucetAccountAmount
+    }
+
 getBalance
   :: Member Token r
   => Address

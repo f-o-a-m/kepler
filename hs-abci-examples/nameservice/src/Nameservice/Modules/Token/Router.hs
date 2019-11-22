@@ -1,7 +1,7 @@
 module Nameservice.Modules.Token.Router where
 
 import           Nameservice.Modules.Token.Keeper   (HasTokenEff, burn, mint,
-                                                     transfer)
+                                                     transfer, faucetAccount)
 import           Nameservice.Modules.Token.Messages (Burn (..), Mint (..),
                                                      TokenMessage (..),
                                                      Transfer (..))
@@ -16,6 +16,8 @@ router
 router (RoutedTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
   in case msgData of
+       TFaucetAccount faucet ->
+         faucetAccount faucet
        TTransfer Transfer{..} ->
          transfer transferFrom transferAmount transferTo
        TBurn Burn{..} ->

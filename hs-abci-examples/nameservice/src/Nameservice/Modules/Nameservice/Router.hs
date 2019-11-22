@@ -22,4 +22,3 @@ router (RoutedTx Tx{txMsg}) =
        NSetName msg       -> setName msg
        NBuyName msg       -> buyName msg
        NDeleteName msg    -> deleteName msg
-       NFaucetAccount msg -> faucetAccount msg

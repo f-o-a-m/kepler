@@ -13,11 +13,9 @@ module Nameservice.Modules.Nameservice
   , NameClaimed(..)
   , NameRemapped(..)
   , NameDeleted(..)
-  , Faucetted(..)
   , BuyName(..)
   , SetName(..)
   , DeleteName(..)
-  , FaucetAccount(..)
 
   -- * effects
   , NameserviceEffR
@@ -26,7 +24,6 @@ module Nameservice.Modules.Nameservice
   , buyName
   , setName
   , deleteName
-  , faucetAccount
 
   -- * interpreter
   , eval
