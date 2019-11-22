@@ -50,6 +50,10 @@ library:
   ghc-options:
   - -Werror
   - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
   exposed-modules:
   - Network.ABCI.Server
   - Network.ABCI.Server.App

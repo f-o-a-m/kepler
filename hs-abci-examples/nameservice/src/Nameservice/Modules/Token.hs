@@ -4,8 +4,7 @@
 module Nameservice.Modules.Token
   (
   -- * types
-    Address(..)
-  , Amount(..)
+    Amount(..)
   , TokenException(..)
   , Transfer
 
@@ -52,8 +51,7 @@ import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Events        (Event, FromEvent, ToEvent (..),
                                                emit)
-import           Tendermint.SDK.Query         (FromQueryData, Queryable (..),
-                                               RouteT)
+import           Tendermint.SDK.Query         (Queryable (..), RouteT)
 import           Tendermint.SDK.Query.Store   (QueryApi, storeQueryHandlers)
 import qualified Tendermint.SDK.Store         as Store
 import           Tendermint.SDK.Types.Address (Address, addressFromBytes,

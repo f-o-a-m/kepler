@@ -1,13 +1,8 @@
 module Nameservice.Modules.Nameservice.Types where
 
-import           Control.Lens                 (iso, (&), (.~), (^.))
-import           Control.Lens.Wrapped         (Wrapped (..))
+import           Control.Lens                 (iso)
 import           Data.Aeson                   as A
 import           Data.Bifunctor               (first)
-import           Data.ByteString              (ByteString)
-import           Data.ByteString              as BS
-import           Data.Maybe                   (fromJust)
-import qualified Data.Serialize               as Serialize
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
 import qualified Data.Text.Lazy               as TL
@@ -26,8 +21,7 @@ import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Events        (FromEvent (..), ToEvent (..))
 import qualified Tendermint.SDK.Query         as Q
 import qualified Tendermint.SDK.Store         as Store
-import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
-                                               addressToBytes)
+import           Tendermint.SDK.Types.Address (Address)
 
 --------------------------------------------------------------------------------
 
