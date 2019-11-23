@@ -7,8 +7,10 @@ import           Data.ByteArray.Base64String (fromBytes)
 import           Data.Proxy
 import           GHC.TypeLits                (Symbol)
 import           Polysemy                    (Member, Sem)
+import           Polysemy.Error              (Error)
 import           Servant.API                 ((:<|>) (..), (:>))
 import           Tendermint.SDK.Codec        (HasCodec)
+import           Tendermint.SDK.Errors       (AppError)
 import           Tendermint.SDK.Query.Class
 import           Tendermint.SDK.Query.Types
 import           Tendermint.SDK.Store        (IsKey (..), RawKey (..), RawStore,
@@ -22,6 +24,7 @@ instance
   , a ~ Value k ns
   , HasCodec a
   , Member RawStore r
+  , Member (Error AppError) r
   )
    => StoreQueryHandler a ns (QueryArgs k -> ExceptT QueryError (Sem r) (QueryResult a)) where
   storeQueryHandler _ storeKey QueryArgs{..} = do
@@ -47,6 +50,7 @@ instance
     , a ~ Value k ns
     , HasCodec a
     , Member RawStore r
+    , Member (Error AppError) r
     )  => StoreQueryHandlers '[(k,a)] ns (Sem r) where
       type QueryApi '[(k,a)] =  QA k :> Leaf a
       storeQueryHandlers _ storeKey _ = storeQueryHandler (Proxy :: Proxy a) storeKey
@@ -57,6 +61,7 @@ instance
     , HasCodec a
     , StoreQueryHandlers ((k', a') ': as) ns (Sem r)
     , Member RawStore r
+    , Member (Error AppError) r
     ) => StoreQueryHandlers ((k,a) ': (k', a') : as) ns (Sem r) where
         type (QueryApi ((k, a) ': (k', a') : as)) = (QA k :> Leaf a) :<|> QueryApi ((k', a') ': as)
         storeQueryHandlers _ storeKey pm =
@@ -66,6 +71,8 @@ instance
 allStoreHandlers
   :: forall (contents :: [*]) ns r.
      StoreQueryHandlers contents ns (Sem r)
+  => Member RawStore r
+  => Member (Error AppError) r
   => Proxy contents
   -> StoreKey ns
   -> Proxy r

@@ -12,10 +12,10 @@ import qualified Crypto.Data.Auth.Tree.Class      as AT
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Crypto.Hash                      as Cryptonite
 import           Data.ByteString                  (ByteString)
+import qualified Data.List.NonEmpty               as NE
 import           Polysemy                         (Embed, Member, Sem,
                                                    interpret)
 import           Tendermint.SDK.Store             (RawStore (..), StoreKey (..))
-import qualified Data.List.NonEmpty as NE
 
 -- At the moment, the 'AuthTreeStore' is our only interpreter for the 'RawStore' effect.
 -- It is an in memory merklized key value store. You can find the repository here
@@ -59,11 +59,11 @@ eval AuthTree{treeVar} =
       RawStoreRollback -> liftIO . atomically $ do
         trees <- readTVar treeVar
         writeTVar treeVar $ case trees of
-          t NE.:| [] -> t NE.:| []
+          t NE.:| []      -> t NE.:| []
           _ NE.:| t' : ts ->  t' NE.:| ts
       RawStoreCommit -> liftIO . atomically $ do
         trees <- readTVar treeVar
         writeTVar treeVar $ case trees of
-          t NE.:| [] -> t NE.:| []
+          t NE.:| []     -> t NE.:| []
           t NE.:| _ : ts ->  t NE.:| ts
     )

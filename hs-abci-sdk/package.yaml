@@ -137,6 +137,7 @@ tests:
     - Tendermint.SDK.Test.GasSpec
 
     ghc-options:
+    - -fplugin=Polysemy.Plugin
     - -Werror
     - -Wall
     - -threaded
