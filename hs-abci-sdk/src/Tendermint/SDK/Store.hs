@@ -9,6 +9,9 @@ module Tendermint.SDK.Store
   , put
   , delete
   , prove
+  , rawStoreBeginTransaction
+  , rawStoreRollback
+  , rawStoreCommit
   ) where
 
 import           Control.Lens            (Iso', (^.))
@@ -25,6 +28,9 @@ data RawStore m a where
   RawStoreGet   :: StoreKey ns -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
   RawStoreDelete :: StoreKey ns -> BS.ByteString -> RawStore m ()
   RawStoreProve :: StoreKey ns -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
+  RawStoreBeginTransaction :: RawStore m ()
+  RawStoreRollback :: RawStore m ()
+  RawStoreCommit :: RawStore m () 
 
 makeSem ''RawStore
 
