@@ -78,9 +78,7 @@ spec = do
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp "NameClaimed"
-        errs `shouldBe` mempty
-        events `shouldSatisfy` elem claimedLog
+        ensureEventLogged deliverResp "NameClaimed" claimedLog
 
       it "Can query for a name" $ do
         let queryReq = defaultQueryWithData satoshi
@@ -104,9 +102,7 @@ spec = do
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp "NameRemapped"
-        errs `shouldBe` mempty
-        events `shouldSatisfy` elem remappedLog
+        ensureEventLogged deliverResp "NameRemapped" remappedLog
         -- check for changes
         let queryReq = defaultQueryWithData satoshi
         foundWhois <- getQueryResponseSuccess $ getWhois queryReq
@@ -127,9 +123,7 @@ spec = do
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp "NameClaimed"
-        errs `shouldBe` mempty
-        events `shouldSatisfy` elem claimedLog
+        ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check for updated balances - seller: addr1, buyer: addr2
         let sellerQueryReq = defaultQueryWithData addr1
         sellerFoundAmount <- getQueryResponseSuccess $ getBalance sellerQueryReq
@@ -155,9 +149,7 @@ spec = do
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp "NameClaimed"
-        errs `shouldBe` mempty
-        events `shouldSatisfy` elem claimedLog
+        ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check balance after
         afterBuyAmount <- getQueryResponseSuccess $ getBalance queryReq
         -- owner/buyer still profits
@@ -173,13 +165,10 @@ spec = do
       it "Can delete names (success 0)" $ do
         let msg = DeleteName addr2 satoshi
             deletedLog = NameDeleted satoshi
-            emptyWhois = Whois "" (Address "") 0
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp "NameDeleted"
-        errs `shouldBe` mempty
-        events `shouldSatisfy` elem deletedLog
+        ensureEventLogged deliverResp "NameDeleted" deletedLog
         -- name shouldn't exist
         let queryReq = defaultQueryWithData satoshi
         ClientResponse{ clientResponseData, clientResponseRaw } <- runRPC $ getWhois queryReq
@@ -203,9 +192,7 @@ spec = do
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp "TransferEvent"
-        errs `shouldBe` mempty
-        events `shouldSatisfy` elem transferEvent
+        ensureEventLogged deliverResp "TransferEvent" transferEvent
         -- check balances
         let receiverQueryReq = defaultQueryWithData addr1
         receiverFoundAmount <- getQueryResponseSuccess $ getBalance receiverQueryReq
@@ -251,12 +238,18 @@ getDeliverTxResponse rawTx = do
     RPC.broadcastTxCommit txReq
 
 -- get the logged events from a deliver response,
--- ensures there are no errors when parsing event logs
 deliverTxEvents :: FromEvent e => Response.DeliverTx -> Text -> IO ([Text],[e])
 deliverTxEvents deliverResp eventName = do
   let deliverEvents = deliverResp ^. Response._deliverTxEvents
       filtered = filter ((== eventName) . eventType) deliverEvents
   return . partitionEithers . map fromEvent $ filtered
+
+-- ensures there are no errors when parsing event logs and contains the expectedEvent
+ensureEventLogged :: (Eq e, Show e, FromEvent e) => Response.DeliverTx -> Text -> e -> IO ()
+ensureEventLogged deliverResp eventName expectedEvent = do
+  (errs, events) <- deliverTxEvents deliverResp eventName
+  errs `shouldBe` mempty
+  events `shouldSatisfy` elem expectedEvent
 
 -- check for a specific deliver response code
 ensureDeliverResponseCode :: Response.DeliverTx -> Word32 -> IO ()
