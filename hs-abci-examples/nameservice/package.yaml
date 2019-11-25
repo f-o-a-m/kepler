@@ -88,6 +88,11 @@ library:
   - Nameservice.Handlers
   - Nameservice.Modules.Nameservice
   - Nameservice.Modules.Token
+  - Nameservice.Modules.Token.Messages
+  - Nameservice.Modules.Token.Types
+  - Nameservice.Modules.Token.Keeper
+  - Nameservice.Modules.Token.Query
+  - Nameservice.Modules.Token.Router
   - Nameservice.Modules.Nameservice.Messages
   - Nameservice.Modules.Nameservice.Types
   - Nameservice.Modules.Nameservice.Keeper

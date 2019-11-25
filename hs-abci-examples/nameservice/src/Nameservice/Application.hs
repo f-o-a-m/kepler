@@ -56,8 +56,8 @@ runHandler AppConfig{baseAppContext} =
 
 --------------------------------------------------------------------------------
 
-modules :: Modules '[N.NameserviceM EffR] EffR
-modules = ConsModule N.nameserviceModule NilModules
+modules :: Modules '[T.TokenM EffR ,N.NameserviceM EffR] EffR
+modules = ConsModule T.tokenModule $ ConsModule N.nameserviceModule NilModules
 
 router :: RawTransaction -> Sem EffR ()
 router = R.router (Proxy @Secp256k1) modules

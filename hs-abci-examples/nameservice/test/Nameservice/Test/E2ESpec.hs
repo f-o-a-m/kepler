@@ -22,7 +22,6 @@ import           Data.Word                              (Word32)
 import           Nameservice.Application                (QueryApi)
 import           Nameservice.Modules.Nameservice        (BuyName (..),
                                                          DeleteName (..),
-                                                         FaucetAccount (..),
                                                          Name (..),
                                                          NameClaimed (..),
                                                          NameDeleted (..),
@@ -30,7 +29,10 @@ import           Nameservice.Modules.Nameservice        (BuyName (..),
                                                          SetName (..),
                                                          Whois (..))
 import           Nameservice.Modules.Token              (Amount (..),
-                                                         Transfer (..))
+                                                         FaucetAccount (..),
+                                                         Faucetted (..),
+                                                         Transfer (..),
+                                                         TransferEvent (..))
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..))
 import qualified Network.ABCI.Types.Messages.Response   as Response
 import qualified Network.Tendermint.Client              as RPC
@@ -43,7 +45,8 @@ import           Tendermint.SDK.Crypto                  (Secp256k1,
 import           Tendermint.SDK.Events                  (FromEvent (..))
 import           Tendermint.SDK.Query.Client            (ClientResponse (..),
                                                          genClient)
-import           Tendermint.SDK.Query.Types             (QueryArgs (..))
+import           Tendermint.SDK.Query.Types             (QueryArgs (..),
+                                                         defaultQueryWithData)
 import           Tendermint.SDK.Types.Address           (Address (..))
 import           Tendermint.SDK.Types.Transaction       (RawTransaction (..),
                                                          signRawTransaction)
@@ -64,11 +67,11 @@ spec = do
         resp `shouldBe` RPC.ResultHealth
 
       it "Can query account balances" $ do
-        let queryReq = defaultReqWithData addr1
+        let queryReq = defaultQueryWithData addr1
         ClientResponse{clientResponseData = foundAmount} <- runRPC $ getBalance queryReq
         foundAmount `shouldBe` Amount 1000
 
-      it "Can create a name" $ do
+      it "Can create a name (success 0)" $ do
         let val = "hello world"
             msg = BuyName 0 satoshi val addr1
             claimedLog = NameClaimed addr1 satoshi val 0
@@ -80,31 +83,30 @@ spec = do
         events `shouldSatisfy` elem claimedLog
 
       it "Can query for a name" $ do
-        let queryReq = defaultReqWithData satoshi
+        let queryReq = defaultQueryWithData satoshi
+            expectedWhois = Whois "hello world" addr1 0
         ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
-        whoisValue foundWhois `shouldBe` "hello world"
-        whoisOwner foundWhois `shouldBe` addr1
-        whoisPrice foundWhois `shouldBe` 0
+        foundWhois `shouldBe` expectedWhois
 
       it "Can query for a name that doesn't exist" $ do
         let nope = Name "nope"
-            queryReq = defaultReqWithData nope
-        ClientResponse{ clientResponseData = emptyWhois
+            -- empty whois (defaults)
+            emptyWhois = Whois "" (Address "") 0
+            queryReq = defaultQueryWithData nope
+        ClientResponse{ clientResponseData = foundWhois
                       , clientResponseRaw
                       } <- runRPC $ getWhois queryReq
         let queryRespCode = clientResponseRaw ^. Response._queryCode
-        -- storage failure
+        -- storage failure with defaults
         queryRespCode `shouldBe` 1
-        -- empty whois (defaults)
-        whoisPrice emptyWhois `shouldBe` 0
-        whoisOwner emptyWhois `shouldBe` Address ""
-        whoisValue emptyWhois `shouldBe` ""
+        foundWhois `shouldBe` emptyWhois
 
-      it "Can set a name value" $ do
+      it "Can set a name value (success 0)" $ do
         let oldVal = "hello world"
             newVal = "goodbye to a world"
             msg = SetName satoshi addr1 newVal
             remappedLog = NameRemapped satoshi oldVal newVal
+            expectedWhois = Whois "goodbye to a world" addr1 0
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
@@ -112,26 +114,23 @@ spec = do
         errs `shouldBe` mempty
         events `shouldSatisfy` elem remappedLog
         -- check for changes
-        let queryReq = defaultReqWithData satoshi
+        let queryReq = defaultQueryWithData satoshi
         ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
-        whoisValue foundWhois `shouldBe` "goodbye to a world"
-        -- eveyrthing else should remain the same
-        whoisOwner foundWhois `shouldBe` addr1
-        whoisPrice foundWhois `shouldBe` 0
+        foundWhois `shouldBe` expectedWhois
 
-      it "Can fail to set a name" $ do
+      it "Can fail to set a name (failure 2)" $ do
         -- try to set a name without being the owner
         let msg = SetName satoshi addr2 "goodbye to a world"
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 2
 
-      it "Can buy an existing name" $ do
-        -- how to do both types of logs?
+      it "Can buy an existing name (success 0)" $ do
         let oldVal = "goodbye to a world"
             newVal = "hello (again) world"
             msg = BuyName 300 satoshi newVal addr2
             claimedLog = NameClaimed addr2 satoshi newVal 300
+            expectedWhois = Whois "hello (again) world" addr2 300
             -- transferLog = Transfer 300 addr1 addr2
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
@@ -139,19 +138,23 @@ spec = do
         (errs, events) <- deliverTxEvents deliverResp "NameClaimed"
         errs `shouldBe` mempty
         events `shouldSatisfy` elem claimedLog
-        -- events `shouldSatisfy` elem transferLog
+        -- check for updated balances - seller: addr1, buyer: addr2
+        let sellerQueryReq = defaultQueryWithData addr1
+        ClientResponse{clientResponseData = sellerFoundAmount} <- runRPC $ getBalance sellerQueryReq
+        sellerFoundAmount `shouldBe` Amount 1300
+        let buyerQueryReq = defaultQueryWithData addr2
+        ClientResponse{clientResponseData = buyerFoundAmount} <- runRPC $ getBalance buyerQueryReq
+        buyerFoundAmount `shouldBe` Amount 700
         -- check for ownership changes
-        let queryReq = defaultReqWithData satoshi
+        let queryReq = defaultQueryWithData satoshi
         ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
-        whoisOwner foundWhois `shouldBe` addr2
-        whoisPrice foundWhois `shouldBe` 300
-        whoisValue foundWhois `shouldBe` "hello (again) world"
+        foundWhois `shouldBe` expectedWhois
 
       -- @NOTE: this is possibly a problem with the go application too
       -- https://cosmos.network/docs/tutorial/buy-name.html#msg
-      it "Can buy self-owned names (and make a profit)" $ do
+      it "Can buy self-owned names and make a profit (success 0)" $ do
         -- check balance before
-        let queryReq = defaultReqWithData addr2
+        let queryReq = defaultQueryWithData addr2
         ClientResponse{clientResponseData = beforeBuyAmount} <- runRPC $ getBalance queryReq
         -- buy
         let val = "hello (again) world"
@@ -166,18 +169,19 @@ spec = do
         -- check balance after
         ClientResponse{clientResponseData = afterBuyAmount} <- runRPC $ getBalance queryReq
         -- owner/buyer still profits
-        beforeBuyAmount `shouldSatisfy` (< afterBuyAmount)
+        afterBuyAmount `shouldSatisfy` (> beforeBuyAmount)
 
-      it "Can fail to buy a name" $ do
+      it "Can fail to buy a name (failure 1)" $ do
         -- try to buy at a lower price
         let msg = BuyName 100 satoshi "hello (again) world" addr1
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 1
 
-      it "Can delete names" $ do
+      it "Can delete names (success 0)" $ do
         let msg = DeleteName addr2 satoshi
             deletedLog = NameDeleted satoshi
+            emptyWhois = Whois "" (Address "") 0
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
@@ -185,22 +189,40 @@ spec = do
         errs `shouldBe` mempty
         events `shouldSatisfy` elem deletedLog
         -- name shouldn't exist
-        let queryReq = defaultReqWithData satoshi
-        ClientResponse{ clientResponseData = emptyWhois
+        let queryReq = defaultQueryWithData satoshi
+        ClientResponse{ clientResponseData = foundWhois
                       , clientResponseRaw
                       } <- runRPC $ getWhois queryReq
         let queryRespCode = clientResponseRaw ^. Response._queryCode
-        -- storage failure
+        -- storage failure with defaults
         queryRespCode `shouldBe` 1
-        -- should be a default whois
-        whoisPrice emptyWhois `shouldBe` 0
-        whoisOwner emptyWhois `shouldBe` Address ""
-        whoisValue emptyWhois `shouldBe` ""
+        foundWhois `shouldBe` emptyWhois
 
-      -- @TODO: make transfer messages
-      it "Can fail a transfer" $ do
-        -- try to give addr1 2000 from addr2
-        pendingWith "Split token module"
+      it "Can fail a transfer (failure 1)" $ do
+        let msg = Transfer addr2 addr1 2000
+            rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
+        deliverResp <- getDeliverTxResponse rawTx
+        ensureDeliverResponseCode deliverResp 1
+
+      it "Can transfer (success 0)" $ do
+        let senderBeforeQueryReq = defaultQueryWithData addr2
+        ClientResponse{clientResponseData = senderBeforeFoundAmount} <- runRPC $ getBalance senderBeforeQueryReq
+        senderBeforeFoundAmount `shouldBe` Amount 1700
+        let msg = Transfer addr1 addr2 500
+            transferEvent = TransferEvent 500 addr1 addr2
+            rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
+        deliverResp <- getDeliverTxResponse rawTx
+        ensureDeliverResponseCode deliverResp 0
+        (errs, events) <- deliverTxEvents deliverResp "TransferEvent"
+        errs `shouldBe` mempty
+        events `shouldSatisfy` elem transferEvent
+        -- check balances
+        let receiverQueryReq = defaultQueryWithData addr1
+        ClientResponse{clientResponseData = receiverFoundAmount} <- runRPC $ getBalance receiverQueryReq
+        receiverFoundAmount `shouldBe` Amount 1800
+        let senderAfterQueryReq = defaultQueryWithData addr2
+        ClientResponse{clientResponseData = senderAfterFoundAmount} <- runRPC $ getBalance senderAfterQueryReq
+        senderAfterFoundAmount `shouldBe` Amount 1200
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
 runRPC = RPC.runTendermintM rpcConfig
@@ -215,11 +237,12 @@ runRPC = RPC.runTendermintM rpcConfig
 faucetAccount :: User -> IO ()
 faucetAccount User{userAddress, userPrivKey} = do
   let msg = FaucetAccount userAddress 1000
-      -- @NOTE: why is this `nameservice` and not `token`?
-      rawTx = mkSignedRawTransactionWithRoute "nameservice" userPrivKey msg
-      txReq =
-        RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-  _ <- runRPC $ RPC.broadcastTxCommit txReq
+      faucetEvent = Faucetted userAddress 1000
+      rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey msg
+  deliverResp <- getDeliverTxResponse rawTx
+  (errs, events) <- deliverTxEvents deliverResp "Faucetted"
+  errs `shouldBe` mempty
+  events `shouldSatisfy` elem faucetEvent
   return ()
 
 -- executes a request, then returns the deliverTx response
@@ -242,14 +265,6 @@ ensureDeliverResponseCode :: Response.DeliverTx -> Word32 -> IO ()
 ensureDeliverResponseCode deliverResp code = do
   let deliverRespCode = deliverResp ^. Response._deliverTxCode
   deliverRespCode `shouldBe` code
-
--- this probably should be in a default type class
-defaultReqWithData :: a -> QueryArgs a
-defaultReqWithData x = QueryArgs
-  { queryArgsData = x
-  , queryArgsHeight = 0
-  , queryArgsProve = False
-  }
 
 --------------------------------------------------------------------------------
 
