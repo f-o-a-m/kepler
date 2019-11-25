@@ -13,6 +13,7 @@ module Tendermint.SDK.Store
 
 import           Control.Lens            (Iso', (^.))
 import qualified Data.ByteString         as BS
+import           Data.Proxy
 import           Data.String.Conversions (cs)
 import           Polysemy                (Member, Sem, makeSem)
 import           Tendermint.SDK.Codec    (HasCodec (..))
@@ -32,6 +33,10 @@ class RawKey k where
 
 class RawKey k => IsKey k ns where
   type Value k ns = a | a -> ns k
+  prefixWith :: Proxy k -> Proxy ns -> BS.ByteString
+
+  default prefixWith :: Proxy k -> Proxy ns -> BS.ByteString
+  prefixWith _ _ = ""
 
 put
   :: forall k r ns.
@@ -43,7 +48,7 @@ put
   -> Value k ns
   -> Sem r ()
 put sk k a =
-  let key = k ^. rawKey
+  let key = prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
       val = encode a
   in rawStorePut sk key val
 
@@ -56,7 +61,7 @@ get
   -> k
   -> Sem r (Maybe (Value k ns))
 get sk k = do
-  let key = k ^. rawKey
+  let key = prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
   mRes <- rawStoreGet sk key
   pure $ case mRes of
     Nothing -> Nothing
@@ -65,17 +70,21 @@ get sk k = do
       Right a -> Just a
 
 delete
-  :: IsKey k ns
+  :: forall k ns r.
+     IsKey k ns
   => Member RawStore r
   => StoreKey ns
   -> k
   -> Sem r ()
-delete sk k = rawStoreDelete sk (k ^. rawKey)
+delete sk k = rawStoreDelete sk $
+  prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
 
 prove
-  :: IsKey k ns
+  :: forall k ns r.
+     IsKey k ns
   => Member RawStore r
   => StoreKey ns
   -> k
   -> Sem r (Maybe BS.ByteString)
-prove sk k = rawStoreProve sk (k ^. rawKey)
+prove sk k = rawStoreProve sk $
+  prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
