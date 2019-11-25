@@ -10,6 +10,7 @@ module Nameservice.Modules.Nameservice
   , Whois (..)
   , NameserviceException(..)
   , NameserviceMessage(..)
+  , TypedMessage(..)
   , NameClaimed(..)
   , NameRemapped(..)
   , NameDeleted(..)

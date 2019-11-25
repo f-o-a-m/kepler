@@ -23,6 +23,7 @@ import           Nameservice.Application                (QueryApi)
 import           Nameservice.Modules.Nameservice        (BuyName (..),
                                                          DeleteName (..),
                                                          Name (..),
+                                                         TypedMessage(..),
                                                          NameClaimed (..),
                                                          NameDeleted (..),
                                                          NameRemapped (..),
@@ -73,7 +74,7 @@ spec = do
 
       it "Can create a name (success 0)" $ do
         let val = "hello world"
-            msg = BuyName 0 satoshi val addr1
+            msg = TypedMessage "BuyName" (encode $ BuyName 0 satoshi val addr1)
             claimedLog = NameClaimed addr1 satoshi val 0
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
@@ -104,7 +105,7 @@ spec = do
       it "Can set a name value (success 0)" $ do
         let oldVal = "hello world"
             newVal = "goodbye to a world"
-            msg = SetName satoshi addr1 newVal
+            msg = TypedMessage "SetName" (encode $ SetName satoshi addr1 newVal)
             remappedLog = NameRemapped satoshi oldVal newVal
             expectedWhois = Whois "goodbye to a world" addr1 0
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
@@ -120,7 +121,7 @@ spec = do
 
       it "Can fail to set a name (failure 2)" $ do
         -- try to set a name without being the owner
-        let msg = SetName satoshi addr2 "goodbye to a world"
+        let msg = TypedMessage "SetName" (encode $ SetName satoshi addr2 "goodbye to a world")
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 2
@@ -128,7 +129,7 @@ spec = do
       it "Can buy an existing name (success 0)" $ do
         let oldVal = "goodbye to a world"
             newVal = "hello (again) world"
-            msg = BuyName 300 satoshi newVal addr2
+            msg = TypedMessage "BuyName" (encode $ BuyName 300 satoshi newVal addr2)
             claimedLog = NameClaimed addr2 satoshi newVal 300
             expectedWhois = Whois "hello (again) world" addr2 300
             -- transferLog = Transfer 300 addr1 addr2
@@ -158,7 +159,7 @@ spec = do
         ClientResponse{clientResponseData = beforeBuyAmount} <- runRPC $ getBalance queryReq
         -- buy
         let val = "hello (again) world"
-            msg = BuyName 500 satoshi val addr2
+            msg = TypedMessage "BuyName" (encode $ BuyName 500 satoshi val addr2)
             claimedLog = NameClaimed addr2 satoshi val 500
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
@@ -173,13 +174,13 @@ spec = do
 
       it "Can fail to buy a name (failure 1)" $ do
         -- try to buy at a lower price
-        let msg = BuyName 100 satoshi "hello (again) world" addr1
+        let msg = TypedMessage "BuyName" (encode $ BuyName 100 satoshi "hello (again) world" addr1)
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 1
 
       it "Can delete names (success 0)" $ do
-        let msg = DeleteName addr2 satoshi
+        let msg = TypedMessage "DeleteName" (encode $ DeleteName addr2 satoshi)
             deletedLog = NameDeleted satoshi
             emptyWhois = Whois "" (Address "") 0
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
