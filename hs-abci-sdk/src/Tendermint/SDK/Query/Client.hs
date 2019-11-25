@@ -58,8 +58,9 @@ instance (RawKey k, HasClient m a) => HasClient m (QA k :> a) where
         , Req.queryProve = queryArgsProve
         }
 
+-- | Data is Nothing iff Raw includes a non-0 response value
 data ClientResponse a = ClientResponse
-  { clientResponseData :: a
+  { clientResponseData :: Maybe a
   , clientResponseRaw  :: Resp.Query
   }
 
@@ -69,6 +70,10 @@ instance (RunClient m, Queryable a, name ~  Name a, KnownSymbol name ) => HasCli
         let leaf = symbolVal (Proxy @(Name a))
         in do
           r@Resp.Query{..} <- runQuery q { Req.queryPath = Req.queryPath q <> "/" <> cs leaf }
-          return $ case decodeQueryResult queryValue of
-                     Left err -> error $ "Impossible parse error: " <> cs err
-                     Right a  -> ClientResponse a r
+          -- anything other than 0 code is a failure: https://tendermint.readthedocs.io/en/latest/abci-spec.html
+          -- and will result in queryValue decoding to a "empty/default" object
+          return $ case queryCode of
+            0 -> case decodeQueryResult queryValue of
+                   Left err -> error $ "Impossible parse error: " <> cs err
+                   Right a  -> ClientResponse (Just a) r
+            _ -> ClientResponse Nothing r

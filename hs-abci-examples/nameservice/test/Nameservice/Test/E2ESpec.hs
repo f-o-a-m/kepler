@@ -65,7 +65,7 @@ spec = do
 
       it "Can query account balances" $ do
         let queryReq = defaultReqWithData addr1
-        ClientResponse{clientResponseData = foundAmount} <- runRPC $ getBalance queryReq
+        ClientResponse{clientResponseData = Just foundAmount} <- runRPC $ getBalance queryReq
         foundAmount `shouldBe` Amount 1000
 
       it "Can create a name" $ do
@@ -81,7 +81,7 @@ spec = do
 
       it "Can query for a name" $ do
         let queryReq = defaultReqWithData satoshi
-        ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
+        ClientResponse{clientResponseData = Just foundWhois} <- runRPC $ getWhois queryReq
         whoisValue foundWhois `shouldBe` "hello world"
         whoisOwner foundWhois `shouldBe` addr1
         whoisPrice foundWhois `shouldBe` 0
@@ -89,16 +89,12 @@ spec = do
       it "Can query for a name that doesn't exist" $ do
         let nope = Name "nope"
             queryReq = defaultReqWithData nope
-        ClientResponse{ clientResponseData = emptyWhois
-                      , clientResponseRaw
-                      } <- runRPC $ getWhois queryReq
+        ClientResponse{ clientResponseData, clientResponseRaw } <- runRPC $ getWhois queryReq
         let queryRespCode = clientResponseRaw ^. Response._queryCode
         -- storage failure
         queryRespCode `shouldBe` 1
         -- empty whois (defaults)
-        whoisPrice emptyWhois `shouldBe` 0
-        whoisOwner emptyWhois `shouldBe` Address ""
-        whoisValue emptyWhois `shouldBe` ""
+        clientResponseData `shouldBe` Nothing
 
       it "Can set a name value" $ do
         let oldVal = "hello world"
@@ -113,7 +109,7 @@ spec = do
         events `shouldSatisfy` elem remappedLog
         -- check for changes
         let queryReq = defaultReqWithData satoshi
-        ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
+        ClientResponse{clientResponseData = Just foundWhois} <- runRPC $ getWhois queryReq
         whoisValue foundWhois `shouldBe` "goodbye to a world"
         -- eveyrthing else should remain the same
         whoisOwner foundWhois `shouldBe` addr1
@@ -142,7 +138,7 @@ spec = do
         -- events `shouldSatisfy` elem transferLog
         -- check for ownership changes
         let queryReq = defaultReqWithData satoshi
-        ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
+        ClientResponse{clientResponseData = Just foundWhois} <- runRPC $ getWhois queryReq
         whoisOwner foundWhois `shouldBe` addr2
         whoisPrice foundWhois `shouldBe` 300
         whoisValue foundWhois `shouldBe` "hello (again) world"
@@ -152,7 +148,7 @@ spec = do
       it "Can buy self-owned names (and make a profit)" $ do
         -- check balance before
         let queryReq = defaultReqWithData addr2
-        ClientResponse{clientResponseData = beforeBuyAmount} <- runRPC $ getBalance queryReq
+        ClientResponse{clientResponseData = Just beforeBuyAmount} <- runRPC $ getBalance queryReq
         -- buy
         let val = "hello (again) world"
             msg = BuyName 500 satoshi val addr2
@@ -164,7 +160,7 @@ spec = do
         errs `shouldBe` mempty
         events `shouldSatisfy` elem claimedLog
         -- check balance after
-        ClientResponse{clientResponseData = afterBuyAmount} <- runRPC $ getBalance queryReq
+        ClientResponse{clientResponseData = Just afterBuyAmount} <- runRPC $ getBalance queryReq
         -- owner/buyer still profits
         beforeBuyAmount `shouldSatisfy` (< afterBuyAmount)
 
@@ -186,16 +182,12 @@ spec = do
         events `shouldSatisfy` elem deletedLog
         -- name shouldn't exist
         let queryReq = defaultReqWithData satoshi
-        ClientResponse{ clientResponseData = emptyWhois
-                      , clientResponseRaw
-                      } <- runRPC $ getWhois queryReq
+        ClientResponse{ clientResponseData, clientResponseRaw } <- runRPC $ getWhois queryReq
         let queryRespCode = clientResponseRaw ^. Response._queryCode
         -- storage failure
         queryRespCode `shouldBe` 1
         -- should be a default whois
-        whoisPrice emptyWhois `shouldBe` 0
-        whoisOwner emptyWhois `shouldBe` Address ""
-        whoisValue emptyWhois `shouldBe` ""
+        clientResponseData `shouldBe` Nothing
 
       -- @TODO: make transfer messages
       it "Can fail a transfer" $ do
