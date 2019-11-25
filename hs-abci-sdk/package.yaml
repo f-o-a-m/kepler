@@ -8,6 +8,15 @@ copyright:           "2019 Martin Allen"
 
 description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-sdk#readme>
 
+extra-source-files:
+- protos/**/*.proto
+
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-setup
+
 default-extensions:
   - DeriveGeneric
   - NamedFieldPuns
@@ -63,6 +72,7 @@ dependencies:
 - polysemy-plugin
 - profunctors
 - proto-lens
+- proto-lens-runtime
 - proto3-wire
 - proto3-suite
 - secp256k1-haskell
@@ -110,6 +120,10 @@ library:
   - Tendermint.SDK.Types.Address
   - Tendermint.SDK.TxRouter
   - Tendermint.SDK.Module
+
+  generated-exposed-modules:
+  - Proto.Types.Transaction
+  - Proto.Types.Transaction_Fields
 
 tests:
   hs-abci-sdk-test:
