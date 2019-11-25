@@ -37,6 +37,14 @@ data QueryArgs a = QueryArgs
   , queryArgsHeight :: WrappedVal Int64
   } deriving Functor
 
+-- wrap data with default query fields
+defaultQueryWithData :: a -> QueryArgs a
+defaultQueryWithData x = QueryArgs
+  { queryArgsData = x
+  , queryArgsHeight = 0
+  , queryArgsProve = False
+  }
+
 data QueryResult a = QueryResult
   { queryResultData   :: a
   , queryResultIndex  :: WrappedVal Int64
