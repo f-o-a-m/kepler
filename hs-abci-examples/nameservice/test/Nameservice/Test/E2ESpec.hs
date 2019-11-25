@@ -65,7 +65,7 @@ spec = do
 
       it "Can query account balances" $ do
         let queryReq = defaultReqWithData addr1
-        ClientResponse{clientResponseData = Just foundAmount} <- runRPC $ getBalance queryReq
+        foundAmount <- getQueryResponseSuccess $ getBalance queryReq
         foundAmount `shouldBe` Amount 1000
 
       it "Can create a name" $ do
@@ -81,7 +81,7 @@ spec = do
 
       it "Can query for a name" $ do
         let queryReq = defaultReqWithData satoshi
-        ClientResponse{clientResponseData = Just foundWhois} <- runRPC $ getWhois queryReq
+        foundWhois <- getQueryResponseSuccess $ getWhois queryReq
         whoisValue foundWhois `shouldBe` "hello world"
         whoisOwner foundWhois `shouldBe` addr1
         whoisPrice foundWhois `shouldBe` 0
@@ -109,7 +109,7 @@ spec = do
         events `shouldSatisfy` elem remappedLog
         -- check for changes
         let queryReq = defaultReqWithData satoshi
-        ClientResponse{clientResponseData = Just foundWhois} <- runRPC $ getWhois queryReq
+        foundWhois <- getQueryResponseSuccess $ getWhois queryReq
         whoisValue foundWhois `shouldBe` "goodbye to a world"
         -- eveyrthing else should remain the same
         whoisOwner foundWhois `shouldBe` addr1
@@ -138,7 +138,7 @@ spec = do
         -- events `shouldSatisfy` elem transferLog
         -- check for ownership changes
         let queryReq = defaultReqWithData satoshi
-        ClientResponse{clientResponseData = Just foundWhois} <- runRPC $ getWhois queryReq
+        foundWhois <- getQueryResponseSuccess $ getWhois queryReq
         whoisOwner foundWhois `shouldBe` addr2
         whoisPrice foundWhois `shouldBe` 300
         whoisValue foundWhois `shouldBe` "hello (again) world"
@@ -148,7 +148,7 @@ spec = do
       it "Can buy self-owned names (and make a profit)" $ do
         -- check balance before
         let queryReq = defaultReqWithData addr2
-        ClientResponse{clientResponseData = Just beforeBuyAmount} <- runRPC $ getBalance queryReq
+        beforeBuyAmount <- getQueryResponseSuccess $ getBalance queryReq
         -- buy
         let val = "hello (again) world"
             msg = BuyName 500 satoshi val addr2
@@ -160,7 +160,7 @@ spec = do
         errs `shouldBe` mempty
         events `shouldSatisfy` elem claimedLog
         -- check balance after
-        ClientResponse{clientResponseData = Just afterBuyAmount} <- runRPC $ getBalance queryReq
+        afterBuyAmount <- getQueryResponseSuccess $ getBalance queryReq
         -- owner/buyer still profits
         beforeBuyAmount `shouldSatisfy` (< afterBuyAmount)
 
@@ -213,6 +213,14 @@ faucetAccount User{userAddress, userPrivKey} = do
         RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
   _ <- runRPC $ RPC.broadcastTxCommit txReq
   return ()
+
+-- executes a query and ensures a 0 response code
+getQueryResponseSuccess :: RPC.TendermintM (ClientResponse a) -> IO a
+getQueryResponseSuccess query = do
+  ClientResponse{clientResponseData,clientResponseRaw} <- runRPC query
+  let responseCode = clientResponseRaw ^. Response._queryCode
+  responseCode `shouldBe` 0
+  return . fromJust $ clientResponseData
 
 -- executes a request, then returns the deliverTx response
 getDeliverTxResponse :: RawTransaction -> IO Response.DeliverTx
