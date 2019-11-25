@@ -217,10 +217,8 @@ faucetAccount User{userAddress, userPrivKey} = do
       faucetEvent = Faucetted userAddress 1000
       rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey msg
   deliverResp <- getDeliverTxResponse rawTx
-  (errs, events) <- deliverTxEvents deliverResp "Faucetted"
-  errs `shouldBe` mempty
-  events `shouldSatisfy` elem faucetEvent
-  return ()
+  ensureDeliverResponseCode deliverResp 0
+  ensureEventLogged deliverResp "Faucetted" faucetEvent
 
 -- executes a query and ensures a 0 response code
 getQueryResponseSuccess :: RPC.TendermintM (ClientResponse a) -> IO a
