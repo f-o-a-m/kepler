@@ -14,12 +14,12 @@ import           Polysemy                             (Sem)
 import           Polysemy.Error                       (catch)
 import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.BaseApp               (BaseApp)
+import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Errors                (AppError, SDKError (..),
                                                        deliverTxAppError,
                                                        throwSDKError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
-import           Tendermint.SDK.Types.Transaction     (parseRawTransaction)
 
 echoH
   :: Request 'MTEcho
@@ -79,7 +79,7 @@ deliverTxH
 deliverTxH (RequestDeliverTx deliverTx) =
   let tryToRespond = do
         tx <- either (throwSDKError . ParseError) return $
-          parseRawTransaction $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
+          decode $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
         events <- withEventBuffer . compileToBaseApp $ router tx
         return $ ResponseDeliverTx $
           def & Resp._deliverTxCode .~ 0

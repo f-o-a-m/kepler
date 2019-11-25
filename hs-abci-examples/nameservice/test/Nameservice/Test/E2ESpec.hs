@@ -272,7 +272,7 @@ decodeValue :: HasCodec a => Base64.Base64String -> a
 decodeValue = (\(Right a) -> a) . decode . Base64.toBytes
 
 encodeRawTx :: RawTransaction -> Base64.Base64String
-encodeRawTx = Base64.fromBytes . Serialize.encode
+encodeRawTx = Base64.fromBytes . encode
 
 encodeMsgData :: Message a => a -> BS.ByteString
 encodeMsgData = BL.toStrict . toLazyByteString
@@ -281,7 +281,7 @@ encodeMsgData = BL.toStrict . toLazyByteString
 mkSignedRawTransactionWithRoute :: Message a => BS.ByteString -> SecKey -> a -> RawTransaction
 mkSignedRawTransactionWithRoute route privateKey msg = sign unsigned
   where unsigned = RawTransaction { rawTransactionData = encodeMsgData msg
-                                  , rawTransactionRoute = route
+                                  , rawTransactionRoute = cs route
                                   , rawTransactionSignature = ""
                                   }
         sig = signRawTransaction algProxy privateKey unsigned

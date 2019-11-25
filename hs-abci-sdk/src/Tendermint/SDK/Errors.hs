@@ -92,6 +92,7 @@ data SDKError =
   -- ^ Parsing errors for SDK specific types, e.g. 'RawTransaction' or 'Msg', etc.
   | UnmatchedRoute Text
   -- ^ The name of the route that failed to match.
+  | OutOfGasException
 
 -- | As of right now it's not expected that one can recover from an 'SDKError',
 -- | so we are throwing them as 'AppError's directly.
@@ -118,4 +119,10 @@ instance IsAppError SDKError where
     { appErrorCode = 3
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Route not recognized: " <> route <> "."
+    }
+
+  makeAppError OutOfGasException = AppError
+    { appErrorCode = 4
+    , appErrorCodespace = "sdk"
+    , appErrorMessage = "Out of gas exception"
     }
