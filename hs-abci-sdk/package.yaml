@@ -120,6 +120,7 @@ library:
   - Tendermint.SDK.Types.Address
   - Tendermint.SDK.TxRouter
   - Tendermint.SDK.Module
+  - Tendermint.SDK.Gas
 
   generated-exposed-modules:
   - Proto.Types.Transaction
@@ -133,6 +134,7 @@ tests:
     - Tendermint.SDK.Test.AuthTreeStoreSpec
     - Tendermint.SDK.Test.CryptoSpec
     - Tendermint.SDK.Test.EventSpec
+    - Tendermint.SDK.Test.GasSpec
 
     ghc-options:
     - -Werror
