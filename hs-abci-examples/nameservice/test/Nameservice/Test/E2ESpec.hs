@@ -214,7 +214,7 @@ runRPC = RPC.runTendermintM rpcConfig
 
 faucetAccount :: User -> IO ()
 faucetAccount User{userAddress, userPrivKey} = do
-  let msg = FaucetAccount userAddress 1000
+  let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress 1000)
       faucetEvent = Faucetted userAddress 1000
       rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey msg
   deliverResp <- getDeliverTxResponse rawTx
