@@ -1,16 +1,17 @@
 module Nameservice.Modules.Token.Messages where
 
-import           Data.Bifunctor                  (first)
-import           Data.String.Conversions         (cs)
-import           GHC.Generics                    (Generic)
-import           Nameservice.Modules.Token.Types (Amount)
-import           Proto3.Suite                    (Message, Named,
-                                                  fromByteString,
-                                                  toLazyByteString)
-import           Tendermint.SDK.Codec            (HasCodec (..))
-import           Tendermint.SDK.Types.Address    (Address)
-import           Tendermint.SDK.Types.Message    (coerceProto3Error,
-                                                  formatMessageParseError)
+import           Data.Bifunctor                   (first)
+import           Data.String.Conversions          (cs)
+import           GHC.Generics                     (Generic)
+import           Nameservice.Modules.Token.Types  (Amount)
+import           Nameservice.Modules.TypedMessage (TypedMessage (..))
+import           Proto3.Suite                     (Message, Named,
+                                                   fromByteString,
+                                                   toLazyByteString)
+import           Tendermint.SDK.Codec             (HasCodec (..))
+import           Tendermint.SDK.Types.Address     (Address)
+import           Tendermint.SDK.Types.Message     (coerceProto3Error,
+                                                   formatMessageParseError)
 
 data TokenMessage =
     TTransfer Transfer
@@ -69,12 +70,14 @@ instance HasCodec Mint where
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
 instance HasCodec TokenMessage where
-  decode bs =
-    fmap TTransfer (decode bs) <>
-    -- @NOTE: TFaucetAccount and TBurn have to be in this order
-    fmap TFaucetAccount (decode bs) <>
-    fmap TBurn (decode bs) <>
-    fmap TMint (decode bs)
+  decode bs = do
+    TypedMessage{..} <- decode bs
+    case typedMessageType of
+      "Transfer" -> TTransfer <$> decode typedMessageContents
+      "Burn" -> TBurn <$> decode typedMessageContents
+      "Mint" -> TMint <$> decode typedMessageContents
+      "FaucetAccount" -> TFaucetAccount <$> decode typedMessageContents
+      _ -> Left . cs $ "Unknown Token message type " ++ cs typedMessageType
   encode = \case
     TTransfer msg -> encode msg
     TBurn msg -> encode msg

@@ -7,11 +7,12 @@ import           Data.Text                             (Text)
 import           GHC.Generics                          (Generic)
 import           Nameservice.Modules.Nameservice.Types (Name (..))
 import           Nameservice.Modules.Token             (Amount (..))
+import           Nameservice.Modules.TypedMessage      (TypedMessage (..))
 import           Proto3.Suite                          (Message, Named,
                                                         fromByteString,
                                                         toLazyByteString)
 import           Tendermint.SDK.Codec                  (HasCodec (..))
-import           Tendermint.SDK.Types.Address          (Address)
+import           Tendermint.SDK.Types.Address          (Address (..))
 import           Tendermint.SDK.Types.Message          (Msg (..),
                                                         ValidateMessage (..),
                                                         coerceProto3Error,
@@ -67,11 +68,13 @@ instance HasCodec BuyName where
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
 instance HasCodec NameserviceMessage where
-  decode bs =
-    -- @NOTE: tests pass iff NBuyName is first
-    fmap NBuyName (decode bs) <>
-    fmap NSetName (decode bs) <>
-    fmap NDeleteName (decode bs)
+  decode bs = do
+    TypedMessage{..} <- decode bs
+    case typedMessageType of
+      "SetName" -> NSetName <$> decode typedMessageContents
+      "DeleteName" -> NDeleteName <$> decode typedMessageContents
+      "BuyName" -> NBuyName <$> decode typedMessageContents
+      _ -> Left . cs $ "Unknown Nameservice message type " ++ cs typedMessageType
   encode = \case
     NSetName msg -> encode msg
     NBuyName msg -> encode msg

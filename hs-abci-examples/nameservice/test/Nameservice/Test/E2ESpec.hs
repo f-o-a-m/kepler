@@ -33,6 +33,7 @@ import           Nameservice.Modules.Token              (Amount (..),
                                                          Faucetted (..),
                                                          Transfer (..),
                                                          TransferEvent (..))
+import           Nameservice.Modules.TypedMessage       (TypedMessage (..))
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..))
 import qualified Network.ABCI.Types.Messages.Response   as Response
 import qualified Network.Tendermint.Client              as RPC
@@ -73,7 +74,7 @@ spec = do
 
       it "Can create a name (success 0)" $ do
         let val = "hello world"
-            msg = BuyName 0 satoshi val addr1
+            msg = TypedMessage "BuyName" (encode $ BuyName 0 satoshi val addr1)
             claimedLog = NameClaimed addr1 satoshi val 0
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
@@ -97,7 +98,7 @@ spec = do
       it "Can set a name value (success 0)" $ do
         let oldVal = "hello world"
             newVal = "goodbye to a world"
-            msg = SetName satoshi addr1 newVal
+            msg = TypedMessage "SetName" (encode $ SetName satoshi addr1 newVal)
             remappedLog = NameRemapped satoshi oldVal newVal
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
@@ -110,7 +111,7 @@ spec = do
 
       it "Can fail to set a name (failure 2)" $ do
         -- try to set a name without being the owner
-        let msg = SetName satoshi addr2 "goodbye to a world"
+        let msg = TypedMessage "SetName" (encode $ SetName satoshi addr2 "goodbye to a world")
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 2
@@ -118,7 +119,7 @@ spec = do
       it "Can buy an existing name (success 0)" $ do
         let oldVal = "goodbye to a world"
             newVal = "hello (again) world"
-            msg = BuyName 300 satoshi newVal addr2
+            msg = TypedMessage "BuyName" (encode $ BuyName 300 satoshi newVal addr2)
             claimedLog = NameClaimed addr2 satoshi newVal 300
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
@@ -144,7 +145,7 @@ spec = do
         beforeBuyAmount <- getQueryResponseSuccess $ getBalance queryReq
         -- buy
         let val = "hello (again) world"
-            msg = BuyName 500 satoshi val addr2
+            msg = TypedMessage "BuyName" (encode $ BuyName 500 satoshi val addr2)
             claimedLog = NameClaimed addr2 satoshi val 500
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
@@ -157,13 +158,13 @@ spec = do
 
       it "Can fail to buy a name (failure 1)" $ do
         -- try to buy at a lower price
-        let msg = BuyName 100 satoshi "hello (again) world" addr1
+        let msg = TypedMessage "BuyName" (encode $ BuyName 100 satoshi "hello (again) world" addr1)
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 1
 
       it "Can delete names (success 0)" $ do
-        let msg = DeleteName addr2 satoshi
+        let msg = TypedMessage "DeleteName" (encode $ DeleteName addr2 satoshi)
             deletedLog = NameDeleted satoshi
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
@@ -178,7 +179,7 @@ spec = do
         clientResponseData `shouldBe` Nothing
 
       it "Can fail a transfer (failure 1)" $ do
-        let msg = Transfer addr2 addr1 2000
+        let msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 2000)
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 1
@@ -187,7 +188,7 @@ spec = do
         let senderBeforeQueryReq = defaultQueryWithData addr2
         senderBeforeFoundAmount <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
         senderBeforeFoundAmount `shouldBe` Amount 1700
-        let msg = Transfer addr1 addr2 500
+        let msg = TypedMessage "Transfer" (encode $ Transfer addr1 addr2 500)
             transferEvent = TransferEvent 500 addr1 addr2
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
@@ -213,7 +214,7 @@ runRPC = RPC.runTendermintM rpcConfig
 
 faucetAccount :: User -> IO ()
 faucetAccount User{userAddress, userPrivKey} = do
-  let msg = FaucetAccount userAddress 1000
+  let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress 1000)
       faucetEvent = Faucetted userAddress 1000
       rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey msg
   deliverResp <- getDeliverTxResponse rawTx
