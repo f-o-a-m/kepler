@@ -27,13 +27,13 @@ import           Nameservice.Modules.Nameservice        (BuyName (..),
                                                          NameDeleted (..),
                                                          NameRemapped (..),
                                                          SetName (..),
-                                                         TypedMessage (..),
                                                          Whois (..))
 import           Nameservice.Modules.Token              (Amount (..),
                                                          FaucetAccount (..),
                                                          Faucetted (..),
                                                          Transfer (..),
                                                          TransferEvent (..))
+import           Nameservice.Modules.TypedMessage       (TypedMessage (..))
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..))
 import qualified Network.ABCI.Types.Messages.Response   as Response
 import qualified Network.Tendermint.Client              as RPC
