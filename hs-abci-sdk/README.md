@@ -9,7 +9,7 @@ This package lays out an SDK for rapidly developing blockchain applications in h
 You will need to have the `libsecp256k` `C` library installed on your machine to build this package, or anything depedning on it, as it is not statically linked to its haskell wrapper. You
 can find instructions for this [here](https://github.com/f-o-a-m/hs-abci#libsecp256k1).
 
-## Archetecture
+## Architecture
 
 The SDK makes heavy use of an effects system to separate different components of your application. Specifically it is using the [polysemy](https://hackage.haskell.org/package/polysemy) effects library in its implementation.
 
@@ -25,7 +25,7 @@ to `BaseApp`. For examples, see `Tendermint.SDK.Errors` or `Tendermint.SDK.Store
 
 ### Core Effects
 
-The `CoreEffects` system is what's used to interpret `BaseApp` to `IO`, which is where the application must end up at eventually. It provides things like a loging context (e.g. `Katip`),
+The `CoreEffects` system is what's used to interpret `BaseApp` to `IO`, which is where the application must end up at eventually. It provides things like a logging context (e.g. `Katip`),
 a context for executing database transactions, and various buffers and vars to facilitate ABCI message handling.
 
 ## Example Applications
