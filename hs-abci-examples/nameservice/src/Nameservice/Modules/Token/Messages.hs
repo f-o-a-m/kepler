@@ -1,16 +1,17 @@
 module Nameservice.Modules.Token.Messages where
 
-import           Data.Bifunctor                  (first)
-import           Data.String.Conversions         (cs)
-import           GHC.Generics                    (Generic)
-import           Nameservice.Modules.Token.Types (Amount)
-import           Proto3.Suite                    (Message, Named,
-                                                  fromByteString,
-                                                  toLazyByteString)
-import           Tendermint.SDK.Codec            (HasCodec (..))
-import           Tendermint.SDK.Types.Address    (Address)
-import           Tendermint.SDK.Types.Message    (coerceProto3Error,
-                                                  formatMessageParseError)
+import           Data.Bifunctor                   (first)
+import           Data.String.Conversions          (cs)
+import           GHC.Generics                     (Generic)
+import           Nameservice.Modules.Token.Types  (Amount)
+import           Nameservice.Modules.TypedMessage (TypedMessage (..))
+import           Proto3.Suite                     (Message, Named,
+                                                   fromByteString,
+                                                   toLazyByteString)
+import           Tendermint.SDK.Codec             (HasCodec (..))
+import           Tendermint.SDK.Types.Address     (Address)
+import           Tendermint.SDK.Types.Message     (coerceProto3Error,
+                                                   formatMessageParseError)
 
 data TokenMessage =
     TTransfer Transfer
