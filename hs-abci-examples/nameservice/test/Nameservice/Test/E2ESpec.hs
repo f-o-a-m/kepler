@@ -23,11 +23,11 @@ import           Nameservice.Application                (QueryApi)
 import           Nameservice.Modules.Nameservice        (BuyName (..),
                                                          DeleteName (..),
                                                          Name (..),
-                                                         TypedMessage(..),
                                                          NameClaimed (..),
                                                          NameDeleted (..),
                                                          NameRemapped (..),
                                                          SetName (..),
+                                                         TypedMessage (..),
                                                          Whois (..))
 import           Nameservice.Modules.Token              (Amount (..),
                                                          FaucetAccount (..),
@@ -179,7 +179,7 @@ spec = do
         clientResponseData `shouldBe` Nothing
 
       it "Can fail a transfer (failure 1)" $ do
-        let msg = Transfer addr2 addr1 2000
+        let msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 2000)
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 1
@@ -188,7 +188,7 @@ spec = do
         let senderBeforeQueryReq = defaultQueryWithData addr2
         senderBeforeFoundAmount <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
         senderBeforeFoundAmount `shouldBe` Amount 1700
-        let msg = Transfer addr1 addr2 500
+        let msg = TypedMessage "Transfer" (encode $ Transfer addr1 addr2 500)
             transferEvent = TransferEvent 500 addr1 addr2
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx

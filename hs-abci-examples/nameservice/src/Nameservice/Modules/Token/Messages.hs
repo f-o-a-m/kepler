@@ -69,12 +69,14 @@ instance HasCodec Mint where
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
 instance HasCodec TokenMessage where
-  decode bs =
-    fmap TTransfer (decode bs) <>
-    -- @NOTE: TFaucetAccount and TBurn have to be in this order
-    fmap TFaucetAccount (decode bs) <>
-    fmap TBurn (decode bs) <>
-    fmap TMint (decode bs)
+  decode bs = do
+    TypedMessage{..} <- decode bs
+    case typedMessageType of
+      "Transfer" -> TTransfer <$> decode typedMessageContents
+      "Burn" -> TBurn <$> decode typedMessageContents
+      "Mint" -> TMint <$> decode typedMessageContents
+      "FaucetAccount" -> TFaucetAccount <$> decode typedMessageContents
+      _ -> Left . cs $ "Unknown Token message type " ++ cs typedMessageType
   encode = \case
     TTransfer msg -> encode msg
     TBurn msg -> encode msg
