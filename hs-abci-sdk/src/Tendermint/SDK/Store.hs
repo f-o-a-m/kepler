@@ -102,11 +102,14 @@ prove sk k = rawStoreProve sk $
 
 withTransaction
   :: Members [RawStore, Error AppError] r
-  => Sem r a
+  => Bool
   -> Sem r a
-withTransaction m = do
+  -> Sem r a
+withTransaction commit m = do
    rawStoreBeginTransaction
    res <- m `catch` (\e -> rawStoreRollback *> throw e)
-   rawStoreCommit
+   if commit
+    then rawStoreCommit
+    else rawStoreRollback
    pure res
 
