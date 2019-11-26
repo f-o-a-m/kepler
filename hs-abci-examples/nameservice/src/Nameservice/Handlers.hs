@@ -1,9 +1,16 @@
 module Nameservice.Handlers where
 
 import           Control.Lens                         (to, (&), (.~), (^.))
+import Data.ByteString (ByteString)
 import qualified Data.ByteArray.Base64String          as Base64
 import           Data.Default.Class                   (def)
+<<<<<<< HEAD
 import           Nameservice.Application              (compileToBaseApp, router)
+=======
+import           Nameservice.Application              (Handler,
+                                                       compileToBaseApp, router)
+import qualified Nameservice.Modules.Nameservice      as N
+>>>>>>> TxResult intermediary type, withTransaction tests updated, nameservice using withTransaction
 import           Network.ABCI.Server.App              (App (..),
                                                        MessageType (..),
                                                        Request (..),
@@ -16,10 +23,18 @@ import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.BaseApp               (BaseApp)
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Errors                (AppError, SDKError (..),
-                                                       deliverTxAppError,
+                                                       deliverTxAppError, checkTxAppError,
                                                        throwSDKError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
+<<<<<<< HEAD
+=======
+import           Tendermint.SDK.Store                 (withTransaction)
+import           Tendermint.SDK.Types.Transaction     (parseRawTransaction,
+                                                       parseTx)
+import           Tendermint.SDK.Types.TxResult        (deliverTxTxResult, checkTxTxResult,
+                                                       txResultEvents, TxResult)
+>>>>>>> TxResult intermediary type, withTransaction tests updated, nameservice using withTransaction
 
 echoH
   :: Request 'MTEcho
@@ -62,21 +77,30 @@ beginBlockH
   -> Sem BaseApp (Response 'MTBeginBlock)
 beginBlockH = defaultHandler
 
+-- Common function between checkTx and deliverTx
+transactionHandler :: ByteString -> Sem BaseApp TxResult
+transactionHandler bs = do
+  tx <- either (throwSDKError . ParseError) return $ parseRawTransaction bs
+  events <- withEventBuffer . compileToBaseApp $ router tx
+  pure $ def & txResultEvents .~ events
+
 -- only checks to see if the tx parses
 checkTxH
   :: Request 'MTCheckTx
   -> Sem BaseApp (Response 'MTCheckTx)
-checkTxH = defaultHandler--(RequestCheckTx checkTx) =
+checkTxH (RequestCheckTx checkTx) =
+  let tryToRespond = withTransaction False $ do
+        txResult <- transactionHandler $ checkTx ^. Req._checkTxTx . to Base64.toBytes
+        return $ ResponseCheckTx $ def & checkTxTxResult .~ txResult
+  in tryToRespond `catch` \(err :: AppError) ->
+       return . ResponseCheckTx $ def & checkTxAppError .~ err
 
- --   pure . ResponseCheckTx $
- -- case decodeAppTxMessage $ checkTx ^. Req._checkTxTx . to convert of
- --   Left _                   ->  def & Resp._checkTxCode .~ 1
- --   Right (ATMUpdateCount _) -> def & Resp._checkTxCode .~ 0
 
 deliverTxH
   :: Request 'MTDeliverTx
   -> Sem BaseApp (Response 'MTDeliverTx) -- Sem BaseApp (Response 'MTDeliverTx)
 deliverTxH (RequestDeliverTx deliverTx) =
+<<<<<<< HEAD
   let tryToRespond = do
         tx <- either (throwSDKError . ParseError) return $
           decode $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
@@ -84,6 +108,11 @@ deliverTxH (RequestDeliverTx deliverTx) =
         return $ ResponseDeliverTx $
           def & Resp._deliverTxCode .~ 0
               & Resp._deliverTxEvents .~ events
+=======
+  let tryToRespond = withTransaction True $ do
+        txResult <- transactionHandler $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
+        return $ ResponseDeliverTx $ def & deliverTxTxResult .~ txResult
+>>>>>>> TxResult intermediary type, withTransaction tests updated, nameservice using withTransaction
   in tryToRespond `catch` \(err :: AppError) ->
        return . ResponseDeliverTx $ def & deliverTxAppError .~ err
 

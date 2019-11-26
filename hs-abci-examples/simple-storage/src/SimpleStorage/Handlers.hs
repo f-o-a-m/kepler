@@ -18,6 +18,8 @@ import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
 import           Tendermint.SDK.Store                 (withTransaction)
+import           Tendermint.SDK.Types.TxResult        (deliverTxTxResult,
+                                                       txResultEvents)
 
 echoH
   :: Request 'MTEcho
@@ -79,9 +81,9 @@ deliverTxH (RequestDeliverTx deliverTx) = withTransaction True $
     Right (ATMUpdateCount updateCountTx) -> do
       let count = SS.Count $ updateCountTxCount updateCountTx
       events <- withEventBuffer $ putCount count
+      let txResult = def & txResultEvents .~ events
       return $ ResponseDeliverTx $
-        def & Resp._deliverTxCode .~ 0
-            & Resp._deliverTxEvents .~ events
+        def & deliverTxTxResult .~ txResult
 
 endBlockH
   :: Request 'MTEndBlock

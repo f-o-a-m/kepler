@@ -47,14 +47,14 @@ spec = beforeAll beforeAction $
         get storeKey IntStoreKey
       mv'' `shouldBe` Just (IntStore 1)
     it "can roll back if an error occurs during a transaction" $ \driver -> do
-      Left apperr <- runM . runError . eval driver . withTransaction $ do
+      Left apperr <- runM . runError . eval driver . withTransaction True $ do
         put storeKey IntStoreKey (IntStore 5)
         throwSDKError InternalError
       appErrorCode apperr `shouldBe` 1
       Right mv <- runM . runError . eval driver $ get storeKey IntStoreKey
       mv `shouldBe` Just (IntStore 1)
     it "can make changes with a transaction" $ \driver -> do
-      Right mv <- runM . runError . eval driver . withTransaction $ do
+      Right mv <- runM . runError . eval driver . withTransaction True $ do
         put storeKey IntStoreKey (IntStore 5)
         get storeKey IntStoreKey
       mv `shouldBe` Just (IntStore 5)

@@ -118,6 +118,7 @@ library:
   - Tendermint.SDK.Types.Message
   - Tendermint.SDK.Types.Transaction
   - Tendermint.SDK.Types.Address
+  - Tendermint.SDK.Types.TxResult
   - Tendermint.SDK.TxRouter
   - Tendermint.SDK.Module
   - Tendermint.SDK.Gas
