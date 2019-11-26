@@ -41,8 +41,8 @@ spec = do
             , queryArgsHeight = 0
             , queryArgsProve = False
             }
-      ClientResponse{clientResponseData} <- runQueryRunner $ getCount queryReq
-      clientResponseData `shouldBe` SS.Count 0
+      ClientResponse{clientResponseData = Just foundCount} <- runQueryRunner $ getCount queryReq
+      foundCount `shouldBe` SS.Count 0
 
     it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
       let tx = UpdateCountTx "irakli" 4
@@ -59,8 +59,8 @@ spec = do
             , queryArgsHeight = 0
             , queryArgsProve = False
             }
-      ClientResponse{clientResponseData} <- runQueryRunner $ getCount queryReq
-      clientResponseData `shouldBe` SS.Count 4
+      ClientResponse{clientResponseData = Just foundCount} <- runQueryRunner $ getCount queryReq
+      foundCount `shouldBe` SS.Count 4
 
 
 encodeCount :: Int32 -> Base64String

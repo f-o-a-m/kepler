@@ -69,7 +69,7 @@ spec = do
 
       it "Can query account balances" $ do
         let queryReq = defaultQueryWithData addr1
-        ClientResponse{clientResponseData = foundAmount} <- runRPC $ getBalance queryReq
+        foundAmount <- getQueryResponseSuccess $ getBalance queryReq
         foundAmount `shouldBe` Amount 1000
 
       it "Can create a name (success 0)" $ do
@@ -79,45 +79,35 @@ spec = do
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp "NameClaimed"
-        errs `shouldBe` mempty
-        events `shouldSatisfy` elem claimedLog
+        ensureEventLogged deliverResp "NameClaimed" claimedLog
 
       it "Can query for a name" $ do
         let queryReq = defaultQueryWithData satoshi
-            expectedWhois = Whois "hello world" addr1 0
-        ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
-        foundWhois `shouldBe` expectedWhois
+        foundWhois <- getQueryResponseSuccess $ getWhois queryReq
+        foundWhois `shouldBe` Whois "hello world" addr1 0
 
       it "Can query for a name that doesn't exist" $ do
         let nope = Name "nope"
-            -- empty whois (defaults)
-            emptyWhois = Whois "" (Address "") 0
             queryReq = defaultQueryWithData nope
-        ClientResponse{ clientResponseData = foundWhois
-                      , clientResponseRaw
-                      } <- runRPC $ getWhois queryReq
+        ClientResponse{ clientResponseData, clientResponseRaw } <- runRPC $ getWhois queryReq
         let queryRespCode = clientResponseRaw ^. Response._queryCode
-        -- storage failure with defaults
+        -- storage failure
         queryRespCode `shouldBe` 1
-        foundWhois `shouldBe` emptyWhois
+        clientResponseData `shouldBe` Nothing
 
       it "Can set a name value (success 0)" $ do
         let oldVal = "hello world"
             newVal = "goodbye to a world"
             msg = TypedMessage "SetName" (encode $ SetName satoshi addr1 newVal)
             remappedLog = NameRemapped satoshi oldVal newVal
-            expectedWhois = Whois "goodbye to a world" addr1 0
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp "NameRemapped"
-        errs `shouldBe` mempty
-        events `shouldSatisfy` elem remappedLog
+        ensureEventLogged deliverResp "NameRemapped" remappedLog
         -- check for changes
         let queryReq = defaultQueryWithData satoshi
-        ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
-        foundWhois `shouldBe` expectedWhois
+        foundWhois <- getQueryResponseSuccess $ getWhois queryReq
+        foundWhois `shouldBe` Whois "goodbye to a world" addr1 0
 
       it "Can fail to set a name (failure 2)" $ do
         -- try to set a name without being the owner
@@ -131,32 +121,28 @@ spec = do
             newVal = "hello (again) world"
             msg = TypedMessage "BuyName" (encode $ BuyName 300 satoshi newVal addr2)
             claimedLog = NameClaimed addr2 satoshi newVal 300
-            expectedWhois = Whois "hello (again) world" addr2 300
-            -- transferLog = Transfer 300 addr1 addr2
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp "NameClaimed"
-        errs `shouldBe` mempty
-        events `shouldSatisfy` elem claimedLog
+        ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check for updated balances - seller: addr1, buyer: addr2
         let sellerQueryReq = defaultQueryWithData addr1
-        ClientResponse{clientResponseData = sellerFoundAmount} <- runRPC $ getBalance sellerQueryReq
+        sellerFoundAmount <- getQueryResponseSuccess $ getBalance sellerQueryReq
         sellerFoundAmount `shouldBe` Amount 1300
         let buyerQueryReq = defaultQueryWithData addr2
-        ClientResponse{clientResponseData = buyerFoundAmount} <- runRPC $ getBalance buyerQueryReq
+        buyerFoundAmount <- getQueryResponseSuccess $ getBalance buyerQueryReq
         buyerFoundAmount `shouldBe` Amount 700
         -- check for ownership changes
         let queryReq = defaultQueryWithData satoshi
-        ClientResponse{clientResponseData = foundWhois} <- runRPC $ getWhois queryReq
-        foundWhois `shouldBe` expectedWhois
+        foundWhois <- getQueryResponseSuccess $ getWhois queryReq
+        foundWhois `shouldBe` Whois "hello (again) world" addr2 300
 
       -- @NOTE: this is possibly a problem with the go application too
       -- https://cosmos.network/docs/tutorial/buy-name.html#msg
       it "Can buy self-owned names and make a profit (success 0)" $ do
         -- check balance before
         let queryReq = defaultQueryWithData addr2
-        ClientResponse{clientResponseData = beforeBuyAmount} <- runRPC $ getBalance queryReq
+        beforeBuyAmount <- getQueryResponseSuccess $ getBalance queryReq
         -- buy
         let val = "hello (again) world"
             msg = TypedMessage "BuyName" (encode $ BuyName 500 satoshi val addr2)
@@ -164,11 +150,9 @@ spec = do
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp "NameClaimed"
-        errs `shouldBe` mempty
-        events `shouldSatisfy` elem claimedLog
+        ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check balance after
-        ClientResponse{clientResponseData = afterBuyAmount} <- runRPC $ getBalance queryReq
+        afterBuyAmount <- getQueryResponseSuccess $ getBalance queryReq
         -- owner/buyer still profits
         afterBuyAmount `shouldSatisfy` (> beforeBuyAmount)
 
@@ -182,22 +166,17 @@ spec = do
       it "Can delete names (success 0)" $ do
         let msg = TypedMessage "DeleteName" (encode $ DeleteName addr2 satoshi)
             deletedLog = NameDeleted satoshi
-            emptyWhois = Whois "" (Address "") 0
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp "NameDeleted"
-        errs `shouldBe` mempty
-        events `shouldSatisfy` elem deletedLog
+        ensureEventLogged deliverResp "NameDeleted" deletedLog
         -- name shouldn't exist
         let queryReq = defaultQueryWithData satoshi
-        ClientResponse{ clientResponseData = foundWhois
-                      , clientResponseRaw
-                      } <- runRPC $ getWhois queryReq
+        ClientResponse{ clientResponseData, clientResponseRaw } <- runRPC $ getWhois queryReq
         let queryRespCode = clientResponseRaw ^. Response._queryCode
-        -- storage failure with defaults
+        -- storage failure
         queryRespCode `shouldBe` 1
-        foundWhois `shouldBe` emptyWhois
+        clientResponseData `shouldBe` Nothing
 
       it "Can fail a transfer (failure 1)" $ do
         let msg = Transfer addr2 addr1 2000
@@ -207,22 +186,20 @@ spec = do
 
       it "Can transfer (success 0)" $ do
         let senderBeforeQueryReq = defaultQueryWithData addr2
-        ClientResponse{clientResponseData = senderBeforeFoundAmount} <- runRPC $ getBalance senderBeforeQueryReq
+        senderBeforeFoundAmount <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
         senderBeforeFoundAmount `shouldBe` Amount 1700
         let msg = Transfer addr1 addr2 500
             transferEvent = TransferEvent 500 addr1 addr2
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
-        (errs, events) <- deliverTxEvents deliverResp "TransferEvent"
-        errs `shouldBe` mempty
-        events `shouldSatisfy` elem transferEvent
+        ensureEventLogged deliverResp "TransferEvent" transferEvent
         -- check balances
         let receiverQueryReq = defaultQueryWithData addr1
-        ClientResponse{clientResponseData = receiverFoundAmount} <- runRPC $ getBalance receiverQueryReq
+        receiverFoundAmount <- getQueryResponseSuccess $ getBalance receiverQueryReq
         receiverFoundAmount `shouldBe` Amount 1800
         let senderAfterQueryReq = defaultQueryWithData addr2
-        ClientResponse{clientResponseData = senderAfterFoundAmount} <- runRPC $ getBalance senderAfterQueryReq
+        senderAfterFoundAmount <- getQueryResponseSuccess $ getBalance senderAfterQueryReq
         senderAfterFoundAmount `shouldBe` Amount 1200
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
@@ -241,10 +218,16 @@ faucetAccount User{userAddress, userPrivKey} = do
       faucetEvent = Faucetted userAddress 1000
       rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey msg
   deliverResp <- getDeliverTxResponse rawTx
-  (errs, events) <- deliverTxEvents deliverResp "Faucetted"
-  errs `shouldBe` mempty
-  events `shouldSatisfy` elem faucetEvent
-  return ()
+  ensureDeliverResponseCode deliverResp 0
+  ensureEventLogged deliverResp "Faucetted" faucetEvent
+
+-- executes a query and ensures a 0 response code
+getQueryResponseSuccess :: RPC.TendermintM (ClientResponse a) -> IO a
+getQueryResponseSuccess query = do
+  ClientResponse{clientResponseData,clientResponseRaw} <- runRPC query
+  let responseCode = clientResponseRaw ^. Response._queryCode
+  responseCode `shouldBe` 0
+  return . fromJust $ clientResponseData
 
 -- executes a request, then returns the deliverTx response
 getDeliverTxResponse :: RawTransaction -> IO Response.DeliverTx
@@ -254,12 +237,18 @@ getDeliverTxResponse rawTx = do
     RPC.broadcastTxCommit txReq
 
 -- get the logged events from a deliver response,
--- ensures there are no errors when parsing event logs
 deliverTxEvents :: FromEvent e => Response.DeliverTx -> Text -> IO ([Text],[e])
 deliverTxEvents deliverResp eventName = do
   let deliverEvents = deliverResp ^. Response._deliverTxEvents
       filtered = filter ((== eventName) . eventType) deliverEvents
   return . partitionEithers . map fromEvent $ filtered
+
+-- ensures there are no errors when parsing event logs and contains the expectedEvent
+ensureEventLogged :: (Eq e, Show e, FromEvent e) => Response.DeliverTx -> Text -> e -> IO ()
+ensureEventLogged deliverResp eventName expectedEvent = do
+  (errs, events) <- deliverTxEvents deliverResp eventName
+  errs `shouldBe` mempty
+  events `shouldSatisfy` elem expectedEvent
 
 -- check for a specific deliver response code
 ensureDeliverResponseCode :: Response.DeliverTx -> Word32 -> IO ()
