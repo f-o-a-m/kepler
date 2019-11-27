@@ -1,6 +1,7 @@
 module Nameservice.Modules.Token.Messages where
 
 import           Data.Bifunctor                   (first)
+import           Data.Foldable                    (sequenceA_)
 import           Data.String.Conversions          (cs)
 import           GHC.Generics                     (Generic)
 import           Nameservice.Modules.Token.Types  (Amount)
@@ -10,8 +11,11 @@ import           Proto3.Suite                     (Message, Named,
                                                    toLazyByteString)
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Types.Address     (Address)
-import           Tendermint.SDK.Types.Message     (coerceProto3Error,
-                                                   formatMessageParseError)
+import           Tendermint.SDK.Types.Message     (Msg (..),
+                                                   ValidateMessage (..),
+                                                   coerceProto3Error,
+                                                   formatMessageParseError,
+                                                   isAuthorCheck)
 
 data TokenMessage =
     TTransfer Transfer
@@ -83,3 +87,22 @@ instance HasCodec TokenMessage where
     TBurn msg -> encode msg
     TMint msg -> encode msg
     TFaucetAccount msg -> encode msg
+
+instance ValidateMessage TokenMessage where
+  validateMessage m@Msg{msgData} = case msgData of
+    TTransfer msg      -> validateMessage m {msgData = msg}
+    TFaucetAccount msg -> validateMessage m {msgData = msg}
+    TBurn msg          -> validateMessage m {msgData = msg}
+    TMint msg          -> validateMessage m {msgData = msg}
+
+instance ValidateMessage Transfer where
+  validateMessage msg = sequenceA_ [ isAuthorCheck "From" msg transferFrom ]
+
+instance ValidateMessage FaucetAccount where
+  validateMessage _ = sequenceA_ []
+
+instance ValidateMessage Burn where
+  validateMessage msg = sequenceA_ [ isAuthorCheck "Address" msg burnAddress ]
+
+instance ValidateMessage Mint where
+  validateMessage msg = sequenceA_ [ isAuthorCheck "Address" msg mintAddress ]

@@ -1,16 +1,10 @@
 module Nameservice.Handlers where
 
 import           Control.Lens                         (to, (&), (.~), (^.))
-import Data.ByteString (ByteString)
 import qualified Data.ByteArray.Base64String          as Base64
+import           Data.ByteString                      (ByteString)
 import           Data.Default.Class                   (def)
-<<<<<<< HEAD
 import           Nameservice.Application              (compileToBaseApp, router)
-=======
-import           Nameservice.Application              (Handler,
-                                                       compileToBaseApp, router)
-import qualified Nameservice.Modules.Nameservice      as N
->>>>>>> TxResult intermediary type, withTransaction tests updated, nameservice using withTransaction
 import           Network.ABCI.Server.App              (App (..),
                                                        MessageType (..),
                                                        Request (..),
@@ -23,18 +17,16 @@ import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.BaseApp               (BaseApp)
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Errors                (AppError, SDKError (..),
-                                                       deliverTxAppError, checkTxAppError,
+                                                       checkTxAppError,
+                                                       deliverTxAppError,
                                                        throwSDKError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
-<<<<<<< HEAD
-=======
 import           Tendermint.SDK.Store                 (withTransaction)
-import           Tendermint.SDK.Types.Transaction     (parseRawTransaction,
-                                                       parseTx)
-import           Tendermint.SDK.Types.TxResult        (deliverTxTxResult, checkTxTxResult,
-                                                       txResultEvents, TxResult)
->>>>>>> TxResult intermediary type, withTransaction tests updated, nameservice using withTransaction
+import           Tendermint.SDK.Types.TxResult        (TxResult,
+                                                       checkTxTxResult,
+                                                       deliverTxTxResult,
+                                                       txResultEvents)
 
 echoH
   :: Request 'MTEcho
@@ -80,7 +72,7 @@ beginBlockH = defaultHandler
 -- Common function between checkTx and deliverTx
 transactionHandler :: ByteString -> Sem BaseApp TxResult
 transactionHandler bs = do
-  tx <- either (throwSDKError . ParseError) return $ parseRawTransaction bs
+  tx <- either (throwSDKError . ParseError) return $ decode bs
   events <- withEventBuffer . compileToBaseApp $ router tx
   pure $ def & txResultEvents .~ events
 
@@ -100,19 +92,9 @@ deliverTxH
   :: Request 'MTDeliverTx
   -> Sem BaseApp (Response 'MTDeliverTx) -- Sem BaseApp (Response 'MTDeliverTx)
 deliverTxH (RequestDeliverTx deliverTx) =
-<<<<<<< HEAD
-  let tryToRespond = do
-        tx <- either (throwSDKError . ParseError) return $
-          decode $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
-        events <- withEventBuffer . compileToBaseApp $ router tx
-        return $ ResponseDeliverTx $
-          def & Resp._deliverTxCode .~ 0
-              & Resp._deliverTxEvents .~ events
-=======
   let tryToRespond = withTransaction True $ do
         txResult <- transactionHandler $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
         return $ ResponseDeliverTx $ def & deliverTxTxResult .~ txResult
->>>>>>> TxResult intermediary type, withTransaction tests updated, nameservice using withTransaction
   in tryToRespond `catch` \(err :: AppError) ->
        return . ResponseDeliverTx $ def & deliverTxAppError .~ err
 

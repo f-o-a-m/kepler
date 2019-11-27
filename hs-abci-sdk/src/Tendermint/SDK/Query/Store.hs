@@ -71,8 +71,6 @@ instance
 allStoreHandlers
   :: forall (contents :: [*]) ns r.
      StoreQueryHandlers contents ns (Sem r)
-  => Member RawStore r
-  => Member (Error AppError) r
   => Proxy contents
   -> StoreKey ns
   -> Proxy r
