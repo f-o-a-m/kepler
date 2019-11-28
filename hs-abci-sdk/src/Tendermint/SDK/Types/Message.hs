@@ -93,7 +93,7 @@ nonEmptyCheck
   -> V.Validation [MessageSemanticError] ()
 nonEmptyCheck fieldName x
   | x == mempty = V._Failure # [InvalidFieldError $ fieldName <> " must be nonempty."]
-  | otherwise = mempty
+  | otherwise = V.Success ()
 
 isAuthorCheck
   :: Text
@@ -102,4 +102,4 @@ isAuthorCheck
   -> V.Validation [MessageSemanticError] ()
 isAuthorCheck fieldName Msg{msgAuthor, msgData} getAuthor
   | getAuthor msgData /= msgAuthor = V._Failure # [PermissionError $ fieldName <> " must be message author."]
-  | otherwise = mempty
+  | otherwise = V.Success ()

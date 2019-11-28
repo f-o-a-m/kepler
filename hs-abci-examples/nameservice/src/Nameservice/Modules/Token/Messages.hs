@@ -1,8 +1,8 @@
 module Nameservice.Modules.Token.Messages where
 
 import           Data.Bifunctor                   (first)
-import           Data.Foldable                    (sequenceA_)
 import           Data.String.Conversions          (cs)
+import           Data.Validation                  (Validation (..))
 import           GHC.Generics                     (Generic)
 import           Nameservice.Modules.Token.Types  (Amount)
 import           Nameservice.Modules.TypedMessage (TypedMessage (..))
@@ -14,8 +14,7 @@ import           Tendermint.SDK.Types.Address     (Address)
 import           Tendermint.SDK.Types.Message     (Msg (..),
                                                    ValidateMessage (..),
                                                    coerceProto3Error,
-                                                   formatMessageParseError,
-                                                   isAuthorCheck)
+                                                   formatMessageParseError)
 
 data TokenMessage =
     TTransfer Transfer
@@ -96,13 +95,13 @@ instance ValidateMessage TokenMessage where
     TMint msg          -> validateMessage m {msgData = msg}
 
 instance ValidateMessage Transfer where
-  validateMessage msg = sequenceA_ [ isAuthorCheck "From" msg transferFrom ]
+  validateMessage _ = Success ()
 
 instance ValidateMessage FaucetAccount where
-  validateMessage _ = sequenceA_ []
+  validateMessage _ = Success ()
 
 instance ValidateMessage Burn where
-  validateMessage msg = sequenceA_ [ isAuthorCheck "Address" msg burnAddress ]
+  validateMessage _ = Success ()
 
 instance ValidateMessage Mint where
-  validateMessage msg = sequenceA_ [ isAuthorCheck "Address" msg mintAddress ]
+  validateMessage _ = Success ()

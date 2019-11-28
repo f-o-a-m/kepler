@@ -59,7 +59,8 @@ instance (Member (Error AppError) r, Router ms r, HasCodec msg, ValidateMessage 
         let msg' = txMsg {msgData = msg}
             tx' = RoutedTx $ tx {txMsg = msg'}
         case validateMessage msg' of
-          Failure err -> throwSDKError . MessageValidation . map formatMessageSemanticError $ err
+          Failure err ->
+            throwSDKError . MessageValidation . map formatMessageSemanticError $ err
           Success _ -> pure ()
         moduleRouter m tx'
     | otherwise = route rest tx

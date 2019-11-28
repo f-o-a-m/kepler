@@ -107,9 +107,12 @@ withTransaction
   -> Sem r a
 withTransaction commit m = do
    rawStoreBeginTransaction
-   res <- m `catch` (\e -> rawStoreRollback *> throw e)
-   if commit
-    then rawStoreCommit
-    else rawStoreRollback
-   pure res
+   runTx `catch` (\e -> rawStoreRollback *> throw e)
+ where
+  runTx = do
+    res <- m
+    if commit
+      then rawStoreCommit
+      else rawStoreRollback
+    pure res
 
