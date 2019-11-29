@@ -140,7 +140,6 @@ spec = do
       -- @NOTE: this is possibly a problem with the go application too
       -- https://cosmos.network/docs/tutorial/buy-name.html#msg
       it "Can buy self-owned names and make a profit (success 0)" $ do
-        pending
         -- check balance before
         let queryReq = defaultQueryWithData addr2
         beforeBuyAmount <- getQueryResponseSuccess $ getBalance queryReq
@@ -158,7 +157,6 @@ spec = do
         afterBuyAmount `shouldSatisfy` (> beforeBuyAmount)
 
       it "Can fail to buy a name (failure 1)" $ do
-        pending
         -- try to buy at a lower price
         let msg = TypedMessage "BuyName" (encode $ BuyName 100 satoshi "hello (again) world" addr1)
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
@@ -166,7 +164,6 @@ spec = do
         ensureDeliverResponseCode deliverResp 1
 
       it "Can delete names (success 0)" $ do
-        pending
         let msg = TypedMessage "DeleteName" (encode $ DeleteName addr2 satoshi)
             deletedLog = NameDeleted satoshi
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
@@ -182,14 +179,12 @@ spec = do
         clientResponseData `shouldBe` Nothing
 
       it "Can fail a transfer (failure 1)" $ do
-        pending
         let msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 2000)
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 1
 
       it "Can transfer (success 0)" $ do
-        pending
         let senderBeforeQueryReq = defaultQueryWithData addr2
         senderBeforeFoundAmount <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
         senderBeforeFoundAmount `shouldBe` Amount 1700

@@ -17,14 +17,14 @@ import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.BaseApp               (BaseApp)
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Errors                (AppError, SDKError (..),
-                                                       checkTxAppError,
+                                                      --  checkTxAppError,
                                                        deliverTxAppError,
                                                        throwSDKError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
 import           Tendermint.SDK.Store                 (withTransaction)
 import           Tendermint.SDK.Types.TxResult        (TxResult,
-                                                       checkTxTxResult,
+                                                      --  checkTxTxResult,
                                                        deliverTxTxResult,
                                                        txResultEvents)
 
@@ -80,12 +80,12 @@ transactionHandler bs = do
 checkTxH
   :: Request 'MTCheckTx
   -> Sem BaseApp (Response 'MTCheckTx)
-checkTxH (RequestCheckTx checkTx) =
-  let tryToRespond = withTransaction False $ do
-        txResult <- transactionHandler $ checkTx ^. Req._checkTxTx . to Base64.toBytes
-        return $ ResponseCheckTx $ def & checkTxTxResult .~ txResult
-  in tryToRespond `catch` \(err :: AppError) ->
-       return . ResponseCheckTx $ def & checkTxAppError .~ err
+checkTxH = defaultHandler
+  -- let tryToRespond = withTransaction False $ do
+  --       txResult <- transactionHandler $ checkTx ^. Req._checkTxTx . to Base64.toBytes
+  --       return $ ResponseCheckTx $ def & checkTxTxResult .~ txResult
+  -- in tryToRespond `catch` \(err :: AppError) ->
+  --      return . ResponseCheckTx $ def & checkTxAppError .~ err
 
 
 deliverTxH
