@@ -70,6 +70,7 @@ dependencies:
 - mtl
 - polysemy
 - polysemy-plugin
+- polysemy-zoo
 - profunctors
 - proto-lens
 - proto-lens-runtime

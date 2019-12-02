@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
 
 module Tendermint.SDK.Store
   ( RawStore(..)
@@ -13,6 +14,7 @@ module Tendermint.SDK.Store
   , rawStoreBeginTransaction
   , rawStoreRollback
   , rawStoreCommit
+  , ConnectionType(..)
   ) where
 
 import           Control.Lens            (Iso', (^.))
@@ -25,6 +27,7 @@ import           Tendermint.SDK.Codec    (HasCodec (..))
 import           Tendermint.SDK.Errors   (AppError, SDKError (ParseError),
                                           throwSDKError)
 import Polysemy.Resource (Resource, onException)
+import Polysemy.Tagged (Tagged, tag)
 
 newtype StoreKey n = StoreKey BS.ByteString
 
@@ -49,11 +52,13 @@ class RawKey k => IsKey k ns where
   default prefixWith :: Proxy k -> Proxy ns -> BS.ByteString
   prefixWith _ _ = ""
 
+data ConnectionType = Query | CheckTx | DeliverTx
+
 put
-  :: forall k r ns.
+  :: forall (c :: ConnectionType) k r ns.
      IsKey k ns
   => HasCodec (Value k ns)
-  => Member RawStore r
+  => Member (Tagged c RawStore) r
   => StoreKey ns
   -> k
   -> Value k ns
@@ -61,20 +66,19 @@ put
 put sk k a =
   let key = prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
       val = encode a
-  in rawStorePut sk key val
+  in tag $ rawStorePut sk key val
 
 get
-  :: forall k r ns.
+  :: forall (c :: ConnectionType) k r ns.
      IsKey k ns
   => HasCodec (Value k ns)
-  => Member (Error AppError) r
-  => Member RawStore r
+  => Members [Tagged c RawStore, Error AppError] r
   => StoreKey ns
   -> k
   -> Sem r (Maybe (Value k ns))
 get sk k = do
   let key = prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
-  mRes <- rawStoreGet sk key
+  mRes <- tag $ rawStoreGet sk key
   case mRes of
     Nothing -> pure Nothing
     Just raw -> case decode raw of
@@ -82,32 +86,32 @@ get sk k = do
       Right a -> pure $ Just a
 
 delete
-  :: forall k ns r.
+  :: forall (c :: ConnectionType) k ns r.
      IsKey k ns
-  => Member RawStore r
+  => Member (Tagged c RawStore) r
   => StoreKey ns
   -> k
   -> Sem r ()
-delete sk k = rawStoreDelete sk $
+delete sk k = tag $ rawStoreDelete sk $
   prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
 
 prove
-  :: forall k ns r.
+  :: forall (c :: ConnectionType) k ns r.
      IsKey k ns
-  => Member RawStore r
+  => Member (Tagged c RawStore) r
   => StoreKey ns
   -> k
   -> Sem r (Maybe BS.ByteString)
-prove sk k = rawStoreProve sk $
+prove sk k = tag $ rawStoreProve sk $
   prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
 
 withTransaction
-  :: Members [RawStore, Resource, Error AppError] r
+  :: forall (c :: ConnectionType) r a.
+     Members [Tagged c RawStore, Resource, Error AppError] r
   => Sem r a
   -> Sem r a
 withTransaction m =
-   let tryTx = m `catch` (\e -> rawStoreRollback *> throw e)
+   let tryTx = m `catch` (\e -> tag rawStoreRollback *> throw e)
    in do
-      rawStoreBeginTransaction
-      onException (tryTx <* rawStoreCommit) rawStoreRollback
-      
+      tag rawStoreBeginTransaction
+      onException (tryTx <* tag rawStoreCommit) (tag rawStoreRollback)

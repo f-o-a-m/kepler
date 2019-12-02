@@ -27,6 +27,7 @@ extra-deps:
   - git: https://github.com/awakesecurity/proto3-wire
     commit: 23015cf6363d1962fde6bdff0de111f7ec59ab75
   - polysemy-1.2.0.0
+  - polysemy-zoo-0.6.0.0
 
 explicit-setup-deps:
   hs-abci-server: true

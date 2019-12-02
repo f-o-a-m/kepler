@@ -88,6 +88,13 @@ packages:
       sha256: d7b017cc60394fd87330c577e8c8e48e0fcff3f72cb6c518a20a7fd5cfc8ddab
   original:
     hackage: polysemy-1.2.0.0
+- completed:
+    hackage: polysemy-zoo-0.6.0.0@sha256:44595a96a37b9e33edb87c9f7ff79f8d10f6453d826bc9881b00d8988b69729a,3852
+    pantry-tree:
+      size: 3012
+      sha256: 9a8ddbf6c0a5ed2e254202c2990aae99dc4a66fa24949622a123c48795ec6547
+  original:
+    hackage: polysemy-zoo-0.6.0.0
 snapshots:
 - completed:
     size: 524786
