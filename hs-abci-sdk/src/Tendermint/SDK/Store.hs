@@ -24,6 +24,7 @@ import           Polysemy.Error          (Error, catch, throw)
 import           Tendermint.SDK.Codec    (HasCodec (..))
 import           Tendermint.SDK.Errors   (AppError, SDKError (ParseError),
                                           throwSDKError)
+import Polysemy.Resource (Resource, onException)
 
 newtype StoreKey n = StoreKey BS.ByteString
 
@@ -101,18 +102,12 @@ prove sk k = rawStoreProve sk $
   prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
 
 withTransaction
-  :: Members [RawStore, Error AppError] r
-  => Bool
+  :: Members [RawStore, Resource, Error AppError] r
+  => Sem r a
   -> Sem r a
-  -> Sem r a
-withTransaction commit m = do
-   rawStoreBeginTransaction
-   runTx `catch` (\e -> rawStoreRollback *> throw e)
- where
-  runTx = do
-    res <- m
-    if commit
-      then rawStoreCommit
-      else rawStoreRollback
-    pure res
-
+withTransaction m =
+   let tryTx = m `catch` (\e -> rawStoreRollback *> throw e)
+   in do
+      rawStoreBeginTransaction
+      onException (tryTx <* rawStoreCommit) rawStoreRollback
+      

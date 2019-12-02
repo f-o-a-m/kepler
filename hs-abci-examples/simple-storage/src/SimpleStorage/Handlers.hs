@@ -66,7 +66,7 @@ beginBlockH = defaultHandler
 checkTxH
   :: Request 'MTCheckTx
   -> Handler (Response 'MTCheckTx)
-checkTxH (RequestCheckTx checkTx) = withTransaction False $ pure . ResponseCheckTx $
+checkTxH (RequestCheckTx checkTx) = withTransaction $ pure . ResponseCheckTx $
   case decodeAppTxMessage $ checkTx ^. Req._checkTxTx . to convert of
     Left _                   ->  def & Resp._checkTxCode .~ 1
     Right (ATMUpdateCount _) -> def & Resp._checkTxCode .~ 0
@@ -74,7 +74,7 @@ checkTxH (RequestCheckTx checkTx) = withTransaction False $ pure . ResponseCheck
 deliverTxH
   :: Request 'MTDeliverTx
   -> Handler (Response 'MTDeliverTx)
-deliverTxH (RequestDeliverTx deliverTx) = withTransaction True $
+deliverTxH (RequestDeliverTx deliverTx) = withTransaction $
   case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of
     Left _ -> return . ResponseDeliverTx $
       def & Resp._deliverTxCode .~ 1

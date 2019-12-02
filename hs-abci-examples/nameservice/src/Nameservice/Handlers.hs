@@ -90,7 +90,7 @@ deliverTxH
   :: Request 'MTDeliverTx
   -> Sem BaseApp (Response 'MTDeliverTx) -- Sem BaseApp (Response 'MTDeliverTx)
 deliverTxH (RequestDeliverTx deliverTx) =
-  let tryToRespond = withTransaction True $ do
+  let tryToRespond = withTransaction $ do
         txResult <- transactionHandler $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
         return $ ResponseDeliverTx $ def & deliverTxTxResult .~ txResult
   in tryToRespond `catch` \(err :: AppError) ->
