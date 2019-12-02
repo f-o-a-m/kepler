@@ -17,14 +17,12 @@ import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.BaseApp               (BaseApp)
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Errors                (AppError, SDKError (..),
-                                                      --  checkTxAppError,
                                                        deliverTxAppError,
                                                        throwSDKError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
 import           Tendermint.SDK.Store                 (withTransaction)
 import           Tendermint.SDK.Types.TxResult        (TxResult,
-                                                      --  checkTxTxResult,
                                                        deliverTxTxResult,
                                                        txResultEvents)
 
