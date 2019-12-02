@@ -19,10 +19,10 @@ import           Tendermint.SDK.Crypto            (RecoverableSignatureSchema,
                                                    SignatureSchema (..))
 import           Tendermint.SDK.Errors            (AppError, SDKError (..),
                                                    throwSDKError)
+import           Tendermint.SDK.Format            (formatMessageSemanticError)
 import           Tendermint.SDK.Module
 import           Tendermint.SDK.Types.Message     (Msg (..),
-                                                   ValidateMessage (..),
-                                                   formatMessageSemanticError)
+                                                   ValidateMessage (..))
 -- import           Tendermint.SDK.Types.Message     (Msg (..))
 import           Tendermint.SDK.Types.Transaction (RawTransaction (..),
                                                    RoutedTx (..), Tx (..),

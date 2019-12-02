@@ -1,20 +1,15 @@
 module Nameservice.Modules.Token.Messages where
 
-import           Data.Bifunctor                   (first)
 import           Data.String.Conversions          (cs)
 import           Data.Validation                  (Validation (..))
 import           GHC.Generics                     (Generic)
 import           Nameservice.Modules.Token.Types  (Amount)
 import           Nameservice.Modules.TypedMessage (TypedMessage (..))
-import           Proto3.Suite                     (Message, Named,
-                                                   fromByteString,
-                                                   toLazyByteString)
+import           Proto3.Suite                     (Message, Named)
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Types.Address     (Address)
 import           Tendermint.SDK.Types.Message     (Msg (..),
-                                                   ValidateMessage (..),
-                                                   coerceProto3Error,
-                                                   formatMessageParseError)
+                                                   ValidateMessage (..))
 
 data TokenMessage =
     TTransfer Transfer
@@ -30,10 +25,7 @@ data FaucetAccount = FaucetAccount
 
 instance Message FaucetAccount
 instance Named FaucetAccount
-
-instance HasCodec FaucetAccount where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+instance HasCodec FaucetAccount
 
 data Transfer = Transfer
   { transferTo     :: Address
@@ -43,10 +35,7 @@ data Transfer = Transfer
 
 instance Message Transfer
 instance Named Transfer
-
-instance HasCodec Transfer where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+instance HasCodec Transfer
 
 data Burn = Burn
   { burnAddress :: Address
@@ -55,10 +44,7 @@ data Burn = Burn
 
 instance Message Burn
 instance Named Burn
-
-instance HasCodec Burn where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+instance HasCodec Burn
 
 data Mint = Mint
   { mintAmount  :: Amount
@@ -67,10 +53,7 @@ data Mint = Mint
 
 instance Message Mint
 instance Named Mint
-
-instance HasCodec Mint where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+instance HasCodec Mint
 
 instance HasCodec TokenMessage where
   decode bs = do

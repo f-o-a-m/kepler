@@ -1,6 +1,5 @@
 module Nameservice.Modules.Nameservice.Messages where
 
-import           Data.Bifunctor                        (first)
 import           Data.Foldable                         (sequenceA_)
 import           Data.String.Conversions               (cs)
 import           Data.Text                             (Text)
@@ -8,15 +7,11 @@ import           GHC.Generics                          (Generic)
 import           Nameservice.Modules.Nameservice.Types (Name (..))
 import           Nameservice.Modules.Token             (Amount (..))
 import           Nameservice.Modules.TypedMessage      (TypedMessage (..))
-import           Proto3.Suite                          (Message, Named,
-                                                        fromByteString,
-                                                        toLazyByteString)
+import           Proto3.Suite                          (Message, Named)
 import           Tendermint.SDK.Codec                  (HasCodec (..))
 import           Tendermint.SDK.Types.Address          (Address (..))
 import           Tendermint.SDK.Types.Message          (Msg (..),
                                                         ValidateMessage (..),
-                                                        coerceProto3Error,
-                                                        formatMessageParseError,
                                                         isAuthorCheck,
                                                         nonEmptyCheck)
 
@@ -36,10 +31,7 @@ data SetName = SetName
 
 instance Message SetName
 instance Named SetName
-
-instance HasCodec SetName where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+instance HasCodec SetName
 
 data DeleteName = DeleteName
   { deleteNameOwner :: Address
@@ -48,10 +40,7 @@ data DeleteName = DeleteName
 
 instance Message DeleteName
 instance Named DeleteName
-
-instance HasCodec DeleteName where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+instance HasCodec DeleteName
 
 data BuyName = BuyName
   { buyNameBid   :: Amount
@@ -62,10 +51,7 @@ data BuyName = BuyName
 
 instance Message BuyName
 instance Named BuyName
-
-instance HasCodec BuyName where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+instance HasCodec BuyName
 
 instance HasCodec NameserviceMessage where
   decode bs = do

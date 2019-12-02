@@ -6,6 +6,8 @@ module Tendermint.SDK.Errors
   , deliverTxAppError
   , SDKError(..)
   , throwSDKError
+  , MessageParseError(..)
+  , MessageSemanticError(..)
   ) where
 
 import           Control.Exception                    (Exception)
@@ -134,3 +136,35 @@ instance IsAppError SDKError where
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Message failed validation: " <> intercalate "\n" errors
     }
+
+--------------------------------------------------------------------------------
+-- Message Errors
+--------------------------------------------------------------------------------
+
+-- | This is a general error type, primarily accomodating protobuf messages being parsed
+-- | by either the [proto3-wire](https://hackage.haskell.org/package/proto3-wire)
+-- | or the [proto-lens](https://hackage.haskell.org/package/proto-lens) libraries.
+data MessageParseError =
+    -- | A 'WireTypeError' occurs when the type of the data in the protobuf
+    -- binary format does not match the type encountered by the parser.
+    WireTypeError Text
+    -- | A 'BinaryError' occurs when we can't successfully parse the contents of
+    -- the field.
+  | BinaryError Text
+    -- | An 'EmbeddedError' occurs when we encounter an error while parsing an
+    -- embedded message.
+  | EmbeddedError Text (Maybe MessageParseError)
+    -- | Unknown or unstructured parsing error.
+  | OtherParseError Text
+
+-- | Used during message validation to indicate that although the message has parsed
+-- | correctly, it fails certain sanity checks.
+data MessageSemanticError =
+    -- | Used to indicate that the message signer does not have the authority to send
+    -- | this message.
+    PermissionError Text
+    -- | Used to indicate that a field isn't valid, e.g. enforces non-negative quantities
+    -- | or nonempty lists.
+  | InvalidFieldError Text
+    -- Catchall for other erors
+  | OtherSemanticError Text
