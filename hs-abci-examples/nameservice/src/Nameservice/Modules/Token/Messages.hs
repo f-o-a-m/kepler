@@ -2,6 +2,7 @@ module Nameservice.Modules.Token.Messages where
 
 import           Data.Bifunctor                   (first)
 import           Data.String.Conversions          (cs)
+import           Data.Validation                  (Validation (..))
 import           GHC.Generics                     (Generic)
 import           Nameservice.Modules.Token.Types  (Amount)
 import           Nameservice.Modules.TypedMessage (TypedMessage (..))
@@ -10,7 +11,9 @@ import           Proto3.Suite                     (Message, Named,
                                                    toLazyByteString)
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Types.Address     (Address)
-import           Tendermint.SDK.Types.Message     (coerceProto3Error,
+import           Tendermint.SDK.Types.Message     (Msg (..),
+                                                   ValidateMessage (..),
+                                                   coerceProto3Error,
                                                    formatMessageParseError)
 
 data TokenMessage =
@@ -83,3 +86,22 @@ instance HasCodec TokenMessage where
     TBurn msg -> encode msg
     TMint msg -> encode msg
     TFaucetAccount msg -> encode msg
+
+instance ValidateMessage TokenMessage where
+  validateMessage m@Msg{msgData} = case msgData of
+    TTransfer msg      -> validateMessage m {msgData = msg}
+    TFaucetAccount msg -> validateMessage m {msgData = msg}
+    TBurn msg          -> validateMessage m {msgData = msg}
+    TMint msg          -> validateMessage m {msgData = msg}
+
+instance ValidateMessage Transfer where
+  validateMessage _ = Success ()
+
+instance ValidateMessage FaucetAccount where
+  validateMessage _ = Success ()
+
+instance ValidateMessage Burn where
+  validateMessage _ = Success ()
+
+instance ValidateMessage Mint where
+  validateMessage _ = Success ()

@@ -9,14 +9,21 @@ module Tendermint.SDK.Store
   , put
   , delete
   , prove
+  , withTransaction
+  , rawStoreBeginTransaction
+  , rawStoreRollback
+  , rawStoreCommit
   ) where
 
 import           Control.Lens            (Iso', (^.))
 import qualified Data.ByteString         as BS
 import           Data.Proxy
 import           Data.String.Conversions (cs)
-import           Polysemy                (Member, Sem, makeSem)
+import           Polysemy                (Member, Members, Sem, makeSem)
+import           Polysemy.Error          (Error, catch, throw)
 import           Tendermint.SDK.Codec    (HasCodec (..))
+import           Tendermint.SDK.Errors   (AppError, SDKError (ParseError),
+                                          throwSDKError)
 
 newtype StoreKey n = StoreKey BS.ByteString
 
@@ -25,6 +32,9 @@ data RawStore m a where
   RawStoreGet   :: StoreKey ns -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
   RawStoreDelete :: StoreKey ns -> BS.ByteString -> RawStore m ()
   RawStoreProve :: StoreKey ns -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
+  RawStoreBeginTransaction :: RawStore m ()
+  RawStoreRollback :: RawStore m ()
+  RawStoreCommit :: RawStore m ()
 
 makeSem ''RawStore
 
@@ -56,6 +66,7 @@ get
   :: forall k r ns.
      IsKey k ns
   => HasCodec (Value k ns)
+  => Member (Error AppError) r
   => Member RawStore r
   => StoreKey ns
   -> k
@@ -63,11 +74,11 @@ get
 get sk k = do
   let key = prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
   mRes <- rawStoreGet sk key
-  pure $ case mRes of
-    Nothing -> Nothing
+  case mRes of
+    Nothing -> pure Nothing
     Just raw -> case decode raw of
-      Left e  -> error $ "Impossible codec error "  <> cs e
-      Right a -> Just a
+      Left e  -> throwSDKError (ParseError $ "Impossible codec error "  <> cs e)
+      Right a -> pure $ Just a
 
 delete
   :: forall k ns r.
@@ -88,3 +99,20 @@ prove
   -> Sem r (Maybe BS.ByteString)
 prove sk k = rawStoreProve sk $
   prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
+
+withTransaction
+  :: Members [RawStore, Error AppError] r
+  => Bool
+  -> Sem r a
+  -> Sem r a
+withTransaction commit m = do
+   rawStoreBeginTransaction
+   runTx `catch` (\e -> rawStoreRollback *> throw e)
+ where
+  runTx = do
+    res <- m
+    if commit
+      then rawStoreCommit
+      else rawStoreRollback
+    pure res
+

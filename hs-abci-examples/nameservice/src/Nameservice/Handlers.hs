@@ -2,6 +2,7 @@ module Nameservice.Handlers where
 
 import           Control.Lens                         (to, (&), (.~), (^.))
 import qualified Data.ByteArray.Base64String          as Base64
+import           Data.ByteString                      (ByteString)
 import           Data.Default.Class                   (def)
 import           Nameservice.Application              (compileToBaseApp, router)
 import           Network.ABCI.Server.App              (App (..),
@@ -20,6 +21,10 @@ import           Tendermint.SDK.Errors                (AppError, SDKError (..),
                                                        throwSDKError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
+import           Tendermint.SDK.Store                 (withTransaction)
+import           Tendermint.SDK.Types.TxResult        (TxResult,
+                                                       deliverTxTxResult,
+                                                       txResultEvents)
 
 echoH
   :: Request 'MTEcho
@@ -62,28 +67,32 @@ beginBlockH
   -> Sem BaseApp (Response 'MTBeginBlock)
 beginBlockH = defaultHandler
 
+-- Common function between checkTx and deliverTx
+transactionHandler :: ByteString -> Sem BaseApp TxResult
+transactionHandler bs = do
+  tx <- either (throwSDKError . ParseError) return $ decode bs
+  events <- withEventBuffer . compileToBaseApp $ router tx
+  pure $ def & txResultEvents .~ events
+
 -- only checks to see if the tx parses
 checkTxH
   :: Request 'MTCheckTx
   -> Sem BaseApp (Response 'MTCheckTx)
-checkTxH = defaultHandler--(RequestCheckTx checkTx) =
+checkTxH = defaultHandler
+  -- let tryToRespond = withTransaction False $ do
+  --       txResult <- transactionHandler $ checkTx ^. Req._checkTxTx . to Base64.toBytes
+  --       return $ ResponseCheckTx $ def & checkTxTxResult .~ txResult
+  -- in tryToRespond `catch` \(err :: AppError) ->
+  --      return . ResponseCheckTx $ def & checkTxAppError .~ err
 
- --   pure . ResponseCheckTx $
- -- case decodeAppTxMessage $ checkTx ^. Req._checkTxTx . to convert of
- --   Left _                   ->  def & Resp._checkTxCode .~ 1
- --   Right (ATMUpdateCount _) -> def & Resp._checkTxCode .~ 0
 
 deliverTxH
   :: Request 'MTDeliverTx
   -> Sem BaseApp (Response 'MTDeliverTx) -- Sem BaseApp (Response 'MTDeliverTx)
 deliverTxH (RequestDeliverTx deliverTx) =
-  let tryToRespond = do
-        tx <- either (throwSDKError . ParseError) return $
-          decode $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
-        events <- withEventBuffer . compileToBaseApp $ router tx
-        return $ ResponseDeliverTx $
-          def & Resp._deliverTxCode .~ 0
-              & Resp._deliverTxEvents .~ events
+  let tryToRespond = withTransaction True $ do
+        txResult <- transactionHandler $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
+        return $ ResponseDeliverTx $ def & deliverTxTxResult .~ txResult
   in tryToRespond `catch` \(err :: AppError) ->
        return . ResponseDeliverTx $ def & deliverTxAppError .~ err
 

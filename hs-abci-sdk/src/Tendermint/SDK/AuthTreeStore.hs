@@ -12,6 +12,7 @@ import qualified Crypto.Data.Auth.Tree.Class      as AT
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Crypto.Hash                      as Cryptonite
 import           Data.ByteString                  (ByteString)
+import qualified Data.List.NonEmpty               as NE
 import           Polysemy                         (Embed, Member, Sem,
                                                    interpret)
 import           Tendermint.SDK.Store             (RawStore (..), StoreKey (..))
@@ -28,11 +29,11 @@ instance AT.MerkleHash AuthTreeHash where
     concatHashes (AuthTreeHash a) (AuthTreeHash b) = AuthTreeHash $ Cryptonite.concatHashes a b
 
 data AuthTree = AuthTree
-  { treeVar :: TVar (AT.Tree ByteString ByteString)
+  { treeVar :: TVar (NE.NonEmpty (AT.Tree ByteString ByteString))
   }
 
 initAuthTree :: IO AuthTree
-initAuthTree = AuthTree <$> newTVarIO AT.empty
+initAuthTree = AuthTree <$> newTVarIO (pure AT.empty)
 
 eval
   :: Member (Embed IO) r
@@ -43,13 +44,26 @@ eval AuthTree{treeVar} =
   interpret
     (\case
       RawStorePut (StoreKey sk) k v -> liftIO . atomically $ do
-        tree <- readTVar treeVar
-        writeTVar treeVar $ AT.insert (sk <> k) v tree
+        tree NE.:| ts <- readTVar treeVar
+        writeTVar treeVar $ AT.insert (sk <> k) v tree NE.:| ts
       RawStoreGet (StoreKey sk) k -> liftIO . atomically $ do
-        tree <- readTVar treeVar
+        tree NE.:| _ <- readTVar treeVar
         pure $ AT.lookup (sk <> k) tree
       RawStoreProve _ _ -> pure Nothing
       RawStoreDelete (StoreKey sk) k -> liftIO . atomically $ do
-        tree <- readTVar treeVar
-        writeTVar treeVar $ AT.delete (sk <> k) tree
+        tree NE.:| ts <- readTVar treeVar
+        writeTVar treeVar $ AT.delete (sk <> k) tree NE.:| ts
+      RawStoreBeginTransaction -> liftIO . atomically $ do
+        tree NE.:| ts <- readTVar treeVar
+        writeTVar treeVar $ tree NE.:| tree : ts
+      RawStoreRollback -> liftIO . atomically $ do
+        trees <- readTVar treeVar
+        writeTVar treeVar $ case trees of
+          t NE.:| []      -> t NE.:| []
+          _ NE.:| t' : ts ->  t' NE.:| ts
+      RawStoreCommit -> liftIO . atomically $ do
+        trees <- readTVar treeVar
+        writeTVar treeVar $ case trees of
+          t NE.:| []     -> t NE.:| []
+          t NE.:| _ : ts ->  t NE.:| ts
     )

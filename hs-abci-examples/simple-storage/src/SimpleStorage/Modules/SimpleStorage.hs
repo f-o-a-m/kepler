@@ -37,10 +37,12 @@ import qualified Data.Serialize          as Serialize
 import           Data.String.Conversions (cs)
 import           GHC.Generics            (Generic)
 import           Polysemy                (Member, Sem, interpret, makeSem)
+import           Polysemy.Error          (Error)
 import           Polysemy.Output         (Output)
 import           Servant.API             ((:>))
 import           Tendermint.SDK.BaseApp  (HasBaseAppEff)
 import           Tendermint.SDK.Codec    (HasCodec (..))
+import           Tendermint.SDK.Errors   (AppError)
 import qualified Tendermint.SDK.Events   as Events
 import           Tendermint.SDK.Query    (FromQueryData, QueryApi,
                                           Queryable (..), RouteT,
@@ -132,6 +134,9 @@ type CountStoreContents = '[(CountKey, Count)]
 
 type Api = "simple_storage" :> QueryApi CountStoreContents
 
-server :: Member RawStore r => RouteT Api (Sem r)
+server
+  :: Member RawStore r
+  => Member (Error AppError) r
+  => RouteT Api (Sem r)
 server =
   storeQueryHandlers (Proxy :: Proxy CountStoreContents) storeKey (Proxy :: Proxy (Sem r))
