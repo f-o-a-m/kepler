@@ -13,6 +13,7 @@ import qualified Crypto.Data.Auth.Tree            as AT
 import qualified Crypto.Data.Auth.Tree.Class      as AT
 import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Crypto.Hash                      as Cryptonite
+import           Data.ByteArray                   (convert)
 import           Data.ByteString                  (ByteString)
 import qualified Data.List.NonEmpty               as NE
 import           Polysemy                         (Embed, Member, Members, Sem,
@@ -58,6 +59,10 @@ evalTagged AuthTree{treeVar} =
       RawStoreDelete (StoreKey sk) k -> liftIO . atomically $ do
         tree NE.:| ts <- readTVar treeVar
         writeTVar treeVar $ AT.delete (sk <> k) tree NE.:| ts
+      RawStoreRoot -> liftIO . atomically $ do
+        tree NE.:| _ <- readTVar treeVar
+        let AuthTreeHash hash = AT.merkleHash tree
+        pure $ convert hash
       RawStoreBeginTransaction -> liftIO . atomically $ do
         tree NE.:| ts <- readTVar treeVar
         writeTVar treeVar $ tree NE.:| tree : ts

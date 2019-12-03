@@ -13,16 +13,19 @@ import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Polysemy                             (Sem)
 import           Polysemy.Error                       (catch)
+import           Polysemy.Reader                      (ask)
 import           Tendermint.SDK.Application           (defaultHandler)
+import           Tendermint.SDK.AuthTreeStore         (AuthTreeState,
+                                                       foldAuthTreeState)
 import           Tendermint.SDK.BaseApp               (BaseApp)
 import           Tendermint.SDK.Errors                (AppError,
                                                        checkTxAppError,
                                                        deliverTxAppError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
-import           Tendermint.SDK.Store                 (beginTransaction,
-                                                       commitTransaction,
-                                                       withSandbox,
+import           Tendermint.SDK.Store                 (ConnectionScope (Consensus),
+                                                       beginBlock, commitBlock,
+                                                       storeRoot, withSandbox,
                                                        withTransaction)
 import           Tendermint.SDK.Types.TxResult        (TxResult,
                                                        checkTxTxResult,
@@ -68,7 +71,7 @@ queryH serveRoutes (RequestQuery query) = do
 beginBlockH
   :: Request 'MTBeginBlock
   -> Sem BaseApp (Response 'MTBeginBlock)
-beginBlockH _ = def <$ beginTransaction
+beginBlockH _ = def <$ beginBlock
 
 -- Common function between checkTx and deliverTx
 transactionHandler :: ByteString -> Sem BaseApp TxResult
@@ -105,8 +108,15 @@ endBlockH = defaultHandler
 commitH
   :: Request 'MTCommit
   -> Sem BaseApp (Response 'MTCommit)
-commitH _ = def <$ do
-  commitTransaction
+commitH _ = do
+  commitBlock
+  authTreeState <- ask @AuthTreeState
+  foldAuthTreeState authTreeState
+  rootHash <- storeRoot @'Consensus
+  return . ResponseCommit $ def
+    & Resp._commitData .~ Base64.fromBytes rootHash
+
+
 
 nameserviceApp :: QueryApplication (Sem BaseApp) -> App (Sem BaseApp)
 nameserviceApp serveRoutes = App $ \case

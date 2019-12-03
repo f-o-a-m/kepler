@@ -1,5 +1,4 @@
 {-# LANGUAGE TemplateHaskell #-}
-{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
 
 module Tendermint.SDK.Store
   ( RawStore(..)
@@ -11,10 +10,11 @@ module Tendermint.SDK.Store
   , put
   , delete
   , prove
+  , storeRoot
   , withTransaction
   , withSandbox
-  , beginTransaction
-  , commitTransaction
+  , beginBlock
+  , commitBlock
   ) where
 
 import           Control.Lens            (Iso', (^.))
@@ -36,6 +36,7 @@ data RawStore m a where
   RawStoreGet   :: StoreKey ns -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
   RawStoreDelete :: StoreKey ns -> BS.ByteString -> RawStore m ()
   RawStoreProve :: StoreKey ns -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
+  RawStoreRoot :: RawStore m BS.ByteString
   RawStoreBeginTransaction :: RawStore m ()
   RawStoreRollback :: RawStore m ()
   RawStoreCommit :: RawStore m ()
@@ -106,15 +107,20 @@ prove sk k = tag $ rawStoreProve sk $
   prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
 
 
-beginTransaction
+beginBlock
   :: Member (Tagged 'Consensus RawStore) r
   => Sem r ()
-beginTransaction = tag rawStoreBeginTransaction
+beginBlock = tag rawStoreBeginTransaction
 
-commitTransaction
+commitBlock
   :: Member (Tagged 'Consensus RawStore) r
   => Sem r ()
-commitTransaction = tag rawStoreCommit
+commitBlock = tag rawStoreCommit
+
+storeRoot
+  :: Member (Tagged c RawStore) r
+  => Sem r BS.ByteString
+storeRoot = tag rawStoreRoot
 
 withTransaction
   :: forall r a.
