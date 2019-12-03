@@ -6,15 +6,15 @@ module Tendermint.SDK.Store
   , RawKey(..)
   , IsKey(..)
   , StoreKey(..)
+  , ConnectionScope(..)
   , get
   , put
   , delete
   , prove
   , withTransaction
-  , rawStoreBeginTransaction
-  , rawStoreRollback
-  , rawStoreCommit
-  , ConnectionType(..)
+  , withSandbox
+  , beginTransaction
+  , commitTransaction
   ) where
 
 import           Control.Lens            (Iso', (^.))
@@ -23,11 +23,11 @@ import           Data.Proxy
 import           Data.String.Conversions (cs)
 import           Polysemy                (Member, Members, Sem, makeSem)
 import           Polysemy.Error          (Error, catch, throw)
+import           Polysemy.Resource       (Resource, finally, onException)
+import           Polysemy.Tagged         (Tagged, tag)
 import           Tendermint.SDK.Codec    (HasCodec (..))
 import           Tendermint.SDK.Errors   (AppError, SDKError (ParseError),
                                           throwSDKError)
-import Polysemy.Resource (Resource, onException)
-import Polysemy.Tagged (Tagged, tag)
 
 newtype StoreKey n = StoreKey BS.ByteString
 
@@ -52,10 +52,10 @@ class RawKey k => IsKey k ns where
   default prefixWith :: Proxy k -> Proxy ns -> BS.ByteString
   prefixWith _ _ = ""
 
-data ConnectionType = Query | CheckTx | DeliverTx
+data ConnectionScope = Query | Mempool | Consensus
 
 put
-  :: forall (c :: ConnectionType) k r ns.
+  :: forall (c :: ConnectionScope) k r ns.
      IsKey k ns
   => HasCodec (Value k ns)
   => Member (Tagged c RawStore) r
@@ -69,7 +69,7 @@ put sk k a =
   in tag $ rawStorePut sk key val
 
 get
-  :: forall (c :: ConnectionType) k r ns.
+  :: forall (c :: ConnectionScope) k r ns.
      IsKey k ns
   => HasCodec (Value k ns)
   => Members [Tagged c RawStore, Error AppError] r
@@ -86,7 +86,7 @@ get sk k = do
       Right a -> pure $ Just a
 
 delete
-  :: forall (c :: ConnectionType) k ns r.
+  :: forall (c :: ConnectionScope) k ns r.
      IsKey k ns
   => Member (Tagged c RawStore) r
   => StoreKey ns
@@ -96,7 +96,7 @@ delete sk k = tag $ rawStoreDelete sk $
   prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
 
 prove
-  :: forall (c :: ConnectionType) k ns r.
+  :: forall (c :: ConnectionScope) k ns r.
      IsKey k ns
   => Member (Tagged c RawStore) r
   => StoreKey ns
@@ -105,9 +105,19 @@ prove
 prove sk k = tag $ rawStoreProve sk $
   prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
 
+beginTransaction
+  :: Member (Tagged 'Consensus RawStore) r
+  => Sem r ()
+beginTransaction = tag rawStoreBeginTransaction
+
+commitTransaction
+  :: Member (Tagged 'Consensus RawStore) r
+  => Sem r ()
+commitTransaction = tag rawStoreCommit
+
 withTransaction
-  :: forall (c :: ConnectionType) r a.
-     Members [Tagged c RawStore, Resource, Error AppError] r
+  :: forall r a.
+     Members [Tagged 'Consensus RawStore, Resource, Error AppError] r
   => Sem r a
   -> Sem r a
 withTransaction m =
@@ -115,3 +125,14 @@ withTransaction m =
    in do
       tag rawStoreBeginTransaction
       onException (tryTx <* tag rawStoreCommit) (tag rawStoreRollback)
+
+withSandbox
+  :: forall r a.
+     Members [Tagged 'Mempool RawStore, Resource, Error AppError] r
+  => Sem r a
+  -> Sem r a
+withSandbox m =
+   let tryTx = m `catch` (\e -> tag rawStoreRollback *> throw e)
+   in do
+      tag rawStoreBeginTransaction
+      finally (tryTx <* tag rawStoreRollback) (tag rawStoreRollback)

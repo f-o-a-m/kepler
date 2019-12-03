@@ -13,13 +13,14 @@ import           GHC.Generics                 (Generic)
 import           GHC.TypeLits                 (symbolVal)
 import           Polysemy
 import           Polysemy.Error               (Error, mapError)
+import           Polysemy.Tagged              (Tagged)
 import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Query         (Queryable (..))
-import           Tendermint.SDK.Store         (IsKey (..), StoreKey (..), get,
-                                               put, ConnectionType(..), RawStore)
+import           Tendermint.SDK.Store         (ConnectionScope (..), IsKey (..),
+                                               RawStore, StoreKey (..), get,
+                                               put)
 import           Tendermint.SDK.Types.Address (Address)
-import Polysemy.Tagged (Tagged)
 --------------------------------------------------------------------------------
 
 data AuthModule
@@ -84,7 +85,7 @@ storeKey :: StoreKey AuthModule
 storeKey = StoreKey "auth"
 
 eval
-  :: forall (c :: ConnectionType) r.
+  :: forall (c :: ConnectionScope) r.
      Members [Tagged c RawStore, Error AppError] r
   => forall a. (Sem (Accounts ': Error AuthError ': r) a -> Sem r a)
 eval = mapError makeAppError . evalAuth

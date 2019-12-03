@@ -10,14 +10,15 @@ import           Data.Proxy
 import           GHC.TypeLits                (Symbol)
 import           Polysemy                    (Members, Sem)
 import           Polysemy.Error              (Error)
+import           Polysemy.Tagged             (Tagged)
 import           Servant.API                 ((:<|>) (..), (:>))
 import           Tendermint.SDK.Codec        (HasCodec)
 import           Tendermint.SDK.Errors       (AppError)
 import           Tendermint.SDK.Query.Class
 import           Tendermint.SDK.Query.Types
-import           Tendermint.SDK.Store        (IsKey (..), RawKey (..), RawStore,
-                                              StoreKey, ConnectionType(..), get)
-import Polysemy.Tagged (Tagged)
+import           Tendermint.SDK.Store        (ConnectionScope (Query),
+                                              IsKey (..), RawKey (..), RawStore,
+                                              StoreKey, get)
 
 class StoreQueryHandler a (ns :: Symbol) h where
     storeQueryHandler :: Proxy a -> StoreKey ns -> h

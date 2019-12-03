@@ -6,34 +6,27 @@ module Tendermint.SDK.BaseApp where
 import           Control.Exception            (throwIO)
 import           Control.Lens                 (over, view)
 import qualified Katip                        as K
-import           Polysemy                     (Embed, Member, Members, Sem,
-                                               runM)
+import           Polysemy                     (Embed, Members, Sem, runM)
 import           Polysemy.Error               (Error, runError)
 import           Polysemy.Output              (Output)
 import           Polysemy.Reader              (Reader, asks, local, runReader)
 import           Polysemy.Resource            (Resource, resourceToIO)
+import           Polysemy.Tagged              (Tagged)
 import qualified Tendermint.SDK.AuthTreeStore as AT
 import           Tendermint.SDK.Errors        (AppError)
 import           Tendermint.SDK.Events        (Event, EventBuffer,
                                                evalWithBuffer, newEventBuffer)
 import           Tendermint.SDK.Logger        (Logger)
 import qualified Tendermint.SDK.Logger.Katip  as KL
-import           Tendermint.SDK.Store         (RawStore)
+import           Tendermint.SDK.Store         (ConnectionScope (..), RawStore)
 
-
--- | A constraint listing all externally visible effects in the 'BaseApp'.
-type HasBaseAppEff r =
-  ( Member Logger r
-  , Member (Error AppError) r
-  , Member RawStore r
-  , Member (Output Event) r
-  , Member Resource r
-  )
 
 -- | Concrete row of effects for the BaseApp
 type BaseAppEffR =
   [ Output Event
-  , RawStore
+  , Tagged 'Query RawStore
+  , Tagged 'Mempool RawStore
+  , Tagged 'Consensus RawStore
   , Logger
   , Resource
   , Error AppError
@@ -54,7 +47,6 @@ type family (as :: [a]) :& (bs :: [a]) :: [a] where
 
 infixr 5 :&
 
-
 -- TODO: it would be really nice to not have this CoreEff here, but to just
 -- interpret into it as an intermediate step in the total evaluation of BaseApp.
 -- Polysemy probably has a way to do this already.
@@ -74,17 +66,17 @@ instance (Members CoreEffR r) => K.KatipContext (Sem r) where
 data Context = Context
   { contextLogConfig   :: KL.LogConfig
   , contextEventBuffer :: EventBuffer
-  , contextAuthTree    :: AT.AuthTree
+  , contextAuthTree    :: AT.AuthTreeState
   }
 
 makeContext :: KL.LogConfig -> IO Context
 makeContext logCfg = do
-  authTree <- AT.initAuthTree
+  authTreeState <- AT.initAuthTreeState
   eb <- newEventBuffer
   pure $ Context
     { contextLogConfig = logCfg
     , contextEventBuffer = eb
-    , contextAuthTree = authTree
+    , contextAuthTree = authTreeState
     }
 
 -- | An intermediary interpeter, bringing 'BaseApp' down to 'CoreEff'.
