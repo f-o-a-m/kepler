@@ -9,20 +9,20 @@ module Nameservice.Application
   , router
   ) where
 
+import           Data.ByteString                 (ByteString)
 import           Data.Proxy
-import qualified Nameservice.Modules.Nameservice  as N
-import qualified Nameservice.Modules.Token        as T
-import           Polysemy                         (Sem)
-import           Servant.API                      ((:<|>) (..))
-import qualified Tendermint.SDK.Auth              as A
-import           Tendermint.SDK.BaseApp           ((:&))
-import qualified Tendermint.SDK.BaseApp           as BaseApp
-import           Tendermint.SDK.Crypto            (Secp256k1)
-import qualified Tendermint.SDK.Logger.Katip      as KL
-import           Tendermint.SDK.Module            (Modules (..))
-import           Tendermint.SDK.Query             (QueryApplication, serve)
-import qualified Tendermint.SDK.TxRouter          as R
-import           Tendermint.SDK.Types.Transaction (RawTransaction)
+import qualified Nameservice.Modules.Nameservice as N
+import qualified Nameservice.Modules.Token       as T
+import           Polysemy                        (Sem)
+import           Servant.API                     ((:<|>) (..))
+import qualified Tendermint.SDK.Auth             as A
+import           Tendermint.SDK.BaseApp          ((:&))
+import qualified Tendermint.SDK.BaseApp          as BaseApp
+import           Tendermint.SDK.Crypto           (Secp256k1)
+import qualified Tendermint.SDK.Logger.Katip     as KL
+import           Tendermint.SDK.Module           (Modules (..))
+import           Tendermint.SDK.Query            (QueryApplication, serve)
+import qualified Tendermint.SDK.TxRouter         as R
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context
@@ -37,7 +37,7 @@ makeAppConfig logCfg = do
 --------------------------------------------------------------------------------
 
 type EffR =
-  N.NameserviceEffR :& T.TokenEffR :& A.AuthEffR :& BaseApp.BaseApp
+  N.NameserviceEffs :& T.TokenEffs :& A.AuthEffs :& BaseApp.BaseApp
 
 type Handler = Sem EffR
 
@@ -59,12 +59,10 @@ runHandler AppConfig{baseAppContext} =
 modules :: Modules '[T.TokenM EffR ,N.NameserviceM EffR] EffR
 modules = ConsModule T.tokenModule $ ConsModule N.nameserviceModule NilModules
 
-router :: RawTransaction -> Sem EffR ()
-router = R.router (Proxy @Secp256k1) modules
-
---------------------------------------------------------------------------------
-
 type QueryApi = T.Api :<|> N.Api
+
+router :: ByteString -> Sem BaseApp.BaseApp ()
+router = compileToBaseApp . R.router (Proxy @Secp256k1) modules
 
 queryServer :: QueryApplication (Sem BaseApp.BaseApp)
 queryServer = serve (Proxy :: Proxy QueryApi) (T.server :<|> N.server)

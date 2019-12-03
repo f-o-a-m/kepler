@@ -24,8 +24,7 @@ import           Tendermint.SDK.Types.Message     (Msg (..),
                                                    ValidateMessage (..),
                                                    formatMessageSemanticError)
 -- import           Tendermint.SDK.Types.Message     (Msg (..))
-import           Tendermint.SDK.Types.Transaction (RawTransaction (..),
-                                                   RoutedTx (..), Tx (..),
+import           Tendermint.SDK.Types.Transaction (RoutedTx (..), Tx (..),
                                                    parseTx)
 
 router
@@ -36,12 +35,13 @@ router
   => Router ms r
   => Proxy alg
   -> Modules ms r
-  -> RawTransaction
+  -> ByteString
   -> Sem r ()
-router (p  :: Proxy alg) ms rawTx =
-  case parseTx p rawTx of
-    Left errMsg -> throw $ TransactionParseError errMsg
-    Right tx    -> route ms tx
+router (p  :: Proxy alg) ms bs =
+  let etx = decode bs >>= parseTx p
+  in case etx of
+       Left errMsg -> throw $ TransactionParseError errMsg
+       Right tx    -> route ms tx
 
 class Router ms r where
   route :: forall alg. Modules ms r -> Tx alg ByteString -> Sem r ()

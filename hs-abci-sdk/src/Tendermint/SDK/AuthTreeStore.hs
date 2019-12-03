@@ -15,8 +15,9 @@ import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
 import qualified Crypto.Hash                      as Cryptonite
 import           Data.ByteString                  (ByteString)
 import qualified Data.List.NonEmpty               as NE
-import           Polysemy                         (Embed, Member, Sem,
+import           Polysemy                         (Embed, Member, Members, Sem,
                                                    interpret)
+import           Polysemy.Reader                  (Reader, ask)
 import           Polysemy.Tagged                  (Tagged (..))
 import           Tendermint.SDK.Store             (ConnectionScope (..),
                                                    RawStore (..), StoreKey (..))
@@ -96,9 +97,9 @@ foldAuthTreeState AuthTreeState{query, mempool, consensus} = liftIO . atomically
 
 
 eval
-  :: Member (Embed IO) r
-  => AuthTreeState
-  -> Sem (Tagged 'Query RawStore ': Tagged 'Mempool RawStore ': Tagged 'Consensus RawStore ': r) a
+  :: Members [Reader AuthTreeState, Embed IO] r
+  => Sem (Tagged 'Query RawStore ': Tagged 'Mempool RawStore ': Tagged 'Consensus RawStore ': r) a
   -> Sem r a
-eval AuthTreeState{query, mempool, consensus} =
-  evalTagged consensus . evalTagged mempool. evalTagged query
+eval m = do
+  AuthTreeState{query, mempool, consensus} <- ask
+  evalTagged consensus . evalTagged mempool. evalTagged query $ m

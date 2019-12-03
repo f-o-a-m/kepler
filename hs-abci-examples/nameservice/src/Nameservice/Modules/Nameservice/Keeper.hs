@@ -7,15 +7,16 @@ import           Data.String.Conversions                  (cs)
 import           GHC.TypeLits                             (symbolVal)
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Types
-import           Nameservice.Modules.Token                (HasTokenEff, burn,
-                                                           mint, transfer)
+import           Nameservice.Modules.Token                (Token, TokenEffs,
+                                                           burn, mint, transfer)
 import           Polysemy                                 (Member, Members, Sem,
                                                            interpret, makeSem)
 import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
-import           Tendermint.SDK.BaseApp                   (HasBaseAppEff)
-import           Tendermint.SDK.Errors                    (IsAppError (..))
+import           Polysemy.Tagged                          (Tagged)
+import           Tendermint.SDK.Errors                    (AppError,
+                                                           IsAppError (..))
 import           Tendermint.SDK.Events                    (Event, emit)
 import qualified Tendermint.SDK.Store                     as Store
 
@@ -26,37 +27,33 @@ data Nameservice m a where
 
 makeSem ''Nameservice
 
-type NameserviceEffR = '[Nameservice, Error NameserviceException]
-type HasNameserviceEff r = (Members NameserviceEffR r, Member (Output Event) r)
+type NameserviceEffs = '[Nameservice, Error NameserviceError]
 
 storeKey :: Store.StoreKey NameserviceModule
 storeKey = Store.StoreKey . cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
 
 eval
-  :: HasBaseAppEff r
-  => Sem (Nameservice ': Error NameserviceException ': r) a
+  :: forall (c :: Store.ConnectionScope) r.
+     Members [Tagged c Store.RawStore, Error AppError] r
+  => forall a. Sem (Nameservice ': Error NameserviceError ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalNameservice
   where
-    evalNameservice
-      :: HasBaseAppEff r
-      => Sem (Nameservice ': r) a
-      -> Sem r a
     evalNameservice =
       interpret (\case
           GetWhois name ->
-            Store.get storeKey name
+            Store.get @c storeKey name
           PutWhois name whois ->
-            Store.put storeKey name whois
+            Store.put @c storeKey name whois
           DeleteWhois name ->
-            Store.delete storeKey name
+            Store.delete @c storeKey name
         )
 
 --------------------------------------------------------------------------------
 
 setName
-  :: HasTokenEff r
-  => HasNameserviceEff r
+  :: Member (Output Event) r
+  => Members NameserviceEffs r
   => SetName
   -> Sem r ()
 setName SetName{..} = do
@@ -75,8 +72,8 @@ setName SetName{..} = do
              }
 
 deleteName
-  :: HasTokenEff r
-  => HasNameserviceEff r
+  :: Members [Token, Output Event] r
+  => Members NameserviceEffs r
   => DeleteName
   -> Sem r ()
 deleteName DeleteName{..} = do
@@ -95,8 +92,9 @@ deleteName DeleteName{..} = do
 
 
 buyName
-  :: HasTokenEff r
-  => HasNameserviceEff r
+  :: Member (Output Event) r
+  => Members TokenEffs r
+  => Members NameserviceEffs r
   => BuyName
   -> Sem r ()
 -- ^ did it succeed
@@ -112,8 +110,9 @@ buyName msg = do
     Just whois -> buyClaimedName msg whois
     where
       buyUnclaimedName
-        :: HasTokenEff r
-        => HasNameserviceEff r
+        :: Member (Output Event) r
+        => Members TokenEffs r
+        => Members NameserviceEffs r
         => BuyName
         -> Sem r ()
       buyUnclaimedName BuyName{..} = do
@@ -132,8 +131,9 @@ buyName msg = do
           }
 
       buyClaimedName
-        :: HasNameserviceEff r
-        => HasTokenEff r
+        :: Members NameserviceEffs r
+        => Members TokenEffs r
+        => Member (Output Event) r
         => BuyName
         -> Whois
         -> Sem r ()

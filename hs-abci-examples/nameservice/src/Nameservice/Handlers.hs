@@ -4,7 +4,7 @@ import           Control.Lens                         (to, (&), (.~), (^.))
 import qualified Data.ByteArray.Base64String          as Base64
 import           Data.ByteString                      (ByteString)
 import           Data.Default.Class                   (def)
-import           Nameservice.Application              (compileToBaseApp, router)
+import           Nameservice.Application              (router)
 import           Network.ABCI.Server.App              (App (..),
                                                        MessageType (..),
                                                        Request (..),
@@ -15,14 +15,17 @@ import           Polysemy                             (Sem)
 import           Polysemy.Error                       (catch)
 import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.BaseApp               (BaseApp)
-import           Tendermint.SDK.Codec                 (HasCodec (..))
-import           Tendermint.SDK.Errors                (AppError, SDKError (..),
-                                                       deliverTxAppError,
-                                                       throwSDKError)
+import           Tendermint.SDK.Errors                (AppError,
+                                                       checkTxAppError,
+                                                       deliverTxAppError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
-import           Tendermint.SDK.Store                 (withTransaction)
+import           Tendermint.SDK.Store                 (beginTransaction,
+                                                       commitTransaction,
+                                                       withSandbox,
+                                                       withTransaction)
 import           Tendermint.SDK.Types.TxResult        (TxResult,
+                                                       checkTxTxResult,
                                                        deliverTxTxResult,
                                                        txResultEvents)
 
@@ -65,25 +68,23 @@ queryH serveRoutes (RequestQuery query) = do
 beginBlockH
   :: Request 'MTBeginBlock
   -> Sem BaseApp (Response 'MTBeginBlock)
-beginBlockH = defaultHandler
+beginBlockH _ = def <$ beginTransaction
 
 -- Common function between checkTx and deliverTx
 transactionHandler :: ByteString -> Sem BaseApp TxResult
 transactionHandler bs = do
-  tx <- either (throwSDKError . ParseError) return $ decode bs
-  events <- withEventBuffer . compileToBaseApp $ router tx
+  events <- withEventBuffer $ router bs
   pure $ def & txResultEvents .~ events
 
--- only checks to see if the tx parses
 checkTxH
   :: Request 'MTCheckTx
   -> Sem BaseApp (Response 'MTCheckTx)
-checkTxH = defaultHandler
-  -- let tryToRespond = withTransaction False $ do
-  --       txResult <- transactionHandler $ checkTx ^. Req._checkTxTx . to Base64.toBytes
-  --       return $ ResponseCheckTx $ def & checkTxTxResult .~ txResult
-  -- in tryToRespond `catch` \(err :: AppError) ->
-  --      return . ResponseCheckTx $ def & checkTxAppError .~ err
+checkTxH (RequestCheckTx checkTx)=
+  let tryToRespond = withSandbox $ do
+        txResult <- transactionHandler $ checkTx ^. Req._checkTxTx . to Base64.toBytes
+        return $ ResponseCheckTx $ def & checkTxTxResult .~ txResult
+  in tryToRespond `catch` \(err :: AppError) ->
+       return . ResponseCheckTx $ def & checkTxAppError .~ err
 
 
 deliverTxH
@@ -96,17 +97,6 @@ deliverTxH (RequestDeliverTx deliverTx) =
   in tryToRespond `catch` \(err :: AppError) ->
        return . ResponseDeliverTx $ def & deliverTxAppError .~ err
 
-
-  --case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of
-  --  Left _ -> return . ResponseDeliverTx $
-  --    def & Resp._deliverTxCode .~ 1
-  --  Right (ATMUpdateCount updateCountTx) -> do
-  --    let count = SS.Count $ updateCountTxCount updateCountTx
-  --    events <- withEventBuffer $ putCount count
-  --    return $ ResponseDeliverTx $
-  --      def & Resp._deliverTxCode .~ 0
-  --          & Resp._deliverTxEvents .~ events
-
 endBlockH
   :: Request 'MTEndBlock
   -> Sem BaseApp (Response 'MTEndBlock)
@@ -115,7 +105,8 @@ endBlockH = defaultHandler
 commitH
   :: Request 'MTCommit
   -> Sem BaseApp (Response 'MTCommit)
-commitH = defaultHandler
+commitH _ = def <$ do
+  commitTransaction
 
 nameserviceApp :: QueryApplication (Sem BaseApp) -> App (Sem BaseApp)
 nameserviceApp serveRoutes = App $ \case

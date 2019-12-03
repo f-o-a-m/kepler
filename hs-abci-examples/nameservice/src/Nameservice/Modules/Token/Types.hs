@@ -69,10 +69,10 @@ instance Store.IsKey Address "token" where
 -- Exceptions
 --------------------------------------------------------------------------------
 
-data TokenException =
+data TokenError =
     InsufficientFunds Text
 
-instance IsAppError TokenException where
+instance IsAppError TokenError where
     makeAppError (InsufficientFunds msg) =
       AppError
         { appErrorCode = 1

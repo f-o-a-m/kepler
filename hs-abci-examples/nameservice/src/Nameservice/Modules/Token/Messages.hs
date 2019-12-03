@@ -20,7 +20,6 @@ data TokenMessage =
     TTransfer Transfer
   | TFaucetAccount FaucetAccount
   | TBurn Burn
-  | TMint Mint
   deriving (Eq, Show, Generic)
 
 data FaucetAccount = FaucetAccount
@@ -60,31 +59,17 @@ instance HasCodec Burn where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
-data Mint = Mint
-  { mintAmount  :: Amount
-  , mintAddress :: Address
-  } deriving (Eq, Show, Generic)
-
-instance Message Mint
-instance Named Mint
-
-instance HasCodec Mint where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
-
 instance HasCodec TokenMessage where
   decode bs = do
     TypedMessage{..} <- decode bs
     case typedMessageType of
       "Transfer" -> TTransfer <$> decode typedMessageContents
       "Burn" -> TBurn <$> decode typedMessageContents
-      "Mint" -> TMint <$> decode typedMessageContents
       "FaucetAccount" -> TFaucetAccount <$> decode typedMessageContents
       _ -> Left . cs $ "Unknown Token message type " ++ cs typedMessageType
   encode = \case
     TTransfer msg -> encode msg
     TBurn msg -> encode msg
-    TMint msg -> encode msg
     TFaucetAccount msg -> encode msg
 
 instance ValidateMessage TokenMessage where
@@ -92,7 +77,6 @@ instance ValidateMessage TokenMessage where
     TTransfer msg      -> validateMessage m {msgData = msg}
     TFaucetAccount msg -> validateMessage m {msgData = msg}
     TBurn msg          -> validateMessage m {msgData = msg}
-    TMint msg          -> validateMessage m {msgData = msg}
 
 instance ValidateMessage Transfer where
   validateMessage _ = Success ()
@@ -101,7 +85,4 @@ instance ValidateMessage FaucetAccount where
   validateMessage _ = Success ()
 
 instance ValidateMessage Burn where
-  validateMessage _ = Success ()
-
-instance ValidateMessage Mint where
   validateMessage _ = Success ()

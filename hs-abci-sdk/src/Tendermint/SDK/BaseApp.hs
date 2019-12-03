@@ -22,7 +22,7 @@ import           Tendermint.SDK.Store         (ConnectionScope (..), RawStore)
 
 
 -- | Concrete row of effects for the BaseApp
-type BaseAppEffR =
+type BaseAppEffs =
   [ Output Event
   , Tagged 'Query RawStore
   , Tagged 'Mempool RawStore
@@ -34,9 +34,10 @@ type BaseAppEffR =
 
 -- | CoreEff is one level below BaseApp, it as a seperation of BaseApp from
 -- | its interpretation.
-type CoreEffR =
+type CoreEffs =
   '[ Reader EventBuffer
    , Reader KL.LogConfig
+   , Reader AT.AuthTreeState
    , Embed IO
    ]
 
@@ -50,13 +51,13 @@ infixr 5 :&
 -- TODO: it would be really nice to not have this CoreEff here, but to just
 -- interpret into it as an intermediate step in the total evaluation of BaseApp.
 -- Polysemy probably has a way to do this already.
-type BaseApp = BaseAppEffR :& CoreEffR
+type BaseApp = BaseAppEffs :& CoreEffs
 
-instance (Members CoreEffR r) => K.Katip (Sem r)  where
+instance (Members CoreEffs r) => K.Katip (Sem r)  where
   getLogEnv = asks $ view KL.logEnv
   localLogEnv f m = local (over KL.logEnv f) m
 
-instance (Members CoreEffR r) => K.KatipContext (Sem r) where
+instance (Members CoreEffs r) => K.KatipContext (Sem r) where
   getKatipContext = asks $ view KL.logContext
   localKatipContext f m = local (over KL.logContext f) m
   getKatipNamespace = asks $ view KL.logNamespace
@@ -81,14 +82,13 @@ makeContext logCfg = do
 
 -- | An intermediary interpeter, bringing 'BaseApp' down to 'CoreEff'.
 compileToCoreEff
-  :: Context
-  -> Sem BaseApp a
-  -> Sem CoreEffR (Either AppError a)
-compileToCoreEff Context{contextAuthTree} =
+  :: Sem BaseApp a
+  -> Sem CoreEffs (Either AppError a)
+compileToCoreEff =
   runError .
     resourceToIO .
     KL.evalKatip .
-    AT.eval contextAuthTree .
+    AT.eval .
     evalWithBuffer
 
 -- | The standard interpeter for 'BaseApp'.
@@ -96,9 +96,10 @@ eval
   :: Context
   -> Sem BaseApp a
   -> IO a
-eval ctx@Context{..} action = do
+eval Context{..} action = do
   eRes <- runM .
+    runReader contextAuthTree .
     runReader contextLogConfig .
     runReader contextEventBuffer .
-    compileToCoreEff ctx $ action
+    compileToCoreEff $ action
   either throwIO return eRes

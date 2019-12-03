@@ -78,8 +78,7 @@ data Accounts m a where
 
 makeSem ''Accounts
 
-type AuthEffR = [Accounts, Error AuthError]
-type HasAuthEff r = Members AuthEffR r
+type AuthEffs = [Accounts, Error AuthError]
 
 storeKey :: StoreKey AuthModule
 storeKey = StoreKey "auth"

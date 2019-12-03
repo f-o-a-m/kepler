@@ -105,6 +105,7 @@ prove
 prove sk k = tag $ rawStoreProve sk $
   prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
 
+
 beginTransaction
   :: Member (Tagged 'Consensus RawStore) r
   => Sem r ()

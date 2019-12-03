@@ -64,12 +64,12 @@ instance Q.Queryable Whois where
 -- Exceptions
 --------------------------------------------------------------------------------
 
-data NameserviceException =
+data NameserviceError =
     InsufficientBid Text
   | UnauthorizedSet Text
   | InvalidDelete Text
 
-instance IsAppError NameserviceException where
+instance IsAppError NameserviceError where
   makeAppError (InsufficientBid msg) =
     AppError
       { appErrorCode = 1
