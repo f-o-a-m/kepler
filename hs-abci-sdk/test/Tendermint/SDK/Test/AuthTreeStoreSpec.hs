@@ -8,6 +8,7 @@ import qualified Data.Serialize               as Serialize
 import           Data.String.Conversions      (cs)
 import           Polysemy                     (Embed, Sem, runM)
 import           Polysemy.Error               (Error, runError)
+import           Polysemy.Reader              (Reader, runReader)
 import           Polysemy.Resource            (Resource, resourceToIO)
 import           Polysemy.Tagged
 import           Tendermint.SDK.AuthTreeStore (AuthTreeState, eval,
@@ -97,9 +98,10 @@ runAuthTree
   -> Sem [ Tagged 'Query RawStore
          , Tagged 'Mempool RawStore
          , Tagged 'Consensus RawStore
+         , Reader AuthTreeState
          , Error AppError
          , Resource
          , Embed IO
          ] a
   -> IO (Either AppError a)
-runAuthTree driver = runM . resourceToIO . runError . eval driver
+runAuthTree driver = runM . resourceToIO . runError . runReader driver . eval

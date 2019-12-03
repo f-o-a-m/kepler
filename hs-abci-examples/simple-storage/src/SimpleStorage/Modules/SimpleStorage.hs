@@ -36,19 +36,20 @@ import           Data.Proxy
 import qualified Data.Serialize          as Serialize
 import           Data.String.Conversions (cs)
 import           GHC.Generics            (Generic)
-import           Polysemy                (Member, Sem, interpret, makeSem)
+import           Polysemy                (Members, Sem, interpret, makeSem)
 import           Polysemy.Error          (Error)
 import           Polysemy.Output         (Output)
+import           Polysemy.Tagged         (Tagged)
 import           Servant.API             ((:>))
-import           Tendermint.SDK.BaseApp  (HasBaseAppEff)
 import           Tendermint.SDK.Codec    (HasCodec (..))
 import           Tendermint.SDK.Errors   (AppError)
 import qualified Tendermint.SDK.Events   as Events
 import           Tendermint.SDK.Query    (FromQueryData, QueryApi,
                                           Queryable (..), RouteT,
                                           storeQueryHandlers)
-import           Tendermint.SDK.Store    (IsKey (..), RawKey (..), RawStore,
-                                          StoreKey (..), get, put)
+import           Tendermint.SDK.Store    (ConnectionScope (..), IsKey (..),
+                                          RawKey (..), RawStore, StoreKey (..),
+                                          get, put)
 
 --------------------------------------------------------------------------------
 -- Types
@@ -108,20 +109,19 @@ data SimpleStorage m a where
 makeSem ''SimpleStorage
 
 eval
-  :: forall r.
-     HasBaseAppEff r
+  :: forall (c :: ConnectionScope) r.
+     Members '[Tagged c RawStore, Output Events.Event, Error AppError] r
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> do
-    put storeKey CountKey count
+    put @c storeKey CountKey count
     Events.emit $ CountSet count
 
-  GetCount -> fromJust <$> get storeKey CountKey
+  GetCount -> fromJust <$> get @c storeKey CountKey
   )
 
 initialize
-  :: HasBaseAppEff r
-  => Member (Output Events.Event) r
+  :: Members '[Tagged 'Consensus RawStore, Output Events.Event, Error AppError] r
   => Sem r ()
 initialize = eval $ do
   putCount (Count 0)
@@ -135,8 +135,7 @@ type CountStoreContents = '[(CountKey, Count)]
 type Api = "simple_storage" :> QueryApi CountStoreContents
 
 server
-  :: Member RawStore r
-  => Member (Error AppError) r
+  :: Members [Tagged 'Query RawStore, Error AppError] r
   => RouteT Api (Sem r)
 server =
   storeQueryHandlers (Proxy :: Proxy CountStoreContents) storeKey (Proxy :: Proxy (Sem r))

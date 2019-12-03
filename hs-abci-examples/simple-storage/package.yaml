@@ -66,6 +66,7 @@ dependencies:
 - mtl
 - polysemy
 - polysemy-plugin
+- polysemy-zoo
 - proto-lens
 - proto-lens-runtime
 - servant
