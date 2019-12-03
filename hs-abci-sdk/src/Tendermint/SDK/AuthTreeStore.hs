@@ -1,6 +1,5 @@
 module Tendermint.SDK.AuthTreeStore
-  ( AuthTree
-  , AuthTreeState(..)
+  ( AuthTreeState(..)
   , initAuthTreeState
   , foldAuthTreeState
   , eval
