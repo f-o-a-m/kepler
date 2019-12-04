@@ -22,6 +22,7 @@ description:         Please see the README on GitHub at <https://github.com/f-o-
 dependencies:
 - base >= 4.7 && < 5
 - katip
+- katip-datadog
 - hs-abci-server
 - aeson
 - aeson-casing

@@ -40,6 +40,13 @@ packages:
   original:
     hackage: proto-lens-protoc-0.5.0.0
 - completed:
+    hackage: katip-datadog-0.1.0.0@sha256:4e72dca402b953bd34b7a744ad23eb90600a420adef67192c9702073564f1cae,1885
+    pantry-tree:
+      size: 415
+      sha256: c3d816dcd90b113a246520c8069d3278ee77eacf0f45dd0eb77eb2f7c53d5b3b
+  original:
+    hackage: katip-datadog-0.1.0.0
+- completed:
     cabal-file:
       size: 1872
       sha256: b7f017686d9bfbcbb4914a89e10440d761f3aa771dfd9b85b4ebf3f14c0e1ebc

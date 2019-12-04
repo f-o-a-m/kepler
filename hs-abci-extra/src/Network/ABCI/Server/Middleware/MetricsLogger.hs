@@ -1,6 +1,7 @@
 module Network.ABCI.Server.Middleware.MetricsLogger
     ( -- * Basic stdout logging
       mkMetricsLogStdout
+    , mkMetricsLogDatadog
       -- * Custom Loggers
     , mkMetricsLogger
     , mkMetricsLoggerM
@@ -16,6 +17,7 @@ import           Katip
 import           Network.ABCI.Server.App (App (..), MessageType (..),
                                           Middleware, Request (..), msgTypeKey)
 import           System.IO               (stdout)
+import Katip.Scribes.Datadog.TCP
 
 ---------------------------------------------------------------------------
 -- mkMetricsLogStdout
@@ -27,6 +29,20 @@ mkMetricsLogStdout :: (MonadIO m) => m (Middleware m)
 mkMetricsLogStdout = do
   handleScribe <- liftIO $ mkHandleScribe ColorIfTerminal stdout (permitItem InfoS) V0
   le <- liftIO (registerScribe "stdout" handleScribe defaultScribeSettings
+        =<< initLogEnv "ABCI" "production")
+  let ns = "Server"
+  mvarReqC <- liftIO $ newMVar Map.empty
+  pure $ mkMetricsLogger mvarReqC le ns
+
+---------------------------------------------------------------------------
+-- mkMetricsLogDatadog
+---------------------------------------------------------------------------
+
+mkMetricsLogDatadog :: (MonadIO m) => Integer -> m (Middleware m)
+mkMetricsLogDatadog port = do
+  datadogScribeSettings <- liftIO $ mkDatadogScribeSettings (localAgentConnectionParams (fromInteger port)) NoAuthLocal
+  scribe <- liftIO $ mkDatadogScribe datadogScribeSettings (permitItem InfoS) V0
+  le <- liftIO (registerScribe "datadog" scribe defaultScribeSettings
         =<< initLogEnv "ABCI" "production")
   let ns = "Server"
   mvarReqC <- liftIO $ newMVar Map.empty
@@ -50,6 +66,7 @@ mkMetricsLogger mvarMap le ns (App app) = App $ \ req -> do
     in  pure (newMetMap, metrics)
   runKatipContextT le () ns $ logMetrics metrics
   pure res
+
 ---------------------------------------------------------------------------
 -- mkMetricsLoggerM
 ---------------------------------------------------------------------------
