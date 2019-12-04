@@ -101,7 +101,7 @@ deliverTxH (RequestDeliverTx deliverTx) =
 endBlockH
   :: Request 'MTEndBlock
   -> Sem BaseApp (Response 'MTEndBlock)
-endBlockH = defaultHandler
+endBlockH _ = def <$ commitBlock 
 
 commitH
   :: Request 'MTCommit
