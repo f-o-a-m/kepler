@@ -18,7 +18,8 @@ import           Tendermint.SDK.Events        (Event, EventBuffer,
                                                evalWithBuffer, newEventBuffer)
 import           Tendermint.SDK.Logger        (Logger)
 import qualified Tendermint.SDK.Logger.Katip  as KL
-import           Tendermint.SDK.Store         (ConnectionScope (..), RawStore)
+import           Tendermint.SDK.Store         (ConnectionScope (..),
+                                               MergeScopes, RawStore)
 
 
 -- | Concrete row of effects for the BaseApp
@@ -27,6 +28,7 @@ type BaseAppEffs =
   , Tagged 'Query RawStore
   , Tagged 'Mempool RawStore
   , Tagged 'Consensus RawStore
+  , MergeScopes
   , Logger
   , Resource
   , Error AppError
@@ -88,6 +90,7 @@ compileToCoreEff =
   runError .
     resourceToIO .
     KL.evalKatip .
+    AT.evalMergeScopes .
     AT.eval .
     evalWithBuffer
 

@@ -15,6 +15,8 @@ module Tendermint.SDK.Store
   , withSandbox
   , beginBlock
   , commitBlock
+  , MergeScopes(..)
+  , mergeScopes
   ) where
 
 import           Control.Lens            (Iso', (^.))
@@ -143,3 +145,8 @@ withSandbox m =
    in do
       tag rawStoreBeginTransaction
       finally (tryTx <* tag rawStoreRollback) (tag rawStoreRollback)
+
+data MergeScopes m a where
+  MergeScopes :: MergeScopes m ()
+
+makeSem ''MergeScopes

@@ -13,27 +13,28 @@ import           Network.ABCI.Server.App              (App, MessageType,
                                                        Response (..),
                                                        transformApp)
 import qualified Network.ABCI.Types.Messages.Response as Resp
+import           Polysemy                             (Members, Sem)
+import           Tendermint.SDK.BaseApp               (BaseAppEffs)
+import           Tendermint.SDK.Store                 (mergeScopes)
 
-data MakeApplication m e = MakeApplication
-  { app         :: App m
-  , transformer :: forall a. m a -> IO a
+data MakeApplication r e = MakeApplication
+  { app         :: App (Sem r)
+  , transformer :: forall a. (Sem r) a -> IO a
   , appErrorP   :: Proxy e
-  , initialize  :: [m ()]
+  , initialize  :: [Sem r ()]
   }
 
 defaultHandler
-  :: ( Default a
-     , Applicative m
-     )
+  :: Default a
   => b
-  -> m a
+  -> Sem r a
 defaultHandler = const $ pure def
 
 transformResponse
-  :: forall e m.
+  :: forall e r.
      Exception e
-  => MakeApplication m e
-  -> (forall (t :: MessageType). m (Response t) -> IO (Response t))
+  => MakeApplication r e
+  -> (forall (t :: MessageType). Sem r (Response t) -> IO (Response t))
 transformResponse MakeApplication{transformer} m = do
   eRes :: Either e (Response t) <- try $ transformer m
   case eRes of
@@ -42,11 +43,12 @@ transformResponse MakeApplication{transformer} m = do
     Right a -> pure a
 
 createApplication
-  :: ( Exception e
-     , Monad m
-     )
-  => MakeApplication m e
+  :: Exception e
+  => Members BaseAppEffs r
+  => MakeApplication r e
   -> IO (App IO)
 createApplication ma@MakeApplication{app, transformer, initialize} = do
-    transformer $ sequence_ initialize
+    transformer $ do
+      sequence_ initialize
+      mergeScopes
     pure $ transformApp (transformResponse ma) app

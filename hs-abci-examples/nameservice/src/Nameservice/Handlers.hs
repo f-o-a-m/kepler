@@ -13,10 +13,7 @@ import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Polysemy                             (Sem)
 import           Polysemy.Error                       (catch)
-import           Polysemy.Reader                      (ask)
 import           Tendermint.SDK.Application           (defaultHandler)
-import           Tendermint.SDK.AuthTreeStore         (AuthTreeState,
-                                                       foldAuthTreeState)
 import           Tendermint.SDK.BaseApp               (BaseApp)
 import           Tendermint.SDK.Errors                (AppError,
                                                        checkTxAppError,
@@ -25,7 +22,8 @@ import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
 import           Tendermint.SDK.Store                 (ConnectionScope (Consensus),
                                                        beginBlock, commitBlock,
-                                                       storeRoot, withSandbox,
+                                                       mergeScopes, storeRoot,
+                                                       withSandbox,
                                                        withTransaction)
 import           Tendermint.SDK.Types.TxResult        (TxResult,
                                                        checkTxTxResult,
@@ -110,8 +108,7 @@ commitH
   -> Sem BaseApp (Response 'MTCommit)
 commitH _ = do
   commitBlock
-  authTreeState <- ask @AuthTreeState
-  foldAuthTreeState authTreeState
+  mergeScopes
   rootHash <- storeRoot @'Consensus
   return . ResponseCommit $ def
     & Resp._commitData .~ Base64.fromBytes rootHash

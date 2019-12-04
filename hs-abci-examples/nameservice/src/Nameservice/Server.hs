@@ -10,7 +10,6 @@ import           Network.ABCI.Server                           (serveApp)
 import           Network.ABCI.Server.App                       (Middleware)
 import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
-import           Polysemy                                      (Sem)
 import           Tendermint.SDK.Application                    (MakeApplication (..),
                                                                 createApplication)
 import           Tendermint.SDK.BaseApp                        (BaseApp, eval)
@@ -18,7 +17,7 @@ import           Tendermint.SDK.Errors                         (AppError)
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do
-  let makeApplication :: MakeApplication (Sem BaseApp) AppError
+  let makeApplication :: MakeApplication BaseApp AppError
       makeApplication = MakeApplication
         { transformer = eval $ baseAppContext cfg
         , appErrorP = Proxy

@@ -7,9 +7,9 @@ import           Network.ABCI.Server                           (serveApp)
 import           Network.ABCI.Server.App                       (Middleware)
 import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
+import           Polysemy                                      (Sem)
 import           SimpleStorage.Application                     (AppConfig,
-                                                                AppError,
-                                                                Handler,
+                                                                AppError, EffR,
                                                                 runHandler)
 import           SimpleStorage.Handlers                        (simpleStorageApp)
 import qualified SimpleStorage.Modules.SimpleStorage           as SS
@@ -20,9 +20,9 @@ import           Tendermint.SDK.Query                          (QueryApplication
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do
-  let serveRoutes :: QueryApplication Handler
+  let serveRoutes :: QueryApplication (Sem EffR)
       serveRoutes = serve (Proxy :: Proxy SS.Api) SS.server
-      makeApplication :: MakeApplication Handler AppError
+      makeApplication :: MakeApplication EffR AppError
       makeApplication = MakeApplication
         { transformer = runHandler cfg
         , appErrorP = Proxy

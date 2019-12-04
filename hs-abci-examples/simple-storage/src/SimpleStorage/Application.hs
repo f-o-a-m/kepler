@@ -3,6 +3,7 @@ module SimpleStorage.Application
   , AppConfig(..)
   , makeAppConfig
   , Handler
+  , EffR
   , runHandler
   ) where
 

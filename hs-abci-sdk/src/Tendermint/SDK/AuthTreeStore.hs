@@ -1,7 +1,7 @@
 module Tendermint.SDK.AuthTreeStore
   ( AuthTreeState(..)
   , initAuthTreeState
-  , foldAuthTreeState
+  , evalMergeScopes
   , eval
   ) where
 
@@ -21,6 +21,7 @@ import           Polysemy                         (Embed, Member, Members, Sem,
 import           Polysemy.Reader                  (Reader, ask)
 import           Polysemy.Tagged                  (Tagged (..))
 import           Tendermint.SDK.Store             (ConnectionScope (..),
+                                                   MergeScopes (..),
                                                    RawStore (..), StoreKey (..))
 
 -- At the moment, the 'AuthTreeStore' is our only interpreter for the 'RawStore' effect.
@@ -87,20 +88,6 @@ data AuthTreeState = AuthTreeState
 initAuthTreeState :: IO AuthTreeState
 initAuthTreeState = AuthTreeState <$> initAuthTree <*> initAuthTree <*> initAuthTree
 
-foldAuthTreeState
-  :: MonadIO m
-  => AuthTreeState
-  -> m ()
-foldAuthTreeState AuthTreeState{query, mempool, consensus} = liftIO . atomically $ do
-  let AuthTree queryV = query
-      AuthTree mempoolV = mempool
-      AuthTree consensusV = consensus
-  consensusTrees <- readTVar consensusV
-  let t = NE.last consensusTrees
-  forM_ [queryV, mempoolV, consensusV] $ \v ->
-    writeTVar v $ pure t
-
-
 eval
   :: Members [Reader AuthTreeState, Embed IO] r
   => Sem (Tagged 'Query RawStore ': Tagged 'Mempool RawStore ': Tagged 'Consensus RawStore ': r) a
@@ -108,3 +95,22 @@ eval
 eval m = do
   AuthTreeState{query, mempool, consensus} <- ask
   evalTagged consensus . evalTagged mempool. evalTagged query $ m
+
+evalMergeScopes
+  :: Members [Reader AuthTreeState,  Embed IO] r
+  => Sem (MergeScopes ': r) a
+  -> Sem r a
+evalMergeScopes =
+  interpret
+    (\case
+      MergeScopes -> do
+        AuthTreeState{query, mempool, consensus} <- ask
+        liftIO . atomically $ do
+          let AuthTree queryV = query
+              AuthTree mempoolV = mempool
+              AuthTree consensusV = consensus
+          consensusTrees <- readTVar consensusV
+          let t = NE.last consensusTrees
+          forM_ [queryV, mempoolV, consensusV] $ \v ->
+            writeTVar v $ pure t
+    )
