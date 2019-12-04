@@ -55,7 +55,7 @@ mkMetricsLogger mvarMap le ns (App app) = App $ \ req -> do
 ---------------------------------------------------------------------------
 -- | Metrics logger middleware for ABCI server already within the KatipContext.
 -- Great for `App m` with a `KatipContext` instance.
-mkMetricsLoggerM :: (KatipContext m, MonadIO m) => MVar (Map OrderedMessageType Integer) -> Middleware m
+mkMetricsLoggerM :: (KatipContext m) => MVar (Map OrderedMessageType Integer) -> Middleware m
 mkMetricsLoggerM mvarMap (App app) = App $ \ req -> do
   startTime <- liftIO getCurrentTime
   res <- app req
