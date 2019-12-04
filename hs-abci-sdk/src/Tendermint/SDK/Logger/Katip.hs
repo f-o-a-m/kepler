@@ -29,8 +29,7 @@ mkLogConfig environment processName = do
 
 evalKatip
   :: forall r a.
-     K.Katip (Sem r)
-  => K.KatipContext (Sem r)
+     K.KatipContext (Sem r)
   => Sem (Logger ': r) a
   -> Sem r a
 evalKatip = do

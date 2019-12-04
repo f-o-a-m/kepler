@@ -1,18 +1,20 @@
-module Tendermint.SDK.Router.Delayed where
+module Tendermint.SDK.Query.Delayed where
 
 import           Control.Error                        (ExceptT, runExceptT)
 import           Control.Monad.Reader                 (MonadReader, ReaderT,
                                                        ask, runReaderT)
 import           Control.Monad.Trans                  (MonadTrans (..))
+import qualified Data.ByteArray.Base64String          as Base64
 import           Data.Default.Class                   (def)
 import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
-import           Tendermint.SDK.Router.Types          (QueryError (..),
+import           Tendermint.SDK.Query.Types           (QueryError (..),
                                                        RouteResult (..),
                                                        RouteResultT (..))
 
 --------------------------------------------------------------------------------
+-- NOTE: most of this was vendored and repurposed from servant
 
 
 newtype DelayedM m a =
@@ -63,22 +65,23 @@ runAction action env query k =
     go (Route a) = do
       e <- runExceptT a
       case e of
-        Left err -> pure $ Route (responseQueryError err)
+        Left err -> pure $ Route (responseQueryError query err)
         Right a' -> pure $ k a'
 
 -- | Fail with the option to recover.
 delayedFail :: Monad m => QueryError -> DelayedM m a
 delayedFail err = liftRouteResult $ Fail err
 
-responseQueryError :: QueryError -> Response.Query
-responseQueryError e =
+responseQueryError :: Request.Query -> QueryError -> Response.Query
+responseQueryError Request.Query{..} e =
   let msg = case e of
         PathNotFound     -> "Path Not Found"
-        ResourceNotFound -> "Resource Not Found"
+        ResourceNotFound -> "Resource Not Found: queryData=" <> cs (Base64.format queryData)
         InvalidQuery m   -> "Invalid Query: " <> m
         InternalError _  -> "Internal Error"
   in def { Response.queryCode = 1
          , Response.queryLog = cs msg
+         , Response.queryCodespace = queryPath
         }
 
 addQueryArgs

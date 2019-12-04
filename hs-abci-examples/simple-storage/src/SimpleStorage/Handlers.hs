@@ -16,7 +16,10 @@ import           SimpleStorage.Types                  (AppTxMessage (..),
                                                        decodeAppTxMessage)
 import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.Events                (withEventBuffer)
-import           Tendermint.SDK.Router                (QueryApplication)
+import           Tendermint.SDK.Query                 (QueryApplication)
+import           Tendermint.SDK.Store                 (withTransaction)
+import           Tendermint.SDK.Types.TxResult        (deliverTxTxResult,
+                                                       txResultEvents)
 
 echoH
   :: Request 'MTEcho
@@ -63,7 +66,7 @@ beginBlockH = defaultHandler
 checkTxH
   :: Request 'MTCheckTx
   -> Handler (Response 'MTCheckTx)
-checkTxH (RequestCheckTx checkTx) = pure . ResponseCheckTx $
+checkTxH (RequestCheckTx checkTx) = withTransaction False $ pure . ResponseCheckTx $
   case decodeAppTxMessage $ checkTx ^. Req._checkTxTx . to convert of
     Left _                   ->  def & Resp._checkTxCode .~ 1
     Right (ATMUpdateCount _) -> def & Resp._checkTxCode .~ 0
@@ -71,16 +74,16 @@ checkTxH (RequestCheckTx checkTx) = pure . ResponseCheckTx $
 deliverTxH
   :: Request 'MTDeliverTx
   -> Handler (Response 'MTDeliverTx)
-deliverTxH (RequestDeliverTx deliverTx) = do
+deliverTxH (RequestDeliverTx deliverTx) = withTransaction True $
   case decodeAppTxMessage $ deliverTx ^. Req._deliverTxTx . to convert of
     Left _ -> return . ResponseDeliverTx $
       def & Resp._deliverTxCode .~ 1
     Right (ATMUpdateCount updateCountTx) -> do
       let count = SS.Count $ updateCountTxCount updateCountTx
       events <- withEventBuffer $ putCount count
+      let txResult = def & txResultEvents .~ events
       return $ ResponseDeliverTx $
-        def & Resp._deliverTxCode .~ 0
-            & Resp._deliverTxEvents .~ events
+        def & deliverTxTxResult .~ txResult
 
 endBlockH
   :: Request 'MTEndBlock

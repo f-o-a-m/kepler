@@ -1,0 +1,8 @@
+syntax = "proto3";
+package Transaction;
+
+message RawTransaction {
+  bytes data = 1;
+  bytes signature = 2;
+  string route = 3;
+}

@@ -1,23 +1,23 @@
-module Tendermint.SDK.Router
+module Tendermint.SDK.Query
   ( serve
   , serveRouter
   , QueryApplication
-  , module Tendermint.SDK.Router.Class
-  , module Tendermint.SDK.Router.Router
-  , module Tendermint.SDK.Router.Types
-  , module Tendermint.SDK.Router.Delayed
+  , module Tendermint.SDK.Query.Class
+  , module Tendermint.SDK.Query.Router
+  , module Tendermint.SDK.Query.Types
+  , module Tendermint.SDK.Query.Delayed
+  , module Tendermint.SDK.Query.Store
   ) where
 
 import           Control.Monad.IO.Class               (MonadIO (..))
 import           Data.Proxy
-
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
-
-import           Tendermint.SDK.Router.Class
-import           Tendermint.SDK.Router.Delayed
-import           Tendermint.SDK.Router.Router
-import           Tendermint.SDK.Router.Types
+import           Tendermint.SDK.Query.Class
+import           Tendermint.SDK.Query.Delayed
+import           Tendermint.SDK.Query.Router
+import           Tendermint.SDK.Query.Store
+import           Tendermint.SDK.Query.Types
 
 type QueryApplication m = Request.Query -> m Response.Query
 
@@ -42,6 +42,6 @@ toApplication
 toApplication ra query = do
   res <- ra query
   case res of
-    Fail e      -> pure $ responseQueryError e
-    FailFatal e -> pure $ responseQueryError e
+    Fail e      -> pure $ responseQueryError query e
+    FailFatal e -> pure $ responseQueryError query e
     Route a     -> pure a

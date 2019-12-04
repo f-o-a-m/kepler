@@ -1,4 +1,4 @@
-module Tendermint.SDK.Router.Router where
+module Tendermint.SDK.Query.Router where
 
 import           Control.Error
 import           Control.Lens                         (to, (&), (.~), (^.))
@@ -12,13 +12,15 @@ import qualified Data.Text.Encoding                   as T
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Network.HTTP.Types                   (decodePathSegments)
-import           Tendermint.SDK.Router.Delayed        (Delayed, runAction)
-import           Tendermint.SDK.Router.Types          (EncodeQueryResult (..),
-                                                       QueryArgs (..),
+import           Tendermint.SDK.Query.Delayed         (Delayed, runAction)
+import           Tendermint.SDK.Query.Types           (QueryArgs (..),
                                                        QueryError (..),
                                                        QueryResult (..),
+                                                       Queryable (..),
                                                        RouteResult (..))
 
+
+-- NOTE: most of this was vendored and repurposed from servant
 
 data Router' env a =
     RChoice (Router' env a) (Router' env a)
@@ -44,7 +46,7 @@ choice router1 router2 = RChoice router1 router2
 
 methodRouter
   :: Monad m
-  => EncodeQueryResult b
+  => Queryable b
   => Delayed m env (ExceptT QueryError m (QueryResult b))
   -> Router env m
 methodRouter action = leafRouter route'
@@ -76,8 +78,7 @@ runRouter router env query =
     RQueryArgs r' ->
       let qa = QueryArgs
             { queryArgsData = query ^. Request._queryData
-            , queryArgsQueryData = query ^. Request._queryData
-            , queryArgsBlockHeight = query ^. Request._queryHeight
+            , queryArgsHeight = query ^. Request._queryHeight
             , queryArgsProve = query ^. Request._queryProve
             }
       in runRouter r' (qa, env) query

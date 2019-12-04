@@ -24,49 +24,54 @@ module SimpleStorage.Modules.SimpleStorage
 
   ) where
 
-import           Control.Lens                (iso)
-import           Crypto.Hash                 (SHA256 (..), hashWith)
-import qualified Data.Binary                 as Binary
-import           Data.ByteArray              (convert)
-import           Data.ByteString             (ByteString)
-import           Data.Int                    (Int32)
-import           Data.Maybe                  (fromJust)
+import           Control.Lens            (iso)
+import           Crypto.Hash             (SHA256 (..), hashWith)
+import qualified Data.Aeson              as A
+import           Data.Bifunctor          (first)
+import           Data.ByteArray          (convert)
+import           Data.ByteString         (ByteString)
+import           Data.Int                (Int32)
+import           Data.Maybe              (fromJust)
 import           Data.Proxy
-import           Data.String.Conversions     (cs)
-import           Polysemy                    (Member, Sem, interpret, makeSem)
-import           Polysemy.Output             (Output)
-import           Servant.API                 ((:>))
-import           Tendermint.SDK.BaseApp      (HasBaseApp)
-import           Tendermint.SDK.Codec        (HasCodec (..))
-import qualified Tendermint.SDK.Events       as Events
-import           Tendermint.SDK.Router       (EncodeQueryResult, FromQueryData,
-                                              Queryable (..), RouteT)
-import           Tendermint.SDK.Store        (HasKey (..), RawStore, Root, get,
-                                              put)
-import           Tendermint.SDK.StoreQueries (QueryApi, storeQueryHandlers)
+import qualified Data.Serialize          as Serialize
+import           Data.String.Conversions (cs)
+import           GHC.Generics            (Generic)
+import           Polysemy                (Member, Sem, interpret, makeSem)
+import           Polysemy.Error          (Error)
+import           Polysemy.Output         (Output)
+import           Servant.API             ((:>))
+import           Tendermint.SDK.BaseApp  (HasBaseAppEff)
+import           Tendermint.SDK.Codec    (HasCodec (..))
+import           Tendermint.SDK.Errors   (AppError)
+import qualified Tendermint.SDK.Events   as Events
+import           Tendermint.SDK.Query    (FromQueryData, QueryApi,
+                                          Queryable (..), RouteT,
+                                          storeQueryHandlers)
+import           Tendermint.SDK.Store    (IsKey (..), RawKey (..), RawStore,
+                                          StoreKey (..), get, put)
 
 --------------------------------------------------------------------------------
 -- Types
 --------------------------------------------------------------------------------
 
-newtype Count = Count Int32 deriving (Eq, Show)
+newtype Count = Count Int32 deriving (Eq, Show, A.ToJSON, A.FromJSON, Serialize.Serialize)
 
 data CountKey = CountKey
 
 instance HasCodec Count where
-    encode (Count c) = cs . Binary.encode $ c
-    decode = Right . Count . Binary.decode . cs
+    encode = Serialize.encode
+    decode = first cs . Serialize.decode
 
-instance HasKey Count where
-    type Key Count = CountKey
+instance RawKey CountKey where
     rawKey = iso (\_ -> cs countKey) (const CountKey)
       where
         countKey :: ByteString
         countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
 
-instance FromQueryData CountKey
+instance IsKey CountKey "simple_storage" where
+    type Value CountKey "simple_storage" = Count
 
-instance EncodeQueryResult Count
+instance FromQueryData CountKey
 
 instance Queryable Count where
   type Name Count = "count"
@@ -75,15 +80,26 @@ instance Queryable Count where
 -- Events
 --------------------------------------------------------------------------------
 
-data CountSet = CountSet { newCount :: Count }
+data CountSet = CountSet { newCount :: Count } deriving Generic
 
-instance Events.IsEvent CountSet where
+countSetOptions :: A.Options
+countSetOptions = A.defaultOptions
+
+instance A.ToJSON CountSet where
+  toJSON = A.genericToJSON countSetOptions
+
+instance A.FromJSON CountSet where
+  parseJSON = A.genericParseJSON countSetOptions
+
+instance Events.ToEvent CountSet where
   makeEventType _ = "count_set"
-  makeEventData CountSet{newCount} = [("new_count", encode newCount)]
 
 --------------------------------------------------------------------------------
 -- SimpleStorage Module
 --------------------------------------------------------------------------------
+
+storeKey :: StoreKey "simple_storage"
+storeKey = StoreKey "simple_storage"
 
 data SimpleStorage m a where
     PutCount :: Count -> SimpleStorage m ()
@@ -93,18 +109,18 @@ makeSem ''SimpleStorage
 
 eval
   :: forall r.
-     HasBaseApp r
+     HasBaseAppEff r
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> do
-    put CountKey count
+    put storeKey CountKey count
     Events.emit $ CountSet count
 
-  GetCount -> fromJust <$> get (undefined :: Root) CountKey
+  GetCount -> fromJust <$> get storeKey CountKey
   )
 
 initialize
-  :: HasBaseApp r
+  :: HasBaseAppEff r
   => Member (Output Events.Event) r
   => Sem r ()
 initialize = eval $ do
@@ -114,9 +130,13 @@ initialize = eval $ do
 -- Query Api
 --------------------------------------------------------------------------------
 
-type CountStoreContents = '[Count]
+type CountStoreContents = '[(CountKey, Count)]
 
 type Api = "simple_storage" :> QueryApi CountStoreContents
 
-server :: Member RawStore r => RouteT Api (Sem r)
-server = storeQueryHandlers (Proxy :: Proxy CountStoreContents) (Proxy :: Proxy (Sem r))
+server
+  :: Member RawStore r
+  => Member (Error AppError) r
+  => RouteT Api (Sem r)
+server =
+  storeQueryHandlers (Proxy :: Proxy CountStoreContents) storeKey (Proxy :: Proxy (Sem r))

@@ -6,8 +6,6 @@ author:              "Author name here"
 maintainer:          "example@example.com"
 copyright:           "2019 Author name here"
 
-extra-source-files:
-- README.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -17,6 +15,9 @@ extra-source-files:
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
 description:         Please see the README on GitHub at <https://github.com/githubuser/nameservice#readme>
+
+extra-source-files:
+- README.md
 
 default-extensions:
   - DeriveGeneric
@@ -45,25 +46,74 @@ default-extensions:
   - ConstraintKinds
 
 dependencies:
+- aeson
+- aeson-casing
 - base >= 4.7 && < 5
+- bytestring
+- cereal
+- data-default-class
+- errors
 - exceptions
+- either
 - hs-abci-extra
 - hs-abci-sdk
 - hs-abci-server
 - hs-abci-types
+- lens
 - polysemy
+- pretty
+- proto-lens
+- proto-lens-runtime
+- proto3-suite
+- proto3-wire
 - katip
+- servant
+- string-conversions
+- text
+- validation
 
 library:
   source-dirs: src
+  ghc-options:
+  - -Werror
+  - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
   exposed-modules:
   - Nameservice.Application
   - Nameservice.Server
+  - Nameservice.Handlers
+  - Nameservice.Modules.TypedMessage
+  - Nameservice.Modules.Nameservice
+  - Nameservice.Modules.Token
+  - Nameservice.Modules.Token.Messages
+  - Nameservice.Modules.Token.Types
+  - Nameservice.Modules.Token.Keeper
+  - Nameservice.Modules.Token.Query
+  - Nameservice.Modules.Token.Router
+  - Nameservice.Modules.Nameservice.Messages
+  - Nameservice.Modules.Nameservice.Types
+  - Nameservice.Modules.Nameservice.Keeper
+  - Nameservice.Modules.Nameservice.Query
+  - Nameservice.Modules.Nameservice.Router
 
 executables:
-  nameservice-exe:
+  nameservice:
     main:                Main.hs
     source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - nameservice
+
+  gen-protos-exe:
+    main:                Main.hs
+    source-dirs:         protogen
     ghc-options:
     - -threaded
     - -rtsopts
@@ -75,9 +125,15 @@ tests:
   nameservice-test:
     main:                Spec.hs
     source-dirs:         test
+    other-modules:
+    - Nameservice.Test.E2ESpec
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
     - nameservice
+    - aeson-pretty
+    - hspec
+    - secp256k1-haskell
+    - hs-tendermint-client

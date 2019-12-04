@@ -8,6 +8,15 @@ copyright:           "2019 Martin Allen"
 
 description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-sdk#readme>
 
+extra-source-files:
+- protos/**/*.proto
+
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-setup
+
 default-extensions:
   - DeriveGeneric
   - NamedFieldPuns
@@ -33,23 +42,27 @@ default-extensions:
   - DeriveFunctor
   - StandaloneDeriving
   - ConstraintKinds
+  - PackageImports
 
 
 dependencies:
+- aeson
+- aeson-casing
 - async
 - avl-auth
 - base >= 4.7 && < 5
-- binary
 - bytestring
+- cereal
+- cereal-text
 - containers
 - conduit
 - cryptonite
 - data-default-class
 - errors
 - exceptions
-- free
 - hs-abci-types
 - hs-abci-server
+- hs-tendermint-client
 - http-types
 - katip
 - lens
@@ -57,11 +70,18 @@ dependencies:
 - mtl
 - polysemy
 - polysemy-plugin
+- profunctors
+- proto-lens
+- proto-lens-runtime
+- proto3-wire
+- proto3-suite
+- secp256k1-haskell
 - servant
 - stm
 - string-conversions
 - text
 - uri-bytestring
+- validation
 
 library:
   source-dirs:
@@ -70,20 +90,42 @@ library:
   - -fplugin=Polysemy.Plugin
   - -Werror
   - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
   exposed-modules:
-  - Tendermint.SDK.Store
-  - Tendermint.SDK.Codec
-  - Tendermint.SDK.StoreQueries
-  - Tendermint.SDK.Subscription
+  - Tendermint.SDK.Application
+  - Tendermint.SDK.Aeson
+  - Tendermint.SDK.Auth
   - Tendermint.SDK.AuthTreeStore
-  - Tendermint.SDK.Router.Types
-  - Tendermint.SDK.Router.Class
-  - Tendermint.SDK.Router
   - Tendermint.SDK.BaseApp
+  - Tendermint.SDK.Codec
+  - Tendermint.SDK.Crypto
+  - Tendermint.SDK.Errors
+  - Tendermint.SDK.Events
+  - Tendermint.SDK.Query
+  - Tendermint.SDK.Query.Class
+  - Tendermint.SDK.Query.Delayed
+  - Tendermint.SDK.Query.Router
+  - Tendermint.SDK.Query.Store
+  - Tendermint.SDK.Query.Types
+  - Tendermint.SDK.Query.Client
   - Tendermint.SDK.Logger
   - Tendermint.SDK.Logger.Katip
-  - Tendermint.SDK.Application
-  - Tendermint.SDK.Events
+  - Tendermint.SDK.Store
+  - Tendermint.SDK.Subscription
+  - Tendermint.SDK.Types.Message
+  - Tendermint.SDK.Types.Transaction
+  - Tendermint.SDK.Types.Address
+  - Tendermint.SDK.Types.TxResult
+  - Tendermint.SDK.TxRouter
+  - Tendermint.SDK.Module
+  - Tendermint.SDK.Gas
+
+  generated-exposed-modules:
+  - Proto.Types.Transaction
+  - Proto.Types.Transaction_Fields
 
 tests:
   hs-abci-sdk-test:
@@ -91,10 +133,12 @@ tests:
     source-dirs:         test
     other-modules:
     - Tendermint.SDK.Test.AuthTreeStoreSpec
-    # - Tendermint.SDK.Test.StoreExampleSpec
-    - Tendermint.SDK.Test.ModuleSpec
+    - Tendermint.SDK.Test.CryptoSpec
+    - Tendermint.SDK.Test.EventSpec
+    - Tendermint.SDK.Test.GasSpec
 
     ghc-options:
+    - -fplugin=Polysemy.Plugin
     - -Werror
     - -Wall
     - -threaded
@@ -108,6 +152,6 @@ tests:
       - hspec
       - hspec-core
       - hspec-discover
-      - binary
+      - cereal
       - QuickCheck
       - quickcheck-instances
