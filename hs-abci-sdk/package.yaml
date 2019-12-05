@@ -100,7 +100,6 @@ library:
   - Tendermint.SDK.Application
   - Tendermint.SDK.Aeson
   - Tendermint.SDK.Auth
-  - Tendermint.SDK.AuthTreeStore
   - Tendermint.SDK.BaseApp
   - Tendermint.SDK.Codec
   - Tendermint.SDK.Crypto
@@ -116,6 +115,9 @@ library:
   - Tendermint.SDK.Logger
   - Tendermint.SDK.Logger.Katip
   - Tendermint.SDK.Store
+  - Tendermint.SDK.Store.AuthTreeStore
+  - Tendermint.SDK.Store.RawStore
+  - Tendermint.SDK.Store.Scope
   - Tendermint.SDK.Subscription
   - Tendermint.SDK.Types.Message
   - Tendermint.SDK.Types.Transaction

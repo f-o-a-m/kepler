@@ -1,4 +1,4 @@
-module Tendermint.SDK.AuthTreeStore
+module Tendermint.SDK.Store.AuthTreeStore
   ( AuthTreeState(..)
   , AuthTreeGetter(..)
   , initAuthTreeState
@@ -22,9 +22,9 @@ import           Polysemy                         (Embed, Members, Sem,
                                                    interpret)
 import           Polysemy.Reader                  (Reader, ask, asks)
 import           Polysemy.Tagged                  (Tagged (..))
-import           Tendermint.SDK.Store             (ConnectionScope (..),
-                                                   MergeScopes (..),
-                                                   RawStore (..), StoreKey (..))
+import           Tendermint.SDK.Store.RawStore    (RawStore (..), StoreKey (..))
+import           Tendermint.SDK.Store.Scope       (ConnectionScope (..),
+                                                   MergeScopes (..))
 
 -- At the moment, the 'AuthTreeStore' is our only interpreter for the 'RawStore' effect.
 -- It is an in memory merklized key value store. You can find the repository here

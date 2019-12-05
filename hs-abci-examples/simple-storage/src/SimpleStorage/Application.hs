@@ -14,7 +14,8 @@ import           Polysemy.Error                      (Error, runError)
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
 import qualified Tendermint.SDK.BaseApp              as BaseApp
 import qualified Tendermint.SDK.Logger.Katip         as KL
-import           Tendermint.SDK.Store                (ConnectionScope (..))
+import           Tendermint.SDK.Store                (ConnectionScope (..),
+                                                      applyScope)
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context
@@ -47,9 +48,9 @@ runHandler
   -> IO a
 runHandler AppConfig{baseAppContext} m = do
   eRes <-
-    BaseApp.eval baseAppContext .
+    BaseApp.evalCoreEffs baseAppContext .
       BaseApp.compileToCoreEff .
-      BaseApp.applyScope @'Consensus .
+      applyScope @'Consensus .
       runError .
       SimpleStorage.eval $ m
   case eRes of

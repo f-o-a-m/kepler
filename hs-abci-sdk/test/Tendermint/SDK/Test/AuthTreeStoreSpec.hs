@@ -1,31 +1,34 @@
 module Tendermint.SDK.Test.AuthTreeStoreSpec where
 
-import           Control.Lens                 (iso)
-import           Control.Monad                (void)
-import           Control.Monad.IO.Class       (liftIO)
-import           Data.Bifunctor               (first)
-import           Data.ByteString              (ByteString)
-import qualified Data.Serialize               as Serialize
-import           Data.String.Conversions      (cs)
-import           Polysemy                     (Embed, Sem, runM)
-import           Polysemy.Error               (Error, runError)
-import           Polysemy.Reader              (Reader, runReader)
-import           Polysemy.Resource            (Resource, resourceToIO)
-import           Polysemy.Tagged              (Tagged)
-import           Tendermint.SDK.AuthTreeStore (AuthTreeGetter (..),
-                                               AuthTreeState, evalMergeScopes,
-                                               evalTagged, initAuthTreeState)
-import           Tendermint.SDK.BaseApp       (applyScope)
-import           Tendermint.SDK.Codec         (HasCodec (..))
-import           Tendermint.SDK.Errors        (AppError (..),
-                                               SDKError (InternalError),
-                                               throwSDKError)
-import           Tendermint.SDK.Store         (ConnectionScope (..), IsKey (..),
-                                               MergeScopes, RawKey (..),
-                                               RawStore, StoreKey (..),
-                                               beginBlock, commitBlock, delete,
-                                               get, mergeScopes, put,
-                                               withSandbox, withTransaction)
+import           Control.Lens                       (iso)
+import           Control.Monad                      (void)
+import           Control.Monad.IO.Class             (liftIO)
+import           Data.Bifunctor                     (first)
+import           Data.ByteString                    (ByteString)
+import qualified Data.Serialize                     as Serialize
+import           Data.String.Conversions            (cs)
+import           Polysemy                           (Embed, Sem, runM)
+import           Polysemy.Error                     (Error, runError)
+import           Polysemy.Reader                    (Reader, runReader)
+import           Polysemy.Resource                  (Resource, resourceToIO)
+import           Polysemy.Tagged                    (Tagged)
+import           Tendermint.SDK.Codec               (HasCodec (..))
+import           Tendermint.SDK.Errors              (AppError (..),
+                                                     SDKError (InternalError),
+                                                     throwSDKError)
+import           Tendermint.SDK.Store               (ConnectionScope (..),
+                                                     IsKey (..), MergeScopes,
+                                                     RawKey (..), RawStore,
+                                                     StoreKey (..), applyScope,
+                                                     beginBlock, commitBlock,
+                                                     delete, get, mergeScopes,
+                                                     put, withSandbox,
+                                                     withTransaction)
+import           Tendermint.SDK.Store.AuthTreeStore (AuthTreeGetter (..),
+                                                     AuthTreeState,
+                                                     evalMergeScopes,
+                                                     evalTagged,
+                                                     initAuthTreeState)
 import           Test.Hspec
 
 spec :: Spec

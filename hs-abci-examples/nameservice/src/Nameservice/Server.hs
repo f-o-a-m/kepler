@@ -12,14 +12,15 @@ import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
 import           Tendermint.SDK.Application                    (MakeApplication (..),
                                                                 createApplication)
-import           Tendermint.SDK.BaseApp                        (CoreEffs, eval)
+import           Tendermint.SDK.BaseApp                        (CoreEffs,
+                                                                evalCoreEffs)
 import           Tendermint.SDK.Errors                         (AppError)
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do
   let makeApplication :: MakeApplication CoreEffs AppError
       makeApplication = MakeApplication
-        { transformer = eval $ baseAppContext cfg
+        { transformer = evalCoreEffs $ baseAppContext cfg
         , appErrorP = Proxy
         , app = nameserviceApp queryServer
         , initialize = []

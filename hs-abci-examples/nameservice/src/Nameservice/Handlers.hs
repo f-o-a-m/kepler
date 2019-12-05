@@ -16,7 +16,6 @@ import           Polysemy.Error                       (catch)
 import           Tendermint.SDK.Application           (defaultHandler)
 import           Tendermint.SDK.BaseApp               (BaseApp, CoreEffs,
                                                        ScopedBaseApp,
-                                                       applyScope,
                                                        compileToCoreEff)
 import           Tendermint.SDK.Errors                (AppError,
                                                        checkTxAppError,
@@ -24,9 +23,9 @@ import           Tendermint.SDK.Errors                (AppError,
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
 import           Tendermint.SDK.Store                 (ConnectionScope (..),
-                                                       beginBlock, commitBlock,
-                                                       mergeScopes, storeRoot,
-                                                       withSandbox,
+                                                       applyScope, beginBlock,
+                                                       commitBlock, mergeScopes,
+                                                       storeRoot, withSandbox,
                                                        withTransaction)
 import           Tendermint.SDK.Types.TxResult        (TxResult,
                                                        checkTxTxResult,
