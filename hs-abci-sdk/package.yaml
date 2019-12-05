@@ -126,6 +126,7 @@ library:
   - Tendermint.SDK.TxRouter
   - Tendermint.SDK.Module
   - Tendermint.SDK.Gas
+  - Tendermint.SDK.Handlers
 
   generated-exposed-modules:
   - Proto.Types.Transaction
