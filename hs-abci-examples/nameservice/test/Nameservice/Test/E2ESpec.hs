@@ -113,8 +113,8 @@ spec = do
         -- try to set a name without being the owner
         let msg = TypedMessage "SetName" (encode $ SetName satoshi addr2 "goodbye to a world")
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        deliverResp <- getDeliverTxResponse rawTx
-        ensureDeliverResponseCode deliverResp 2
+        checkResp <- getCheckTxResponse rawTx
+        ensureCheckResponseCode checkResp 2
 
       it "Can buy an existing name (success 0)" $ do
         let oldVal = "goodbye to a world"
