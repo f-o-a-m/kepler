@@ -6,10 +6,7 @@ import           Nameservice.Modules.Nameservice.Keeper   (NameserviceEffs,
 import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (..))
 import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members, Sem)
-import           Polysemy.Output                          (Output)
-import           Polysemy.Tagged                          (Tagged)
-import           Tendermint.SDK.Events                    (Event)
-import qualified Tendermint.SDK.Store                     as Store
+import           Tendermint.SDK.BaseApp                   (BaseAppEffs)
 import           Tendermint.SDK.Types.Message             (Msg (..))
 import           Tendermint.SDK.Types.Transaction         (RoutedTx (..),
                                                            Tx (..))
@@ -17,7 +14,7 @@ import           Tendermint.SDK.Types.Transaction         (RoutedTx (..),
 router
   :: Members TokenEffs r
   => Members NameserviceEffs r
-  => Members [Output Event, Tagged 'Store.Query Store.RawStore] r
+  => Members BaseAppEffs r
   => RoutedTx NameserviceMessage
   -> Sem r ()
 router (RoutedTx Tx{txMsg}) =

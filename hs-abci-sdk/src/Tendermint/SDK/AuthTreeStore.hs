@@ -1,8 +1,9 @@
 module Tendermint.SDK.AuthTreeStore
   ( AuthTreeState(..)
+  , AuthTreeGetter(..)
   , initAuthTreeState
   , evalMergeScopes
-  , eval
+  , evalTagged
   ) where
 
 import           Control.Concurrent.STM           (atomically)
@@ -16,9 +17,10 @@ import qualified Crypto.Hash                      as Cryptonite
 import           Data.ByteArray                   (convert)
 import           Data.ByteString                  (ByteString)
 import qualified Data.List.NonEmpty               as NE
-import           Polysemy                         (Embed, Member, Members, Sem,
+import           Data.Proxy
+import           Polysemy                         (Embed, Members, Sem,
                                                    interpret)
-import           Polysemy.Reader                  (Reader, ask)
+import           Polysemy.Reader                  (Reader, ask, asks)
 import           Polysemy.Tagged                  (Tagged (..))
 import           Tendermint.SDK.Store             (ConnectionScope (..),
                                                    MergeScopes (..),
@@ -42,12 +44,35 @@ data AuthTree (c :: ConnectionScope) = AuthTree
 initAuthTree :: IO (AuthTree c)
 initAuthTree = AuthTree <$> newTVarIO (pure AT.empty)
 
+data AuthTreeState = AuthTreeState
+  { query     :: AuthTree 'Query
+  , mempool   :: AuthTree 'Mempool
+  , consensus :: AuthTree 'Consensus
+  }
+
+initAuthTreeState :: IO AuthTreeState
+initAuthTreeState = AuthTreeState <$> initAuthTree <*> initAuthTree <*> initAuthTree
+
+
+class AuthTreeGetter (s :: ConnectionScope) where
+  getAuthTree :: Proxy s -> AuthTreeState -> AuthTree s
+
+instance AuthTreeGetter 'Query where
+  getAuthTree _ = query
+
+instance AuthTreeGetter 'Mempool where
+  getAuthTree _ = mempool
+
+instance AuthTreeGetter 'Consensus where
+  getAuthTree _ = consensus
+
 evalTagged
-  :: Member (Embed IO) r
-  => AuthTree c
-  -> Sem (Tagged c RawStore ': r) a
-  -> Sem r a
-evalTagged AuthTree{treeVar} =
+  :: forall (s :: ConnectionScope) r.
+     Members [Reader AuthTreeState, Embed IO] r
+  => AuthTreeGetter s
+  => forall a. Sem (Tagged s RawStore ': r) a -> Sem r a
+evalTagged m = do
+  AuthTree{treeVar} <- asks (getAuthTree (Proxy :: Proxy s))
   interpret
     (\(Tagged action) -> case action of
       RawStorePut (StoreKey sk) k v -> liftIO . atomically $ do
@@ -77,24 +102,7 @@ evalTagged AuthTree{treeVar} =
         writeTVar treeVar $ case trees of
           t NE.:| []     -> t NE.:| []
           t NE.:| _ : ts ->  t NE.:| ts
-    )
-
-data AuthTreeState = AuthTreeState
-  { query     :: AuthTree 'Query
-  , mempool   :: AuthTree 'Mempool
-  , consensus :: AuthTree 'Consensus
-  }
-
-initAuthTreeState :: IO AuthTreeState
-initAuthTreeState = AuthTreeState <$> initAuthTree <*> initAuthTree <*> initAuthTree
-
-eval
-  :: Members [Reader AuthTreeState, Embed IO] r
-  => Sem (Tagged 'Query RawStore ': Tagged 'Mempool RawStore ': Tagged 'Consensus RawStore ': r) a
-  -> Sem r a
-eval m = do
-  AuthTreeState{query, mempool, consensus} <- ask
-  evalTagged consensus . evalTagged mempool. evalTagged query $ m
+    ) m
 
 evalMergeScopes
   :: Members [Reader AuthTreeState,  Embed IO] r

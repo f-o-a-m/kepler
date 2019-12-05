@@ -67,6 +67,7 @@ dependencies:
 - katip
 - lens
 - memory
+- mmorph
 - mtl
 - polysemy
 - polysemy-plugin

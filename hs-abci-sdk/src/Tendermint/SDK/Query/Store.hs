@@ -10,14 +10,12 @@ import           Data.Proxy
 import           GHC.TypeLits                (Symbol)
 import           Polysemy                    (Members, Sem)
 import           Polysemy.Error              (Error)
-import           Polysemy.Tagged             (Tagged)
 import           Servant.API                 ((:<|>) (..), (:>))
 import           Tendermint.SDK.Codec        (HasCodec)
 import           Tendermint.SDK.Errors       (AppError)
 import           Tendermint.SDK.Query.Class
 import           Tendermint.SDK.Query.Types
-import           Tendermint.SDK.Store        (ConnectionScope (Query),
-                                              IsKey (..), RawKey (..), RawStore,
+import           Tendermint.SDK.Store        (IsKey (..), RawKey (..), RawStore,
                                               StoreKey, get)
 
 class StoreQueryHandler a (ns :: Symbol) h where
@@ -27,7 +25,7 @@ instance
   ( IsKey k ns
   , a ~ Value k ns
   , HasCodec a
-  , Members [Tagged 'Query RawStore, Error AppError] r
+  , Members [RawStore, Error AppError] r
   )
    => StoreQueryHandler a ns (QueryArgs k -> ExceptT QueryError (Sem r) (QueryResult a)) where
   storeQueryHandler _ storeKey QueryArgs{..} = do
@@ -52,7 +50,7 @@ instance
     ( IsKey k ns
     , a ~ Value k ns
     , HasCodec a
-    , Members [Tagged 'Query RawStore, Error AppError] r
+    , Members [RawStore, Error AppError] r
     )  => StoreQueryHandlers '[(k,a)] ns (Sem r) where
       type QueryApi '[(k,a)] =  QA k :> Leaf a
       storeQueryHandlers _ storeKey _ = storeQueryHandler (Proxy :: Proxy a) storeKey
@@ -62,7 +60,7 @@ instance
     , a ~ Value k ns
     , HasCodec a
     , StoreQueryHandlers ((k', a') ': as) ns (Sem r)
-    , Members [Tagged 'Query RawStore, Error AppError] r
+    , Members [RawStore, Error AppError] r
     ) => StoreQueryHandlers ((k,a) ': (k', a') : as) ns (Sem r) where
         type (QueryApi ((k, a) ': (k', a') : as)) = (QA k :> Leaf a) :<|> QueryApi ((k', a') ': as)
         storeQueryHandlers _ storeKey pm =

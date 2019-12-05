@@ -14,13 +14,16 @@ import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Polysemy                             (Sem)
 import           Polysemy.Error                       (catch)
 import           Tendermint.SDK.Application           (defaultHandler)
-import           Tendermint.SDK.BaseApp               (BaseApp)
+import           Tendermint.SDK.BaseApp               (BaseApp, CoreEffs,
+                                                       ScopedBaseApp,
+                                                       applyScope,
+                                                       compileToCoreEff)
 import           Tendermint.SDK.Errors                (AppError,
                                                        checkTxAppError,
                                                        deliverTxAppError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Query                 (QueryApplication)
-import           Tendermint.SDK.Store                 (ConnectionScope (Consensus),
+import           Tendermint.SDK.Store                 (ConnectionScope (..),
                                                        beginBlock, commitBlock,
                                                        mergeScopes, storeRoot,
                                                        withSandbox,
@@ -31,45 +34,50 @@ import           Tendermint.SDK.Types.TxResult        (TxResult,
                                                        txResultEvents)
 
 echoH
-  :: Request 'MTEcho
-  -> Sem BaseApp (Response 'MTEcho)
+  :: Monad m
+  => Request 'MTEcho
+  -> m (Response 'MTEcho)
 echoH (RequestEcho echo) =
   pure . ResponseEcho $ def & Resp._echoMessage .~ echo ^. Req._echoMessage
 
 flushH
-  :: Request 'MTFlush
-  -> Sem BaseApp (Response 'MTFlush)
+  :: Monad m
+  => Request 'MTFlush
+  -> m (Response 'MTFlush)
 flushH = defaultHandler
 
 infoH
-  :: Request 'MTInfo
-  -> Sem BaseApp (Response 'MTInfo)
+  :: Monad m
+  => Request 'MTInfo
+  -> m (Response 'MTInfo)
 infoH = defaultHandler
 
 setOptionH
-  :: Request 'MTSetOption
-  -> Sem BaseApp (Response 'MTSetOption)
+  :: Monad m
+  => Request 'MTSetOption
+  -> m (Response 'MTSetOption)
 setOptionH = defaultHandler
 
 -- TODO: this one might be useful for initializing to 0
 -- instead of doing that manually in code
 initChainH
-  :: Request 'MTInitChain
-  -> Sem BaseApp (Response 'MTInitChain)
+  :: Monad m
+  => Request 'MTInitChain
+  -> m (Response 'MTInitChain)
 initChainH = defaultHandler
 
 queryH
   :: QueryApplication (Sem BaseApp)
   -> Request 'MTQuery
-  -> Sem BaseApp (Response 'MTQuery)
-queryH serveRoutes (RequestQuery query) = do
+  -> Sem (ScopedBaseApp 'Query) (Response 'MTQuery)
+queryH serveRoutes (RequestQuery query) = applyScope $ do
   queryResp <- serveRoutes query
   pure $ ResponseQuery  queryResp
 
 beginBlockH
   :: Request 'MTBeginBlock
-  -> Sem BaseApp (Response 'MTBeginBlock)
-beginBlockH _ = def <$ beginBlock
+  -> Sem (ScopedBaseApp 'Consensus) (Response 'MTBeginBlock)
+beginBlockH _ = def <$ applyScope beginBlock
 
 -- Common function between checkTx and deliverTx
 transactionHandler :: ByteString -> Sem BaseApp TxResult
@@ -79,8 +87,8 @@ transactionHandler bs = do
 
 checkTxH
   :: Request 'MTCheckTx
-  -> Sem BaseApp (Response 'MTCheckTx)
-checkTxH (RequestCheckTx checkTx)=
+  -> Sem (ScopedBaseApp 'Mempool) (Response 'MTCheckTx)
+checkTxH (RequestCheckTx checkTx) = applyScope $
   let tryToRespond = withSandbox $ do
         txResult <- transactionHandler $ checkTx ^. Req._checkTxTx . to Base64.toBytes
         return $ ResponseCheckTx $ def & checkTxTxResult .~ txResult
@@ -90,8 +98,8 @@ checkTxH (RequestCheckTx checkTx)=
 
 deliverTxH
   :: Request 'MTDeliverTx
-  -> Sem BaseApp (Response 'MTDeliverTx) -- Sem BaseApp (Response 'MTDeliverTx)
-deliverTxH (RequestDeliverTx deliverTx) =
+  -> Sem (ScopedBaseApp 'Consensus) (Response 'MTDeliverTx) -- Sem BaseApp (Response 'MTDeliverTx)
+deliverTxH (RequestDeliverTx deliverTx) = applyScope $
   let tryToRespond = withTransaction $ do
         txResult <- transactionHandler $ deliverTx ^. Req._deliverTxTx . to Base64.toBytes
         return $ ResponseDeliverTx $ def & deliverTxTxResult .~ txResult
@@ -99,32 +107,32 @@ deliverTxH (RequestDeliverTx deliverTx) =
        return . ResponseDeliverTx $ def & deliverTxAppError .~ err
 
 endBlockH
-  :: Request 'MTEndBlock
-  -> Sem BaseApp (Response 'MTEndBlock)
+  :: Monad m
+  => Request 'MTEndBlock
+  -> m (Response 'MTEndBlock)
 endBlockH = defaultHandler
 
 commitH
   :: Request 'MTCommit
-  -> Sem BaseApp (Response 'MTCommit)
-commitH _ = do
+  -> Sem (ScopedBaseApp 'Consensus) (Response 'MTCommit)
+commitH _ = applyScope $ do
   commitBlock
   mergeScopes
-  rootHash <- storeRoot @'Consensus
+  rootHash <- storeRoot
   return . ResponseCommit $ def
     & Resp._commitData .~ Base64.fromBytes rootHash
 
 
-
-nameserviceApp :: QueryApplication (Sem BaseApp) -> App (Sem BaseApp)
+nameserviceApp :: QueryApplication (Sem BaseApp) -> App (Sem CoreEffs)
 nameserviceApp serveRoutes = App $ \case
   msg@(RequestEcho _) -> echoH msg
   msg@(RequestFlush _) -> flushH msg
   msg@(RequestInfo _) -> infoH msg
   msg@(RequestSetOption _) -> setOptionH msg
   msg@(RequestInitChain _) -> initChainH msg
-  msg@(RequestQuery _) -> queryH serveRoutes msg
-  msg@(RequestBeginBlock _) -> beginBlockH msg
-  msg@(RequestCheckTx _) -> checkTxH msg
-  msg@(RequestDeliverTx _) -> deliverTxH msg
+  msg@(RequestQuery _) -> compileToCoreEff $ queryH serveRoutes msg
+  msg@(RequestBeginBlock _) -> compileToCoreEff $ beginBlockH msg
+  msg@(RequestCheckTx _) -> compileToCoreEff $ checkTxH msg
+  msg@(RequestDeliverTx _) -> compileToCoreEff $ deliverTxH msg
   msg@(RequestEndBlock _) -> endBlockH msg
-  msg@(RequestCommit _) -> commitH msg
+  msg@(RequestCommit _) -> compileToCoreEff $ commitH msg

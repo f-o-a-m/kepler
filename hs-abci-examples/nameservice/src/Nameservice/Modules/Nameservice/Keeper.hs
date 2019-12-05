@@ -14,7 +14,6 @@ import           Polysemy                                 (Member, Members, Sem,
 import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
-import           Polysemy.Tagged                          (Tagged)
 import           Tendermint.SDK.Errors                    (AppError,
                                                            IsAppError (..))
 import           Tendermint.SDK.Events                    (Event, emit)
@@ -33,20 +32,22 @@ storeKey :: Store.StoreKey NameserviceModule
 storeKey = Store.StoreKey . cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
 
 eval
-  :: forall (c :: Store.ConnectionScope) r.
-     Members [Tagged c Store.RawStore, Error AppError] r
+  :: Members [Store.RawStore, Error AppError] r
   => forall a. Sem (Nameservice ': Error NameserviceError ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalNameservice
   where
+    evalNameservice
+      :: Members [Store.RawStore, Error AppError] r
+      => Sem (Nameservice ': r) a -> Sem r a
     evalNameservice =
       interpret (\case
           GetWhois name ->
-            Store.get @c storeKey name
+            Store.get storeKey name
           PutWhois name whois ->
-            Store.put @c storeKey name whois
+            Store.put storeKey name whois
           DeleteWhois name ->
-            Store.delete @c storeKey name
+            Store.delete storeKey name
         )
 
 --------------------------------------------------------------------------------

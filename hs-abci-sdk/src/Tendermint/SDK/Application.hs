@@ -13,9 +13,8 @@ import           Network.ABCI.Server.App              (App, MessageType,
                                                        Response (..),
                                                        transformApp)
 import qualified Network.ABCI.Types.Messages.Response as Resp
-import           Polysemy                             (Members, Sem)
-import           Tendermint.SDK.BaseApp               (BaseAppEffs)
-import           Tendermint.SDK.Store                 (mergeScopes)
+import           Polysemy                             (Member, Sem)
+import           Tendermint.SDK.Store                 (MergeScopes, mergeScopes)
 
 data MakeApplication r e = MakeApplication
   { app         :: App (Sem r)
@@ -26,8 +25,9 @@ data MakeApplication r e = MakeApplication
 
 defaultHandler
   :: Default a
+  => Applicative m
   => b
-  -> Sem r a
+  -> m a
 defaultHandler = const $ pure def
 
 transformResponse
@@ -44,7 +44,7 @@ transformResponse MakeApplication{transformer} m = do
 
 createApplication
   :: Exception e
-  => Members BaseAppEffs r
+  => Member MergeScopes r
   => MakeApplication r e
   -> IO (App IO)
 createApplication ma@MakeApplication{app, transformer, initialize} = do

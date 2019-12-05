@@ -3,7 +3,7 @@ module Nameservice.Application
   , makeAppConfig
   , Handler
   , compileToBaseApp
-  , runHandler
+  --, runHandler
   , QueryApi
   , queryServer
   , router
@@ -20,8 +20,9 @@ import           Tendermint.SDK.BaseApp          ((:&))
 import qualified Tendermint.SDK.BaseApp          as BaseApp
 import           Tendermint.SDK.Crypto           (Secp256k1)
 import qualified Tendermint.SDK.Logger.Katip     as KL
-import           Tendermint.SDK.Module           (Modules (..))
-import           Tendermint.SDK.Query            (QueryApplication, serve)
+import           Tendermint.SDK.Module           (Module (..), Modules (..))
+import           Tendermint.SDK.Query            (QueryApplication, hoistRoute,
+                                                  serve)
 import qualified Tendermint.SDK.TxRouter         as R
 
 data AppConfig = AppConfig
@@ -39,20 +40,21 @@ makeAppConfig logCfg = do
 type EffR =
   N.NameserviceEffs :& T.TokenEffs :& A.AuthEffs :& BaseApp.BaseApp
 
-type Handler = Sem EffR
 
 compileToBaseApp
   :: Sem EffR a
   -> Sem BaseApp.BaseApp a
 compileToBaseApp = A.eval . T.eval . N.eval
 
+type Handler = Sem EffR
+
 -- NOTE: this should probably go in the library
-runHandler
-  :: AppConfig
-  -> Handler a
-  -> IO a
-runHandler AppConfig{baseAppContext} =
-  BaseApp.eval baseAppContext . compileToBaseApp
+--runHandler
+--  :: AppConfig
+--  -> Handler a
+--  -> IO a
+--runHandler AppConfig{baseAppContext} =
+--  BaseApp.eval baseAppContext . compileToBaseApp
 
 --------------------------------------------------------------------------------
 
@@ -61,8 +63,13 @@ modules = ConsModule T.tokenModule $ ConsModule N.nameserviceModule NilModules
 
 type QueryApi = T.Api :<|> N.Api
 
-router :: ByteString -> Sem BaseApp.BaseApp ()
+router
+  :: ByteString
+  -> Sem BaseApp.BaseApp ()
 router = compileToBaseApp . R.router (Proxy @Secp256k1) modules
 
 queryServer :: QueryApplication (Sem BaseApp.BaseApp)
-queryServer = serve (Proxy :: Proxy QueryApi) (T.server :<|> N.server)
+queryServer =
+  let queryRouter = hoistRoute (Proxy :: Proxy QueryApi) compileToBaseApp
+        (moduleQueryServer T.tokenModule :<|> moduleQueryServer N.nameserviceModule)
+  in serve (Proxy :: Proxy QueryApi) queryRouter

@@ -7,7 +7,7 @@ import           Tendermint.SDK.Types.Transaction (RoutedTx)
 
 data Module (name :: Symbol) msg api (r :: EffectRow) = Module
   { moduleRouter      :: RoutedTx msg -> Sem r ()
-  , moduleQueryServer ::  RouteT api (Sem r)
+  , moduleQueryServer :: RouteT api (Sem r)
   }
 
 data Modules (ms :: [*]) r where

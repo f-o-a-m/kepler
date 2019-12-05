@@ -26,7 +26,6 @@ import           Data.String.Conversions (cs)
 import           Polysemy                (Member, Members, Sem, makeSem)
 import           Polysemy.Error          (Error, catch, throw)
 import           Polysemy.Resource       (Resource, finally, onException)
-import           Polysemy.Tagged         (Tagged, tag)
 import           Tendermint.SDK.Codec    (HasCodec (..))
 import           Tendermint.SDK.Errors   (AppError, SDKError (ParseError),
                                           throwSDKError)
@@ -58,10 +57,10 @@ class RawKey k => IsKey k ns where
 data ConnectionScope = Query | Mempool | Consensus
 
 put
-  :: forall (c :: ConnectionScope) k r ns.
+  :: forall k r ns.
      IsKey k ns
   => HasCodec (Value k ns)
-  => Member (Tagged c RawStore) r
+  => Member RawStore r
   => StoreKey ns
   -> k
   -> Value k ns
@@ -69,19 +68,19 @@ put
 put sk k a =
   let key = prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
       val = encode a
-  in tag $ rawStorePut sk key val
+  in rawStorePut sk key val
 
 get
-  :: forall (c :: ConnectionScope) k r ns.
+  :: forall k r ns.
      IsKey k ns
   => HasCodec (Value k ns)
-  => Members [Tagged c RawStore, Error AppError] r
+  => Members [RawStore, Error AppError] r
   => StoreKey ns
   -> k
   -> Sem r (Maybe (Value k ns))
 get sk k = do
   let key = prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
-  mRes <- tag $ rawStoreGet sk key
+  mRes <- rawStoreGet sk key
   case mRes of
     Nothing -> pure Nothing
     Just raw -> case decode raw of
@@ -89,62 +88,61 @@ get sk k = do
       Right a -> pure $ Just a
 
 delete
-  :: forall (c :: ConnectionScope) k ns r.
+  :: forall k ns r.
      IsKey k ns
-  => Member (Tagged c RawStore) r
+  => Member RawStore r
   => StoreKey ns
   -> k
   -> Sem r ()
-delete sk k = tag $ rawStoreDelete sk $
+delete sk k = rawStoreDelete sk $
   prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
 
 prove
-  :: forall (c :: ConnectionScope) k ns r.
+  :: forall k ns r.
      IsKey k ns
-  => Member (Tagged c RawStore) r
+  => Member RawStore r
   => StoreKey ns
   -> k
   -> Sem r (Maybe BS.ByteString)
-prove sk k = tag $ rawStoreProve sk $
+prove sk k = rawStoreProve sk $
   prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
 
-
 beginBlock
-  :: Member (Tagged 'Consensus RawStore) r
+  :: Member RawStore r
   => Sem r ()
-beginBlock = tag rawStoreBeginTransaction
+beginBlock = rawStoreBeginTransaction
 
 commitBlock
-  :: Member (Tagged 'Consensus RawStore) r
+  :: Member RawStore r
   => Sem r ()
-commitBlock = tag rawStoreCommit
+commitBlock = rawStoreCommit
 
 storeRoot
-  :: Member (Tagged c RawStore) r
+  :: Member RawStore r
   => Sem r BS.ByteString
-storeRoot = tag rawStoreRoot
+storeRoot = rawStoreRoot
 
 withTransaction
   :: forall r a.
-     Members [Tagged 'Consensus RawStore, Resource, Error AppError] r
+     Members [RawStore, Resource, Error AppError] r
   => Sem r a
   -> Sem r a
 withTransaction m =
-   let tryTx = m `catch` (\e -> tag rawStoreRollback *> throw e)
+   let tryTx = m `catch` (\e -> rawStoreRollback *> throw e)
    in do
-      tag rawStoreBeginTransaction
-      onException (tryTx <* tag rawStoreCommit) (tag rawStoreRollback)
+      rawStoreBeginTransaction
+      onException (tryTx <* rawStoreCommit) rawStoreRollback
 
 withSandbox
   :: forall r a.
-     Members [Tagged 'Mempool RawStore, Resource, Error AppError] r
+     Members [RawStore, Resource, Error AppError] r
   => Sem r a
   -> Sem r a
 withSandbox m =
-   let tryTx = m `catch` (\e -> tag rawStoreRollback *> throw e)
+   let tryTx = m `catch` (\e -> rawStoreRollback *> throw e)
    in do
-      tag rawStoreBeginTransaction
-      finally (tryTx <* tag rawStoreRollback) (tag rawStoreRollback)
+      rawStoreBeginTransaction
+      finally (tryTx <* rawStoreRollback) rawStoreRollback
 
 data MergeScopes m a where
   MergeScopes :: MergeScopes m ()

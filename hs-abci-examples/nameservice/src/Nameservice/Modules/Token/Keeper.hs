@@ -11,7 +11,6 @@ import           Nameservice.Modules.Token.Types    (Amount (..),
 import           Polysemy
 import           Polysemy.Error                     (Error, mapError, throw)
 import           Polysemy.Output                    (Output)
-import           Polysemy.Tagged                    (Tagged)
 import           Tendermint.SDK.Errors              (AppError, IsAppError (..))
 import           Tendermint.SDK.Events              (Event, emit)
 import qualified Tendermint.SDK.Store               as Store
@@ -29,18 +28,20 @@ storeKey :: Store.StoreKey "token"
 storeKey = Store.StoreKey "token"
 
 eval
-  :: forall (c :: Store.ConnectionScope) r.
-     Members [Tagged c Store.RawStore, Error AppError, Output Event] r
+  :: Members [Store.RawStore, Error AppError] r
   => forall a. Sem (Token ': Error TokenError ': r) a -> Sem r a
 eval = mapError makeAppError . evalToken
   where
+    evalToken
+      :: Members [Store.RawStore, Error AppError] r
+      => forall a. Sem (Token ': r) a -> Sem r a
     evalToken =
       interpret
         (\case
           GetBalance' address ->
-            Store.get @c storeKey address
+            Store.get storeKey address
           PutBalance address balance ->
-            Store.put @c storeKey address balance
+            Store.put storeKey address balance
         )
 
 --------------------------------------------------------------------------------
