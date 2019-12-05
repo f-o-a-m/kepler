@@ -14,6 +14,7 @@ import           Polysemy.Error                      (Error, runError)
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
 import qualified Tendermint.SDK.BaseApp              as BaseApp
 import qualified Tendermint.SDK.Logger.Katip         as KL
+import           Tendermint.SDK.Store                (ConnectionScope (..))
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context
@@ -32,7 +33,7 @@ data AppError = AppError String deriving (Show)
 instance Exception AppError
 
 type EffR =
-  ( SimpleStorage
+  (  SimpleStorage
   ': Error AppError
   ': BaseApp.BaseApp
   )
@@ -45,9 +46,12 @@ runHandler
   -> Handler a
   -> IO a
 runHandler AppConfig{baseAppContext} m = do
-  eRes <- BaseApp.eval baseAppContext .
-    runError .
-    SimpleStorage.eval $ m
+  eRes <-
+    BaseApp.eval baseAppContext .
+      BaseApp.compileToCoreEff .
+      BaseApp.applyScope @'Consensus .
+      runError .
+      SimpleStorage.eval $ m
   case eRes of
     Left e  -> throwM e
     Right a -> pure a
