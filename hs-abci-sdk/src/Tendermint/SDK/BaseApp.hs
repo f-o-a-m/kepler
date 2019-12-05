@@ -90,8 +90,8 @@ type family ApplyScope (s :: ConnectionScope) (es :: EffectRow) :: EffectRow whe
 type ScopedBaseApp s = ApplyScope s BaseApp
 
 applyScope
-  :: forall s.
-     forall a. Sem BaseApp a -> Sem (ScopedBaseApp s) a
+  :: forall s r.
+     forall a. Sem (RawStore ': r) a -> Sem (Tagged s RawStore ': r) a
 applyScope = rewrite (Tagged @s)
 
 -- | An intermediary interpeter, bringing 'BaseApp' down to 'CoreEff'.

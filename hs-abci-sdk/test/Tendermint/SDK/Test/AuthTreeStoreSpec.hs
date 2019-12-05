@@ -11,10 +11,11 @@ import           Polysemy                     (Embed, Sem, runM)
 import           Polysemy.Error               (Error, runError)
 import           Polysemy.Reader              (Reader, runReader)
 import           Polysemy.Resource            (Resource, resourceToIO)
-import           Polysemy.Tagged
-import           Tendermint.SDK.AuthTreeStore (AuthTreeState, eval,
-                                               evalMergeScopes,
-                                               initAuthTreeState)
+import           Polysemy.Tagged              (Tagged)
+import           Tendermint.SDK.AuthTreeStore (AuthTreeGetter (..),
+                                               AuthTreeState, evalMergeScopes,
+                                               evalTagged, initAuthTreeState)
+import           Tendermint.SDK.BaseApp       (applyScope)
 import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Errors        (AppError (..),
                                                SDKError (InternalError),
@@ -32,18 +33,19 @@ spec = beforeAll beforeAction $
   describe "AuthTreeStore" $ do
 
     it "can fail to query an empty AuthTreeStore" $ \driver -> do
-      Right mv <- runAuthTree driver $ get @'Query storeKey IntStoreKey
+      Right mv <- runAuthTree driver $ applyScope @'Query $
+        get storeKey IntStoreKey
       mv `shouldBe` Nothing
 
     it "can set a value and query the value" $ \driver -> do
-      Right mv <- runAuthTree driver $ do
-        put @'Consensus storeKey IntStoreKey (IntStore 1)
-        get @'Consensus storeKey IntStoreKey
+      Right mv <- runAuthTree driver $ applyScope @'Consensus $ do
+        put storeKey IntStoreKey (IntStore 1)
+        get storeKey IntStoreKey
       mv `shouldBe` Just (IntStore 1)
 
     it "can make changes and roll back" $ \driver -> do
-      Right mv'' <- runAuthTree driver $ do
-        put @'Mempool storeKey IntStoreKey (IntStore 1)
+      Right mv'' <- runAuthTree driver $ applyScope @'Mempool $ do
+        put storeKey IntStoreKey (IntStore 1)
         withSandbox $ do
           put storeKey IntStoreKey (IntStore 5)
           mv <- get storeKey IntStoreKey
@@ -53,55 +55,67 @@ spec = beforeAll beforeAction $
           mv' <- get storeKey IntStoreKey
 
           liftIO (mv' `shouldBe` Nothing)
-        get @'Mempool storeKey IntStoreKey
+        get storeKey IntStoreKey
       mv'' `shouldBe` Just (IntStore 1)
 
     it "can roll back if an error occurs during a transaction" $ \driver -> do
-      Left apperr <- runAuthTree driver $ do
-        put @'Consensus storeKey IntStoreKey (IntStore 1)
+      Left apperr <- runAuthTree driver $ applyScope @'Consensus $ do
+        put storeKey IntStoreKey (IntStore 1)
         withTransaction $ do
           put storeKey IntStoreKey (IntStore 6)
           throwSDKError InternalError
       appErrorCode apperr `shouldBe` 1
-      Right mv <- runAuthTree driver $
-        get @'Consensus storeKey IntStoreKey
+      Right mv <- runAuthTree driver $ applyScope @'Consensus $
+        get storeKey IntStoreKey
       mv `shouldBe` Just (IntStore 1)
 
     it "can make changes with a transaction" $ \driver -> do
-      Right mv <- runAuthTree driver . withTransaction $ do
+      Right mv <- runAuthTree driver . applyScope @'Consensus . withTransaction $ do
         put storeKey IntStoreKey (IntStore 5)
         get storeKey IntStoreKey
       mv `shouldBe` Just (IntStore 5)
 
     it "can merge the scopes" $ \driver -> do
-      void $ runAuthTree driver . withTransaction $ do
-        put @'Query storeKey IntStoreKey (IntStore 0)
-        put @'Mempool storeKey IntStoreKey (IntStore 0)
-        put @'Consensus storeKey IntStoreKey (IntStore 0)
+      -- set all to be initially the same value
+      void $ runAuthTree driver . applyScope @'Query $
+        put storeKey IntStoreKey (IntStore 0)
+      void $ runAuthTree driver . applyScope @'Mempool $
+        put storeKey IntStoreKey (IntStore 0)
+      void $ runAuthTree driver . applyScope @'Consensus $
+        put storeKey IntStoreKey (IntStore 0)
 
-        withSandbox $ (put :: _) storeKey IntStoreKey (IntStore 1)
-        get @'Query storeKey IntStoreKey >>= liftIO . shouldBe (Just 0)
-        get @'Mempool storeKey IntStoreKey >>= liftIO . shouldBe (Just 0)
-        get @'Consensus storeKey IntStoreKey >>= liftIO . shouldBe (Just 0)
+      -- see what happens with a sandboxed checktx
+      void $ runAuthTree driver . applyScope @'Mempool $
+        withSandbox $ put storeKey IntStoreKey (IntStore 1)
 
+      void $ runAuthTree driver . applyScope @'Query $
+        get storeKey IntStoreKey >>= liftIO . shouldBe (Just 0)
+      void $ runAuthTree driver . applyScope @'Mempool $
+        get  storeKey IntStoreKey >>= liftIO . shouldBe (Just 0)
+      void $ runAuthTree driver . applyScope @'Consensus $
+        get storeKey IntStoreKey >>= liftIO . shouldBe (Just 0)
+
+
+      void $ runAuthTree driver . applyScope @'Consensus $ do
         beginBlock
-
         withTransaction $ put storeKey IntStoreKey (IntStore 1)
-        get @'Query storeKey IntStoreKey >>= liftIO . shouldBe (Just 0)
-        get @'Mempool storeKey IntStoreKey >>= liftIO . shouldBe (Just 0)
-        get @'Consensus storeKey IntStoreKey >>= liftIO . shouldBe (Just 1)
-
         commitBlock
 
-        get @'Query storeKey IntStoreKey >>= liftIO . shouldBe (Just 0)
-        get @'Mempool storeKey IntStoreKey >>= liftIO . shouldBe (Just 0)
-        get @'Consensus storeKey IntStoreKey >>= liftIO . shouldBe (Just 1)
+      void $ runAuthTree driver . applyScope @'Query $
+        get storeKey IntStoreKey >>= liftIO . shouldBe (Just 0)
+      void $ runAuthTree driver . applyScope @'Mempool $
+        get  storeKey IntStoreKey >>= liftIO . shouldBe (Just 0)
+      void $ runAuthTree driver . applyScope @'Consensus $
+        get  storeKey IntStoreKey >>= liftIO . shouldBe (Just 1)
 
-        mergeScopes
-        get @'Query storeKey IntStoreKey >>= liftIO . shouldBe (Just 1)
-        get @'Mempool storeKey IntStoreKey >>= liftIO . shouldBe (Just 1)
-        get @'Consensus storeKey IntStoreKey >>= liftIO . shouldBe (Just 1)
+      void $ runAuthTree driver . applyScope @'Consensus $ mergeScopes
 
+      void $ runAuthTree driver . applyScope @'Query $
+        get storeKey IntStoreKey >>= liftIO . shouldBe (Just 1)
+      void $ runAuthTree driver . applyScope @'Mempool $
+        get  storeKey IntStoreKey >>= liftIO . shouldBe (Just 1)
+      void $ runAuthTree driver . applyScope @'Consensus $
+        get  storeKey IntStoreKey >>= liftIO . shouldBe (Just 1)
 
 
 
@@ -130,10 +144,9 @@ storeKey :: StoreKey "int_store"
 storeKey = StoreKey "int_store"
 
 runAuthTree
-  :: AuthTreeState
-  -> Sem [ Tagged 'Query RawStore
-         , Tagged 'Mempool RawStore
-         , Tagged 'Consensus RawStore
+  :: AuthTreeGetter s
+  => AuthTreeState
+  -> Sem [ Tagged s RawStore
          , MergeScopes
          , Reader AuthTreeState
          , Error AppError
@@ -147,4 +160,4 @@ runAuthTree driver =
   runError .
   runReader driver .
   evalMergeScopes .
-  eval
+  evalTagged
