@@ -160,8 +160,8 @@ spec = do
         -- try to buy at a lower price
         let msg = TypedMessage "BuyName" (encode $ BuyName 100 satoshi "hello (again) world" addr1)
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        deliverResp <- getDeliverTxResponse rawTx
-        ensureDeliverResponseCode deliverResp 1
+        checkResp <- getCheckTxResponse rawTx
+        ensureCheckResponseCode checkResp 1
 
       it "Can delete names (success 0)" $ do
         let msg = TypedMessage "DeleteName" (encode $ DeleteName addr2 satoshi)
@@ -181,8 +181,8 @@ spec = do
       it "Can fail a transfer (failure 1)" $ do
         let msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 2000)
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
-        deliverResp <- getDeliverTxResponse rawTx
-        ensureDeliverResponseCode deliverResp 1
+        checkResp <- getCheckTxResponse rawTx
+        ensureCheckResponseCode checkResp 1
 
       it "Can transfer (success 0)" $ do
         let senderBeforeQueryReq = defaultQueryWithData addr2
@@ -229,6 +229,13 @@ getQueryResponseSuccess query = do
   responseCode `shouldBe` 0
   return . fromJust $ clientResponseData
 
+-- executes a request, then returns the checkTx response
+getCheckTxResponse :: RawTransaction -> IO Response.CheckTx
+getCheckTxResponse rawTx = do
+  let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+  fmap RPC.resultBroadcastTxCommitCheckTx . runRPC $
+    RPC.broadcastTxCommit txReq
+
 -- executes a request, then returns the deliverTx response
 getDeliverTxResponse :: RawTransaction -> IO Response.DeliverTx
 getDeliverTxResponse rawTx = do
@@ -249,6 +256,12 @@ ensureEventLogged deliverResp eventName expectedEvent = do
   (errs, events) <- deliverTxEvents deliverResp eventName
   errs `shouldBe` mempty
   events `shouldSatisfy` elem expectedEvent
+
+-- check for a specific check response code
+ensureCheckResponseCode :: Response.CheckTx -> Word32 -> IO ()
+ensureCheckResponseCode checkResp code = do
+  let checkRespCode = checkResp ^. Response._checkTxCode
+  checkRespCode `shouldBe` code
 
 -- check for a specific deliver response code
 ensureDeliverResponseCode :: Response.DeliverTx -> Word32 -> IO ()
