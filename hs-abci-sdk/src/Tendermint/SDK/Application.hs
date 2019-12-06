@@ -1,7 +1,6 @@
 module Tendermint.SDK.Application
   ( MakeApplication(..)
   , createApplication
-  , defaultHandler
   ) where
 
 import           Control.Exception
@@ -13,22 +12,13 @@ import           Network.ABCI.Server.App              (App, MessageType,
                                                        Response (..),
                                                        transformApp)
 import qualified Network.ABCI.Types.Messages.Response as Resp
-import           Polysemy                             (Member, Sem)
-import           Tendermint.SDK.Store                 (MergeScopes, mergeScopes)
+import           Polysemy                             (Sem)
 
 data MakeApplication r e = MakeApplication
   { app         :: App (Sem r)
   , transformer :: forall a. (Sem r) a -> IO a
   , appErrorP   :: Proxy e
-  , initialize  :: [Sem r ()]
   }
-
-defaultHandler
-  :: Default a
-  => Applicative m
-  => b
-  -> m a
-defaultHandler = const $ pure def
 
 transformResponse
   :: forall e r.
@@ -44,11 +34,7 @@ transformResponse MakeApplication{transformer} m = do
 
 createApplication
   :: Exception e
-  => Member MergeScopes r
   => MakeApplication r e
-  -> IO (App IO)
-createApplication ma@MakeApplication{app, transformer, initialize} = do
-    transformer $ do
-      sequence_ initialize
-      mergeScopes
-    pure $ transformApp (transformResponse ma) app
+  -> App IO
+createApplication ma@MakeApplication{app} =
+  transformApp (transformResponse ma) app

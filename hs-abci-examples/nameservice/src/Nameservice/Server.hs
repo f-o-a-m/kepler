@@ -4,8 +4,7 @@ import           Data.Foldable                                 (fold)
 import           Data.Monoid                                   (Endo (..))
 import           Data.Proxy
 import           Nameservice.Application                       (AppConfig (..),
-                                                                queryServer)
-import           Nameservice.Handlers                          (nameserviceApp)
+                                                                handlersContext)
 import           Network.ABCI.Server                           (serveApp)
 import           Network.ABCI.Server.App                       (Middleware)
 import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
@@ -15,6 +14,7 @@ import           Tendermint.SDK.Application                    (MakeApplication 
 import           Tendermint.SDK.BaseApp                        (CoreEffs,
                                                                 evalCoreEffs)
 import           Tendermint.SDK.Errors                         (AppError)
+import           Tendermint.SDK.Handlers                       (makeApp)
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do
@@ -22,11 +22,10 @@ makeAndServeApplication cfg = do
       makeApplication = MakeApplication
         { transformer = evalCoreEffs $ baseAppContext cfg
         , appErrorP = Proxy
-        , app = nameserviceApp queryServer
-        , initialize = []
+        , app = makeApp handlersContext
         }
   putStrLn "Starting ABCI application..."
-  application <- createApplication makeApplication
+  let application = createApplication makeApplication
   serveApp =<< hookInMiddleware application
   where
     mkMiddleware :: IO (Middleware IO)

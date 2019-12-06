@@ -24,6 +24,8 @@ import           Tendermint.SDK.Errors                (AppError,
                                                        deliverTxAppError)
 import           Tendermint.SDK.Events                (withEventBuffer)
 import           Tendermint.SDK.Module
+import           Tendermint.SDK.Query                 (HasRouter)
+import qualified Tendermint.SDK.QueryRouter           as Q
 import           Tendermint.SDK.Store                 (ConnectionScope (..))
 import qualified Tendermint.SDK.Store                 as Store
 import qualified Tendermint.SDK.TxRouter              as R
@@ -32,16 +34,18 @@ import           Tendermint.SDK.Types.TxResult        (TxResult,
                                                        deliverTxTxResult,
                                                        txResultEvents)
 
+type Handler mt r = Request mt -> Sem r (Response mt)
+
 data Handlers core = Handlers
-  { info       :: Request 'MTInfo -> Sem (BA.ScopedBaseApp 'Query core) (Response 'MTInfo)
-  , setOption  :: Request 'MTSetOption -> Sem (BA.ScopedBaseApp 'Query core)  (Response 'MTSetOption)
-  , initChain  :: Request 'MTInitChain -> Sem (BA.ScopedBaseApp 'Consensus core) (Response 'MTInitChain)
-  , query      :: Request 'MTQuery -> Sem (BA.ScopedBaseApp 'Query core) (Response 'MTQuery)
-  , checkTx    :: Request 'MTCheckTx -> Sem (BA.ScopedBaseApp 'Mempool core) (Response 'MTCheckTx)
-  , beginBlock :: Request 'MTBeginBlock -> Sem (BA.ScopedBaseApp 'Consensus core) (Response 'MTBeginBlock)
-  , deliverTx  :: Request 'MTDeliverTx -> Sem (BA.ScopedBaseApp 'Consensus core) (Response 'MTDeliverTx)
-  , endBlock   :: Request 'MTEndBlock -> Sem (BA.ScopedBaseApp 'Consensus core) (Response 'MTEndBlock)
-  , commit     :: Request 'MTCommit -> Sem (BA.ScopedBaseApp 'Consensus core) (Response 'MTCommit)
+  { info       :: Handler 'MTInfo (BA.ScopedBaseApp 'Query core)
+  , setOption  :: Handler 'MTSetOption (BA.ScopedBaseApp 'Query core)
+  , initChain  :: Handler 'MTInitChain (BA.ScopedBaseApp 'Consensus core)
+  , query      :: Handler 'MTQuery (BA.ScopedBaseApp 'Query core)
+  , checkTx    :: Handler 'MTCheckTx (BA.ScopedBaseApp 'Mempool core)
+  , beginBlock :: Handler 'MTBeginBlock (BA.ScopedBaseApp 'Consensus core)
+  , deliverTx  :: Handler 'MTDeliverTx (BA.ScopedBaseApp 'Consensus core)
+  , endBlock   :: Handler 'MTEndBlock (BA.ScopedBaseApp 'Consensus core)
+  , commit     :: Handler 'MTCommit (BA.ScopedBaseApp 'Consensus core)
   }
 
 defaultHandlers :: forall core. Handlers core
@@ -78,19 +82,26 @@ makeHandlers
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => R.Router ms r
+  => Q.QueryRouter ms r
+  => HasRouter (Q.Api ms)
   => Members BA.CoreEffs core
   => HandlersContext alg ms r core
   -> Handlers core
 makeHandlers HandlersContext{..} =
   let
-      router =  R.router signatureAlgP modules
+      txRouter =  R.router signatureAlgP modules
+      queryRouter = compileToBaseApp . Q.router modules
+
+      query (RequestQuery q) = Store.applyScope $ do
+        queryResp <- queryRouter q
+        pure $ ResponseQuery queryResp
 
       beginBlock _ = Store.applyScope (def <$ Store.beginBlock)
 
       checkTx (RequestCheckTx _checkTx) = Store.applyScope $
         catch
           (do
-            txResult <- transactionHandler router $
+            txResult <- transactionHandler txRouter $
               _checkTx ^. Req._checkTxTx . to Base64.toBytes
             return $ ResponseCheckTx $ def & checkTxTxResult .~ txResult
           )
@@ -101,7 +112,7 @@ makeHandlers HandlersContext{..} =
       deliverTx (RequestDeliverTx _deliverTx) = Store.applyScope $
         catch @AppError
           (do
-            txResult <- transactionHandler router $
+            txResult <- transactionHandler txRouter $
               _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
             return $ ResponseDeliverTx $ def & deliverTxTxResult .~ txResult
           )
@@ -118,8 +129,9 @@ makeHandlers HandlersContext{..} =
           & Resp._commitData .~ Base64.fromBytes rootHash
 
   in defaultHandlers
-       { beginBlock = beginBlock
+       { query = query
        , checkTx = checkTx
+       , beginBlock = beginBlock
        , deliverTx = deliverTx
        , commit = commit
        }
@@ -128,8 +140,8 @@ makeHandlers HandlersContext{..} =
       :: (ByteString -> Sem r ())
       -> ByteString
       -> Sem (BA.BaseApp core) TxResult
-    transactionHandler router bs = do
-      events <- withEventBuffer . compileToBaseApp $ router bs
+    transactionHandler txRouter bs = do
+      events <- withEventBuffer . compileToBaseApp $ txRouter bs
       pure $ def & txResultEvents .~ events
 
 makeApp
@@ -138,6 +150,8 @@ makeApp
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => R.Router ms r
+  => Q.QueryRouter ms r
+  => HasRouter (Q.Api ms)
   => Members BA.CoreEffs core
   => HandlersContext alg ms r core
   -> App (Sem core)

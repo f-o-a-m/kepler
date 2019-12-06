@@ -88,7 +88,6 @@ library:
   exposed-modules:
   - Nameservice.Application
   - Nameservice.Server
-  - Nameservice.Handlers
   - Nameservice.Modules.TypedMessage
   - Nameservice.Modules.Nameservice
   - Nameservice.Modules.Token

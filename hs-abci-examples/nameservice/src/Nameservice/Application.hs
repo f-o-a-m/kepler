@@ -1,29 +1,22 @@
 module Nameservice.Application
   ( AppConfig(..)
   , makeAppConfig
-  , Handler
-  , compileToBaseApp
-  --, runHandler
-  , QueryApi
-  , queryServer
-  , router
+  , EffR
+  , NameserviceModules
+  , handlersContext
   ) where
 
-import           Data.ByteString                 (ByteString)
 import           Data.Proxy
 import qualified Nameservice.Modules.Nameservice as N
 import qualified Nameservice.Modules.Token       as T
 import           Polysemy                        (Sem)
-import           Servant.API                     ((:<|>) (..))
 import qualified Tendermint.SDK.Auth             as A
 import           Tendermint.SDK.BaseApp          ((:&))
 import qualified Tendermint.SDK.BaseApp          as BaseApp
 import           Tendermint.SDK.Crypto           (Secp256k1)
+import           Tendermint.SDK.Handlers
 import qualified Tendermint.SDK.Logger.Katip     as KL
-import           Tendermint.SDK.Module           (Module (..), Modules (..))
-import           Tendermint.SDK.Query            (QueryApplication, hoistRoute,
-                                                  serve)
-import qualified Tendermint.SDK.TxRouter         as R
+import           Tendermint.SDK.Module           (Modules (..))
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context
@@ -37,39 +30,20 @@ makeAppConfig logCfg = do
 
 --------------------------------------------------------------------------------
 
-type EffR =
-  N.NameserviceEffs :& T.TokenEffs :& A.AuthEffs :& BaseApp.BaseApp
+type EffR = N.NameserviceEffs :& T.TokenEffs :& A.AuthEffs :& BaseApp.BaseApp BaseApp.CoreEffs
 
+type NameserviceModules = '[T.TokenM EffR, N.NameserviceM EffR]
 
-compileToBaseApp
-  :: Sem EffR a
-  -> Sem BaseApp.BaseApp a
-compileToBaseApp = A.eval . T.eval . N.eval
+handlersContext :: HandlersContext Secp256k1 NameserviceModules EffR BaseApp.CoreEffs
+handlersContext = HandlersContext
+  { signatureAlgP = Proxy @Secp256k1
+  , modules = nameserviceModules
+  , compileToBaseApp = compileNameserviceToBaseApp
+  , compileToCore  = BaseApp.compileScopedEff
+  }
+  where
+  nameserviceModules :: Modules NameserviceModules EffR
+  nameserviceModules = ConsModule T.tokenModule $ ConsModule N.nameserviceModule NilModules
 
-type Handler = Sem EffR
-
--- NOTE: this should probably go in the library
---runHandler
---  :: AppConfig
---  -> Handler a
---  -> IO a
---runHandler AppConfig{baseAppContext} =
---  BaseApp.eval baseAppContext . compileToBaseApp
-
---------------------------------------------------------------------------------
-
-modules :: Modules '[T.TokenM EffR ,N.NameserviceM EffR] EffR
-modules = ConsModule T.tokenModule $ ConsModule N.nameserviceModule NilModules
-
-type QueryApi = T.Api :<|> N.Api
-
-router
-  :: ByteString
-  -> Sem BaseApp.BaseApp ()
-router = compileToBaseApp . R.router (Proxy @Secp256k1) modules
-
-queryServer :: QueryApplication (Sem BaseApp.BaseApp)
-queryServer =
-  let queryRouter = hoistRoute (Proxy :: Proxy QueryApi) compileToBaseApp
-        (moduleQueryServer T.tokenModule :<|> moduleQueryServer N.nameserviceModule)
-  in serve (Proxy :: Proxy QueryApi) queryRouter
+  compileNameserviceToBaseApp :: Sem EffR a -> Sem (BaseApp.BaseApp BaseApp.CoreEffs) a
+  compileNameserviceToBaseApp = A.eval . T.eval . N.eval

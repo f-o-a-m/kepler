@@ -1,6 +1,6 @@
 module Tendermint.SDK.QueryRouter
   ( router
-  , QueryRouter
+  , QueryRouter(..)
   ) where
 
 import           Data.Proxy
