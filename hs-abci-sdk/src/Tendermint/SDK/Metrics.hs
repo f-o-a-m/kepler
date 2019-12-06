@@ -2,8 +2,7 @@
 
 module Tendermint.SDK.Metrics
   ( Metrics(..)
-  , Severity(..)
-  , MsgType(..)
+  , CountName(..)
   , incCount
   , withTimer
   , evalMetrics
@@ -15,18 +14,14 @@ import           Data.Map.Strict         (Map, insert, (!?))
 import           Data.Time               (NominalDiffTime, diffUTCTime, getCurrentTime)
 import           Polysemy                (Embed, Member, Sem, interpretH,
                                           makeSem, pureT, raise, runT)
+import Data.Text (Text)
 
-data MsgType =
-  MsgEcho | MsgInfo | MsgSetOption | MsgQuery | MsgCheckTx | MsgFlush | MsgInitChain | MsgBeginBlock | MsgDeliverTx | MsgEndBlock | MsgCommit
-  deriving (Eq, Ord, Show)
-
-data Severity =
-  Debug | Info | Warning | Error | Exception
+newtype CountName = CountName { unCountName :: Text }
   deriving (Eq, Ord)
 
 data Metrics m a where
   -- | Increments the count of a specific message
-  IncCount :: MsgType -> Metrics m ()
+  IncCount :: CountName -> Metrics m ()
   -- | Times an action
   WithTimer :: m a -> Metrics m (a, NominalDiffTime)
 
@@ -34,15 +29,15 @@ makeSem ''Metrics
 
 evalMetrics
   :: Member (Embed IO) r
-  => MVar (Map MsgType Integer)
+  => MVar (Map CountName Integer)
   -> Sem (Metrics ': r) a
   -> Sem r a
 evalMetrics mvarMap = do
   interpretH (\case
-    IncCount msgType -> do
+    IncCount countName -> do
       liftIO $ modifyMVar_ mvarMap $ \countMap ->
-        let newCount = maybe 1 (+1) (countMap !? msgType)
-        in pure $ insert msgType newCount countMap
+        let newCount = maybe 1 (+1) (countMap !? countName)
+        in pure $ insert countName newCount countMap
       pureT ()
     WithTimer action -> do
       startTime <- liftIO $ getCurrentTime
