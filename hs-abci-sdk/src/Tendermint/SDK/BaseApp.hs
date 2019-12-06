@@ -21,7 +21,7 @@ import           Tendermint.SDK.Events              (Event, EventBuffer,
 import           Tendermint.SDK.Logger              (Logger)
 import qualified Tendermint.SDK.Logger.Katip        as KL
 import           Tendermint.SDK.Store               (ApplyScope,
-                                                     ConnectionScope,
+                                                     ConnectionScope (..),
                                                      MergeScopes, RawStore)
 import qualified Tendermint.SDK.Store.AuthTreeStore as AT
 
@@ -115,3 +115,16 @@ evalCoreEffs Context{..} =
     runReader contextLogConfig .
     AT.evalMergeScopes .
     runReader contextEventBuffer
+
+
+
+data ScopedEff r a where
+  QueryScoped :: Sem (ScopedBaseApp 'Query r) a -> ScopedEff r a
+  MempoolScoped :: Sem (ScopedBaseApp 'Mempool r) a -> ScopedEff r a
+  ConsensusScoped :: Sem (ScopedBaseApp 'Consensus r) a -> ScopedEff r a
+
+compileScopedEff :: ScopedEff CoreEffs a -> Sem CoreEffs a
+compileScopedEff = \case
+  QueryScoped m -> compileToCoreEff m
+  MempoolScoped m -> compileToCoreEff m
+  ConsensusScoped m -> compileToCoreEff m

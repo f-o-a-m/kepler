@@ -20,7 +20,7 @@ data QA (a :: *)
 
 --------------------------------------------------------------------------------
 
-type Application m = Request.Query -> m Response.Query
+type QueryApplication m = Request.Query -> m Response.Query
 
 --------------------------------------------------------------------------------
 

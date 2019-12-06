@@ -32,19 +32,19 @@ import           Tendermint.SDK.Types.TxResult        (TxResult,
                                                        deliverTxTxResult,
                                                        txResultEvents)
 
-data Handlers r = Handlers
-  { info       :: Request 'MTInfo -> Sem (BA.ScopedBaseApp 'Query r) (Response 'MTInfo)
-  , setOption  :: Request 'MTSetOption -> Sem (BA.ScopedBaseApp 'Query r)  (Response 'MTSetOption)
-  , initChain  :: Request 'MTInitChain -> Sem (BA.ScopedBaseApp 'Consensus r) (Response 'MTInitChain)
-  , query      :: Request 'MTQuery -> Sem (BA.ScopedBaseApp 'Query r) (Response 'MTQuery)
-  , checkTx    :: Request 'MTCheckTx -> Sem (BA.ScopedBaseApp 'Mempool r) (Response 'MTCheckTx)
-  , beginBlock :: Request 'MTBeginBlock -> Sem (BA.ScopedBaseApp 'Consensus r) (Response 'MTBeginBlock)
-  , deliverTx  :: Request 'MTDeliverTx -> Sem (BA.ScopedBaseApp 'Consensus r) (Response 'MTDeliverTx)
-  , endBlock   :: Request 'MTEndBlock -> Sem (BA.ScopedBaseApp 'Consensus r) (Response 'MTEndBlock)
-  , commit     :: Request 'MTCommit -> Sem (BA.ScopedBaseApp 'Consensus r) (Response 'MTCommit)
+data Handlers core = Handlers
+  { info       :: Request 'MTInfo -> Sem (BA.ScopedBaseApp 'Query core) (Response 'MTInfo)
+  , setOption  :: Request 'MTSetOption -> Sem (BA.ScopedBaseApp 'Query core)  (Response 'MTSetOption)
+  , initChain  :: Request 'MTInitChain -> Sem (BA.ScopedBaseApp 'Consensus core) (Response 'MTInitChain)
+  , query      :: Request 'MTQuery -> Sem (BA.ScopedBaseApp 'Query core) (Response 'MTQuery)
+  , checkTx    :: Request 'MTCheckTx -> Sem (BA.ScopedBaseApp 'Mempool core) (Response 'MTCheckTx)
+  , beginBlock :: Request 'MTBeginBlock -> Sem (BA.ScopedBaseApp 'Consensus core) (Response 'MTBeginBlock)
+  , deliverTx  :: Request 'MTDeliverTx -> Sem (BA.ScopedBaseApp 'Consensus core) (Response 'MTDeliverTx)
+  , endBlock   :: Request 'MTEndBlock -> Sem (BA.ScopedBaseApp 'Consensus core) (Response 'MTEndBlock)
+  , commit     :: Request 'MTCommit -> Sem (BA.ScopedBaseApp 'Consensus core) (Response 'MTCommit)
   }
 
-defaultHandlers :: forall r. Handlers r
+defaultHandlers :: forall core. Handlers core
 defaultHandlers = Handlers
   { info = defaultHandler
   , setOption = defaultHandler
@@ -68,7 +68,7 @@ data HandlersContext alg ms r core = HandlersContext
   { signatureAlgP    :: Proxy alg
   , modules          :: Modules ms r
   , compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
-  , compileBaseAppToCore :: forall a scope. Sem (BA.ScopedBaseApp scope core) a -> Sem core a
+  , compileToCore    :: forall a. BA.ScopedEff core a -> Sem core a
   }
 
 -- Common function between checkTx and deliverTx
@@ -133,21 +133,27 @@ makeHandlers HandlersContext{..} =
       pure $ def & txResultEvents .~ events
 
 makeApp
- :: Handlers core
- -> (forall a scope. Sem (BA.ScopedBaseApp scope core) a -> Sem core a)
- -> App (Sem core)
-makeApp Handlers{..} compileToCore =
-  App $ \case
-    RequestEcho echo ->
-      pure . ResponseEcho $ def
-        & Resp._echoMessage .~ echo ^. Req._echoMessage
-    RequestFlush _ -> pure def
-    msg@(RequestInfo _) -> compileToCore $ info msg
-    msg@(RequestSetOption _) -> compileToCore $ setOption msg
-    msg@(RequestInitChain _) ->  compileToCore $ initChain msg
-    msg@(RequestQuery _) -> compileToCore $ query msg
-    msg@(RequestBeginBlock _) -> compileToCore $ beginBlock msg
-    msg@(RequestCheckTx _) -> compileToCore $ checkTx msg
-    msg@(RequestDeliverTx _) -> compileToCore $ deliverTx msg
-    msg@(RequestEndBlock _) -> compileToCore $ endBlock msg
-    msg@(RequestCommit _) ->  compileToCore $ commit msg
+  :: forall alg ms r core.
+     Member (Error AuthError) r
+  => RecoverableSignatureSchema alg
+  => Message alg ~ Digest SHA256
+  => R.Router ms r
+  => Members BA.CoreEffs core
+  => HandlersContext alg ms r core
+  -> App (Sem core)
+makeApp handlersContext@HandlersContext{compileToCore} =
+  let Handlers{..} = makeHandlers handlersContext
+  in App $ \case
+       RequestEcho echo ->
+         pure . ResponseEcho $ def
+           & Resp._echoMessage .~ echo ^. Req._echoMessage
+       RequestFlush _ -> pure def
+       msg@(RequestInfo _) -> compileToCore . BA.QueryScoped $  info msg
+       msg@(RequestSetOption _) -> compileToCore . BA.QueryScoped $ setOption msg
+       msg@(RequestInitChain _) ->  compileToCore . BA.ConsensusScoped $ initChain msg
+       msg@(RequestQuery _) -> compileToCore . BA.QueryScoped $ query msg
+       msg@(RequestBeginBlock _) -> compileToCore . BA.ConsensusScoped $ beginBlock msg
+       msg@(RequestCheckTx _) -> compileToCore . BA.MempoolScoped $ checkTx msg
+       msg@(RequestDeliverTx _) -> compileToCore . BA.ConsensusScoped $ deliverTx msg
+       msg@(RequestEndBlock _) -> compileToCore . BA.ConsensusScoped $ endBlock msg
+       msg@(RequestCommit _) ->  compileToCore . BA.ConsensusScoped $ commit msg

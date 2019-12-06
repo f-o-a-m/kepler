@@ -5,7 +5,7 @@ import           Polysemy                         (EffectRow, Sem)
 import           Tendermint.SDK.Query             (RouteT)
 import           Tendermint.SDK.Types.Transaction (RoutedTx)
 
-data Module (name :: Symbol) msg api (r :: EffectRow) = Module
+data Module (name :: Symbol) msg (api :: *) (r :: EffectRow) = Module
   { moduleRouter      :: RoutedTx msg -> Sem r ()
   , moduleQueryServer :: RouteT api (Sem r)
   }
