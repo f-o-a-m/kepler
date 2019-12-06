@@ -4,7 +4,6 @@ module Tendermint.SDK.Test.MetricsSpec where
 
 import           Control.Concurrent.MVar (MVar, newMVar, readMVar)
 import           Data.Map.Strict         (Map, empty, (!?))
--- import qualified Katip                   as K
 import           Polysemy
 import qualified Tendermint.SDK.Metrics  as Met
 import           Test.Hspec
@@ -19,10 +18,7 @@ evalFox = interpret $ \case
   Shine -> pure ()
 
 eval
-  :: -- forall r a.
-  --    K.KatipContext (Sem r)
-  -- =>
-  MVar (Map Met.MsgType Integer)
+  :: MVar (Map Met.MsgType Integer)
   -> Sem [Fox, Met.Metrics, Embed IO] a
   -> IO a
 eval mvarMap = runM . Met.evalMetrics mvarMap . evalFox

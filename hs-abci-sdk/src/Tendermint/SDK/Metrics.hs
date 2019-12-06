@@ -6,18 +6,13 @@ module Tendermint.SDK.Metrics
   , MsgType(..)
   , incCount
   , withTimer
-  -- , Tendermint.SDK.Metrics.log
   , evalMetrics
   ) where
 
 import           Control.Concurrent.MVar (MVar, modifyMVar_)
 import           Control.Monad.IO.Class  (liftIO)
 import           Data.Map.Strict         (Map, insert, (!?))
--- import           Data.String             (fromString)
--- import           Data.String.Conversions (cs)
--- import           Data.Text               (Text)
 import           Data.Time               (NominalDiffTime, diffUTCTime, getCurrentTime)
--- import qualified Katip                   as K
 import           Polysemy                (Embed, Member, Sem, interpretH,
                                           makeSem, pureT, raise, runT)
 
@@ -34,17 +29,11 @@ data Metrics m a where
   IncCount :: MsgType -> Metrics m ()
   -- | Times an action
   WithTimer :: m a -> Metrics m (a, NominalDiffTime)
-  -- | Log metrics
-  -- Log :: Severity -> Text -> Metrics m ()
 
 makeSem ''Metrics
 
 evalMetrics
-  ::
-    --  forall r a.
-  --    K.KatipContext (Sem r)
-  -- =>
-  Member (Embed IO) r
+  :: Member (Embed IO) r
   => MVar (Map MsgType Integer)
   -> Sem (Metrics ': r) a
   -> Sem r a
@@ -62,16 +51,4 @@ evalMetrics mvarMap = do
       let time = diffUTCTime endTime startTime
       actionRes <- raise $ evalMetrics mvarMap a
       pure $ (, time) <$> actionRes
-    -- @TODO: figure out whether this is necessary
-    -- Log severity msg -> do
-    --   raise $ K.logFM (coerceSeverity severity) (fromString . cs $ msg)
-    --   pureT ()
     )
-    -- where
-    --   coerceSeverity :: Severity -> K.Severity
-    --   coerceSeverity = \case
-    --     Debug -> K.DebugS
-    --     Info -> K.InfoS
-    --     Warning -> K.WarningS
-    --     Error -> K.ErrorS
-    --     Exception -> K.CriticalS
