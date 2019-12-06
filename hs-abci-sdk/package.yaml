@@ -123,6 +123,7 @@ library:
   - Tendermint.SDK.TxRouter
   - Tendermint.SDK.Module
   - Tendermint.SDK.Gas
+  - Tendermint.SDK.Metrics
 
   generated-exposed-modules:
   - Proto.Types.Transaction
@@ -137,6 +138,7 @@ tests:
     - Tendermint.SDK.Test.CryptoSpec
     - Tendermint.SDK.Test.EventSpec
     - Tendermint.SDK.Test.GasSpec
+    - Tendermint.SDK.Test.MetricsSpec
 
     ghc-options:
     - -fplugin=Polysemy.Plugin
