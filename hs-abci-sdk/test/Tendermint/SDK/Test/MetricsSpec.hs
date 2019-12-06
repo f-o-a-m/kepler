@@ -25,7 +25,7 @@ eval mvarMap = runM . Met.evalMetrics mvarMap . evalFox
 
 spec :: Spec
 spec = describe "Metrics tests" $ do
-  it "Can increment message type counts" $ do
+  it "Can increment counts" $ do
     let countName = Met.CountName "blip"
     mvarMap <- newMVar empty
     _ <- eval mvarMap $ Met.incCount countName
