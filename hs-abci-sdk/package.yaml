@@ -80,6 +80,7 @@ dependencies:
 - stm
 - string-conversions
 - text
+- time
 - uri-bytestring
 - validation
 

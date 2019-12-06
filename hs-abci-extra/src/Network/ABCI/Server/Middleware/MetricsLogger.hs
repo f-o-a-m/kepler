@@ -1,7 +1,7 @@
 module Network.ABCI.Server.Middleware.MetricsLogger
     ( -- * Basic stdout logging
       mkMetricsLogStdout
-    , mkMetricsLogDatadog
+    --, mkMetricsLogDatadog
     , mkMetricsLogDatadogLocal
       -- * Custom Loggers
     , mkMetricsLogger
