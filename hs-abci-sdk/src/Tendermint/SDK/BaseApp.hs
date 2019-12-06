@@ -13,6 +13,7 @@ import           Polysemy.Output                    (Output)
 import           Polysemy.Reader                    (Reader, asks, local,
                                                      runReader)
 import           Polysemy.Resource                  (Resource, resourceToIO)
+import           Polysemy.Tagged                    (Tagged)
 import           Tendermint.SDK.Errors              (AppError)
 import           Tendermint.SDK.Events              (Event, EventBuffer,
                                                      evalWithBuffer,
@@ -55,9 +56,9 @@ infixr 5 :&
 -- TODO: it would be really nice to not have this CoreEff here, but to just
 -- interpret into it as an intermediate step in the total evaluation of BaseApp.
 -- Polysemy probably has a way to do this already.
-type BaseApp = BaseAppEffs :& CoreEffs
+type BaseApp r = BaseAppEffs :& r
 
-type ScopedBaseApp (s :: ConnectionScope) = ApplyScope s BaseApp
+type ScopedBaseApp (s :: ConnectionScope) r = ApplyScope s (BaseApp r)
 
 instance (Members CoreEffs r) => K.Katip (Sem r)  where
   getLogEnv = asks $ view KL.logEnv
@@ -69,17 +70,22 @@ instance (Members CoreEffs r) => K.KatipContext (Sem r) where
   getKatipNamespace = asks $ view KL.logNamespace
   localKatipNamespace f m = local (over KL.logNamespace f) m
 
+class ResolveScope s r where
+  resolveScope :: Sem (Tagged s RawStore ': r) a -> Sem r a
+
+instance (Members CoreEffs r, AT.AuthTreeGetter s) => ResolveScope s r where
+  resolveScope = AT.evalTagged
+
 -- | An intermediary interpeter, bringing 'BaseApp' down to 'CoreEff'.
 compileToCoreEff
-  :: forall s.
-     AT.AuthTreeGetter s
-  => forall a. Sem (ScopedBaseApp s) a -> Sem CoreEffs a
+  :: AT.AuthTreeGetter s
+  => forall a. Sem (ScopedBaseApp s CoreEffs) a -> Sem CoreEffs a
 compileToCoreEff action = do
   eRes <- runError .
     resourceToIO .
     KL.evalKatip .
     evalWithBuffer .
-    AT.evalTagged $ action
+    resolveScope $ action
   either (liftIO . throwIO) return eRes
 
 -- | 'Context' is the environment required to run 'CoreEff' to 'IO'
