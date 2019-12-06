@@ -2,22 +2,24 @@ module Network.ABCI.Server.Middleware.MetricsLogger
     ( -- * Basic stdout logging
       mkMetricsLogStdout
     , mkMetricsLogDatadog
+    , mkMetricsLogDatadogLocal
       -- * Custom Loggers
     , mkMetricsLogger
     , mkMetricsLoggerM
     ) where
-import           Control.Concurrent.MVar (MVar, modifyMVar, newMVar)
-import           Control.Monad.IO.Class  (MonadIO, liftIO)
-import qualified Data.Aeson              as A
-import           Data.Map.Strict         (Map)
-import qualified Data.Map.Strict         as Map
-import           Data.Time               (NominalDiffTime, diffUTCTime,
-                                          getCurrentTime)
+import           Control.Concurrent.MVar   (MVar, modifyMVar, newMVar)
+import           Control.Monad.IO.Class    (MonadIO, liftIO)
+import qualified Data.Aeson                as A
+import           Data.Map.Strict           (Map)
+import qualified Data.Map.Strict           as Map
+import           Data.Time                 (NominalDiffTime, diffUTCTime,
+                                            getCurrentTime)
 import           Katip
-import           Network.ABCI.Server.App (App (..), MessageType (..),
-                                          Middleware, Request (..), msgTypeKey)
-import           System.IO               (stdout)
-import Katip.Scribes.Datadog.TCP
+import           Katip.Scribes.Datadog.TCP
+import           Network.ABCI.Server.App   (App (..), MessageType (..),
+                                            Middleware, Request (..),
+                                            msgTypeKey)
+import           System.IO                 (stdout)
 
 ---------------------------------------------------------------------------
 -- mkMetricsLogStdout
@@ -38,8 +40,8 @@ mkMetricsLogStdout = do
 -- mkMetricsLogDatadog
 ---------------------------------------------------------------------------
 
-mkMetricsLogDatadog :: (MonadIO m) => Integer -> m (Middleware m)
-mkMetricsLogDatadog port = do
+mkMetricsLogDatadogLocal :: (MonadIO m) => Integer -> m (Middleware m)
+mkMetricsLogDatadogLocal port = do
   datadogScribeSettings <- liftIO $ mkDatadogScribeSettings (localAgentConnectionParams (fromInteger port)) NoAuthLocal
   scribe <- liftIO $ mkDatadogScribe datadogScribeSettings (permitItem InfoS) V0
   le <- liftIO (registerScribe "datadog" scribe defaultScribeSettings
@@ -47,6 +49,17 @@ mkMetricsLogDatadog port = do
   let ns = "Server"
   mvarReqC <- liftIO $ newMVar Map.empty
   pure $ mkMetricsLogger mvarReqC le ns
+
+-- mkMetricsLogDatadog :: (MonadIO m) => m (Middleware m)
+-- mkMetricsLogDatadog = do
+--   let apiKey = APIKey undefined
+--   datadogScribeSettings <- liftIO $ mkDatadogScribeSettings directAPIConnectionParams (DirectAuth apiKey)
+--   scribe <- liftIO $ mkDatadogScribe datadogScribeSettings (permitItem InfoS) V0
+--   le <- liftIO (registerScribe "datadog" scribe defaultScribeSettings
+--         =<< initLogEnv "ABCI" "production")
+--   let ns = "Server"
+--   mvarReqC <- liftIO $ newMVar Map.empty
+--   pure $ mkMetricsLogger mvarReqC le ns
 
 ---------------------------------------------------------------------------
 -- mkRequestLogger
