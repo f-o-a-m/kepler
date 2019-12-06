@@ -1,4 +1,4 @@
-module Tendermint.SDK.Store.AuthTreeStore
+module Tendermint.SDK.BaseApp.Store.AuthTreeStore
   ( AuthTreeState(..)
   , AuthTreeGetter(..)
   , initAuthTreeState
@@ -6,25 +6,26 @@ module Tendermint.SDK.Store.AuthTreeStore
   , evalTagged
   ) where
 
-import           Control.Concurrent.STM           (atomically)
+import           Control.Concurrent.STM                (atomically)
 import           Control.Concurrent.STM.TVar
-import           Control.Monad                    (forM_)
+import           Control.Monad                         (forM_)
 import           Control.Monad.IO.Class
-import qualified Crypto.Data.Auth.Tree            as AT
-import qualified Crypto.Data.Auth.Tree.Class      as AT
-import qualified Crypto.Data.Auth.Tree.Cryptonite as Cryptonite
-import qualified Crypto.Hash                      as Cryptonite
-import           Data.ByteArray                   (convert)
-import           Data.ByteString                  (ByteString)
-import qualified Data.List.NonEmpty               as NE
+import qualified Crypto.Data.Auth.Tree                 as AT
+import qualified Crypto.Data.Auth.Tree.Class           as AT
+import qualified Crypto.Data.Auth.Tree.Cryptonite      as Cryptonite
+import qualified Crypto.Hash                           as Cryptonite
+import           Data.ByteArray                        (convert)
+import           Data.ByteString                       (ByteString)
+import qualified Data.List.NonEmpty                    as NE
 import           Data.Proxy
-import           Polysemy                         (Embed, Members, Sem,
-                                                   interpret)
-import           Polysemy.Reader                  (Reader, ask, asks)
-import           Polysemy.Tagged                  (Tagged (..))
-import           Tendermint.SDK.Store.RawStore    (RawStore (..), StoreKey (..))
-import           Tendermint.SDK.Store.Scope       (ConnectionScope (..),
-                                                   MergeScopes (..))
+import           Polysemy                              (Embed, Members, Sem,
+                                                        interpret)
+import           Polysemy.Reader                       (Reader, ask, asks)
+import           Polysemy.Tagged                       (Tagged (..))
+import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore (..),
+                                                        StoreKey (..))
+import           Tendermint.SDK.BaseApp.Store.Scope    (ConnectionScope (..),
+                                                        MergeScopes (..))
 
 -- At the moment, the 'AuthTreeStore' is our only interpreter for the 'RawStore' effect.
 -- It is an in memory merklized key value store. You can find the repository here

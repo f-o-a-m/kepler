@@ -1,19 +1,22 @@
 {-# LANGUAGE UndecidableInstances #-}
-module Tendermint.SDK.Query.Class where
+module Tendermint.SDK.BaseApp.Query.Class where
 
 import           Control.Error
-import           Control.Monad.Morph          (hoist)
+import           Control.Monad.Morph                  (hoist)
 import           Data.Proxy
-import           Data.String.Conversions      (cs)
-import           GHC.TypeLits                 (KnownSymbol, symbolVal)
+import           Data.String.Conversions              (cs)
+import           GHC.TypeLits                         (KnownSymbol, symbolVal)
 import           Servant.API
-import           Tendermint.SDK.Query.Delayed (Delayed, addQueryArgs,
-                                               delayedFail)
-import           Tendermint.SDK.Query.Router  (Router, Router' (..), choice,
-                                               methodRouter, pathRouter)
-import           Tendermint.SDK.Query.Types   (FromQueryData (..), Leaf, QA,
-                                               QueryArgs (..), QueryError (..),
-                                               QueryResult, Queryable (..))
+import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, addQueryArgs,
+                                                       delayedFail)
+import           Tendermint.SDK.BaseApp.Query.Router  (Router, Router' (..),
+                                                       choice, methodRouter,
+                                                       pathRouter)
+import           Tendermint.SDK.BaseApp.Query.Types   (FromQueryData (..), Leaf,
+                                                       QA, QueryArgs (..),
+                                                       QueryError (..),
+                                                       QueryResult,
+                                                       Queryable (..))
 
 --------------------------------------------------------------------------------
 

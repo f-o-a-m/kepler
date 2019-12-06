@@ -1,13 +1,13 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Tendermint.SDK.Logger.Katip where
+module Tendermint.SDK.BaseApp.Logger.Katip where
 
-import           Control.Lens.TH         (makeLenses)
-import           Data.String             (fromString)
-import           Data.String.Conversions (cs)
-import           Data.Text               (Text)
-import qualified Katip                   as K
-import           Polysemy                (Sem, interpret)
-import           Tendermint.SDK.Logger   (Logger (..), Severity (..))
+import           Control.Lens.TH               (makeLenses)
+import           Data.String                   (fromString)
+import           Data.String.Conversions       (cs)
+import           Data.Text                     (Text)
+import qualified Katip                         as K
+import           Polysemy                      (Sem, interpret)
+import           Tendermint.SDK.BaseApp.Logger (Logger (..), Severity (..))
 
 data LogConfig = LogConfig
   { _logNamespace :: K.Namespace

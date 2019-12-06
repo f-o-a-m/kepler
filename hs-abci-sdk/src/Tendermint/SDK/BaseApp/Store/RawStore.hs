@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.Store.RawStore
+module Tendermint.SDK.BaseApp.Store.RawStore
   ( RawStore(..)
   , RawKey(..)
   , IsKey(..)
@@ -16,16 +16,16 @@ module Tendermint.SDK.Store.RawStore
   , commitBlock
   ) where
 
-import           Control.Lens            (Iso', (^.))
-import qualified Data.ByteString         as BS
+import           Control.Lens                  (Iso', (^.))
+import qualified Data.ByteString               as BS
 import           Data.Proxy
-import           Data.String.Conversions (cs)
-import           Polysemy                (Member, Members, Sem, makeSem)
-import           Polysemy.Error          (Error, catch, throw)
-import           Polysemy.Resource       (Resource, finally, onException)
-import           Tendermint.SDK.Codec    (HasCodec (..))
-import           Tendermint.SDK.Errors   (AppError, SDKError (ParseError),
-                                          throwSDKError)
+import           Data.String.Conversions       (cs)
+import           Polysemy                      (Member, Members, Sem, makeSem)
+import           Polysemy.Error                (Error, catch, throw)
+import           Polysemy.Resource             (Resource, finally, onException)
+import           Tendermint.SDK.BaseApp.Errors (AppError, SDKError (ParseError),
+                                                throwSDKError)
+import           Tendermint.SDK.Codec          (HasCodec (..))
 
 newtype StoreKey n = StoreKey BS.ByteString
 

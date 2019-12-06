@@ -1,4 +1,4 @@
-module Tendermint.SDK.Query.Delayed where
+module Tendermint.SDK.BaseApp.Query.Delayed where
 
 import           Control.Error                        (ExceptT, runExceptT)
 import           Control.Monad.Reader                 (MonadReader, ReaderT,
@@ -9,7 +9,7 @@ import           Data.Default.Class                   (def)
 import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
-import           Tendermint.SDK.Query.Types           (QueryError (..),
+import           Tendermint.SDK.BaseApp.Query.Types   (QueryError (..),
                                                        RouteResult (..),
                                                        RouteResultT (..))
 

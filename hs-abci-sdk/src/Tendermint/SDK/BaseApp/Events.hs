@@ -1,4 +1,4 @@
-module Tendermint.SDK.Events
+module Tendermint.SDK.BaseApp.Events
   ( Event(..)
   , ToEvent(..)
   , FromEvent(..)

@@ -1,4 +1,4 @@
-module Tendermint.SDK.Query.Types where
+module Tendermint.SDK.BaseApp.Query.Types where
 
 import           Control.Lens                           (from, (^.))
 import           Control.Monad                          (ap)
@@ -11,8 +11,8 @@ import           GHC.TypeLits                           (Symbol)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof, WrappedVal (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
+import           Tendermint.SDK.BaseApp.Store           (RawKey (..))
 import           Tendermint.SDK.Codec                   (HasCodec (..))
-import           Tendermint.SDK.Store                   (RawKey (..))
 
 data Leaf (a :: *)
 

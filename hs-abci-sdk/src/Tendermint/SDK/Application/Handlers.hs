@@ -1,4 +1,8 @@
-module Tendermint.SDK.Handlers where
+module Tendermint.SDK.Application.Handlers
+  ( Handler
+  , HandlersContext(..)
+  , makeApp
+  ) where
 
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Crypto.Hash                          (Digest)
@@ -15,20 +19,19 @@ import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Polysemy
 import           Polysemy.Error                       (Error, catch)
+import qualified Tendermint.SDK.Application.Module    as M
 import           Tendermint.SDK.Auth                  (AuthError)
-import qualified Tendermint.SDK.BaseApp               as BA
+import qualified Tendermint.SDK.BaseApp.BaseApp       as BA
+import           Tendermint.SDK.BaseApp.Errors        (AppError,
+                                                       checkTxAppError,
+                                                       deliverTxAppError,
+                                                       queryAppError)
+import           Tendermint.SDK.BaseApp.Events        (withEventBuffer)
+import           Tendermint.SDK.BaseApp.Query         (HasRouter)
+import           Tendermint.SDK.BaseApp.Store         (ConnectionScope (..))
+import qualified Tendermint.SDK.BaseApp.Store         as Store
 import           Tendermint.SDK.Crypto                (RecoverableSignatureSchema,
                                                        SignatureSchema (..))
-import           Tendermint.SDK.Errors                (AppError,
-                                                       checkTxAppError,
-                                                       deliverTxAppError)
-import           Tendermint.SDK.Events                (withEventBuffer)
-import           Tendermint.SDK.Module
-import           Tendermint.SDK.Query                 (HasRouter)
-import qualified Tendermint.SDK.QueryRouter           as Q
-import           Tendermint.SDK.Store                 (ConnectionScope (..))
-import qualified Tendermint.SDK.Store                 as Store
-import qualified Tendermint.SDK.TxRouter              as R
 import           Tendermint.SDK.Types.TxResult        (TxResult,
                                                        checkTxTxResult,
                                                        deliverTxTxResult,
@@ -70,7 +73,7 @@ defaultHandlers = Handlers
 
 data HandlersContext alg ms r core = HandlersContext
   { signatureAlgP    :: Proxy alg
-  , modules          :: Modules ms r
+  , modules          :: M.Modules ms r
   , compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
   , compileToCore    :: forall a. BA.ScopedEff core a -> Sem core a
   }
@@ -81,20 +84,26 @@ makeHandlers
      Member (Error AuthError) r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
-  => R.Router ms r
-  => Q.QueryRouter ms r
-  => HasRouter (Q.Api ms)
+  => M.TxRouter ms r
+  => M.QueryRouter ms r
+  => HasRouter (M.Api ms)
   => Members BA.CoreEffs core
   => HandlersContext alg ms r core
   -> Handlers core
 makeHandlers HandlersContext{..} =
   let
-      txRouter =  R.router signatureAlgP modules
-      queryRouter = compileToBaseApp . Q.router modules
+      txRouter =  M.txRouter signatureAlgP modules
+      queryRouter = compileToBaseApp . M.queryRouter modules
 
-      query (RequestQuery q) = Store.applyScope $ do
-        queryResp <- queryRouter q
-        pure $ ResponseQuery queryResp
+      query (RequestQuery q) = Store.applyScope $
+        catch
+          (do
+            queryResp <- queryRouter q
+            pure $ ResponseQuery queryResp
+          )
+          (\(err :: AppError) ->
+            return . ResponseQuery $ def & queryAppError .~ err
+          )
 
       beginBlock _ = Store.applyScope (def <$ Store.beginBlock)
 
@@ -120,7 +129,7 @@ makeHandlers HandlersContext{..} =
             return . ResponseDeliverTx $ def & deliverTxAppError .~ err
           )
 
-      commit :: Request 'MTCommit -> Sem (BA.ScopedBaseApp 'Consensus core) (Response 'MTCommit)
+      commit :: Handler 'MTCommit (BA.ScopedBaseApp 'Consensus core)
       commit _ = Store.applyScope $ do
         Store.commitBlock
         Store.mergeScopes
@@ -149,9 +158,9 @@ makeApp
      Member (Error AuthError) r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
-  => R.Router ms r
-  => Q.QueryRouter ms r
-  => HasRouter (Q.Api ms)
+  => M.TxRouter ms r
+  => M.QueryRouter ms r
+  => HasRouter (M.Api ms)
   => Members BA.CoreEffs core
   => HandlersContext alg ms r core
   -> App (Sem core)

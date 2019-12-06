@@ -1,19 +1,19 @@
-module Tendermint.SDK.Query
+module Tendermint.SDK.BaseApp.Query
   ( serve
   , serveRouter
-  , module Tendermint.SDK.Query.Class
-  , module Tendermint.SDK.Query.Router
-  , module Tendermint.SDK.Query.Types
-  , module Tendermint.SDK.Query.Delayed
-  , module Tendermint.SDK.Query.Store
+  , module Tendermint.SDK.BaseApp.Query.Class
+  , module Tendermint.SDK.BaseApp.Query.Router
+  , module Tendermint.SDK.BaseApp.Query.Types
+  , module Tendermint.SDK.BaseApp.Query.Delayed
+  , module Tendermint.SDK.BaseApp.Query.Store
   ) where
 
 import           Data.Proxy
-import           Tendermint.SDK.Query.Class
-import           Tendermint.SDK.Query.Delayed
-import           Tendermint.SDK.Query.Router
-import           Tendermint.SDK.Query.Store
-import           Tendermint.SDK.Query.Types
+import           Tendermint.SDK.BaseApp.Query.Class
+import           Tendermint.SDK.BaseApp.Query.Delayed
+import           Tendermint.SDK.BaseApp.Query.Router
+import           Tendermint.SDK.BaseApp.Query.Store
+import           Tendermint.SDK.BaseApp.Query.Types
 
 serveRouter
   :: Monad m

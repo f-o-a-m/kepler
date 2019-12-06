@@ -1,4 +1,4 @@
-module Tendermint.SDK.Query.Router where
+module Tendermint.SDK.BaseApp.Query.Router where
 
 import           Control.Error
 import           Control.Lens                         (to, (&), (.~), (^.))
@@ -12,8 +12,8 @@ import qualified Data.Text.Encoding                   as T
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Network.HTTP.Types                   (decodePathSegments)
-import           Tendermint.SDK.Query.Delayed         (Delayed, runAction)
-import           Tendermint.SDK.Query.Types           (QueryArgs (..),
+import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, runAction)
+import           Tendermint.SDK.BaseApp.Query.Types   (QueryArgs (..),
                                                        QueryError (..),
                                                        QueryResult (..),
                                                        Queryable (..),

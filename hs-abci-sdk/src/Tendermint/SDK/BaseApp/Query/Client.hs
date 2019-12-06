@@ -1,6 +1,6 @@
 {-# LANGUAGE UndecidableInstances #-}
 
-module Tendermint.SDK.Query.Client
+module Tendermint.SDK.BaseApp.Query.Client
   ( RunClient(..)
   , HasClient(..)
   , ClientResponse(..)
@@ -18,9 +18,9 @@ import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import qualified Network.Tendermint.Client            as RPC
 import           Servant.API                          ((:<|>) (..), (:>))
-import           Tendermint.SDK.Query.Types           (Leaf, QA, QueryArgs (..),
+import           Tendermint.SDK.BaseApp.Query.Types   (Leaf, QA, QueryArgs (..),
                                                        Queryable (..))
-import           Tendermint.SDK.Store                 (RawKey (..))
+import           Tendermint.SDK.BaseApp.Store         (RawKey (..))
 
 class Monad m => RunClient m where
     -- | How to make a request.

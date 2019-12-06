@@ -1,29 +1,31 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Tendermint.SDK.BaseApp where
+module Tendermint.SDK.BaseApp.BaseApp where
 
-import           Control.Exception                  (throwIO)
-import           Control.Lens                       (over, view)
-import           Control.Monad.IO.Class             (liftIO)
-import qualified Katip                              as K
-import           Polysemy                           (Embed, Members, Sem, runM)
-import           Polysemy.Error                     (Error, runError)
-import           Polysemy.Output                    (Output)
-import           Polysemy.Reader                    (Reader, asks, local,
-                                                     runReader)
-import           Polysemy.Resource                  (Resource, resourceToIO)
-import           Polysemy.Tagged                    (Tagged)
-import           Tendermint.SDK.Errors              (AppError)
-import           Tendermint.SDK.Events              (Event, EventBuffer,
-                                                     evalWithBuffer,
-                                                     newEventBuffer)
-import           Tendermint.SDK.Logger              (Logger)
-import qualified Tendermint.SDK.Logger.Katip        as KL
-import           Tendermint.SDK.Store               (ApplyScope,
-                                                     ConnectionScope (..),
-                                                     MergeScopes, RawStore)
-import qualified Tendermint.SDK.Store.AuthTreeStore as AT
+import           Control.Exception                          (throwIO)
+import           Control.Lens                               (over, view)
+import           Control.Monad.IO.Class                     (liftIO)
+import qualified Katip                                      as K
+import           Polysemy                                   (Embed, Members,
+                                                             Sem, runM)
+import           Polysemy.Error                             (Error, runError)
+import           Polysemy.Output                            (Output)
+import           Polysemy.Reader                            (Reader, asks,
+                                                             local, runReader)
+import           Polysemy.Resource                          (Resource,
+                                                             resourceToIO)
+import           Polysemy.Tagged                            (Tagged)
+import           Tendermint.SDK.BaseApp.Errors              (AppError)
+import           Tendermint.SDK.BaseApp.Events              (Event, EventBuffer,
+                                                             evalWithBuffer,
+                                                             newEventBuffer)
+import           Tendermint.SDK.BaseApp.Logger              (Logger)
+import qualified Tendermint.SDK.BaseApp.Logger.Katip        as KL
+import           Tendermint.SDK.BaseApp.Store               (ApplyScope, ConnectionScope (..),
+                                                             MergeScopes,
+                                                             RawStore)
+import qualified Tendermint.SDK.BaseApp.Store.AuthTreeStore as AT
 
 -- | Concrete row of effects for the BaseApp. Note that because there does
 -- | not exist an interpreter for an untagged 'RawStore', you must scope

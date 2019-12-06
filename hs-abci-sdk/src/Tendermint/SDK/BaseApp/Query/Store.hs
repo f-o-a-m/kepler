@@ -1,22 +1,22 @@
 {-# LANGUAGE UndecidableInstances #-}
 
-module Tendermint.SDK.Query.Store where
+module Tendermint.SDK.BaseApp.Query.Store where
 
-import           Control.Error               (ExceptT, throwE)
-import           Control.Lens                (to, (^.))
-import           Control.Monad.Trans         (lift)
-import           Data.ByteArray.Base64String (fromBytes)
+import           Control.Error                      (ExceptT, throwE)
+import           Control.Lens                       (to, (^.))
+import           Control.Monad.Trans                (lift)
+import           Data.ByteArray.Base64String        (fromBytes)
 import           Data.Proxy
-import           GHC.TypeLits                (Symbol)
-import           Polysemy                    (Members, Sem)
-import           Polysemy.Error              (Error)
-import           Servant.API                 ((:<|>) (..), (:>))
-import           Tendermint.SDK.Codec        (HasCodec)
-import           Tendermint.SDK.Errors       (AppError)
-import           Tendermint.SDK.Query.Class
-import           Tendermint.SDK.Query.Types
-import           Tendermint.SDK.Store        (IsKey (..), RawKey (..), RawStore,
-                                              StoreKey, get)
+import           GHC.TypeLits                       (Symbol)
+import           Polysemy                           (Members, Sem)
+import           Polysemy.Error                     (Error)
+import           Servant.API                        ((:<|>) (..), (:>))
+import           Tendermint.SDK.BaseApp.Errors      (AppError)
+import           Tendermint.SDK.BaseApp.Query.Class
+import           Tendermint.SDK.BaseApp.Query.Types
+import           Tendermint.SDK.BaseApp.Store       (IsKey (..), RawKey (..),
+                                                     RawStore, StoreKey, get)
+import           Tendermint.SDK.Codec               (HasCodec)
 
 class StoreQueryHandler a (ns :: Symbol) h where
     storeQueryHandler :: Proxy a -> StoreKey ns -> h

@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.Store.Scope
+module Tendermint.SDK.BaseApp.Store.Scope
   ( ConnectionScope(..)
   , ApplyScope
   , applyScope
@@ -8,10 +8,10 @@ module Tendermint.SDK.Store.Scope
   , mergeScopes
   ) where
 
-import           Polysemy                      (EffectRow, Sem, makeSem,
-                                                rewrite)
-import           Polysemy.Tagged               (Tagged (..))
-import           Tendermint.SDK.Store.RawStore (RawStore)
+import           Polysemy                              (EffectRow, Sem, makeSem,
+                                                        rewrite)
+import           Polysemy.Tagged                       (Tagged (..))
+import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore)
 
 data ConnectionScope = Query | Mempool | Consensus
 
