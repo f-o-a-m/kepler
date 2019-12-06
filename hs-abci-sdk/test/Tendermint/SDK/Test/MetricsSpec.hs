@@ -34,5 +34,8 @@ spec = describe "Metrics tests" $ do
     _ <- eval mvarMap $ Met.incCount Met.MsgFlush
     newMap <- readMVar mvarMap
     newMap !? Met.MsgFlush `shouldBe` Just 1
-  -- it "Can time actions" $ do
-  --   pending
+
+  it "Can measure action response times" $ do
+    mvarMap <- newMVar empty
+    (_, time) <- eval mvarMap $ Met.withTimer shine
+    time `shouldSatisfy` (> 0)

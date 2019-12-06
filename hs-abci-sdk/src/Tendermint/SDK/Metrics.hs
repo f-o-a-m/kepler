@@ -16,7 +16,7 @@ import           Data.Map.Strict         (Map, insert, (!?))
 -- import           Data.String             (fromString)
 -- import           Data.String.Conversions (cs)
 -- import           Data.Text               (Text)
-import           Data.Time               (diffUTCTime, getCurrentTime)
+import           Data.Time               (NominalDiffTime, diffUTCTime, getCurrentTime)
 -- import qualified Katip                   as K
 import           Polysemy                (Embed, Member, Sem, interpretH,
                                           makeSem, pureT, raise, runT)
@@ -33,7 +33,7 @@ data Metrics m a where
   -- | Increments the count of a specific message
   IncCount :: MsgType -> Metrics m ()
   -- | Times an action
-  WithTimer :: m a -> Metrics m a
+  WithTimer :: m a -> Metrics m (a, NominalDiffTime)
   -- | Log metrics
   -- Log :: Severity -> Text -> Metrics m ()
 
@@ -59,9 +59,10 @@ evalMetrics mvarMap = do
       startTime <- liftIO $ getCurrentTime
       a <- runT action
       endTime <- liftIO $ getCurrentTime
-      -- @TODO: what do we do with this?
-      let _ = diffUTCTime endTime startTime
-      raise $ evalMetrics mvarMap a
+      let time = diffUTCTime endTime startTime
+      actionRes <- raise $ evalMetrics mvarMap a
+      pure $ (, time) <$> actionRes
+    -- @TODO: figure out whether this is necessary
     -- Log severity msg -> do
     --   raise $ K.logFM (coerceSeverity severity) (fromString . cs $ msg)
     --   pureT ()
