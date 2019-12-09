@@ -43,8 +43,8 @@ import           Nameservice.Modules.Nameservice.Router
 import           Nameservice.Modules.Nameservice.Types
 import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members)
+import           Tendermint.SDK.Application               (Module (..))
 import           Tendermint.SDK.BaseApp                   (BaseAppEffs)
-import           Tendermint.SDK.Module                    (Module (..))
 
 type NameserviceM r = Module "nameservice" NameserviceMessage Api r
 

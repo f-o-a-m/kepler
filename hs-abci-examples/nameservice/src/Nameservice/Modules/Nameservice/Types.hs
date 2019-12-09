@@ -16,11 +16,8 @@ import           Proto3.Suite                 (HasDefault, Message,
 import qualified Proto3.Suite.DotProto        as DotProto
 import qualified Proto3.Wire.Decode           as Decode
 import qualified Proto3.Wire.Encode           as Encode
+import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
-import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Events        (FromEvent (..), ToEvent (..))
-import qualified Tendermint.SDK.Query         as Q
-import qualified Tendermint.SDK.Store         as Store
 import           Tendermint.SDK.Types.Address (Address)
 
 --------------------------------------------------------------------------------
@@ -37,7 +34,7 @@ instance Primitive Name where
 instance HasDefault Name
 instance MessageField Name
 
-instance Q.FromQueryData Name
+instance BaseApp.FromQueryData Name
 
 data Whois = Whois
   { whoisValue :: Text
@@ -51,13 +48,13 @@ instance HasCodec Whois where
   encode = cs . toLazyByteString
   decode = first (cs . show) . fromByteString
 
-instance Store.RawKey Name where
+instance BaseApp.RawKey Name where
     rawKey = iso (\(Name n) -> cs n) (Name . cs)
 
-instance Store.IsKey Name NameserviceModule where
+instance BaseApp.IsKey Name NameserviceModule where
     type Value Name NameserviceModule = Whois
 
-instance Q.Queryable Whois where
+instance BaseApp.Queryable Whois where
   type Name Whois = "whois"
 
 --------------------------------------------------------------------------------
@@ -69,21 +66,21 @@ data NameserviceError =
   | UnauthorizedSet Text
   | InvalidDelete Text
 
-instance IsAppError NameserviceError where
+instance BaseApp.IsAppError NameserviceError where
   makeAppError (InsufficientBid msg) =
-    AppError
+    BaseApp.AppError
       { appErrorCode = 1
       , appErrorCodespace = "nameservice"
       , appErrorMessage = msg
       }
   makeAppError (UnauthorizedSet msg) =
-    AppError
+    BaseApp.AppError
       { appErrorCode = 2
       , appErrorCodespace = "nameservice"
       , appErrorMessage = msg
       }
   makeAppError (InvalidDelete msg) =
-    AppError
+    BaseApp.AppError
       { appErrorCode = 3
       , appErrorCodespace = "nameservice"
       , appErrorMessage = msg
@@ -107,9 +104,9 @@ instance ToJSON NameClaimed where
   toJSON = A.genericToJSON nameClaimedAesonOptions
 instance FromJSON NameClaimed where
   parseJSON = A.genericParseJSON nameClaimedAesonOptions
-instance ToEvent NameClaimed where
+instance BaseApp.ToEvent NameClaimed where
   makeEventType _ = "NameClaimed"
-instance FromEvent NameClaimed
+instance BaseApp.FromEvent NameClaimed
 
 data NameRemapped = NameRemapped
   { nameRemappedName     :: Name
@@ -124,9 +121,9 @@ instance ToJSON NameRemapped where
   toJSON = A.genericToJSON nameRemappedAesonOptions
 instance FromJSON NameRemapped where
   parseJSON = A.genericParseJSON nameRemappedAesonOptions
-instance ToEvent NameRemapped where
+instance BaseApp.ToEvent NameRemapped where
   makeEventType _ = "NameRemapped"
-instance FromEvent NameRemapped
+instance BaseApp.FromEvent NameRemapped
 
 data NameDeleted = NameDeleted
   { nameDeletedName :: Name
@@ -139,6 +136,6 @@ instance ToJSON NameDeleted where
   toJSON = A.genericToJSON nameDeletedAesonOptions
 instance FromJSON NameDeleted where
   parseJSON = A.genericParseJSON nameDeletedAesonOptions
-instance ToEvent NameDeleted where
+instance BaseApp.ToEvent NameDeleted where
   makeEventType _ = "NameDeleted"
-instance FromEvent NameDeleted
+instance BaseApp.FromEvent NameDeleted

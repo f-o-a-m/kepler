@@ -2,30 +2,24 @@ module Nameservice.Server (makeAndServeApplication) where
 
 import           Data.Foldable                                 (fold)
 import           Data.Monoid                                   (Endo (..))
-import           Data.Proxy
 import           Nameservice.Application                       (AppConfig (..),
                                                                 handlersContext)
 import           Network.ABCI.Server                           (serveApp)
 import           Network.ABCI.Server.App                       (Middleware)
 import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
-import           Tendermint.SDK.Application                    (MakeApplication (..),
-                                                                createApplication)
+import           Polysemy                                      (Sem)
+import           Tendermint.SDK.Application                    (createIOApp,
+                                                                makeApp)
 import           Tendermint.SDK.BaseApp                        (CoreEffs,
-                                                                evalCoreEffs)
-import           Tendermint.SDK.Errors                         (AppError)
-import           Tendermint.SDK.Handlers                       (makeApp)
+                                                                runCoreEffs)
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do
-  let makeApplication :: MakeApplication CoreEffs AppError
-      makeApplication = MakeApplication
-        { transformer = evalCoreEffs $ baseAppContext cfg
-        , appErrorP = Proxy
-        , app = makeApp handlersContext
-        }
   putStrLn "Starting ABCI application..."
-  let application = createApplication makeApplication
+  let nat :: forall a. Sem CoreEffs a -> IO a
+      nat = runCoreEffs $ baseAppContext cfg
+      application = createIOApp nat $ makeApp handlersContext
   serveApp =<< hookInMiddleware application
   where
     mkMiddleware :: IO (Middleware IO)

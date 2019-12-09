@@ -7,16 +7,15 @@ module Nameservice.Application
   ) where
 
 import           Data.Proxy
-import qualified Nameservice.Modules.Nameservice as N
-import qualified Nameservice.Modules.Token       as T
-import           Polysemy                        (Sem)
-import qualified Tendermint.SDK.Auth             as A
-import           Tendermint.SDK.BaseApp          ((:&))
-import qualified Tendermint.SDK.BaseApp          as BaseApp
-import           Tendermint.SDK.Crypto           (Secp256k1)
-import           Tendermint.SDK.Handlers
-import qualified Tendermint.SDK.Logger.Katip     as KL
-import           Tendermint.SDK.Module           (Modules (..))
+import qualified Nameservice.Modules.Nameservice     as N
+import qualified Nameservice.Modules.Token           as T
+import           Polysemy                            (Sem)
+import           Tendermint.SDK.Application          (HandlersContext (..),
+                                                      Modules (..))
+import qualified Tendermint.SDK.BaseApp              as BaseApp
+import qualified Tendermint.SDK.BaseApp.Logger.Katip as KL
+import           Tendermint.SDK.Crypto               (Secp256k1)
+import qualified Tendermint.SDK.Modules.Auth         as A
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context
@@ -30,7 +29,11 @@ makeAppConfig logCfg = do
 
 --------------------------------------------------------------------------------
 
-type EffR = N.NameserviceEffs :& T.TokenEffs :& A.AuthEffs :& BaseApp.BaseApp BaseApp.CoreEffs
+type EffR =
+   N.NameserviceEffs BaseApp.:&
+   T.TokenEffs BaseApp.:&
+   A.AuthEffs BaseApp.:&
+   BaseApp.BaseApp BaseApp.CoreEffs
 
 type NameserviceModules = '[T.TokenM EffR, N.NameserviceM EffR]
 

@@ -11,9 +11,7 @@ import           Nameservice.Modules.Token.Types    (Amount (..),
 import           Polysemy
 import           Polysemy.Error                     (Error, mapError, throw)
 import           Polysemy.Output                    (Output)
-import           Tendermint.SDK.Errors              (AppError, IsAppError (..))
-import           Tendermint.SDK.Events              (Event, emit)
-import qualified Tendermint.SDK.Store               as Store
+import qualified Tendermint.SDK.BaseApp             as BaseApp
 import           Tendermint.SDK.Types.Address       (Address)
 
 data Token m a where
@@ -24,35 +22,35 @@ makeSem ''Token
 
 type TokenEffs = '[Token, Error TokenError]
 
-storeKey :: Store.StoreKey "token"
-storeKey = Store.StoreKey "token"
+storeKey :: BaseApp.StoreKey "token"
+storeKey = BaseApp.StoreKey "token"
 
 eval
-  :: Members [Store.RawStore, Error AppError] r
+  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
   => forall a. Sem (Token ': Error TokenError ': r) a -> Sem r a
-eval = mapError makeAppError . evalToken
+eval = mapError BaseApp.makeAppError . evalToken
   where
     evalToken
-      :: Members [Store.RawStore, Error AppError] r
+      :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
       => forall a. Sem (Token ': r) a -> Sem r a
     evalToken =
       interpret
         (\case
           GetBalance' address ->
-            Store.get storeKey address
+            BaseApp.get storeKey address
           PutBalance address balance ->
-            Store.put storeKey address balance
+            BaseApp.put storeKey address balance
         )
 
 --------------------------------------------------------------------------------
 
 faucetAccount
-  :: Members [Error TokenError, Output Event, Token] r
+  :: Members [Error TokenError, Output BaseApp.Event, Token] r
   => FaucetAccount
   -> Sem r ()
 faucetAccount FaucetAccount{..} = do
   mint faucetAccountTo faucetAccountAmount
-  emit Faucetted
+  BaseApp.emit Faucetted
     { faucettedAccount = faucetAccountTo
     , faucettedAmount = faucetAccountAmount
     }
@@ -65,7 +63,7 @@ getBalance address =
   fromMaybe (Amount 0) <$> getBalance' address
 
 transfer
-  :: Members [Error TokenError, Output Event, Token] r
+  :: Members [Error TokenError, Output BaseApp.Event, Token] r
   => Address
   -> Amount
   -> Address
@@ -81,7 +79,7 @@ transfer addr1 amount addr2 = do
       -- update both balances
       putBalance addr1 newBalance1
       putBalance addr2 newBalance2
-      emit $ TransferEvent
+      BaseApp.emit $ TransferEvent
         { transferEventAmount = amount
         , transferEventTo = addr2
         , transferEventFrom = addr1

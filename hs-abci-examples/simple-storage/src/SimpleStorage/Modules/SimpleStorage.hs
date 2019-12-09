@@ -1,6 +1,7 @@
 module SimpleStorage.Modules.SimpleStorage
   ( SimpleStorage
   , SimpleStorageM
+  , Api
   , simpleStorageModule
   , eval
   , module SimpleStorage.Modules.SimpleStorage.Message

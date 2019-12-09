@@ -11,19 +11,18 @@ import           Data.ByteString                      (ByteString)
 import           Data.Default.Class                   (def)
 import           Data.Int                             (Int32)
 import           Data.Proxy
-import           Data.Serialize                       (decode, encode)
+import qualified Data.Serialize                       as Serial
 import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import qualified Network.Tendermint.Client            as RPC
+import           Servant.API                          ((:>))
 import qualified SimpleStorage.Modules.SimpleStorage  as SS
-import           SimpleStorage.Types                  (AppTxMessage (..),
-                                                       UpdateCountTx (..),
-                                                       encodeAppTxMessage)
-import           Tendermint.SDK.Query.Client          (ClientResponse (..),
+import           Tendermint.SDK.BaseApp.Query         (QueryArgs (..))
+import           Tendermint.SDK.BaseApp.Query.Client  (ClientResponse (..),
                                                        HasClient (..),
                                                        RunClient (..))
-import           Tendermint.SDK.Query.Types           (QueryArgs (..))
+import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Test.Hspec
 
 
@@ -45,9 +44,9 @@ spec = do
       foundCount `shouldBe` SS.Count 0
 
     it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
-      let tx = UpdateCountTx "irakli" 4
+      let tx = SS.UpdateCountTx "irakli" 4
           txReq = RPC.RequestBroadcastTxCommit
-                    { RPC.requestBroadcastTxCommitTx = Base64.fromBytes . encodeAppTxMessage $ ATMUpdateCount tx
+                    { RPC.requestBroadcastTxCommitTx = Base64.fromBytes . encode $ SS.UpdateCount tx
                     }
       deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
       let deliverRespCode = deliverResp ^. Resp._deliverTxCode
@@ -64,10 +63,10 @@ spec = do
 
 
 encodeCount :: Int32 -> Base64String
-encodeCount = Base64.fromBytes  . encode
+encodeCount = Base64.fromBytes  . Serial.encode
 
 decodeCount :: Base64String -> Int32
-decodeCount =  (\(Right a) -> a) . decode . Base64.toBytes
+decodeCount =  (\(Right a) -> a) . Serial.decode . Base64.toBytes
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
 runRPC = RPC.runTendermintM rpcConfig
@@ -97,4 +96,6 @@ instance RunClient QueryRunner where
     in RPC.resultABCIQueryResponse <$> QueryRunner (RPC.abciQuery rpcQ)
 
 getCount :: QueryArgs SS.CountKey -> QueryRunner (ClientResponse SS.Count)
-getCount = genClient (Proxy :: Proxy QueryRunner) (Proxy :: Proxy SS.Api) def
+getCount =
+  let apiP = Proxy :: Proxy ("simple_storage" :> SS.Api)
+  in genClient (Proxy :: Proxy QueryRunner) apiP def

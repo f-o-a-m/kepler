@@ -7,7 +7,7 @@ import           Nameservice.Modules.Token.Messages (Burn (..),
                                                      Transfer (..))
 import           Polysemy                           (Member, Members, Sem)
 import           Polysemy.Output                    (Output)
-import           Tendermint.SDK.Events              (Event)
+import           Tendermint.SDK.BaseApp             (Event)
 import           Tendermint.SDK.Types.Message       (Msg (..))
 import           Tendermint.SDK.Types.Transaction   (RoutedTx (..), Tx (..))
 

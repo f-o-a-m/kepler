@@ -40,14 +40,16 @@ import           Nameservice.Modules.Token.Query
 import           Nameservice.Modules.Token.Router
 import           Nameservice.Modules.Token.Types
 import           Polysemy                           (Members)
+import           Tendermint.SDK.Application         (Module (..))
 import           Tendermint.SDK.BaseApp             (BaseAppEffs)
-import           Tendermint.SDK.Module              (Module (..))
 import           Tendermint.SDK.Types.Address       (Address)
+
+type TokenM r = Module "token" TokenMessage Api r
 
 tokenModule
   :: Members BaseAppEffs r
   => Members TokenEffs r
-  => Module "token" TokenMessage Api r
+  => TokenM r
 tokenModule = Module
   { moduleRouter = router
   , moduleQueryServer = server

@@ -19,7 +19,6 @@ import           Data.String                            (fromString)
 import           Data.String.Conversions                (cs)
 import           Data.Text                              (Text)
 import           Data.Word                              (Word32)
-import           Nameservice.Application                (QueryApi)
 import           Nameservice.Modules.Nameservice        (BuyName (..),
                                                          DeleteName (..),
                                                          Name (..),
@@ -28,26 +27,30 @@ import           Nameservice.Modules.Nameservice        (BuyName (..),
                                                          NameRemapped (..),
                                                          SetName (..),
                                                          Whois (..))
+import qualified Nameservice.Modules.Nameservice        as N (Api)
 import           Nameservice.Modules.Token              (Amount (..),
                                                          FaucetAccount (..),
                                                          Faucetted (..),
                                                          Transfer (..),
                                                          TransferEvent (..))
+import qualified Nameservice.Modules.Token              as T (Api)
 import           Nameservice.Modules.TypedMessage       (TypedMessage (..))
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..))
 import qualified Network.ABCI.Types.Messages.Response   as Response
 import qualified Network.Tendermint.Client              as RPC
 import           Proto3.Suite                           (Message,
                                                          toLazyByteString)
-import           Servant.API                            ((:<|>) (..))
+import           Servant.API                            ((:<|>)(..), (:>))
+import           Tendermint.SDK.BaseApp                 (FromEvent (..),
+                                                         QueryApi)
+import           Tendermint.SDK.BaseApp.Query           (QueryArgs (..),
+                                                         defaultQueryWithData)
+import           Tendermint.SDK.BaseApp.Query.Client    (ClientResponse (..),
+                                                         HasClient (..),
+                                                         RunClient (..))
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 import           Tendermint.SDK.Crypto                  (Secp256k1,
                                                          addressFromPubKey)
-import           Tendermint.SDK.Events                  (FromEvent (..))
-import           Tendermint.SDK.Query.Client            (ClientResponse (..),
-                                                         genClient)
-import           Tendermint.SDK.Query.Types             (QueryArgs (..),
-                                                         defaultQueryWithData)
 import           Tendermint.SDK.Types.Address           (Address (..))
 import           Tendermint.SDK.Types.Transaction       (RawTransaction (..),
                                                          signRawTransaction)
@@ -316,5 +319,8 @@ algProxy = Proxy
 getWhois :: QueryArgs Name -> RPC.TendermintM (ClientResponse Whois)
 getBalance :: QueryArgs Address -> RPC.TendermintM (ClientResponse Amount)
 
+apiP :: Proxy ("token" :> T.Api :<|> ("nameservice" :> N.Api))
+apiP = Proxy
+
 (getBalance :<|> getWhois) =
-  genClient (Proxy :: Proxy RPC.TendermintM) (Proxy :: Proxy QueryApi) def
+  genClient (Proxy :: Proxy RPC.TendermintM) apiP def

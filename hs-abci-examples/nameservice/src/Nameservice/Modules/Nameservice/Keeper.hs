@@ -14,10 +14,7 @@ import           Polysemy                                 (Member, Members, Sem,
 import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
-import           Tendermint.SDK.Errors                    (AppError,
-                                                           IsAppError (..))
-import           Tendermint.SDK.Events                    (Event, emit)
-import qualified Tendermint.SDK.Store                     as Store
+import qualified Tendermint.SDK.BaseApp                   as BaseApp
 
 data Nameservice m a where
   PutWhois :: Name -> Whois -> Nameservice m ()
@@ -28,32 +25,32 @@ makeSem ''Nameservice
 
 type NameserviceEffs = '[Nameservice, Error NameserviceError]
 
-storeKey :: Store.StoreKey NameserviceModule
-storeKey = Store.StoreKey . cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
+storeKey :: BaseApp.StoreKey NameserviceModule
+storeKey = BaseApp.StoreKey . cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
 
 eval
-  :: Members [Store.RawStore, Error AppError] r
+  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
   => forall a. Sem (Nameservice ': Error NameserviceError ': r) a
   -> Sem r a
-eval = mapError makeAppError . evalNameservice
+eval = mapError BaseApp.makeAppError . evalNameservice
   where
     evalNameservice
-      :: Members [Store.RawStore, Error AppError] r
+      :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
       => Sem (Nameservice ': r) a -> Sem r a
     evalNameservice =
       interpret (\case
           GetWhois name ->
-            Store.get storeKey name
+            BaseApp.get storeKey name
           PutWhois name whois ->
-            Store.put storeKey name whois
+            BaseApp.put storeKey name whois
           DeleteWhois name ->
-            Store.delete storeKey name
+            BaseApp.delete storeKey name
         )
 
 --------------------------------------------------------------------------------
 
 setName
-  :: Member (Output Event) r
+  :: Member (Output BaseApp.Event) r
   => Members NameserviceEffs r
   => SetName
   -> Sem r ()
@@ -66,14 +63,14 @@ setName SetName{..} = do
         then throw $ UnauthorizedSet "Setter must be the owner of the Name."
         else do
           putWhois setNameName currentWhois {whoisValue = setNameValue}
-          emit NameRemapped
+          BaseApp.emit NameRemapped
              { nameRemappedName = setNameName
              , nameRemappedNewValue = setNameValue
              , nameRemappedOldValue = whoisValue
              }
 
 deleteName
-  :: Members [Token, Output Event] r
+  :: Members [Token, Output BaseApp.Event] r
   => Members NameserviceEffs r
   => DeleteName
   -> Sem r ()
@@ -87,13 +84,13 @@ deleteName DeleteName{..} = do
         else do
           mint deleteNameOwner whoisPrice
           deleteWhois deleteNameName
-          emit NameDeleted
+          BaseApp.emit NameDeleted
             { nameDeletedName = deleteNameName
             }
 
 
 buyName
-  :: Member (Output Event) r
+  :: Member (Output BaseApp.Event) r
   => Members TokenEffs r
   => Members NameserviceEffs r
   => BuyName
@@ -111,7 +108,7 @@ buyName msg = do
     Just whois -> buyClaimedName msg whois
     where
       buyUnclaimedName
-        :: Member (Output Event) r
+        :: Member (Output BaseApp.Event) r
         => Members TokenEffs r
         => Members NameserviceEffs r
         => BuyName
@@ -124,7 +121,7 @@ buyName msg = do
               , whoisPrice = buyNameBid
               }
         putWhois buyNameName whois
-        emit NameClaimed
+        BaseApp.emit NameClaimed
           { nameClaimedOwner = buyNameBuyer
           , nameClaimedName = buyNameName
           , nameClaimedValue = buyNameValue
@@ -134,7 +131,7 @@ buyName msg = do
       buyClaimedName
         :: Members NameserviceEffs r
         => Members TokenEffs r
-        => Member (Output Event) r
+        => Member (Output BaseApp.Event) r
         => BuyName
         -> Whois
         -> Sem r ()
@@ -148,7 +145,7 @@ buyName msg = do
                                                  , whoisPrice = buyNameBid
                                                  , whoisValue = buyNameValue
                                                  }
-               emit NameClaimed
+               BaseApp.emit NameClaimed
                  { nameClaimedOwner = buyNameBuyer
                  , nameClaimedName = buyNameName
                  , nameClaimedValue = buyNameValue

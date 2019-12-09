@@ -1,11 +1,12 @@
 module Main where
 
-import           Control.Exception           (bracket)
-import qualified Katip                       as K
-import           Nameservice.Application     (makeAppConfig)
-import           Nameservice.Server          (makeAndServeApplication)
-import           System.IO                   (stdout)
-import           Tendermint.SDK.Logger.Katip (LogConfig (..), mkLogConfig)
+import           Control.Exception                   (bracket)
+import qualified Katip                               as K
+import           Nameservice.Application             (makeAppConfig)
+import           Nameservice.Server                  (makeAndServeApplication)
+import           System.IO                           (stdout)
+import           Tendermint.SDK.BaseApp.Logger.Katip (LogConfig (..),
+                                                      mkLogConfig)
 
 
 main :: IO ()
