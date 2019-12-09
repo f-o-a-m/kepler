@@ -15,10 +15,10 @@ import           Tendermint.SDK.BaseApp.Errors        (AppError)
 
 createIOApp
   :: forall r.
-     App (Sem r)
-  -> (forall a. (Sem r) a -> IO a)
+     (forall a. (Sem r) a -> IO a)
+  -> App (Sem r)
   -> App IO
-createIOApp app nat = transformApp transformResponse app
+createIOApp nat app = transformApp transformResponse app
   where
   transformResponse :: (forall (t :: MessageType). Sem r (Response t) -> IO (Response t))
   transformResponse (resp :: Sem r (Response t)) = do

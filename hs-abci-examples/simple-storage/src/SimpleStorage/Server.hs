@@ -2,35 +2,24 @@ module SimpleStorage.Server (makeAndServeApplication) where
 
 import           Data.Foldable                                 (fold)
 import           Data.Monoid                                   (Endo (..))
-import           Data.Proxy
 import           Network.ABCI.Server                           (serveApp)
 import           Network.ABCI.Server.App                       (Middleware)
 import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
 import           Polysemy                                      (Sem)
-import           SimpleStorage.Application                     (AppConfig,
-                                                                AppError, EffR,
-                                                                runHandler)
-import           SimpleStorage.Handlers                        (simpleStorageApp)
-import qualified SimpleStorage.Modules.SimpleStorage           as SS
-import           Tendermint.SDK.Application                    (MakeApplication (..),
-                                                                createApplication)
-import           Tendermint.SDK.Query                          (QueryApplication,
-                                                                serve)
+import           SimpleStorage.Application                     (AppConfig (..),
+                                                                handlersContext)
+import           Tendermint.SDK.Application                    (createIOApp,
+                                                                makeApp)
+import           Tendermint.SDK.BaseApp                        (CoreEffs,
+                                                                runCoreEffs)
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do
-  let serveRoutes :: QueryApplication (Sem EffR)
-      serveRoutes = serve (Proxy :: Proxy SS.Api) SS.server
-      makeApplication :: MakeApplication EffR AppError
-      makeApplication = MakeApplication
-        { transformer = runHandler cfg
-        , appErrorP = Proxy
-        , app = simpleStorageApp serveRoutes
-        , initialize = [SS.initialize]
-        }
   putStrLn "Starting ABCI application..."
-  application <- createApplication makeApplication
+  let nat :: forall a. Sem CoreEffs a -> IO a
+      nat = runCoreEffs $ baseAppContext cfg
+      application = createIOApp nat $ makeApp handlersContext
   serveApp =<< hookInMiddleware application
   where
     mkMiddleware :: IO (Middleware IO)

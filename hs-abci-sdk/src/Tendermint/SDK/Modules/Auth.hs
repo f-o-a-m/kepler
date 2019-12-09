@@ -1,24 +1,24 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.Auth where
+module Tendermint.SDK.Modules.Auth where
 
-import           Data.Bifunctor                (first)
+import           Data.Bifunctor               (first)
 import           Data.Proxy
-import qualified Data.Serialize                as Serialize
-import           Data.Serialize.Text           ()
-import           Data.String.Conversions       (cs)
-import           Data.Text                     (Text)
+import qualified Data.Serialize               as Serialize
+import           Data.Serialize.Text          ()
+import           Data.String.Conversions      (cs)
+import           Data.Text                    (Text)
 import           Data.Word
-import           GHC.Generics                  (Generic)
-import           GHC.TypeLits                  (symbolVal)
+import           GHC.Generics                 (Generic)
+import           GHC.TypeLits                 (symbolVal)
 import           Polysemy
-import           Polysemy.Error                (Error, mapError)
-import           Tendermint.SDK.BaseApp.Errors (AppError (..), IsAppError (..))
-import           Tendermint.SDK.BaseApp.Query  (Queryable (..))
-import           Tendermint.SDK.BaseApp.Store  (IsKey (..), RawStore,
-                                                StoreKey (..), get, put)
-import           Tendermint.SDK.Codec          (HasCodec (..))
-import           Tendermint.SDK.Types.Address  (Address)
+import           Polysemy.Error               (Error, mapError)
+import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..),
+                                               IsKey (..), Queryable (..),
+                                               RawStore, StoreKey (..), get,
+                                               put)
+import           Tendermint.SDK.Codec         (HasCodec (..))
+import           Tendermint.SDK.Types.Address (Address)
 
 --------------------------------------------------------------------------------
 

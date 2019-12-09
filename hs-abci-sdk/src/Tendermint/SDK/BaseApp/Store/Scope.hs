@@ -4,6 +4,7 @@ module Tendermint.SDK.BaseApp.Store.Scope
   ( ConnectionScope(..)
   , ApplyScope
   , applyScope
+  , ResolveScope(..)
   , MergeScopes(..)
   , mergeScopes
   ) where
@@ -23,6 +24,9 @@ applyScope
   :: forall s r.
      forall a. Sem (RawStore ': r) a -> Sem (Tagged s RawStore ': r) a
 applyScope = rewrite (Tagged @s)
+
+class ResolveScope s r where
+  resolveScope :: Sem (Tagged s RawStore ': r) a -> Sem r a
 
 data MergeScopes m a where
   MergeScopes :: MergeScopes m ()

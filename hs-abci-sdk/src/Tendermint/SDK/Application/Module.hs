@@ -18,14 +18,14 @@ import           GHC.TypeLits                     (KnownSymbol, Symbol,
                                                    symbolVal)
 import           Polysemy                         (EffectRow, Member, Sem)
 import           Polysemy.Error                   (Error, throw)
-import           Servant.API                      ((:<|>) (..))
-import           Tendermint.SDK.Auth              (AuthError (..))
+import           Servant.API                      ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp.Errors    (AppError, SDKError (..),
                                                    throwSDKError)
 import qualified Tendermint.SDK.BaseApp.Query     as Q
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Crypto            (RecoverableSignatureSchema,
                                                    SignatureSchema (..))
+import           Tendermint.SDK.Modules.Auth      (AuthError (..))
 import           Tendermint.SDK.Types.Message     (Msg (..),
                                                    ValidateMessage (..),
                                                    formatMessageSemanticError)
@@ -55,11 +55,11 @@ class QueryRouter ms r where
     routeQuery :: Modules ms r -> Q.RouteT (Api ms) (Sem r)
 
 instance QueryRouter (Module name msg api r ': '[]) r where
-    type Api (Module name msg api r ': '[]) = api
+    type Api (Module name msg api r ': '[]) = name :> api
     routeQuery (ConsModule m NilModules) = moduleQueryServer m
 
 instance QueryRouter (m' ': ms) r => QueryRouter (Module name msg api r ': m' ': ms) r where
-    type Api (Module name msg api r ': m' ': ms) = api :<|> Api (m' ': ms)
+    type Api (Module name msg api r ': m' ': ms) = (name :> api) :<|> Api (m' ': ms)
     routeQuery (ConsModule m rest) = moduleQueryServer m :<|> routeQuery rest
 
 --------------------------------------------------------------------------------

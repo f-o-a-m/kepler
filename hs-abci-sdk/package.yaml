@@ -100,26 +100,28 @@ library:
   - Tendermint.SDK.Application.App
   - Tendermint.SDK.Application.Module
   - Tendermint.SDK.Application.Handlers
+  - Tendermint.SDK.BaseApp
   - Tendermint.SDK.BaseApp.BaseApp
+  - Tendermint.SDK.BaseApp.CoreEff
   - Tendermint.SDK.BaseApp.Errors
   - Tendermint.SDK.BaseApp.Events
   - Tendermint.SDK.BaseApp.Gas
+  - Tendermint.SDK.BaseApp.Logger
+  - Tendermint.SDK.BaseApp.Logger.Katip
   - Tendermint.SDK.BaseApp.Query
   - Tendermint.SDK.BaseApp.Query.Class
+  - Tendermint.SDK.BaseApp.Query.Client
   - Tendermint.SDK.BaseApp.Query.Delayed
   - Tendermint.SDK.BaseApp.Query.Router
   - Tendermint.SDK.BaseApp.Query.Store
   - Tendermint.SDK.BaseApp.Query.Types
-  - Tendermint.SDK.BaseApp.Query.Client
-  - Tendermint.SDK.BaseApp.Logger
-  - Tendermint.SDK.BaseApp.Logger.Katip
   - Tendermint.SDK.BaseApp.Store
   - Tendermint.SDK.BaseApp.Store.AuthTreeStore
   - Tendermint.SDK.BaseApp.Store.RawStore
   - Tendermint.SDK.BaseApp.Store.Scope
-  - Tendermint.SDK.Auth
   - Tendermint.SDK.Codec
   - Tendermint.SDK.Crypto
+  - Tendermint.SDK.Modules.Auth
   - Tendermint.SDK.Types.Message
   - Tendermint.SDK.Types.Transaction
   - Tendermint.SDK.Types.Address

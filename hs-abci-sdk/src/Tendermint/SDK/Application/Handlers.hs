@@ -20,8 +20,8 @@ import qualified Network.ABCI.Types.Messages.Response as Resp
 import           Polysemy
 import           Polysemy.Error                       (Error, catch)
 import qualified Tendermint.SDK.Application.Module    as M
-import           Tendermint.SDK.Auth                  (AuthError)
 import qualified Tendermint.SDK.BaseApp.BaseApp       as BA
+import           Tendermint.SDK.BaseApp.CoreEff       (CoreEffs)
 import           Tendermint.SDK.BaseApp.Errors        (AppError,
                                                        checkTxAppError,
                                                        deliverTxAppError,
@@ -32,6 +32,7 @@ import           Tendermint.SDK.BaseApp.Store         (ConnectionScope (..))
 import qualified Tendermint.SDK.BaseApp.Store         as Store
 import           Tendermint.SDK.Crypto                (RecoverableSignatureSchema,
                                                        SignatureSchema (..))
+import           Tendermint.SDK.Modules.Auth          (AuthError)
 import           Tendermint.SDK.Types.TxResult        (TxResult,
                                                        checkTxTxResult,
                                                        deliverTxTxResult,
@@ -87,7 +88,7 @@ makeHandlers
   => M.TxRouter ms r
   => M.QueryRouter ms r
   => HasRouter (M.Api ms)
-  => Members BA.CoreEffs core
+  => Members CoreEffs core
   => HandlersContext alg ms r core
   -> Handlers core
 makeHandlers HandlersContext{..} =
@@ -161,7 +162,7 @@ makeApp
   => M.TxRouter ms r
   => M.QueryRouter ms r
   => HasRouter (M.Api ms)
-  => Members BA.CoreEffs core
+  => Members CoreEffs core
   => HandlersContext alg ms r core
   -> App (Sem core)
 makeApp handlersContext@HandlersContext{compileToCore} =

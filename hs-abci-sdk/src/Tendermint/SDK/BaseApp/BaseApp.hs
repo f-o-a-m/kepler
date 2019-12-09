@@ -1,30 +1,29 @@
-{-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
-module Tendermint.SDK.BaseApp.BaseApp where
+module Tendermint.SDK.BaseApp.BaseApp
+  ( BaseAppEffs
+  , BaseApp
+  , ScopedBaseApp
+  , ScopedEff(..)
+  , compileScopedEff
+  , compileToCoreEffs
+  , (:&)
+  ) where
 
 import           Control.Exception                          (throwIO)
-import           Control.Lens                               (over, view)
 import           Control.Monad.IO.Class                     (liftIO)
-import qualified Katip                                      as K
-import           Polysemy                                   (Embed, Members,
-                                                             Sem, runM)
+import           Polysemy                                   (Sem)
 import           Polysemy.Error                             (Error, runError)
 import           Polysemy.Output                            (Output)
-import           Polysemy.Reader                            (Reader, asks,
-                                                             local, runReader)
 import           Polysemy.Resource                          (Resource,
                                                              resourceToIO)
-import           Polysemy.Tagged                            (Tagged)
+import           Tendermint.SDK.BaseApp.CoreEff             (CoreEffs)
 import           Tendermint.SDK.BaseApp.Errors              (AppError)
-import           Tendermint.SDK.BaseApp.Events              (Event, EventBuffer,
-                                                             evalWithBuffer,
-                                                             newEventBuffer)
+import           Tendermint.SDK.BaseApp.Events              (Event,
+                                                             evalWithBuffer)
 import           Tendermint.SDK.BaseApp.Logger              (Logger)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip        as KL
 import           Tendermint.SDK.BaseApp.Store               (ApplyScope, ConnectionScope (..),
-                                                             MergeScopes,
-                                                             RawStore)
+                                                             RawStore,
+                                                             ResolveScope (..))
 import qualified Tendermint.SDK.BaseApp.Store.AuthTreeStore as AT
 
 -- | Concrete row of effects for the BaseApp. Note that because there does
@@ -38,16 +37,6 @@ type BaseAppEffs =
   , Error AppError
   ]
 
--- | CoreEffs is one level below BaseAppEffs, and provides one possible
--- | interpretation for its effects to IO.
-type CoreEffs =
-  '[ Reader EventBuffer
-   , MergeScopes
-   , Reader KL.LogConfig
-   , Reader AT.AuthTreeState
-   , Embed IO
-   ]
-
 -- | This type family gives a nice syntax for combining multiple lists of effects.
 type family (as :: [a]) :& (bs :: [a]) :: [a] where
   '[] :& bs = bs
@@ -55,70 +44,21 @@ type family (as :: [a]) :& (bs :: [a]) :: [a] where
 
 infixr 5 :&
 
--- TODO: it would be really nice to not have this CoreEff here, but to just
--- interpret into it as an intermediate step in the total evaluation of BaseApp.
--- Polysemy probably has a way to do this already.
 type BaseApp r = BaseAppEffs :& r
 
 type ScopedBaseApp (s :: ConnectionScope) r = ApplyScope s (BaseApp r)
 
-instance (Members CoreEffs r) => K.Katip (Sem r)  where
-  getLogEnv = asks $ view KL.logEnv
-  localLogEnv f m = local (over KL.logEnv f) m
-
-instance (Members CoreEffs r) => K.KatipContext (Sem r) where
-  getKatipContext = asks $ view KL.logContext
-  localKatipContext f m = local (over KL.logContext f) m
-  getKatipNamespace = asks $ view KL.logNamespace
-  localKatipNamespace f m = local (over KL.logNamespace f) m
-
-class ResolveScope s r where
-  resolveScope :: Sem (Tagged s RawStore ': r) a -> Sem r a
-
-instance (Members CoreEffs r, AT.AuthTreeGetter s) => ResolveScope s r where
-  resolveScope = AT.evalTagged
-
 -- | An intermediary interpeter, bringing 'BaseApp' down to 'CoreEff'.
-compileToCoreEff
+compileToCoreEffs
   :: AT.AuthTreeGetter s
   => forall a. Sem (ScopedBaseApp s CoreEffs) a -> Sem CoreEffs a
-compileToCoreEff action = do
+compileToCoreEffs action = do
   eRes <- runError .
     resourceToIO .
     KL.evalKatip .
     evalWithBuffer .
     resolveScope $ action
   either (liftIO . throwIO) return eRes
-
--- | 'Context' is the environment required to run 'CoreEff' to 'IO'
-data Context = Context
-  { contextLogConfig   :: KL.LogConfig
-  , contextEventBuffer :: EventBuffer
-  , contextAuthTree    :: AT.AuthTreeState
-  }
-
-makeContext :: KL.LogConfig -> IO Context
-makeContext logCfg = do
-  authTreeState <- AT.initAuthTreeState
-  eb <- newEventBuffer
-  pure $ Context
-    { contextLogConfig = logCfg
-    , contextEventBuffer = eb
-    , contextAuthTree = authTreeState
-    }
-
--- | The standard interpeter for 'CoreEffs'.
-evalCoreEffs
-  :: Context
-  -> forall a. Sem CoreEffs a -> IO a
-evalCoreEffs Context{..} =
-  runM .
-    runReader contextAuthTree .
-    runReader contextLogConfig .
-    AT.evalMergeScopes .
-    runReader contextEventBuffer
-
-
 
 data ScopedEff r a where
   QueryScoped :: Sem (ScopedBaseApp 'Query r) a -> ScopedEff r a
@@ -127,6 +67,6 @@ data ScopedEff r a where
 
 compileScopedEff :: ScopedEff CoreEffs a -> Sem CoreEffs a
 compileScopedEff = \case
-  QueryScoped m -> compileToCoreEff m
-  MempoolScoped m -> compileToCoreEff m
-  ConsensusScoped m -> compileToCoreEff m
+  QueryScoped m -> compileToCoreEffs m
+  MempoolScoped m -> compileToCoreEffs m
+  ConsensusScoped m -> compileToCoreEffs m

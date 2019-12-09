@@ -1,5 +1,9 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Tendermint.SDK.BaseApp.Gas where
+module Tendermint.SDK.BaseApp.Gas
+  ( GasMeter(..)
+  , withGas
+  , eval
+  ) where
 
 import           Control.Monad.IO.Class        (MonadIO (..))
 import           Data.Int                      (Int64)

@@ -44,12 +44,10 @@ import           Tendermint.SDK.BaseApp             (BaseAppEffs)
 import           Tendermint.SDK.Module              (Module (..))
 import           Tendermint.SDK.Types.Address       (Address)
 
-type TokenM r = Module "token" TokenMessage Api r
-
 tokenModule
   :: Members BaseAppEffs r
   => Members TokenEffs r
-  => TokenM r
+  => Module "token" TokenMessage Api r
 tokenModule = Module
   { moduleRouter = router
   , moduleQueryServer = server

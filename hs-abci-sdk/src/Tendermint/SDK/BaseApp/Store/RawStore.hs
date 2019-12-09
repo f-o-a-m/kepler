@@ -16,7 +16,7 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   , commitBlock
   ) where
 
-import           Control.Lens                  (Iso', (^.))
+import           Control.Lens                  (Iso', iso, (^.))
 import qualified Data.ByteString               as BS
 import           Data.Proxy
 import           Data.String.Conversions       (cs)
@@ -26,6 +26,8 @@ import           Polysemy.Resource             (Resource, finally, onException)
 import           Tendermint.SDK.BaseApp.Errors (AppError, SDKError (ParseError),
                                                 throwSDKError)
 import           Tendermint.SDK.Codec          (HasCodec (..))
+import           Tendermint.SDK.Types.Address  (Address, addressFromBytes,
+                                                addressToBytes)
 
 newtype StoreKey n = StoreKey BS.ByteString
 
@@ -43,6 +45,10 @@ makeSem ''RawStore
 
 class RawKey k where
   rawKey :: Iso' k BS.ByteString
+
+instance RawKey Address where
+    rawKey = iso addressToBytes addressFromBytes
+
 
 class RawKey k => IsKey k ns where
   type Value k ns = a | a -> ns k
