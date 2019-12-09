@@ -71,6 +71,7 @@ dependencies:
 - polysemy
 - polysemy-plugin
 - profunctors
+- prometheus
 - proto-lens
 - proto-lens-runtime
 - proto3-wire
@@ -124,6 +125,7 @@ library:
   - Tendermint.SDK.Module
   - Tendermint.SDK.Gas
   - Tendermint.SDK.Metrics
+  - Tendermint.SDK.Metrics.Metrics
 
   generated-exposed-modules:
   - Proto.Types.Transaction

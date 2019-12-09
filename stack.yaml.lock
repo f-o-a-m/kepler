@@ -47,6 +47,13 @@ packages:
   original:
     hackage: katip-datadog-0.1.0.0
 - completed:
+    hackage: prometheus-2.1.3@sha256:4fdf8602f7c74367cda182cf71dab108f78a86993b428bf96b61dd6c519b6f22,4296
+    pantry-tree:
+      size: 1559
+      sha256: a8d0a0150abddf0d7b673fcb19ff2ef235d4005161826e1538ad802394c9fc0e
+  original:
+    hackage: prometheus-2.1.3
+- completed:
     cabal-file:
       size: 1872
       sha256: b7f017686d9bfbcbb4914a89e10440d761f3aa771dfd9b85b4ebf3f14c0e1ebc
