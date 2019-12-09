@@ -34,14 +34,14 @@ spec = do
       resp <- runRPC RPC.health
       resp `shouldBe` RPC.ResultHealth
 
-    it "Can query the count and make sure its initialized to 0" $ do
-      let queryReq = QueryArgs
-            { queryArgsData = SS.CountKey
-            , queryArgsHeight = 0
-            , queryArgsProve = False
-            }
-      ClientResponse{clientResponseData = Just foundCount} <- runQueryRunner $ getCount queryReq
-      foundCount `shouldBe` SS.Count 0
+    --it "Can query the count and make sure its initialized to 0" $ do
+    --  let queryReq = QueryArgs
+    --        { queryArgsData = SS.CountKey
+    --        , queryArgsHeight = 0
+    --        , queryArgsProve = False
+    --        }
+    --  ClientResponse{clientResponseData = Just foundCount} <- runQueryRunner $ getCount queryReq
+    --  foundCount `shouldBe` SS.Count 0
 
     it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
       let tx = SS.UpdateCountTx "irakli" 4
