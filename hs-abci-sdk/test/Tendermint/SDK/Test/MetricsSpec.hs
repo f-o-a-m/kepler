@@ -2,17 +2,18 @@
 
 module Tendermint.SDK.Test.MetricsSpec where
 
-import           Control.Concurrent.MVar                  (MVar, newMVar,
-                                                           readMVar)
-import           Data.Map.Strict                          ((!))
-import qualified Data.Map.Strict                          as Map
-import           Data.String                              (fromString)
-import           Data.Text                                (unpack)
+import           Control.Concurrent.MVar                       (newMVar,
+                                                                readMVar)
+import           Data.Map.Strict                               ((!))
+import qualified Data.Map.Strict                               as Map
+import           Data.String                                   (fromString)
+import           Data.Text                                     (unpack)
 import           Polysemy
-import qualified System.Metrics.Prometheus.Metric         as Metric
-import qualified System.Metrics.Prometheus.Metric.Counter as Counter
-import qualified System.Metrics.Prometheus.MetricId       as MetricId
-import qualified System.Metrics.Prometheus.Registry       as Registry
+import qualified System.Metrics.Prometheus.Concurrent.Registry as Registry
+import qualified System.Metrics.Prometheus.Metric              as Metric
+import qualified System.Metrics.Prometheus.Metric.Counter      as Counter
+import qualified System.Metrics.Prometheus.MetricId            as MetricId
+import qualified System.Metrics.Prometheus.Registry            as RSample
 import           Tendermint.SDK.Metrics
 import           Tendermint.SDK.Metrics.Metrics
 import           Test.Hspec
@@ -27,17 +28,17 @@ evalFox = interpret $ \case
   Shine -> pure ()
 
 eval
-  :: MVar MetricsState
+  :: MetricsState
   -> Sem [Fox, Metrics, Embed IO] a
   -> IO a
 eval s = runM . evalMetrics s . evalFox
 
-emptyState :: IO (MVar MetricsState)
-emptyState =
-  let counters = Map.empty
-      histos = Map.empty
-      registry = Registry.new
-  in newMVar $ MetricsState registry counters histos
+emptyState :: IO MetricsState
+emptyState = do
+  counters <- newMVar Map.empty
+  histos <- newMVar Map.empty
+  registry <- Registry.new
+  return $ MetricsState registry counters histos
 
 spec :: Spec
 spec = describe "Metrics tests" $ do
@@ -50,26 +51,27 @@ spec = describe "Metrics tests" $ do
     time `shouldSatisfy` (> 0)
 
   let c = fromString . unpack . unCountName $ countName
+      cName = fixMetricName $ metricIdName c
+      cLabels = metricIdLabels c
       cid = metricIdStorable c
-      cMetricId = MetricId.MetricId (MetricId.Name . unCountName $ countName) (metricIdLabels c)
-
+      cMetricIdName = MetricId.Name cName
+      cMetricId = MetricId.MetricId cMetricIdName cLabels
   it "Can make a new counts and increment them" $ do
     state <- emptyState
     -- new count = 0
     _ <- eval state $ incCount countName
-    regWithNewCtr <- readMVar state
-    let newCtrIndex = metricsCounters regWithNewCtr
-    newCtrValue <- Counter.sample (newCtrIndex ! cid)
+    let counters = metricsCounters state
+    newCtrIndex <- readMVar counters
+    newCtrValue <- Counter.sample $ newCtrIndex ! cid
     Counter.unCounterSample newCtrValue `shouldBe` 0
     -- register should contain new counter metric
-    stateVal <- readMVar state
-    newRegistrySample <- Registry.sample (metricsRegistry stateVal)
-    let registryMap = Registry.unRegistrySample newRegistrySample
+    newRegistrySample <- Registry.sample $ metricsRegistry state
+    let registryMap = RSample.unRegistrySample newRegistrySample
         (Metric.CounterMetricSample registryCtrSample) = registryMap ! cMetricId
     Counter.unCounterSample registryCtrSample `shouldBe` 0
     -- increment
     _ <- eval state $ incCount countName
-    regWithIncCtr <- readMVar state
-    let incCtrIndex = metricsCounters regWithIncCtr
-    incCtrValue <- Counter.sample (incCtrIndex ! cid)
+    let newCounters = metricsCounters state
+    incCtrIndex <- readMVar newCounters
+    incCtrValue <- Counter.sample $ incCtrIndex ! cid
     Counter.unCounterSample incCtrValue `shouldBe` 1

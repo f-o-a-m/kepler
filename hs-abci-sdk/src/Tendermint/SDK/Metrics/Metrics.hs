@@ -2,33 +2,36 @@
 
 module Tendermint.SDK.Metrics.Metrics where
 
-import           Control.Arrow                              ((***))
-import           Control.Concurrent.MVar                    (MVar, modifyMVar_)
-import           Control.Monad.IO.Class                     (MonadIO, liftIO)
-import           Data.Map.Strict                            (Map, insert)
-import qualified Data.Map.Strict                            as Map
-import           Data.String                                (IsString,
-                                                             fromString)
-import           Data.Text                                  (Text)
-import qualified Data.Text                                  as Text
-import           Data.Time                                  (diffUTCTime,
-                                                             getCurrentTime)
-import           Polysemy                                   (Embed, Member, Sem,
-                                                             interpretH, pureT,
-                                                             raise, runT)
-import qualified System.Metrics.Prometheus.Metric.Counter   as Counter
-import qualified System.Metrics.Prometheus.Metric.Histogram as Histogram
-import qualified System.Metrics.Prometheus.MetricId         as MetricId
-import qualified System.Metrics.Prometheus.Registry         as Registry
-import           Tendermint.SDK.Metrics                     (CountName (..),
-                                                             Metrics (..))
+import           Control.Arrow                                 ((***))
+import           Control.Concurrent.MVar                       (MVar,
+                                                                modifyMVar_,
+                                                                newMVar)
+import           Control.Monad.IO.Class                        (MonadIO, liftIO)
+import           Data.Map.Strict                               (Map, insert)
+import qualified Data.Map.Strict                               as Map
+import           Data.String                                   (IsString,
+                                                                fromString)
+import           Data.Text                                     (Text)
+import qualified Data.Text                                     as Text
+import           Data.Time                                     (diffUTCTime,
+                                                                getCurrentTime)
+import           Polysemy                                      (Embed, Member,
+                                                                Sem, interpretH,
+                                                                pureT, raise,
+                                                                runT)
+import qualified System.Metrics.Prometheus.Concurrent.Registry as Registry
+import qualified System.Metrics.Prometheus.Metric.Counter      as Counter
+import qualified System.Metrics.Prometheus.Metric.Histogram    as Histogram
+import qualified System.Metrics.Prometheus.MetricId            as MetricId
+import           Tendermint.SDK.Metrics                        (CountName (..),
+                                                                Metrics (..))
 --import System.Environment (lookupEnv)
 
 type MetricsMap a = Map (Text, MetricId.Labels) a
 data MetricsState = MetricsState
   { metricsRegistry   :: Registry.Registry
-  , metricsCounters   :: MetricsMap Counter.Counter
-  , metricsHistograms :: MetricsMap Histogram.Histogram
+  , metricsCounters   :: MVar (MetricsMap Counter.Counter)
+  , metricsHistograms :: MVar (MetricsMap Histogram.Histogram)
   }
 
 data MetricIdentifier = MetricIdentifier
@@ -54,7 +57,7 @@ fixMetricName = Text.map fixer
 
 evalMetrics
   :: Member (Embed IO) r
-  => MVar MetricsState
+  => MetricsState
   -> Sem (Metrics ': r) a
   -> Sem r a
 evalMetrics state = do
@@ -64,15 +67,17 @@ evalMetrics state = do
           cName = fixMetricName $ metricIdName c
           cLabels = metricIdLabels c
           cid = metricIdStorable c
-      liftIO $ modifyMVar_ state $ \s@MetricsState {..} ->
-        case Map.lookup cid metricsCounters of
+          registry = metricsRegistry state
+          counters = metricsCounters state
+      liftIO $ modifyMVar_ counters $ \counterMap ->
+        case Map.lookup cid counterMap of
           Nothing -> do
-            (newCtr, newReg) <-
-              liftIO $ Registry.registerCounter (MetricId.Name cName) cLabels metricsRegistry
-            pure $ MetricsState newReg (insert cid newCtr metricsCounters) metricsHistograms
+            newCtr <-
+              liftIO $ Registry.registerCounter (MetricId.Name cName) cLabels registry
+            pure $ insert cid newCtr counterMap
           Just ctr -> do
             liftIO $ Counter.inc ctr
-            pure s
+            pure counterMap
       pureT ()
 
     ObserveHistogram _ _ -> do
@@ -99,15 +104,15 @@ initMetricsState
   => m (Maybe MetricsState)
 initMetricsState = liftIO $ do
   -- shouldStart <- getEnvVarBoolWithDefault "STATS_ENABLED" True
-  if not False -- shouldStart
-    then return Nothing
-    else do
+  -- if not False -- shouldStart
+  --   then return Nothing
+  --   else do
       -- bindAddr <- fromString <$> getEnvVarWithDefault "STATS_ADDR" "0.0.0.0"
       -- bindPort <- readEnvVarWithDefault "STATS_PORT" 9200
       -- logNotice "tcr.metrics" $ "Running Prometheus on " <> C8.unpack bindAddr <> ":" <> show bindPort
-      let counters = Map.empty
-          histos = Map.empty
+      counters <- newMVar Map.empty
+      histos <- newMVar Map.empty
       -- _ <- fork $ Prometheus.Http.serveHttpTextMetrics bindPort ["metrics"] (Prometheus.Registry.sample registry)
-          registry = Registry.new
+      registry <- Registry.new
       return . Just $ MetricsState registry counters histos
 
