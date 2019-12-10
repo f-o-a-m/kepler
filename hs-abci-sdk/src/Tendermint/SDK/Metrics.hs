@@ -3,7 +3,6 @@
 module Tendermint.SDK.Metrics where
 
 import           Data.Text (Text)
-import           Data.Time (NominalDiffTime)
 import           Polysemy
 
 newtype CountName = CountName { unCountName :: Text }
@@ -22,6 +21,6 @@ data Metrics m a where
   -- | Update a histogram
   ObserveHistogram :: HistogramName -> Double -> Metrics m ()
   -- | Times an action
-  WithTimer :: HistogramName -> m a -> Metrics m (a, NominalDiffTime)
+  WithTimer :: HistogramName -> m a -> Metrics m (a, Double)
 
 makeSem ''Metrics

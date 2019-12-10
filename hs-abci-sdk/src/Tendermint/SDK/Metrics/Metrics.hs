@@ -15,7 +15,7 @@ import           Data.Text                                     (Text)
 import qualified Data.Text                                     as Text
 import           Data.Time                                     (diffUTCTime,
                                                                 getCurrentTime)
-import           Polysemy                                      (Embed, Member,
+import           Polysemy                                      (Embed, Members,
                                                                 Sem, interpretH,
                                                                 pureT, raise,
                                                                 runT)
@@ -24,6 +24,8 @@ import qualified System.Metrics.Prometheus.Metric.Counter      as Counter
 import qualified System.Metrics.Prometheus.Metric.Histogram    as Histogram
 import qualified System.Metrics.Prometheus.MetricId            as MetricId
 import           Tendermint.SDK.Metrics                        (CountName (..),
+                                                                HistogramName(..),
+                                                                observeHistogram,
                                                                 Metrics (..))
 --import System.Environment (lookupEnv)
 
@@ -56,7 +58,7 @@ fixMetricName = Text.map fixer
         validChars = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ "_"
 
 evalMetrics
-  :: Member (Embed IO) r
+  :: Members [Metrics, Embed IO] r
   => MetricsState
   -> Sem (Metrics ': r) a
   -> Sem r a
@@ -67,28 +69,46 @@ evalMetrics state = do
           cName = fixMetricName $ metricIdName c
           cLabels = metricIdLabels c
           cid = metricIdStorable c
+          cMetricIdName = MetricId.Name cName
           registry = metricsRegistry state
           counters = metricsCounters state
       liftIO $ modifyMVar_ counters $ \counterMap ->
         case Map.lookup cid counterMap of
           Nothing -> do
             newCtr <-
-              liftIO $ Registry.registerCounter (MetricId.Name cName) cLabels registry
+              liftIO $ Registry.registerCounter cMetricIdName cLabels registry
             pure $ insert cid newCtr counterMap
           Just ctr -> do
             liftIO $ Counter.inc ctr
             pure counterMap
       pureT ()
 
-    ObserveHistogram _ _ -> do
-      undefined
+    ObserveHistogram histName val -> do
+      let h = fromString . Text.unpack . unHistrogramName $ histName
+          hName = fixMetricName $ metricIdName h
+          hLabels = metricIdLabels h
+          hBuckets = metricIdHistoBuckets h
+          hid = metricIdStorable h
+          hMetricIdName = MetricId.Name hName
+          registry = metricsRegistry state
+          histograms = metricsHistograms state
+      liftIO $ modifyMVar_ histograms $ \histMap ->
+        case Map.lookup hid histMap of
+          Nothing -> do
+            newHist <-
+              liftIO $ Registry.registerHistogram hMetricIdName hLabels hBuckets registry
+            pure $ insert hid newHist histMap
+          Just hist -> do
+            liftIO $ Histogram.observe val hist
+            undefined
+      pureT ()
 
-    WithTimer _ action -> do
-      startTime <- liftIO $ getCurrentTime
+    WithTimer histName action -> do
+      start <- liftIO $ getCurrentTime
       a <- runT action
-      endTime <- liftIO $ getCurrentTime
-      let time = diffUTCTime endTime startTime
-      -- @TODO: update a histogram here
+      end <- liftIO $ getCurrentTime
+      let time = fromRational . (* 1000.0) . toRational $ (end `diffUTCTime` start)
+      observeHistogram histName time
       actionRes <- raise $ evalMetrics state a
       pure $ (, time) <$> actionRes
     )
