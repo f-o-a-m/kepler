@@ -86,7 +86,7 @@ spec = describe "Metrics tests" $ do
     newHistValue <- Histogram.sample $ newHistIndex ! hid
     Histogram.histSum newHistValue `shouldBe` 0.0
     Histogram.histCount newHistValue `shouldBe` 0
-    -- register should contain new counter metric
+    -- register should contain new histogram metric
     newRegistrySample <- Registry.sample $ metricsRegistry state
     let registryMap = RSample.unRegistrySample newRegistrySample
         (Metric.HistogramMetricSample registryHistSample) = registryMap ! hMetricId
@@ -104,3 +104,9 @@ spec = describe "Metrics tests" $ do
     state <- emptyState
     (_, time) <- eval state $ withTimer histName shine
     time `shouldSatisfy` (> 0)
+    -- also triggers creation of histogram metric in registry
+    newRegistrySample <- Registry.sample $ metricsRegistry state
+    let registryMap = RSample.unRegistrySample newRegistrySample
+        (Metric.HistogramMetricSample registryHistSample) = registryMap ! hMetricId
+    Histogram.histSum registryHistSample `shouldBe` 0.0
+    Histogram.histCount registryHistSample `shouldBe` 0
