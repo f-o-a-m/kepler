@@ -12,6 +12,7 @@ import           Polysemy
 import qualified System.Metrics.Prometheus.Concurrent.Registry as Registry
 import qualified System.Metrics.Prometheus.Metric              as Metric
 import qualified System.Metrics.Prometheus.Metric.Counter      as Counter
+import qualified System.Metrics.Prometheus.Metric.Histogram    as Histogram
 import qualified System.Metrics.Prometheus.MetricId            as MetricId
 import qualified System.Metrics.Prometheus.Registry            as RSample
 import           Tendermint.SDK.Metrics
@@ -43,20 +44,13 @@ emptyState = do
 spec :: Spec
 spec = describe "Metrics tests" $ do
   let countName = CountName "blip"
-      histName = HistogramName "blip"
-
-  it "Can measure action response times" $ do
-    state <- emptyState
-    (_, time) <- eval state $ withTimer histName shine
-    time `shouldSatisfy` (> 0)
-
-  let c = fromString . unpack . unCountName $ countName
+      c = fromString . unpack . unCountName $ countName
       cName = fixMetricName $ metricIdName c
       cLabels = metricIdLabels c
       cid = metricIdStorable c
       cMetricIdName = MetricId.Name cName
       cMetricId = MetricId.MetricId cMetricIdName cLabels
-  it "Can make a new counts and increment them" $ do
+  it "Can make a new count and increment it" $ do
     state <- emptyState
     -- new count = 0
     _ <- eval state $ incCount countName
@@ -75,3 +69,38 @@ spec = describe "Metrics tests" $ do
     incCtrIndex <- readMVar newCounters
     incCtrValue <- Counter.sample $ incCtrIndex ! cid
     Counter.unCounterSample incCtrValue `shouldBe` 1
+
+  let histName = HistogramName "blip"
+      h = fromString . unpack . unHistogramName $ histName
+      hName = fixMetricName $ metricIdName h
+      hLabels = metricIdLabels h
+      hid = metricIdStorable h
+      hMetricIdName = MetricId.Name hName
+      hMetricId = MetricId.MetricId hMetricIdName hLabels
+  it "Can make a new histogram and observe it" $ do
+    state <- emptyState
+    -- new histogram
+    _ <- eval state $ observeHistogram histName 0.0
+    let histograms = metricsHistograms state
+    newHistIndex <- readMVar histograms
+    newHistValue <- Histogram.sample $ newHistIndex ! hid
+    Histogram.histSum newHistValue `shouldBe` 0.0
+    Histogram.histCount newHistValue `shouldBe` 0
+    -- register should contain new counter metric
+    newRegistrySample <- Registry.sample $ metricsRegistry state
+    let registryMap = RSample.unRegistrySample newRegistrySample
+        (Metric.HistogramMetricSample registryHistSample) = registryMap ! hMetricId
+    Histogram.histSum registryHistSample `shouldBe` 0.0
+    Histogram.histCount registryHistSample `shouldBe` 0
+    -- observe
+    _ <- eval state $ observeHistogram histName 42.0
+    let newHistograms = metricsHistograms state
+    obsHistIndex <- readMVar newHistograms
+    obsHistValue <- Histogram.sample $ obsHistIndex ! hid
+    Histogram.histSum obsHistValue `shouldBe` 42.0
+    Histogram.histCount obsHistValue `shouldBe` 1
+
+  it "Can measure action response times" $ do
+    state <- emptyState
+    (_, time) <- eval state $ withTimer histName shine
+    time `shouldSatisfy` (> 0)

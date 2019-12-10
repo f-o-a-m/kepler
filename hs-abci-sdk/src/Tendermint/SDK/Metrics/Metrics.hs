@@ -15,7 +15,7 @@ import           Data.Text                                     (Text)
 import qualified Data.Text                                     as Text
 import           Data.Time                                     (diffUTCTime,
                                                                 getCurrentTime)
-import           Polysemy                                      (Embed, Members,
+import           Polysemy                                      (Embed, Member,
                                                                 Sem, interpretH,
                                                                 pureT, raise,
                                                                 runT)
@@ -23,10 +23,9 @@ import qualified System.Metrics.Prometheus.Concurrent.Registry as Registry
 import qualified System.Metrics.Prometheus.Metric.Counter      as Counter
 import qualified System.Metrics.Prometheus.Metric.Histogram    as Histogram
 import qualified System.Metrics.Prometheus.MetricId            as MetricId
-import           Tendermint.SDK.Metrics                        (CountName (..),
-                                                                HistogramName(..),
-                                                                observeHistogram,
-                                                                Metrics (..))
+import           Tendermint.SDK.Metrics                        (CountName (..), HistogramName (..),
+                                                                Metrics (..),
+                                                                observeHistogram)
 --import System.Environment (lookupEnv)
 
 type MetricsMap a = Map (Text, MetricId.Labels) a
@@ -58,7 +57,7 @@ fixMetricName = Text.map fixer
         validChars = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ "_"
 
 evalMetrics
-  :: Members [Metrics, Embed IO] r
+  :: Member (Embed IO) r
   => MetricsState
   -> Sem (Metrics ': r) a
   -> Sem r a
@@ -84,7 +83,7 @@ evalMetrics state = do
       pureT ()
 
     ObserveHistogram histName val -> do
-      let h = fromString . Text.unpack . unHistrogramName $ histName
+      let h = fromString . Text.unpack . unHistogramName $ histName
           hName = fixMetricName $ metricIdName h
           hLabels = metricIdLabels h
           hBuckets = metricIdHistoBuckets h
@@ -100,7 +99,7 @@ evalMetrics state = do
             pure $ insert hid newHist histMap
           Just hist -> do
             liftIO $ Histogram.observe val hist
-            undefined
+            pure histMap
       pureT ()
 
     WithTimer histName action -> do
@@ -108,7 +107,7 @@ evalMetrics state = do
       a <- runT action
       end <- liftIO $ getCurrentTime
       let time = fromRational . (* 1000.0) . toRational $ (end `diffUTCTime` start)
-      observeHistogram histName time
+      evalMetrics state (observeHistogram histName time)
       actionRes <- raise $ evalMetrics state a
       pure $ (, time) <$> actionRes
     )

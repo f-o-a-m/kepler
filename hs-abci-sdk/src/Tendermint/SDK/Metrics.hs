@@ -8,7 +8,7 @@ import           Polysemy
 newtype CountName = CountName { unCountName :: Text }
   deriving (Eq, Ord)
 
-newtype HistogramName = HistogramName { unHistrogramName :: Text }
+newtype HistogramName = HistogramName { unHistogramName :: Text }
   deriving (Eq, Ord)
 
 data Metrics m a where
