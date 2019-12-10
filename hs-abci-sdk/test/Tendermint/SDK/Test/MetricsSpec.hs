@@ -2,16 +2,19 @@
 
 module Tendermint.SDK.Test.MetricsSpec where
 
-import           Control.Concurrent.MVar                  (newMVar, readMVar)
+import           Control.Concurrent.MVar                  (MVar, newMVar,
+                                                           readMVar)
 import           Data.Map.Strict                          ((!))
 import qualified Data.Map.Strict                          as Map
 import           Data.String                              (fromString)
 import           Data.Text                                (unpack)
 import           Polysemy
+import qualified System.Metrics.Prometheus.Metric         as Metric
 import qualified System.Metrics.Prometheus.Metric.Counter as Counter
+import qualified System.Metrics.Prometheus.MetricId       as MetricId
 import qualified System.Metrics.Prometheus.Registry       as Registry
 import           Tendermint.SDK.Metrics
-import qualified Tendermint.SDK.Metrics.Metrics           as Met
+import           Tendermint.SDK.Metrics.Metrics
 import           Test.Hspec
 
 data Fox m a where
@@ -24,32 +27,49 @@ evalFox = interpret $ \case
   Shine -> pure ()
 
 eval
-  :: Met.MetricsRegistry
+  :: MVar MetricsState
   -> Sem [Fox, Metrics, Embed IO] a
   -> IO a
-eval registry = runM . Met.evalMetrics registry . evalFox
+eval s = runM . evalMetrics s . evalFox
 
-emptyRegistry :: IO Met.MetricsRegistry
-emptyRegistry = do
-  counters <- newMVar Map.empty
-  histos <- newMVar Map.empty
-  registry <- newMVar Registry.new
-  return $ Met.MetricsRegistry registry counters histos
+emptyState :: IO (MVar MetricsState)
+emptyState =
+  let counters = Map.empty
+      histos = Map.empty
+      registry = Registry.new
+  in newMVar $ MetricsState registry counters histos
 
 spec :: Spec
 spec = describe "Metrics tests" $ do
+  let countName = CountName "blip"
+      histName = HistogramName "blip"
+
   it "Can measure action response times" $ do
-    let histName = HistogramName "blip"
-    registry <- emptyRegistry
-    (_, time) <- eval registry $ withTimer histName shine
+    state <- emptyState
+    (_, time) <- eval state $ withTimer histName shine
     time `shouldSatisfy` (> 0)
 
-  it "Can increment counts" $ do
-    let countName = CountName "blip"
-        c = fromString . unpack . unCountName $ countName
-        cid = Met.metricIdStorable c
-    registry@Met.MetricsRegistry {..} <- emptyRegistry
-    _ <- eval registry $ incCount countName
-    newMap <- readMVar metricsCounters
-    ctrValue <- Counter.sample (newMap ! cid)
-    Counter.unCounterSample ctrValue `shouldBe` 1
+  let c = fromString . unpack . unCountName $ countName
+      cid = metricIdStorable c
+      cMetricId = MetricId.MetricId (MetricId.Name . unCountName $ countName) (metricIdLabels c)
+
+  it "Can make a new counts and increment them" $ do
+    state <- emptyState
+    -- new count = 0
+    _ <- eval state $ incCount countName
+    regWithNewCtr <- readMVar state
+    let newCtrIndex = metricsCounters regWithNewCtr
+    newCtrValue <- Counter.sample (newCtrIndex ! cid)
+    Counter.unCounterSample newCtrValue `shouldBe` 0
+    -- register should contain new counter metric
+    stateVal <- readMVar state
+    newRegistrySample <- Registry.sample (metricsRegistry stateVal)
+    let registryMap = Registry.unRegistrySample newRegistrySample
+        (Metric.CounterMetricSample registryCtrSample) = registryMap ! cMetricId
+    Counter.unCounterSample registryCtrSample `shouldBe` 0
+    -- increment
+    _ <- eval state $ incCount countName
+    regWithIncCtr <- readMVar state
+    let incCtrIndex = metricsCounters regWithIncCtr
+    incCtrValue <- Counter.sample (incCtrIndex ! cid)
+    Counter.unCounterSample incCtrValue `shouldBe` 1

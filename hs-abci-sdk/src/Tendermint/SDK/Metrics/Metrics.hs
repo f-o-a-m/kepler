@@ -3,9 +3,7 @@
 module Tendermint.SDK.Metrics.Metrics where
 
 import           Control.Arrow                              ((***))
-import           Control.Concurrent.MVar                    (MVar, modifyMVar_,
-                                                             newMVar, putMVar,
-                                                             readMVar)
+import           Control.Concurrent.MVar                    (MVar, modifyMVar_)
 import           Control.Monad.IO.Class                     (MonadIO, liftIO)
 import           Data.Map.Strict                            (Map, insert)
 import qualified Data.Map.Strict                            as Map
@@ -27,10 +25,10 @@ import           Tendermint.SDK.Metrics                     (CountName (..),
 --import System.Environment (lookupEnv)
 
 type MetricsMap a = Map (Text, MetricId.Labels) a
-data MetricsRegistry = MetricsRegistry
-  { metricsRegistry   :: MVar Registry.Registry
-  , metricsCounters   :: MVar (MetricsMap Counter.Counter)
-  , metricsHistograms :: MVar (MetricsMap Histogram.Histogram)
+data MetricsState = MetricsState
+  { metricsRegistry   :: Registry.Registry
+  , metricsCounters   :: MetricsMap Counter.Counter
+  , metricsHistograms :: MetricsMap Histogram.Histogram
   }
 
 data MetricIdentifier = MetricIdentifier
@@ -56,29 +54,26 @@ fixMetricName = Text.map fixer
 
 evalMetrics
   :: Member (Embed IO) r
-  => MetricsRegistry
+  => MVar MetricsState
   -> Sem (Metrics ': r) a
   -> Sem r a
-evalMetrics s@(MetricsRegistry {..}) = do
+evalMetrics state = do
   interpretH (\case
     IncCount ctrName -> do
-      let c       = fromString . Text.unpack . unCountName $ ctrName
-          cName   = fixMetricName $ metricIdName c
+      let c = fromString . Text.unpack . unCountName $ ctrName
+          cName = fixMetricName $ metricIdName c
           cLabels = metricIdLabels c
-          cid     = metricIdStorable c
-      ctrMap <- liftIO $ readMVar metricsCounters
-      case Map.lookup cid ctrMap of
-        Nothing -> do
-          oldReg <- liftIO $ readMVar metricsRegistry
-          (newCtr, newReg) <-
-            liftIO $ Registry.registerCounter (MetricId.Name cName) cLabels oldReg
-          liftIO $ modifyMVar_ metricsCounters $ \countMap ->
-            pure $ insert cid newCtr countMap
-          liftIO $ putMVar metricsRegistry newReg
-          pureT ()
-        Just ctr -> do
-          liftIO $ Counter.inc ctr
-          pureT ()
+          cid = metricIdStorable c
+      liftIO $ modifyMVar_ state $ \s@MetricsState {..} ->
+        case Map.lookup cid metricsCounters of
+          Nothing -> do
+            (newCtr, newReg) <-
+              liftIO $ Registry.registerCounter (MetricId.Name cName) cLabels metricsRegistry
+            pure $ MetricsState newReg (insert cid newCtr metricsCounters) metricsHistograms
+          Just ctr -> do
+            liftIO $ Counter.inc ctr
+            pure s
+      pureT ()
 
     ObserveHistogram _ _ -> do
       undefined
@@ -88,8 +83,8 @@ evalMetrics s@(MetricsRegistry {..}) = do
       a <- runT action
       endTime <- liftIO $ getCurrentTime
       let time = diffUTCTime endTime startTime
-      -- update a histogram here
-      actionRes <- raise $ evalMetrics s a
+      -- @TODO: update a histogram here
+      actionRes <- raise $ evalMetrics state a
       pure $ (, time) <$> actionRes
     )
 
@@ -99,10 +94,10 @@ evalMetrics s@(MetricsRegistry {..}) = do
 -- getEnvVarBoolWithDefault var def = undefined
 -- readEnvVarWithDefault var def = undefined
 
-initMetricsRegistry
+initMetricsState
   :: MonadIO m
-  => m (Maybe MetricsRegistry)
-initMetricsRegistry = liftIO $ do
+  => m (Maybe MetricsState)
+initMetricsState = liftIO $ do
   -- shouldStart <- getEnvVarBoolWithDefault "STATS_ENABLED" True
   if not False -- shouldStart
     then return Nothing
@@ -110,9 +105,9 @@ initMetricsRegistry = liftIO $ do
       -- bindAddr <- fromString <$> getEnvVarWithDefault "STATS_ADDR" "0.0.0.0"
       -- bindPort <- readEnvVarWithDefault "STATS_PORT" 9200
       -- logNotice "tcr.metrics" $ "Running Prometheus on " <> C8.unpack bindAddr <> ":" <> show bindPort
-      counters <- newMVar Map.empty
-      histos <- newMVar Map.empty
+      let counters = Map.empty
+          histos = Map.empty
       -- _ <- fork $ Prometheus.Http.serveHttpTextMetrics bindPort ["metrics"] (Prometheus.Registry.sample registry)
-      registry <- newMVar Registry.new
-      return . Just $ MetricsRegistry registry counters histos
+          registry = Registry.new
+      return . Just $ MetricsState registry counters histos
 
