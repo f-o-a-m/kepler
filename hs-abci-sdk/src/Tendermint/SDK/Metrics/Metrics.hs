@@ -3,6 +3,7 @@
 module Tendermint.SDK.Metrics.Metrics where
 
 import           Control.Arrow                                 ((***))
+import           Control.Concurrent                            (forkIO)
 import           Control.Concurrent.MVar                       (MVar,
                                                                 modifyMVar_,
                                                                 newMVar)
@@ -19,56 +20,16 @@ import           Polysemy                                      (Embed, Member,
                                                                 Sem, interpretH,
                                                                 pureT, raise,
                                                                 runT)
+import           System.Environment                            (lookupEnv)
 import qualified System.Metrics.Prometheus.Concurrent.Registry as Registry
+import qualified System.Metrics.Prometheus.Http.Scrape         as Http
 import qualified System.Metrics.Prometheus.Metric.Counter      as Counter
 import qualified System.Metrics.Prometheus.Metric.Histogram    as Histogram
 import qualified System.Metrics.Prometheus.MetricId            as MetricId
 import           Tendermint.SDK.Metrics                        (CountName (..), HistogramName (..),
                                                                 Metrics (..),
                                                                 observeHistogram)
---import System.Environment (lookupEnv)
-
-type MetricsMap a = Map (Text, MetricId.Labels) a
-data MetricsState = MetricsState
-  { metricsRegistry   :: Registry.Registry
-  , metricsCounters   :: MVar (MetricsMap Counter.Counter)
-  , metricsHistograms :: MVar (MetricsMap Histogram.Histogram)
-  }
-
-data MetricIdentifier = MetricIdentifier
-  { metricIdName         :: Text
-  , metricIdLabels       :: MetricId.Labels
-  , metricIdHistoBuckets :: [Double]
-  }
-
-instance IsString MetricIdentifier where
-  fromString s = MetricIdentifier (fromString s) mempty mempty
-
-metricIdStorable :: MetricIdentifier -> (Text, MetricId.Labels)
-metricIdStorable c = (fixMetricName $ metricIdName c, fixMetricLabels $ metricIdLabels c)
-  where fixMetricLabels =
-          MetricId.fromList .
-          map (fixMetricName *** fixMetricName) .
-          MetricId.toList
-
-fixMetricName :: Text -> Text
-fixMetricName = Text.map fixer
-  where fixer c = if c `elem` validChars then c else '_'
-        validChars = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ "_"
-
-countToIdentifier :: CountName -> MetricIdentifier
-countToIdentifier (CountName name labels) = MetricIdentifier
-  { metricIdName = name
-  , metricIdLabels = MetricId.fromList labels
-  , metricIdHistoBuckets = []
-  }
-
-histogramToIdentifier :: HistogramName -> MetricIdentifier
-histogramToIdentifier (HistogramName name labels buckets) = MetricIdentifier
-  { metricIdName = name
-  , metricIdLabels = MetricId.fromList labels
-  , metricIdHistoBuckets = buckets
-  }
+import qualified Text.Read                                     as T
 
 evalMetrics
   :: Member (Embed IO) r
@@ -126,26 +87,70 @@ evalMetrics state = do
       pure $ (, time) <$> actionRes
     )
 
--- getEnvVarWithDefault :: MonadIO m => String -> String -> m String
--- getEnvVarWithDefault var def = undefined
--- getEnvVarBoolWithDefault :: MonadIO m => String -> Bool -> m Bool
--- getEnvVarBoolWithDefault var def = undefined
--- readEnvVarWithDefault var def = undefined
+type MetricsMap a = Map (Text, MetricId.Labels) a
+data MetricsState = MetricsState
+  { metricsRegistry   :: Registry.Registry
+  , metricsCounters   :: MVar (MetricsMap Counter.Counter)
+  , metricsHistograms :: MVar (MetricsMap Histogram.Histogram)
+  }
+
+data MetricIdentifier = MetricIdentifier
+  { metricIdName         :: Text
+  , metricIdLabels       :: MetricId.Labels
+  , metricIdHistoBuckets :: [Double]
+  }
+
+instance IsString MetricIdentifier where
+  fromString s = MetricIdentifier (fromString s) mempty mempty
+
+metricIdStorable :: MetricIdentifier -> (Text, MetricId.Labels)
+metricIdStorable c = (fixMetricName $ metricIdName c, fixMetricLabels $ metricIdLabels c)
+  where fixMetricLabels =
+          MetricId.fromList .
+          map (fixMetricName *** fixMetricName) .
+          MetricId.toList
+
+fixMetricName :: Text -> Text
+fixMetricName = Text.map fixer
+  where fixer c = if c `elem` validChars then c else '_'
+        validChars = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ "_"
+
+countToIdentifier :: CountName -> MetricIdentifier
+countToIdentifier (CountName name labels) = MetricIdentifier
+  { metricIdName = name
+  , metricIdLabels = MetricId.fromList labels
+  , metricIdHistoBuckets = []
+  }
+
+histogramToIdentifier :: HistogramName -> MetricIdentifier
+histogramToIdentifier (HistogramName name labels buckets) = MetricIdentifier
+  { metricIdName = name
+  , metricIdLabels = MetricId.fromList labels
+  , metricIdHistoBuckets = buckets
+  }
+
+getEnvVarBoolWithDefault :: MonadIO m => String -> Bool -> m Bool
+getEnvVarBoolWithDefault var def = liftIO (lookupEnv var) >>= \case
+  Nothing -> return def
+  Just _ -> undefined
+
+readEnvVarWithDefault :: (Read a, MonadIO m) => String -> a -> m a
+readEnvVarWithDefault var def =
+  liftIO (lookupEnv var) >>= \case
+    Nothing -> return def
+    Just s -> return $ T.read s
 
 initMetricsState
   :: MonadIO m
   => m (Maybe MetricsState)
 initMetricsState = liftIO $ do
-  -- shouldStart <- getEnvVarBoolWithDefault "STATS_ENABLED" True
-  -- if not False -- shouldStart
-  --   then return Nothing
-  --   else do
-      -- bindAddr <- fromString <$> getEnvVarWithDefault "STATS_ADDR" "0.0.0.0"
-      -- bindPort <- readEnvVarWithDefault "STATS_PORT" 9200
-      -- logNotice "tcr.metrics" $ "Running Prometheus on " <> C8.unpack bindAddr <> ":" <> show bindPort
+  shouldStart <- getEnvVarBoolWithDefault "STATS_ENABLED" True
+  if not shouldStart
+    then return Nothing
+    else do
+      bindPort <- readEnvVarWithDefault "STATS_PORT" 9200
       counters <- newMVar Map.empty
       histos <- newMVar Map.empty
-      -- _ <- fork $ Prometheus.Http.serveHttpTextMetrics bindPort ["metrics"] (Prometheus.Registry.sample registry)
       registry <- Registry.new
+      _ <- forkIO $ Http.serveHttpTextMetrics bindPort ["metrics"] (Registry.sample registry)
       return . Just $ MetricsState registry counters histos
-
