@@ -56,6 +56,20 @@ fixMetricName = Text.map fixer
   where fixer c = if c `elem` validChars then c else '_'
         validChars = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ "_"
 
+countToIdentifier :: CountName -> MetricIdentifier
+countToIdentifier (CountName name labels) = MetricIdentifier
+  { metricIdName = name
+  , metricIdLabels = MetricId.fromList labels
+  , metricIdHistoBuckets = []
+  }
+
+histogramToIdentifier :: HistogramName -> MetricIdentifier
+histogramToIdentifier (HistogramName name labels buckets) = MetricIdentifier
+  { metricIdName = name
+  , metricIdLabels = MetricId.fromList labels
+  , metricIdHistoBuckets = buckets
+  }
+
 evalMetrics
   :: Member (Embed IO) r
   => MetricsState
@@ -64,7 +78,7 @@ evalMetrics
 evalMetrics state = do
   interpretH (\case
     IncCount ctrName -> do
-      let c = fromString . Text.unpack . unCountName $ ctrName
+      let c = countToIdentifier ctrName
           cName = fixMetricName $ metricIdName c
           cLabels = metricIdLabels c
           cid = metricIdStorable c
@@ -83,7 +97,7 @@ evalMetrics state = do
       pureT ()
 
     ObserveHistogram histName val -> do
-      let h = fromString . Text.unpack . unHistogramName $ histName
+      let h = histogramToIdentifier histName
           hName = fixMetricName $ metricIdName h
           hLabels = metricIdLabels h
           hBuckets = metricIdHistoBuckets h

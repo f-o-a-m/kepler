@@ -6,8 +6,6 @@ import           Control.Concurrent.MVar                       (newMVar,
                                                                 readMVar)
 import           Data.Map.Strict                               ((!))
 import qualified Data.Map.Strict                               as Map
-import           Data.String                                   (fromString)
-import           Data.Text                                     (unpack)
 import           Polysemy
 import qualified System.Metrics.Prometheus.Concurrent.Registry as Registry
 import qualified System.Metrics.Prometheus.Metric              as Metric
@@ -43,8 +41,8 @@ emptyState = do
 
 spec :: Spec
 spec = describe "Metrics tests" $ do
-  let countName = CountName "blip"
-      c = fromString . unpack . unCountName $ countName
+  let countName = CountName "blip" []
+      c = countToIdentifier countName
       cName = fixMetricName $ metricIdName c
       cLabels = metricIdLabels c
       cid = metricIdStorable c
@@ -70,8 +68,8 @@ spec = describe "Metrics tests" $ do
     incCtrValue <- Counter.sample $ incCtrIndex ! cid
     Counter.unCounterSample incCtrValue `shouldBe` 1
 
-  let histName = HistogramName "blip"
-      h = fromString . unpack . unHistogramName $ histName
+  let histName = HistogramName "blip" [] []
+      h = histogramToIdentifier $ histName
       hName = fixMetricName $ metricIdName h
       hLabels = metricIdLabels h
       hid = metricIdStorable h
@@ -100,13 +98,24 @@ spec = describe "Metrics tests" $ do
     Histogram.histSum obsHistValue `shouldBe` 42.0
     Histogram.histCount obsHistValue `shouldBe` 1
 
+  let buckets = [0.0001, 0.001, 0.01, 0.1, 0.25, 0.5, 0.75, 1, 10]
+      buckettedHistName = HistogramName "buckets" [] buckets
+      buckettedH = histogramToIdentifier $ buckettedHistName
+      buckettedHName = fixMetricName $ metricIdName buckettedH
+      buckettedHLabels = metricIdLabels buckettedH
+      buckettedHMetricIdName = MetricId.Name buckettedHName
+      buckettedHMetricId = MetricId.MetricId buckettedHMetricIdName buckettedHLabels
   it "Can measure action response times" $ do
     state <- emptyState
-    (_, time) <- eval state $ withTimer histName shine
+    -- create a new hist
+    _ <- eval state $ observeHistogram buckettedHistName 0.0
+    -- time an action
+    (_, time) <- eval state $ withTimer buckettedHistName shine
     time `shouldSatisfy` (> 0)
-    -- also triggers creation of histogram metric in registry
+    -- check hist buckets
     newRegistrySample <- Registry.sample $ metricsRegistry state
     let registryMap = RSample.unRegistrySample newRegistrySample
-        (Metric.HistogramMetricSample registryHistSample) = registryMap ! hMetricId
-    Histogram.histSum registryHistSample `shouldBe` 0.0
-    Histogram.histCount registryHistSample `shouldBe` 0
+        (Metric.HistogramMetricSample registryHistSample) = registryMap ! buckettedHMetricId
+        histBuckets = Histogram.histBuckets registryHistSample
+    Map.elems histBuckets `shouldSatisfy` atLeastOneUpdated
+      where atLeastOneUpdated = foldr (\b acc -> acc || (b /= 0.0)) False
