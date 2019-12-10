@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.Auth where
+module Tendermint.SDK.Modules.Auth where
 
 import           Data.Bifunctor               (first)
 import           Data.Proxy
@@ -13,12 +13,11 @@ import           GHC.Generics                 (Generic)
 import           GHC.TypeLits                 (symbolVal)
 import           Polysemy
 import           Polysemy.Error               (Error, mapError)
-import           Tendermint.SDK.BaseApp       (HasBaseAppEff)
-import           Tendermint.SDK.Codec         (HasCodec (..))
-import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Query         (Queryable (..))
-import           Tendermint.SDK.Store         (IsKey (..), StoreKey (..), get,
+import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..),
+                                               IsKey (..), Queryable (..),
+                                               RawStore, StoreKey (..), get,
                                                put)
+import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Types.Address (Address)
 
 --------------------------------------------------------------------------------
@@ -78,20 +77,19 @@ data Accounts m a where
 
 makeSem ''Accounts
 
-type AuthEffR = [Accounts, Error AuthError]
-type HasAuthEff r = Members AuthEffR r
+type AuthEffs = [Accounts, Error AuthError]
 
 storeKey :: StoreKey AuthModule
 storeKey = StoreKey "auth"
 
 eval
-  :: HasBaseAppEff r
+  :: Members [RawStore, Error AppError] r
   => Sem (Accounts ': Error AuthError ': r) a
   -> Sem r a
 eval = mapError makeAppError . evalAuth
   where
     evalAuth
-      :: HasBaseAppEff r
+      :: Members [RawStore, Error AppError] r
       => Sem (Accounts ': r) a
       -> Sem r a
     evalAuth =

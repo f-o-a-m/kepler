@@ -8,7 +8,7 @@ module Nameservice.Modules.Nameservice
     -- * types
   , Name(..)
   , Whois (..)
-  , NameserviceException(..)
+  , NameserviceError(..)
   , NameserviceMessage(..)
   , NameClaimed(..)
   , NameRemapped(..)
@@ -18,8 +18,7 @@ module Nameservice.Modules.Nameservice
   , DeleteName(..)
 
   -- * effects
-  , NameserviceEffR
-  , HasNameserviceEff
+  , NameserviceEffs
   , getWhois
   , buyName
   , setName
@@ -42,16 +41,17 @@ import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Query
 import           Nameservice.Modules.Nameservice.Router
 import           Nameservice.Modules.Nameservice.Types
-import           Nameservice.Modules.Token                (HasTokenEff)
-import           Tendermint.SDK.BaseApp                   (HasBaseAppEff)
-import           Tendermint.SDK.Module                    (Module (..))
+import           Nameservice.Modules.Token                (TokenEffs)
+import           Polysemy                                 (Members)
+import           Tendermint.SDK.Application               (Module (..))
+import           Tendermint.SDK.BaseApp                   (BaseAppEffs)
 
 type NameserviceM r = Module "nameservice" NameserviceMessage Api r
 
 nameserviceModule
-  :: HasBaseAppEff r
-  => HasTokenEff r
-  => HasNameserviceEff r
+  :: Members BaseAppEffs r
+  => Members TokenEffs r
+  => Members NameserviceEffs r
   => NameserviceM r
 nameserviceModule = Module
   { moduleRouter = router

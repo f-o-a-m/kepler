@@ -1,4 +1,4 @@
-module Tendermint.SDK.Query.Types where
+module Tendermint.SDK.BaseApp.Query.Types where
 
 import           Control.Lens                           (from, (^.))
 import           Control.Monad                          (ap)
@@ -11,8 +11,9 @@ import           GHC.TypeLits                           (Symbol)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof, WrappedVal (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
+import           Tendermint.SDK.BaseApp.Store           (RawKey (..))
 import           Tendermint.SDK.Codec                   (HasCodec (..))
-import           Tendermint.SDK.Store                   (RawKey (..))
+import           Tendermint.SDK.Types.Address           (Address)
 
 data Leaf (a :: *)
 
@@ -20,7 +21,7 @@ data QA (a :: *)
 
 --------------------------------------------------------------------------------
 
-type Application m = Request.Query -> m Response.Query
+type QueryApplication m = Request.Query -> m Response.Query
 
 --------------------------------------------------------------------------------
 
@@ -77,6 +78,8 @@ class FromQueryData a where
 
   default fromQueryData :: RawKey a => Base64String -> Either String a
   fromQueryData bs = Right (toBytes bs ^. from rawKey)
+
+instance FromQueryData Address
 
 --------------------------------------------------------------------------------
 -- NOTE: most of this was vendored and repurposed from servant.

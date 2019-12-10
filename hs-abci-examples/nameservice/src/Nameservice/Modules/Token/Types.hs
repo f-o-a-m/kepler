@@ -16,11 +16,8 @@ import qualified Proto3.Suite.DotProto        as DotProto
 import qualified Proto3.Wire.Decode           as Decode
 import qualified Proto3.Wire.Encode           as Encode
 import           Proto3.Wire.Types            (fieldNumber)
+import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
-import           Tendermint.SDK.Errors        (AppError (..), IsAppError (..))
-import           Tendermint.SDK.Events        (FromEvent, ToEvent (..))
-import           Tendermint.SDK.Query         (Queryable (..))
-import qualified Tendermint.SDK.Store         as Store
 import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
                                                addressToBytes)
 
@@ -31,6 +28,7 @@ type TokenModule = "token"
 --------------------------------------------------------------------------------
 
 newtype Amount = Amount Word64 deriving (Eq, Show, Num, Generic, Ord, A.ToJSON, A.FromJSON)
+
 instance Primitive Amount where
   encodePrimitive n (Amount amt) = Encode.uint64 n amt
   decodePrimitive = Amount <$> Decode.uint64
@@ -38,7 +36,7 @@ instance Primitive Amount where
 instance HasDefault Amount
 instance MessageField Amount
 
-instance Queryable Amount where
+instance BaseApp.Queryable Amount where
   type Name Amount = "balance"
 
 -- @NOTE: hacks
@@ -62,19 +60,19 @@ instance HasDefault Hex.HexString
 instance HasDefault Address
 instance MessageField Address
 
-instance Store.IsKey Address "token" where
+instance BaseApp.IsKey Address "token" where
   type Value Address "token" = Amount
 
 --------------------------------------------------------------------------------
 -- Exceptions
 --------------------------------------------------------------------------------
 
-data TokenException =
+data TokenError =
     InsufficientFunds Text
 
-instance IsAppError TokenException where
+instance BaseApp.IsAppError TokenError where
     makeAppError (InsufficientFunds msg) =
-      AppError
+      BaseApp.AppError
         { appErrorCode = 1
         , appErrorCodespace = "token"
         , appErrorMessage = msg
@@ -96,9 +94,9 @@ instance ToJSON Faucetted where
   toJSON = A.genericToJSON faucettedAesonOptions
 instance FromJSON Faucetted where
   parseJSON = A.genericParseJSON faucettedAesonOptions
-instance ToEvent Faucetted where
+instance BaseApp.ToEvent Faucetted where
   makeEventType _ = "Faucetted"
-instance FromEvent Faucetted
+instance BaseApp.FromEvent Faucetted
 
 data TransferEvent = TransferEvent
   { transferEventAmount :: Amount
@@ -115,7 +113,7 @@ instance A.ToJSON TransferEvent where
 instance A.FromJSON TransferEvent where
   parseJSON = A.genericParseJSON transferEventAesonOptions
 
-instance ToEvent TransferEvent where
+instance BaseApp.ToEvent TransferEvent where
   makeEventType _ = "TransferEvent"
 
-instance FromEvent TransferEvent
+instance BaseApp.FromEvent TransferEvent

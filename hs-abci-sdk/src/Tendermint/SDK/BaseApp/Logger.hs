@@ -1,8 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.Logger
+module Tendermint.SDK.BaseApp.Logger
   ( Logger(..)
-  , Tendermint.SDK.Logger.log
+  , Tendermint.SDK.BaseApp.Logger.log
   , Severity(..)
   ) where
 

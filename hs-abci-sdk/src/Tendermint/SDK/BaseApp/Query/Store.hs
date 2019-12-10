@@ -1,20 +1,22 @@
-module Tendermint.SDK.Query.Store where
+{-# LANGUAGE UndecidableInstances #-}
 
-import           Control.Error               (ExceptT, throwE)
-import           Control.Lens                (to, (^.))
-import           Control.Monad.Trans         (lift)
-import           Data.ByteArray.Base64String (fromBytes)
+module Tendermint.SDK.BaseApp.Query.Store where
+
+import           Control.Error                      (ExceptT, throwE)
+import           Control.Lens                       (to, (^.))
+import           Control.Monad.Trans                (lift)
+import           Data.ByteArray.Base64String        (fromBytes)
 import           Data.Proxy
-import           GHC.TypeLits                (Symbol)
-import           Polysemy                    (Member, Sem)
-import           Polysemy.Error              (Error)
-import           Servant.API                 ((:<|>) (..), (:>))
-import           Tendermint.SDK.Codec        (HasCodec)
-import           Tendermint.SDK.Errors       (AppError)
-import           Tendermint.SDK.Query.Class
-import           Tendermint.SDK.Query.Types
-import           Tendermint.SDK.Store        (IsKey (..), RawKey (..), RawStore,
-                                              StoreKey, get)
+import           GHC.TypeLits                       (Symbol)
+import           Polysemy                           (Members, Sem)
+import           Polysemy.Error                     (Error)
+import           Servant.API                        ((:<|>) (..), (:>))
+import           Tendermint.SDK.BaseApp.Errors      (AppError)
+import           Tendermint.SDK.BaseApp.Query.Class
+import           Tendermint.SDK.BaseApp.Query.Types
+import           Tendermint.SDK.BaseApp.Store       (IsKey (..), RawKey (..),
+                                                     RawStore, StoreKey, get)
+import           Tendermint.SDK.Codec               (HasCodec)
 
 class StoreQueryHandler a (ns :: Symbol) h where
     storeQueryHandler :: Proxy a -> StoreKey ns -> h
@@ -23,8 +25,7 @@ instance
   ( IsKey k ns
   , a ~ Value k ns
   , HasCodec a
-  , Member RawStore r
-  , Member (Error AppError) r
+  , Members [RawStore, Error AppError] r
   )
    => StoreQueryHandler a ns (QueryArgs k -> ExceptT QueryError (Sem r) (QueryResult a)) where
   storeQueryHandler _ storeKey QueryArgs{..} = do
@@ -49,8 +50,7 @@ instance
     ( IsKey k ns
     , a ~ Value k ns
     , HasCodec a
-    , Member RawStore r
-    , Member (Error AppError) r
+    , Members [RawStore, Error AppError] r
     )  => StoreQueryHandlers '[(k,a)] ns (Sem r) where
       type QueryApi '[(k,a)] =  QA k :> Leaf a
       storeQueryHandlers _ storeKey _ = storeQueryHandler (Proxy :: Proxy a) storeKey
@@ -60,8 +60,7 @@ instance
     , a ~ Value k ns
     , HasCodec a
     , StoreQueryHandlers ((k', a') ': as) ns (Sem r)
-    , Member RawStore r
-    , Member (Error AppError) r
+    , Members [RawStore, Error AppError] r
     ) => StoreQueryHandlers ((k,a) ': (k', a') : as) ns (Sem r) where
         type (QueryApi ((k, a) ': (k', a') : as)) = (QA k :> Leaf a) :<|> QueryApi ((k', a') ': as)
         storeQueryHandlers _ storeKey pm =

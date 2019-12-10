@@ -1,4 +1,4 @@
-module Tendermint.SDK.Errors
+module Tendermint.SDK.BaseApp.Errors
   ( AppError(..)
   , IsAppError(..)
   , queryAppError

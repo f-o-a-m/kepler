@@ -55,7 +55,6 @@ dependencies:
 - cereal
 - cereal-text
 - containers
-- conduit
 - cryptonite
 - data-default-class
 - errors
@@ -67,9 +66,11 @@ dependencies:
 - katip
 - lens
 - memory
+- mmorph
 - mtl
 - polysemy
 - polysemy-plugin
+- polysemy-zoo
 - profunctors
 - proto-lens
 - proto-lens-runtime
@@ -96,32 +97,35 @@ library:
   - -Wredundant-constraints
   exposed-modules:
   - Tendermint.SDK.Application
-  - Tendermint.SDK.Aeson
-  - Tendermint.SDK.Auth
-  - Tendermint.SDK.AuthTreeStore
+  - Tendermint.SDK.Application.App
+  - Tendermint.SDK.Application.Module
+  - Tendermint.SDK.Application.Handlers
   - Tendermint.SDK.BaseApp
+  - Tendermint.SDK.BaseApp.BaseApp
+  - Tendermint.SDK.BaseApp.CoreEff
+  - Tendermint.SDK.BaseApp.Errors
+  - Tendermint.SDK.BaseApp.Events
+  - Tendermint.SDK.BaseApp.Gas
+  - Tendermint.SDK.BaseApp.Logger
+  - Tendermint.SDK.BaseApp.Logger.Katip
+  - Tendermint.SDK.BaseApp.Query
+  - Tendermint.SDK.BaseApp.Query.Class
+  - Tendermint.SDK.BaseApp.Query.Client
+  - Tendermint.SDK.BaseApp.Query.Delayed
+  - Tendermint.SDK.BaseApp.Query.Router
+  - Tendermint.SDK.BaseApp.Query.Store
+  - Tendermint.SDK.BaseApp.Query.Types
+  - Tendermint.SDK.BaseApp.Store
+  - Tendermint.SDK.BaseApp.Store.AuthTreeStore
+  - Tendermint.SDK.BaseApp.Store.RawStore
+  - Tendermint.SDK.BaseApp.Store.Scope
   - Tendermint.SDK.Codec
   - Tendermint.SDK.Crypto
-  - Tendermint.SDK.Errors
-  - Tendermint.SDK.Events
-  - Tendermint.SDK.Query
-  - Tendermint.SDK.Query.Class
-  - Tendermint.SDK.Query.Delayed
-  - Tendermint.SDK.Query.Router
-  - Tendermint.SDK.Query.Store
-  - Tendermint.SDK.Query.Types
-  - Tendermint.SDK.Query.Client
-  - Tendermint.SDK.Logger
-  - Tendermint.SDK.Logger.Katip
-  - Tendermint.SDK.Store
-  - Tendermint.SDK.Subscription
+  - Tendermint.SDK.Modules.Auth
   - Tendermint.SDK.Types.Message
   - Tendermint.SDK.Types.Transaction
   - Tendermint.SDK.Types.Address
   - Tendermint.SDK.Types.TxResult
-  - Tendermint.SDK.TxRouter
-  - Tendermint.SDK.Module
-  - Tendermint.SDK.Gas
 
   generated-exposed-modules:
   - Proto.Types.Transaction

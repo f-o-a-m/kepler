@@ -19,7 +19,6 @@ import           Data.String                            (fromString)
 import           Data.String.Conversions                (cs)
 import           Data.Text                              (Text)
 import           Data.Word                              (Word32)
-import           Nameservice.Application                (QueryApi)
 import           Nameservice.Modules.Nameservice        (BuyName (..),
                                                          DeleteName (..),
                                                          Name (..),
@@ -28,26 +27,30 @@ import           Nameservice.Modules.Nameservice        (BuyName (..),
                                                          NameRemapped (..),
                                                          SetName (..),
                                                          Whois (..))
+import qualified Nameservice.Modules.Nameservice        as N (Api)
 import           Nameservice.Modules.Token              (Amount (..),
                                                          FaucetAccount (..),
                                                          Faucetted (..),
                                                          Transfer (..),
                                                          TransferEvent (..))
+import qualified Nameservice.Modules.Token              as T (Api)
 import           Nameservice.Modules.TypedMessage       (TypedMessage (..))
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..))
 import qualified Network.ABCI.Types.Messages.Response   as Response
 import qualified Network.Tendermint.Client              as RPC
 import           Proto3.Suite                           (Message,
                                                          toLazyByteString)
-import           Servant.API                            ((:<|>) (..))
+import           Servant.API                            ((:<|>) (..), (:>))
+import           Tendermint.SDK.BaseApp                 (FromEvent (..),
+                                                         QueryApi)
+import           Tendermint.SDK.BaseApp.Query           (QueryArgs (..),
+                                                         defaultQueryWithData)
+import           Tendermint.SDK.BaseApp.Query.Client    (ClientResponse (..),
+                                                         HasClient (..),
+                                                         RunClient (..))
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 import           Tendermint.SDK.Crypto                  (Secp256k1,
                                                          addressFromPubKey)
-import           Tendermint.SDK.Events                  (FromEvent (..))
-import           Tendermint.SDK.Query.Client            (ClientResponse (..),
-                                                         genClient)
-import           Tendermint.SDK.Query.Types             (QueryArgs (..),
-                                                         defaultQueryWithData)
 import           Tendermint.SDK.Types.Address           (Address (..))
 import           Tendermint.SDK.Types.Transaction       (RawTransaction (..),
                                                          signRawTransaction)
@@ -113,8 +116,8 @@ spec = do
         -- try to set a name without being the owner
         let msg = TypedMessage "SetName" (encode $ SetName satoshi addr2 "goodbye to a world")
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        deliverResp <- getDeliverTxResponse rawTx
-        ensureDeliverResponseCode deliverResp 2
+        checkResp <- getCheckTxResponse rawTx
+        ensureCheckResponseCode checkResp 2
 
       it "Can buy an existing name (success 0)" $ do
         let oldVal = "goodbye to a world"
@@ -160,8 +163,8 @@ spec = do
         -- try to buy at a lower price
         let msg = TypedMessage "BuyName" (encode $ BuyName 100 satoshi "hello (again) world" addr1)
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        deliverResp <- getDeliverTxResponse rawTx
-        ensureDeliverResponseCode deliverResp 1
+        checkResp <- getCheckTxResponse rawTx
+        ensureCheckResponseCode checkResp 1
 
       it "Can delete names (success 0)" $ do
         let msg = TypedMessage "DeleteName" (encode $ DeleteName addr2 satoshi)
@@ -181,8 +184,8 @@ spec = do
       it "Can fail a transfer (failure 1)" $ do
         let msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 2000)
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
-        deliverResp <- getDeliverTxResponse rawTx
-        ensureDeliverResponseCode deliverResp 1
+        checkResp <- getCheckTxResponse rawTx
+        ensureCheckResponseCode checkResp 1
 
       it "Can transfer (success 0)" $ do
         let senderBeforeQueryReq = defaultQueryWithData addr2
@@ -229,6 +232,13 @@ getQueryResponseSuccess query = do
   responseCode `shouldBe` 0
   return . fromJust $ clientResponseData
 
+-- executes a request, then returns the checkTx response
+getCheckTxResponse :: RawTransaction -> IO Response.CheckTx
+getCheckTxResponse rawTx = do
+  let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+  fmap RPC.resultBroadcastTxCommitCheckTx . runRPC $
+    RPC.broadcastTxCommit txReq
+
 -- executes a request, then returns the deliverTx response
 getDeliverTxResponse :: RawTransaction -> IO Response.DeliverTx
 getDeliverTxResponse rawTx = do
@@ -249,6 +259,12 @@ ensureEventLogged deliverResp eventName expectedEvent = do
   (errs, events) <- deliverTxEvents deliverResp eventName
   errs `shouldBe` mempty
   events `shouldSatisfy` elem expectedEvent
+
+-- check for a specific check response code
+ensureCheckResponseCode :: Response.CheckTx -> Word32 -> IO ()
+ensureCheckResponseCode checkResp code = do
+  let checkRespCode = checkResp ^. Response._checkTxCode
+  checkRespCode `shouldBe` code
 
 -- check for a specific deliver response code
 ensureDeliverResponseCode :: Response.DeliverTx -> Word32 -> IO ()
@@ -303,5 +319,8 @@ algProxy = Proxy
 getWhois :: QueryArgs Name -> RPC.TendermintM (ClientResponse Whois)
 getBalance :: QueryArgs Address -> RPC.TendermintM (ClientResponse Amount)
 
+apiP :: Proxy ("token" :> T.Api :<|> ("nameservice" :> N.Api))
+apiP = Proxy
+
 (getBalance :<|> getWhois) =
-  genClient (Proxy :: Proxy RPC.TendermintM) (Proxy :: Proxy QueryApi) def
+  genClient (Proxy :: Proxy RPC.TendermintM) apiP def

@@ -7,17 +7,14 @@ import           Data.String.Conversions                  (cs)
 import           GHC.TypeLits                             (symbolVal)
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Types
-import           Nameservice.Modules.Token                (HasTokenEff, burn,
-                                                           mint, transfer)
+import           Nameservice.Modules.Token                (Token, TokenEffs,
+                                                           burn, mint, transfer)
 import           Polysemy                                 (Member, Members, Sem,
                                                            interpret, makeSem)
 import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
-import           Tendermint.SDK.BaseApp                   (HasBaseAppEff)
-import           Tendermint.SDK.Errors                    (IsAppError (..))
-import           Tendermint.SDK.Events                    (Event, emit)
-import qualified Tendermint.SDK.Store                     as Store
+import qualified Tendermint.SDK.BaseApp                   as BaseApp
 
 data Nameservice m a where
   PutWhois :: Name -> Whois -> Nameservice m ()
@@ -26,37 +23,35 @@ data Nameservice m a where
 
 makeSem ''Nameservice
 
-type NameserviceEffR = '[Nameservice, Error NameserviceException]
-type HasNameserviceEff r = (Members NameserviceEffR r, Member (Output Event) r)
+type NameserviceEffs = '[Nameservice, Error NameserviceError]
 
-storeKey :: Store.StoreKey NameserviceModule
-storeKey = Store.StoreKey . cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
+storeKey :: BaseApp.StoreKey NameserviceModule
+storeKey = BaseApp.StoreKey . cs . symbolVal $ (Proxy :: Proxy NameserviceModule)
 
 eval
-  :: HasBaseAppEff r
-  => Sem (Nameservice ': Error NameserviceException ': r) a
+  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+  => forall a. Sem (Nameservice ': Error NameserviceError ': r) a
   -> Sem r a
-eval = mapError makeAppError . evalNameservice
+eval = mapError BaseApp.makeAppError . evalNameservice
   where
     evalNameservice
-      :: HasBaseAppEff r
-      => Sem (Nameservice ': r) a
-      -> Sem r a
+      :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+      => Sem (Nameservice ': r) a -> Sem r a
     evalNameservice =
       interpret (\case
           GetWhois name ->
-            Store.get storeKey name
+            BaseApp.get storeKey name
           PutWhois name whois ->
-            Store.put storeKey name whois
+            BaseApp.put storeKey name whois
           DeleteWhois name ->
-            Store.delete storeKey name
+            BaseApp.delete storeKey name
         )
 
 --------------------------------------------------------------------------------
 
 setName
-  :: HasTokenEff r
-  => HasNameserviceEff r
+  :: Member (Output BaseApp.Event) r
+  => Members NameserviceEffs r
   => SetName
   -> Sem r ()
 setName SetName{..} = do
@@ -68,15 +63,15 @@ setName SetName{..} = do
         then throw $ UnauthorizedSet "Setter must be the owner of the Name."
         else do
           putWhois setNameName currentWhois {whoisValue = setNameValue}
-          emit NameRemapped
+          BaseApp.emit NameRemapped
              { nameRemappedName = setNameName
              , nameRemappedNewValue = setNameValue
              , nameRemappedOldValue = whoisValue
              }
 
 deleteName
-  :: HasTokenEff r
-  => HasNameserviceEff r
+  :: Members [Token, Output BaseApp.Event] r
+  => Members NameserviceEffs r
   => DeleteName
   -> Sem r ()
 deleteName DeleteName{..} = do
@@ -89,14 +84,15 @@ deleteName DeleteName{..} = do
         else do
           mint deleteNameOwner whoisPrice
           deleteWhois deleteNameName
-          emit NameDeleted
+          BaseApp.emit NameDeleted
             { nameDeletedName = deleteNameName
             }
 
 
 buyName
-  :: HasTokenEff r
-  => HasNameserviceEff r
+  :: Member (Output BaseApp.Event) r
+  => Members TokenEffs r
+  => Members NameserviceEffs r
   => BuyName
   -> Sem r ()
 -- ^ did it succeed
@@ -112,8 +108,9 @@ buyName msg = do
     Just whois -> buyClaimedName msg whois
     where
       buyUnclaimedName
-        :: HasTokenEff r
-        => HasNameserviceEff r
+        :: Member (Output BaseApp.Event) r
+        => Members TokenEffs r
+        => Members NameserviceEffs r
         => BuyName
         -> Sem r ()
       buyUnclaimedName BuyName{..} = do
@@ -124,7 +121,7 @@ buyName msg = do
               , whoisPrice = buyNameBid
               }
         putWhois buyNameName whois
-        emit NameClaimed
+        BaseApp.emit NameClaimed
           { nameClaimedOwner = buyNameBuyer
           , nameClaimedName = buyNameName
           , nameClaimedValue = buyNameValue
@@ -132,8 +129,9 @@ buyName msg = do
           }
 
       buyClaimedName
-        :: HasNameserviceEff r
-        => HasTokenEff r
+        :: Members NameserviceEffs r
+        => Members TokenEffs r
+        => Member (Output BaseApp.Event) r
         => BuyName
         -> Whois
         -> Sem r ()
@@ -147,7 +145,7 @@ buyName msg = do
                                                  , whoisPrice = buyNameBid
                                                  , whoisValue = buyNameValue
                                                  }
-               emit NameClaimed
+               BaseApp.emit NameClaimed
                  { nameClaimedOwner = buyNameBuyer
                  , nameClaimedName = buyNameName
                  , nameClaimedValue = buyNameValue
