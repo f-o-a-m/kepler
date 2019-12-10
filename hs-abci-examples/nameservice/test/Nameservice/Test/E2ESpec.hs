@@ -40,7 +40,7 @@ import qualified Network.ABCI.Types.Messages.Response   as Response
 import qualified Network.Tendermint.Client              as RPC
 import           Proto3.Suite                           (Message,
                                                          toLazyByteString)
-import           Servant.API                            ((:<|>)(..), (:>))
+import           Servant.API                            ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp                 (FromEvent (..),
                                                          QueryApi)
 import           Tendermint.SDK.BaseApp.Query           (QueryArgs (..),
