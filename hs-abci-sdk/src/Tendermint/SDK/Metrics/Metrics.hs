@@ -31,26 +31,26 @@ import           Tendermint.SDK.Metrics                        (CountName (..), 
                                                                 observeHistogram)
 import qualified Text.Read                                     as T
 
+--------------------------------------------------------------------------------
+-- eval
+--------------------------------------------------------------------------------
+
 evalMetrics
   :: Member (Embed IO) r
   => MetricsState
   -> Sem (Metrics ': r) a
   -> Sem r a
-evalMetrics state = do
+evalMetrics state@MetricsState{..} = do
   interpretH (\case
     IncCount ctrName -> do
-      let c = countToIdentifier ctrName
-          cName = fixMetricName $ metricIdName c
-          cLabels = metricIdLabels c
+      let c@MetricIdentifier{..} = countToIdentifier ctrName
           cid = metricIdStorable c
-          cMetricIdName = MetricId.Name cName
-          registry = metricsRegistry state
-          counters = metricsCounters state
-      liftIO $ modifyMVar_ counters $ \counterMap ->
+          cMetricIdName = MetricId.Name metricIdName
+      liftIO $ modifyMVar_ metricsCounters $ \counterMap ->
         case Map.lookup cid counterMap of
           Nothing -> do
-            newCtr <-
-              liftIO $ Registry.registerCounter cMetricIdName cLabels registry
+            newCtr <- liftIO $
+              Registry.registerCounter cMetricIdName metricIdLabels metricsRegistry
             pure $ insert cid newCtr counterMap
           Just ctr -> do
             liftIO $ Counter.inc ctr
@@ -58,19 +58,14 @@ evalMetrics state = do
       pureT ()
 
     ObserveHistogram histName val -> do
-      let h = histogramToIdentifier histName
-          hName = fixMetricName $ metricIdName h
-          hLabels = metricIdLabels h
-          hBuckets = metricIdHistoBuckets h
+      let h@MetricIdentifier{..} = histogramToIdentifier histName
           hid = metricIdStorable h
-          hMetricIdName = MetricId.Name hName
-          registry = metricsRegistry state
-          histograms = metricsHistograms state
-      liftIO $ modifyMVar_ histograms $ \histMap ->
+          hMetricIdName = MetricId.Name metricIdName
+      liftIO $ modifyMVar_ metricsHistograms $ \histMap ->
         case Map.lookup hid histMap of
           Nothing -> do
-            newHist <-
-              liftIO $ Registry.registerHistogram hMetricIdName hLabels hBuckets registry
+            newHist <- liftIO $
+              Registry.registerHistogram hMetricIdName metricIdLabels metricIdHistoBuckets metricsRegistry
             pure $ insert hid newHist histMap
           Just hist -> do
             liftIO $ Histogram.observe val hist
@@ -87,24 +82,27 @@ evalMetrics state = do
       pure $ (, time) <$> actionRes
     )
 
-type MetricsMap a = Map (Text, MetricId.Labels) a
-data MetricsState = MetricsState
-  { metricsRegistry   :: Registry.Registry
-  , metricsCounters   :: MVar (MetricsMap Counter.Counter)
-  , metricsHistograms :: MVar (MetricsMap Histogram.Histogram)
+--------------------------------------------------------------------------------
+-- indexes @NOTE: maybe clean this up
+--------------------------------------------------------------------------------
+
+countToIdentifier :: CountName -> MetricIdentifier
+countToIdentifier (CountName name labels) = MetricIdentifier
+  { metricIdName = fixMetricName name
+  , metricIdLabels = MetricId.fromList labels
+  , metricIdHistoBuckets = []
   }
 
-data MetricIdentifier = MetricIdentifier
-  { metricIdName         :: Text
-  , metricIdLabels       :: MetricId.Labels
-  , metricIdHistoBuckets :: [Double]
+histogramToIdentifier :: HistogramName -> MetricIdentifier
+histogramToIdentifier (HistogramName name labels buckets) = MetricIdentifier
+  { metricIdName = fixMetricName name
+  , metricIdLabels = MetricId.fromList labels
+  , metricIdHistoBuckets = buckets
   }
 
-instance IsString MetricIdentifier where
-  fromString s = MetricIdentifier (fromString s) mempty mempty
-
+-- | Index key for storing metrics
 metricIdStorable :: MetricIdentifier -> (Text, MetricId.Labels)
-metricIdStorable c = (fixMetricName $ metricIdName c, fixMetricLabels $ metricIdLabels c)
+metricIdStorable c = (metricIdName c, fixMetricLabels $ metricIdLabels c)
   where fixMetricLabels =
           MetricId.fromList .
           map (fixMetricName *** fixMetricName) .
@@ -115,19 +113,27 @@ fixMetricName = Text.map fixer
   where fixer c = if c `elem` validChars then c else '_'
         validChars = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ "_"
 
-countToIdentifier :: CountName -> MetricIdentifier
-countToIdentifier (CountName name labels) = MetricIdentifier
-  { metricIdName = name
-  , metricIdLabels = MetricId.fromList labels
-  , metricIdHistoBuckets = []
+-- | Core metrics state
+type MetricsMap a = Map (Text, MetricId.Labels) a
+data MetricsState = MetricsState
+  { metricsRegistry   :: Registry.Registry
+  , metricsCounters   :: MVar (MetricsMap Counter.Counter)
+  , metricsHistograms :: MVar (MetricsMap Histogram.Histogram)
   }
 
-histogramToIdentifier :: HistogramName -> MetricIdentifier
-histogramToIdentifier (HistogramName name labels buckets) = MetricIdentifier
-  { metricIdName = name
-  , metricIdLabels = MetricId.fromList labels
-  , metricIdHistoBuckets = buckets
+-- | Intermediary prometheus registry index key
+data MetricIdentifier = MetricIdentifier
+  { metricIdName         :: Text
+  , metricIdLabels       :: MetricId.Labels
+  , metricIdHistoBuckets :: [Double]
   }
+
+instance IsString MetricIdentifier where
+  fromString s = MetricIdentifier (fromString s) mempty mempty
+
+--------------------------------------------------------------------------------
+-- setup @TODO: add error handling
+--------------------------------------------------------------------------------
 
 getEnvVarBoolWithDefault :: MonadIO m => String -> Bool -> m Bool
 getEnvVarBoolWithDefault var def = liftIO (lookupEnv var) >>= \case

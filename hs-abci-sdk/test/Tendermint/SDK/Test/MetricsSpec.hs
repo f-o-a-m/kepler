@@ -43,7 +43,7 @@ spec :: Spec
 spec = describe "Metrics tests" $ do
   let countName = CountName "blip" []
       c = countToIdentifier countName
-      cName = fixMetricName $ metricIdName c
+      cName = metricIdName c
       cLabels = metricIdLabels c
       cid = metricIdStorable c
       cMetricIdName = MetricId.Name cName
@@ -70,7 +70,7 @@ spec = describe "Metrics tests" $ do
 
   let histName = HistogramName "blip" [] []
       h = histogramToIdentifier $ histName
-      hName = fixMetricName $ metricIdName h
+      hName = metricIdName h
       hLabels = metricIdLabels h
       hid = metricIdStorable h
       hMetricIdName = MetricId.Name hName
@@ -101,7 +101,7 @@ spec = describe "Metrics tests" $ do
   let buckets = [0.0001, 0.001, 0.01, 0.1, 0.25, 0.5, 0.75, 1, 10]
       buckettedHistName = HistogramName "buckets" [] buckets
       buckettedH = histogramToIdentifier $ buckettedHistName
-      buckettedHName = fixMetricName $ metricIdName buckettedH
+      buckettedHName = metricIdName buckettedH
       buckettedHLabels = metricIdLabels buckettedH
       buckettedHMetricIdName = MetricId.Name buckettedHName
       buckettedHMetricId = MetricId.MetricId buckettedHMetricIdName buckettedHLabels
