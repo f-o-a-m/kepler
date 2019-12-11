@@ -16,7 +16,7 @@ data HistogramName = HistogramName
   , histogramBuckets :: [Double]
   } deriving (Eq, Ord)
 
-
+-- @NOTE: might need a NewCount/NewHistogram summand to clean up some usage quirks
 data Metrics m a where
   -- | Increments the count of a specific message
   IncCount :: CountName -> Metrics m ()

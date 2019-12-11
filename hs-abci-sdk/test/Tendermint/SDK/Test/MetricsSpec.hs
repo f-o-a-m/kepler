@@ -11,7 +11,6 @@ import qualified System.Metrics.Prometheus.Concurrent.Registry as Registry
 import qualified System.Metrics.Prometheus.Metric              as Metric
 import qualified System.Metrics.Prometheus.Metric.Counter      as Counter
 import qualified System.Metrics.Prometheus.Metric.Histogram    as Histogram
-import qualified System.Metrics.Prometheus.MetricId            as MetricId
 import qualified System.Metrics.Prometheus.Registry            as RSample
 import           Tendermint.SDK.Metrics
 import           Tendermint.SDK.Metrics.Metrics
@@ -43,77 +42,64 @@ spec :: Spec
 spec = describe "Metrics tests" $ do
   let countName = CountName "blip" []
       c = countToIdentifier countName
-      cName = metricIdName c
-      cLabels = metricIdLabels c
       cid = metricIdStorable c
-      cMetricIdName = MetricId.Name cName
-      cMetricId = MetricId.MetricId cMetricIdName cLabels
+      cMetricId = mkPrometheusMetricId c
   it "Can make a new count and increment it" $ do
-    state <- emptyState
+    state@MetricsState{..} <- emptyState
     -- new count = 0
     _ <- eval state $ incCount countName
-    let counters = metricsCounters state
-    newCtrIndex <- readMVar counters
+    newCtrIndex <- readMVar metricsCounters
     newCtrValue <- Counter.sample $ newCtrIndex ! cid
     Counter.unCounterSample newCtrValue `shouldBe` 0
     -- register should contain new counter metric
-    newRegistrySample <- Registry.sample $ metricsRegistry state
+    newRegistrySample <- Registry.sample metricsRegistry
     let registryMap = RSample.unRegistrySample newRegistrySample
         (Metric.CounterMetricSample registryCtrSample) = registryMap ! cMetricId
     Counter.unCounterSample registryCtrSample `shouldBe` 0
     -- increment
     _ <- eval state $ incCount countName
-    let newCounters = metricsCounters state
-    incCtrIndex <- readMVar newCounters
+    incCtrIndex <- readMVar metricsCounters
     incCtrValue <- Counter.sample $ incCtrIndex ! cid
     Counter.unCounterSample incCtrValue `shouldBe` 1
 
   let histName = HistogramName "blip" [] []
-      h = histogramToIdentifier $ histName
-      hName = metricIdName h
-      hLabels = metricIdLabels h
+      h = histogramToIdentifier histName
       hid = metricIdStorable h
-      hMetricIdName = MetricId.Name hName
-      hMetricId = MetricId.MetricId hMetricIdName hLabels
+      hMetricId = mkPrometheusMetricId h
   it "Can make a new histogram and observe it" $ do
-    state <- emptyState
+    state@MetricsState{..} <- emptyState
     -- new histogram
     _ <- eval state $ observeHistogram histName 0.0
-    let histograms = metricsHistograms state
-    newHistIndex <- readMVar histograms
+    newHistIndex <- readMVar metricsHistograms
     newHistValue <- Histogram.sample $ newHistIndex ! hid
     Histogram.histSum newHistValue `shouldBe` 0.0
     Histogram.histCount newHistValue `shouldBe` 0
     -- register should contain new histogram metric
-    newRegistrySample <- Registry.sample $ metricsRegistry state
+    newRegistrySample <- Registry.sample metricsRegistry
     let registryMap = RSample.unRegistrySample newRegistrySample
         (Metric.HistogramMetricSample registryHistSample) = registryMap ! hMetricId
     Histogram.histSum registryHistSample `shouldBe` 0.0
     Histogram.histCount registryHistSample `shouldBe` 0
     -- observe
     _ <- eval state $ observeHistogram histName 42.0
-    let newHistograms = metricsHistograms state
-    obsHistIndex <- readMVar newHistograms
+    obsHistIndex <- readMVar metricsHistograms
     obsHistValue <- Histogram.sample $ obsHistIndex ! hid
     Histogram.histSum obsHistValue `shouldBe` 42.0
     Histogram.histCount obsHistValue `shouldBe` 1
 
   let buckets = [0.0001, 0.001, 0.01, 0.1, 0.25, 0.5, 0.75, 1, 10]
       buckettedHistName = HistogramName "buckets" [] buckets
-      buckettedH = histogramToIdentifier $ buckettedHistName
-      buckettedHName = metricIdName buckettedH
-      buckettedHLabels = metricIdLabels buckettedH
-      buckettedHMetricIdName = MetricId.Name buckettedHName
-      buckettedHMetricId = MetricId.MetricId buckettedHMetricIdName buckettedHLabels
+      buckettedH = histogramToIdentifier buckettedHistName
+      buckettedHMetricId = mkPrometheusMetricId buckettedH
   it "Can measure action response times" $ do
-    state <- emptyState
+    state@MetricsState{..} <- emptyState
     -- create a new hist
     _ <- eval state $ observeHistogram buckettedHistName 0.0
     -- time an action
     (_, time) <- eval state $ withTimer buckettedHistName shine
     time `shouldSatisfy` (> 0)
-    -- check hist buckets
-    newRegistrySample <- Registry.sample $ metricsRegistry state
+    -- check registry hist buckets
+    newRegistrySample <- Registry.sample metricsRegistry
     let registryMap = RSample.unRegistrySample newRegistrySample
         (Metric.HistogramMetricSample registryHistSample) = registryMap ! buckettedHMetricId
         histBuckets = Histogram.histBuckets registryHistSample

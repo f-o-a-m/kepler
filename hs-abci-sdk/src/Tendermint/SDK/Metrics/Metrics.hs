@@ -100,6 +100,11 @@ histogramToIdentifier (HistogramName name labels buckets) = MetricIdentifier
   , metricIdHistoBuckets = buckets
   }
 
+-- | Registry index key
+mkPrometheusMetricId :: MetricIdentifier -> MetricId.MetricId
+mkPrometheusMetricId MetricIdentifier{..} =
+  MetricId.MetricId (MetricId.Name metricIdName) metricIdLabels
+
 -- | Index key for storing metrics
 metricIdStorable :: MetricIdentifier -> (Text, MetricId.Labels)
 metricIdStorable c = (metricIdName c, fixMetricLabels $ metricIdLabels c)
