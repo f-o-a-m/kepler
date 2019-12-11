@@ -14,8 +14,8 @@ import           Tendermint.SDK.Application                    (createIOApp,
                                                                 makeApp)
 import           Tendermint.SDK.BaseApp                        (Context (..),
                                                                 CoreEffs,
-                                                                runCoreEffs,
-                                                                runMetricsServer)
+                                                                runCoreEffs)
+import           Tendermint.SDK.BaseApp.Metrics.Prometheus     (runMetricsServer)
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication AppConfig{..} = do
