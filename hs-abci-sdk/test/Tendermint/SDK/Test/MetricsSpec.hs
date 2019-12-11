@@ -40,7 +40,7 @@ emptyState = do
 
 spec :: Spec
 spec = describe "Metrics tests" $ do
-  let countName = CountName "blip" []
+  let countName = "testCount"
       c = countToIdentifier countName
       cid = metricIdStorable c
       cMetricId = mkPrometheusMetricId c
@@ -62,7 +62,7 @@ spec = describe "Metrics tests" $ do
     incCtrValue <- Counter.sample $ incCtrIndex ! cid
     Counter.unCounterSample incCtrValue `shouldBe` 1
 
-  let histName = HistogramName "blip" [] []
+  let histName = "testHistogram"
       h = histogramToIdentifier histName
       hid = metricIdStorable h
       hMetricId = mkPrometheusMetricId h
