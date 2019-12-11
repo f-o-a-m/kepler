@@ -2,8 +2,7 @@
 
 module Tendermint.SDK.Test.MetricsSpec where
 
-import           Control.Concurrent.MVar                       (newMVar,
-                                                                readMVar)
+import           Control.Concurrent.MVar                       (readMVar)
 import           Data.Map.Strict                               ((!))
 import qualified Data.Map.Strict                               as Map
 import           Polysemy
