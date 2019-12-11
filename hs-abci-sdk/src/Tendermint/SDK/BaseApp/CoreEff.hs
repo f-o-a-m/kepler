@@ -17,6 +17,7 @@ import           Polysemy.Reader                            (Reader, asks,
 import           Tendermint.SDK.BaseApp.Events              (EventBuffer,
                                                              newEventBuffer)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip        as KL
+import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus  as Prometheus
 import           Tendermint.SDK.BaseApp.Store               (MergeScopes,
                                                              ResolveScope (..))
 import qualified Tendermint.SDK.BaseApp.Store.AuthTreeStore as AT
@@ -27,6 +28,7 @@ type CoreEffs =
   '[ Reader EventBuffer
    , MergeScopes
    , Reader KL.LogConfig
+   , Reader Prometheus.MetricsState
    , Reader AT.AuthTreeState
    , Embed IO
    ]
@@ -43,17 +45,20 @@ instance (Members CoreEffs r) => K.KatipContext (Sem r) where
 
 -- | 'Context' is the environment required to run 'CoreEffs' to 'IO'
 data Context = Context
-  { contextLogConfig   :: KL.LogConfig
-  , contextEventBuffer :: EventBuffer
-  , contextAuthTree    :: AT.AuthTreeState
+  { contextLogConfig    :: KL.LogConfig
+  , contextMetricsState :: Prometheus.MetricsState
+  , contextEventBuffer  :: EventBuffer
+  , contextAuthTree     :: AT.AuthTreeState
   }
 
 makeContext :: KL.LogConfig -> IO Context
 makeContext logCfg = do
   authTreeState <- AT.initAuthTreeState
   eb <- newEventBuffer
+  ms <- Prometheus.emptyState
   pure $ Context
     { contextLogConfig = logCfg
+    , contextMetricsState = ms
     , contextEventBuffer = eb
     , contextAuthTree = authTreeState
     }
@@ -68,6 +73,7 @@ runCoreEffs
 runCoreEffs Context{..} =
   runM .
     runReader contextAuthTree .
+    runReader contextMetricsState .
     runReader contextLogConfig .
     AT.evalMergeScopes .
     runReader contextEventBuffer

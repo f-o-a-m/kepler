@@ -12,16 +12,17 @@ import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
 import           Polysemy                                      (Sem)
 import           Tendermint.SDK.Application                    (createIOApp,
                                                                 makeApp)
-import           Tendermint.SDK.BaseApp                        (CoreEffs,
-                                                                runCoreEffs)
-import           Tendermint.SDK.BaseApp.Metrics.Metrics        (initMetricsState)
+import           Tendermint.SDK.BaseApp                        (Context (..),
+                                                                CoreEffs,
+                                                                runCoreEffs,
+                                                                runMetricsServer)
 
 makeAndServeApplication :: AppConfig -> IO ()
-makeAndServeApplication cfg = do
-  _ <- initMetricsState
+makeAndServeApplication AppConfig{..} = do
+  _ <- runMetricsServer $ contextMetricsState baseAppContext
   putStrLn "Starting ABCI application..."
   let nat :: forall a. Sem CoreEffs a -> IO a
-      nat = runCoreEffs $ baseAppContext cfg
+      nat = runCoreEffs baseAppContext
       application = createIOApp nat $ makeApp handlersContext
   serveApp =<< hookInMiddleware application
   where

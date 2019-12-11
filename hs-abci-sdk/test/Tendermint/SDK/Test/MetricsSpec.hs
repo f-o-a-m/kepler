@@ -13,7 +13,7 @@ import qualified System.Metrics.Prometheus.Metric.Counter      as Counter
 import qualified System.Metrics.Prometheus.Metric.Histogram    as Histogram
 import qualified System.Metrics.Prometheus.Registry            as RSample
 import           Tendermint.SDK.BaseApp.Metrics
-import           Tendermint.SDK.BaseApp.Metrics.Metrics
+import           Tendermint.SDK.BaseApp.Metrics.Prometheus
 import           Test.Hspec
 
 data Fox m a where
@@ -30,13 +30,6 @@ eval
   -> Sem [Fox, Metrics, Embed IO] a
   -> IO a
 eval s = runM . evalMetrics s . evalFox
-
-emptyState :: IO MetricsState
-emptyState = do
-  counters <- newMVar Map.empty
-  histos <- newMVar Map.empty
-  registry <- Registry.new
-  return $ MetricsState registry counters histos
 
 spec :: Spec
 spec = describe "Metrics tests" $ do

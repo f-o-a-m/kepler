@@ -9,7 +9,7 @@ module Tendermint.SDK.BaseApp
 
   -- * CoreEff
   , CoreEffs
-  , Context
+  , Context(..)
   , makeContext
   , runCoreEffs
 
@@ -42,6 +42,14 @@ module Tendermint.SDK.BaseApp
   , Tendermint.SDK.BaseApp.Logger.log
   , Severity(..)
 
+  -- * Metrics
+  , Metrics
+  , incCount
+  , observeHistogram
+  , withTimer
+  , CountName(..)
+  , HistogramName(..)
+
   -- * Query
   , Queryable(..)
   , FromQueryData(..)
@@ -57,5 +65,6 @@ import           Tendermint.SDK.BaseApp.Errors
 import           Tendermint.SDK.BaseApp.Events
 import           Tendermint.SDK.BaseApp.Gas
 import           Tendermint.SDK.BaseApp.Logger
+import           Tendermint.SDK.BaseApp.Metrics
 import           Tendermint.SDK.BaseApp.Query
 import           Tendermint.SDK.BaseApp.Store

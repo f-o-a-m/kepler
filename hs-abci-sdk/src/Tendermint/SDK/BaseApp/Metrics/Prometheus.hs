@@ -1,6 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 
-module Tendermint.SDK.BaseApp.Metrics.Metrics where
+module Tendermint.SDK.BaseApp.Metrics.Prometheus where
 
 import           Control.Arrow                                 ((***))
 import           Control.Concurrent                            (forkIO)
@@ -21,6 +21,8 @@ import           Polysemy                                      (Embed, Member,
                                                                 Sem, interpretH,
                                                                 pureT, raise,
                                                                 runT)
+import           Polysemy.Reader                               (Reader (..),
+                                                                ask)
 import           System.Environment                            (lookupEnv)
 import qualified System.Metrics.Prometheus.Concurrent.Registry as Registry
 import qualified System.Metrics.Prometheus.Http.Scrape         as Http
@@ -83,6 +85,14 @@ evalMetrics state@MetricsState{..} = do
       pure $ (, time) <$> actionRes
     )
 
+evalWithMetrics
+  :: Member (Embed IO) r
+  => Member (Reader MetricsState) r
+  => (forall a. Sem (Metrics ': r) a -> Sem r a)
+evalWithMetrics action = do
+  state <- ask
+  evalMetrics state action
+
 --------------------------------------------------------------------------------
 -- indexes @NOTE: maybe clean this up
 --------------------------------------------------------------------------------
@@ -127,6 +137,13 @@ data MetricsState = MetricsState
   , metricsHistograms :: MVar (MetricsMap Histogram.Histogram)
   }
 
+emptyState :: IO MetricsState
+emptyState = do
+  counters <- newMVar Map.empty
+  histos <- newMVar Map.empty
+  registry <- Registry.new
+  return $ MetricsState registry counters histos
+
 -- | Intermediary prometheus registry index key
 data MetricIdentifier = MetricIdentifier
   { metricIdName         :: Text
@@ -156,17 +173,16 @@ readEnvVarWithDefault var def =
     Nothing -> return def
     Just s -> return $ T.read s
 
-initMetricsState
+runMetricsServer
   :: MonadIO m
-  => m (Maybe MetricsState)
-initMetricsState = liftIO $ do
+  => MetricsState
+  -> m (Maybe MetricsState)
+runMetricsServer s@MetricsState{..} = liftIO $ do
   shouldStart <- getEnvVarBoolWithDefault "STATS_ENABLED" True
   if not shouldStart
     then return Nothing
     else do
       bindPort <- readEnvVarWithDefault "STATS_PORT" 9200
-      counters <- newMVar Map.empty
-      histos <- newMVar Map.empty
-      registry <- Registry.new
-      _ <- forkIO $ Http.serveHttpTextMetrics bindPort ["metrics"] (Registry.sample registry)
-      return . Just $ MetricsState registry counters histos
+      _ <- forkIO $
+        Http.serveHttpTextMetrics bindPort ["metrics"] (Registry.sample metricsRegistry)
+      return . Just $ s

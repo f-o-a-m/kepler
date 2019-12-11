@@ -111,7 +111,7 @@ library:
   - Tendermint.SDK.BaseApp.Logger
   - Tendermint.SDK.BaseApp.Logger.Katip
   - Tendermint.SDK.BaseApp.Metrics
-  - Tendermint.SDK.BaseApp.Metrics.Metrics
+  - Tendermint.SDK.BaseApp.Metrics.Prometheus
   - Tendermint.SDK.BaseApp.Query
   - Tendermint.SDK.BaseApp.Query.Class
   - Tendermint.SDK.BaseApp.Query.Client
