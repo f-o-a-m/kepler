@@ -5,11 +5,7 @@ import           Nameservice.Modules.Token.Keeper (storeKey)
 import           Nameservice.Modules.Token.Types  (Amount)
 import           Polysemy
 import           Polysemy.Error                   (Error)
-import           Servant.API                      ((:>))
-import           Tendermint.SDK.Errors            (AppError)
-import           Tendermint.SDK.Query             (RouteT)
-import           Tendermint.SDK.Query.Store       (QueryApi, storeQueryHandlers)
-import qualified Tendermint.SDK.Store             as Store
+import qualified Tendermint.SDK.BaseApp           as BaseApp
 import           Tendermint.SDK.Types.Address     (Address)
 
 --------------------------------------------------------------------------------
@@ -18,8 +14,10 @@ import           Tendermint.SDK.Types.Address     (Address)
 
 type TokenContents = '[(Address, Amount)]
 
-type Api = "token" :> QueryApi TokenContents
+type Api = BaseApp.QueryApi TokenContents
 
-server :: Member Store.RawStore r => Member (Error AppError)  r => RouteT Api (Sem r)
+server
+  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+  => BaseApp.RouteT Api (Sem r)
 server =
-  storeQueryHandlers (Proxy :: Proxy TokenContents) storeKey (Proxy :: Proxy (Sem r))
+  BaseApp.storeQueryHandlers (Proxy :: Proxy TokenContents) storeKey (Proxy :: Proxy (Sem r))

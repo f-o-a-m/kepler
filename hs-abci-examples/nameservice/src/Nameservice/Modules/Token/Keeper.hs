@@ -6,17 +6,13 @@ import           Data.Maybe                         (fromMaybe)
 import           Nameservice.Modules.Token.Messages (FaucetAccount (..))
 import           Nameservice.Modules.Token.Types    (Amount (..),
                                                      Faucetted (..),
-                                                     TokenException (..),
+                                                     TokenError (..),
                                                      TransferEvent (..))
 import           Polysemy
 import           Polysemy.Error                     (Error, mapError, throw)
 import           Polysemy.Output                    (Output)
-import           Tendermint.SDK.BaseApp             (HasBaseAppEff)
-import           Tendermint.SDK.Errors              (IsAppError (..))
-import           Tendermint.SDK.Events              (Event, emit)
-import qualified Tendermint.SDK.Store               as Store
+import qualified Tendermint.SDK.BaseApp             as BaseApp
 import           Tendermint.SDK.Types.Address       (Address)
-
 
 data Token m a where
     PutBalance :: Address -> Amount -> Token m ()
@@ -24,39 +20,37 @@ data Token m a where
 
 makeSem ''Token
 
-type TokenEffR = '[Token, Error TokenException]
-type HasTokenEff r = (Members TokenEffR r, Member (Output Event) r)
+type TokenEffs = '[Token, Error TokenError]
 
-storeKey :: Store.StoreKey "token"
-storeKey = Store.StoreKey "token"
+storeKey :: BaseApp.StoreKey "token"
+storeKey = BaseApp.StoreKey "token"
 
 eval
-  :: HasBaseAppEff r
-  => Sem (Token ': Error TokenException ': r) a
-  -> Sem r a
-eval = mapError makeAppError . evalToken
+  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+  => forall a. Sem (Token ': Error TokenError ': r) a -> Sem r a
+eval = mapError BaseApp.makeAppError . evalToken
   where
     evalToken
-      :: HasBaseAppEff r
-      => Sem (Token ': r) a
-      -> Sem r a
+      :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+      => forall a. Sem (Token ': r) a -> Sem r a
     evalToken =
-      interpret (\case
-                    GetBalance' address ->
-                      Store.get storeKey address
-                    PutBalance address balance ->
-                      Store.put storeKey address balance
-                )
+      interpret
+        (\case
+          GetBalance' address ->
+            BaseApp.get storeKey address
+          PutBalance address balance ->
+            BaseApp.put storeKey address balance
+        )
 
 --------------------------------------------------------------------------------
 
 faucetAccount
-  :: HasTokenEff r
+  :: Members [Error TokenError, Output BaseApp.Event, Token] r
   => FaucetAccount
   -> Sem r ()
 faucetAccount FaucetAccount{..} = do
   mint faucetAccountTo faucetAccountAmount
-  emit Faucetted
+  BaseApp.emit Faucetted
     { faucettedAccount = faucetAccountTo
     , faucettedAmount = faucetAccountAmount
     }
@@ -69,7 +63,7 @@ getBalance address =
   fromMaybe (Amount 0) <$> getBalance' address
 
 transfer
-  :: HasTokenEff r
+  :: Members [Error TokenError, Output BaseApp.Event, Token] r
   => Address
   -> Amount
   -> Address
@@ -85,7 +79,7 @@ transfer addr1 amount addr2 = do
       -- update both balances
       putBalance addr1 newBalance1
       putBalance addr2 newBalance2
-      emit $ TransferEvent
+      BaseApp.emit $ TransferEvent
         { transferEventAmount = amount
         , transferEventTo = addr2
         , transferEventFrom = addr1
@@ -93,7 +87,7 @@ transfer addr1 amount addr2 = do
     else throw (InsufficientFunds "Insufficient funds for transfer.")
 
 burn
-  :: Members '[Token, Error TokenException] r
+  :: Members [Error TokenError, Token] r
   => Address
   -> Amount
   -> Sem r ()
@@ -104,7 +98,7 @@ burn addr amount = do
     else putBalance addr (bal - amount)
 
 mint
-  :: Members '[Token, Error TokenException] r
+  :: Member Token r
   => Address
   -> Amount
   -> Sem r ()

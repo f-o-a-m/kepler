@@ -2,34 +2,27 @@ module Nameservice.Server (makeAndServeApplication) where
 
 import           Data.Foldable                                 (fold)
 import           Data.Monoid                                   (Endo (..))
-import           Data.Proxy
 import           Nameservice.Application                       (AppConfig (..),
-                                                                queryServer)
-import           Nameservice.Handlers                          (nameserviceApp)
+                                                                handlersContext)
 import           Network.ABCI.Server                           (serveApp)
 import           Network.ABCI.Server.App                       (Middleware)
 -- import qualified Network.ABCI.Server.Middleware.MetricsLogger  as MetLogger
 import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
 import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
 import           Polysemy                                      (Sem)
-import           Tendermint.SDK.Application                    (MakeApplication (..),
-                                                                createApplication)
-import           Tendermint.SDK.BaseApp                        (BaseApp, eval)
-import           Tendermint.SDK.Errors                         (AppError)
-import           Tendermint.SDK.Metrics.Metrics                (initMetricsState)
+import           Tendermint.SDK.Application                    (createIOApp,
+                                                                makeApp)
+import           Tendermint.SDK.BaseApp                        (CoreEffs,
+                                                                runCoreEffs)
+import           Tendermint.SDK.BaseApp.Metrics.Metrics        (initMetricsState)
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication cfg = do
   _ <- initMetricsState
-  let makeApplication :: MakeApplication (Sem BaseApp) AppError
-      makeApplication = MakeApplication
-        { transformer = eval $ baseAppContext cfg
-        , appErrorP = Proxy
-        , app = nameserviceApp queryServer
-        , initialize = []
-        }
   putStrLn "Starting ABCI application..."
-  application <- createApplication makeApplication
+  let nat :: forall a. Sem CoreEffs a -> IO a
+      nat = runCoreEffs $ baseAppContext cfg
+      application = createIOApp nat $ makeApp handlersContext
   serveApp =<< hookInMiddleware application
   where
     mkMiddleware :: IO (Middleware IO)

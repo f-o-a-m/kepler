@@ -1,18 +1,19 @@
 module SimpleStorage.Application
-  ( AppError(..)
-  , AppConfig(..)
+  ( AppConfig(..)
   , makeAppConfig
-  , Handler
-  , runHandler
+  , SimpelStorageEffs
+  , handlersContext
   ) where
 
-import           Control.Exception                   (Exception)
-import           Control.Monad.Catch                 (throwM)
+import           Data.Proxy
 import           Polysemy                            (Sem)
-import           Polysemy.Error                      (Error, runError)
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
+import           Tendermint.SDK.Application          (HandlersContext (..),
+                                                      Modules (..))
 import qualified Tendermint.SDK.BaseApp              as BaseApp
-import qualified Tendermint.SDK.Logger.Katip         as KL
+import qualified Tendermint.SDK.BaseApp.Logger.Katip as KL
+import           Tendermint.SDK.Crypto               (Secp256k1)
+import qualified Tendermint.SDK.Modules.Auth         as A
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context
@@ -26,28 +27,22 @@ makeAppConfig logCfg = do
 
 --------------------------------------------------------------------------------
 
-data AppError = AppError String deriving (Show)
+type SimpelStorageEffs =
+  SimpleStorage.SimpleStorage ':  A.AuthEffs BaseApp.:& BaseApp.BaseApp BaseApp.CoreEffs
 
-instance Exception AppError
+type SimpleStorageModules =
+  '[SimpleStorage.SimpleStorageM SimpelStorageEffs]
 
-type EffR =
-  ( SimpleStorage
-  ': Error AppError
-  ': BaseApp.BaseApp
-  )
+handlersContext :: HandlersContext Secp256k1 SimpleStorageModules SimpelStorageEffs BaseApp.CoreEffs
+handlersContext = HandlersContext
+  { signatureAlgP = Proxy @Secp256k1
+  , modules = simpleStorageModules
+  , compileToBaseApp = compileSimpleStorageToBaseApp
+  , compileToCore  = BaseApp.compileScopedEff
+  }
+  where
+  simpleStorageModules :: Modules SimpleStorageModules SimpelStorageEffs
+  simpleStorageModules = ConsModule SimpleStorage.simpleStorageModule NilModules
 
-type Handler = Sem EffR
-
--- NOTE: this should probably go in the library
-runHandler
-  :: AppConfig
-  -> Handler a
-  -> IO a
-runHandler AppConfig{baseAppContext} m = do
-  eRes <- BaseApp.eval baseAppContext .
-    runError .
-    SimpleStorage.eval $ m
-  case eRes of
-    Left e  -> throwM e
-    Right a -> pure a
-
+  compileSimpleStorageToBaseApp :: Sem SimpelStorageEffs a -> Sem (BaseApp.BaseApp BaseApp.CoreEffs) a
+  compileSimpleStorageToBaseApp = A.eval . SimpleStorage.eval

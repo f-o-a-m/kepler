@@ -12,8 +12,8 @@ import qualified System.Metrics.Prometheus.Metric              as Metric
 import qualified System.Metrics.Prometheus.Metric.Counter      as Counter
 import qualified System.Metrics.Prometheus.Metric.Histogram    as Histogram
 import qualified System.Metrics.Prometheus.Registry            as RSample
-import           Tendermint.SDK.Metrics
-import           Tendermint.SDK.Metrics.Metrics
+import           Tendermint.SDK.BaseApp.Metrics
+import           Tendermint.SDK.BaseApp.Metrics.Metrics
 import           Test.Hspec
 
 data Fox m a where

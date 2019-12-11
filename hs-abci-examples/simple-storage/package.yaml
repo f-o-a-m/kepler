@@ -40,27 +40,18 @@ default-extensions:
 
 dependencies:
 - aeson
-- async
-- avl-auth
 - base >= 4.7 && < 5
 - bytestring
 - cereal
 - cereal-text
-- containers
-- conduit
 - cryptonite
-- data-default-class
 - errors
 - exceptions
-- free
 - hs-abci-extra
 - hs-abci-server
 - hs-abci-types
 - hs-abci-extra
 - hs-abci-sdk
-- http-types
-- kan-extensions
-- katip
 - lens
 - memory
 - mtl
@@ -69,10 +60,9 @@ dependencies:
 - proto-lens
 - proto-lens-runtime
 - servant
-- stm
 - string-conversions
 - text
-- uri-bytestring
+- validation
 
 custom-setup:
   dependencies:
@@ -90,8 +80,12 @@ library:
   exposed-modules:
   - SimpleStorage.Server
   - SimpleStorage.Application
-  - SimpleStorage.Handlers
   - SimpleStorage.Modules.SimpleStorage
+  - SimpleStorage.Modules.SimpleStorage.Types
+  - SimpleStorage.Modules.SimpleStorage.Message
+  - SimpleStorage.Modules.SimpleStorage.Keeper
+  - SimpleStorage.Modules.SimpleStorage.Router
+  - SimpleStorage.Modules.SimpleStorage.Query
   - SimpleStorage.Types
 
   generated-exposed-modules:
@@ -112,6 +106,7 @@ executables:
     - -Wincomplete-uni-patterns
     - -Wredundant-constraints
     dependencies:
+    - katip
     - simple-storage
 
 tests:
@@ -120,7 +115,6 @@ tests:
     source-dirs:         test
     other-modules:
     - SimpleStorage.Test.E2ESpec
-    - SimpleStorage.Test.HandlersSpec
     ghc-options:
     - -Werror
     - -Wall
@@ -130,8 +124,10 @@ tests:
     dependencies:
       - aeson
       - aeson-pretty
+      - data-default-class
       - simple-storage
       - hs-abci-types
       - hs-tendermint-client
       - hspec
       - QuickCheck
+      - secp256k1-haskell

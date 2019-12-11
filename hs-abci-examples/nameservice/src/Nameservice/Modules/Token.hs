@@ -7,13 +7,12 @@ module Nameservice.Modules.Token
   -- * types
   , Address
   , Amount(..)
-  , TokenException(..)
+  , TokenError(..)
   , Transfer(..)
 
   -- * effects
   , Token
-  , TokenEffR
-  , HasTokenEff
+  , TokenEffs
   , Faucetted(..)
   , TransferEvent(..)
   , FaucetAccount(..)
@@ -40,15 +39,16 @@ import           Nameservice.Modules.Token.Messages
 import           Nameservice.Modules.Token.Query
 import           Nameservice.Modules.Token.Router
 import           Nameservice.Modules.Token.Types
-import           Tendermint.SDK.BaseApp             (HasBaseAppEff)
-import           Tendermint.SDK.Module              (Module (..))
+import           Polysemy                           (Members)
+import           Tendermint.SDK.Application         (Module (..))
+import           Tendermint.SDK.BaseApp             (BaseAppEffs)
 import           Tendermint.SDK.Types.Address       (Address)
 
 type TokenM r = Module "token" TokenMessage Api r
 
 tokenModule
-  :: HasBaseAppEff r
-  => HasTokenEff r
+  :: Members BaseAppEffs r
+  => Members TokenEffs r
   => TokenM r
 tokenModule = Module
   { moduleRouter = router

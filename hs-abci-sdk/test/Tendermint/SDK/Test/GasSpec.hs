@@ -2,14 +2,14 @@
 
 module Tendermint.SDK.Test.GasSpec where
 
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Data.Either            (isRight)
-import           Data.Int               (Int64)
-import qualified Data.IORef             as Ref
+import           Control.Monad.IO.Class        (MonadIO (..))
+import           Data.Either                   (isRight)
+import           Data.Int                      (Int64)
+import qualified Data.IORef                    as Ref
 import           Polysemy
-import           Polysemy.Error         (Error, runError)
-import           Tendermint.SDK.Errors  (AppError (..))
-import qualified Tendermint.SDK.Gas     as G
+import           Polysemy.Error                (Error, runError)
+import           Tendermint.SDK.BaseApp.Errors (AppError (..))
+import qualified Tendermint.SDK.BaseApp.Gas    as G
 import           Test.Hspec
 
 data Dog m a where
