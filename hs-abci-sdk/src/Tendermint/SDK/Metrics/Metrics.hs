@@ -8,6 +8,7 @@ import           Control.Concurrent.MVar                       (MVar,
                                                                 modifyMVar_,
                                                                 newMVar)
 import           Control.Monad.IO.Class                        (MonadIO, liftIO)
+import           Data.Char                                     (toLower)
 import           Data.Map.Strict                               (Map, insert)
 import qualified Data.Map.Strict                               as Map
 import           Data.String                                   (IsString,
@@ -30,7 +31,6 @@ import           Tendermint.SDK.Metrics                        (CountName (..), 
                                                                 Metrics (..),
                                                                 observeHistogram)
 import qualified Text.Read                                     as T
-import Data.Char (toLower)
 
 --------------------------------------------------------------------------------
 -- eval
@@ -145,7 +145,7 @@ getEnvVarBoolWithDefault :: MonadIO m => String -> Bool -> m Bool
 getEnvVarBoolWithDefault var def = liftIO (lookupEnv var) >>= \case
   Nothing -> return def
   Just str -> do
-    let lowerCased = toLower str
+    let lowerCased = toLower <$> str
     if lowerCased `elem` [ "t", "true", "y", "yes", "1"]
       then return True
       else return False
