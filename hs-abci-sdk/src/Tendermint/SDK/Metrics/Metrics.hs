@@ -30,6 +30,7 @@ import           Tendermint.SDK.Metrics                        (CountName (..), 
                                                                 Metrics (..),
                                                                 observeHistogram)
 import qualified Text.Read                                     as T
+import Data.Char (toLower)
 
 --------------------------------------------------------------------------------
 -- eval
@@ -100,14 +101,14 @@ histogramToIdentifier (HistogramName name labels buckets) = MetricIdentifier
   , metricIdHistoBuckets = buckets
   }
 
--- | Registry index key
+-- | Prometheus registry index key
 mkPrometheusMetricId :: MetricIdentifier -> MetricId.MetricId
 mkPrometheusMetricId MetricIdentifier{..} =
   MetricId.MetricId (MetricId.Name metricIdName) metricIdLabels
 
 -- | Index key for storing metrics
 metricIdStorable :: MetricIdentifier -> (Text, MetricId.Labels)
-metricIdStorable c = (metricIdName c, fixMetricLabels $ metricIdLabels c)
+metricIdStorable c = (fixMetricName $ metricIdName c, fixMetricLabels $ metricIdLabels c)
   where fixMetricLabels =
           MetricId.fromList .
           map (fixMetricName *** fixMetricName) .
@@ -143,7 +144,11 @@ instance IsString MetricIdentifier where
 getEnvVarBoolWithDefault :: MonadIO m => String -> Bool -> m Bool
 getEnvVarBoolWithDefault var def = liftIO (lookupEnv var) >>= \case
   Nothing -> return def
-  Just _ -> undefined
+  Just str -> do
+    let lowerCased = toLower str
+    if lowerCased `elem` [ "t", "true", "y", "yes", "1"]
+      then return True
+      else return False
 
 readEnvVarWithDefault :: (Read a, MonadIO m) => String -> a -> m a
 readEnvVarWithDefault var def =
