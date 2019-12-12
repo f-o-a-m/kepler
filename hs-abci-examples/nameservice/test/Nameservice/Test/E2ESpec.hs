@@ -164,7 +164,7 @@ spec = do
         -- try to buy at a lower price
         let msg = TypedMessage "BuyName" (encode $ BuyName 100 satoshi "hello (again) world" addr1)
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        ensureCheckAndDeliverResponseCodes (0,1) rawTx 
+        ensureCheckAndDeliverResponseCodes (0,1) rawTx
 
       it "Can delete names (success 0)" $ do
         let msg = TypedMessage "DeleteName" (encode $ DeleteName addr2 satoshi)
@@ -252,7 +252,7 @@ ensureCheckAndDeliverResponseCodes codes rawTx = do
   let checkResp = RPC.resultBroadcastTxCommitCheckTx resp
       deliverResp = RPC.resultBroadcastTxCommitDeliverTx resp
   codes `shouldBe` (checkResp ^. Response._checkTxCode, deliverResp ^. Response._deliverTxCode)
-   
+
 
 -- get the logged events from a deliver response,
 deliverTxEvents :: FromEvent e => Response.DeliverTx -> Text -> IO ([Text],[e])
