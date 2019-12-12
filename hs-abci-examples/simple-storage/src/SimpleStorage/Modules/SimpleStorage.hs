@@ -15,7 +15,8 @@ import           SimpleStorage.Modules.SimpleStorage.Message
 import           SimpleStorage.Modules.SimpleStorage.Query   (Api, server)
 import           SimpleStorage.Modules.SimpleStorage.Router  (router)
 import           SimpleStorage.Modules.SimpleStorage.Types
-import           Tendermint.SDK.Application                  (Module (..))
+import           Tendermint.SDK.Application                  (Module (..),
+                                                              defaultTxChecker)
 import qualified Tendermint.SDK.BaseApp                      as BaseApp
 
 type SimpleStorageM r = Module "simple_storage" SimpleStorageMessage Api r
@@ -25,6 +26,7 @@ simpleStorageModule
   => Members BaseApp.BaseAppEffs r
   => SimpleStorageM r
 simpleStorageModule = Module
-  { moduleRouter = router
+  { moduleTxDeliverer = router
+  , moduleTxChecker = defaultTxChecker
   , moduleQueryServer = server
   }

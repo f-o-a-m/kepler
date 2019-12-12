@@ -93,7 +93,7 @@ makeHandlers
   -> Handlers core
 makeHandlers HandlersContext{..} =
   let
-      txRouter =  M.txRouter signatureAlgP modules
+      txRouter context =  M.txRouter signatureAlgP context modules
       queryRouter = compileToBaseApp . M.queryRouter modules
 
       query (RequestQuery q) = Store.applyScope $
@@ -111,7 +111,7 @@ makeHandlers HandlersContext{..} =
       checkTx (RequestCheckTx _checkTx) = Store.applyScope $
         catch
           (do
-            txResult <- transactionHandler txRouter $
+            txResult <- transactionHandler (txRouter M.CheckTxContext) $
               _checkTx ^. Req._checkTxTx . to Base64.toBytes
             return $ ResponseCheckTx $ def & checkTxTxResult .~ txResult
           )
@@ -122,7 +122,7 @@ makeHandlers HandlersContext{..} =
       deliverTx (RequestDeliverTx _deliverTx) = Store.applyScope $
         catch @AppError
           (do
-            txResult <- transactionHandler txRouter $
+            txResult <- transactionHandler (txRouter M.DeliverTxContext) $
               _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
             return $ ResponseDeliverTx $ def & deliverTxTxResult .~ txResult
           )

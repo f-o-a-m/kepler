@@ -1,6 +1,7 @@
 module Tendermint.SDK.Application
   ( Modules(..)
   , Module(..)
+  , defaultTxChecker
   , HandlersContext(..)
   , createIOApp
   , makeApp

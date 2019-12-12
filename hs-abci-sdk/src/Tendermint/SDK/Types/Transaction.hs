@@ -107,4 +107,3 @@ parseTx p rawTx@RawTransaction{..} = do
 
 data RoutedTx msg where
   RoutedTx :: Tx alg msg -> RoutedTx msg
-
