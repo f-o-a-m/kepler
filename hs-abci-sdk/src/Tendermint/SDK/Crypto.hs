@@ -77,8 +77,6 @@ instance RecoverableSignatureSchema Secp256k1 where
 
     signRecoverableMessage _ priv dig = Secp256k1.signRecMsg priv (msgFromSHA256 dig)
     recover _ sig dig = Secp256k1.recover sig (msgFromSHA256 dig)
-    -- NOTE: I think the use of Data.Serialize is harmless here, because it basically
-    -- just peels off bytes <https://github.com/haskoin/secp256k1-haskell/blob/master/src/Crypto/Secp256k1/Internal.hs>
     makeRecoverableSignature _ bs =
       let (r,rest) = B.splitAt 32 bs
           (s,v) = B.splitAt 32 rest
