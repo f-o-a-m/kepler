@@ -30,6 +30,9 @@ data Tx alg msg = Tx
   , txSigner    :: PubKey alg
   }
 
+instance Functor (Tx alg) where
+  fmap f tx@Tx{txMsg} = tx {txMsg = fmap f txMsg}
+
 --------------------------------------------------------------------------------
 
 -- TODO: figure out what the actual standards are for these things, if there
@@ -107,3 +110,6 @@ parseTx p rawTx@RawTransaction{..} = do
 
 data RoutedTx msg where
   RoutedTx :: Tx alg msg -> RoutedTx msg
+
+instance Functor RoutedTx where
+  fmap f (RoutedTx tx) = RoutedTx $ fmap f tx

@@ -32,7 +32,6 @@ import           Tendermint.SDK.BaseApp.Store         (ConnectionScope (..))
 import qualified Tendermint.SDK.BaseApp.Store         as Store
 import           Tendermint.SDK.Crypto                (RecoverableSignatureSchema,
                                                        SignatureSchema (..))
-import           Tendermint.SDK.Modules.Auth          (AuthError)
 import           Tendermint.SDK.Types.TxResult        (TxResult,
                                                        checkTxTxResult,
                                                        deliverTxTxResult,
@@ -82,7 +81,7 @@ data HandlersContext alg ms r core = HandlersContext
 -- Common function between checkTx and deliverTx
 makeHandlers
   :: forall alg ms r core.
-     Member (Error AuthError) r
+     Member (Error AppError) r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r
@@ -156,7 +155,7 @@ makeHandlers HandlersContext{..} =
 
 makeApp
   :: forall alg ms r core.
-     Member (Error AuthError) r
+     Member (Error AppError) r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r

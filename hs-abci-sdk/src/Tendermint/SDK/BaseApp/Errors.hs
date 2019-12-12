@@ -94,7 +94,7 @@ data SDKError =
   -- ^ The name of the route that failed to match.
   | OutOfGasException
   | MessageValidation [Text]
-  -- ^ Message validation errors.
+  | SignatureRecoveryError Text
 
 -- | As of right now it's not expected that one can recover from an 'SDKError',
 -- | so we are throwing them as 'AppError's directly.
@@ -133,4 +133,9 @@ instance IsAppError SDKError where
     { appErrorCode = 5
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Message failed validation: " <> intercalate "\n" errors
+    }
+  makeAppError (SignatureRecoveryError msg) = AppError
+    { appErrorCode = 6
+    , appErrorCodespace = "sdk"
+    , appErrorMessage = "Signature Recovery Error: " <> msg
     }

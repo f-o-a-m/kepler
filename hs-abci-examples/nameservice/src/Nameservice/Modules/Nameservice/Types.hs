@@ -52,7 +52,7 @@ instance BaseApp.RawKey Name where
     rawKey = iso (\(Name n) -> cs n) (Name . cs)
 
 instance BaseApp.IsKey Name NameserviceModule where
-    type Value Name NameserviceModule = Whois
+  type Value Name NameserviceModule = Whois
 
 instance BaseApp.Queryable Whois where
   type Name Whois = "whois"

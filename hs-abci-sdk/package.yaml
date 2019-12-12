@@ -52,8 +52,6 @@ dependencies:
 - avl-auth
 - base >= 4.7 && < 5
 - bytestring
-- cereal
-- cereal-text
 - containers
 - cryptonite
 - data-default-class
@@ -128,6 +126,8 @@ library:
   - Tendermint.SDK.Types.TxResult
 
   generated-exposed-modules:
+  - Proto.Modules.Auth
+  - Proto.Modules.Auth_Fields
   - Proto.Types.Transaction
   - Proto.Types.Transaction_Fields
 
@@ -150,12 +150,12 @@ tests:
     - -with-rtsopts=-N
 
     dependencies:
+      - cereal
       - generic-arbitrary
       - hs-abci-server
       - hs-abci-sdk
       - hspec
       - hspec-core
       - hspec-discover
-      - cereal
       - QuickCheck
       - quickcheck-instances
