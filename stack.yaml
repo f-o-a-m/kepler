@@ -11,6 +11,7 @@ packages:
 - ./hs-abci-server
 - ./hs-abci-extra
 - ./hs-abci-sdk
+- ./hs-abci-test-utils
 - ./hs-abci-examples/simple-storage
 - ./hs-abci-examples/nameservice
 
