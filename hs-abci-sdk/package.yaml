@@ -59,7 +59,6 @@ dependencies:
 - exceptions
 - hs-abci-types
 - hs-abci-server
-- hs-tendermint-client
 - http-types
 - katip
 - lens

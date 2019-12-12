@@ -25,6 +25,7 @@ dependencies:
 - errors
 - lens
 - mtl
+- secp256k1-haskell
 - servant
 - string-conversions
 - text

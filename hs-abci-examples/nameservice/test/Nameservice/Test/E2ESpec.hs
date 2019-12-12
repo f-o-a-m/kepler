@@ -56,6 +56,7 @@ import           Tendermint.Utils.Client                (ClientResponse (..),
                                                          HasClient (..),
                                                          RunClient (..))
 import           Tendermint.Utils.Events                (FromEvent (..))
+import           Tendermint.Utils.User                  (User (..), makeUser, mkSignedRawTransactionWithRoute)
 import           Test.Hspec
 
 spec :: Spec
@@ -291,36 +292,11 @@ encodeRawTx = Base64.fromBytes . encode
 encodeMsgData :: Message a => a -> BS.ByteString
 encodeMsgData = BL.toStrict . toLazyByteString
 
--- sign a trx with a user's private key
-mkSignedRawTransactionWithRoute :: Message a => BS.ByteString -> SecKey -> a -> RawTransaction
-mkSignedRawTransactionWithRoute route privateKey msg = sign unsigned
-  where unsigned = RawTransaction { rawTransactionData = encodeMsgData msg
-                                  , rawTransactionRoute = cs route
-                                  , rawTransactionSignature = ""
-                                  }
-        sig = signRawTransaction algProxy privateKey unsigned
-        sign rt = rt { rawTransactionSignature = encodeCompactRecSig $ exportCompactRecSig sig }
-
-data User = User
-  { userPrivKey :: SecKey
-  , userAddress :: Address
-  }
-
 user1 :: User
 user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
 
 user2 :: User
 user2 = makeUser "f65242094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
-
-makeUser :: String -> User
-makeUser privKeyStr =
-  let privateKey = fromJust . secKey . Hex.toBytes . fromString $ privKeyStr
-      pubKey = derivePubKey privateKey
-      address = addressFromPubKey (Proxy @Secp256k1) pubKey
-  in User privateKey address
-
-algProxy :: Proxy Secp256k1
-algProxy = Proxy
 
 --------------------------------------------------------------------------------
 
@@ -332,6 +308,3 @@ apiP = Proxy
 
 (getBalance :<|> getWhois) =
   genClient (Proxy :: Proxy RPC.TendermintM) apiP def
-
-encodeCompactRecSig :: CompactRecSig -> ByteString
-encodeCompactRecSig (CompactRecSig r s v) = snoc (fromShort r <> fromShort s) v
