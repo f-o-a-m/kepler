@@ -79,11 +79,10 @@ spec = describe "Metrics tests" $ do
     Histogram.histSum obsHistValue `shouldBe` 42.0
     Histogram.histCount obsHistValue `shouldBe` 1
 
-  let buckets = [0.0001, 0.001, 0.01, 0.1, 0.25, 0.5, 0.75, 1, 10]
-      buckettedHistName = HistogramName "buckets" [] buckets
+  let buckettedHistName = "bucketted"
       buckettedH = histogramToIdentifier buckettedHistName
       buckettedHMetricId = mkPrometheusMetricId buckettedH
-  it "Can measure action response times" $ do
+  it "Can measure action response times with default buckets" $ do
     state@MetricsState{..} <- emptyState
     -- create a new hist
     _ <- eval state $ observeHistogram buckettedHistName 0.0

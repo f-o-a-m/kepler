@@ -21,7 +21,8 @@ data HistogramName = HistogramName
   } deriving (Eq, Ord)
 
 instance IsString HistogramName where
-  fromString s = HistogramName (fromString s) mempty mempty
+  fromString s = HistogramName (fromString s) mempty defaultBuckets
+    where defaultBuckets = [0.0001, 0.001, 0.01, 0.1, 0.25, 0.5, 0.75, 1, 10, 100]
 
 -- @NOTE: might need a NewCount/NewHistogram summand to clean up some usage quirks
 data Metrics m a where
