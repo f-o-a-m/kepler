@@ -27,6 +27,7 @@ authModule
   :: Members BaseAppEffs r
   => AuthM r
 authModule = Module
-  { moduleRouter = voidRouter
+  { moduleTxDeliverer = voidRouter
+  , moduleTxChecker = voidRouter
   , moduleQueryServer = server
   }

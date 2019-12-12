@@ -1,9 +1,11 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.Application.Module
   ( Module(..)
+  , defaultTxChecker
   , Modules(..)
   , QueryRouter(Api)
   , queryRouter
+  , TxRouteContext(..)
   , TxRouter
   , txRouter
   , voidRouter
@@ -14,7 +16,7 @@ import           Crypto.Hash.Algorithms           (SHA256)
 import           Data.ByteString                  (ByteString)
 import           Data.Proxy
 import           Data.String.Conversions          (cs)
-import           Data.Validation                  (Validation (..))
+import qualified Data.Validation                  as V
 import           Data.Void
 import           GHC.TypeLits                     (KnownSymbol, Symbol,
                                                    symbolVal)
@@ -34,9 +36,21 @@ import           Tendermint.SDK.Types.Transaction (RoutedTx (..), Tx (..),
                                                    parseTx)
 
 data Module (name :: Symbol) msg (api :: *) (r :: EffectRow) = Module
-  { moduleRouter      :: RoutedTx msg -> Sem r ()
+  { moduleTxDeliverer :: RoutedTx msg -> Sem r ()
+  , moduleTxChecker   :: RoutedTx msg -> Sem r ()
   , moduleQueryServer :: Q.RouteT api (Sem r)
   }
+
+defaultTxChecker
+  :: Member (Error AppError) r
+  => ValidateMessage msg
+  => RoutedTx msg
+  -> Sem r ()
+defaultTxChecker (RoutedTx Tx{txMsg}) =
+  case validateMessage txMsg of
+    V.Failure err ->
+      throwSDKError . MessageValidation . map formatMessageSemanticError $ err
+    V.Success _ -> pure ()
 
 data Modules (ms :: [*]) r where
     NilModules :: Modules '[] r
@@ -65,6 +79,9 @@ instance QueryRouter (m' ': ms) r => QueryRouter (Module name msg api r ': m' ':
 
 --------------------------------------------------------------------------------
 
+data TxRouteContext =
+  CheckTxContext | DeliverTxContext
+
 txRouter
   :: forall alg ms r .
      RecoverableSignatureSchema alg
@@ -72,41 +89,40 @@ txRouter
   => Message alg ~ Digest SHA256
   => TxRouter ms r
   => Proxy alg
+  -> TxRouteContext
   -> Modules ms r
   -> ByteString
   -> Sem r ()
-txRouter (p  :: Proxy alg) ms bs =
+txRouter (p  :: Proxy alg) routeContext ms bs =
   let etx = decode bs >>= parseTx p
   in case etx of
        Left errMsg -> throwSDKError $ ParseError ("Transaction ParseError: " <> errMsg)
-       Right tx    -> routeTx ms tx
+       Right tx    -> routeTx routeContext ms tx
 
 class TxRouter ms r where
-  routeTx :: forall alg. Modules ms r -> Tx alg ByteString -> Sem r ()
+  routeTx :: forall alg. TxRouteContext -> Modules ms r -> Tx alg ByteString -> Sem r ()
 
 instance (Member (Error AppError) r) => TxRouter '[] r where
-  routeTx NilModules Tx{txRoute}  =
+  routeTx _ NilModules Tx{txRoute}  =
     throwSDKError $ UnmatchedRoute txRoute
 
 instance (Member (Error AppError) r, TxRouter ms r,  KnownSymbol name) => TxRouter (Module name Void api r ': ms) r where
-  routeTx (ConsModule _ rest) tx@Tx{txRoute}
+  routeTx routeContext (ConsModule _ rest) tx@Tx{txRoute}
     | symbolVal (Proxy :: Proxy name) == cs txRoute = throwSDKError $ UnmatchedRoute txRoute
-    | otherwise = routeTx rest tx
+    | otherwise = routeTx routeContext rest tx
 
-instance (Member (Error AppError) r, TxRouter ms r, HasCodec msg, ValidateMessage msg, KnownSymbol name) => TxRouter (Module name msg api r ': ms) r where
-  routeTx (ConsModule m rest) tx@Tx{..}
+instance (Member (Error AppError) r, TxRouter ms r, HasCodec msg, KnownSymbol name) => TxRouter (Module name msg api r ': ms) r where
+  routeTx routeContext (ConsModule m rest) tx@Tx{..}
     | symbolVal (Proxy :: Proxy name) == cs txRoute = do
         msg <- case decode $ msgData txMsg of
           Left err           -> throwSDKError $ ParseError err
           Right (msg :: msg) -> return msg
         let msg' = txMsg {msgData = msg}
             tx' = RoutedTx $ tx {txMsg = msg'}
-        case validateMessage msg' of
-          Failure err ->
-            throwSDKError . MessageValidation . map formatMessageSemanticError $ err
-          Success _ -> pure ()
-        moduleRouter m tx'
-    | otherwise = routeTx rest tx
+        case routeContext of
+          CheckTxContext   -> moduleTxChecker m tx'
+          DeliverTxContext -> moduleTxDeliverer m tx'
+    | otherwise = routeTx routeContext rest tx
 
 voidRouter
   :: forall a r.
