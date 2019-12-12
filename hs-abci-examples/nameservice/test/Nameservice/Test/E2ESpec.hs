@@ -43,19 +43,19 @@ import qualified Network.Tendermint.Client              as RPC
 import           Proto3.Suite                           (Message,
                                                          toLazyByteString)
 import           Servant.API                            ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp                 (FromEvent (..),
-                                                         QueryApi)
+import           Tendermint.SDK.BaseApp                 (QueryApi)
 import           Tendermint.SDK.BaseApp.Query           (QueryArgs (..),
                                                          defaultQueryWithData)
-import           Tendermint.Utils.Client    (ClientResponse (..),
-                                                         HasClient (..),
-                                                         RunClient (..))
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 import           Tendermint.SDK.Crypto                  (Secp256k1,
                                                          addressFromPubKey)
 import           Tendermint.SDK.Types.Address           (Address (..))
 import           Tendermint.SDK.Types.Transaction       (RawTransaction (..),
                                                          signRawTransaction)
+import           Tendermint.Utils.Client                (ClientResponse (..),
+                                                         HasClient (..),
+                                                         RunClient (..))
+import           Tendermint.Utils.Events                (FromEvent (..))
 import           Test.Hspec
 
 spec :: Spec

@@ -15,7 +15,7 @@ hlint: ## Run hlint on all haskell projects
 	hs-tendermint-client \
 	hs-abci-extra \
 	hs-abci-sdk \
-  hs-abci-test-utils \
+	hs-abci-test-utils \
 	hs-abci-examples/simple-storage \
 	hs-abci-examples/nameservice
 
@@ -25,7 +25,7 @@ stylish: ## Run stylish-haskell over all haskell projects
 	./hs-tendermint-client \
 	./hs-abci-examples \
 	./hs-abci-sdk \
-  ./hs-abci-test-utils \
+	./hs-abci-test-utils \
 	./hs-abci-server \
 	-name "*.hs" | xargs stack exec stylish-haskell -- -c ./.stylish_haskell.yaml -i
 
