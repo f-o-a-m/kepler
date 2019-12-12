@@ -7,6 +7,8 @@ import           Data.Bifunctor          (first)
 import           Data.ByteArray          (convert)
 import           Data.ByteString         (ByteString)
 import           Data.Int                (Int32)
+import qualified Data.Serialize          as Serialize
+import qualified Data.Serialize.Text     ()
 import           Data.String.Conversions (cs)
 import           GHC.Generics            (Generic)
 import qualified Tendermint.SDK.BaseApp  as BaseApp

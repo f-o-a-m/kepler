@@ -43,6 +43,7 @@ dependencies:
 - base >= 4.7 && < 5
 - bytestring
 - cereal
+- cereal-text
 - cryptonite
 - errors
 - exceptions
@@ -80,11 +81,11 @@ library:
   - SimpleStorage.Server
   - SimpleStorage.Application
   - SimpleStorage.Modules.SimpleStorage
+  - SimpleStorage.Modules.SimpleStorage.Types
   - SimpleStorage.Modules.SimpleStorage.Message
   - SimpleStorage.Modules.SimpleStorage.Keeper
   - SimpleStorage.Modules.SimpleStorage.Router
   - SimpleStorage.Modules.SimpleStorage.Query
-  - SimpleStorage.Types
 
   generated-exposed-modules:
   - Proto.SimpleStorage.Messages
