@@ -126,6 +126,7 @@ tests:
       - data-default-class
       - simple-storage
       - hs-abci-types
+      - hs-abci-test-utils
       - hs-tendermint-client
       - hspec
       - QuickCheck

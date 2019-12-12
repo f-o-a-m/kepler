@@ -24,15 +24,15 @@ import qualified Network.Tendermint.Client            as RPC
 import           Servant.API                          ((:>))
 import qualified SimpleStorage.Modules.SimpleStorage  as SS
 import           Tendermint.SDK.BaseApp.Query         (QueryArgs (..))
-import           Tendermint.SDK.BaseApp.Query.Client  (ClientResponse (..),
-                                                       HasClient (..),
-                                                       RunClient (..))
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Crypto                (Secp256k1,
                                                        addressFromPubKey)
 import           Tendermint.SDK.Types.Address         (Address (..))
 import           Tendermint.SDK.Types.Transaction     (RawTransaction (..),
                                                        signRawTransaction)
+import           Tendermint.Utils.Client              (ClientResponse (..),
+                                                       HasClient (..),
+                                                       RunClient (..))
 import           Test.Hspec
 
 
