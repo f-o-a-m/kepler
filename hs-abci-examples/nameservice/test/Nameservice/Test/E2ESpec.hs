@@ -47,7 +47,7 @@ import           Tendermint.SDK.BaseApp                 (FromEvent (..),
                                                          QueryApi)
 import           Tendermint.SDK.BaseApp.Query           (QueryArgs (..),
                                                          defaultQueryWithData)
-import           Tendermint.SDK.BaseApp.Query.Client    (ClientResponse (..),
+import           Tendermint.Utils.Client    (ClientResponse (..),
                                                          HasClient (..),
                                                          RunClient (..))
 import           Tendermint.SDK.Codec                   (HasCodec (..))

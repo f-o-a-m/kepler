@@ -57,6 +57,7 @@ dependencies:
 - hs-abci-extra
 - hs-abci-sdk
 - hs-abci-server
+- hs-abci-test-utils
 - hs-abci-types
 - lens
 - polysemy

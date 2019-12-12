@@ -2,8 +2,9 @@ module Tendermint.Utils.Test.EventSpec where
 
 import qualified Data.Aeson                    as A
 import           GHC.Generics                  (Generic)
-import           Tendermint.SDK.BaseApp.Events (FromEvent (..), ToEvent (..),
+import           Tendermint.SDK.BaseApp.Events (ToEvent (..),
                                                 makeEvent)
+import Tendermint.Utils.Events (FromEvent(..))
 import           Test.Hspec
 
 spec :: Spec

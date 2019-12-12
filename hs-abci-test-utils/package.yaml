@@ -25,7 +25,6 @@ dependencies:
 - errors
 - lens
 - mtl
-- polysemy
 - servant
 - string-conversions
 - text
@@ -34,12 +33,9 @@ dependencies:
 - hs-tendermint-client
 
 default-extensions:
-  - DataKinds
   - DefaultSignatures
   - DeriveGeneric
-  - FlexibleContexts
   - FlexibleInstances
-  - LambdaCase
   - MultiParamTypeClasses
   - NamedFieldPuns
   - OverloadedStrings

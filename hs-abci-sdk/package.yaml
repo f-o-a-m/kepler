@@ -108,7 +108,6 @@ library:
   - Tendermint.SDK.BaseApp.Logger.Katip
   - Tendermint.SDK.BaseApp.Query
   - Tendermint.SDK.BaseApp.Query.Class
-  - Tendermint.SDK.BaseApp.Query.Client
   - Tendermint.SDK.BaseApp.Query.Delayed
   - Tendermint.SDK.BaseApp.Query.Router
   - Tendermint.SDK.BaseApp.Query.Store
@@ -138,7 +137,6 @@ tests:
     other-modules:
     - Tendermint.SDK.Test.AuthTreeStoreSpec
     - Tendermint.SDK.Test.CryptoSpec
-    - Tendermint.SDK.Test.EventSpec
     - Tendermint.SDK.Test.GasSpec
 
     ghc-options:
