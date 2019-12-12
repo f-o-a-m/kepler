@@ -289,9 +289,6 @@ decodeValue = (\(Right a) -> a) . decode . Base64.toBytes
 encodeRawTx :: RawTransaction -> Base64.Base64String
 encodeRawTx = Base64.fromBytes . encode
 
-encodeMsgData :: Message a => a -> BS.ByteString
-encodeMsgData = BL.toStrict . toLazyByteString
-
 user1 :: User
 user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
 
