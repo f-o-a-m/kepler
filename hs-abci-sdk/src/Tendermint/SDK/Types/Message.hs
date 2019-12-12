@@ -13,6 +13,9 @@ data Msg msg = Msg
   , msgData   :: msg
   }
 
+instance Functor Msg where
+  fmap f msg@Msg{msgData} = msg {msgData = f msgData}
+
 -- | This is a general error type, primarily accomodating protobuf messages being parsed
 -- | by either the [proto3-wire](https://hackage.haskell.org/package/proto3-wire)
 -- | or the [proto-lens](https://hackage.haskell.org/package/proto-lens) libraries.
