@@ -5,7 +5,6 @@ import           Nameservice.Modules.Nameservice.Keeper (storeKey)
 import           Nameservice.Modules.Nameservice.Types  (Name, Whois)
 import           Polysemy                               (Members, Sem)
 import           Polysemy.Error                         (Error)
-import           Servant.API                            ((:>))
 import qualified Tendermint.SDK.BaseApp                 as BaseApp
 
 --------------------------------------------------------------------------------
@@ -14,7 +13,7 @@ import qualified Tendermint.SDK.BaseApp                 as BaseApp
 
 type NameserviceContents = '[(Name, Whois)]
 
-type Api = "nameservice" :> BaseApp.QueryApi NameserviceContents
+type Api = BaseApp.QueryApi NameserviceContents
 
 server
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r

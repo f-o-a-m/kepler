@@ -1,101 +1,32 @@
-{-# LANGUAGE TemplateHaskell #-}
+module Tendermint.SDK.Modules.Auth
+  ( authModule
 
-module Tendermint.SDK.Modules.Auth where
+  , AuthEffs
+  , Accounts
+  , getAccount
+  , putAccount
+  , eval
 
-import           Data.Bifunctor               (first)
-import           Data.Proxy
-import qualified Data.Serialize               as Serialize
-import           Data.Serialize.Text          ()
-import           Data.String.Conversions      (cs)
-import           Data.Text                    (Text)
-import           Data.Word
-import           GHC.Generics                 (Generic)
-import           GHC.TypeLits                 (symbolVal)
-import           Polysemy
-import           Polysemy.Error               (Error, mapError)
-import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..),
-                                               IsKey (..), Queryable (..),
-                                               RawStore, StoreKey (..), get,
-                                               put)
-import           Tendermint.SDK.Codec         (HasCodec (..))
-import           Tendermint.SDK.Types.Address (Address)
+  , Api
+  , server
 
---------------------------------------------------------------------------------
+  , module Tendermint.SDK.Modules.Auth.Types
+  ) where
 
-data AuthModule
-type AuthModuleSym = "auth"
+import           Data.Void
+import           Polysemy                           (Members)
+import           Tendermint.SDK.Application.Module  (Module (..), voidRouter)
+import           Tendermint.SDK.BaseApp             (BaseAppEffs)
+import           Tendermint.SDK.Modules.Auth.Keeper
+import           Tendermint.SDK.Modules.Auth.Query
+import           Tendermint.SDK.Modules.Auth.Types
 
---------------------------------------------------------------------------------
+type AuthM r = Module AuthModule Void Api r
 
-data Coin = Coin
-  { coinDenomination :: Text
-  , coinAmount       :: Word64
-  } deriving Generic
-
-instance Serialize.Serialize Coin
-
-data Account = Account
-  { coins :: [Coin]
-  , nonce :: Word64
-  } deriving Generic
-
-instance Serialize.Serialize Account
-
-instance HasCodec Account where
-    encode = Serialize.encode
-    decode = first cs . Serialize.decode
-
-instance IsKey Address AuthModule where
-    type Value Address AuthModule = Account
-
-instance Queryable Account where
-  type Name Account = "account"
-
---------------------------------------------------------------------------------
-
-data AuthError =
-    RecoveryError Text
-  | TransactionParseError Text
-
-instance IsAppError AuthError where
-  makeAppError (RecoveryError msg) = AppError
-    { appErrorCode = 1
-    , appErrorCodespace = cs . symbolVal $ (Proxy :: Proxy AuthModuleSym)
-    , appErrorMessage = "Signature Recovery Error: " <> msg
-    }
-  makeAppError (TransactionParseError msg) = AppError
-    { appErrorCode = 2
-    , appErrorCodespace = cs . symbolVal $ (Proxy :: Proxy AuthModuleSym)
-    , appErrorMessage = msg
-    }
-
---------------------------------------------------------------------------------
-
-data Accounts m a where
-  PutAccount :: Address -> Account -> Accounts m ()
-  GetAccount :: Address -> Accounts m (Maybe Account)
-
-makeSem ''Accounts
-
-type AuthEffs = [Accounts, Error AuthError]
-
-storeKey :: StoreKey AuthModule
-storeKey = StoreKey "auth"
-
-eval
-  :: Members [RawStore, Error AppError] r
-  => Sem (Accounts ': Error AuthError ': r) a
-  -> Sem r a
-eval = mapError makeAppError . evalAuth
-  where
-    evalAuth
-      :: Members [RawStore, Error AppError] r
-      => Sem (Accounts ': r) a
-      -> Sem r a
-    evalAuth =
-      interpret (\case
-          GetAccount addr ->
-            get storeKey addr
-          PutAccount addr acnt ->
-            put storeKey addr acnt
-        )
+authModule
+  :: Members BaseAppEffs r
+  => AuthM r
+authModule = Module
+  { moduleRouter = voidRouter
+  , moduleQueryServer = server
+  }

@@ -1,0 +1,12 @@
+syntax = "proto3";
+package Auth;
+
+message Coin {
+  string denomination = 1;
+  uint64 amount = 2;
+}
+
+message Account {
+    repeated Coin coins = 1;
+    uint64 nonce = 2; 
+}

@@ -1,20 +1,22 @@
 module Nameservice.Test.E2ESpec where
 
 import           Control.Lens                           ((^.))
-import           Crypto.Secp256k1                       (SecKey, derivePubKey,
+import           Crypto.Secp256k1                       (CompactRecSig (..),
+                                                         SecKey, derivePubKey,
                                                          exportCompactRecSig,
                                                          secKey)
 import           Data.Aeson                             (ToJSON)
 import           Data.Aeson.Encode.Pretty               (encodePretty)
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteArray.HexString               as Hex
+import           Data.ByteString                        (ByteString, snoc)
 import qualified Data.ByteString                        as BS
 import qualified Data.ByteString.Lazy                   as BL
+import           Data.ByteString.Short                  (fromShort)
 import           Data.Default.Class                     (def)
 import           Data.Either                            (partitionEithers)
 import           Data.Maybe                             (fromJust)
 import           Data.Proxy
-import qualified Data.Serialize                         as Serialize
 import           Data.String                            (fromString)
 import           Data.String.Conversions                (cs)
 import           Data.Text                              (Text)
@@ -291,7 +293,7 @@ mkSignedRawTransactionWithRoute route privateKey msg = sign unsigned
                                   , rawTransactionSignature = ""
                                   }
         sig = signRawTransaction algProxy privateKey unsigned
-        sign rt = rt { rawTransactionSignature = Serialize.encode $ exportCompactRecSig sig }
+        sign rt = rt { rawTransactionSignature = encodeCompactRecSig $ exportCompactRecSig sig }
 
 data User = User
   { userPrivKey :: SecKey
@@ -324,3 +326,6 @@ apiP = Proxy
 
 (getBalance :<|> getWhois) =
   genClient (Proxy :: Proxy RPC.TendermintM) apiP def
+
+encodeCompactRecSig :: CompactRecSig -> ByteString
+encodeCompactRecSig (CompactRecSig r s v) = snoc (fromShort r <> fromShort s) v

@@ -86,7 +86,6 @@ library:
   - SimpleStorage.Modules.SimpleStorage.Keeper
   - SimpleStorage.Modules.SimpleStorage.Router
   - SimpleStorage.Modules.SimpleStorage.Query
-  - SimpleStorage.Types
 
   generated-exposed-modules:
   - Proto.SimpleStorage.Messages
