@@ -88,10 +88,9 @@ evalMetrics state@MetricsState{..} = do
 evalWithMetrics
   :: Member (Embed IO) r
   => Member (Reader MetricsState) r
-  => (forall a. Sem (Metrics ': r) a -> Sem r a)
-evalWithMetrics action = do
-  state <- ask
-  evalMetrics state action
+  => Sem (Metrics ': r) a
+  -> Sem r a
+evalWithMetrics action = ask >>= flip evalMetrics action
 
 --------------------------------------------------------------------------------
 -- indexes @NOTE: maybe clean this up

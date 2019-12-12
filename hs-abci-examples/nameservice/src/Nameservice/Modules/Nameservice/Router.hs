@@ -24,17 +24,17 @@ router (RoutedTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
   in case msgData of
        NSetName msg    -> do
-         incCount "nameservice_count_set"
-         observeHistogram "nameservice_histogram_set" 0.0
-         _ <- withTimer "nameservice_histogram_set" $ setName msg
+         incCount "count_set"
+         observeHistogram "histogram_set" 0.0
+         _ <- withTimer "histogram_set" $ setName msg
          pure ()
        NBuyName msg    -> do
-         incCount "nameservice_count_buy"
-         observeHistogram "nameservice_histogram_buy" 0.0
-         _ <- withTimer "nameservice_histogram_buy" $ buyName msg
+         incCount "count_buy"
+         observeHistogram "histogram_buy" 0.0
+         _ <- withTimer "histogram_buy" $ buyName msg
          pure ()
        NDeleteName msg -> do
-         incCount "nameservice_count_delete"
-         observeHistogram "nameservice_histogram_delete" 0.0
-         _ <- withTimer "nameservice_histogram_delete" $ deleteName msg
+         incCount "count_delete"
+         observeHistogram "histogram_delete" 0.0
+         _ <- withTimer "histogram_delete" $ deleteName msg
          pure ()
