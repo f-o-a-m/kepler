@@ -19,7 +19,35 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/githubuser/hs-abci-test-utils#readme>
 
 dependencies:
+- aeson
 - base >= 4.7 && < 5
+- bytestring
+- errors
+- lens
+- mtl
+- polysemy
+- servant
+- string-conversions
+- text
+- hs-abci-types
+- hs-abci-sdk
+- hs-tendermint-client
+
+default-extensions:
+  - DataKinds
+  - DefaultSignatures
+  - DeriveGeneric
+  - FlexibleContexts
+  - FlexibleInstances
+  - LambdaCase
+  - MultiParamTypeClasses
+  - NamedFieldPuns
+  - OverloadedStrings
+  - TypeApplications
+  - TypeFamilies
+  - RecordWildCards
+  - ScopedTypeVariables
+  - TypeOperators
 
 library:
   source-dirs: src
