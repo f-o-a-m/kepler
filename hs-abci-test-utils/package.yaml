@@ -71,3 +71,6 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - hs-abci-test-utils
+    - hspec
+    - hspec-core
+    - hspec-discover
