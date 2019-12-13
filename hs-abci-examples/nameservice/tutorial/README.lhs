@@ -1,6 +1,6 @@
 First some imports:
 
-1. [Introduction](Introduction.lhs#section)
+1. [Introduction](Introduction.md#section)
 
 ~~~ haskell
 import Introduction ()
