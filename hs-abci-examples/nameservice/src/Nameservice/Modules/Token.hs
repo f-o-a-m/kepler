@@ -45,7 +45,7 @@ import           Tendermint.SDK.Application         (Module (..),
 import           Tendermint.SDK.BaseApp             (BaseAppEffs)
 import           Tendermint.SDK.Types.Address       (Address)
 
-type TokenM r = Module "token" TokenMessage Api r
+type TokenM r = Module "token" TokenMessage Api TokenEffs r
 
 tokenModule
   :: Members BaseAppEffs r
@@ -55,4 +55,5 @@ tokenModule = Module
   { moduleTxDeliverer = router
   , moduleTxChecker = defaultTxChecker
   , moduleQueryServer = server
+  , moduleEval = eval
   }

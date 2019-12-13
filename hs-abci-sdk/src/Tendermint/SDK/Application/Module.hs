@@ -1,6 +1,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.Application.Module
   ( Module(..)
+  , voidModuleMessages
   , defaultTxChecker
   , Modules(..)
   , QueryRouter(Api)
@@ -9,6 +10,7 @@ module Tendermint.SDK.Application.Module
   , TxRouter
   , txRouter
   , voidRouter
+  , Eval(..)
   ) where
 
 import           Crypto.Hash                      (Digest)
@@ -20,10 +22,12 @@ import qualified Data.Validation                  as V
 import           Data.Void
 import           GHC.TypeLits                     (KnownSymbol, Symbol,
                                                    symbolVal)
-import           Polysemy                         (EffectRow, Member, Sem)
+import           Polysemy                         (EffectRow, Member, Members,
+                                                   Sem)
 import           Polysemy.Error                   (Error)
 import           Servant.API                      ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp           (AppError, SDKError (..),
+import           Tendermint.SDK.BaseApp           ((:&), AppError, BaseApp,
+                                                   BaseAppEffs, SDKError (..),
                                                    throwSDKError)
 import qualified Tendermint.SDK.BaseApp.Query     as Q
 import           Tendermint.SDK.Codec             (HasCodec (..))
@@ -35,11 +39,18 @@ import           Tendermint.SDK.Types.Message     (Msg (..),
 import           Tendermint.SDK.Types.Transaction (RoutedTx (..), Tx (..),
                                                    parseTx)
 
-data Module (name :: Symbol) msg (api :: *) (r :: EffectRow) = Module
+data Module (name :: Symbol) msg (api :: *) (s :: EffectRow) (r :: EffectRow) = Module
   { moduleTxDeliverer :: RoutedTx msg -> Sem r ()
   , moduleTxChecker   :: RoutedTx msg -> Sem r ()
   , moduleQueryServer :: Q.RouteT api (Sem r)
+  , moduleEval :: forall deps. Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
   }
+
+voidModuleMessages :: Module name msg api s r -> Module name Void api s r
+voidModuleMessages m =
+  m { moduleTxDeliverer = voidRouter
+    , moduleTxChecker = voidRouter
+    }
 
 defaultTxChecker
   :: Member (Error AppError) r
@@ -54,7 +65,7 @@ defaultTxChecker (RoutedTx Tx{txMsg}) =
 
 data Modules (ms :: [*]) r where
     NilModules :: Modules '[] r
-    ConsModule :: Module name msg api r -> Modules ms r -> Modules (Module name msg api r  ': ms) r
+    ConsModule :: Module name msg api s r -> Modules ms r -> Modules (Module name msg api s r  ': ms) r
 
 --------------------------------------------------------------------------------
 
@@ -69,12 +80,12 @@ class QueryRouter ms r where
     type Api ms :: *
     routeQuery :: Modules ms r -> Q.RouteT (Api ms) (Sem r)
 
-instance QueryRouter (Module name msg api r ': '[]) r where
-    type Api (Module name msg api r ': '[]) = name :> api
+instance QueryRouter '[Module name msg api s r] r where
+    type Api '[Module name msg api s r] = name :> api
     routeQuery (ConsModule m NilModules) = moduleQueryServer m
 
-instance QueryRouter (m' ': ms) r => QueryRouter (Module name msg api r ': m' ': ms) r where
-    type Api (Module name msg api r ': m' ': ms) = (name :> api) :<|> Api (m' ': ms)
+instance QueryRouter (m' ': ms) r => QueryRouter (Module name msg api s r ': m' ': ms) r where
+    type Api (Module name msg api s r ': m' ': ms) = (name :> api) :<|> Api (m' ': ms)
     routeQuery (ConsModule m rest) = moduleQueryServer m :<|> routeQuery rest
 
 --------------------------------------------------------------------------------
@@ -106,12 +117,12 @@ instance (Member (Error AppError) r) => TxRouter '[] r where
   routeTx _ NilModules Tx{txRoute}  =
     throwSDKError $ UnmatchedRoute txRoute
 
-instance (Member (Error AppError) r, TxRouter ms r,  KnownSymbol name) => TxRouter (Module name Void api r ': ms) r where
+instance {-# OVERLAPPING #-} (Member (Error AppError) r, TxRouter ms r,  KnownSymbol name) => TxRouter (Module name Void api s r ': ms) r where
   routeTx routeContext (ConsModule _ rest) tx@Tx{txRoute}
     | symbolVal (Proxy :: Proxy name) == cs txRoute = throwSDKError $ UnmatchedRoute txRoute
     | otherwise = routeTx routeContext rest tx
 
-instance (Member (Error AppError) r, TxRouter ms r, HasCodec msg, KnownSymbol name) => TxRouter (Module name msg api r ': ms) r where
+instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, TxRouter ms r, HasCodec msg, KnownSymbol name) => TxRouter (Module name msg api s r ': ms) r where
   routeTx routeContext (ConsModule m rest) tx@Tx{..}
     | symbolVal (Proxy :: Proxy name) == cs txRoute = do
         msg <- case decode $ msgData txMsg of
@@ -132,3 +143,19 @@ voidRouter (RoutedTx tx) =
   let Tx{txMsg} = tx
       Msg{msgData} = txMsg
   in pure $ absurd msgData
+
+--------------------------------------------------------------------------------
+
+class Eval ms core where
+  type Effs ms core :: EffectRow
+  eval :: Modules ms r
+       -> forall a. Sem (Effs ms core) a
+       -> Sem (BaseApp core) a
+
+instance Eval '[Module name msg api s r] core where
+  type Effs '[Module name msg api s r] core = s :& BaseApp core
+  eval (ConsModule m NilModules) = moduleEval m
+
+instance (Members BaseAppEffs (Effs (m' ': ms) core),  Eval (m' ': ms) core) => Eval (Module name msg api s r ': m' ': ms) core where
+  type Effs (Module name msg api s r ': m' ': ms) core = s :& (Effs (m': ms)) core
+  eval (ConsModule m rest) = eval rest . moduleEval m

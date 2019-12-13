@@ -1,6 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 module SimpleStorage.Modules.SimpleStorage.Keeper
   ( SimpleStorage
+  , SimpleStorageEffs
   , storeKey
   , putCount
   , getCount
@@ -25,6 +26,8 @@ data SimpleStorage m a where
     GetCount :: SimpleStorage m Count
 
 makeSem ''SimpleStorage
+
+type SimpleStorageEffs = '[SimpleStorage]
 
 eval
   :: forall r.
