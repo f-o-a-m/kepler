@@ -80,7 +80,7 @@ class QueryRouter ms r where
     type Api ms :: *
     routeQuery :: Modules ms r -> Q.RouteT (Api ms) (Sem r)
 
-instance QueryRouter '[Module name msg api s r ': '[]] r where
+instance QueryRouter '[Module name msg api s r] r where
     type Api '[Module name msg api s r] = name :> api
     routeQuery (ConsModule m NilModules) = moduleQueryServer m
 
