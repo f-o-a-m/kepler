@@ -124,6 +124,14 @@ executables:
     - nameservice
 
 tests:
+  tutorial:
+    main:                README.lhs
+    source-dirs:         tutorial
+    other-modules:
+    - Introduction
+    ghc-options: -Wall -pgmL markdown-unlit
+    dependencies:
+    - hs-abci-sdk
   nameservice-test:
     main:                Spec.hs
     source-dirs:         test
