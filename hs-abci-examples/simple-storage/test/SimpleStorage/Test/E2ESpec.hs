@@ -1,16 +1,9 @@
 module SimpleStorage.Test.E2ESpec where
 
 import           Control.Lens                         ((^.))
-import           Control.Monad.Reader                 (ReaderT)
-import           Data.Aeson                           (ToJSON)
-import           Data.Aeson.Encode.Pretty             (encodePretty)
 import qualified Data.ByteArray.Base64String          as Base64
-import qualified Data.ByteArray.HexString             as Hex
-import           Data.ByteString                      (ByteString)
 import           Data.Default.Class                   (def)
 import           Data.Proxy
-import           Data.String.Conversions              (cs)
-import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import qualified Network.Tendermint.Client            as RPC
 import           Servant.API                          ((:>))
@@ -18,11 +11,10 @@ import qualified SimpleStorage.Modules.SimpleStorage  as SS
 import           Tendermint.SDK.BaseApp.Query         (QueryArgs (..))
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.Utils.Client              (ClientResponse (..),
-                                                       HasClient (..),
-                                                       RunClient (..))
+                                                       HasClient (..))
+import           Tendermint.Utils.Request             (runRPC)
 import           Tendermint.Utils.User                (User (..), makeUser, mkSignedRawTransactionWithRoute)
 import           Test.Hspec
-
 
 spec :: Spec
 spec = do
@@ -57,42 +49,15 @@ spec = do
             , queryArgsHeight = 0
             , queryArgsProve = False
             }
-      ClientResponse{clientResponseData = Just foundCount} <- runQueryRunner $ getCount queryReq
+      ClientResponse{clientResponseData = Just foundCount} <- runRPC $ getCount queryReq
       foundCount `shouldBe` SS.Count 4
-
-runRPC :: forall a. RPC.TendermintM a -> IO a
-runRPC = RPC.runTendermintM rpcConfig
-  where
-    rpcConfig :: RPC.Config
-    rpcConfig =
-      let RPC.Config baseReq _ _ = RPC.defaultConfig "localhost" 26657
-          prettyPrint :: forall b. ToJSON b => String -> b -> IO ()
-          prettyPrint prefix a = putStrLn $ prefix <> "\n" <> (cs . encodePretty $ a)
-      in RPC.Config baseReq (prettyPrint "RPC Request") (prettyPrint "RPC Response")
-
-newtype QueryRunner a = QueryRunner
-  {_runQueryRunner :: ReaderT RPC.Config IO a}
-  deriving (Functor, Applicative, Monad)
-
-runQueryRunner :: QueryRunner a -> IO a
-runQueryRunner = runRPC . _runQueryRunner
-
-instance RunClient QueryRunner where
-  runQuery Req.Query{..} =
-    let rpcQ = RPC.RequestABCIQuery
-          { RPC.requestABCIQueryPath = Just queryPath
-          , RPC.requestABCIQueryData = Hex.fromBytes @ByteString . Base64.toBytes $ queryData
-          , RPC.requestABCIQueryHeight = Just $ queryHeight
-          , RPC.requestABCIQueryProve  = queryProve
-          }
-    in RPC.resultABCIQueryResponse <$> QueryRunner (RPC.abciQuery rpcQ)
 
 --------------------------------------------------------------------------------
 
-getCount :: QueryArgs SS.CountKey -> QueryRunner (ClientResponse SS.Count)
+getCount :: QueryArgs SS.CountKey -> RPC.TendermintM (ClientResponse SS.Count)
 getCount =
   let apiP = Proxy :: Proxy ("simple_storage" :> SS.Api)
-  in genClient (Proxy :: Proxy QueryRunner) apiP def
+  in genClient (Proxy :: Proxy RPC.TendermintM) apiP def
 
 user1 :: User
 user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"

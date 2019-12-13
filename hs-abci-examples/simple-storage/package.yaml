@@ -77,6 +77,11 @@ library:
   - -fplugin=Polysemy.Plugin
   - -Werror
   - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
   exposed-modules:
   - SimpleStorage.Server
   - SimpleStorage.Application

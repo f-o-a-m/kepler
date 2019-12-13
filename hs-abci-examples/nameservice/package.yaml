@@ -111,6 +111,13 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     - -fplugin=Polysemy.Plugin
+    - -Werror
+    - -Wall
+    - -Wcompat
+    - -Widentities
+    - -Wincomplete-record-updates
+    - -Wincomplete-uni-patterns
+    - -Wredundant-constraints
     dependencies:
     - nameservice
 
@@ -131,6 +138,8 @@ tests:
     other-modules:
     - Nameservice.Test.E2ESpec
     ghc-options:
+    - -Werror
+    - -Wall
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
