@@ -56,6 +56,8 @@ import           Tendermint.Utils.Client                (ClientResponse (..),
                                                          HasClient (..),
                                                          RunClient (..))
 import           Tendermint.Utils.Events                (FromEvent (..))
+import           Tendermint.Utils.Response              (ensureDeliverResponseCode,
+                                                         ensureEventLogged)
 import           Tendermint.Utils.User                  (User (..), makeUser, mkSignedRawTransactionWithRoute)
 import           Test.Hspec
 
@@ -246,6 +248,7 @@ getDeliverTxResponse rawTx = do
   fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $
     RPC.broadcastTxCommit txReq
 
+-- executes a request, check deliver and response codes
 ensureCheckAndDeliverResponseCodes :: (Word32, Word32) -> RawTransaction -> IO ()
 ensureCheckAndDeliverResponseCodes codes rawTx = do
   let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
@@ -254,37 +257,7 @@ ensureCheckAndDeliverResponseCodes codes rawTx = do
       deliverResp = RPC.resultBroadcastTxCommitDeliverTx resp
   codes `shouldBe` (checkResp ^. Response._checkTxCode, deliverResp ^. Response._deliverTxCode)
 
-
--- get the logged events from a deliver response,
-deliverTxEvents :: FromEvent e => Response.DeliverTx -> Text -> IO ([Text],[e])
-deliverTxEvents deliverResp eventName = do
-  let deliverEvents = deliverResp ^. Response._deliverTxEvents
-      filtered = filter ((== eventName) . eventType) deliverEvents
-  return . partitionEithers . map fromEvent $ filtered
-
--- ensures there are no errors when parsing event logs and contains the expectedEvent
-ensureEventLogged :: (Eq e, Show e, FromEvent e) => Response.DeliverTx -> Text -> e -> IO ()
-ensureEventLogged deliverResp eventName expectedEvent = do
-  (errs, events) <- deliverTxEvents deliverResp eventName
-  errs `shouldBe` mempty
-  events `shouldSatisfy` elem expectedEvent
-
--- check for a specific check response code
-ensureCheckResponseCode :: Response.CheckTx -> Word32 -> IO ()
-ensureCheckResponseCode checkResp code = do
-  let checkRespCode = checkResp ^. Response._checkTxCode
-  checkRespCode `shouldBe` code
-
--- check for a specific deliver response code
-ensureDeliverResponseCode :: Response.DeliverTx -> Word32 -> IO ()
-ensureDeliverResponseCode deliverResp code = do
-  let deliverRespCode = deliverResp ^. Response._deliverTxCode
-  deliverRespCode `shouldBe` code
-
 --------------------------------------------------------------------------------
-
-decodeValue :: HasCodec a => Base64.Base64String -> a
-decodeValue = (\(Right a) -> a) . decode . Base64.toBytes
 
 encodeRawTx :: RawTransaction -> Base64.Base64String
 encodeRawTx = Base64.fromBytes . encode

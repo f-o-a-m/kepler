@@ -23,6 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - bytestring
 - errors
+- hspec
 - lens
 - mtl
 - secp256k1-haskell
@@ -32,6 +33,7 @@ dependencies:
 - hs-abci-types
 - hs-abci-sdk
 - hs-tendermint-client
+
 
 default-extensions:
   - DefaultSignatures
