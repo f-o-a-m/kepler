@@ -11,6 +11,7 @@ import qualified Nameservice.Modules.Nameservice     as N
 import qualified Nameservice.Modules.Token           as T
 import           Tendermint.SDK.Application          (HandlersContext (..),
                                                       Modules (..))
+import           Tendermint.SDK.BaseApp              ((:&))
 import qualified Tendermint.SDK.BaseApp              as BaseApp
 import qualified Tendermint.SDK.BaseApp.Logger.Katip as KL
 import           Tendermint.SDK.Crypto               (Secp256k1)
@@ -29,12 +30,16 @@ makeAppConfig logCfg = do
 --------------------------------------------------------------------------------
 
 type EffR =
-   N.NameserviceEffs BaseApp.:&
-   T.TokenEffs BaseApp.:&
-   A.AuthEffs BaseApp.:&
+   N.NameserviceEffs :&
+   T.TokenEffs :&
+   A.AuthEffs :&
    BaseApp.BaseApp BaseApp.CoreEffs
 
-type NameserviceModules = '[N.NameserviceM EffR, T.TokenM EffR, A.AuthM EffR]
+type NameserviceModules =
+   '[ N.NameserviceM EffR
+    , T.TokenM EffR
+    , A.AuthM EffR
+    ]
 
 handlersContext :: HandlersContext Secp256k1 NameserviceModules EffR BaseApp.CoreEffs
 handlersContext = HandlersContext
@@ -47,4 +52,5 @@ handlersContext = HandlersContext
   nameserviceModules =
     ConsModule N.nameserviceModule $
       ConsModule T.tokenModule $
-      ConsModule A.authModule NilModules
+      ConsModule A.authModule $
+      NilModules

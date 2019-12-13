@@ -9,6 +9,7 @@ import           Data.Proxy
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
 import           Tendermint.SDK.Application          (HandlersContext (..),
                                                       Modules (..))
+import           Tendermint.SDK.BaseApp              ((:&))
 import qualified Tendermint.SDK.BaseApp              as BaseApp
 import qualified Tendermint.SDK.BaseApp.Logger.Katip as KL
 import           Tendermint.SDK.Crypto               (Secp256k1)
@@ -27,9 +28,9 @@ makeAppConfig logCfg = do
 --------------------------------------------------------------------------------
 
 type EffR =
-  SimpleStorage.SimpleStorage ':
-    A.AuthEffs BaseApp.:&
-    BaseApp.BaseApp BaseApp.CoreEffs
+  SimpleStorage.SimpleStorageEffs :&
+  A.AuthEffs :&
+  BaseApp.BaseApp BaseApp.CoreEffs
 
 type SimpleStorageModules =
   '[ SimpleStorage.SimpleStorageM EffR
@@ -46,4 +47,5 @@ handlersContext = HandlersContext
   simpleStorageModules :: Modules SimpleStorageModules EffR
   simpleStorageModules =
     ConsModule SimpleStorage.simpleStorageModule $
-      ConsModule A.authModule NilModules
+      ConsModule A.authModule $
+      NilModules
