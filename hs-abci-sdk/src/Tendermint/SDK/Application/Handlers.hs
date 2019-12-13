@@ -8,7 +8,6 @@ import           Control.Lens                         (to, (&), (.~), (^.))
 import           Crypto.Hash                          (Digest)
 import           Crypto.Hash.Algorithms               (SHA256)
 import qualified Data.ByteArray.Base64String          as Base64
-import           Data.ByteString                      (ByteString)
 import           Data.Default.Class                   (Default (..))
 import           Data.Proxy
 import           Network.ABCI.Server.App              (App (..),
@@ -32,8 +31,7 @@ import           Tendermint.SDK.BaseApp.Store         (ConnectionScope (..))
 import qualified Tendermint.SDK.BaseApp.Store         as Store
 import           Tendermint.SDK.Crypto                (RecoverableSignatureSchema,
                                                        SignatureSchema (..))
-import           Tendermint.SDK.Types.TxResult        (TxResult,
-                                                       checkTxTxResult,
+import           Tendermint.SDK.Types.TxResult        (checkTxTxResult,
                                                        deliverTxTxResult,
                                                        txResultEvents)
 
@@ -72,10 +70,9 @@ defaultHandlers = Handlers
     defaultHandler = const $ pure def
 
 data HandlersContext alg ms r core = HandlersContext
-  { signatureAlgP    :: Proxy alg
-  , modules          :: M.Modules ms r
-  , compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
-  , compileToCore    :: forall a. BA.ScopedEff core a -> Sem core a
+  { signatureAlgP :: Proxy alg
+  , modules       :: M.Modules ms r
+  , compileToCore :: forall a. BA.ScopedEff core a -> Sem core a
   }
 
 -- Common function between checkTx and deliverTx
@@ -88,12 +85,20 @@ makeHandlers
   => M.QueryRouter ms r
   => HasRouter (M.Api ms)
   => Members CoreEffs core
+  => M.Eval ms core
+  => M.Effs ms core ~ r
   => HandlersContext alg ms r core
   -> Handlers core
 makeHandlers HandlersContext{..} =
   let
+      compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
+      compileToBaseApp = M.eval modules
       txRouter context =  M.txRouter signatureAlgP context modules
       queryRouter = compileToBaseApp . M.queryRouter modules
+
+      transactionHandler router bs = do
+        events <- withEventBuffer . compileToBaseApp $ router bs
+        pure $ def & txResultEvents .~ events
 
       query (RequestQuery q) = Store.applyScope $
         catch
@@ -144,14 +149,6 @@ makeHandlers HandlersContext{..} =
        , deliverTx = deliverTx
        , commit = commit
        }
-  where
-    transactionHandler
-      :: (ByteString -> Sem r ())
-      -> ByteString
-      -> Sem (BA.BaseApp core) TxResult
-    transactionHandler txRouter bs = do
-      events <- withEventBuffer . compileToBaseApp $ txRouter bs
-      pure $ def & txResultEvents .~ events
 
 makeApp
   :: forall alg ms r core.
@@ -162,6 +159,8 @@ makeApp
   => M.QueryRouter ms r
   => HasRouter (M.Api ms)
   => Members CoreEffs core
+  => M.Eval ms core
+  => M.Effs ms core ~ r
   => HandlersContext alg ms r core
   -> App (Sem core)
 makeApp handlersContext@HandlersContext{compileToCore} =

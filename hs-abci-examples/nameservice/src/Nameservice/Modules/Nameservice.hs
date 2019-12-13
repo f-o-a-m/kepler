@@ -47,7 +47,8 @@ import           Tendermint.SDK.Application               (Module (..),
                                                            defaultTxChecker)
 import           Tendermint.SDK.BaseApp                   (BaseAppEffs)
 
-type NameserviceM r = Module "nameservice" NameserviceMessage Api r
+type NameserviceM r =
+  Module "nameservice" NameserviceMessage Api NameserviceEffs r
 
 nameserviceModule
   :: Members BaseAppEffs r
@@ -58,4 +59,5 @@ nameserviceModule = Module
   { moduleTxDeliverer = router
   , moduleTxChecker = defaultTxChecker
   , moduleQueryServer = server
+  , moduleEval = eval
   }
