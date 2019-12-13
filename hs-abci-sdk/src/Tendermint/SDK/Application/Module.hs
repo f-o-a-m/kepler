@@ -1,6 +1,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.Application.Module
   ( Module(..)
+  , voidModuleMessages
   , defaultTxChecker
   , Modules(..)
   , QueryRouter(Api)
@@ -45,6 +46,12 @@ data Module (name :: Symbol) msg (api :: *) (s :: EffectRow) (r :: EffectRow) = 
   , moduleEval :: forall deps. Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
   }
 
+voidModuleMessages :: Module name msg api s r -> Module name Void api s r
+voidModuleMessages m =
+  m { moduleTxDeliverer = voidRouter
+    , moduleTxChecker = voidRouter
+    }
+
 defaultTxChecker
   :: Member (Error AppError) r
   => ValidateMessage msg
@@ -73,8 +80,8 @@ class QueryRouter ms r where
     type Api ms :: *
     routeQuery :: Modules ms r -> Q.RouteT (Api ms) (Sem r)
 
-instance QueryRouter (Module name msg api s r ': '[]) r where
-    type Api (Module name msg api s r ': '[]) = name :> api
+instance QueryRouter '[Module name msg api s r ': '[]] r where
+    type Api '[Module name msg api s r] = name :> api
     routeQuery (ConsModule m NilModules) = moduleQueryServer m
 
 instance QueryRouter (m' ': ms) r => QueryRouter (Module name msg api s r ': m' ': ms) r where
@@ -136,6 +143,8 @@ voidRouter (RoutedTx tx) =
   let Tx{txMsg} = tx
       Msg{msgData} = txMsg
   in pure $ absurd msgData
+
+--------------------------------------------------------------------------------
 
 class Eval ms core where
   type Effs ms core :: EffectRow
