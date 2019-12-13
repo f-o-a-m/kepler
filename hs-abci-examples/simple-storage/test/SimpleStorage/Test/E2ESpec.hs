@@ -2,21 +2,13 @@ module SimpleStorage.Test.E2ESpec where
 
 import           Control.Lens                         ((^.))
 import           Control.Monad.Reader                 (ReaderT)
-import           Crypto.Secp256k1                     (SecKey, derivePubKey,
-                                                       exportCompactRecSig,
-                                                       secKey)
 import           Data.Aeson                           (ToJSON)
 import           Data.Aeson.Encode.Pretty             (encodePretty)
-import           Data.ByteArray.Base64String          (Base64String)
 import qualified Data.ByteArray.Base64String          as Base64
 import qualified Data.ByteArray.HexString             as Hex
 import           Data.ByteString                      (ByteString)
 import           Data.Default.Class                   (def)
-import           Data.Int                             (Int32)
-import           Data.Maybe                           (fromJust)
 import           Data.Proxy
-import qualified Data.Serialize                       as Serial
-import           Data.String                          (fromString)
 import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Request  as Req
 import qualified Network.ABCI.Types.Messages.Response as Resp
@@ -25,14 +17,10 @@ import           Servant.API                          ((:>))
 import qualified SimpleStorage.Modules.SimpleStorage  as SS
 import           Tendermint.SDK.BaseApp.Query         (QueryArgs (..))
 import           Tendermint.SDK.Codec                 (HasCodec (..))
-import           Tendermint.SDK.Crypto                (Secp256k1,
-                                                       addressFromPubKey)
-import           Tendermint.SDK.Types.Address         (Address (..))
-import           Tendermint.SDK.Types.Transaction     (RawTransaction (..),
-                                                       signRawTransaction)
 import           Tendermint.Utils.Client              (ClientResponse (..),
                                                        HasClient (..),
                                                        RunClient (..))
+import           Tendermint.Utils.User                (User (..), makeUser, mkSignedRawTransactionWithRoute)
 import           Test.Hspec
 
 
@@ -55,7 +43,7 @@ spec = do
 
     it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
       let txMsg = SS.UpdateCount $ SS.UpdateCountTx "irakli" 4
-          tx = mkSignedRawTransaction (userPrivKey user1) txMsg
+          tx = mkSignedRawTransactionWithRoute "simple_storage" (userPrivKey user1) txMsg
           txReq = RPC.RequestBroadcastTxCommit
                     { RPC.requestBroadcastTxCommitTx = Base64.fromBytes . encode $ tx
                     }
@@ -71,13 +59,6 @@ spec = do
             }
       ClientResponse{clientResponseData = Just foundCount} <- runQueryRunner $ getCount queryReq
       foundCount `shouldBe` SS.Count 4
-
-
-encodeCount :: Int32 -> Base64String
-encodeCount = Base64.fromBytes  . Serial.encode
-
-decodeCount :: Base64String -> Int32
-decodeCount =  (\(Right a) -> a) . Serial.decode . Base64.toBytes
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
 runRPC = RPC.runTendermintM rpcConfig
@@ -113,30 +94,5 @@ getCount =
   let apiP = Proxy :: Proxy ("simple_storage" :> SS.Api)
   in genClient (Proxy :: Proxy QueryRunner) apiP def
 
--- sign a tx with a user's private key
-mkSignedRawTransaction :: SecKey -> SS.SimpleStorageMessage -> RawTransaction
-mkSignedRawTransaction privateKey msg = sign unsigned
-  where unsigned = RawTransaction { rawTransactionData = encode msg
-                                  , rawTransactionRoute = "simple_storage"
-                                  , rawTransactionSignature = ""
-                                  }
-        sig = signRawTransaction algProxy privateKey unsigned
-        sign rt = rt { rawTransactionSignature = Serial.encode $ exportCompactRecSig sig }
-
-data User = User
-  { userPrivKey :: SecKey
-  , userAddress :: Address
-  }
-
 user1 :: User
 user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
-
-makeUser :: String -> User
-makeUser privKeyStr =
-  let privateKey = fromJust . secKey . Hex.toBytes . fromString $ privKeyStr
-      pubKey = derivePubKey privateKey
-      address = addressFromPubKey (Proxy @Secp256k1) pubKey
-  in User privateKey address
-
-algProxy :: Proxy Secp256k1
-algProxy = Proxy
