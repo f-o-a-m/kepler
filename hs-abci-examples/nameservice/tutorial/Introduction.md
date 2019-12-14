@@ -1,1 +1,8 @@
-Introduction.lhs
+
+# Introduction
+
+## Section
+
+~~~ haskell
+module Introduction where
+~~~
