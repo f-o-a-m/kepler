@@ -1,0 +1,94 @@
+name:                hs-iavl-client
+version:             0.1.0.0
+github:              "f-o-a-m/hs-abci/hs-iavl-client"
+license:             Apache
+author:              "Martin Allen"
+maintainer:          "martin@foam.space"
+copyright:           "2019 Martin Allen"
+
+extra-source-files:
+- protos/**/*.proto
+
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-iavl-client#readme>
+
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-setup
+
+default-extensions:
+- NamedFieldPuns
+- RecordWildCards
+- FlexibleContexts
+- DeriveGeneric
+- TypeFamilies
+- GADTs
+- GeneralizedNewtypeDeriving
+- DataKinds
+- PolyKinds
+- RankNTypes
+- DataKinds
+- ScopedTypeVariables
+- FlexibleInstances
+- OverloadedStrings
+- MultiParamTypeClasses
+- FunctionalDependencies
+
+
+dependencies:
+- base >= 4.7 && < 5
+- aeson
+- aeson-casing
+- base16-bytestring
+- bytestring
+- data-default-class
+- lens
+- memory
+- proto-lens
+- proto-lens-runtime
+- string-conversions
+- text
+- template-haskell
+- time
+
+library:
+  source-dirs: src
+  ghc-options:
+  - -Werror
+  - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
+  exposed-modules:
+  - Database.IAVL
+  generated-exposed-modules:
+  - Proto.Iavl.Api
+  - Proto.Google.Api.Http
+  - Proto.Google.Protobuf.Empty
+  - Proto.Google.Api.Annotations
+
+tests:
+  hs-abci-types-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -Werror
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+
+
+    dependencies:
+      - generic-arbitrary
+      - hs-abci-types
+      - hspec
+      - hspec-core
+      - hspec-discover
+      - binary
+      - lens-labels
+      - proto-lens-arbitrary
+      - QuickCheck
+      - quickcheck-instances
