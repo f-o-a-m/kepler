@@ -5,9 +5,12 @@ import           Control.Concurrent                            (forkIO)
 import           Control.Concurrent.MVar                       (MVar,
                                                                 modifyMVar_,
                                                                 newMVar)
+import           Control.Monad                                 (unless)
 import           Control.Monad.IO.Class                        (MonadIO, liftIO)
 import           Data.Map.Strict                               (Map, insert)
 import qualified Data.Map.Strict                               as Map
+import           Data.Maybe                                    (fromJust,
+                                                                isNothing)
 import           Data.String                                   (IsString,
                                                                 fromString)
 import           Data.Text                                     (Text)
@@ -156,7 +159,7 @@ data MetricsState = MetricsState
 type Port = Int
 data MetricsConfig = MetricsConfig
   { metricsState  :: MetricsState
-  , metricsPort   :: Port
+  , metricsPort   :: Maybe Port
   , metricsAPIKey :: Maybe Text
   }
 
@@ -186,14 +189,17 @@ emptyState = do
 mkMetricsConfig :: IO MetricsConfig
 mkMetricsConfig = do
   state <- emptyState
-  return $ MetricsConfig state 9200 Nothing
+  return $ MetricsConfig state (Just 9200) Nothing
 
 runMetricsServer
   :: MonadIO m
-  => MetricsConfig
+  => Maybe MetricsConfig
   -> m ()
-runMetricsServer MetricsConfig{..} = liftIO $ do
-  let MetricsState{..} = metricsState
-  _ <- forkIO $
-    Http.serveHttpTextMetrics metricsPort ["metrics"] (Registry.sample metricsRegistry)
-  return ()
+runMetricsServer mMetCfg = liftIO $ do
+  unless (isNothing mMetCfg) $ do
+    let MetricsConfig{..} = fromJust mMetCfg
+        MetricsState{..} = metricsState
+    unless (isNothing metricsPort) $ do
+      _ <- forkIO $
+        Http.serveHttpTextMetrics (fromJust metricsPort) ["metrics"] (Registry.sample metricsRegistry)
+      return ()

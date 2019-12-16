@@ -1,9 +1,6 @@
 module Nameservice.Server (makeAndServeApplication) where
 
-import           Control.Monad                                 (unless)
 import           Data.Foldable                                 (fold)
-import           Data.Maybe                                    (fromJust,
-                                                                isNothing)
 import           Data.Monoid                                   (Endo (..))
 import           Nameservice.Application                       (AppConfig (..),
                                                                 handlersContext)
@@ -23,10 +20,8 @@ import           Tendermint.SDK.BaseApp.Metrics.Prometheus     (MetricsConfig (.
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication AppConfig{..} = do
-  unless (isNothing metCfg) (do
-    runMetricsServer . fromJust $ metCfg
-    )
   putStrLn "Starting ABCI application..."
+  runMetricsServer metCfg
   let nat :: forall a. Sem CoreEffs a -> IO a
       nat = runCoreEffs baseAppContext
       application = createIOApp nat $ makeApp handlersContext
