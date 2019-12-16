@@ -30,13 +30,19 @@ import qualified System.Metrics.Prometheus.Metric.Counter      as Counter
 import qualified System.Metrics.Prometheus.Metric.Histogram    as Histogram
 import qualified System.Metrics.Prometheus.MetricId            as MetricId
 import           Tendermint.SDK.BaseApp.Metrics                (CountName (..), HistogramName (..),
-                                                                Metrics (..),
-                                                                observeHistogram)
+                                                                Metrics (..))
 import qualified Text.Read                                     as T
 
 --------------------------------------------------------------------------------
 -- eval
 --------------------------------------------------------------------------------
+
+evalWithMetrics
+  :: Member (Embed IO) r
+  => Member (Reader MetricsState) r
+  => Sem (Metrics ': r) a
+  -> Sem r a
+evalWithMetrics action = ask >>= flip evalMetrics action
 
 evalMetrics
   :: Member (Embed IO) r
@@ -45,6 +51,8 @@ evalMetrics
   -> Sem r a
 evalMetrics state@MetricsState{..} = do
   interpretH (\case
+    -- | Increments existing count; if it doesn't exist, creates a new
+    -- | counter and increments it.
     IncCount ctrName -> do
       let c@MetricIdentifier{..} = countToIdentifier ctrName
           cid = metricIdStorable c
@@ -54,43 +62,43 @@ evalMetrics state@MetricsState{..} = do
           Nothing -> do
             newCtr <- liftIO $
               Registry.registerCounter cMetricIdName metricIdLabels metricsRegistry
-            pure $ insert cid newCtr counterMap
+            let newCounterMap = insert cid newCtr counterMap
+            liftIO $ Counter.inc newCtr
+            pure newCounterMap
           Just ctr -> do
             liftIO $ Counter.inc ctr
             pure counterMap
       pureT ()
 
-    ObserveHistogram histName val -> do
-      let h@MetricIdentifier{..} = histogramToIdentifier histName
-          hid = metricIdStorable h
-          hMetricIdName = MetricId.Name metricIdName
-      liftIO $ modifyMVar_ metricsHistograms $ \histMap ->
-        case Map.lookup hid histMap of
-          Nothing -> do
-            newHist <- liftIO $
-              Registry.registerHistogram hMetricIdName metricIdLabels metricIdHistoBuckets metricsRegistry
-            pure $ insert hid newHist histMap
-          Just hist -> do
-            liftIO $ Histogram.observe val hist
-            pure histMap
-      pureT ()
-
+    -- | Updates a histogram with the time it takes to do an action
+    -- | If histogram doesn't exist, creates a new one and observes it.
     WithTimer histName action -> do
       start <- liftIO $ getCurrentTime
       a <- runT action
       end <- liftIO $ getCurrentTime
       let time = fromRational . (* 1000.0) . toRational $ (end `diffUTCTime` start)
-      evalMetrics state (observeHistogram histName time)
+      observeHistogram state histName time
       actionRes <- raise $ evalMetrics state a
       pure $ (, time) <$> actionRes
     )
 
-evalWithMetrics
-  :: Member (Embed IO) r
-  => Member (Reader MetricsState) r
-  => Sem (Metrics ': r) a
-  -> Sem r a
-evalWithMetrics action = ask >>= flip evalMetrics action
+-- | Updates a histogram with an observed value
+observeHistogram :: MonadIO m => MetricsState -> HistogramName -> Double -> m ()
+observeHistogram MetricsState{..} histName val = do
+  let h@MetricIdentifier{..} = histogramToIdentifier histName
+      hid = metricIdStorable h
+      hMetricIdName = MetricId.Name metricIdName
+  liftIO $ modifyMVar_ metricsHistograms $ \histMap ->
+    case Map.lookup hid histMap of
+      Nothing -> do
+        newHist <- liftIO $
+          Registry.registerHistogram hMetricIdName metricIdLabels metricIdHistoBuckets metricsRegistry
+        let newHistMap = insert hid newHist histMap
+        liftIO $ Histogram.observe val newHist
+        pure $ newHistMap
+      Just hist -> do
+        liftIO $ Histogram.observe val hist
+        pure histMap
 
 --------------------------------------------------------------------------------
 -- indexes @NOTE: maybe clean this up

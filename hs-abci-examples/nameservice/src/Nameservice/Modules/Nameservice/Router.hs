@@ -7,9 +7,7 @@ import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (.
 import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members, Sem)
 import           Tendermint.SDK.BaseApp                   (BaseAppEffs,
-                                                           incCount,
-                                                           observeHistogram,
-                                                           withTimer)
+                                                           incCount, withTimer)
 import           Tendermint.SDK.Types.Message             (Msg (..))
 import           Tendermint.SDK.Types.Transaction         (RoutedTx (..),
                                                            Tx (..))
@@ -25,16 +23,13 @@ router (RoutedTx Tx{txMsg}) =
   in case msgData of
        NSetName msg    -> do
          incCount "count_set"
-         observeHistogram "histogram_set" 0.0
          _ <- withTimer "histogram_set" $ setName msg
          pure ()
        NBuyName msg    -> do
          incCount "count_buy"
-         observeHistogram "histogram_buy" 0.0
          _ <- withTimer "histogram_buy" $ buyName msg
          pure ()
        NDeleteName msg -> do
          incCount "count_delete"
-         observeHistogram "histogram_delete" 0.0
          _ <- withTimer "histogram_delete" $ deleteName msg
          pure ()

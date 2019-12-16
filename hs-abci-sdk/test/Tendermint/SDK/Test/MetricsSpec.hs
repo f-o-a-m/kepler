@@ -38,54 +38,27 @@ spec = describe "Metrics tests" $ do
       cMetricId = mkPrometheusMetricId c
   it "Can make a new count and increment it" $ do
     state@MetricsState{..} <- emptyState
-    -- new count = 0
+    -- Creates new count and sets it to 1
     _ <- eval state $ incCount countName
     newCtrIndex <- readMVar metricsCounters
     newCtrValue <- Counter.sample $ newCtrIndex ! cid
-    Counter.unCounterSample newCtrValue `shouldBe` 0
+    Counter.unCounterSample newCtrValue `shouldBe` 1
     -- register should contain new counter metric
     newRegistrySample <- Registry.sample metricsRegistry
     let registryMap = RSample.unRegistrySample newRegistrySample
         (Metric.CounterMetricSample registryCtrSample) = registryMap ! cMetricId
-    Counter.unCounterSample registryCtrSample `shouldBe` 0
-    -- increment
+    Counter.unCounterSample registryCtrSample `shouldBe` 1
+    -- increment it again
     _ <- eval state $ incCount countName
     incCtrIndex <- readMVar metricsCounters
     incCtrValue <- Counter.sample $ incCtrIndex ! cid
-    Counter.unCounterSample incCtrValue `shouldBe` 1
-
-  let histName = "testHistogram"
-      h = histogramToIdentifier histName
-      hid = metricIdStorable h
-      hMetricId = mkPrometheusMetricId h
-  it "Can make a new histogram and observe it" $ do
-    state@MetricsState{..} <- emptyState
-    -- new histogram
-    _ <- eval state $ observeHistogram histName 0.0
-    newHistIndex <- readMVar metricsHistograms
-    newHistValue <- Histogram.sample $ newHistIndex ! hid
-    Histogram.histSum newHistValue `shouldBe` 0.0
-    Histogram.histCount newHistValue `shouldBe` 0
-    -- register should contain new histogram metric
-    newRegistrySample <- Registry.sample metricsRegistry
-    let registryMap = RSample.unRegistrySample newRegistrySample
-        (Metric.HistogramMetricSample registryHistSample) = registryMap ! hMetricId
-    Histogram.histSum registryHistSample `shouldBe` 0.0
-    Histogram.histCount registryHistSample `shouldBe` 0
-    -- observe
-    _ <- eval state $ observeHistogram histName 42.0
-    obsHistIndex <- readMVar metricsHistograms
-    obsHistValue <- Histogram.sample $ obsHistIndex ! hid
-    Histogram.histSum obsHistValue `shouldBe` 42.0
-    Histogram.histCount obsHistValue `shouldBe` 1
+    Counter.unCounterSample incCtrValue `shouldBe` 2
 
   let buckettedHistName = "bucketted"
       buckettedH = histogramToIdentifier buckettedHistName
       buckettedHMetricId = mkPrometheusMetricId buckettedH
   it "Can measure action response times with default buckets" $ do
     state@MetricsState{..} <- emptyState
-    -- create a new hist
-    _ <- eval state $ observeHistogram buckettedHistName 0.0
     -- time an action
     (_, time) <- eval state $ withTimer buckettedHistName shine
     time `shouldSatisfy` (> 0)

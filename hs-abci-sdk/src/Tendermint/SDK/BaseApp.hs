@@ -45,7 +45,6 @@ module Tendermint.SDK.BaseApp
   -- * Metrics
   , Metrics
   , incCount
-  , observeHistogram
   , withTimer
   , CountName(..)
   , HistogramName(..)
