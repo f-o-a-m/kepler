@@ -22,6 +22,7 @@ default-extensions:
 - RecordWildCards
 - FlexibleContexts
 - DeriveGeneric
+- LambdaCase
 - TypeFamilies
 - GADTs
 - GeneralizedNewtypeDeriving
@@ -51,6 +52,8 @@ dependencies:
 - text
 - template-haskell
 - time
+- http2-client
+- http2-client-grpc
 
 library:
   source-dirs: src
@@ -62,7 +65,7 @@ library:
   - -Wincomplete-uni-patterns
   - -Wredundant-constraints
   exposed-modules:
-  - Database.IAVL
+  - Database.IAVL.RPCCall
   generated-exposed-modules:
   - Proto.Iavl.Api
   - Proto.Google.Api.Http
@@ -80,10 +83,9 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
 
-
     dependencies:
       - generic-arbitrary
-      - hs-abci-types
+      - hs-iavl-client
       - hspec
       - hspec-core
       - hspec-discover

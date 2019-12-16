@@ -95,6 +95,34 @@ packages:
       sha256: 9a8ddbf6c0a5ed2e254202c2990aae99dc4a66fa24949622a123c48795ec6547
   original:
     hackage: polysemy-zoo-0.6.0.0
+- completed:
+    hackage: http2-client-0.9.0.0@sha256:b8885c89adcc8b9d4ebb9abf6ae0ac6336e3fdf947a2b1f2b95c4e2c8c4acf01,2685
+    pantry-tree:
+      size: 853
+      sha256: d7a1be66eb14e84cfedd87e8363e406abb244bb74b742e8f0141efce27545008
+  original:
+    hackage: http2-client-0.9.0.0
+- completed:
+    hackage: http2-grpc-types-0.4.0.0@sha256:ffb02152397186dbc925358498b5c005b982ef54f191f4465f9c7947afd7f9d4,1354
+    pantry-tree:
+      size: 405
+      sha256: e5025945fee56509538efe6377dd1930189be2bf908bbce428555aa5efab51ff
+  original:
+    hackage: http2-grpc-types-0.4.0.0
+- completed:
+    cabal-file:
+      size: 1910
+      sha256: 414ea9a90a92d1e0e96b3a9892c856c86a606f5464706963422fdb235cf84d13
+    name: http2-client-grpc
+    version: 0.7.0.1
+    git: https://github.com/lucasdicioccio/http2-client-grpc
+    pantry-tree:
+      size: 625
+      sha256: 92a9ff8a51c40678a839a92919add1744ce1da786de01747baaf02679052ea4e
+    commit: 6a1aacfc18e312ef57552133f13dd1024c178706
+  original:
+    git: https://github.com/lucasdicioccio/http2-client-grpc
+    commit: 6a1aacfc18e312ef57552133f13dd1024c178706
 snapshots:
 - completed:
     size: 524786
