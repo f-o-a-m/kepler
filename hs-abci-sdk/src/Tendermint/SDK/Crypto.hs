@@ -6,7 +6,7 @@ module Tendermint.SDK.Crypto
   , Secp256k1
   ) where
 
-import           Control.Error                          (hush, note)
+import           Control.Error                          (note)
 import           Crypto.Hash                            (Digest, hashWith)
 import           Crypto.Hash.Algorithms                 (Keccak_256 (..),
                                                          SHA256)
@@ -14,9 +14,9 @@ import qualified Crypto.Secp256k1                       as Secp256k1
 import           Data.ByteArray                         (convert)
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteString                        as B
+import qualified Data.ByteString.Short                  as Short
 import           Data.Maybe                             (fromMaybe)
 import           Data.Proxy
-import qualified Data.Serialize                         as Serialize
 import           Data.Text                              (Text)
 import qualified Network.ABCI.Types.Messages.FieldTypes as FT
 import           Tendermint.SDK.Types.Address           (Address,
@@ -77,9 +77,14 @@ instance RecoverableSignatureSchema Secp256k1 where
 
     signRecoverableMessage _ priv dig = Secp256k1.signRecMsg priv (msgFromSHA256 dig)
     recover _ sig dig = Secp256k1.recover sig (msgFromSHA256 dig)
-    -- NOTE: I think the use of Data.Serialize is harmless here, because it basically
-    -- just peels off bytes <https://github.com/haskoin/secp256k1-haskell/blob/master/src/Crypto/Secp256k1/Internal.hs>
-    makeRecoverableSignature _ bs = Secp256k1.importCompactRecSig =<< hush (Serialize.decode bs)
+    makeRecoverableSignature _ bs =
+      let (r,rest) = B.splitAt 32 bs
+          (s,v) = B.splitAt 32 rest
+      in if B.length r /= 32 || B.length s /= 32 || B.length v /= 1
+           then Nothing
+           else Secp256k1.importCompactRecSig $
+                  Secp256k1.CompactRecSig (Short.toShort r) (Short.toShort s) (B.head v)
+
 
 parsePubKey
   :: SignatureSchema alg

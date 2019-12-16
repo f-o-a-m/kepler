@@ -1,15 +1,15 @@
 module SimpleStorage.Application
   ( AppConfig(..)
   , makeAppConfig
-  , SimpelStorageEffs
+  , EffR
   , handlersContext
   ) where
 
 import           Data.Proxy
-import           Polysemy                            (Sem)
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
 import           Tendermint.SDK.Application          (HandlersContext (..),
                                                       Modules (..))
+import           Tendermint.SDK.BaseApp              ((:&))
 import qualified Tendermint.SDK.BaseApp              as BaseApp
 import qualified Tendermint.SDK.BaseApp.Logger.Katip as KL
 import           Tendermint.SDK.Crypto               (Secp256k1)
@@ -27,22 +27,25 @@ makeAppConfig logCfg = do
 
 --------------------------------------------------------------------------------
 
-type SimpelStorageEffs =
-  SimpleStorage.SimpleStorage ':  A.AuthEffs BaseApp.:& BaseApp.BaseApp BaseApp.CoreEffs
+type EffR =
+  SimpleStorage.SimpleStorageEffs :&
+  A.AuthEffs :&
+  BaseApp.BaseApp BaseApp.CoreEffs
 
 type SimpleStorageModules =
-  '[SimpleStorage.SimpleStorageM SimpelStorageEffs]
+  '[ SimpleStorage.SimpleStorageM EffR
+   , A.AuthM EffR
+   ]
 
-handlersContext :: HandlersContext Secp256k1 SimpleStorageModules SimpelStorageEffs BaseApp.CoreEffs
+handlersContext :: HandlersContext Secp256k1 SimpleStorageModules EffR BaseApp.CoreEffs
 handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = simpleStorageModules
-  , compileToBaseApp = compileSimpleStorageToBaseApp
   , compileToCore  = BaseApp.compileScopedEff
   }
   where
-  simpleStorageModules :: Modules SimpleStorageModules SimpelStorageEffs
-  simpleStorageModules = ConsModule SimpleStorage.simpleStorageModule NilModules
-
-  compileSimpleStorageToBaseApp :: Sem SimpelStorageEffs a -> Sem (BaseApp.BaseApp BaseApp.CoreEffs) a
-  compileSimpleStorageToBaseApp = A.eval . SimpleStorage.eval
+  simpleStorageModules :: Modules SimpleStorageModules EffR
+  simpleStorageModules =
+    ConsModule SimpleStorage.simpleStorageModule $
+      ConsModule A.authModule $
+      NilModules

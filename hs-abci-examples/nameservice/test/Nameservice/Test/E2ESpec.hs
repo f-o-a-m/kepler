@@ -1,20 +1,22 @@
 module Nameservice.Test.E2ESpec where
 
 import           Control.Lens                           ((^.))
-import           Crypto.Secp256k1                       (SecKey, derivePubKey,
+import           Crypto.Secp256k1                       (CompactRecSig (..),
+                                                         SecKey, derivePubKey,
                                                          exportCompactRecSig,
                                                          secKey)
 import           Data.Aeson                             (ToJSON)
 import           Data.Aeson.Encode.Pretty               (encodePretty)
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteArray.HexString               as Hex
+import           Data.ByteString                        (ByteString, snoc)
 import qualified Data.ByteString                        as BS
 import qualified Data.ByteString.Lazy                   as BL
+import           Data.ByteString.Short                  (fromShort)
 import           Data.Default.Class                     (def)
 import           Data.Either                            (partitionEithers)
 import           Data.Maybe                             (fromJust)
 import           Data.Proxy
-import qualified Data.Serialize                         as Serialize
 import           Data.String                            (fromString)
 import           Data.String.Conversions                (cs)
 import           Data.Text                              (Text)
@@ -116,8 +118,7 @@ spec = do
         -- try to set a name without being the owner
         let msg = TypedMessage "SetName" (encode $ SetName satoshi addr2 "goodbye to a world")
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        checkResp <- getCheckTxResponse rawTx
-        ensureCheckResponseCode checkResp 2
+        ensureCheckAndDeliverResponseCodes (0,2) rawTx
 
       it "Can buy an existing name (success 0)" $ do
         let oldVal = "goodbye to a world"
@@ -163,8 +164,7 @@ spec = do
         -- try to buy at a lower price
         let msg = TypedMessage "BuyName" (encode $ BuyName 100 satoshi "hello (again) world" addr1)
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        checkResp <- getCheckTxResponse rawTx
-        ensureCheckResponseCode checkResp 1
+        ensureCheckAndDeliverResponseCodes (0,1) rawTx
 
       it "Can delete names (success 0)" $ do
         let msg = TypedMessage "DeleteName" (encode $ DeleteName addr2 satoshi)
@@ -184,8 +184,7 @@ spec = do
       it "Can fail a transfer (failure 1)" $ do
         let msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 2000)
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
-        checkResp <- getCheckTxResponse rawTx
-        ensureCheckResponseCode checkResp 1
+        ensureCheckAndDeliverResponseCodes (0,1) rawTx
 
       it "Can transfer (success 0)" $ do
         let senderBeforeQueryReq = defaultQueryWithData addr2
@@ -246,6 +245,15 @@ getDeliverTxResponse rawTx = do
   fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $
     RPC.broadcastTxCommit txReq
 
+ensureCheckAndDeliverResponseCodes :: (Word32, Word32) -> RawTransaction -> IO ()
+ensureCheckAndDeliverResponseCodes codes rawTx = do
+  let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+  resp <- runRPC $ RPC.broadcastTxCommit txReq
+  let checkResp = RPC.resultBroadcastTxCommitCheckTx resp
+      deliverResp = RPC.resultBroadcastTxCommitDeliverTx resp
+  codes `shouldBe` (checkResp ^. Response._checkTxCode, deliverResp ^. Response._deliverTxCode)
+
+
 -- get the logged events from a deliver response,
 deliverTxEvents :: FromEvent e => Response.DeliverTx -> Text -> IO ([Text],[e])
 deliverTxEvents deliverResp eventName = do
@@ -291,7 +299,7 @@ mkSignedRawTransactionWithRoute route privateKey msg = sign unsigned
                                   , rawTransactionSignature = ""
                                   }
         sig = signRawTransaction algProxy privateKey unsigned
-        sign rt = rt { rawTransactionSignature = Serialize.encode $ exportCompactRecSig sig }
+        sign rt = rt { rawTransactionSignature = encodeCompactRecSig $ exportCompactRecSig sig }
 
 data User = User
   { userPrivKey :: SecKey
@@ -324,3 +332,6 @@ apiP = Proxy
 
 (getBalance :<|> getWhois) =
   genClient (Proxy :: Proxy RPC.TendermintM) apiP def
+
+encodeCompactRecSig :: CompactRecSig -> ByteString
+encodeCompactRecSig (CompactRecSig r s v) = snoc (fromShort r <> fromShort s) v

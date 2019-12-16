@@ -1,11 +1,13 @@
 module Tendermint.SDK.Test.CryptoSpec where
 
-import           Crypto.Secp256k1                 (SecKey, derivePubKey,
+import           Crypto.Secp256k1                 (CompactRecSig (..), SecKey,
+                                                   derivePubKey,
                                                    exportCompactRecSig, secKey)
 import qualified Data.ByteArray.HexString         as Hex
+import           Data.ByteString                  (ByteString, snoc)
+import           Data.ByteString.Short            (fromShort)
 import           Data.Maybe                       (fromJust)
 import           Data.Proxy
-import qualified Data.Serialize                   as Serialize
 import           Data.String                      (fromString)
 import           Tendermint.SDK.Crypto            (Secp256k1)
 import           Tendermint.SDK.Types.Transaction
@@ -20,7 +22,8 @@ spec = describe "Crypto Tests" $ do
             , rawTransactionRoute= "dog"
             }
           signature = signRawTransaction algProxy privateKey rawTxWithoutSig
-          rawTxWithSig = rawTxWithoutSig {rawTransactionSignature = Serialize.encode $ exportCompactRecSig signature}
+          rawTxWithSig = rawTxWithoutSig {rawTransactionSignature =
+                           encodeCompactSig $ exportCompactRecSig signature}
           eTx = parseTx algProxy rawTxWithSig
           Tx{..} = case eTx of
             Left errMsg -> error $ show errMsg
@@ -33,3 +36,6 @@ privateKey = fromJust . secKey . Hex.toBytes . fromString $
 
 algProxy :: Proxy Secp256k1
 algProxy = Proxy
+
+encodeCompactSig :: CompactRecSig -> ByteString
+encodeCompactSig (CompactRecSig r s v) = snoc (fromShort r <> fromShort s) v
