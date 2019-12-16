@@ -190,13 +190,10 @@ mkMetricsConfig = do
 
 runMetricsServer
   :: MonadIO m
-  => Maybe MetricsConfig
-  -> m (Maybe MetricsState)
-runMetricsServer mMetCfg = liftIO $ do
-  case mMetCfg of
-    Nothing -> return Nothing
-    Just MetricsConfig{..} -> do
-      let s@MetricsState{..} = metricsState
-      _ <- forkIO $
-        Http.serveHttpTextMetrics metricsPort ["metrics"] (Registry.sample metricsRegistry)
-      return . Just $ s
+  => MetricsConfig
+  -> m ()
+runMetricsServer MetricsConfig{..} = liftIO $ do
+  let MetricsState{..} = metricsState
+  _ <- forkIO $
+    Http.serveHttpTextMetrics metricsPort ["metrics"] (Registry.sample metricsRegistry)
+  return ()
