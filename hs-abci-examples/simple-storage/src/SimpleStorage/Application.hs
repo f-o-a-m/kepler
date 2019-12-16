@@ -21,7 +21,7 @@ data AppConfig = AppConfig
 
 makeAppConfig :: KL.LogConfig -> IO AppConfig
 makeAppConfig logCfg = do
-  c <- BaseApp.makeContext logCfg
+  c <- BaseApp.makeContext Nothing logCfg
   pure $ AppConfig { baseAppContext = c
                    }
 

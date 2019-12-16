@@ -1,17 +1,20 @@
 module Network.ABCI.Server.Middleware.MetricsLogger
     ( -- * Basic stdout logging
       mkMetricsLogStdout
-    --, mkMetricsLogDatadog
+    , mkMetricsLogDatadog
     , mkMetricsLogDatadogLocal
       -- * Custom Loggers
     , mkMetricsLogger
     , mkMetricsLoggerM
+      -- * ApiKey
+    , ApiKey(..)
     ) where
 import           Control.Concurrent.MVar   (MVar, modifyMVar, newMVar)
 import           Control.Monad.IO.Class    (MonadIO, liftIO)
 import qualified Data.Aeson                as A
 import           Data.Map.Strict           (Map)
 import qualified Data.Map.Strict           as Map
+import           Data.Text                 (Text)
 import           Data.Time                 (NominalDiffTime, diffUTCTime,
                                             getCurrentTime)
 import           Katip
@@ -50,16 +53,20 @@ mkMetricsLogDatadogLocal port = do
   mvarReqC <- liftIO $ newMVar Map.empty
   pure $ mkMetricsLogger mvarReqC le ns
 
--- mkMetricsLogDatadog :: (MonadIO m) => m (Middleware m)
--- mkMetricsLogDatadog = do
---   let apiKey = APIKey undefined
---   datadogScribeSettings <- liftIO $ mkDatadogScribeSettings directAPIConnectionParams (DirectAuth apiKey)
---   scribe <- liftIO $ mkDatadogScribe datadogScribeSettings (permitItem InfoS) V0
---   le <- liftIO (registerScribe "datadog" scribe defaultScribeSettings
---         =<< initLogEnv "ABCI" "production")
---   let ns = "Server"
---   mvarReqC <- liftIO $ newMVar Map.empty
---   pure $ mkMetricsLogger mvarReqC le ns
+newtype ApiKey = ApiKey Text
+mkMetricsLogDatadog :: (MonadIO m) => Maybe ApiKey -> m (Middleware m)
+mkMetricsLogDatadog mApiKey =
+  case mApiKey of
+    Nothing -> pure id
+    Just (ApiKey key) -> do
+      let apiKey = APIKey key
+      datadogScribeSettings <- liftIO $ mkDatadogScribeSettings directAPIConnectionParams (DirectAuth apiKey)
+      scribe <- liftIO $ mkDatadogScribe datadogScribeSettings (permitItem InfoS) V0
+      le <- liftIO (registerScribe "datadog" scribe defaultScribeSettings
+                    =<< initLogEnv "ABCI" "production")
+      let ns = "Server"
+      mvarReqC <- liftIO $ newMVar Map.empty
+      pure $ mkMetricsLogger mvarReqC le ns
 
 ---------------------------------------------------------------------------
 -- mkRequestLogger

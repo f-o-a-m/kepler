@@ -1,5 +1,3 @@
-{-# LANGUAGE TupleSections #-}
-
 module Tendermint.SDK.BaseApp.Metrics.Prometheus where
 
 import           Control.Arrow                                 ((***))
@@ -8,7 +6,6 @@ import           Control.Concurrent.MVar                       (MVar,
                                                                 modifyMVar_,
                                                                 newMVar)
 import           Control.Monad.IO.Class                        (MonadIO, liftIO)
-import           Data.Char                                     (toLower)
 import           Data.Map.Strict                               (Map, insert)
 import qualified Data.Map.Strict                               as Map
 import           Data.String                                   (IsString,
@@ -23,7 +20,6 @@ import           Polysemy                                      (Embed, Member,
                                                                 runT)
 import           Polysemy.Reader                               (Reader (..),
                                                                 ask)
-import           System.Environment                            (lookupEnv)
 import qualified System.Metrics.Prometheus.Concurrent.Registry as Registry
 import qualified System.Metrics.Prometheus.Http.Scrape         as Http
 import qualified System.Metrics.Prometheus.Metric.Counter      as Counter
@@ -31,7 +27,6 @@ import qualified System.Metrics.Prometheus.Metric.Histogram    as Histogram
 import qualified System.Metrics.Prometheus.MetricId            as MetricId
 import           Tendermint.SDK.BaseApp.Metrics                (CountName (..), HistogramName (..),
                                                                 Metrics (..))
-import qualified Text.Read                                     as T
 
 --------------------------------------------------------------------------------
 -- eval
@@ -39,10 +34,23 @@ import qualified Text.Read                                     as T
 
 evalWithMetrics
   :: Member (Embed IO) r
-  => Member (Reader MetricsState) r
+  => Member (Reader (Maybe MetricsConfig)) r
   => Sem (Metrics ': r) a
   -> Sem r a
-evalWithMetrics action = ask >>= flip evalMetrics action
+evalWithMetrics action = do
+  mCfg <- ask
+  case mCfg of
+    Nothing  -> evalNothing action
+    Just cfg -> evalMetrics (metricsState cfg) action
+
+evalNothing
+  :: Sem (Metrics ': r) a
+  -> Sem r a
+evalNothing = do
+  interpretH (\case
+    IncCount _ -> pureT ()
+    WithTimer _ _ -> pureT ()
+    )
 
 evalMetrics
   :: Member (Embed IO) r
@@ -78,8 +86,8 @@ evalMetrics state@MetricsState{..} = do
       end <- liftIO $ getCurrentTime
       let time = fromRational . (* 1000.0) . toRational $ (end `diffUTCTime` start)
       observeHistogram state histName time
-      actionRes <- raise $ evalMetrics state a
-      pure $ (, time) <$> actionRes
+      _ <- raise $ evalMetrics state a
+      pureT ()
     )
 
 -- | Updates a histogram with an observed value
@@ -101,7 +109,7 @@ observeHistogram MetricsState{..} histName val = do
         pure histMap
 
 --------------------------------------------------------------------------------
--- indexes @NOTE: maybe clean this up
+-- indexes
 --------------------------------------------------------------------------------
 
 countToIdentifier :: CountName -> MetricIdentifier
@@ -144,12 +152,13 @@ data MetricsState = MetricsState
   , metricsHistograms :: MVar (MetricsMap Histogram.Histogram)
   }
 
-emptyState :: IO MetricsState
-emptyState = do
-  counters <- newMVar Map.empty
-  histos <- newMVar Map.empty
-  registry <- Registry.new
-  return $ MetricsState registry counters histos
+-- | Core metrics config
+type Port = Int
+data MetricsConfig = MetricsConfig
+  { metricsState  :: MetricsState
+  , metricsPort   :: Port
+  , metricsAPIKey :: Maybe Text
+  }
 
 -- | Intermediary prometheus registry index key
 data MetricIdentifier = MetricIdentifier
@@ -162,34 +171,32 @@ instance IsString MetricIdentifier where
   fromString s = MetricIdentifier (fromString s) mempty mempty
 
 --------------------------------------------------------------------------------
--- setup @TODO: add error handling
+-- setup
 --------------------------------------------------------------------------------
 
-getEnvVarBoolWithDefault :: MonadIO m => String -> Bool -> m Bool
-getEnvVarBoolWithDefault var def = liftIO (lookupEnv var) >>= \case
-  Nothing -> return def
-  Just str -> do
-    let lowerCased = toLower <$> str
-    if lowerCased `elem` [ "t", "true", "y", "yes", "1"]
-      then return True
-      else return False
+emptyState :: IO MetricsState
+emptyState = do
+  counters <- newMVar Map.empty
+  histos <- newMVar Map.empty
+  registry <- Registry.new
+  return $ MetricsState registry counters histos
 
-readEnvVarWithDefault :: (Read a, MonadIO m) => String -> a -> m a
-readEnvVarWithDefault var def =
-  liftIO (lookupEnv var) >>= \case
-    Nothing -> return def
-    Just s -> return $ T.read s
+-- | Default metrics cfg
+-- | Port defaults to 9200
+mkMetricsConfig :: IO MetricsConfig
+mkMetricsConfig = do
+  state <- emptyState
+  return $ MetricsConfig state 9200 Nothing
 
 runMetricsServer
   :: MonadIO m
-  => MetricsState
+  => Maybe MetricsConfig
   -> m (Maybe MetricsState)
-runMetricsServer s@MetricsState{..} = liftIO $ do
-  shouldStart <- getEnvVarBoolWithDefault "STATS_ENABLED" True
-  if not shouldStart
-    then return Nothing
-    else do
-      bindPort <- readEnvVarWithDefault "STATS_PORT" 9200
+runMetricsServer mMetCfg = liftIO $ do
+  case mMetCfg of
+    Nothing -> return Nothing
+    Just MetricsConfig{..} -> do
+      let s@MetricsState{..} = metricsState
       _ <- forkIO $
-        Http.serveHttpTextMetrics bindPort ["metrics"] (Registry.sample metricsRegistry)
+        Http.serveHttpTextMetrics metricsPort ["metrics"] (Registry.sample metricsRegistry)
       return . Just $ s

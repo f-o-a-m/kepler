@@ -28,7 +28,7 @@ type CoreEffs =
   '[ Reader EventBuffer
    , MergeScopes
    , Reader KL.LogConfig
-   , Reader Prometheus.MetricsState
+   , Reader (Maybe Prometheus.MetricsConfig)
    , Reader AT.AuthTreeState
    , Embed IO
    ]
@@ -45,20 +45,19 @@ instance (Members CoreEffs r) => K.KatipContext (Sem r) where
 
 -- | 'Context' is the environment required to run 'CoreEffs' to 'IO'
 data Context = Context
-  { contextLogConfig    :: KL.LogConfig
-  , contextMetricsState :: Prometheus.MetricsState
-  , contextEventBuffer  :: EventBuffer
-  , contextAuthTree     :: AT.AuthTreeState
+  { contextLogConfig     :: KL.LogConfig
+  , contextMetricsConfig :: Maybe Prometheus.MetricsConfig
+  , contextEventBuffer   :: EventBuffer
+  , contextAuthTree      :: AT.AuthTreeState
   }
 
-makeContext :: KL.LogConfig -> IO Context
-makeContext logCfg = do
+makeContext :: Maybe Prometheus.MetricsConfig -> KL.LogConfig -> IO Context
+makeContext metCfg logCfg = do
   authTreeState <- AT.initAuthTreeState
   eb <- newEventBuffer
-  ms <- Prometheus.emptyState
   pure $ Context
     { contextLogConfig = logCfg
-    , contextMetricsState = ms
+    , contextMetricsConfig = metCfg
     , contextEventBuffer = eb
     , contextAuthTree = authTreeState
     }
@@ -73,7 +72,7 @@ runCoreEffs
 runCoreEffs Context{..} =
   runM .
     runReader contextAuthTree .
-    runReader contextMetricsState .
+    runReader contextMetricsConfig .
     runReader contextLogConfig .
     AT.evalMergeScopes .
     runReader contextEventBuffer

@@ -7,23 +7,24 @@ module Nameservice.Application
   ) where
 
 import           Data.Proxy
-import qualified Nameservice.Modules.Nameservice     as N
-import qualified Nameservice.Modules.Token           as T
-import           Polysemy                            (Sem)
-import           Tendermint.SDK.Application          (HandlersContext (..),
-                                                      Modules (..))
-import qualified Tendermint.SDK.BaseApp              as BaseApp
-import qualified Tendermint.SDK.BaseApp.Logger.Katip as KL
-import           Tendermint.SDK.Crypto               (Secp256k1)
-import qualified Tendermint.SDK.Modules.Auth         as A
+import qualified Nameservice.Modules.Nameservice           as N
+import qualified Nameservice.Modules.Token                 as T
+import           Polysemy                                  (Sem)
+import           Tendermint.SDK.Application                (HandlersContext (..),
+                                                            Modules (..))
+import qualified Tendermint.SDK.BaseApp                    as BaseApp
+import qualified Tendermint.SDK.BaseApp.Logger.Katip       as KL
+import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus as Prometheus
+import           Tendermint.SDK.Crypto                     (Secp256k1)
+import qualified Tendermint.SDK.Modules.Auth               as A
 
 data AppConfig = AppConfig
   { baseAppContext :: BaseApp.Context
   }
 
-makeAppConfig :: KL.LogConfig -> IO AppConfig
-makeAppConfig logCfg = do
-  c <- BaseApp.makeContext logCfg
+makeAppConfig :: Prometheus.MetricsConfig -> KL.LogConfig -> IO AppConfig
+makeAppConfig metCfg logCfg = do
+  c <- BaseApp.makeContext (Just metCfg) logCfg
   pure $ AppConfig { baseAppContext = c
                    }
 

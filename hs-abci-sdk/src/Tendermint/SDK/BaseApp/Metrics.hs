@@ -28,6 +28,6 @@ data Metrics m a where
   -- | Increments the count of a specific message
   IncCount :: CountName -> Metrics m ()
   -- | Times an action and records it in a histogram
-  WithTimer :: HistogramName -> m a -> Metrics m (a, Double)
+  WithTimer :: HistogramName -> m a -> Metrics m ()
 
 makeSem ''Metrics

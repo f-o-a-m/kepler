@@ -60,8 +60,7 @@ spec = describe "Metrics tests" $ do
   it "Can measure action response times with default buckets" $ do
     state@MetricsState{..} <- emptyState
     -- time an action
-    (_, time) <- eval state $ withTimer buckettedHistName shine
-    time `shouldSatisfy` (> 0)
+    _ <- eval state $ withTimer buckettedHistName shine
     -- check registry hist buckets
     newRegistrySample <- Registry.sample metricsRegistry
     let registryMap = RSample.unRegistrySample newRegistrySample
