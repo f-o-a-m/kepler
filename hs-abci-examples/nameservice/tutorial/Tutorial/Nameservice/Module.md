@@ -5,16 +5,16 @@ At this point we can collect the relevant pieces to form the Nameservice module:
 ~~~ haskell
 module Tutorial.Nameservice.Module where
 
-import           Nameservice.Modules.Nameservice.Keeper (NameserviceEffs, eval)
-import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage)
-import           Nameservice.Modules.Nameservice.Query (Api, server)
-import           Nameservice.Modules.Nameservice.Router (router)
-import           Nameservice.Modules.Nameservice.Types (NameserviceModuleName)
-import           Nameservice.Modules.Token                (TokenEffs)
-import           Polysemy                                 (Members)
-import           Tendermint.SDK.Application               (Module (..),
-                                                           defaultTxChecker)
-import           Tendermint.SDK.BaseApp                   (BaseAppEffs)
+import Nameservice.Modules.Nameservice.Keeper (NameserviceEffs, eval)
+import Nameservice.Modules.Nameservice.Messages (NameserviceMessage)
+import Nameservice.Modules.Nameservice.Query (Api, server)
+import Nameservice.Modules.Nameservice.Router (router)
+import Nameservice.Modules.Nameservice.Types (NameserviceModuleName)
+import Nameservice.Modules.Token                (TokenEffs)
+import Polysemy                                 (Members)
+import Tendermint.SDK.Application               (Module (..),
+                                                 defaultTxChecker)
+import Tendermint.SDK.BaseApp                   (BaseAppEffs)
 
 -- a convenient type alias
 type NameserviceM r =

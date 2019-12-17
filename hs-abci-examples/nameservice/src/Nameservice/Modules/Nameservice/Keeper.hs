@@ -26,7 +26,7 @@ makeSem ''Nameservice
 type NameserviceEffs = '[Nameservice, Error NameserviceError]
 
 storeKey :: BaseApp.StoreKey NameserviceModuleName
-storeKey = BaseApp.StoreKey . cs . symbolVal $ (Proxy @ NameserviceModuleName)
+storeKey = BaseApp.StoreKey . cs . symbolVal $ Proxy @ NameserviceModuleName
 
 eval
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
