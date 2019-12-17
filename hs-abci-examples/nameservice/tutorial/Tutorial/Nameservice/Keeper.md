@@ -6,31 +6,47 @@
 
 ## Nameservice.Keeper
 
+~~~ haskell
+{-# LANGUAGE TemplateHaskell #-}
+module Tutorial.Nameservice.Keeper where
+
+import Data.Proxy
+import Data.String.Conversions (cs)
+import GHC.TypeLits (symbolVal)
+import Polysemy (Sem, Members, makeSem, interpret)
+import Polysemy.Error (Error, throw, mapError)
+import Polysemy.Output (Output)
+import Nameservice.Modules.Nameservice.Messages (DeleteName(..))
+import Nameservice.Modules.Nameservice.Types (Whois(..), Name, NameDeleted(..), NameserviceModuleName, NameserviceError(..))
+import Nameservice.Modules.Token (Token, mint)
+import qualified Tendermint.SDK.BaseApp as BA
+~~~
+
 Generally a keeper is defined by a set of effects that the module introduces and depends on. In the case of Nameservice, we introduce the custom `Nameservice` effect:
 
 
-```haskell
+~~~ haskell
 data Nameservice m a where
   PutWhois :: Name -> Whois -> Nameservice m ()
   GetWhois :: Name -> Nameservice m (Maybe Whois)
   DeleteWhois :: Name -> Nameservice m ()
 
 makeSem ''Nameservice
-```
+~~~
 
-where `makeSem` is from polysemy, it uses template Haskell to create the helper functions putWhoIs, getWhois, deleteWhois:
+where `makeSem` is from polysemy, it uses template Haskell to create the helper functions `putWhoIs`, `getWhois`, `deleteWhois`:
 
-```haskell
+~~~ haskell ignore
 putWhois :: forall r. Member Nameservice r => Name -> Whois -> Sem r ()
 getWhois :: forall r. Member Nameservice r => Name -> Sem r (Maybe Whois)
 deleteWhois :: forall r. Member Nameservice r => Name -> Sem r ()
-```
+~~~
 
 We can then write the top level function for example for deleting a name:
 
-```haskell
+~~~ haskell
 deleteName
-  :: Members [Token, Output BaseApp.Event] r
+  :: Members [Token, Output BA.Event] r
   => Members [Nameservice, Error NameserviceError] r
   => DeleteName
   -> Sem r ()
@@ -44,10 +60,10 @@ deleteName DeleteName{..} = do
         else do
           mint deleteNameOwner whoisPrice
           deleteWhois deleteNameName
-          BaseApp.emit NameDeleted
+          BA.emit NameDeleted
             { nameDeletedName = deleteNameName
             }
-```
+~~~ 
 
 The control flow should be pretty clear:
 1. Check that the name is actually registered, if not throw an error.
@@ -58,9 +74,9 @@ The control flow should be pretty clear:
 
 Taking a look at the class constraints, we see
 
-```haskell
+~~~ haskell ignore
 (Members NameserviceEffs, Members [Token, Output Event] r)
-```
+~~~
 
 - The `Nameservice` effect is required because the function may manipulate the modules database with `deleteName`.
 - The `Error NameserviceError` effect is required because the function may throw an error.
@@ -72,28 +88,29 @@ Taking a look at the class constraints, we see
 Like we said before, all modules must ultimately compile to the set of effects belonging to `BaseApp`. For effects interpreted to `RawStore`, this means that you will need to define something called a `StoreKey`. 
 
 
-A `StoreKey` is effectively a namespacing inside the database, and is unique for a given module. In theory it could be anything, but the natural definition in the case of `Nameservice` is would be something like
+A `StoreKey` is effectively a namespacing inside the database, and is unique for a given module. In theory it could be any `ByteSrtring` , but the natural definition in the case of `Nameservice` is would be something like
 
-```haskell
-storeKey :: StoreKey NameserviceModule
-storeKey = StoreKey . cs . symbolVal $ (Proxy :: Proxy NameserviceModuleName)
-```
+~~~ haskell
+storeKey :: BA.StoreKey NameserviceModuleName
+storeKey = BA.StoreKey . cs . symbolVal $ (Proxy @NameserviceModuleName)
+~~~
+
 With this `storeKey` it is possible to write the `eval` function to resolve the effects defined in Nameservice, namely the `Nameservice` effect and `Error NameserviceError`:
 
-```haskell
+~~~ haskell
 eval
-  :: Members [RawStore, Error AppError] r
+  :: Members [BA.RawStore, Error BA.AppError] r
   => forall a. Sem (Nameservice ': Error NameserviceError ': r) a
   -> Sem r a
-eval = mapError makeAppError . evalNameservice
+eval = mapError BA.makeAppError . evalNameservice
   where
     evalNameservice
-      :: Members [RawStore, Error AppError] r
+      :: Members [BA.RawStore, Error BA.AppError] r
       => Sem (Nameservice ': r) a -> Sem r a
     evalNameservice =
       interpret (\case
-          GetWhois name -> get storeKey name
-          PutWhois name whois -> put storeKey name whois
-          DeleteWhois name -> delete storeKey name
+          GetWhois name -> BA.get storeKey name
+          PutWhois name whois -> BA.put storeKey name whois
+          DeleteWhois name -> BA.delete storeKey name
         )
-```
+~~~

@@ -15,20 +15,20 @@ All in all, neither is really difficult to work with, and depending on what stag
 ~~~ haskell
 module Tutorial.Nameservice.Message where
 
+import Data.Bifunctor (first)
+import Data.Foldable (sequenceA_)
+import Data.String.Conversions (cs)
+import Data.Text (Text)
 import GHC.Generics (Generic)
 import Nameservice.Modules.Nameservice.Types (Name(..))
-import Data.Foldable (sequenceA_)
 import Nameservice.Modules.Token (Amount)
-import Data.Bifunctor (first)
-import Tendermint.SDK.Types.Address (Address)
-import Data.Text (Text)
-import Tendermint.SDK.Codec (HasCodec(..))
-import Data.String.Conversions (cs)
-import Proto3.Suite (Named, Message, fromByteString, toLazyByteString)
 import Nameservice.Modules.TypedMessage (TypedMessage(..))
+import Proto3.Suite (Named, Message, fromByteString, toLazyByteString)
+import Tendermint.SDK.Types.Address (Address)
 import Tendermint.SDK.Types.Message (Msg(..), ValidateMessage(..),
                                      isAuthorCheck, nonEmptyCheck,
                                      coerceProto3Error, formatMessageParseError)
+import Tendermint.SDK.Codec (HasCodec(..))
 ~~~
 
 ### Message Definitions
@@ -36,7 +36,7 @@ import Tendermint.SDK.Types.Message (Msg(..), ValidateMessage(..),
 For the puroposes of the tutorial, we will use the `proto3-suite` for the message codecs:
 
 
-~~~haskell
+~~~ haskell
 data SetName = SetName
   { setNameName  :: Name
   , setNameOwner :: Address
@@ -96,7 +96,7 @@ instance HasCodec TypedMessage where
 This allows us to disambiguated messages based on the `type` field, so that for example we can distinguish `Deletename` from a submessage of `BuyName`. With that we can define the module level message type:
 
 
-~~~haskell
+~~~ haskell
 data NameserviceMessage =
     NSetName SetName
   | NBuyName BuyName
