@@ -11,7 +11,7 @@ SIMPLE_STORAGE_BINARY := $(shell stack exec -- which simple-storage)
 #####################
 
 hlint: ## Run hlint on all haskell projects
-	stack exec hlint -- -h .hlint.yaml hs-abci-server \
+	stack exec hlint -- -e hs -h .hlint.yaml hs-abci-server \
 	hs-tendermint-client \
 	hs-abci-extra \
 	hs-abci-sdk \
