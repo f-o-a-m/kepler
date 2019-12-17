@@ -86,6 +86,7 @@ library:
   - -Wredundant-constraints
   exposed-modules:
   - Nameservice.Application
+  - Nameservice.Aeson
   - Nameservice.Server
   - Nameservice.Modules.TypedMessage
   - Nameservice.Modules.Nameservice
@@ -128,10 +129,12 @@ tests:
     main:                README.lhs
     source-dirs:         tutorial
     other-modules:
-    - Introduction
+    - Tutorial.Nameservice.Types
+    - Tutorial.Nameservice.Message
     ghc-options: -Wall -pgmL markdown-unlit
     dependencies:
     - hs-abci-sdk
+    - nameservice
   nameservice-test:
     main:                Spec.hs
     source-dirs:         test

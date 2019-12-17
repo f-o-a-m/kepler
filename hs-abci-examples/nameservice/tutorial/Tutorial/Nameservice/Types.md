@@ -25,7 +25,7 @@ import GHC.Generics (Generic)
 import GHC.TypeLits (symbolVal)
 import Nameservice.Aeson (defaultNameserviceOptions)
 import Nameservice.Modules.Token (Amount)
-import Proto3.Suite (Message,fromByteString, toLazyByteString)
+import Proto3.Suite (Message, fromByteString, toLazyByteString)
 import qualified Tendermint.SDK.BaseApp as BA
 import Tendermint.SDK.Codec (HasCodec(..))
 import Tendermint.SDK.Types.Address (Address)

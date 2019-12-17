@@ -10,14 +10,33 @@ The advantages of using `proto-lens` are that it can parse and generate types fo
 
 All in all, neither is really difficult to work with, and depending on what stage you're at in development you might chose one over the other.
 
-## Nameservice.Message
+## Tutorial.Nameservice.Message
+
+~~~ haskell
+module Tutorial.Nameservice.Message where
+
+import GHC.Generics (Generic)
+import Nameservice.Modules.Nameservice.Types (Name(..))
+import Data.Foldable (sequenceA_)
+import Nameservice.Modules.Token (Amount)
+import Data.Bifunctor (first)
+import Tendermint.SDK.Types.Address (Address)
+import Data.Text (Text)
+import Tendermint.SDK.Codec (HasCodec(..))
+import Data.String.Conversions (cs)
+import Proto3.Suite (Named, Message, fromByteString, toLazyByteString)
+import Nameservice.Modules.TypedMessage (TypedMessage(..))
+import Tendermint.SDK.Types.Message (Msg(..), ValidateMessage(..),
+                                     isAuthorCheck, nonEmptyCheck,
+                                     coerceProto3Error, formatMessageParseError)
+~~~
 
 ### Message Definitions
 
 For the puroposes of the tutorial, we will use the `proto3-suite` for the message codecs:
 
 
-```haskell
+~~~haskell
 data SetName = SetName
   { setNameName  :: Name
   , setNameOwner :: Address
@@ -56,11 +75,11 @@ instance Named BuyName
 instance HasCodec BuyName where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
-```
+~~~
 
 We want a sum type that covers all possible messages the module can receive. As `protobuf` is a schemaless format, parsing is sometimes ambiguous if two types are the same up to field names, or one is a subset of the other. For this reason we defined a type called `TypedMessage`:
 
-```haskell
+~~~ haskell ignore
 data TypedMessage = TypedMessage
   { typedMessageType     :: Text
   , typedMessageContents :: BS.ByteString
@@ -72,12 +91,12 @@ instance Named TypedMessage
 instance HasCodec TypedMessage where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
-```
+~~~
 
 This allows us to disambiguated messages based on the `type` field, so that for example we can distinguish `Deletename` from a submessage of `BuyName`. With that we can define the module level message type:
 
 
-```haskell
+~~~haskell
 data NameserviceMessage =
     NSetName SetName
   | NBuyName BuyName
@@ -96,7 +115,7 @@ instance HasCodec NameserviceMessage where
     NSetName msg -> encode msg
     NBuyName msg -> encode msg
     NDeleteName msg -> encode msg
-```
+~~~
 
 ## Message Validation
 
@@ -109,7 +128,7 @@ Message validation is an important part of the transaction life cycle. When a `c
 
 On top of this you might wish to ensure other static properties of the message, such as the author of the message is the owner of the funds being transfered. For this we have a `ValidateMessage` class:
 
-```haskell
+~~~ haskell ignore
 data MessageSemanticError =
     PermissionError Text
   | InvalidFieldError Text
@@ -117,13 +136,13 @@ data MessageSemanticError =
 
 class ValidateMessage msg where
   validateMessage :: Msg msg -> Validation [MessageSemanticError] ()
-```
+~~~
 
 We're using the applicative functor `Data.Validation.Validation` to perform valdiation because it is capable of reporting all errors at once, rather than the first that occurs as in ther case with something like `Either`. 
 
 Here's what the `isAuthor` check might look like that was described above:
 
-```haskell
+~~~ haskell ignore
 isAuthorCheck
   :: Text
   -> Msg msg
@@ -133,6 +152,50 @@ isAuthorCheck fieldName Msg{msgAuthor, msgData} getAuthor
   | getAuthor msgData /= msgAuthor = 
       _Failure # [PermissionError $ fieldName <> " must be message author."]
   | otherwise = Success ()
-```
+~~~
 
 It is also possible to run dynamic checks on the transaction, i.e. checks that need to query state in order to succeed or fail. We will say more on this later.
+
+Here are the validation instances for our message types, which use some of the combinators defined in the SDK 
+
+~~~ haskell
+instance ValidateMessage SetName where
+  validateMessage msg@Msg{..} =
+    let SetName{setNameName, setNameValue} = msgData
+        Name name = setNameName
+    in sequenceA_
+        [ nonEmptyCheck "Name" name
+        , nonEmptyCheck "Value" setNameValue
+        , isAuthorCheck "Owner" msg setNameOwner
+        ]
+
+instance ValidateMessage DeleteName where
+  validateMessage msg@Msg{..} =
+    let DeleteName{deleteNameName} = msgData
+        Name name = deleteNameName
+    in sequenceA_
+       [ nonEmptyCheck "Name" name
+       , isAuthorCheck "Owner" msg deleteNameOwner
+       ]
+
+instance ValidateMessage BuyName where
+  validateMessage msg@Msg{..} =
+    let BuyName{buyNameName, buyNameValue} = msgData
+        Name name = buyNameName
+    in sequenceA_
+        [ nonEmptyCheck "Name" name
+        , nonEmptyCheck "Value" buyNameValue
+        , isAuthorCheck "Owner" msg buyNameBuyer
+        ]
+~~~
+
+Finally we can define a `ValidateMessage` instance for our top level message type by dispatching on the message type:
+
+~~~ haskell
+instance ValidateMessage NameserviceMessage where
+  validateMessage m@Msg{msgData} = case msgData of
+    NBuyName msg    -> validateMessage m {msgData = msg}
+    NSetName msg    -> validateMessage m {msgData = msg}
+    NDeleteName msg -> validateMessage m {msgData = msg}
+~~~
+
