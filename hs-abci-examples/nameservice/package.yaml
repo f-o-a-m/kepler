@@ -49,6 +49,7 @@ dependencies:
 - aeson
 - aeson-casing
 - base >= 4.7 && < 5
+- bloodhound
 - bytestring
 - data-default-class
 - errors
@@ -58,6 +59,7 @@ dependencies:
 - hs-abci-sdk
 - hs-abci-server
 - hs-abci-types
+- http-client
 - lens
 - polysemy
 - polysemy-plugin
@@ -68,6 +70,7 @@ dependencies:
 - proto3-suite
 - proto3-wire
 - katip
+- katip-elasticsearch
 - servant
 - string-conversions
 - text
