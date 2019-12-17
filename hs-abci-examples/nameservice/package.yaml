@@ -131,6 +131,7 @@ tests:
     other-modules:
     - Tutorial.Nameservice.Types
     - Tutorial.Nameservice.Message
+    - Tutorial.Nameservice.Keeper
     ghc-options: -Wall -pgmL markdown-unlit
     dependencies:
     - hs-abci-sdk
