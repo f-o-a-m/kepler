@@ -1,4 +1,4 @@
-# Nameservice.Message
+# Message
 
 ## Message Types
 

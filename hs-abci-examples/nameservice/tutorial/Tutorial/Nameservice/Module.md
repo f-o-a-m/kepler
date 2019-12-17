@@ -1,4 +1,6 @@
-# Nameservice.Module
+# Module
+
+## Tutorial.Nameservice.Module
 
 At this point we can collect the relevant pieces to form the Nameservice module:
 

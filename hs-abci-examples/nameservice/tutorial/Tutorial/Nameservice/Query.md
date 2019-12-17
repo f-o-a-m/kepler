@@ -1,4 +1,6 @@
-# Nameservice.Query
+# Query
+
+## Tutorial.Nameservice.Query
 
 ~~~ haskell
 module Tutorial.Nameservice.Query where

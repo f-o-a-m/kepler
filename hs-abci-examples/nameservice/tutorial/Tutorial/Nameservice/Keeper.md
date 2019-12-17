@@ -1,10 +1,10 @@
-# Nameservice.Keeper
+# Keeper
 
-## Keeper
+## Definition
 
 "Keeper" is a word taken from the cosmos-sdk, it's basically the interface that the module exposes to the other modules in the application. For example, in the Nameservice app, the Nameservice keeper exposes functions to `buy`/`sell`/`delete` entries in the mapping. Likewise, the Nameservice keeper depends on the keeper from the `bank` module in order to transfer tokens when executing those methods. A keeper might also indicate what kinds of exceptions are able to be caught and thrown from the module. For example, calling `transfer` while buying a `Name` might throw an `InsufficientFunds` exception, which the Namerservice module can chose to catch or not.
 
-## Nameservice.Keeper
+## Tutorial.Nameservice.Keeper
 
 ~~~ haskell
 {-# LANGUAGE TemplateHaskell #-}

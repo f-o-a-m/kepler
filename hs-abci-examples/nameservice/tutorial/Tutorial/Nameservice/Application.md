@@ -1,4 +1,6 @@
-# Nameservice.Application
+# Application
+
+## From Modules to App
 
 The `App` type in `Network.ABCI.Server` was defined as 
 
@@ -30,7 +32,7 @@ list of free effects. The set of effects capable of interpreting `BaseApp` is ca
 
 The `ScopedEff` type is more complicated and not relevant to the discussion of application development. Long story short, tendermint core requests three connections to the application's state -- `Consensus`, `Mempool` and `Query`. The `ScopedEff` type is used to abstract this concern away from the developer, and as long as you are using one of the `core` effects provided in the SDK you don't need to worry about it.
 
-## Nameservice.Application
+## Tutorial.Nameservice.Application
 
 ~~~ haskell
 module Tutorial.Nameservice.Application where
