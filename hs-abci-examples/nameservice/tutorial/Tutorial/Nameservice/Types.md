@@ -1,4 +1,4 @@
-# Tutorial.Nameservice.Types
+# Types
 
 The `Types` module is used to define the basic types that the module will make use of. This includes things like custom error types, event types, database types, etc. 
 
@@ -10,7 +10,7 @@ For example, a user's balance in the `bank` module might be modeled by a mapping
 At the same time, you are free to define another mapping from `k -> v'` in the scope of a different module. For example, you can have both the `balance` mapping described above, as well a mapping `Tendermint.SDK.Types.Address -> Account` in the `auth` module.
 
 
-## Nameservice.Types
+## Tutorial.Nameservice.Types
 
 ~~~ haskell
 module Tutorial.Nameservice.Types where
