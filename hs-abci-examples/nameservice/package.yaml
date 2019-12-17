@@ -129,11 +129,11 @@ tests:
     main:                README.lhs
     source-dirs:         tutorial
     other-modules:
-    - Tutorial.Nameservice.Types
-    - Tutorial.Nameservice.Message
     - Tutorial.Nameservice.Keeper
-    - Tutorial.Nameservice.Query
+    - Tutorial.Nameservice.Message
     - Tutorial.Nameservice.Module
+    - Tutorial.Nameservice.Query
+    - Tutorial.Nameservice.Types
     ghc-options: -Wall -pgmL markdown-unlit
     dependencies:
     - hs-abci-sdk
