@@ -129,6 +129,7 @@ tests:
     main:                README.lhs
     source-dirs:         tutorial
     other-modules:
+    - Tutorial.Nameservice.Application
     - Tutorial.Nameservice.Keeper
     - Tutorial.Nameservice.Message
     - Tutorial.Nameservice.Module

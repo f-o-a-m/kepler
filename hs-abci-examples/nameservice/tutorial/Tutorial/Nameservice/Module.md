@@ -48,4 +48,16 @@ defaultTxChecker (RoutedTx Tx{txMsg}) =
     V.Success _ -> pure ()
 ~~~
 
+Note the constraints on `r`:
+
+~~~ haskell ignore
+...
+  :: Members BaseAppEffs r
+  => Members TokenEffs r
+  => Members NameserviceEffs r
+...
+~~~
+
+This is saying that we can run this module in any context for which `r` has the effects from `BaseApp`, `Token`, and `Nameservice`. This is how we explicitly declare module dependencies, by using the constraint system.
+
 Other than that, there is nothing really to note. We are just collecting the pieces we have already defined in one place.
