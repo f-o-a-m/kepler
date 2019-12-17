@@ -12,7 +12,7 @@ First some imports:
 3. Nameservice
     - [Types](Tutorial/Nameservice/Types.md)
         1. [Using A Typed Key Value Store](Tutorial/Nameservice/Types.md#using-a-typed-key-value-store)
-        2. [Tutorial.Nameservice.Types](Tutorial/Nameservice/Types.md#tutorial.nameservice.types)
+        2. [Tutorial.Nameservice.Types](Tutorial/Nameservice/Types.md#tutorialnameservicetypes)
 
 ~~~ haskell
 --import Introduction (## Application Specification)
