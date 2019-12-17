@@ -28,13 +28,6 @@ First some imports:
         1. [From Modules To App](Tutorial/Nameservice/Application.md#from-modules-to-app)
         2. [Tutorial.Nameservice.Application](Tutorial/Nameservice/Application.md#tutorialnameserviceapplication)
 
-
-~~~ haskell
---import Introduction (## Application Specification)
-~~~
-
-some comments
-
 ~~~ haskell
 main :: IO ()
 main = pure ()
