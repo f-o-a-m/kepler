@@ -3,7 +3,7 @@ First some imports:
 1. [Introduction](Introduction.md#section)
 
 ~~~ haskell
-import Introduction ()
+--import Introduction ()
 ~~~
 
 some comments
