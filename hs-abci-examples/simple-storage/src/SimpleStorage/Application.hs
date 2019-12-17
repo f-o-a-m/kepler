@@ -46,6 +46,6 @@ handlersContext = HandlersContext
   where
   simpleStorageModules :: Modules SimpleStorageModules EffR
   simpleStorageModules =
-    ConsModule SimpleStorage.simpleStorageModule $
-      ConsModule A.authModule $
-      NilModules
+       SimpleStorage.simpleStorageModule
+    :+ A.authModule
+    :+ NilModules
