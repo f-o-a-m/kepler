@@ -2,12 +2,14 @@
 
 At this point we can collect the relevant pieces to form the Nameservice module:
 
-```haskell
-module Nameservice where
-import           Nameservice.Modules.Nameservice.Keeper (NameServiceEffs, eval)
+~~~ haskell
+module Tutorial.Nameservice.Module where
+
+import           Nameservice.Modules.Nameservice.Keeper (NameserviceEffs, eval)
 import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage)
 import           Nameservice.Modules.Nameservice.Query (Api, server)
 import           Nameservice.Modules.Nameservice.Router (router)
+import           Nameservice.Modules.Nameservice.Types (NameserviceModuleName)
 import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members)
 import           Tendermint.SDK.Application               (Module (..),
@@ -29,11 +31,11 @@ nameserviceModule = Module
   , moduleQueryServer = server
   , moduleEval = eval
   }
-```
+~~~
 
 Here we are using `defaultTxChecker` as our transaction checker, which is a static message validator defined as 
 
-``` haskell
+~~~ haskell ignore
 defaultTxChecker
   :: Member (Error AppError) r
   => ValidateMessage msg
@@ -44,6 +46,6 @@ defaultTxChecker (RoutedTx Tx{txMsg}) =
     V.Failure err ->
       throwSDKError . MessageValidation . map formatMessageSemanticError $ err
     V.Success _ -> pure ()
-```
+~~~
 
 Other than that, there is nothing really to note. We are just collecting the pieces we have already defined in one place.

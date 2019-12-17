@@ -32,6 +32,8 @@ data Nameservice m a where
   DeleteWhois :: Name -> Nameservice m ()
 
 makeSem ''Nameservice
+
+type NameserviceEffs = '[Nameservice, Error NameserviceError]
 ~~~
 
 where `makeSem` is from polysemy, it uses template Haskell to create the helper functions `putWhoIs`, `getWhois`, `deleteWhois`:
