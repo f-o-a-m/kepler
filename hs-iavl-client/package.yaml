@@ -68,6 +68,7 @@ library:
   - Database.IAVL.RPCCall
   generated-exposed-modules:
   - Proto.Iavl.Api
+  - Proto.Iavl.Api_Fields
   - Proto.Google.Api.Http
   - Proto.Google.Protobuf.Empty
   - Proto.Google.Api.Annotations
