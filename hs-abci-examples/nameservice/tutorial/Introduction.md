@@ -23,6 +23,12 @@ It consists of 3 modules:
 2. `Token` - Allows users manage their tokens, things like transfering or burning.
 3. `Nameservice` - Controls the shared `Name -> Value` mapping described above.
 
+## How to Read this Tutorial
+
+This tutorial is largely written as a literate haskell file to simulate developing the Nameservice app from scratch. The file structure is similar to the actual app. We will partially develop a haskell module corresponding to what you find in the app, but possibly not the whole thing. Thus whenever we depend on a haskell module in the tutorial, rather than importing from the tutorial itself we will import from the app.
+
+The benefit of this is that we don't have to develop the entire application in this tutorial, but any breaking changes in the app will (hopefully) break the tutorial.
+
 ## Tutorial Goals
 The goal of this tutorial is to explain how the nameservice app is constructed using the `hs-abci-sdk` package. Nameservice is in a class of applications that are simple but non-trivial.
 If you would like to start with something simpler, you can view the tutorial for the [simple-storage](https://github.com/f-o-a-m/hs-abci/tree/master/hs-abci-examples/simple-storage) example application.
