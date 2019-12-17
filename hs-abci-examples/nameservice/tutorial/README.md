@@ -10,7 +10,7 @@ First some imports:
     1. [Definition](Modules.md#definition)
     2. [Composition](Modules.md#composition)
 3. Nameservice
-  - [Types](Nameservice/Types.md)
+  - [Types](Tutorial/Nameservice/Types.md)
 
 ~~~ haskell
 --import Introduction (## Application Specification)
