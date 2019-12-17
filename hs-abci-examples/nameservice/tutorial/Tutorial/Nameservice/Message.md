@@ -198,4 +198,3 @@ instance ValidateMessage NameserviceMessage where
     NSetName msg    -> validateMessage m {msgData = msg}
     NDeleteName msg -> validateMessage m {msgData = msg}
 ~~~
-

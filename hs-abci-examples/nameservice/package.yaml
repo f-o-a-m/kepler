@@ -132,6 +132,7 @@ tests:
     - Tutorial.Nameservice.Types
     - Tutorial.Nameservice.Message
     - Tutorial.Nameservice.Keeper
+    - Tutorial.Nameservice.Query
     ghc-options: -Wall -pgmL markdown-unlit
     dependencies:
     - hs-abci-sdk
