@@ -35,7 +35,7 @@ nameserviceModule = Module
   }
 ~~~
 
-Here we are using `defaultTxChecker` as our transaction checker, which is a static message validator defined as 
+We are using `defaultTxChecker` as our transaction checker, which is a static message validator defined as 
 
 ~~~ haskell ignore
 defaultTxChecker
@@ -50,7 +50,7 @@ defaultTxChecker (RoutedTx Tx{txMsg}) =
     V.Success _ -> pure ()
 ~~~
 
-This means that we are only doing static validation, meaning that we're not interested in checking message validitity against the database. The return type for the checker is `Sem r ()`, meaning that if you want to do this, you may write a custom checker for your module. 
+This means that we are only doing static validation, meaning that we're not interested in checking message validitity against the database. This is reflected in the return type for the checker `Sem r ()`. If you want to add custom checking, you may write a custom checker for your module. 
 
 Note the constraints on the module's effects `r`:
 
@@ -65,3 +65,5 @@ Note the constraints on the module's effects `r`:
 This is saying that we can run this module in any context for which `r` has the effects from `BaseApp`, `Token`, and `Nameservice`. This is how we explicitly declare module dependencies, by using the constraint system.
 
 Other than that, there is nothing really to note. We are just collecting the pieces we have already defined in one place.
+
+[Next: Application](Application.md)
