@@ -8,6 +8,7 @@ We're going to build an example application that mirrors the `golang` [cosmos-sd
     - [How to Read this Tutorial](README.md#how-to-read-this-tutorial)
     - [Tutorial Goals](README.md#tutorial-goals)
 2. Foundations
+    - [Overview](Foundations/Overview.md)
     - [BaseApp](Foundations/BaseApp.md)
     - [Modules](Foundations/Modules.md)
         1. [Definition](Foundations/Modules.md#definition)
