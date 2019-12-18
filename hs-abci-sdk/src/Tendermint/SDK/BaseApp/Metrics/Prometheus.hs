@@ -181,12 +181,10 @@ emptyState = do
   registry <- Registry.new
   return $ MetricsState registry counters histos
 
--- | Default metrics cfg
--- | Port defaults to 9200
 mkMetricsConfig :: IO MetricsConfig
 mkMetricsConfig = do
   state <- emptyState
-  return $ MetricsConfig state (Just 9200) Nothing
+  return $ MetricsConfig state Nothing Nothing
 
 runMetricsServer
   :: MonadIO m

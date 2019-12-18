@@ -59,6 +59,8 @@ deploy-simple-storage-local: install ## run the simple storage locally
 	stack exec simple-storage
 
 deploy-nameservice-local: install ## run the nameservice locally
+	DD_API_KEY=$(DD_API_KEY) \
+	STATS_PORT=9200 \
 	stack exec nameservice
 
 test-kv-store: install ## Run the test suite for the client interface

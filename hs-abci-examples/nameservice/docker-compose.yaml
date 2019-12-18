@@ -21,10 +21,14 @@ services:
       context: ../../.
       dockerfile: Dockerfile
     image: hs-abci:test
+    environment:
+     - DD_API_KEY=${DD_API_KEY}
+     - STATS_PORT=9200
     restart: always
     entrypoint: /usr/local/bin/nameservice
     expose:
       - "26658"
+      - "9200"
   datadog:
     image: datadog/agent:latest
     environment:
@@ -36,6 +40,6 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["openmetrics"]'
       com.datadoghq.ad.init_configs: '["{}"]'
-      com.datadoghq.ad.instances: '["{\"prometheus_url\":\"http://%%host%%:9200/metrics \",\"namespace\":\"nameservice\",\"metrics\":[\"count_buy\" \"count_set\" \"count_delete\" \"histogram_buy\" \"histogram_set\" \"histogram_delete\"]}"]'
+      com.datadoghq.ad.instances: '["{\"prometheus_url\":\"http://%%host%%:9200/metrics \",\"namespace\":\"nameservice\",\"metrics\":[\"count_buy\" \"count_set\" \"count_delete\" \"histogram_buy*\" \"histogram_set*\" \"histogram_delete*\"]}"]'
 volumes:
   tendermint-storage:

@@ -15,7 +15,7 @@ import qualified Text.Read                                 as T
 
 main :: IO ()
 main = do
-  metCfg@MetricsConfig{..} <- mkMetricsConfig
+  metCfg <- mkMetricsConfig
   mApiKey <- lookupEnv "DD_API_KEY"
   mMetricsPort <- lookupEnv "STATS_PORT"
   logCfg <- mkLogConfig "dev" "nameservice"
@@ -24,7 +24,7 @@ main = do
   bracket mkLogEnv K.closeScribes $ \le -> do
     cfg <- makeAppConfig
       metCfg { metricsAPIKey = pack <$> mApiKey
-             , metricsPort = maybe metricsPort T.read mMetricsPort
+             , metricsPort = T.read <$> mMetricsPort
              }
       logCfg {_logEnv = le}
     makeAndServeApplication cfg
