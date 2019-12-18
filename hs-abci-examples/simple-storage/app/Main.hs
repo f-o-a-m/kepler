@@ -8,7 +8,6 @@ import           System.IO                           (stdout)
 import           Tendermint.SDK.BaseApp.Logger.Katip (LogConfig (..),
                                                       mkLogConfig)
 
-
 main :: IO ()
 main = do
   logCfg <- mkLogConfig "dev" "simple-storage"

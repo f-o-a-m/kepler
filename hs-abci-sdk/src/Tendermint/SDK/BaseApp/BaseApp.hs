@@ -21,6 +21,8 @@ import           Tendermint.SDK.BaseApp.Events              (Event,
                                                              evalWithBuffer)
 import           Tendermint.SDK.BaseApp.Logger              (Logger)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip        as KL
+import           Tendermint.SDK.BaseApp.Metrics             (Metrics)
+import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus  as Prometheus
 import           Tendermint.SDK.BaseApp.Store               (ApplyScope, ConnectionScope (..),
                                                              RawStore,
                                                              ResolveScope (..))
@@ -32,6 +34,7 @@ import qualified Tendermint.SDK.BaseApp.Store.AuthTreeStore as AT
 type BaseAppEffs =
   [ RawStore
   , Output Event
+  , Metrics
   , Logger
   , Resource
   , Error AppError
@@ -56,6 +59,7 @@ compileToCoreEffs action = do
   eRes <- runError .
     resourceToIO .
     KL.evalKatip .
+    Prometheus.evalWithMetrics .
     evalWithBuffer .
     resolveScope $ action
   either (liftIO . throwIO) return eRes

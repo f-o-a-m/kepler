@@ -70,6 +70,7 @@ dependencies:
 - polysemy-plugin
 - polysemy-zoo
 - profunctors
+- prometheus
 - proto-lens
 - proto-lens-runtime
 - proto3-wire
@@ -79,6 +80,7 @@ dependencies:
 - stm
 - string-conversions
 - text
+- time
 - uri-bytestring
 - validation
 
@@ -106,6 +108,8 @@ library:
   - Tendermint.SDK.BaseApp.Gas
   - Tendermint.SDK.BaseApp.Logger
   - Tendermint.SDK.BaseApp.Logger.Katip
+  - Tendermint.SDK.BaseApp.Metrics
+  - Tendermint.SDK.BaseApp.Metrics.Prometheus
   - Tendermint.SDK.BaseApp.Query
   - Tendermint.SDK.BaseApp.Query.Class
   - Tendermint.SDK.BaseApp.Query.Client
@@ -140,6 +144,7 @@ tests:
     - Tendermint.SDK.Test.CryptoSpec
     - Tendermint.SDK.Test.EventSpec
     - Tendermint.SDK.Test.GasSpec
+    - Tendermint.SDK.Test.MetricsSpec
 
     ghc-options:
     - -fplugin=Polysemy.Plugin

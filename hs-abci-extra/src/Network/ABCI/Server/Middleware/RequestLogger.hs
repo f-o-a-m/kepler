@@ -6,6 +6,7 @@ module Network.ABCI.Server.Middleware.RequestLogger
     , mkRequestLogger
     , mkRequestLoggerM
     ) where
+
 import           Control.Monad.IO.Class  (MonadIO, liftIO)
 import qualified Data.Aeson              as A
 import           Katip

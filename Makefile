@@ -1,10 +1,12 @@
-help: ## Ask for help!
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+STATS_PORT ?= 9200
 
 export
 
 # This is useful for copying example app binaries built on a linux machine rather than building in docker
 SIMPLE_STORAGE_BINARY := $(shell stack exec -- which simple-storage)
+
+help: ## Ask for help!
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 #####################
 # Linting and Styling
@@ -59,6 +61,8 @@ deploy-simple-storage-local: install ## run the simple storage locally
 	stack exec simple-storage
 
 deploy-nameservice-local: install ## run the nameservice locally
+	DD_API_KEY=$(DD_API_KEY) \
+	STATS_PORT=$(STATS_PORT) \
 	stack exec nameservice
 
 test-kv-store: install ## Run the test suite for the client interface
