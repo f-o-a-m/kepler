@@ -12,41 +12,46 @@ import           Tendermint.SDK.BaseApp.Logger.Katip       (LogConfig (..),
 import           Tendermint.SDK.BaseApp.Metrics.Prometheus (MetricsConfig (..),
                                                             mkMetricsConfig)
 import qualified Text.Read                                 as T
-import Katip
-import Katip.Scribes.ElasticSearch
-import Database.V5.Bloodhound
-import Network.HTTP.Client
+import qualified Katip.Scribes.ElasticSearch as ES
+import qualified Database.V5.Bloodhound as BH
+import qualified Network.HTTP.Client as Client
 
 main :: IO ()
 main = do
-  metCfg <- mkMetricsConfig
+  -- | Env vars
   mApiKey <- lookupEnv "DD_API_KEY"
   mMetricsPort <- lookupEnv "STATS_PORT"
+  mESPort <- lookupEnv "ES_PORT"
+  -- | Cfgs
+  metCfg <- mkMetricsConfig
   logCfg <- mkLogConfig "dev" "nameservice"
-  mgr <- newManager defaultManagerSettings
-  let bhe = mkBHEnv (Server "http://localhost:9201") mgr
-  esScribe <- mkEsScribe
-    -- Reasonable for production
-    defaultEsScribeCfgV5
-    -- Reasonable for single-node in development
-    bhe
-    (IndexName "nameservice")
-    (MappingName "application-logs")
-    (permitItem InfoS)
-    V3
-  let mkLogEnv = registerScribe "es" esScribe defaultScribeSettings
-                 =<< initLogEnv "ABCI" "production"
-  bracket mkLogEnv closeScribes $ \le -> do
+  -- | Log Environment
+  mkLogEnv <- case mESPort of
+    Nothing -> do
+      -- | Console logger context
+      handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem K.DebugS) K.V2
+      return $ K.registerScribe "stdout" handleScribe K.defaultScribeSettings (_logEnv logCfg)
+    Just esPort -> do
+      -- | ES logger context
+      mgr <- Client.newManager Client.defaultManagerSettings
+      let serverAddress = "http://localhost:" ++ esPort
+          bhe = BH.mkBHEnv (BH.Server $ pack serverAddress) mgr
+      esScribe <- ES.mkEsScribe
+        -- Reasonable for production
+        ES.defaultEsScribeCfgV5
+        -- Reasonable for single-node in development
+        bhe
+        (BH.IndexName "nameservice")
+        (BH.MappingName "application-logs")
+        (K.permitItem K.InfoS)
+        K.V3
+      return $ K.registerScribe "es" esScribe K.defaultScribeSettings
+              =<< K.initLogEnv "ABCI" "production"
+  -- | serve with appropriate log environment
+  bracket mkLogEnv K.closeScribes $ \le -> do
     cfg <- makeAppConfig
       metCfg { metricsAPIKey = pack <$> mApiKey
              , metricsPort = T.read <$> mMetricsPort
              }
       logCfg {_logEnv = le}
     makeAndServeApplication cfg
-
-  -- logCfg <- mkLogConfig "dev" "nameservice"
-  -- handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem K.DebugS) K.V2
-  -- let mkLogEnv = K.registerScribe "stdout" handleScribe K.defaultScribeSettings (_logEnv logCfg)
-  -- bracket mkLogEnv K.closeScribes $ \le -> do
-  --   cfg <- makeAppConfig logCfg {_logEnv = le}
-  --   makeAndServeApplication cfg

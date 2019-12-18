@@ -1,7 +1,5 @@
 module Nameservice.Server (makeAndServeApplication) where
 
-import           Data.Foldable                                 (fold)
-import           Data.Monoid                                   (Endo (..))
 import           Nameservice.Application                       (AppConfig (..),
                                                                 handlersContext)
 import           Network.ABCI.Server                           (serveApp)
@@ -24,25 +22,19 @@ makeAndServeApplication AppConfig{..} = do
   runMetricsServer metCfg
   let nat :: forall a. Sem CoreEffs a -> IO a
       nat = runCoreEffs baseAppContext
-      application = createIOApp nat $ makeApp handlersContext
+      application = createIOApp nat . addContextLoggers $
+        makeApp handlersContext
   serveApp =<< hookInMiddleware application
   where
     metCfg = contextMetricsConfig baseAppContext
     apiKey = (fmap MetLogger.ApiKey . metricsAPIKey) =<< metCfg
-    mkMiddleware :: IO (Middleware IO)
-    mkMiddleware = do
-      reqLogger <- ReqLogger.mkLogStdoutDev
-      esReqLogger <- ReqLogger.mkLogESDev
-      resLogger <- ResLogger.mkLogStdoutDev
-      esResLogger <- ResLogger.mkLogESDev
+    addContextLoggers =
+      ResLogger.mkResponseLoggerM . ReqLogger.mkRequestLoggerM
+    -- direct to datadog logger requires a different log environment
+    mkMetricMiddleware :: IO (Middleware IO)
+    mkMetricMiddleware = do
       metLogger <- MetLogger.mkMetricsLogDatadog apiKey
-      pure . appEndo . fold $
-        [ Endo reqLogger
-        , Endo esReqLogger
-        , Endo resLogger
-        , Endo esResLogger
-        , Endo metLogger
-        ]
+      pure metLogger
     hookInMiddleware _app = do
-      middleware <- mkMiddleware
+      middleware <- mkMetricMiddleware
       pure $ middleware _app
