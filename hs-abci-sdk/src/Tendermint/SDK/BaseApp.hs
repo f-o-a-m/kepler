@@ -9,7 +9,7 @@ module Tendermint.SDK.BaseApp
 
   -- * CoreEff
   , CoreEffs
-  , Context
+  , Context(..)
   , makeContext
   , runCoreEffs
 

@@ -47,6 +47,10 @@ class ToEvent e where
     A.Object obj -> bimap cs (cs . A.encode) <$> toList obj
     _            -> mempty
 
+data LoggableEvent a = LoggableEvent a
+
+-- logEvent ::
+
 -- | A class that can parse event log items in the deliverTx response. Primarily
 -- | useful for client applications and testing.
 class ToEvent e => FromEvent e where

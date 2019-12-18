@@ -25,10 +25,14 @@ makeAndServeApplication cfg = do
     mkMiddleware :: IO (Middleware IO)
     mkMiddleware = do
       reqLogger <- ReqLogger.mkLogStdoutDev
+      esReqLogger <- ReqLogger.mkLogESDev
       resLogger <- ResLogger.mkLogStdoutDev
+      esResLogger <- ResLogger.mkLogESDev
       pure . appEndo . fold $
         [ Endo reqLogger
+        , Endo esReqLogger
         , Endo resLogger
+        , Endo esResLogger
         ]
     hookInMiddleware _app = do
       middleware <- mkMiddleware

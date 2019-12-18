@@ -2,6 +2,7 @@ module Network.ABCI.Server.Middleware.ResponseLogger
     ( -- * Basic stdout logging
       mkLogStdout
     , mkLogStdoutDev
+    , mkLogESDev
       -- * Custom Loggers
     , mkResponseLogger
     , mkResponseLoggerM
@@ -12,6 +13,10 @@ import           Katip
 import           Network.ABCI.Server.App (App (..), MessageType, Middleware,
                                           Response (..))
 import           System.IO               (stdout)
+import Katip.Scribes.ElasticSearch
+import Database.V5.Bloodhound
+import qualified Network.HTTP.Client as Client
+
 ---------------------------------------------------------------------------
 -- Types
 ---------------------------------------------------------------------------
@@ -52,6 +57,28 @@ mkLogStdoutDev = do
         =<< initLogEnv "ABCI" "development")
   let ns = "Server"
   pure $ mkResponseLogger le ns
+
+---------------------------------------------------------------------------
+-- mkLogESDev
+--------------------------------------------------------------------------
+mkLogESDev :: (MonadIO m) => m (Middleware m)
+mkLogESDev = do
+  mgr <- liftIO $ Client.newManager Client.defaultManagerSettings
+  let bhe = mkBHEnv (Server "http://localhost:9201") mgr
+  esScribe <- liftIO $ mkEsScribe
+    -- Reasonable for production
+    defaultEsScribeCfgV5
+    -- Reasonable for single-node in development
+    bhe
+    (IndexName "nameservice")
+    (MappingName "application-logs")
+    (permitItem DebugS)
+    V3
+  le <- liftIO $ registerScribe "es" esScribe defaultScribeSettings
+        =<< initLogEnv "ABCI" "production"
+  let ns = "Server"
+  pure $ mkResponseLogger le ns
+
 
 ---------------------------------------------------------------------------
 -- mkResponseLogger
