@@ -4,14 +4,14 @@
 
 A `Module` has a very specific meaning in the context of this SDK. A `Module` is something between a library and a small state machine. It is built on top of the `BaseApp` abstraction in the sense that all `Module`s must be explicitly interpeted in terms of `BaseApp` in order to compile the application. The full type definition is
 
-```haskell
+~~~ haskell ignore
 data Module (name :: Symbol) msg (api :: *) (s :: EffectRow) (r :: EffectRow) = Module
   { moduleTxDeliverer :: RoutedTx msg -> Sem r ()
   , moduleTxChecker   :: RoutedTx msg -> Sem r ()
   , moduleQueryServer :: RouteT api (Sem r)
   , moduleEval :: forall deps. Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
   }
-```
+~~~
 
 where the type parameters
 
@@ -34,11 +34,11 @@ Note that in the event that a `Module` is _abstract_, meaning it doesn't have an
 
 `Module`s are meant to be composed to create larger applications. We will see examples of this with the `Nameservice` application. The way to do this is easy, as the `Modules` data type allows you to simply combine them in a heterogeneous list:
 
-```haskell
+~~~ haskell ignore
 data Modules (ms :: [*]) r where
     NilModules :: Modules '[] r
     (:+) :: Module name msg api s r -> Modules ms r -> Modules (Module name msg api s r  ': ms) r
-```
+~~~
 
 When you are ready to create your application, you simply specify a value of type `Modules` and some other configuration data, and the SDK will create an `App` for you.
 
