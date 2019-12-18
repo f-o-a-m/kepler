@@ -58,6 +58,10 @@ jobs:
     - docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml -p test-hs-abci-examples-nameservice-e2e up -d
     - make test-nameservice
     - docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml -p test-hs-abci-examples-nameservice-e2e down -v --rmi local
+  - name: "Test Nameservice Tutorial"
+    script:
+    - travis_wait 120 stack --skip-ghc-check install markdown-unlit-0.5.0
+    - make test-tutorial
   - name: "Ensure that code matches style guidelines"
     # When branch is `master` we run `haskell-stylish` and fail if git working directory becomes dirty
     if: branch = master

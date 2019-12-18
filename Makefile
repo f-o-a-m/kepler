@@ -68,7 +68,11 @@ test-simple-storage: install ## Run the test suite for the simple-storage exampl
 	stack test simple-storage
 
 test-nameservice: install ## Run the test suite for the nameservice example application
-	stack test nameservice
+	stack test nameservice:nameservice-test
+
+test-tutorial: install ## Make sure the tutorial builds
+	stack test nameservice:tutorial
+
 
 
 #####################
