@@ -31,12 +31,12 @@ import           System.IO                 (stdout)
 -- Uses lowest possible verbosity, however, with the current minimal metrics
 -- verbosity has no effect on which metrics logged.
 mkMetricsLogStdout :: (MonadIO m) => m (Middleware m)
-mkMetricsLogStdout = do
-  handleScribe <- liftIO $ mkHandleScribe ColorIfTerminal stdout (permitItem InfoS) V0
-  le <- liftIO (registerScribe "stdout" handleScribe defaultScribeSettings
-        =<< initLogEnv "ABCI" "production")
+mkMetricsLogStdout = liftIO $ do
+  handleScribe <- mkHandleScribe ColorIfTerminal stdout (permitItem InfoS) V0
+  le <- registerScribe "stdout" handleScribe defaultScribeSettings
+        =<< initLogEnv "ABCI" "production"
   let ns = "Server"
-  mvarReqC <- liftIO $ newMVar Map.empty
+  mvarReqC <- newMVar Map.empty
   pure $ mkMetricsLogger mvarReqC le ns
 
 ---------------------------------------------------------------------------
@@ -44,13 +44,13 @@ mkMetricsLogStdout = do
 ---------------------------------------------------------------------------
 
 mkMetricsLogDatadogLocal :: (MonadIO m) => Integer -> m (Middleware m)
-mkMetricsLogDatadogLocal port = do
-  datadogScribeSettings <- liftIO $ mkDatadogScribeSettings (localAgentConnectionParams (fromInteger port)) NoAuthLocal
-  scribe <- liftIO $ mkDatadogScribe datadogScribeSettings (permitItem InfoS) V0
-  le <- liftIO (registerScribe "datadog" scribe defaultScribeSettings
-        =<< initLogEnv "ABCI" "production")
+mkMetricsLogDatadogLocal port = liftIO $ do
+  datadogScribeSettings <- mkDatadogScribeSettings (localAgentConnectionParams (fromInteger port)) NoAuthLocal
+  scribe <- mkDatadogScribe datadogScribeSettings (permitItem InfoS) V0
+  le <- registerScribe "datadog" scribe defaultScribeSettings
+        =<< initLogEnv "ABCI" "production"
   let ns = "Server"
-  mvarReqC <- liftIO $ newMVar Map.empty
+  mvarReqC <- newMVar Map.empty
   pure $ mkMetricsLogger mvarReqC le ns
 
 newtype ApiKey = ApiKey Text
@@ -58,14 +58,14 @@ mkMetricsLogDatadog :: (MonadIO m) => Maybe ApiKey -> m (Middleware m)
 mkMetricsLogDatadog mApiKey =
   case mApiKey of
     Nothing -> pure id
-    Just (ApiKey key) -> do
+    Just (ApiKey key) -> liftIO $ do
       let apiKey = APIKey key
-      datadogScribeSettings <- liftIO $ mkDatadogScribeSettings directAPIConnectionParams (DirectAuth apiKey)
-      scribe <- liftIO $ mkDatadogScribe datadogScribeSettings (permitItem InfoS) V0
-      le <- liftIO (registerScribe "datadog" scribe defaultScribeSettings
-                    =<< initLogEnv "ABCI" "production")
+      datadogScribeSettings <- mkDatadogScribeSettings directAPIConnectionParams (DirectAuth apiKey)
+      scribe <- mkDatadogScribe datadogScribeSettings (permitItem InfoS) V0
+      le <- registerScribe "datadog" scribe defaultScribeSettings
+            =<< initLogEnv "ABCI" "production"
       let ns = "Server"
-      mvarReqC <- liftIO $ newMVar Map.empty
+      mvarReqC <- newMVar Map.empty
       pure $ mkMetricsLogger mvarReqC le ns
 
 ---------------------------------------------------------------------------

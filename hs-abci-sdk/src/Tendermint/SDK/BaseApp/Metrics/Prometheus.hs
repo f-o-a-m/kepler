@@ -5,12 +5,9 @@ import           Control.Concurrent                            (forkIO)
 import           Control.Concurrent.MVar                       (MVar,
                                                                 modifyMVar_,
                                                                 newMVar)
-import           Control.Monad                                 (unless)
 import           Control.Monad.IO.Class                        (MonadIO, liftIO)
 import           Data.Map.Strict                               (Map, insert)
 import qualified Data.Map.Strict                               as Map
-import           Data.Maybe                                    (fromJust,
-                                                                isNothing)
 import           Data.String                                   (IsString,
                                                                 fromString)
 import           Data.Text                                     (Text)
@@ -95,20 +92,20 @@ evalMetrics state@MetricsState{..} = do
 
 -- | Updates a histogram with an observed value
 observeHistogram :: MonadIO m => MetricsState -> HistogramName -> Double -> m ()
-observeHistogram MetricsState{..} histName val = do
+observeHistogram MetricsState{..} histName val = liftIO $ do
   let h@MetricIdentifier{..} = histogramToIdentifier histName
       hid = metricIdStorable h
       hMetricIdName = MetricId.Name metricIdName
-  liftIO $ modifyMVar_ metricsHistograms $ \histMap ->
+  modifyMVar_ metricsHistograms $ \histMap ->
     case Map.lookup hid histMap of
       Nothing -> do
-        newHist <- liftIO $
+        newHist <-
           Registry.registerHistogram hMetricIdName metricIdLabels metricIdHistoBuckets metricsRegistry
         let newHistMap = insert hid newHist histMap
-        liftIO $ Histogram.observe val newHist
+        Histogram.observe val newHist
         pure $ newHistMap
       Just hist -> do
-        liftIO $ Histogram.observe val hist
+        Histogram.observe val hist
         pure histMap
 
 --------------------------------------------------------------------------------
@@ -196,10 +193,14 @@ runMetricsServer
   => Maybe MetricsConfig
   -> m ()
 runMetricsServer mMetCfg = liftIO $ do
-  unless (isNothing mMetCfg) $ do
-    let MetricsConfig{..} = fromJust mMetCfg
-        MetricsState{..} = metricsState
-    unless (isNothing metricsPort) $ do
-      _ <- forkIO $
-        Http.serveHttpTextMetrics (fromJust metricsPort) ["metrics"] (Registry.sample metricsRegistry)
-      return ()
+  case mMetCfg of
+    Nothing -> return ()
+    Just metCfg -> do
+      let MetricsConfig{..} = metCfg
+          MetricsState{..} = metricsState
+      case metricsPort of
+        Nothing -> return ()
+        Just port -> do
+          _ <- forkIO $
+            Http.serveHttpTextMetrics port ["metrics"] (Registry.sample metricsRegistry)
+          return ()

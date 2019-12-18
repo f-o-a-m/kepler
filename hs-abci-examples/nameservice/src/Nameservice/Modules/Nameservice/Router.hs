@@ -23,13 +23,10 @@ router (RoutedTx Tx{txMsg}) =
   in case msgData of
        NSetName msg    -> do
          incCount "count_set"
-         _ <- withTimer "histogram_set" $ setName msg
-         pure ()
+         withTimer "histogram_set" $ setName msg
        NBuyName msg    -> do
          incCount "count_buy"
-         _ <- withTimer "histogram_buy" $ buyName msg
-         pure ()
+         withTimer "histogram_buy" $ buyName msg
        NDeleteName msg -> do
          incCount "count_delete"
-         _ <- withTimer "histogram_delete" $ deleteName msg
-         pure ()
+         withTimer "histogram_delete" $ deleteName msg
