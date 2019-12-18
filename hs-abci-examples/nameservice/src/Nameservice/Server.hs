@@ -22,13 +22,14 @@ makeAndServeApplication AppConfig{..} = do
   runMetricsServer metCfg
   let nat :: forall a. Sem CoreEffs a -> IO a
       nat = runCoreEffs baseAppContext
-      application = createIOApp nat . addContextLoggers $
+      application = createIOApp nat . addContextAppLoggers $
         makeApp handlersContext
   serveApp =<< hookInMiddleware application
   where
     metCfg = contextMetricsConfig baseAppContext
     apiKey = (fmap MetLogger.ApiKey . metricsAPIKey) =<< metCfg
-    addContextLoggers =
+    -- response/request use the provided log environment
+    addContextAppLoggers =
       ResLogger.mkResponseLoggerM . ReqLogger.mkRequestLoggerM
     -- direct to datadog logger requires a different log environment
     mkMetricMiddleware :: IO (Middleware IO)
