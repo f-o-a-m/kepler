@@ -93,7 +93,7 @@ instance HasCodec TypedMessage where
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 ~~~
 
-This allows us to disambiguated messages based on the `type` field, so that for example we can distinguish `Deletename` from a submessage of `BuyName`. With that we can define the module level message type:
+This allows us to disambiguated messages based on the `type` field, so that for example we can distinguish `DeleteName` from a submessage of `BuyName`. With that we can define the module level message type:
 
 
 ~~~ haskell
@@ -119,12 +119,12 @@ instance HasCodec NameserviceMessage where
 
 ## Message Validation
 
-Message validation is an important part of the transaction life cycle. When a `checkTx` message comes in, tendermint is asking whether a transaction bytestring from the mempool is potentially runnable. At the very least this means that 
+Message validation is an important part of the transaction life cycle. When a `checkTx` message comes in, Tendermint is asking whether a transaction bytestring from the mempool is potentially runnable. At the very least this means that 
 
 1. The transaction parses to a known message
 2. The message passes basic signature authentication, if any is required.
 3. The message author has enough funds for the gas costs, if any.
-4. The message can be successfully routed.
+4. The message can be successfully routed to a module without handling.
 
 On top of this you might wish to ensure other static properties of the message, such as the author of the message is the owner of the funds being transfered. For this we have a `ValidateMessage` class:
 
@@ -140,7 +140,7 @@ class ValidateMessage msg where
 
 We're using the applicative functor `Data.Validation.Validation` to perform valdiation because it is capable of reporting all errors at once, rather than the first that occurs as in ther case with something like `Either`. 
 
-Here's what the `isAuthor` check might look like that was described above:
+Here's what the `isAuthor` check looks like that was described above:
 
 ~~~ haskell ignore
 isAuthorCheck

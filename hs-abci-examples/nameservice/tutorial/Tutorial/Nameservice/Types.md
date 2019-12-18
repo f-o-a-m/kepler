@@ -3,9 +3,9 @@
 The `Types` module is used to define the basic types that the module will make use of. This includes things like custom error types, event types, database types, etc. 
 
 ## Using A Typed Key Value Store
-An important point to note is that the database moduled by the `RawStore` effect is just a key value store for raw `ByteString`s, effectively `Map ByteString ByteSTactually typed key value storage within a given module. This means that for any key type `k`, there is only one possible value type `v` associated with `k` in the scope of a module `m`. 
+An important point to note is that the database modeled by the `RawStore` effect is just a key value store for raw `ByteString`s, effectively `Map ByteString ByteString`. The interfact we give is actually a typed key value store This means that within the scope of a module `m`, for any key type `k`, there is only one possible value type `v` associated with `k`. 
 
-For example, a user's balance in the `bank` module might be modeled by a mapping of `Tendermint.SDK.Types.Address -> Integer`. This means that in the scope of the `bank` module, the database utlity `get` function applied to a value of type `Address` will result in a value of type `Integer`. If the `bank` module would like to store another mapping whose keys have type `Tendermint.SDK.Types.Address`, you must use a newtype instead. Otherwise you will get a compiler error.
+For example, a user's balance in the `token` module might be modeled by a mapping of `Tendermint.SDK.Types.Address -> Integer`. This means that in the scope of the `token` module, the database utlity `get` function applied to a value of type `Address` will result in a value of type `Integer`. If the `token` module would like to store another mapping whose keys have type `Tendermint.SDK.Types.Address`, you must use a newtype instead. Otherwise you will get a compiler error.
 
 At the same time, you are free to define another mapping from `k -> v'` in the scope of a different module. For example, you can have both the `balance` mapping described above, as well a mapping `Tendermint.SDK.Types.Address -> Account` in the `auth` module.
 
@@ -46,14 +46,14 @@ data Whois = Whois
   } deriving (Eq, Show, Generic)
 ~~~
 
-The way that we register `Name` as a key in the store using the `RawKey` typeclass
+The way that we register `Name` as a key in the store is by using the `RawKey` typeclass
 
 ~~~ haskell ignore
 class RawKey k where
   rawKey :: Iso' k ByteString
 ~~~
 
-This class gives us a way to convert back and forth from a key type to its encoding as a `ByteString`. In our case we implement
+This class gives us a way to convert back and forth from a key to its encoding as a `ByteString`. In our case we implement
 
 ~~~ haskell
 -- here cs resolves to Data.Text.Encoding.encodeUtf8, Data.Text.Encoding.decodeUtf8 respectively
@@ -69,7 +69,7 @@ class HasCodec a where
     decode :: ByteString -> Either Text a
 ~~~
 
-This class is used everywhere in the SDK as the binary codec class used by things like storage items, messages, transaction formats etc. It's agnostic to the actual serialization format, you can use `JSON`, `CBOR`, `Protobuf`, etc. Throughout the SDK we typically use `Protobuf` as it is powerful and there is decent support for this in Haskell either through the `proto3-suite` package or the `proto-lens` package.
+This class is used everywhere in the SDK as the binary codec class for things like storage items, messages, transaction formats etc. It's agnostic to the actual serialization format, you can use `JSON`, `CBOR`, `Protobuf`, etc. Throughout the SDK we typically use `protobuf` as it is powerful and there is decent support for this in Haskell either through the `proto3-suite` package or the `proto-lens` package.
 
 So we can implement a `HasCodec` instance for `Whois`
 
@@ -136,7 +136,7 @@ since `Whois` already implements the `HasCodec` class.
 
 ### Error Types
 
-You might want to define a module specific error type that has a `throw`/`catch` interface. This error type should be accessible by any other dependant modules, and any uncaught error should eventually be converted into some kind of generic application error understandable by tendermint. 
+You might want to define a module specific error type that has a `throw`/`catch` interface. This error type should be accessible by any other dependant modules, and any uncaught error should eventually be converted into some kind of generic application error understandable by Tendermint. 
 
 There is a simple way to do this using the `IsAppError` class
 
@@ -151,7 +151,7 @@ class IsAppError e where
   makeAppError :: e -> AppError
 ~~~
 
-The fields for `AppError` correspond to tendermint message fields for messages that support error return types, such as `checkTx`, `deliverTx`, and `query`. Typically we use the codespace is the module name, like in the definition of `NamespaceError`:
+The fields for `AppError` correspond to tendermint message fields for messages that support error return types, such as `checkTx`, `deliverTx`, and `query`. Typically we use the module name as the codespace, like in the definition of `NamespaceError`:
 
 ~~~ haskell
 data NameserviceError =

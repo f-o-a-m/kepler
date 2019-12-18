@@ -50,7 +50,9 @@ defaultTxChecker (RoutedTx Tx{txMsg}) =
     V.Success _ -> pure ()
 ~~~
 
-Note the constraints on `r`:
+This means that we are only doing static validation, meaning that we're not interested in checking message validitity against the database. The return type for the checker is `Sem r ()`, meaning that if you want to do this, you may write a custom checker for your module. 
+
+Note the constraints on the module's effects `r`:
 
 ~~~ haskell ignore
 ...
