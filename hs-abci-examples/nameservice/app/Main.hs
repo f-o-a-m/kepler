@@ -1,11 +1,17 @@
 module Main where
 
-import           Control.Exception                   (bracket)
-import           Nameservice.Application             (makeAppConfig)
-import           Nameservice.Server                  (makeAndServeApplication)
---import           System.IO                           (stdout)
-import           Tendermint.SDK.BaseApp.Logger.Katip (LogConfig (..),
-                                                      mkLogConfig)
+import           Control.Exception                         (bracket)
+import           Data.Text                                 (pack)
+import qualified Katip                                     as K
+import           Nameservice.Application                   (makeAppConfig)
+import           Nameservice.Server                        (makeAndServeApplication)
+import           System.Environment                        (lookupEnv)
+import           System.IO                                 (stdout)
+import           Tendermint.SDK.BaseApp.Logger.Katip       (LogConfig (..),
+                                                            mkLogConfig)
+import           Tendermint.SDK.BaseApp.Metrics.Prometheus (MetricsConfig (..),
+                                                            mkMetricsConfig)
+import qualified Text.Read                                 as T
 import Katip
 import Katip.Scribes.ElasticSearch
 import Database.V5.Bloodhound
@@ -13,6 +19,9 @@ import Network.HTTP.Client
 
 main :: IO ()
 main = do
+  metCfg <- mkMetricsConfig
+  mApiKey <- lookupEnv "DD_API_KEY"
+  mMetricsPort <- lookupEnv "STATS_PORT"
   logCfg <- mkLogConfig "dev" "nameservice"
   mgr <- newManager defaultManagerSettings
   let bhe = mkBHEnv (Server "http://localhost:9201") mgr
@@ -28,7 +37,11 @@ main = do
   let mkLogEnv = registerScribe "es" esScribe defaultScribeSettings
                  =<< initLogEnv "ABCI" "production"
   bracket mkLogEnv closeScribes $ \le -> do
-    cfg <- makeAppConfig logCfg {_logEnv = le}
+    cfg <- makeAppConfig
+      metCfg { metricsAPIKey = pack <$> mApiKey
+             , metricsPort = T.read <$> mMetricsPort
+             }
+      logCfg {_logEnv = le}
     makeAndServeApplication cfg
 
   -- logCfg <- mkLogConfig "dev" "nameservice"

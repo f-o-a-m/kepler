@@ -24,6 +24,7 @@ dependencies:
 - bloodhound
 - katip
 - katip-elasticsearch
+- katip-datadog
 - hs-abci-server
 - http-client
 - aeson
@@ -33,6 +34,8 @@ dependencies:
 - text
 - lens
 - bytestring
+- time
+- containers
 
 default-extensions:
 - NamedFieldPuns
