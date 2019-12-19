@@ -15,12 +15,14 @@ import           Tendermint.SDK.Application                    (createIOApp,
 import           Tendermint.SDK.BaseApp                        (Context (..),
                                                                 CoreEffs,
                                                                 runCoreEffs)
-import           Tendermint.SDK.BaseApp.Metrics.Prometheus     (runMetricsServer)
+import           Tendermint.SDK.BaseApp.Metrics.Prometheus     (forkMetricsServer)
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication AppConfig{..} = do
   putStrLn "Starting ABCI application..."
-  runMetricsServer $ contextMetricsConfig baseAppContext
+  case contextPrometheusEnv baseAppContext of
+    Nothing            -> pure ()
+    Just prometheusEnv -> forkMetricsServer prometheusEnv
   let nat :: forall a. Sem CoreEffs a -> IO a
       nat = runCoreEffs baseAppContext
       application = makeApp handlersContext

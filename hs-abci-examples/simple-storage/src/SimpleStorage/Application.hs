@@ -11,6 +11,7 @@ import           Tendermint.SDK.Application          (HandlersContext (..),
                                                       Modules (..))
 import           Tendermint.SDK.BaseApp              ((:&))
 import qualified Tendermint.SDK.BaseApp              as BaseApp
+import qualified Tendermint.SDK.BaseApp.Logger.Katip as KL
 import           Tendermint.SDK.Crypto               (Secp256k1)
 import qualified Tendermint.SDK.Modules.Auth         as A
 
@@ -20,7 +21,7 @@ data AppConfig = AppConfig
 
 makeAppConfig :: IO AppConfig
 makeAppConfig = do
-  c <- BaseApp.makeContext ("dev", "simple-storage") Nothing
+  c <- BaseApp.makeContext (KL.InitialLogNamespace "dev" "simple-storage") Nothing
   pure $ AppConfig { baseAppContext = c
                    }
 

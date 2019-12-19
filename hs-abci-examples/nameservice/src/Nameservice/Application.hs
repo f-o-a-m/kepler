@@ -16,7 +16,7 @@ import           Data.Map.Strict                              (Map, empty)
 import           Data.Maybe                                   (fromMaybe)
 import           Data.Proxy
 import           Data.String.Conversions                      (cs)
-import           Data.Text                                    (Text, pack)
+import           Data.Text                                    (Text)
 import qualified Database.V5.Bloodhound                       as BH
 import qualified Katip                                        as K
 import qualified Katip.Scribes.Datadog.TCP                    as DD
@@ -31,9 +31,11 @@ import           Tendermint.SDK.Application                   (HandlersContext (
                                                                Modules (..))
 import           Tendermint.SDK.BaseApp                       ((:&))
 import qualified Tendermint.SDK.BaseApp                       as BaseApp
-import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus    as Prometheus
+import           Tendermint.SDK.BaseApp.Logger.Katip          as KL
+import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus    as P
 import           Tendermint.SDK.Crypto                        (Secp256k1)
 import qualified Tendermint.SDK.Modules.Auth                  as A
+import           Text.Read                                    (read)
 
 
 data KatipConfig = ES {host :: String, port :: String} | Console
@@ -71,29 +73,31 @@ makeMetricsScribe key = Kleisli $ \le -> do
 addScribesToLogEnv :: AppConfig -> K.LogEnv -> IO K.LogEnv
 addScribesToLogEnv AppConfig{..} initialLogEnv = do
   consoleCfg <- makeConsoleLoggingConfig
-  let addScribes = runKleisli $
-        makeKatipScribe consoleCfg >>> maybe returnA makeMetricsScribe datadogApiKey
+  let mdatadogApiKey =  P.dataDogApiKey . P.envMetricsScrapingConfig <$>
+        BaseApp.contextPrometheusEnv baseAppContext
+      addScribes = runKleisli $
+        makeKatipScribe consoleCfg >>> maybe returnA makeMetricsScribe mdatadogApiKey
   addScribes initialLogEnv
 
 
 data AppConfig = AppConfig
   { baseAppContext   :: BaseApp.Context
-  , serverMetricsMap :: MVar (Map OrderedMessageType Integer)
-  , datadogApiKey    :: Maybe Text
   , consoleLogConfig :: KatipConfig
+  , serverMetricsMap :: MVar (Map OrderedMessageType Integer)
   }
 
-makeAppConfig :: Prometheus.PrometheusConfig -> IO AppConfig
-makeAppConfig metCfg = do
-  ddApiKey <- fmap pack <$> lookupEnv "DD_API_KEY"
-  serverMetricsMap <- newMVar empty
+makeAppConfig :: IO AppConfig
+makeAppConfig = do
+  prometheusEnv <- runMaybeT $ do
+    prometheusPort <- read <$> MaybeT (lookupEnv "STATS_PORT")
+    ddApiKey <- cs <$> MaybeT (lookupEnv "DD_API_KEY")
+    pure $ P.MetricsScrapingConfig prometheusPort ddApiKey
   consoleCfg <- makeConsoleLoggingConfig
-  let withApiKeyMetCfg = metCfg { Prometheus.metricsAPIKey = ddApiKey }
-  c <- BaseApp.makeContext ("dev", "nameservice") (Just withApiKeyMetCfg)
+  serverMetricsMap <- newMVar empty
+  c <- BaseApp.makeContext (KL.InitialLogNamespace "dev" "simple-storage") prometheusEnv
   pure $ AppConfig { baseAppContext = c
-                   , serverMetricsMap = serverMetricsMap
-                   , datadogApiKey = ddApiKey
                    , consoleLogConfig = consoleCfg
+                   , serverMetricsMap = serverMetricsMap
                    }
 
 --------------------------------------------------------------------------------

@@ -34,14 +34,14 @@ import           Tendermint.SDK.BaseApp.Metrics                (CountName (..), 
 
 evalWithMetrics
   :: Member (Embed IO) r
-  => Member (Reader (Maybe PrometheusConfig)) r
+  => Member (Reader (Maybe PrometheusEnv)) r
   => Sem (Metrics ': r) a
   -> Sem r a
 evalWithMetrics action = do
   mCfg <- ask
   case mCfg of
     Nothing  -> evalNothing action
-    Just cfg -> evalMetrics (metricsState cfg) action
+    Just cfg -> evalMetrics (envMetricsState cfg) action
 
 evalNothing
   :: Sem (Metrics ': r) a
@@ -153,11 +153,14 @@ data MetricsState = MetricsState
   }
 
 -- | Core metrics config
-type Port = Int
-data PrometheusConfig = PrometheusConfig
-  { metricsState  :: MetricsState
-  , metricsPort   :: Maybe Port
-  , metricsAPIKey :: Maybe Text
+data MetricsScrapingConfig = MetricsScrapingConfig
+  { prometheusPort :: Int
+  , dataDogApiKey  :: Text
+  }
+
+data PrometheusEnv = PrometheusEnv
+  { envMetricsState          :: MetricsState
+  , envMetricsScrapingConfig :: MetricsScrapingConfig
   }
 
 -- | Intermediary prometheus registry index key
@@ -181,24 +184,14 @@ emptyState = do
   registry <- Registry.new
   return $ MetricsState registry counters histos
 
-mkPrometheusConfig :: IO PrometheusConfig
-mkPrometheusConfig = do
-  state <- emptyState
-  return $ PrometheusConfig state Nothing Nothing
-
-runMetricsServer
+forkMetricsServer
   :: MonadIO m
-  => Maybe PrometheusConfig
+  => PrometheusEnv
   -> m ()
-runMetricsServer mMetCfg = liftIO $ do
-  case mMetCfg of
-    Nothing -> return ()
-    Just metCfg -> do
-      let PrometheusConfig{..} = metCfg
-          MetricsState{..} = metricsState
-      case metricsPort of
-        Nothing -> return ()
-        Just port -> do
-          _ <- forkIO $
-            Http.serveHttpTextMetrics port ["metrics"] (Registry.sample metricsRegistry)
-          return ()
+forkMetricsServer metCfg = liftIO $
+  let PrometheusEnv{..} = metCfg
+      port = prometheusPort $ envMetricsScrapingConfig
+      MetricsState{..} = envMetricsState
+  in do
+    _ <- forkIO $ Http.serveHttpTextMetrics port ["metrics"] (Registry.sample metricsRegistry)
+    return ()

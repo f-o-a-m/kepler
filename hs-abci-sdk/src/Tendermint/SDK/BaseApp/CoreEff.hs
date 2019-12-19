@@ -29,7 +29,7 @@ type CoreEffs =
   '[ Reader EventBuffer
    , MergeScopes
    , Reader KL.LogConfig
-   , Reader (Maybe Prometheus.PrometheusConfig)
+   , Reader (Maybe Prometheus.PrometheusEnv)
    , Reader AT.AuthTreeState
    , Embed IO
    ]
@@ -47,19 +47,26 @@ instance (Members CoreEffs r) => K.KatipContext (Sem r) where
 -- | 'Context' is the environment required to run 'CoreEffs' to 'IO'
 data Context = Context
   { contextLogConfig     :: KL.LogConfig
-  , contextMetricsConfig :: Maybe Prometheus.PrometheusConfig
+  , contextPrometheusEnv :: Maybe Prometheus.PrometheusEnv
   , contextEventBuffer   :: EventBuffer
   , contextAuthTree      :: AT.AuthTreeState
   }
 
-makeContext :: (Text, Text) -> Maybe Prometheus.PrometheusConfig  -> IO Context
-makeContext (environment, processName) metCfg = do
+makeContext
+  :: KL.InitialLogNamespace
+  -> Maybe Prometheus.MetricsScrapingConfig
+  -> IO Context
+makeContext KL.InitialLogNamespace{..} metScrapingCfg = do
+  metCfg <- case metScrapingCfg of
+        Nothing -> pure Nothing
+        Just scfg -> Prometheus.emptyState >>= \es ->
+          pure . Just $ Prometheus.PrometheusEnv es scfg
   authTreeState <- AT.initAuthTreeState
   eb <- newEventBuffer
-  logCfg <- mkLogConfig environment processName
+  logCfg <- mkLogConfig initialLogNamespaceEnvironment initialLogNamespaceProcessName
   pure $ Context
     { contextLogConfig = logCfg
-    , contextMetricsConfig = metCfg
+    , contextPrometheusEnv = metCfg
     , contextEventBuffer = eb
     , contextAuthTree = authTreeState
     }
@@ -84,7 +91,7 @@ runCoreEffs
 runCoreEffs Context{..} =
   runM .
     runReader contextAuthTree .
-    runReader contextMetricsConfig .
+    runReader contextPrometheusEnv .
     runReader contextLogConfig .
     AT.evalMergeScopes .
     runReader contextEventBuffer

@@ -1,30 +1,26 @@
 module Main where
 
-import           Control.Exception                         (bracket)
-import qualified Katip                                     as K
-import           Nameservice.Application                   (AppConfig (..),
-                                                            addScribesToLogEnv,
-                                                            makeAppConfig)
-import           Nameservice.Server                        (makeAndServeApplication)
-import           System.Environment                        (lookupEnv)
-import qualified Tendermint.SDK.BaseApp                    as BaseApp
-import qualified Tendermint.SDK.BaseApp.Logger.Katip       as KL
-import           Tendermint.SDK.BaseApp.Metrics.Prometheus (PrometheusConfig (..),
-                                                            mkPrometheusConfig)
-import qualified Text.Read                                 as T
+import           Control.Exception                   (bracket)
+import           Control.Lens                        ((&), (.~))
+import qualified Katip                               as K
+import           Nameservice.Application             (AppConfig (..),
+                                                      addScribesToLogEnv,
+                                                      makeAppConfig)
+import           Nameservice.Server                  (makeAndServeApplication)
+import qualified Tendermint.SDK.BaseApp              as BaseApp
+import qualified Tendermint.SDK.BaseApp.Logger.Katip as KL
 
 main :: IO ()
 main = do
-  mPrometheusPort <- lookupEnv "STATS_PORT"
-  metCfg <- mkPrometheusConfig
-  -- Log Environment
-  cfg@AppConfig{..} <- makeAppConfig
-    metCfg { metricsPort = T.read <$> mPrometheusPort }
-  let BaseApp.Context{..} = baseAppContext
-      mkLogEnv = return . KL._logEnv $ contextLogConfig
-  bracket mkLogEnv K.closeScribes $ \le -> do
-    leWithScribes <- addScribesToLogEnv cfg le
-    let logCfg = contextLogConfig { KL._logEnv = leWithScribes }
-        newBAContext = baseAppContext { BaseApp.contextLogConfig = logCfg }
-        newCfg = cfg { baseAppContext = newBAContext }
-    makeAndServeApplication newCfg
+  let withResource cfg@AppConfig{..} = do
+        let BaseApp.Context{..} = baseAppContext
+            basicLogEnv = KL._logEnv $ contextLogConfig
+        logEnvWithWithScribes <- addScribesToLogEnv cfg basicLogEnv
+        let logConfigWithScribes = contextLogConfig & KL.logEnv .~ logEnvWithWithScribes
+            cfgWithScribes = cfg {baseAppContext = baseAppContext {BaseApp.contextLogConfig = logConfigWithScribes}}
+        makeAndServeApplication cfgWithScribes
+      close AppConfig{..} =
+        let BaseApp.Context{..} = baseAppContext
+            logEnv = KL._logEnv $ contextLogConfig
+        in K.closeScribes logEnv
+  bracket makeAppConfig close withResource
