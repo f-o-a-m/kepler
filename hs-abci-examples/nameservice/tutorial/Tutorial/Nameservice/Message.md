@@ -10,7 +10,7 @@ The disadvantage is that `proto3-suite` doesn't act as a `protoc` plugin, and in
 
 ### `proto-lens`
 The advantages of using `proto-lens` are that it can parse and generate types for pretty much any `.proto` file. 
-The disadvantage is that the generated code is a bit strange, and may require you to create wrapper types to avoid depending directly on the generated code. An additional disadvtange is that you cannot generate `.proto` files from haskell code.
+The disadvantage is that the generated code is a bit strange, and may require you to create wrapper types to avoid depending directly on the generated code. An additional disadvantage is that you cannot generate `.proto` files from haskell code.
 
 All in all, neither is really difficult to work with, and depending on what stage you're at in development you might chose one over the other.
 
