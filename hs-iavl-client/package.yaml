@@ -74,7 +74,7 @@ library:
   - Proto.Google.Api.Annotations
 
 tests:
-  hs-abci-types-test:
+  hs-iavl-client-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:

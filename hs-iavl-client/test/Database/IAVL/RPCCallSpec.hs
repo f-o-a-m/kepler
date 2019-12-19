@@ -53,7 +53,7 @@ spec = beforeAll initGrpcClient $ do
 
 initGrpcClient :: IO GrpcClient
 initGrpcClient =
-  let grpcClient = grpcClientConfigSimple "0.0.0.0" 8090 False
+  let grpcClient = grpcClientConfigSimple "localhost" 8090 False
   in  runClientIO (setupGrpcClient (grpcClient{_grpcClientConfigCompression=uncompressed})) >>= \case
         Right gc -> pure gc
         _        -> error "Error creating GrpcClient"

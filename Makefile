@@ -44,6 +44,9 @@ install: ## Runs stack install to compile library and counter example app
 test-libraries: install ## Run the haskell test suite for all haskell libraries
 	stack test hs-abci-types hs-abci-server hs-abci-sdk
 
+test-iavl-client: ## test the iavl client library basic operation (requires grpc service running on port 8090)
+	stack test hs-iavl-client
+
 
 #####################
 # Example Application
