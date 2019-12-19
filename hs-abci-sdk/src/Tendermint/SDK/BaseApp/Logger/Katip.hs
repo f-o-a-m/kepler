@@ -5,8 +5,32 @@ import           Control.Lens.TH               (makeLenses)
 import           Data.String                   (fromString)
 import           Data.String.Conversions       (cs)
 import qualified Katip                         as K
-import           Polysemy                      (Sem, interpret)
-import           Tendermint.SDK.BaseApp.Logger (Logger (..), Severity (..))
+import           Polysemy                      (Sem, interpretH, pureT, runT, raise)
+import           Tendermint.SDK.BaseApp.Logger
+import qualified Data.Aeson as A
+
+newtype Object a = Object a
+
+instance Select a => Select (Object a) where
+  select v (Object x) = select v x
+
+instance A.ToJSON a => K.ToObject (Object a) where
+  toObject (Object a) = case A.toJSON a of
+      A.Object o -> o
+      _          -> error "some error relating to objects"
+
+instance (A.ToJSON a, Select a) => K.LogItem (Object a) where
+  payloadKeys = interpretFromSelect
+    where
+      interpretFromSelect kVerbosity obj =
+        let selectRes = select (kVerbToVerb kVerbosity) obj
+        in case selectRes of
+          All -> K.AllKeys
+          Some ts -> K.SomeKeys ts
+      kVerbToVerb K.V0 = V0
+      kVerbToVerb K.V1 = V1
+      kVerbToVerb K.V2 = V2
+      kVerbToVerb K.V3 = V3
 
 data LogConfig = LogConfig
   { _logNamespace :: K.Namespace
@@ -21,10 +45,14 @@ evalKatip
   => Sem (Logger ': r) a
   -> Sem r a
 evalKatip = do
-  interpret (\case
-    Log severity msg ->
-      K.localKatipNamespace (<> "application") $
+  interpretH (\case
+    Log severity msg -> do
+      raise $ K.localKatipNamespace (<> "application") $
         K.logFM (coerceSeverity severity) (fromString . cs $ msg)
+      pureT ()
+    AddContext obj action -> do
+      a <- runT action
+      raise $ K.katipAddContext (Object obj) (evalKatip a)
     )
     where
       coerceSeverity :: Severity -> K.Severity
