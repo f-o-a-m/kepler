@@ -21,12 +21,9 @@ description:         Please see the README on GitHub at <https://github.com/f-o-
 
 dependencies:
 - base >= 4.7 && < 5
-- bloodhound
 - katip
-- katip-elasticsearch
 - katip-datadog
 - hs-abci-server
-- http-client
 - aeson
 - aeson-casing
 - unordered-containers

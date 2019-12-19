@@ -4,9 +4,9 @@ import           Nameservice.Application                       (AppConfig (..),
                                                                 handlersContext)
 import           Network.ABCI.Server                           (serveApp)
 import           Network.ABCI.Server.App                       (Middleware)
-import qualified Network.ABCI.Server.Middleware.MetricsLogger  as MetLogger
-import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
-import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
+import qualified Network.ABCI.Server.Middleware.MetricsLogger  as Met
+import qualified Network.ABCI.Server.Middleware.RequestLogger  as Req
+import qualified Network.ABCI.Server.Middleware.ResponseLogger as Res
 import           Polysemy                                      (Sem)
 import           Tendermint.SDK.Application                    (createIOApp,
                                                                 makeApp)
@@ -27,15 +27,12 @@ makeAndServeApplication AppConfig{..} = do
   serveApp =<< hookInMiddleware application
   where
     metCfg = contextMetricsConfig baseAppContext
-    apiKey = (fmap MetLogger.ApiKey . metricsAPIKey) =<< metCfg
-    -- response/request use the provided log environment
-    addContextAppLoggers =
-      ResLogger.mkResponseLoggerM . ReqLogger.mkRequestLoggerM
+    apiKey = (fmap Met.ApiKey . metricsAPIKey) =<< metCfg
+    -- response/request use the provided log environment from CoreEffs
+    addContextAppLoggers = Res.mkResponseLoggerM . Req.mkRequestLoggerM
     -- direct to datadog logger requires a different log environment
     mkMetricMiddleware :: IO (Middleware IO)
-    mkMetricMiddleware = do
-      metLogger <- MetLogger.mkMetricsLogDatadog apiKey
-      pure metLogger
+    mkMetricMiddleware = pure =<< Met.mkMetricsLogDatadog apiKey
     hookInMiddleware _app = do
       middleware <- mkMetricMiddleware
       pure $ middleware _app

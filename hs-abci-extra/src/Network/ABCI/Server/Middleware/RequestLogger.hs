@@ -2,7 +2,6 @@ module Network.ABCI.Server.Middleware.RequestLogger
     ( -- * Basic stdout logging
       mkLogStdout
     , mkLogStdoutDev
-    , mkLogESDev
       -- * Custom Loggers
     , mkRequestLogger
     , mkRequestLoggerM
@@ -14,9 +13,6 @@ import           Katip
 import           Network.ABCI.Server.App (App (..), MessageType, Middleware,
                                           Request (..))
 import           System.IO               (stdout)
-import Katip.Scribes.ElasticSearch
-import Database.V5.Bloodhound
-import qualified Network.HTTP.Client as Client
 
 ---------------------------------------------------------------------------
 -- Types
@@ -56,27 +52,6 @@ mkLogStdoutDev = do
   handleScribe <- liftIO $ mkHandleScribe ColorIfTerminal stdout (permitItem DebugS) V3
   le <- liftIO (registerScribe "stdout" handleScribe defaultScribeSettings
         =<< initLogEnv "ABCI" "development")
-  let ns = "Server"
-  pure $ mkRequestLogger le ns
-
----------------------------------------------------------------------------
--- mkLogESDev
---------------------------------------------------------------------------
-mkLogESDev :: (MonadIO m) => m (Middleware m)
-mkLogESDev = do
-  mgr <- liftIO $ Client.newManager Client.defaultManagerSettings
-  let bhe = mkBHEnv (Server "http://localhost:9201") mgr
-  esScribe <- liftIO $ mkEsScribe
-    -- Reasonable for production
-    defaultEsScribeCfgV5
-    -- Reasonable for single-node in development
-    bhe
-    (IndexName "nameservice")
-    (MappingName "application-logs")
-    (permitItem DebugS)
-    V3
-  le <- liftIO $ registerScribe "es" esScribe defaultScribeSettings
-        =<< initLogEnv "ABCI" "production"
   let ns = "Server"
   pure $ mkRequestLogger le ns
 
