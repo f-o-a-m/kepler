@@ -2,12 +2,13 @@
 module Tendermint.SDK.BaseApp.Logger.Katip where
 
 import           Control.Lens.TH               (makeLenses)
+import qualified Data.Aeson                    as A
 import           Data.String                   (fromString)
 import           Data.String.Conversions       (cs)
 import qualified Katip                         as K
-import           Polysemy                      (Sem, interpretH, pureT, runT, raise)
+import           Polysemy                      (Sem, interpretH, pureT, raise,
+                                                runT)
 import           Tendermint.SDK.BaseApp.Logger
-import qualified Data.Aeson as A
 
 newtype Object a = Object a
 
@@ -25,7 +26,7 @@ instance (A.ToJSON a, Select a) => K.LogItem (Object a) where
       interpretFromSelect kVerbosity obj =
         let selectRes = select (kVerbToVerb kVerbosity) obj
         in case selectRes of
-          All -> K.AllKeys
+          All     -> K.AllKeys
           Some ts -> K.SomeKeys ts
       kVerbToVerb K.V0 = V0
       kVerbToVerb K.V1 = V1
