@@ -8,6 +8,7 @@ module Tendermint.SDK.BaseApp.CoreEff
   , runCoreEffs
   ) where
 
+import           Data.Text                     (Text)
 import           Control.Lens                               (over, view)
 import qualified Katip                                      as K
 import           Polysemy                                   (Embed, Members,
@@ -17,6 +18,7 @@ import           Polysemy.Reader                            (Reader, asks,
 import           Tendermint.SDK.BaseApp.Events              (EventBuffer,
                                                              newEventBuffer)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip        as KL
+import Katip as K
 import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus  as Prometheus
 import           Tendermint.SDK.BaseApp.Store               (MergeScopes,
                                                              ResolveScope (..))
@@ -51,16 +53,27 @@ data Context = Context
   , contextAuthTree      :: AT.AuthTreeState
   }
 
-makeContext :: Maybe Prometheus.MetricsConfig -> KL.LogConfig -> IO Context
-makeContext metCfg logCfg = do
+makeContext :: (Text, Text) -> Maybe Prometheus.MetricsConfig  -> IO Context
+makeContext (environment, processName) metCfg = do
   authTreeState <- AT.initAuthTreeState
   eb <- newEventBuffer
+  logCfg <- mkLogConfig environment processName
   pure $ Context
     { contextLogConfig = logCfg
     , contextMetricsConfig = metCfg
     , contextEventBuffer = eb
     , contextAuthTree = authTreeState
     }
+    where
+      mkLogConfig :: Text -> Text -> IO KL.LogConfig
+      mkLogConfig environment processName = do
+        let mkLogEnv = K.initLogEnv (K.Namespace [processName]) (K.Environment environment)
+        le <- mkLogEnv
+        return $ LogConfig
+          { _logNamespace = mempty
+          , _logContext = mempty
+          , _logEnv = le
+          }
 
 instance (Members CoreEffs r, AT.AuthTreeGetter s) => ResolveScope s r where
   resolveScope = AT.evalTagged

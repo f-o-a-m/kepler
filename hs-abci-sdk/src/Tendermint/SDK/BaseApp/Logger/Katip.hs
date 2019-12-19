@@ -4,7 +4,6 @@ module Tendermint.SDK.BaseApp.Logger.Katip where
 import           Control.Lens.TH               (makeLenses)
 import           Data.String                   (fromString)
 import           Data.String.Conversions       (cs)
-import           Data.Text                     (Text)
 import qualified Katip                         as K
 import           Polysemy                      (Sem, interpret)
 import           Tendermint.SDK.BaseApp.Logger (Logger (..), Severity (..))
@@ -15,17 +14,6 @@ data LogConfig = LogConfig
   , _logEnv       :: K.LogEnv
   }
 makeLenses ''LogConfig
-
-mkLogConfig :: Text -> Text -> IO LogConfig
-mkLogConfig environment processName = do
-    le <- mkLogEnv
-    return $ LogConfig
-      { _logNamespace = mempty
-      , _logContext = mempty
-      , _logEnv = le
-      }
-  where
-    mkLogEnv = K.initLogEnv (K.Namespace [processName]) (K.Environment environment)
 
 evalKatip
   :: forall r a.

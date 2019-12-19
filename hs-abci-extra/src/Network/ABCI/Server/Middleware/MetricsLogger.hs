@@ -8,6 +8,7 @@ module Network.ABCI.Server.Middleware.MetricsLogger
     , mkMetricsLoggerM
       -- * ApiKey
     , ApiKey(..)
+    , OrderedMessageType(..)
     ) where
 import           Control.Concurrent.MVar   (MVar, modifyMVar, newMVar)
 import           Control.Monad.IO.Class    (MonadIO, liftIO)

@@ -51,6 +51,7 @@ dependencies:
 - base >= 4.7 && < 5
 - bloodhound
 - bytestring
+- containers
 - data-default-class
 - errors
 - exceptions
@@ -60,6 +61,9 @@ dependencies:
 - hs-abci-server
 - hs-abci-types
 - http-client
+- katip
+- katip-datadog
+- katip-elasticsearch
 - lens
 - polysemy
 - polysemy-plugin
@@ -69,8 +73,6 @@ dependencies:
 - proto-lens-runtime
 - proto3-suite
 - proto3-wire
-- katip
-- katip-elasticsearch
 - servant
 - string-conversions
 - text
