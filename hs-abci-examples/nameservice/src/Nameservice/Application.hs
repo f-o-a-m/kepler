@@ -7,40 +7,41 @@ module Nameservice.Application
   , addScribesToLogEnv
   ) where
 
-import Control.Error (MaybeT(..), runMaybeT)
+import           Control.Arrow                                (Kleisli (..),
+                                                               returnA, (>>>))
+import           Control.Concurrent.MVar                      (MVar, newMVar)
+import           Control.Error                                (MaybeT (..),
+                                                               runMaybeT)
+import           Data.Map.Strict                              (Map, empty)
+import           Data.Maybe                                   (fromMaybe)
 import           Data.Proxy
-import qualified Nameservice.Modules.Nameservice           as N
-import qualified Nameservice.Modules.Token                 as T
-import           Tendermint.SDK.Application                (HandlersContext (..),
-                                                            Modules (..))
-import           Tendermint.SDK.BaseApp                    ((:&))
-import qualified Tendermint.SDK.BaseApp                    as BaseApp
-import qualified Tendermint.SDK.BaseApp.Logger.Katip       as KL
-import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus as Prometheus
-import           Tendermint.SDK.Crypto                     (Secp256k1)
-import qualified Tendermint.SDK.Modules.Auth               as A
-import qualified Database.V5.Bloodhound                    as BH
-import qualified Katip                                     as K
-import qualified Katip.Scribes.ElasticSearch               as ES
-import qualified Network.HTTP.Client                       as Client
-import qualified Katip.Scribes.Datadog.TCP as DD
-import Data.Text (Text)
-import System.Environment
-import           System.IO                 (stdout)
-import Data.String.Conversions (cs)
-import Data.Maybe (fromMaybe)
-import Control.Arrow (Kleisli(..), (>>>), returnA)
-import Control.Concurrent.MVar (MVar, newMVar)
-import Data.Map.Strict (Map, empty)
-import Network.ABCI.Server.Middleware.MetricsLogger (OrderedMessageType)
+import           Data.String.Conversions                      (cs)
+import           Data.Text                                    (Text, pack)
+import qualified Database.V5.Bloodhound                       as BH
+import qualified Katip                                        as K
+import qualified Katip.Scribes.Datadog.TCP                    as DD
+import qualified Katip.Scribes.ElasticSearch                  as ES
+import qualified Nameservice.Modules.Nameservice              as N
+import qualified Nameservice.Modules.Token                    as T
+import           Network.ABCI.Server.Middleware.MetricsLogger (OrderedMessageType)
+import qualified Network.HTTP.Client                          as Client
+import           System.Environment
+import           System.IO                                    (stdout)
+import           Tendermint.SDK.Application                   (HandlersContext (..),
+                                                               Modules (..))
+import           Tendermint.SDK.BaseApp                       ((:&))
+import qualified Tendermint.SDK.BaseApp                       as BaseApp
+import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus    as Prometheus
+import           Tendermint.SDK.Crypto                        (Secp256k1)
+import qualified Tendermint.SDK.Modules.Auth                  as A
 
 
-data KatipConfig = ES {host :: String, port :: String} | Console 
+data KatipConfig = ES {host :: String, port :: String} | Console
 
 makeConsoleLoggingConfig :: IO KatipConfig
 makeConsoleLoggingConfig = do
   mEsConfig <- runMaybeT $
-    ES <$> (MaybeT $ lookupEnv "ES_HOST") <*> (MaybeT $ lookupEnv "ES_PORT") 
+    ES <$> (MaybeT $ lookupEnv "ES_HOST") <*> (MaybeT $ lookupEnv "ES_PORT")
   pure $ fromMaybe Console mEsConfig
 
 -- makes a log environment for console logs / ES logs
@@ -67,26 +68,28 @@ makeMetricsScribe key = Kleisli $ \le -> do
 
 addScribesToLogEnv :: AppConfig -> K.LogEnv -> IO K.LogEnv
 addScribesToLogEnv AppConfig{..} initialLogEnv = do
-  let addScribes = runKleisli $ 
+  consoleCfg <- makeConsoleLoggingConfig
+  let addScribes = runKleisli $
         makeKatipScribe consoleCfg >>> maybe returnA makeMetricsScribe datadogApiKey
   addScribes initialLogEnv
-    
+
 
 data AppConfig = AppConfig
-  { baseAppContext :: BaseApp.Context
+  { baseAppContext   :: BaseApp.Context
   , serverMetricsMap :: MVar (Map OrderedMessageType Integer)
-  , datadogApiKey :: Maybe Text
+  , datadogApiKey    :: Maybe Text
   , consoleLogConfig :: KatipConfig
   }
 
-makeAppConfig :: Prometheus.MetricsConfig -> KL.LogConfig -> IO AppConfig
-makeAppConfig metCfg logCfg = do
-  c <- BaseApp.makeContext (Just metCfg) logCfg
+makeAppConfig :: Prometheus.PrometheusConfig -> IO AppConfig
+makeAppConfig metCfg = do
+  ddApiKey <- fmap pack <$> lookupEnv "DD_API_KEY"
   serverMetricsMap <- newMVar empty
-  ddApiKey <- fmap cs <$> lookupEnv "DD_API_KEY"
   consoleCfg <- makeConsoleLoggingConfig
+  let withApiKeyMetCfg = metCfg { Prometheus.metricsAPIKey = ddApiKey }
+  c <- BaseApp.makeContext ("dev", "nameservice") (Just withApiKeyMetCfg)
   pure $ AppConfig { baseAppContext = c
-                   , serverMetricsMap = serverMetricsMap 
+                   , serverMetricsMap = serverMetricsMap
                    , datadogApiKey = ddApiKey
                    , consoleLogConfig = consoleCfg
                    }

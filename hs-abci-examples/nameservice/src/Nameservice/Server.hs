@@ -1,7 +1,7 @@
 module Nameservice.Server (makeAndServeApplication) where
 
-import Data.Monoid (Endo(..))
-import Data.Foldable (fold)
+import           Data.Foldable                                 (fold)
+import           Data.Monoid                                   (Endo (..))
 import           Nameservice.Application                       (AppConfig (..),
                                                                 handlersContext)
 import           Network.ABCI.Server                           (serveApp)

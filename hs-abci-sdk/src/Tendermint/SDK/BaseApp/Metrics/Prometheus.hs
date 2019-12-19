@@ -34,7 +34,7 @@ import           Tendermint.SDK.BaseApp.Metrics                (CountName (..), 
 
 evalWithMetrics
   :: Member (Embed IO) r
-  => Member (Reader (Maybe MetricsConfig)) r
+  => Member (Reader (Maybe PrometheusConfig)) r
   => Sem (Metrics ': r) a
   -> Sem r a
 evalWithMetrics action = do
@@ -154,7 +154,7 @@ data MetricsState = MetricsState
 
 -- | Core metrics config
 type Port = Int
-data MetricsConfig = MetricsConfig
+data PrometheusConfig = PrometheusConfig
   { metricsState  :: MetricsState
   , metricsPort   :: Maybe Port
   , metricsAPIKey :: Maybe Text
@@ -181,20 +181,20 @@ emptyState = do
   registry <- Registry.new
   return $ MetricsState registry counters histos
 
-mkMetricsConfig :: IO MetricsConfig
-mkMetricsConfig = do
+mkPrometheusConfig :: IO PrometheusConfig
+mkPrometheusConfig = do
   state <- emptyState
-  return $ MetricsConfig state Nothing Nothing
+  return $ PrometheusConfig state Nothing Nothing
 
 runMetricsServer
   :: MonadIO m
-  => Maybe MetricsConfig
+  => Maybe PrometheusConfig
   -> m ()
 runMetricsServer mMetCfg = liftIO $ do
   case mMetCfg of
     Nothing -> return ()
     Just metCfg -> do
-      let MetricsConfig{..} = metCfg
+      let PrometheusConfig{..} = metCfg
           MetricsState{..} = metricsState
       case metricsPort of
         Nothing -> return ()

@@ -8,8 +8,8 @@ module Tendermint.SDK.BaseApp.CoreEff
   , runCoreEffs
   ) where
 
-import           Data.Text                     (Text)
 import           Control.Lens                               (over, view)
+import           Data.Text                                  (Text)
 import qualified Katip                                      as K
 import           Polysemy                                   (Embed, Members,
                                                              Sem, runM)
@@ -18,7 +18,6 @@ import           Polysemy.Reader                            (Reader, asks,
 import           Tendermint.SDK.BaseApp.Events              (EventBuffer,
                                                              newEventBuffer)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip        as KL
-import Katip as K
 import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus  as Prometheus
 import           Tendermint.SDK.BaseApp.Store               (MergeScopes,
                                                              ResolveScope (..))
@@ -30,7 +29,7 @@ type CoreEffs =
   '[ Reader EventBuffer
    , MergeScopes
    , Reader KL.LogConfig
-   , Reader (Maybe Prometheus.MetricsConfig)
+   , Reader (Maybe Prometheus.PrometheusConfig)
    , Reader AT.AuthTreeState
    , Embed IO
    ]
@@ -48,12 +47,12 @@ instance (Members CoreEffs r) => K.KatipContext (Sem r) where
 -- | 'Context' is the environment required to run 'CoreEffs' to 'IO'
 data Context = Context
   { contextLogConfig     :: KL.LogConfig
-  , contextMetricsConfig :: Maybe Prometheus.MetricsConfig
+  , contextMetricsConfig :: Maybe Prometheus.PrometheusConfig
   , contextEventBuffer   :: EventBuffer
   , contextAuthTree      :: AT.AuthTreeState
   }
 
-makeContext :: (Text, Text) -> Maybe Prometheus.MetricsConfig  -> IO Context
+makeContext :: (Text, Text) -> Maybe Prometheus.PrometheusConfig  -> IO Context
 makeContext (environment, processName) metCfg = do
   authTreeState <- AT.initAuthTreeState
   eb <- newEventBuffer
@@ -66,10 +65,10 @@ makeContext (environment, processName) metCfg = do
     }
     where
       mkLogConfig :: Text -> Text -> IO KL.LogConfig
-      mkLogConfig environment processName = do
-        let mkLogEnv = K.initLogEnv (K.Namespace [processName]) (K.Environment environment)
+      mkLogConfig env pName = do
+        let mkLogEnv = K.initLogEnv (K.Namespace [pName]) (K.Environment env)
         le <- mkLogEnv
-        return $ LogConfig
+        return $ KL.LogConfig
           { _logNamespace = mempty
           , _logContext = mempty
           , _logEnv = le
