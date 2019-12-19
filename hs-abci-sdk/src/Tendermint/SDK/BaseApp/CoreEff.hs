@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -8,7 +9,7 @@ module Tendermint.SDK.BaseApp.CoreEff
   , runCoreEffs
   ) where
 
-import           Control.Lens                               (over, view)
+import           Control.Lens                               (makeLenses, over, view)
 import           Data.Text                                  (Text)
 import qualified Katip                                      as K
 import           Polysemy                                   (Embed, Members,
@@ -18,7 +19,7 @@ import           Polysemy.Reader                            (Reader, asks,
 import           Tendermint.SDK.BaseApp.Events              (EventBuffer,
                                                              newEventBuffer)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip        as KL
-import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus  as Prometheus
+import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus  as P
 import           Tendermint.SDK.BaseApp.Store               (MergeScopes,
                                                              ResolveScope (..))
 import qualified Tendermint.SDK.BaseApp.Store.AuthTreeStore as AT
@@ -29,7 +30,7 @@ type CoreEffs =
   '[ Reader EventBuffer
    , MergeScopes
    , Reader KL.LogConfig
-   , Reader (Maybe Prometheus.PrometheusEnv)
+   , Reader (Maybe P.PrometheusEnv)
    , Reader AT.AuthTreeState
    , Embed IO
    ]
@@ -46,24 +47,26 @@ instance (Members CoreEffs r) => K.KatipContext (Sem r) where
 
 -- | 'Context' is the environment required to run 'CoreEffs' to 'IO'
 data Context = Context
-  { contextLogConfig     :: KL.LogConfig
-  , contextPrometheusEnv :: Maybe Prometheus.PrometheusEnv
-  , contextEventBuffer   :: EventBuffer
-  , contextAuthTree      :: AT.AuthTreeState
+  { _contextLogConfig     :: KL.LogConfig
+  , _contextPrometheusEnv :: Maybe P.PrometheusEnv
+  , _contextEventBuffer   :: EventBuffer
+  , _contextAuthTree      :: AT.AuthTreeState
   }
+
+makeLenses ''Context
 
 makeContext
   :: KL.InitialLogNamespace
-  -> Maybe Prometheus.MetricsScrapingConfig
+  -> Maybe P.MetricsScrapingConfig
   -> IO Context
-makeContext KL.InitialLogNamespace{..} metScrapingCfg = do
-  metCfg <- case metScrapingCfg of
+makeContext KL.InitialLogNamespace{..} scrapingCfg = do
+  metCfg <- case scrapingCfg of
         Nothing -> pure Nothing
-        Just scfg -> Prometheus.emptyState >>= \es ->
-          pure . Just $ Prometheus.PrometheusEnv es scfg
+        Just scfg -> P.emptyState >>= \es ->
+          pure . Just $ P.PrometheusEnv es scfg
   authTreeState <- AT.initAuthTreeState
   eb <- newEventBuffer
-  logCfg <- mkLogConfig initialLogNamespaceEnvironment initialLogNamespaceProcessName
+  logCfg <- mkLogConfig _initialLogEnvironment _initialLogProcessName
   pure $ Context
     { contextLogConfig = logCfg
     , contextPrometheusEnv = metCfg

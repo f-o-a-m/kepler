@@ -1,5 +1,17 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Tendermint.SDK.BaseApp.Logger.Katip where
+
+module Tendermint.SDK.BaseApp.Logger.Katip 
+  ( -- setup and config
+    LogConfig(..)
+  , logNamespace
+  , logContext
+  , logEnv
+  , InitialLogNamespace(..)
+  , initialLogEnvironment
+  , initialLogProcessName
+  -- eval
+  , evalKatip
+  ) where
 
 import           Control.Lens.TH               (makeLenses)
 import           Data.String                   (fromString)
@@ -17,9 +29,11 @@ data LogConfig = LogConfig
 makeLenses ''LogConfig
 
 data InitialLogNamespace = InitialLogNamespace
-  { initialLogNamespaceEnvironment :: Text
-  , initialLogNamespaceProcessName :: Text
+  { _initialLogEnvironment :: Text
+  , _initialLogProcessName :: Text
   }
+
+makeLenses ''InitialLogNamespace
 
 evalKatip
   :: forall r a.
