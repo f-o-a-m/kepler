@@ -18,7 +18,7 @@ instance Select a => Select (Object a) where
 instance A.ToJSON a => K.ToObject (Object a) where
   toObject (Object a) = case A.toJSON a of
       A.Object o -> o
-      _          -> error "some error relating to objects"
+      _          -> mempty
 
 instance (A.ToJSON a, Select a) => K.LogItem (Object a) where
   payloadKeys = interpretFromSelect

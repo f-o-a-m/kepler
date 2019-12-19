@@ -107,6 +107,8 @@ instance FromJSON NameClaimed where
 instance BaseApp.ToEvent NameClaimed where
   makeEventType _ = "NameClaimed"
 instance BaseApp.FromEvent NameClaimed
+instance BaseApp.Select NameClaimed where
+  select _ _ = BaseApp.All
 
 data NameRemapped = NameRemapped
   { nameRemappedName     :: Name
@@ -124,6 +126,8 @@ instance FromJSON NameRemapped where
 instance BaseApp.ToEvent NameRemapped where
   makeEventType _ = "NameRemapped"
 instance BaseApp.FromEvent NameRemapped
+instance BaseApp.Select NameRemapped where
+  select _ _ = BaseApp.All
 
 data NameDeleted = NameDeleted
   { nameDeletedName :: Name
@@ -139,3 +143,5 @@ instance FromJSON NameDeleted where
 instance BaseApp.ToEvent NameDeleted where
   makeEventType _ = "NameDeleted"
 instance BaseApp.FromEvent NameDeleted
+instance BaseApp.Select NameDeleted where
+  select _ _ = BaseApp.All

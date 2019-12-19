@@ -40,7 +40,11 @@ module Tendermint.SDK.BaseApp
   -- * Logger
   , Logger
   , Tendermint.SDK.BaseApp.Logger.log
+  , addContext
+  , LogSelect(..)
   , Severity(..)
+  , Select(..)
+  , Verbosity(..)
 
   -- * Metrics
   , Metrics
