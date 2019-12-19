@@ -8,11 +8,13 @@ We're going to build an example application that mirrors the `golang` [cosmos-sd
     - [How to Read this Tutorial](README.md#how-to-read-this-tutorial)
     - [Tutorial Goals](README.md#tutorial-goals)
 2. Foundations
+    - [Overview](Foundations/Overview.md)
     - [BaseApp](Foundations/BaseApp.md)
     - [Modules](Foundations/Modules.md)
         1. [Definition](Foundations/Modules.md#definition)
         2. [Composition](Foundations/Modules.md#composition)
 3. Nameservice
+    - [Overview](Tutorial/Nameservice/Overview.md)
     - [Types](Tutorial/Nameservice/Types.md)
         1. [Using A Typed Key Value Store](Tutorial/Nameservice/Types.md#using-a-typed-key-value-store)
         2. [Tutorial.Nameservice.Types](Tutorial/Nameservice/Types.md#tutorialnameservicetypes)
