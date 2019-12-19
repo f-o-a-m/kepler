@@ -31,7 +31,7 @@ data NameserviceKeeper m a where
   GetWhois :: Name -> NameserviceKeeper m (Maybe Whois)
   DeleteWhois :: Name -> NameserviceKeeper m ()
 
-makeSem ''Nameservice
+makeSem ''NameserviceKeeper
 
 type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
 ~~~
@@ -65,7 +65,7 @@ deleteName DeleteName{..} = do
           BA.emit NameDeleted
             { nameDeletedName = deleteNameName
             }
-~~~ 
+~~~
 
 The control flow should be pretty clear:
 1. Check that the name is actually registered, if not throw an error.
@@ -87,7 +87,7 @@ Taking a look at the class constraints, we see
 
 ### Evaluating Module Effects
 
-Like we said before, all modules must ultimately compile to the set of effects belonging to `BaseApp`. For effects interpreted to `RawStore`, this means that you will need to define something called a `StoreKey`. 
+Like we said before, all modules must ultimately compile to the set of effects belonging to `BaseApp`. For effects interpreted to `RawStore`, this means that you will need to define something called a `StoreKey`.
 
 
 A `StoreKey` is effectively a namespacing inside the database, and is unique for a given module. In theory it could be any `ByteString`, but the natural definition in the case of Nameservice is would be something like
