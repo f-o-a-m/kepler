@@ -46,17 +46,19 @@ makeConsoleLoggingConfig = do
 
 -- makes a log environment for console logs / ES logs
 makeKatipScribe :: KatipConfig -> Kleisli IO K.LogEnv K.LogEnv
-makeKatipScribe kcfg = Kleisli $ \le -> case kcfg of
-  Console -> do
-    handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem K.DebugS) K.V2
-    K.registerScribe "stdout" handleScribe K.defaultScribeSettings le
-  ES {host, port} -> do
-    mgr <- Client.newManager Client.defaultManagerSettings
-    let serverAddress = "http://" <> host <> port
-        bloodhoundEnv = BH.mkBHEnv (BH.Server $ cs serverAddress) mgr
-    esScribe <- ES.mkEsScribe ES.defaultEsScribeCfgV5 bloodhoundEnv (BH.IndexName "nameservice")
-      (BH.MappingName "application-logs") (K.permitItem K.InfoS) K.V3
-    K.registerScribe "es" esScribe K.defaultScribeSettings le
+makeKatipScribe kcfg = Kleisli $ \le ->
+  let verbosity = K.V0
+  in case kcfg of
+    Console -> do
+      handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem K.DebugS) verbosity
+      K.registerScribe "stdout" handleScribe K.defaultScribeSettings le
+    ES {host, port} -> do
+      mgr <- Client.newManager Client.defaultManagerSettings
+      let serverAddress = "http://" <> host <> ":" <> port
+          bloodhoundEnv = BH.mkBHEnv (BH.Server $ cs serverAddress) mgr
+      esScribe <- ES.mkEsScribe ES.defaultEsScribeCfgV5 bloodhoundEnv (BH.IndexName "nameservice")
+        (BH.MappingName "application-logs") (K.permitItem K.DebugS) verbosity
+      K.registerScribe "es" esScribe K.defaultScribeSettings le
 
 -- makes a log environment for metrics logs
 makeMetricsScribe :: Text -> Kleisli IO K.LogEnv K.LogEnv

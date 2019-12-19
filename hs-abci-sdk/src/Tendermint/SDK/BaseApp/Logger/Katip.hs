@@ -22,7 +22,9 @@ evalKatip
   -> Sem r a
 evalKatip = do
   interpret (\case
-    Log severity msg -> K.logFM (coerceSeverity severity) (fromString . cs $ msg)
+    Log severity msg ->
+      K.localKatipNamespace (<> "application") $
+        K.logFM (coerceSeverity severity) (fromString . cs $ msg)
     )
     where
       coerceSeverity :: Severity -> K.Severity

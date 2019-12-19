@@ -26,8 +26,9 @@ instance ToObject (Loggable (Request (t :: MessageType))) where
       _          -> error "Contract violation: `toJSON` of any `Request t` must result with json object"
 
 instance LogItem (Loggable (Request (t :: MessageType))) where
-  payloadKeys V0 _ = SomeKeys ["type"]
-  payloadKeys _ _  = AllKeys
+  payloadKeys V3 _ = AllKeys
+  payloadKeys _ _  = SomeKeys ["type"]
+
 
 ---------------------------------------------------------------------------
 -- mkLogStdout

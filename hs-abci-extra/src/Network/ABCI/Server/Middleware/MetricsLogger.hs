@@ -104,7 +104,8 @@ mkMetricsLoggerM mvarMap (App app) = App $ \ req -> do
         metrics   = Metrics mt count (diffUTCTime endTime startTime)
         newMetMap = Map.insert mt count metMap
     in  pure (newMetMap, metrics)
-  logMetrics metrics
+  localKatipNamespace (<> "server") $
+    logMetrics metrics
   pure res
 
 ---------------------------------------------------------------------------
