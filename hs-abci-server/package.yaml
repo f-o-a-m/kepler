@@ -28,22 +28,7 @@ default-extensions:
 
 dependencies:
 - base >= 4.7 && < 5
-- aeson
-- aeson-casing
-- base16-bytestring
 - bytestring
-- conduit
-- conduit-extra
-- data-default-class
-- lens
-- memory
-- proto-lens
-- proto-lens-runtime
-- string-conversions
-- text
-- template-haskell
-- time
-- hs-abci-types
 
 library:
   source-dirs: src
@@ -54,6 +39,22 @@ library:
   - -Widentities
   - -Wincomplete-uni-patterns
   - -Wredundant-constraints
+  dependencies:
+    - aeson
+    - aeson-casing
+    - base16-bytestring
+    - conduit
+    - conduit-extra
+    - data-default-class
+    - lens
+    - memory
+    - proto-lens
+    - proto-lens-runtime
+    - string-conversions
+    - text
+    - template-haskell
+    - time
+    - hs-abci-types
   exposed-modules:
   - Network.ABCI.Server
   - Network.ABCI.Server.App
