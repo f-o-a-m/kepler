@@ -16,7 +16,8 @@ hlint: ## Run hlint on all haskell projects
 	hs-abci-extra \
 	hs-abci-sdk \
 	hs-abci-examples/simple-storage \
-	hs-abci-examples/nameservice
+	hs-abci-examples/nameservice \
+	hs-iavl-client
 
 stylish: ## Run stylish-haskell over all haskell projects
 	find ./hs-abci-types \
@@ -25,6 +26,7 @@ stylish: ## Run stylish-haskell over all haskell projects
 	./hs-abci-examples \
 	./hs-abci-sdk \
 	./hs-abci-server \
+	./hs-iavl-client \
 	-name "*.hs" | xargs stack exec stylish-haskell -- -c ./.stylish_haskell.yaml -i
 
 ###################

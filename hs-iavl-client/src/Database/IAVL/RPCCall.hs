@@ -1,12 +1,12 @@
 module Database.IAVL.RPCCall where
 
+import           Data.ProtoLens.Message      (defMessage)
 import           Network.GRPC.Client         (RPC (..), RawReply)
 import           Network.GRPC.Client.Helpers (GrpcClient, rawUnary)
 import           Network.HTTP2.Client        (ClientIO, TooMuchConcurrency)
-import Data.ProtoLens.Message (defMessage)
 
-import qualified Proto.Iavl.Api        as Api
 import qualified Proto.Google.Protobuf.Empty as PT (Empty)
+import qualified Proto.Iavl.Api              as Api
 
 
 --------------------------------------------------------------------------------
@@ -35,6 +35,15 @@ getVersionedWithProof
   -> Api.GetVersionedRequest
   -> ClientIO (Either TooMuchConcurrency (RawReply Api.GetWithProofResponse))
 getVersionedWithProof = rawUnary (RPC :: RPC Api.IAVLService "getVersionedWithProof")
+
+--------------------------------------------------------------------------------
+-- | getWithProof
+--------------------------------------------------------------------------------
+getWithProof
+  :: GrpcClient
+  -> Api.GetRequest
+  -> ClientIO (Either TooMuchConcurrency (RawReply Api.GetWithProofResponse))
+getWithProof = rawUnary (RPC :: RPC Api.IAVLService "getWithProof")
 
 --------------------------------------------------------------------------------
 -- | set
@@ -130,3 +139,12 @@ rollback
   :: GrpcClient
   -> ClientIO (Either TooMuchConcurrency (RawReply PT.Empty))
 rollback gc = rawUnary (RPC :: RPC Api.IAVLService "rollback") gc defMessage
+
+--------------------------------------------------------------------------------
+-- | has
+--------------------------------------------------------------------------------
+has
+  :: GrpcClient
+  -> Api.HasRequest
+  -> ClientIO (Either TooMuchConcurrency (RawReply Api.HasResponse))
+has = rawUnary (RPC :: RPC Api.IAVLService "has")
