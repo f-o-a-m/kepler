@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Nameservice.Config
+module SimpleStorage.Config
   ( AppConfig(..)
   , baseAppContext
   , prometheusServerThreadId
@@ -34,7 +34,6 @@ import qualified Tendermint.SDK.BaseApp                       as BaseApp
 import           Tendermint.SDK.BaseApp.Logger.Katip          as KL
 import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus    as P
 import           Text.Read                                    (read)
-
 
 
 data AppConfig = AppConfig
