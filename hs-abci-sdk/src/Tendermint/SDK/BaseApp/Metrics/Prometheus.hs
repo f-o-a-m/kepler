@@ -5,14 +5,21 @@ module Tendermint.SDK.BaseApp.Metrics.Prometheus
     MetricsScrapingConfig(..)
   , prometheusPort
   , dataDogApiKey
+  , MetricsState(..)
   , PrometheusEnv(..)
   , envMetricsState
   , envMetricsScrapingConfig
   , emptyState
   , forkMetricsServer
+  -- utils
+  , mkPrometheusMetricId
+  , metricIdStorable
+  , countToIdentifier
+  , histogramToIdentifier
   -- eval
   , evalWithMetrics
   , evalNothing
+  , evalMetrics
   ) where
 
 import           Control.Arrow                                 ((***))
@@ -88,10 +95,10 @@ histogramToIdentifier (HistogramName name labels buckets) = MetricIdentifier
   , metricIdHistoBuckets = buckets
   }
 
----- | Prometheus registry index key
---mkPrometheusMetricId :: MetricIdentifier -> MetricId.MetricId
---mkPrometheusMetricId MetricIdentifier{..} =
---  MetricId.MetricId (MetricId.Name metricIdName) metricIdLabels
+-- | Prometheus registry index key
+mkPrometheusMetricId :: MetricIdentifier -> MetricId.MetricId
+mkPrometheusMetricId MetricIdentifier{..} =
+  MetricId.MetricId (MetricId.Name metricIdName) metricIdLabels
 
 -- | Index key for storing metrics
 metricIdStorable :: MetricIdentifier -> (Text, MetricId.Labels)
