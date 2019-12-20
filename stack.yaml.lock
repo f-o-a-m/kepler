@@ -82,6 +82,13 @@ packages:
   original:
     hackage: bloodhound-0.16.0.0@sha256:b7be3a83e7b914fbe80a9b9de29009ad60cff072f5f8d4af4ee64de8e6406d32,5508
 - completed:
+    hackage: hpc-0.6.0.3@sha256:de3f7982345d315f1d7713df38b4f2cf09bd274f7d64dffec0cf2a0d9c8aab19,1185
+    pantry-tree:
+      size: 432
+      sha256: 4686c367eb25eb4d32d66bd4c080d6caa2b5e78c73beea3993db690137e1d6cb
+  original:
+    hackage: hpc-0.6.0.3@sha256:de3f7982345d315f1d7713df38b4f2cf09bd274f7d64dffec0cf2a0d9c8aab19,1185
+- completed:
     hackage: katip-datadog-0.1.0.0@sha256:4e72dca402b953bd34b7a744ad23eb90600a420adef67192c9702073564f1cae,1885
     pantry-tree:
       size: 415
