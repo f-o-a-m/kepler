@@ -16,27 +16,27 @@ import           Polysemy.Error                           (Error, mapError,
 import           Polysemy.Output                          (Output)
 import qualified Tendermint.SDK.BaseApp                   as BaseApp
 
-data Nameservice m a where
-  PutWhois :: Name -> Whois -> Nameservice m ()
-  GetWhois :: Name -> Nameservice m (Maybe Whois)
-  DeleteWhois :: Name -> Nameservice m ()
+data NameserviceKeeper m a where
+  PutWhois :: Name -> Whois -> NameserviceKeeper m ()
+  GetWhois :: Name -> NameserviceKeeper m (Maybe Whois)
+  DeleteWhois :: Name -> NameserviceKeeper m ()
 
-makeSem ''Nameservice
+makeSem ''NameserviceKeeper
 
-type NameserviceEffs = '[Nameservice, Error NameserviceError]
+type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
 
 storeKey :: BaseApp.StoreKey NameserviceModuleName
 storeKey = BaseApp.StoreKey . cs . symbolVal $ Proxy @ NameserviceModuleName
 
 eval
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-  => forall a. Sem (Nameservice ': Error NameserviceError ': r) a
+  => forall a. Sem (NameserviceKeeper ': Error NameserviceError ': r) a
   -> Sem r a
 eval = mapError BaseApp.makeAppError . evalNameservice
   where
     evalNameservice
       :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-      => Sem (Nameservice ': r) a -> Sem r a
+      => Sem (NameserviceKeeper ': r) a -> Sem r a
     evalNameservice =
       interpret (\case
           GetWhois name ->

@@ -2,15 +2,14 @@
 
 ## From Modules to App
 
-The `App` type in `Network.ABCI.Server` was defined as 
+The `App` type in `Network.ABCI.Server` is defined as 
 
 ~~~ haskell ignore
 newtype App m = App
   { unApp :: forall (t :: MessageType). Request t -> m (Response t) }
 ~~~
 
-and ultimately our configuration of modules must be converted to this format. This is probably the most important part of the SDK, to provide this bridge between the list of modules -- a heterogeneous list of type `Modules` -- and the actual application. The type that provides the input for this bridge is `HandlersContext`:
-
+and ultimately our configuration of modules must be converted to this format. This is probably the most important part of the SDK, to provide the bridge between the list of modules - a heterogeneous list of type `Modules` - and the actual application. The type that provides the input for this bridge is `HandlersContext`:
 
 ~~~ haskell ignore
 data HandlersContext alg ms r core = HandlersContext
@@ -28,9 +27,9 @@ where
 
 We should say a few words on this `compileToCore` field. The application developer has access to any effects in `BaseApp`, 
 but `BaseApp` itself still needs to be interpreted in order to run the application. In other words, `BaseApp` is still just a 
-list of free effects. The set of effects capable of interpreting `BaseApp` is called `core`, and while the developer is free to provide any `core` they want, we have a standard set of them in the SDK -- e.g. in memory, production, etc. 
+list of free effects. The set of effects capable of interpreting `BaseApp` is called `core`, and while the developer is free to provide any `core` they want, we have a standard set of them in the SDK - e.g. in memory, production, etc. 
 
-The `ScopedEff` type is more complicated and not relevant to the discussion of application development. Long story short, tendermint core requests three connections to the application's state -- `Consensus`, `Mempool` and `Query`. The `ScopedEff` type is used to abstract this concern away from the developer, and as long as you are using one of the `core` effects provided in the SDK you don't need to worry about it.
+The `ScopedEff` type is more complicated and not relevant to the discussion of application development. Long story short, tendermint core requests three connections to the application's state - `Consensus`, `Mempool` and `Query`. The `ScopedEff` type is used to abstract this concern away from the developer, and as long as you are using one of the `core` effects provided in the SDK you don't need to worry about it.
 
 ## Tutorial.Nameservice.Application
 
@@ -49,8 +48,8 @@ import Tendermint.SDK.Crypto (Secp256k1)
 ~~~
 
 This is the part of the application where the effects list must be given a monomorphic type. There is also a requirement
-that the `Modules` type for the application be given the same order as the effects introducted. This ordering problem is due
-to the fact that type level lists are used to represent the effects in `polysemy`, and there the order matters. Still, it's only a small annoyance.
+that the `Modules` type for the application be given the same _order_ as the effects introducted. This ordering problem is due
+to the fact that type level lists are used to represent the effects in `polysemy`, and the order matters there. Still, it's only a small annoyance.
 
 
 ~~~ haskell

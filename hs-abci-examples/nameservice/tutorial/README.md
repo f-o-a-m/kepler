@@ -50,7 +50,7 @@ This means that users can buy and sell entries in a shared mapping of type `Name
 2. Existing `(Name, Whois)` pairs can be updated by their owner or sold to a new owner for the price.
 3. Existing `(Name, Whois)` pairs can be deleted by their owner and the owner receives a refund for the purchase price.
 
-It consists of 3 modules:
+The application consists of three modules:
 1. `Auth` - Manages accounts for users, things like nonces and token balances.
 2. `Token` - Allows users manage their tokens, things like transfering or burning.
 3. `Nameservice` - Controls the shared `Name -> Value` mapping described above.
@@ -59,10 +59,10 @@ It consists of 3 modules:
 
 This tutorial is largely written as a literate haskell file to simulate developing the Nameservice app from scratch. The file structure is similar to the actual app. We will partially develop a haskell module corresponding to what you find in the app, but possibly not the whole thing. Thus whenever we depend on a haskell module in the tutorial, rather than importing from the tutorial itself we will import from the app.
 
-The benefit of this is that we don't have to develop the entire application in this tutorial, but any breaking changes in the app will (hopefully) break the tutorial.
+The benefit of this is that we don't have to develop the entire application in this tutorial. Any breaking changes in the app will (hopefully) break the tutorial and so if you can read this, the tutorial is correct.
 
 ## Tutorial Goals
-The goal of this tutorial is to explain how the nameservice app is constructed using the `hs-abci-sdk` package. Nameservice is in a class of applications that are simple but non-trivial.
+The goal of this tutorial is to explain how the Nameservice app is constructed using the `hs-abci-sdk` package. Nameservice is a relatively simple but still non-trivial application.
 If you would like to start with something simpler, you can view the tutorial for the [simple-storage](https://github.com/f-o-a-m/hs-abci/tree/master/hs-abci-examples/simple-storage) example application.
 
 This tutorial should teach you:
@@ -72,7 +72,7 @@ This tutorial should teach you:
 4. How to add event logging, console logging, and other effects to module.
 4. How to use the type system to control the capabilities of a module.
 
-The SDK makes heavy use of the effects system brought to haskell by the [polysemy](https://hackage.haskell.org/package/polysemy-1.2.3.0) library. We're not going to explain how this library works here, there are several existing tutorials that do this already. Suffice it to say that polysemy encourages the SDK application developer to develop modules that have well defined roles and scopes, and to prohibit certain modules from interfering with the roles and scopes of other modules unless explicitly allowed by the type system. 
+The SDK makes heavy use of the effects system brought to haskell by the [polysemy](https://hackage.haskell.org/package/polysemy-1.2.3.0) library. We're not going to explain how this library works here, there are several existing tutorials that do this already. Suffice it to say that polysemy encourages the application developer to develop modules that have well defined roles and scopes, and to prohibit certain modules from interfering with the roles and scopes of other modules unless explicitly allowed by the type system. 
 
 It is also allows the application developer to construct modules without much regard for how they will plug into the SDK, leaving that job to the SDK itself.
 
@@ -81,3 +81,5 @@ It is also allows the application developer to construct modules without much re
 main :: IO ()
 main = pure ()
 ~~~
+
+[Next: BaseApp](Foundations/Overview.md)

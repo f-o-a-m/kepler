@@ -3,14 +3,36 @@
 The `Types` module is used to define the basic types that the module will make use of. This includes things like custom error types, event types, database types, etc. 
 
 ## Using A Typed Key Value Store
-An important point to note is that the database modeled by the `RawStore` effect is just a key value store for raw `ByteString`s, effectively `Map ByteString ByteString`. The interfact we give is actually a typed key value store This means that within the scope of a module `m`, for any key type `k`, there is only one possible value type `v` associated with `k`. 
+It is important to note that the database modeled by the `RawStore` effect (in the `BaseApp` type) is just a key value store for raw `ByteString`s. This means you can _think_ of `RawStore` as
 
-For example, a user's balance in the `token` module might be modeled by a mapping of `Tendermint.SDK.Types.Address -> Integer`. This means that in the scope of the `token` module, the database utlity `get` function applied to a value of type `Address` will result in a value of type `Integer`. If the `token` module would like to store another mapping whose keys have type `Tendermint.SDK.Types.Address`, you must use a newtype instead. Otherwise you will get a compiler error.
+~~~ haskell ignore
+type RawStore = Map ByteString ByteString
+~~~
 
-At the same time, you are free to define another mapping from `k -> v'` in the scope of a different module. For example, you can have both the `balance` mapping described above, as well a mapping `Tendermint.SDK.Types.Address -> Account` in the `auth` module.
+although the definition of `RawStore` is different than the above.
 
+The interface we give is actually a typed key value store. This means that within the scope of a module `m`, for any key type `k`, there is only one possible value type `v` associated with `k`. 
+
+For example, a user's balance in the `Token` module, might be modeled by a mapping 
+
+~~~ haskell ignore
+balance :: Tendermint.SDK.Types.Address -> Integer
+~~~
+
+(We'll properly introduce the module `Token` later in the walkthrough.)
+
+This means that in the scope of the `Token` module, the database utlity `get` function applied to a value of type `Address` will result in a value of type `Integer`. If the `Token` module would like to store another mapping whose keys have type `Tendermint.SDK.Types.Address`, you must use a newtype instead. Otherwise you will get a compiler error.
+
+At the same time, you are free to define another mapping from `k -> v'` in the scope of a different module. For example, you can have both the `balance` mapping described above, as well a mapping 
+
+~~~ haskell ignore
+owner :: Tendermint.SDK.Types.Address -> Account
+~~~ 
+in the `Auth` module.
 
 ## Tutorial.Nameservice.Types
+
+Let's look at the example in `Nameservice.Types`.
 
 ~~~ haskell
 module Tutorial.Nameservice.Types where
@@ -34,7 +56,7 @@ import Tendermint.SDK.Types.Message (coerceProto3Error, formatMessageParseError)
 
 ### Storage types
 
-Let's look at the example in `Nameservice.Types`. Remember the `Nameservice` module is responsible for maintaing a marketplace around a mapping `Name -> Whois`. Let us define the types for the marketplace mapping as
+Remember the `Nameservice` module is responsible for maintaining a marketplace around a mapping `Name -> Whois`. Let us define the types for the marketplace mapping as
 
 ~~~ haskell
 newtype Name = Name Text deriving (Eq, Show, Generic, A.ToJSON, A.FromJSON)
@@ -69,7 +91,7 @@ class HasCodec a where
     decode :: ByteString -> Either Text a
 ~~~
 
-This class is used everywhere in the SDK as the binary codec class for things like storage items, messages, transaction formats etc. It's agnostic to the actual serialization format, you can use `JSON`, `CBOR`, `Protobuf`, etc. Throughout the SDK we typically use `protobuf` as it is powerful and there is decent support for this in Haskell either through the `proto3-suite` package or the `proto-lens` package.
+This class is used everywhere in the SDK as the binary codec class for things like storage items, messages, transaction formats etc. It's agnostic to the actual serialization format, you can use `JSON`, `CBOR`, `Protobuf`, etc. Throughout the SDK we typically use `protobuf` as it is powerful in addition to the fact that there's decent support for this in Haskell either through the `proto3-suite` package or the `proto-lens` package.
 
 So we can implement a `HasCodec` instance for `Whois`
 
@@ -90,10 +112,10 @@ class RawKey k => IsKey k ns where
   prefixWith :: Proxy k -> Proxy ns -> BS.ByteString
 
   default prefixWith :: Proxy k -> Proxy ns -> BS.ByteString
-  prefixWith _ _ = "
+  prefixWith _ _ = ""
 ~~~
 
-For the case of the `Name -> Whois` mapping, the `IsKey` instance looked like looks like
+For the case of the `Name -> Whois` mapping, the `IsKey` instance looked like looks like this:
 
 ~~~ haskell
 type NameserviceModuleName = "nameservice"
@@ -102,13 +124,11 @@ instance BA.IsKey Name NameserviceModuleName where
   type Value Name NameserviceModuleName = Whois
 ~~~
 
-At is point, you can now use database operations exported by `Tendermint.SDK.BaseApp.Store` such as `put`/`set`/`delete` for key value pairs of type `(Name, Whois)`.
+At is point, you can use the database operations exported by `Tendermint.SDK.BaseApp.Store` such as `put`/`set`/`delete` for key value pairs of type `(Name, Whois)`.
 
 ### Query Types
 
-In the `cosmos-sdk` it was assumed that you would use `url` formatted queries with some possible query params. For example, 
-to query a `Whois` value based on a `Name`, you might submit a `query` message with the route `nameservice/whois` and supply
-a value of type `Name` to specify as the `data` field. This SDK makes the same assumption for compatability reasons.
+The [`cosmos-sdk`](https://github.com/cosmos/cosmos-sdk) assumes that you use `url` formatted queries with some possible query params. For example, to query a `Whois` value based on a `Name`, you might submit a `query` message with the route `nameservice/whois` and supply a value of type `Name` to specify as the `data` field. Our SDK makes the same assumption for compatability reasons.
 
 In order to register the `Whois` type with the query service, you must implement the `Queryable` typeclass:
 
@@ -125,7 +145,7 @@ class Queryable a where
   decodeQueryResult = decode . toByte
 ~~~
 
-What this means is that you need to supply codecs for the type to query, with the default using the `HasCodec` class. You also need to name the type, this will match the leaf of the `url` used for querying. So for example, in the Nameservice app we have
+What this means is that you need to supply codecs for the type to query, with the default using the `HasCodec` class. You also need to name the type, as this will match the leaf of the `url` used for querying. So for example, in the Nameservice app we have
 
 ~~~ haskell
 instance BA.Queryable Whois where
@@ -136,9 +156,9 @@ since `Whois` already implements the `HasCodec` class.
 
 ### Error Types
 
-You might want to define a module specific error type that has a `throw`/`catch` interface. This error type should be accessible by any other dependant modules, and any uncaught error should eventually be converted into some kind of generic application error understandable by Tendermint. 
+You might want to define a module specific error type that has a `throw`/`catch` interface. This error type should be accessible by any other dependent modules, and any uncaught error should eventually be converted into some kind of generic application error understandable by Tendermint. 
 
-There is a simple way to do this using the `IsAppError` class
+There is a simple way to do this using the `IsAppError` typeclass
 
 ~~~ haskell ignore
 data AppError = AppError
@@ -213,7 +233,7 @@ class ToEvent e where
     _            -> mempty
 ~~~
 
-As you can see, there is a default instance for those types which have a `JSON` representation as an `Object`. The reason that we chose a `JSON` default instance is simply because of support for generics, this is not set in stone.
+As you can see, there is a default instance for those types which have a `JSON` representation as an `Object`. The reason that we chose a `JSON` default instance is simply because of support for generics, but this isn't set in stone.
 
 In the case of `Nameservice`, here is an example of a custom event:
 
@@ -238,3 +258,5 @@ instance A.FromJSON NameClaimed where
 instance BA.ToEvent NameClaimed where
   makeEventType _ = "NameClaimed"
 ~~~
+
+[Next: Message](Message.md)
