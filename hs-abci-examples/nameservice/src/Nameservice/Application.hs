@@ -51,7 +51,7 @@ handlersContext = HandlersContext
   where
   nameserviceModules :: Modules NameserviceModules EffR
   nameserviceModules =
-    ConsModule N.nameserviceModule $
-      ConsModule T.tokenModule $
-      ConsModule A.authModule $
-      NilModules
+       N.nameserviceModule
+    :+ T.tokenModule
+    :+ A.authModule
+    :+ NilModules
