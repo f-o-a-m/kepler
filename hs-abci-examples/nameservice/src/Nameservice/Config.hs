@@ -66,7 +66,8 @@ addScribesToLogEnv cfg = do
       mdatadogApiKey =  cfg ^? baseAppContext . BaseApp.contextPrometheusEnv .
         _Just . P.envMetricsScrapingConfig . P.dataDogApiKey
       addScribes = runKleisli $
-        makeKatipScribe consoleCfg >>> maybe returnA makeMetricsScribe mdatadogApiKey
+             makeKatipScribe consoleCfg
+         >>> maybe returnA makeMetricsScribe mdatadogApiKey
   scribesLogEnv <- addScribes initialLogEnv
   pure $ cfg &
     baseAppContext . BaseApp.contextLogConfig  . KL.logEnv .~ scribesLogEnv
