@@ -39,30 +39,12 @@ default-extensions:
 
 
 dependencies:
-- aeson
 - base >= 4.7 && < 5
 - bytestring
 - cereal
-- cereal-text
-- cryptonite
-- errors
-- exceptions
-- hs-abci-extra
-- hs-abci-server
-- hs-abci-types
-- hs-abci-extra
 - hs-abci-sdk
 - lens
-- memory
-- mtl
-- polysemy
-- polysemy-plugin
-- proto-lens
-- proto-lens-runtime
-- servant
 - string-conversions
-- text
-- validation
 
 custom-setup:
   dependencies:
@@ -77,6 +59,24 @@ library:
   - -fplugin=Polysemy.Plugin
   - -Werror
   - -Wall
+  dependencies:
+    - aeson
+    - cereal-text
+    - cryptonite
+    - errors
+    - exceptions
+    - hs-abci-extra
+    - hs-abci-server
+    - hs-abci-types
+    - hs-abci-extra
+    - hs-abci-sdk
+    - memory
+    - polysemy
+    - polysemy-plugin
+    - proto-lens
+    - proto-lens-runtime
+    - text
+    - validation
   exposed-modules:
   - SimpleStorage.Server
   - SimpleStorage.Application
@@ -128,5 +128,7 @@ tests:
       - hs-abci-types
       - hs-tendermint-client
       - hspec
+      - mtl
       - QuickCheck
       - secp256k1-haskell
+      - servant
