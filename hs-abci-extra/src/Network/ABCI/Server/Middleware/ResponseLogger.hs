@@ -26,7 +26,7 @@ instance ToObject (Loggable (Response (t :: MessageType))) where
 
 instance LogItem (Loggable (Response (t :: MessageType))) where
   payloadKeys V3 _ = AllKeys
-  payloadKeys _ _  = SomeKeys ["type"]
+  payloadKeys _ _  = SomeKeys ["type", "event_type"]
 
 ---------------------------------------------------------------------------
 -- mkLogStdout

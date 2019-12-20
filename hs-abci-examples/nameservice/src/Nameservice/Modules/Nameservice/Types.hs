@@ -3,6 +3,7 @@ module Nameservice.Modules.Nameservice.Types where
 import           Control.Lens                 (iso)
 import           Data.Aeson                   as A
 import           Data.Bifunctor               (first)
+import           Data.Proxy
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
 import qualified Data.Text.Lazy               as TL
@@ -145,3 +146,15 @@ instance BaseApp.ToEvent NameDeleted where
 instance BaseApp.FromEvent NameDeleted
 instance BaseApp.Select NameDeleted where
   select _ _ = BaseApp.All
+
+newtype ContextEvent t = ContextEvent t
+
+instance (ToJSON a, BaseApp.ToEvent a) => ToJSON (ContextEvent a) where
+  toJSON (ContextEvent a) =
+    let eventJson = toJSON a
+        eventName = BaseApp.makeEventType (Proxy :: Proxy a)
+    in A.object [ "event_type" A..= eventName, "event" A..= eventJson ]
+instance FromJSON a => FromJSON (ContextEvent a) where
+  parseJSON = undefined
+instance BaseApp.Select a => BaseApp.Select (ContextEvent a) where
+  select v (ContextEvent a) = BaseApp.select v a

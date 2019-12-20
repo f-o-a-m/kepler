@@ -27,7 +27,7 @@ instance ToObject (Loggable (Request (t :: MessageType))) where
 
 instance LogItem (Loggable (Request (t :: MessageType))) where
   payloadKeys V3 _ = AllKeys
-  payloadKeys _ _  = SomeKeys ["type"]
+  payloadKeys _ _  = SomeKeys ["type", "event_type"]
 
 
 ---------------------------------------------------------------------------

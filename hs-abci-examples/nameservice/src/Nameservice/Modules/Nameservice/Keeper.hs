@@ -69,7 +69,7 @@ setName SetName{..} = do
                 , nameRemappedOldValue = whoisValue
                 }
           BaseApp.emit event
-          BaseApp.addContext event $
+          BaseApp.addContext (ContextEvent event) $
             BaseApp.log BaseApp.Debug (cs $ BaseApp.makeEventType (Proxy :: Proxy NameRemapped))
 
 deleteName
@@ -91,7 +91,7 @@ deleteName DeleteName{..} = do
                 { nameDeletedName = deleteNameName
                 }
           BaseApp.emit event
-          BaseApp.addContext event $
+          BaseApp.addContext (ContextEvent event) $
             BaseApp.log BaseApp.Debug (cs $ BaseApp.makeEventType (Proxy :: Proxy NameDeleted))
 
 
@@ -134,7 +134,7 @@ buyName msg = do
               , nameClaimedBid = buyNameBid
               }
         BaseApp.emit event
-        BaseApp.addContext event $
+        BaseApp.addContext (ContextEvent event) $
           BaseApp.log BaseApp.Debug (cs $ BaseApp.makeEventType (Proxy :: Proxy NameClaimed))
 
 
@@ -162,7 +162,7 @@ buyName msg = do
                      , nameClaimedBid = buyNameBid
                      }
                BaseApp.emit event
-               BaseApp.addContext event $
+               BaseApp.addContext (ContextEvent event) $
                  BaseApp.log BaseApp.Debug (cs $ BaseApp.makeEventType (Proxy :: Proxy NameClaimed))
              else throw (InsufficientBid "Bid must exceed the price.")
 
