@@ -82,7 +82,7 @@ histogram_set_bucket{le="1.0e-4"} 0.0
 In Datadog's metrics explorer, you should be able to search for metrics
 prefixed with the `prometheus` value set in your agent's config.
 
-<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/prometheus-metrics" width="50%"/>
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/prometheus-metrics.png" width="50%"/>
 
 ## Alternative Logging
 
@@ -129,5 +129,14 @@ via the commands:
 You should no longer see logs on the console. Instead, you should be able to see metrics
 logs on [Datadog's log explorer](https://app.datadoghq.com/logs). 
 
-On Kibana, go to `Management` and create an index pattern for `nameservice`:
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/logs-tab.png" width="50%"/>
 
+On Kibana, go to `Management` and create a Kibana index pattern for `nameservice`:
+
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/kibana-management.png" width="50%"/>
+
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/create-index.png" width="50%"/>
+
+Finally, under the `Discover`, you should be able to add filters to view specific logs:
+
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/kibana-discover.png" width="50%"/>
