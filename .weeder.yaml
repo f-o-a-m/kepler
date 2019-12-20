@@ -1,0 +1,7 @@
+- package:
+  - name: hs-abci-server
+  - section:
+    - name: test:hs-abci-server-test
+    - message:
+      - name: Redundant build-depends entry
+      - depends: hspec-discover
