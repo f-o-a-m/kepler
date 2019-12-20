@@ -46,35 +46,36 @@ default-extensions:
   - ConstraintKinds
 
 dependencies:
-- aeson
-- aeson-casing
-- base >= 4.7 && < 5
-- bytestring
-- data-default-class
-- errors
-- exceptions
-- either
-- hs-abci-extra
-- hs-abci-sdk
-- hs-abci-server
-- hs-abci-types
-- lens
-- polysemy
-- polysemy-plugin
-- polysemy-zoo
-- pretty
-- proto-lens
-- proto-lens-runtime
-- proto3-suite
-- proto3-wire
-- katip
-- servant
-- string-conversions
-- text
-- validation
+  - base >= 4.7 && < 5
+  - hs-abci-sdk
+  - polysemy
+  - polysemy-plugin
 
 library:
   source-dirs: src
+  dependencies:
+    - aeson
+    - aeson-casing
+    - bytestring
+    - data-default-class
+    - errors
+    - exceptions
+    - either
+    - hs-abci-extra
+    - hs-abci-server
+    - hs-abci-types
+    - lens
+    - polysemy-zoo
+    - pretty
+    - proto-lens
+    - proto-lens-runtime
+    - proto3-suite
+    - proto3-wire
+    - katip
+    - servant
+    - string-conversions
+    - text
+    - validation
   ghc-options:
   - -fplugin=Polysemy.Plugin
   - -Werror
@@ -112,7 +113,10 @@ executables:
     - -with-rtsopts=-N
     - -fplugin=Polysemy.Plugin
     dependencies:
+    - hs-abci-server
+    - katip
     - nameservice
+    - string-conversions
 
   gen-protos-exe:
     main:                Main.hs
@@ -122,7 +126,12 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
+    - aeson-casing
+    - bytestring
     - nameservice
+    - pretty
+    - proto3-suite
+    - proto3-wire
 
 tests:
   tutorial:
@@ -137,8 +146,14 @@ tests:
     - Tutorial.Nameservice.Types
     ghc-options: -Wall -pgmL markdown-unlit
     dependencies:
+    - aeson
     - hs-abci-sdk
+    - hs-abci-server
+    - lens
     - nameservice
+    - proto3-suite
+    - string-conversions
+    - text
   nameservice-test:
     main:                Spec.hs
     source-dirs:         test
@@ -150,7 +165,16 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - nameservice
+    - aeson
     - aeson-pretty
+    - bytestring
+    - data-default-class
     - hspec
     - secp256k1-haskell
+    - hs-abci-types
     - hs-tendermint-client
+    - lens
+    - proto3-suite
+    - servant
+    - string-conversions
+    - text

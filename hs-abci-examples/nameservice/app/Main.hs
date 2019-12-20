@@ -1,10 +1,10 @@
 module Main where
 
 import           Control.Exception                         (bracket)
-import           Data.Text                                 (pack)
 import qualified Katip                                     as K
 import           Nameservice.Application                   (makeAppConfig)
 import           Nameservice.Server                        (makeAndServeApplication)
+import Data.String.Conversions (cs)
 import           System.Environment                        (lookupEnv)
 import           System.IO                                 (stdout)
 import           Tendermint.SDK.BaseApp.Logger.Katip       (LogConfig (..),
@@ -23,7 +23,7 @@ main = do
   let mkLogEnv = K.registerScribe "stdout" handleScribe K.defaultScribeSettings (_logEnv logCfg)
   bracket mkLogEnv K.closeScribes $ \le -> do
     cfg <- makeAppConfig
-      metCfg { metricsAPIKey = pack <$> mApiKey
+      metCfg { metricsAPIKey = cs <$> mApiKey
              , metricsPort = T.read <$> mMetricsPort
              }
       logCfg {_logEnv = le}
