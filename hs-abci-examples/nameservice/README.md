@@ -26,7 +26,7 @@ instances:
 
   - prometheus_url: http://localhost:9200/metrics
     ## namespace option prefixes all metric names in datadog
-    namespace: nameservice 
+    namespace: prometheus
     ## metrics names used in the nameservice app
     metrics:
       - count_buy
@@ -80,7 +80,9 @@ histogram_set_bucket{le="1.0e-4"} 0.0
 ```
 
 In Datadog's metrics explorer, you should be able to search for metrics
-prefixed with the `namespace` value set in your agent's config.
+prefixed with the `prometheus` value set in your agent's config.
+
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/prometheus-metrics" width="50%"/>
 
 ## Alternative Logging
 
@@ -125,9 +127,7 @@ via the commands:
 ```
 
 You should no longer see logs on the console. Instead, you should be able to see metrics
-logs on [Datadog's log explorer](https://app.datadoghq.com/logs). On Kibana, go to
-`Management > Kibana > Index Patterns` and create an index pattern for `nameservice` by
-simply typing its name. To view the logs in this index, you should be able to go to
-`Machine Learnine > Data Visualization` and select the `nameservice` index pattern you 
-just created. You should now see both metrics and some stats on specific `nameservice`
-log fields.
+logs on [Datadog's log explorer](https://app.datadoghq.com/logs). 
+
+On Kibana, go to `Management` and create an index pattern for `nameservice`:
+
