@@ -129,14 +129,19 @@ via the commands:
 You should no longer see logs on the console. Instead, you should be able to see metrics
 logs on [Datadog's log explorer](https://app.datadoghq.com/logs). 
 
-<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/logs-tab.png" width="50%"/>
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/logs-tab.png" width="25%"/>
 
 On Kibana, go to `Management` and create a Kibana index pattern for `nameservice`:
 
-<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/kibana-management.png" width="50%"/>
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/kibana-management.png" width="25%"/>
 
-<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/create-index.png" width="50%"/>
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/create-index.png" width="75%"/>
 
 Finally, under the `Discover`, you should be able to add filters to view specific logs:
 
-<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/kibana-discover.png" width="50%"/>
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/kibana-discover.png" width="25%"/>
+
+For example, after running `nameservice` tests, you should be able to add a filter to see
+event logs for `NameClaimed`, `NameRemapped` and `NameDeleted`:
+
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/create-filter.png" width="75%"/>
