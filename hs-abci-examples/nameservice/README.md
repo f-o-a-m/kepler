@@ -95,7 +95,7 @@ logs to the console via Katip's context logger:
 
 These logs include request/response info and as well some metric logging.
 
-Alternatively, the app is set up to log the same information to Elastic search
+Alternatively, the app is set up to log the same information to ES
 and Datadog by setting the following environment variables:
 
 ```bash
