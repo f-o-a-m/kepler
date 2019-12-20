@@ -3,7 +3,7 @@
 The `Types` module is used to define the basic types that the module will make use of. This includes things like custom error types, event types, database types, etc. 
 
 ## Using A Typed Key Value Store
-It is important to note that the database modeled by the `RawStore` effect (if the `BaseApp` type) is just a key value store for raw `ByteString`s. This means you can _think_ of `RawStore` as
+It is important to note that the database modeled by the `RawStore` effect (in the `BaseApp` type) is just a key value store for raw `ByteString`s. This means you can _think_ of `RawStore` as
 
 ~~~ haskell ignore
 type RawStore = Map ByteString ByteString
@@ -56,7 +56,7 @@ import Tendermint.SDK.Types.Message (coerceProto3Error, formatMessageParseError)
 
 ### Storage types
 
-Remember the `Nameservice` module is responsible for maintaing a marketplace around a mapping `Name -> Whois`. Let us define the types for the marketplace mapping as
+Remember the `Nameservice` module is responsible for maintaining a marketplace around a mapping `Name -> Whois`. Let us define the types for the marketplace mapping as
 
 ~~~ haskell
 newtype Name = Name Text deriving (Eq, Show, Generic, A.ToJSON, A.FromJSON)
