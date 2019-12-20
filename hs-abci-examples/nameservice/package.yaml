@@ -92,6 +92,7 @@ library:
   exposed-modules:
   - Nameservice.Application
   - Nameservice.Config
+  - Nameservice.Aeson
   - Nameservice.Server
   - Nameservice.Modules.TypedMessage
   - Nameservice.Modules.Nameservice
@@ -130,6 +131,20 @@ executables:
     - nameservice
 
 tests:
+  tutorial:
+    main:                README.lhs
+    source-dirs:         tutorial
+    other-modules:
+    - Tutorial.Nameservice.Application
+    - Tutorial.Nameservice.Keeper
+    - Tutorial.Nameservice.Message
+    - Tutorial.Nameservice.Module
+    - Tutorial.Nameservice.Query
+    - Tutorial.Nameservice.Types
+    ghc-options: -Wall -pgmL markdown-unlit
+    dependencies:
+    - hs-abci-sdk
+    - nameservice
   nameservice-test:
     main:                Spec.hs
     source-dirs:         test

@@ -13,7 +13,7 @@ help: ## Ask for help!
 #####################
 
 hlint: ## Run hlint on all haskell projects
-	stack exec hlint -- -h .hlint.yaml hs-abci-server \
+	stack exec hlint -- -e hs -h .hlint.yaml hs-abci-server \
 	hs-tendermint-client \
 	hs-abci-extra \
 	hs-abci-sdk \
@@ -83,7 +83,11 @@ test-simple-storage: install ## Run the test suite for the simple-storage exampl
 	stack test simple-storage
 
 test-nameservice: install ## Run the test suite for the nameservice example application
-	stack test nameservice
+	stack test nameservice:nameservice-test
+
+test-tutorial: install ## Make sure the tutorial builds
+	stack test nameservice:tutorial
+
 
 
 #####################
