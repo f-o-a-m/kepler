@@ -32,26 +32,26 @@ default-extensions:
 - OverloadedStrings
 - GeneralizedNewtypeDeriving
 
-
 dependencies:
 - aeson
-- aeson-casing
 - base >= 4.7 && < 5
-- base16-bytestring
 - bytestring
-- data-default-class
 - exceptions
-- hs-abci-types
-- http-client
-- http-conduit
-- memory
-- mtl
-- random
-- text
-- time
+- data-default-class
 
 library:
   source-dirs: src
+  dependencies:
+    - aeson-casing
+    - base16-bytestring
+    - hs-abci-types
+    - http-client
+    - http-conduit
+    - memory
+    - mtl
+    - random
+    - text
+    - time
   ghc-options:
   - -Werror
   - -Wall
@@ -75,7 +75,6 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-      - aeson
       - aeson-pretty
       - binary
       - hs-abci-types

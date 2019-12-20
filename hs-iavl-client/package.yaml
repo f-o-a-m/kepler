@@ -39,21 +39,10 @@ default-extensions:
 
 dependencies:
 - base >= 4.7 && < 5
-- aeson
-- aeson-casing
-- base16-bytestring
-- bytestring
-- data-default-class
-- lens
-- memory
-- proto-lens
-- proto-lens-runtime
-- string-conversions
-- text
-- template-haskell
-- time
 - http2-client
 - http2-client-grpc
+- lens
+- proto-lens
 
 library:
   source-dirs: src
@@ -64,6 +53,18 @@ library:
   - -Widentities
   - -Wincomplete-uni-patterns
   - -Wredundant-constraints
+  dependencies:
+    - aeson
+    - aeson-casing
+    - base16-bytestring
+    - bytestring
+    - data-default-class
+    - memory
+    - proto-lens-runtime
+    - string-conversions
+    - text
+    - template-haskell
+    - time
   exposed-modules:
   - Database.IAVL.RPCCall
   generated-exposed-modules:
