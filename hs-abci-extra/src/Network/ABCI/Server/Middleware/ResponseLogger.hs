@@ -82,5 +82,5 @@ mkResponseLoggerM (App app) = App $ \ req -> do
 ---------------------------------------------------------------------------
 -- | Response logger function.
 logResponse :: (KatipContext m) => Response t ->  m ()
-logResponse req = katipAddNamespace "server" $
+logResponse req = localKatipNamespace (<> "server") $
   katipAddContext (Loggable req) $ logFM InfoS "Response Received"
