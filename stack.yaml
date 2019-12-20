@@ -13,6 +13,7 @@ packages:
 - ./hs-abci-sdk
 - ./hs-abci-examples/simple-storage
 - ./hs-abci-examples/nameservice
+- ./hs-iavl-client
 
 extra-deps:
   - proto-lens-runtime-0.5.0.0
@@ -30,6 +31,10 @@ extra-deps:
     commit: 23015cf6363d1962fde6bdff0de111f7ec59ab75
   - polysemy-1.2.3.0
   - polysemy-zoo-0.6.0.0
+  - http2-client-0.9.0.0
+  - http2-grpc-types-0.4.0.0
+  - git: https://github.com/lucasdicioccio/http2-client-grpc
+    commit: 6a1aacfc18e312ef57552133f13dd1024c178706
 
 explicit-setup-deps:
   hs-abci-server: true
