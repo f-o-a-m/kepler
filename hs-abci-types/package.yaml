@@ -38,19 +38,9 @@ default-extensions:
 
 dependencies:
 - base >= 4.7 && < 5
-- aeson
-- aeson-casing
-- base16-bytestring
 - bytestring
-- data-default-class
 - lens
-- memory
 - proto-lens
-- proto-lens-runtime
-- string-conversions
-- text
-- template-haskell
-- time
 
 library:
   source-dirs: src
@@ -61,6 +51,17 @@ library:
   - -Widentities
   - -Wincomplete-uni-patterns
   - -Wredundant-constraints
+  dependencies:
+    - aeson
+    - aeson-casing
+    - base16-bytestring
+    - data-default-class
+    - memory
+    - proto-lens-runtime
+    - string-conversions
+    - text
+    - template-haskell
+    - time
   exposed-modules:
   - Data.ByteArray.HexString
   - Data.ByteArray.Base64String
