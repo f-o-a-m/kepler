@@ -4,17 +4,16 @@ module Network.ABCI.Server.Middleware.MetricsLogger
     , mkMetricsLoggerM
     , OrderedMessageType(..)
     ) where
-import           Control.Concurrent.MVar   (MVar, modifyMVar)
-import           Control.Monad.IO.Class    (MonadIO, liftIO)
-import qualified Data.Aeson                as A
-import           Data.Map.Strict           (Map)
-import qualified Data.Map.Strict           as Map
-import           Data.Time                 (NominalDiffTime, diffUTCTime,
-                                            getCurrentTime)
+import           Control.Concurrent.MVar (MVar, modifyMVar)
+import           Control.Monad.IO.Class  (MonadIO, liftIO)
+import qualified Data.Aeson              as A
+import           Data.Map.Strict         (Map)
+import qualified Data.Map.Strict         as Map
+import           Data.Time               (NominalDiffTime, diffUTCTime,
+                                          getCurrentTime)
 import           Katip
-import           Network.ABCI.Server.App   (App (..), MessageType (..),
-                                            Middleware, Request (..),
-                                            msgTypeKey)
+import           Network.ABCI.Server.App (App (..), MessageType (..),
+                                          Middleware, Request (..), msgTypeKey)
 
 ---------------------------------------------------------------------------
 -- mkMetricsLogger
