@@ -91,6 +91,7 @@ library:
   - -Wredundant-constraints
   exposed-modules:
   - Nameservice.Application
+  - Nameservice.Config
   - Nameservice.Server
   - Nameservice.Modules.TypedMessage
   - Nameservice.Modules.Nameservice

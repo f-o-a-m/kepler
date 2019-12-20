@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.BaseApp.Logger.Katip 
+module Tendermint.SDK.BaseApp.Logger.Katip
   ( -- setup and config
     LogConfig(..)
   , logNamespace

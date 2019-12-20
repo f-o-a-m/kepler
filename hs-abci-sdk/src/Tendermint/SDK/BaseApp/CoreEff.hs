@@ -1,15 +1,20 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell      #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Tendermint.SDK.BaseApp.CoreEff
   ( CoreEffs
   , Context(..)
+  , contextLogConfig
+  , contextPrometheusEnv
+  , contextEventBuffer
+  , contextAuthTree
   , makeContext
   , runCoreEffs
   ) where
 
-import           Control.Lens                               (makeLenses, over, view)
+import           Control.Lens                               (makeLenses, over,
+                                                             view)
 import           Data.Text                                  (Text)
 import qualified Katip                                      as K
 import           Polysemy                                   (Embed, Members,
@@ -68,10 +73,10 @@ makeContext KL.InitialLogNamespace{..} scrapingCfg = do
   eb <- newEventBuffer
   logCfg <- mkLogConfig _initialLogEnvironment _initialLogProcessName
   pure $ Context
-    { contextLogConfig = logCfg
-    , contextPrometheusEnv = metCfg
-    , contextEventBuffer = eb
-    , contextAuthTree = authTreeState
+    { _contextLogConfig = logCfg
+    , _contextPrometheusEnv = metCfg
+    , _contextEventBuffer = eb
+    , _contextAuthTree = authTreeState
     }
     where
       mkLogConfig :: Text -> Text -> IO KL.LogConfig
@@ -93,8 +98,8 @@ runCoreEffs
   -> forall a. Sem CoreEffs a -> IO a
 runCoreEffs Context{..} =
   runM .
-    runReader contextAuthTree .
-    runReader contextPrometheusEnv .
-    runReader contextLogConfig .
+    runReader _contextAuthTree .
+    runReader _contextPrometheusEnv .
+    runReader _contextLogConfig .
     AT.evalMergeScopes .
-    runReader contextEventBuffer
+    runReader _contextEventBuffer

@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.BaseApp.Metrics.Prometheus 
+module Tendermint.SDK.BaseApp.Metrics.Prometheus
   ( -- config and setup
     MetricsScrapingConfig(..)
   , prometheusPort
@@ -8,19 +8,20 @@ module Tendermint.SDK.BaseApp.Metrics.Prometheus
   , PrometheusEnv(..)
   , envMetricsState
   , envMetricsScrapingConfig
-  , emptyState  
+  , emptyState
   , forkMetricsServer
   -- eval
   , evalWithMetrics
   , evalNothing
   ) where
 
-import Control.Lens (makeLenses)
 import           Control.Arrow                                 ((***))
-import           Control.Concurrent                            (forkIO)
+import           Control.Concurrent                            (ThreadId,
+                                                                forkIO)
 import           Control.Concurrent.MVar                       (MVar,
                                                                 modifyMVar_,
                                                                 newMVar)
+import           Control.Lens                                  (makeLenses)
 import           Control.Monad.IO.Class                        (MonadIO, liftIO)
 import           Data.Map.Strict                               (Map, insert)
 import qualified Data.Map.Strict                               as Map
@@ -130,14 +131,12 @@ emptyState = do
 forkMetricsServer
   :: MonadIO m
   => PrometheusEnv
-  -> m ()
+  -> m ThreadId
 forkMetricsServer metCfg = liftIO $
   let PrometheusEnv{..} = metCfg
       port = _prometheusPort $ _envMetricsScrapingConfig
       MetricsState{..} = _envMetricsState
-  in do
-    _ <- forkIO $ Http.serveHttpTextMetrics port ["metrics"] (Registry.sample metricsRegistry)
-    return ()
+  in forkIO $ Http.serveHttpTextMetrics port ["metrics"] (Registry.sample metricsRegistry)
 
 --------------------------------------------------------------------------------
 -- eval
