@@ -129,14 +129,14 @@ via the commands:
 You should no longer see logs on the console. Instead, you should be able to see metrics
 logs on [Datadog's log explorer](https://app.datadoghq.com/logs). 
 
-<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/logs-tab.png" height="50%" width="50%"/>
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/logs-tab.png" width="50%"/>
 
 On Kibana, go to `Management` and create a Kibana index pattern for `nameservice`:
 
-<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/kibana-management.png" height="50%" width="50%"/>
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/kibana-management.png" width="50%"/>
 
 <img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/create-index.png" width="50%"/>
 
 Finally, under the `Discover`, you should be able to add filters to view specific logs:
 
-<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/kibana-discover.png" height="50%" width="50%"/>
+<img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/context-summand/hs-abci-examples/nameservice/images/kibana-discover.png" width="50%"/>
