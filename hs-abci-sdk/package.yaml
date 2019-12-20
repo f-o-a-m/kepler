@@ -46,47 +46,48 @@ default-extensions:
 
 
 dependencies:
-- aeson
-- aeson-casing
-- async
-- avl-auth
-- base >= 4.7 && < 5
-- bytestring
-- containers
-- cryptonite
-- data-default-class
-- errors
-- exceptions
-- hs-abci-types
-- hs-abci-server
-- hs-tendermint-client
-- http-types
-- katip
-- lens
-- memory
-- mmorph
-- mtl
-- polysemy
-- polysemy-plugin
-- polysemy-zoo
-- profunctors
-- prometheus
-- proto-lens
-- proto-lens-runtime
-- proto3-wire
-- proto3-suite
-- secp256k1-haskell
-- servant
-- stm
-- string-conversions
-- text
-- time
-- uri-bytestring
-- validation
+  - aeson
+  - base >= 4.7 && < 5
+  - bytestring
+  - containers
+  - hs-abci-types
+  - lens
+  - polysemy
+  - polysemy-plugin
+  - polysemy-zoo
+  - prometheus
+  - secp256k1-haskell
+  - string-conversions
 
 library:
   source-dirs:
   - src
+  dependencies:
+    - aeson-casing
+    - async
+    - avl-auth
+    - cryptonite
+    - data-default-class
+    - errors
+    - exceptions
+    - hs-abci-server
+    - hs-tendermint-client
+    - http-types
+    - katip
+    - memory
+    - mmorph
+    - mtl
+    - profunctors
+    - proto-lens
+    - proto-lens-runtime
+    - proto3-wire
+    - proto3-suite
+    - servant
+    - stm
+    - text
+    - time
+    - uri-bytestring
+    - validation
   ghc-options:
   - -fplugin=Polysemy.Plugin
   - -Werror
