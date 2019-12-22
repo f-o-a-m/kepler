@@ -1,10 +1,34 @@
-module Tendermint.SDK.BaseApp.Metrics.Prometheus where
+{-# LANGUAGE TemplateHaskell #-}
+
+module Tendermint.SDK.BaseApp.Metrics.Prometheus
+  ( -- config and setup
+    MetricsScrapingConfig(..)
+  , prometheusPort
+  , dataDogApiKey
+  , MetricsState(..)
+  , PrometheusEnv(..)
+  , envMetricsState
+  , envMetricsScrapingConfig
+  , emptyState
+  , forkMetricsServer
+  -- utils
+  , mkPrometheusMetricId
+  , metricIdStorable
+  , countToIdentifier
+  , histogramToIdentifier
+  -- eval
+  , evalWithMetrics
+  , evalNothing
+  , evalMetrics
+  ) where
 
 import           Control.Arrow                                 ((***))
-import           Control.Concurrent                            (forkIO)
+import           Control.Concurrent                            (ThreadId,
+                                                                forkIO)
 import           Control.Concurrent.MVar                       (MVar,
                                                                 modifyMVar_,
                                                                 newMVar)
+import           Control.Lens                                  (makeLenses)
 import           Control.Monad.IO.Class                        (MonadIO, liftIO)
 import           Data.Map.Strict                               (Map, insert)
 import qualified Data.Map.Strict                               as Map
@@ -27,6 +51,99 @@ import qualified System.Metrics.Prometheus.Metric.Histogram    as Histogram
 import qualified System.Metrics.Prometheus.MetricId            as MetricId
 import           Tendermint.SDK.BaseApp.Metrics                (CountName (..), HistogramName (..),
                                                                 Metrics (..))
+--------------------------------------------------------------------------------
+-- Metrics Types
+--------------------------------------------------------------------------------
+
+-- | Core metrics state
+type MetricsMap a = Map (Text, MetricId.Labels) a
+
+data MetricsState = MetricsState
+  { metricsRegistry   :: Registry.Registry
+  , metricsCounters   :: MVar (MetricsMap Counter.Counter)
+  , metricsHistograms :: MVar (MetricsMap Histogram.Histogram)
+  }
+
+-- | Intermediary prometheus registry index key
+data MetricIdentifier = MetricIdentifier
+  { metricIdName         :: Text
+  , metricIdLabels       :: MetricId.Labels
+  , metricIdHistoBuckets :: [Double]
+  }
+
+instance IsString MetricIdentifier where
+  fromString s = MetricIdentifier (fromString s) mempty mempty
+
+fixMetricName :: Text -> Text
+fixMetricName = Text.map fixer
+  where fixer c = if c `elem` validChars then c else '_'
+        validChars = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ "_"
+
+-- indexes
+
+countToIdentifier :: CountName -> MetricIdentifier
+countToIdentifier (CountName name labels) = MetricIdentifier
+  { metricIdName = fixMetricName name
+  , metricIdLabels = MetricId.fromList labels
+  , metricIdHistoBuckets = []
+  }
+
+histogramToIdentifier :: HistogramName -> MetricIdentifier
+histogramToIdentifier (HistogramName name labels buckets) = MetricIdentifier
+  { metricIdName = fixMetricName name
+  , metricIdLabels = MetricId.fromList labels
+  , metricIdHistoBuckets = buckets
+  }
+
+-- | Prometheus registry index key
+mkPrometheusMetricId :: MetricIdentifier -> MetricId.MetricId
+mkPrometheusMetricId MetricIdentifier{..} =
+  MetricId.MetricId (MetricId.Name metricIdName) metricIdLabels
+
+-- | Index key for storing metrics
+metricIdStorable :: MetricIdentifier -> (Text, MetricId.Labels)
+metricIdStorable c = (fixMetricName $ metricIdName c, fixMetricLabels $ metricIdLabels c)
+  where fixMetricLabels =
+          MetricId.fromList .
+          map (fixMetricName *** fixMetricName) .
+          MetricId.toList
+
+
+--------------------------------------------------------------------------------
+-- Config
+--------------------------------------------------------------------------------
+
+-- | Core metrics config
+data MetricsScrapingConfig = MetricsScrapingConfig
+  { _prometheusPort :: Int
+  , _dataDogApiKey  :: Text
+  }
+
+makeLenses ''MetricsScrapingConfig
+
+data PrometheusEnv = PrometheusEnv
+  { _envMetricsState          :: MetricsState
+  , _envMetricsScrapingConfig :: MetricsScrapingConfig
+  }
+
+makeLenses ''PrometheusEnv
+
+emptyState :: IO MetricsState
+emptyState = do
+  counters <- newMVar Map.empty
+  histos <- newMVar Map.empty
+  registry <- Registry.new
+  return $ MetricsState registry counters histos
+
+forkMetricsServer
+  :: MonadIO m
+  => PrometheusEnv
+  -> m ThreadId
+forkMetricsServer metCfg = liftIO $
+  let PrometheusEnv{..} = metCfg
+      port = _prometheusPort $ _envMetricsScrapingConfig
+      MetricsState{..} = _envMetricsState
+  in forkIO $ Http.serveHttpTextMetrics port ["metrics"] (Registry.sample metricsRegistry)
 
 --------------------------------------------------------------------------------
 -- eval
@@ -34,14 +151,14 @@ import           Tendermint.SDK.BaseApp.Metrics                (CountName (..), 
 
 evalWithMetrics
   :: Member (Embed IO) r
-  => Member (Reader (Maybe MetricsConfig)) r
+  => Member (Reader (Maybe PrometheusEnv)) r
   => Sem (Metrics ': r) a
   -> Sem r a
 evalWithMetrics action = do
   mCfg <- ask
   case mCfg of
     Nothing  -> evalNothing action
-    Just cfg -> evalMetrics (metricsState cfg) action
+    Just cfg -> evalMetrics (_envMetricsState cfg) action
 
 evalNothing
   :: Sem (Metrics ': r) a
@@ -107,98 +224,3 @@ observeHistogram MetricsState{..} histName val = liftIO $ do
       Just hist -> do
         Histogram.observe val hist
         pure histMap
-
---------------------------------------------------------------------------------
--- indexes
---------------------------------------------------------------------------------
-
-countToIdentifier :: CountName -> MetricIdentifier
-countToIdentifier (CountName name labels) = MetricIdentifier
-  { metricIdName = fixMetricName name
-  , metricIdLabels = MetricId.fromList labels
-  , metricIdHistoBuckets = []
-  }
-
-histogramToIdentifier :: HistogramName -> MetricIdentifier
-histogramToIdentifier (HistogramName name labels buckets) = MetricIdentifier
-  { metricIdName = fixMetricName name
-  , metricIdLabels = MetricId.fromList labels
-  , metricIdHistoBuckets = buckets
-  }
-
--- | Prometheus registry index key
-mkPrometheusMetricId :: MetricIdentifier -> MetricId.MetricId
-mkPrometheusMetricId MetricIdentifier{..} =
-  MetricId.MetricId (MetricId.Name metricIdName) metricIdLabels
-
--- | Index key for storing metrics
-metricIdStorable :: MetricIdentifier -> (Text, MetricId.Labels)
-metricIdStorable c = (fixMetricName $ metricIdName c, fixMetricLabels $ metricIdLabels c)
-  where fixMetricLabels =
-          MetricId.fromList .
-          map (fixMetricName *** fixMetricName) .
-          MetricId.toList
-
-fixMetricName :: Text -> Text
-fixMetricName = Text.map fixer
-  where fixer c = if c `elem` validChars then c else '_'
-        validChars = ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ "_"
-
--- | Core metrics state
-type MetricsMap a = Map (Text, MetricId.Labels) a
-data MetricsState = MetricsState
-  { metricsRegistry   :: Registry.Registry
-  , metricsCounters   :: MVar (MetricsMap Counter.Counter)
-  , metricsHistograms :: MVar (MetricsMap Histogram.Histogram)
-  }
-
--- | Core metrics config
-type Port = Int
-data MetricsConfig = MetricsConfig
-  { metricsState  :: MetricsState
-  , metricsPort   :: Maybe Port
-  , metricsAPIKey :: Maybe Text
-  }
-
--- | Intermediary prometheus registry index key
-data MetricIdentifier = MetricIdentifier
-  { metricIdName         :: Text
-  , metricIdLabels       :: MetricId.Labels
-  , metricIdHistoBuckets :: [Double]
-  }
-
-instance IsString MetricIdentifier where
-  fromString s = MetricIdentifier (fromString s) mempty mempty
-
---------------------------------------------------------------------------------
--- setup
---------------------------------------------------------------------------------
-
-emptyState :: IO MetricsState
-emptyState = do
-  counters <- newMVar Map.empty
-  histos <- newMVar Map.empty
-  registry <- Registry.new
-  return $ MetricsState registry counters histos
-
-mkMetricsConfig :: IO MetricsConfig
-mkMetricsConfig = do
-  state <- emptyState
-  return $ MetricsConfig state Nothing Nothing
-
-runMetricsServer
-  :: MonadIO m
-  => Maybe MetricsConfig
-  -> m ()
-runMetricsServer mMetCfg = liftIO $ do
-  case mMetCfg of
-    Nothing -> return ()
-    Just metCfg -> do
-      let MetricsConfig{..} = metCfg
-          MetricsState{..} = metricsState
-      case metricsPort of
-        Nothing -> return ()
-        Just port -> do
-          _ <- forkIO $
-            Http.serveHttpTextMetrics port ["metrics"] (Registry.sample metricsRegistry)
-          return ()

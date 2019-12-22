@@ -10,6 +10,10 @@ module Tendermint.SDK.BaseApp
   -- * CoreEff
   , CoreEffs
   , Context(..)
+  , contextLogConfig
+  , contextPrometheusEnv
+  , contextEventBuffer
+  , contextAuthTree
   , makeContext
   , runCoreEffs
 

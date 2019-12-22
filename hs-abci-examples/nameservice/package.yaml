@@ -49,7 +49,9 @@ dependencies:
 - aeson
 - aeson-casing
 - base >= 4.7 && < 5
+- bloodhound
 - bytestring
+- containers
 - data-default-class
 - errors
 - exceptions
@@ -58,6 +60,10 @@ dependencies:
 - hs-abci-sdk
 - hs-abci-server
 - hs-abci-types
+- http-client
+- katip
+- katip-datadog
+- katip-elasticsearch
 - lens
 - polysemy
 - polysemy-plugin
@@ -67,7 +73,6 @@ dependencies:
 - proto-lens-runtime
 - proto3-suite
 - proto3-wire
-- katip
 - servant
 - string-conversions
 - text
@@ -86,6 +91,7 @@ library:
   - -Wredundant-constraints
   exposed-modules:
   - Nameservice.Application
+  - Nameservice.Config
   - Nameservice.Aeson
   - Nameservice.Server
   - Nameservice.Modules.TypedMessage
