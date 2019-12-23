@@ -1,76 +1,22 @@
 module Network.ABCI.Server.Middleware.MetricsLogger
-    ( -- * Basic stdout logging
-      mkMetricsLogStdout
-    , mkMetricsLogDatadog
-    , mkMetricsLogDatadogLocal
-      -- * Custom Loggers
-    , mkMetricsLogger
+    ( -- * Custom Loggers
+      mkMetricsLogger
     , mkMetricsLoggerM
-      -- * ApiKey
-    , ApiKey(..)
     , OrderedMessageType(..)
     ) where
-import           Control.Concurrent.MVar   (MVar, modifyMVar, newMVar)
-import           Control.Monad.IO.Class    (MonadIO, liftIO)
-import qualified Data.Aeson                as A
-import           Data.Map.Strict           (Map)
-import qualified Data.Map.Strict           as Map
-import           Data.Text                 (Text)
-import           Data.Time                 (NominalDiffTime, diffUTCTime,
-                                            getCurrentTime)
+import           Control.Concurrent.MVar (MVar, modifyMVar)
+import           Control.Monad.IO.Class  (MonadIO, liftIO)
+import qualified Data.Aeson              as A
+import           Data.Map.Strict         (Map)
+import qualified Data.Map.Strict         as Map
+import           Data.Time               (NominalDiffTime, diffUTCTime,
+                                          getCurrentTime)
 import           Katip
-import           Katip.Scribes.Datadog.TCP
-import           Network.ABCI.Server.App   (App (..), MessageType (..),
-                                            Middleware, Request (..),
-                                            msgTypeKey)
-import           System.IO                 (stdout)
+import           Network.ABCI.Server.App (App (..), MessageType (..),
+                                          Middleware, Request (..), msgTypeKey)
 
 ---------------------------------------------------------------------------
--- mkMetricsLogStdout
----------------------------------------------------------------------------
--- | Creates a production Metrics logger as middleware for ABCI Server.
--- Uses lowest possible verbosity, however, with the current minimal metrics
--- verbosity has no effect on which metrics logged.
-mkMetricsLogStdout :: (MonadIO m) => m (Middleware m)
-mkMetricsLogStdout = liftIO $ do
-  handleScribe <- mkHandleScribe ColorIfTerminal stdout (permitItem InfoS) V0
-  le <- registerScribe "stdout" handleScribe defaultScribeSettings
-        =<< initLogEnv "ABCI" "production"
-  let ns = "Server"
-  mvarReqC <- newMVar Map.empty
-  pure $ mkMetricsLogger mvarReqC le ns
-
----------------------------------------------------------------------------
--- mkMetricsLogDatadog
----------------------------------------------------------------------------
-
-mkMetricsLogDatadogLocal :: (MonadIO m) => Integer -> m (Middleware m)
-mkMetricsLogDatadogLocal port = liftIO $ do
-  datadogScribeSettings <- mkDatadogScribeSettings (localAgentConnectionParams (fromInteger port)) NoAuthLocal
-  scribe <- mkDatadogScribe datadogScribeSettings (permitItem InfoS) V0
-  le <- registerScribe "datadog" scribe defaultScribeSettings
-        =<< initLogEnv "ABCI" "production"
-  let ns = "Server"
-  mvarReqC <- newMVar Map.empty
-  pure $ mkMetricsLogger mvarReqC le ns
-
-newtype ApiKey = ApiKey Text
-mkMetricsLogDatadog :: (MonadIO m) => Maybe ApiKey -> m (Middleware m)
-mkMetricsLogDatadog mApiKey =
-  case mApiKey of
-    Nothing -> pure id
-    Just (ApiKey key) -> liftIO $ do
-      let apiKey = APIKey key
-      datadogScribeSettings <- mkDatadogScribeSettings directAPIConnectionParams (DirectAuth apiKey)
-      scribe <- mkDatadogScribe datadogScribeSettings (permitItem InfoS) V0
-      le <- registerScribe "datadog" scribe defaultScribeSettings
-            =<< initLogEnv "ABCI" "production"
-      let ns = "Server"
-      mvarReqC <- newMVar Map.empty
-      pure $ mkMetricsLogger mvarReqC le ns
-
----------------------------------------------------------------------------
--- mkRequestLogger
+-- mkMetricsLogger
 ---------------------------------------------------------------------------
 -- | Request logger middleware for ABCI metrics with custom 'Katip.LogEnv'
 -- and 'Katip.Namespace'.

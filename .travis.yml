@@ -41,6 +41,10 @@ jobs:
     - echo "This stage is currently disabled as Nix doesn't seem to play well with libsecp256k1"
     #- curl https://nixos.org/nix/install | sh
     #- source $HOME/.nix-profile/etc/profile.d/nix.sh && stack --nix test hs-abci-types hs-abci-server hs-abci-sdk
+  - name: "Test IAVL Client"
+    script:
+    - docker run -p 8090:8090 -p 8091:8091 -d foamspace/iavl:latest /iavlserver  -db-name "test" -datadir "."  -grpc-endpoint "0.0.0.0:8090"  -gateway-endpoint "0.0.0.0:8091"
+    - make test-iavl-client
   - name: "Test Tendermint Client"
     script:
     - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client up -d
@@ -58,6 +62,10 @@ jobs:
     - docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml -p test-hs-abci-examples-nameservice-e2e up -d
     - make test-nameservice
     - docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml -p test-hs-abci-examples-nameservice-e2e down -v --rmi local
+  - name: "Test Nameservice Tutorial"
+    script:
+    - travis_wait 120 stack --skip-ghc-check install markdown-unlit-0.5.0
+    - make test-tutorial
   - name: "Ensure that code matches style guidelines"
     # When branch is `master` we run `haskell-stylish` and fail if git working directory becomes dirty
     if: branch = master

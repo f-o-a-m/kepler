@@ -41,17 +41,23 @@ default-extensions:
 dependencies:
 - aeson
 - base >= 4.7 && < 5
+- bloodhound
 - bytestring
 - cereal
 - cereal-text
+- containers
 - cryptonite
 - errors
 - exceptions
+- katip
+- katip-datadog
+- katip-elasticsearch
 - hs-abci-extra
 - hs-abci-server
 - hs-abci-types
 - hs-abci-extra
 - hs-abci-sdk
+- http-client
 - lens
 - memory
 - mtl
@@ -80,6 +86,7 @@ library:
   exposed-modules:
   - SimpleStorage.Server
   - SimpleStorage.Application
+  - SimpleStorage.Config
   - SimpleStorage.Modules.SimpleStorage
   - SimpleStorage.Modules.SimpleStorage.Types
   - SimpleStorage.Modules.SimpleStorage.Message

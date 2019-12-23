@@ -1,7 +1,6 @@
 module SimpleStorage.Application
-  ( AppConfig(..)
-  , makeAppConfig
-  , EffR
+  ( EffR
+  , SimpleStorageModules
   , handlersContext
   ) where
 
@@ -13,16 +12,6 @@ import           Tendermint.SDK.BaseApp              ((:&))
 import qualified Tendermint.SDK.BaseApp              as BaseApp
 import           Tendermint.SDK.Crypto               (Secp256k1)
 import qualified Tendermint.SDK.Modules.Auth         as A
-
-data AppConfig = AppConfig
-  { baseAppContext :: BaseApp.Context
-  }
-
-makeAppConfig :: IO AppConfig
-makeAppConfig = do
-  c <- BaseApp.makeContext ("dev", "simple-storage") Nothing
-  pure $ AppConfig { baseAppContext = c
-                   }
 
 --------------------------------------------------------------------------------
 
@@ -45,6 +34,6 @@ handlersContext = HandlersContext
   where
   simpleStorageModules :: Modules SimpleStorageModules EffR
   simpleStorageModules =
-    ConsModule SimpleStorage.simpleStorageModule $
-      ConsModule A.authModule $
-      NilModules
+       SimpleStorage.simpleStorageModule
+    :+ A.authModule
+    :+ NilModules

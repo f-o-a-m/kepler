@@ -1,10 +1,23 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Tendermint.SDK.BaseApp.Logger.Katip where
+
+module Tendermint.SDK.BaseApp.Logger.Katip
+  ( -- setup and config
+    LogConfig(..)
+  , logNamespace
+  , logContext
+  , logEnv
+  , InitialLogNamespace(..)
+  , initialLogEnvironment
+  , initialLogProcessName
+  -- eval
+  , evalKatip
+  ) where
 
 import           Control.Lens.TH               (makeLenses)
 import qualified Data.Aeson                    as A
 import           Data.String                   (fromString)
 import           Data.String.Conversions       (cs)
+import           Data.Text                     (Text)
 import qualified Katip                         as K
 import           Polysemy                      (Sem, interpretH, pureT, raise,
                                                 runT)
@@ -39,6 +52,13 @@ data LogConfig = LogConfig
   , _logEnv       :: K.LogEnv
   }
 makeLenses ''LogConfig
+
+data InitialLogNamespace = InitialLogNamespace
+  { _initialLogEnvironment :: Text
+  , _initialLogProcessName :: Text
+  }
+
+makeLenses ''InitialLogNamespace
 
 evalKatip
   :: forall r a.

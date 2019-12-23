@@ -65,7 +65,9 @@ defaultTxChecker (RoutedTx Tx{txMsg}) =
 
 data Modules (ms :: [*]) r where
     NilModules :: Modules '[] r
-    ConsModule :: Module name msg api s r -> Modules ms r -> Modules (Module name msg api s r  ': ms) r
+    (:+) :: Module name msg api s r -> Modules ms r -> Modules (Module name msg api s r  ': ms) r
+
+infixr 5 :+
 
 --------------------------------------------------------------------------------
 
@@ -82,11 +84,11 @@ class QueryRouter ms r where
 
 instance QueryRouter '[Module name msg api s r] r where
     type Api '[Module name msg api s r] = name :> api
-    routeQuery (ConsModule m NilModules) = moduleQueryServer m
+    routeQuery (m :+ NilModules) = moduleQueryServer m
 
 instance QueryRouter (m' ': ms) r => QueryRouter (Module name msg api s r ': m' ': ms) r where
     type Api (Module name msg api s r ': m' ': ms) = (name :> api) :<|> Api (m' ': ms)
-    routeQuery (ConsModule m rest) = moduleQueryServer m :<|> routeQuery rest
+    routeQuery (m :+ rest) = moduleQueryServer m :<|> routeQuery rest
 
 --------------------------------------------------------------------------------
 
@@ -118,12 +120,12 @@ instance (Member (Error AppError) r) => TxRouter '[] r where
     throwSDKError $ UnmatchedRoute txRoute
 
 instance {-# OVERLAPPING #-} (Member (Error AppError) r, TxRouter ms r,  KnownSymbol name) => TxRouter (Module name Void api s r ': ms) r where
-  routeTx routeContext (ConsModule _ rest) tx@Tx{txRoute}
+  routeTx routeContext (_ :+ rest) tx@Tx{txRoute}
     | symbolVal (Proxy :: Proxy name) == cs txRoute = throwSDKError $ UnmatchedRoute txRoute
     | otherwise = routeTx routeContext rest tx
 
 instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, TxRouter ms r, HasCodec msg, KnownSymbol name) => TxRouter (Module name msg api s r ': ms) r where
-  routeTx routeContext (ConsModule m rest) tx@Tx{..}
+  routeTx routeContext (m :+ rest) tx@Tx{..}
     | symbolVal (Proxy :: Proxy name) == cs txRoute = do
         msg <- case decode $ msgData txMsg of
           Left err           -> throwSDKError $ ParseError err
@@ -154,8 +156,8 @@ class Eval ms core where
 
 instance Eval '[Module name msg api s r] core where
   type Effs '[Module name msg api s r] core = s :& BaseApp core
-  eval (ConsModule m NilModules) = moduleEval m
+  eval (m :+ NilModules) = moduleEval m
 
 instance (Members BaseAppEffs (Effs (m' ': ms) core),  Eval (m' ': ms) core) => Eval (Module name msg api s r ': m' ': ms) core where
   type Effs (Module name msg api s r ': m' ': ms) core = s :& (Effs (m': ms)) core
-  eval (ConsModule m rest) = eval rest . moduleEval m
+  eval (m :+ rest) = eval rest . moduleEval m
