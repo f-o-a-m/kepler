@@ -41,17 +41,12 @@ library:
   source-dirs: src
   dependencies:
     - aeson
-    - aeson-casing
-    - bytestring
     - containers
     - katip
     - katip-datadog
     - hs-abci-server
-    - lens
-    - memory
     - text
     - time
-    - unordered-containers
   ghc-options:
   - -Werror
   - -Wall
