@@ -20,6 +20,8 @@ data Verbosity = V0 | V1 | V2 | V3
 
 class Select a where
   select :: Verbosity -> a -> LogSelect
+  default select :: Verbosity -> a -> LogSelect
+  select _ _ = All
 
 -- | Effect allowing for console logging.
 data Logger m a where
