@@ -36,14 +36,6 @@ default-extensions:
 - MultiParamTypeClasses
 - FunctionalDependencies
 
-
-dependencies:
-- base >= 4.7 && < 5
-- http2-client
-- http2-client-grpc
-- lens
-- proto-lens
-
 library:
   source-dirs: src
   ghc-options:
@@ -54,19 +46,13 @@ library:
   - -Wincomplete-uni-patterns
   - -Wredundant-constraints
   dependencies:
-    - aeson
-    - aeson-casing
-    - base16-bytestring
-    - bytestring
-    - data-default-class
-    - memory
+    - base >= 4.7 && < 5
+    - http2-client
+    - http2-client-grpc
+    - proto-lens
     - proto-lens-runtime
-    - string-conversions
-    - text
-    - template-haskell
-    - time
   exposed-modules:
-  - Database.IAVL.RPCCall
+  - Database.IAVL.RPC
   generated-exposed-modules:
   - Proto.Iavl.Api
   - Proto.Iavl.Api_Fields
@@ -86,13 +72,12 @@ tests:
     - -with-rtsopts=-N
 
     dependencies:
-      - generic-arbitrary
+      - base >= 4.7 && < 5
       - hs-iavl-client
       - hspec
       - hspec-core
       - hspec-discover
-      - binary
-      - lens-labels
-      - proto-lens-arbitrary
-      - QuickCheck
-      - quickcheck-instances
+      - http2-client
+      - http2-client-grpc
+      - lens
+      - proto-lens

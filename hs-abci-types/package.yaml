@@ -36,12 +36,6 @@ default-extensions:
 - FunctionalDependencies
 
 
-dependencies:
-- base >= 4.7 && < 5
-- bytestring
-- lens
-- proto-lens
-
 library:
   source-dirs: src
   ghc-options:
@@ -54,20 +48,26 @@ library:
   dependencies:
     - aeson
     - aeson-casing
-    - base16-bytestring
+    - base >= 4.7 && < 5
+    - bytestring
     - data-default-class
     - memory
+    - lens
+    - proto-lens
     - proto-lens-runtime
-    - string-conversions
     - text
     - template-haskell
     - time
   exposed-modules:
   - Data.ByteArray.HexString
   - Data.ByteArray.Base64String
+  - Network.ABCI.Types.Messages.Common
   - Network.ABCI.Types.Messages.Request
   - Network.ABCI.Types.Messages.Response
   - Network.ABCI.Types.Messages.FieldTypes
+  other-modules:
+  - Data.Time.Calendar.Private
+  - Data.Time.Orphans
   generated-exposed-modules:
   - Proto.Types
   - Proto.Types_Fields
@@ -97,13 +97,15 @@ tests:
 
 
     dependencies:
+      - base
+      - bytestring
       - generic-arbitrary
       - hs-abci-types
       - hspec
       - hspec-core
       - hspec-discover
-      - binary
-      - lens-labels
+      - lens
+      - proto-lens
       - proto-lens-arbitrary
       - QuickCheck
       - quickcheck-instances
