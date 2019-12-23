@@ -97,6 +97,7 @@ instance FromJSON Faucetted where
 instance BaseApp.ToEvent Faucetted where
   makeEventType _ = "Faucetted"
 instance BaseApp.FromEvent Faucetted
+instance BaseApp.Select Faucetted
 
 data TransferEvent = TransferEvent
   { transferEventAmount :: Amount
@@ -109,11 +110,9 @@ transferEventAesonOptions = defaultNameserviceOptions "transferEvent"
 
 instance A.ToJSON TransferEvent where
   toJSON = A.genericToJSON transferEventAesonOptions
-
 instance A.FromJSON TransferEvent where
   parseJSON = A.genericParseJSON transferEventAesonOptions
-
 instance BaseApp.ToEvent TransferEvent where
   makeEventType _ = "TransferEvent"
-
 instance BaseApp.FromEvent TransferEvent
+instance BaseApp.Select TransferEvent

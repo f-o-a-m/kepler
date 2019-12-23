@@ -45,6 +45,7 @@ module Tendermint.SDK.BaseApp
   , Logger
   , Tendermint.SDK.BaseApp.Logger.log
   , addContext
+  , ContextEvent(..)
   , LogSelect(..)
   , Severity(..)
   , Select(..)
