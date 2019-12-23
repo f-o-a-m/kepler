@@ -44,49 +44,41 @@ default-extensions:
   - ConstraintKinds
   - PackageImports
 
-
-dependencies:
-  - aeson
-  - base >= 4.7 && < 5
-  - bytestring
-  - containers
-  - hs-abci-types
-  - lens
-  - polysemy
-  - polysemy-plugin
-  - polysemy-zoo
-  - prometheus
-  - secp256k1-haskell
-  - string-conversions
-
 library:
   source-dirs:
   - src
   dependencies:
+    - aeson
     - aeson-casing
-    - async
     - avl-auth
+    - base >= 4.7 && < 5
+    - bytestring
+    - containers
     - cryptonite
     - data-default-class
     - errors
-    - exceptions
     - hs-abci-server
+    - hs-abci-types
     - hs-tendermint-client
     - http-types
     - katip
+    - lens
     - memory
     - mmorph
     - mtl
-    - profunctors
+    - polysemy
+    - polysemy-plugin
+    - polysemy-zoo
+    - prometheus
     - proto-lens
     - proto-lens-runtime
     - proto3-wire
-    - proto3-suite
+    - secp256k1-haskell
     - servant
     - stm
+    - string-conversions
     - text
     - time
-    - uri-bytestring
     - validation
   ghc-options:
   - -fplugin=Polysemy.Plugin
@@ -156,12 +148,20 @@ tests:
     - -with-rtsopts=-N
 
     dependencies:
+      - aeson
+      - base >= 4.7 && < 5
+      - bytestring
+      - containers
+      - lens
       - cereal
-      - generic-arbitrary
-      - hs-abci-server
       - hs-abci-sdk
+      - hs-abci-types
       - hspec
       - hspec-core
       - hspec-discover
-      - QuickCheck
-      - quickcheck-instances
+      - polysemy
+      - polysemy-plugin
+      - polysemy-zoo
+      - prometheus
+      - secp256k1-haskell
+      - string-conversions

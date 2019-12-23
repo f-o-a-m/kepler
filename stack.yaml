@@ -10,7 +10,7 @@ packages:
 - ./hs-tendermint-client
 - ./hs-abci-server
 - ./hs-abci-extra
-#- ./hs-abci-sdk
+- ./hs-abci-sdk
 #- ./hs-abci-examples/simple-storage
 #- ./hs-abci-examples/nameservice
 - ./hs-iavl-client

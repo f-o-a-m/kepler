@@ -1,4 +1,7 @@
-module Tendermint.SDK.Modules.Auth.Query where
+module Tendermint.SDK.Modules.Auth.Query 
+  ( Api
+  , server
+  ) where
 
 import           Data.Proxy
 import           Polysemy                           (Members, Sem)
