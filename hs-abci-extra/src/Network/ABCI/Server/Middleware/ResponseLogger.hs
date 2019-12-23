@@ -3,12 +3,11 @@ module Network.ABCI.Server.Middleware.ResponseLogger
       mkResponseLogger
     , mkResponseLoggerM
     ) where
-import           Control.Monad.IO.Class  (MonadIO, liftIO)
+import           Control.Monad.IO.Class  (MonadIO)
 import qualified Data.Aeson              as A
 import           Katip
 import           Network.ABCI.Server.App (App (..), MessageType, Middleware,
                                           Response (..))
-import           System.IO               (stdout)
 
 ---------------------------------------------------------------------------
 -- Types
