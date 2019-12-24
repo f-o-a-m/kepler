@@ -73,4 +73,4 @@ jobs:
     - travis_wait 120 stack --skip-ghc-check install hlint-2.1.26 stylish-haskell-0.9.4.3 weeder-1.0.8
     - make stylish && git diff-index --quiet HEAD
     - make hlint
-    - curl -sSL https://raw.github.com/ndmitchell/weeder/master/misc/travis.sh | sh -s .
+    - make weeder
