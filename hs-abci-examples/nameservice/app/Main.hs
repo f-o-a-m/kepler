@@ -1,30 +1,21 @@
 module Main where
 
-import           Control.Exception                         (bracket)
-import           Data.String.Conversions                   (cs)
-import qualified Katip                                     as K
-import           Nameservice.Application                   (makeAppConfig)
-import           Nameservice.Server                        (makeAndServeApplication)
-import           System.Environment                        (lookupEnv)
-import           System.IO                                 (stdout)
-import           Tendermint.SDK.BaseApp.Logger.Katip       (LogConfig (..),
-                                                            mkLogConfig)
-import           Tendermint.SDK.BaseApp.Metrics.Prometheus (MetricsConfig (..),
-                                                            mkMetricsConfig)
-import qualified Text.Read                                 as T
+import           Control.Concurrent                  (killThread)
+import           Control.Exception                   (bracket)
+import           Control.Lens                        ((^.))
+import           Data.IORef                          (readIORef)
+import qualified Katip                               as K
+import           Nameservice.Config                  (baseAppContext,
+                                                      makeAppConfig,
+                                                      prometheusServerThreadId)
+import           Nameservice.Server                  (makeAndServeApplication)
+import qualified Tendermint.SDK.BaseApp              as BaseApp
+import qualified Tendermint.SDK.BaseApp.Logger.Katip as KL
 
 main :: IO ()
-main = do
-  metCfg <- mkMetricsConfig
-  mApiKey <- lookupEnv "DD_API_KEY"
-  mMetricsPort <- lookupEnv "STATS_PORT"
-  logCfg <- mkLogConfig "dev" "nameservice"
-  handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem K.DebugS) K.V2
-  let mkLogEnv = K.registerScribe "stdout" handleScribe K.defaultScribeSettings (_logEnv logCfg)
-  bracket mkLogEnv K.closeScribes $ \le -> do
-    cfg <- makeAppConfig
-      metCfg { metricsAPIKey = cs <$> mApiKey
-             , metricsPort = T.read <$> mMetricsPort
-             }
-      logCfg {_logEnv = le}
-    makeAndServeApplication cfg
+main =
+  let close cfg = do
+        _ <- K.closeScribes (cfg ^. baseAppContext . BaseApp.contextLogConfig . KL.logEnv)
+        prometheusThreadId <- readIORef $ cfg ^. prometheusServerThreadId
+        maybe (pure ()) killThread prometheusThreadId
+  in bracket makeAppConfig close makeAndServeApplication

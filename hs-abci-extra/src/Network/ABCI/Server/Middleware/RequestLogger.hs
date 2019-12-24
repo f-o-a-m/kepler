@@ -1,18 +1,15 @@
 module Network.ABCI.Server.Middleware.RequestLogger
-    ( -- * Basic stdout logging
-      mkLogStdout
-    , mkLogStdoutDev
-      -- * Custom Loggers
-    , mkRequestLogger
+    ( -- * Custom Loggers
+      mkRequestLogger
     , mkRequestLoggerM
     ) where
 
-import           Control.Monad.IO.Class  (MonadIO, liftIO)
+import           Control.Monad.IO.Class  (MonadIO)
 import qualified Data.Aeson              as A
 import           Katip
 import           Network.ABCI.Server.App (App (..), MessageType, Middleware,
                                           Request (..))
-import           System.IO               (stdout)
+
 ---------------------------------------------------------------------------
 -- Types
 ---------------------------------------------------------------------------
@@ -25,34 +22,8 @@ instance ToObject (Loggable (Request (t :: MessageType))) where
       _          -> error "Contract violation: `toJSON` of any `Request t` must result with json object"
 
 instance LogItem (Loggable (Request (t :: MessageType))) where
-  payloadKeys V0 _ = SomeKeys ["type"]
-  payloadKeys _ _  = AllKeys
-
----------------------------------------------------------------------------
--- mkLogStdout
---------------------------------------------------------------------------
--- | Creates a production request logger as middleware for ABCI requests.
--- Uses lowest possible verbosity.
-mkLogStdout :: (MonadIO m) => m (Middleware m)
-mkLogStdout = do
-  handleScribe <- liftIO $ mkHandleScribe ColorIfTerminal stdout (permitItem InfoS) V0
-  le <- liftIO (registerScribe "stdout" handleScribe defaultScribeSettings
-        =<< initLogEnv "ABCI" "production")
-  let ns = "Server"
-  pure $ mkRequestLogger le ns
-
----------------------------------------------------------------------------
--- mkLogStdoutDev
---------------------------------------------------------------------------
--- | Creates a request logger as middleware for ABCI requests.
--- Uses highest possible verbosity.
-mkLogStdoutDev :: (MonadIO m) => m (Middleware m)
-mkLogStdoutDev = do
-  handleScribe <- liftIO $ mkHandleScribe ColorIfTerminal stdout (permitItem DebugS) V3
-  le <- liftIO (registerScribe "stdout" handleScribe defaultScribeSettings
-        =<< initLogEnv "ABCI" "development")
-  let ns = "Server"
-  pure $ mkRequestLogger le ns
+  payloadKeys V3 _ = AllKeys
+  payloadKeys _ _  = SomeKeys ["type"]
 
 ---------------------------------------------------------------------------
 -- mkRequestLogger

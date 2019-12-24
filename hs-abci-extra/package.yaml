@@ -43,9 +43,7 @@ library:
     - aeson
     - containers
     - katip
-    - katip-datadog
     - hs-abci-server
-    - text
     - time
   ghc-options:
   - -Werror

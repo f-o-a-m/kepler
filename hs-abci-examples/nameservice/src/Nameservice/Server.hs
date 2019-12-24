@@ -1,44 +1,38 @@
 module Nameservice.Server (makeAndServeApplication) where
 
 import           Data.Foldable                                 (fold)
+import           Data.IORef                                    (writeIORef)
 import           Data.Monoid                                   (Endo (..))
-import           Nameservice.Application                       (AppConfig (..),
-                                                                handlersContext)
+import           Nameservice.Application                       (handlersContext)
+import           Nameservice.Config                            (AppConfig (..))
 import           Network.ABCI.Server                           (serveApp)
 import           Network.ABCI.Server.App                       (Middleware)
-import qualified Network.ABCI.Server.Middleware.MetricsLogger  as MetLogger
-import qualified Network.ABCI.Server.Middleware.RequestLogger  as ReqLogger
-import qualified Network.ABCI.Server.Middleware.ResponseLogger as ResLogger
+import qualified Network.ABCI.Server.Middleware.MetricsLogger  as Met
+import qualified Network.ABCI.Server.Middleware.RequestLogger  as Req
+import qualified Network.ABCI.Server.Middleware.ResponseLogger as Res
 import           Polysemy                                      (Sem)
 import           Tendermint.SDK.Application                    (createIOApp,
                                                                 makeApp)
 import           Tendermint.SDK.BaseApp                        (Context (..),
                                                                 CoreEffs,
                                                                 runCoreEffs)
-import           Tendermint.SDK.BaseApp.Metrics.Prometheus     (MetricsConfig (..),
-                                                                runMetricsServer)
+import           Tendermint.SDK.BaseApp.Metrics.Prometheus     (forkMetricsServer)
 
 makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication AppConfig{..} = do
   putStrLn "Starting ABCI application..."
-  runMetricsServer metCfg
+  case _contextPrometheusEnv _baseAppContext of
+    Nothing            -> pure ()
+    Just prometheusEnv -> do
+      prometheusThreadId <- forkMetricsServer prometheusEnv
+      writeIORef _prometheusServerThreadId (Just prometheusThreadId)
   let nat :: forall a. Sem CoreEffs a -> IO a
-      nat = runCoreEffs baseAppContext
-      application = createIOApp nat $ makeApp handlersContext
-  serveApp =<< hookInMiddleware application
-  where
-    metCfg = contextMetricsConfig baseAppContext
-    apiKey = (fmap MetLogger.ApiKey . metricsAPIKey) =<< metCfg
-    mkMiddleware :: IO (Middleware IO)
-    mkMiddleware = do
-      reqLogger <- ReqLogger.mkLogStdoutDev
-      resLogger <- ResLogger.mkLogStdoutDev
-      metLogger <- MetLogger.mkMetricsLogDatadog apiKey
-      pure . appEndo . fold $
-        [ Endo reqLogger
-        , Endo resLogger
-        , Endo metLogger
-        ]
-    hookInMiddleware _app = do
-      middleware <- mkMiddleware
-      pure $ middleware _app
+      nat = runCoreEffs _baseAppContext
+      application = makeApp handlersContext
+      middleware :: Middleware (Sem CoreEffs)
+      middleware = appEndo . fold $
+          [ Endo Req.mkRequestLoggerM
+          , Endo Res.mkResponseLoggerM
+          , Endo $ Met.mkMetricsLoggerM _serverMetricsMap
+          ]
+  serveApp $ createIOApp nat (middleware application)

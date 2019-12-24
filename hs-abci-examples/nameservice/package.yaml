@@ -51,11 +51,18 @@ library:
     - aeson
     - aeson-casing
     - base >= 4.7 && < 5
+    - bloodhound
     - bytestring
+    - containers
+    - errors
     - hs-abci-extra
     - hs-abci-server
     - hs-abci-sdk
     - hs-abci-types
+    - http-client
+    - katip
+    - katip-datadog
+    - katip-elasticsearch
     - lens
     - polysemy
     - polysemy-plugin
@@ -75,6 +82,7 @@ library:
   - -Wredundant-constraints
   exposed-modules:
   - Nameservice.Application
+  - Nameservice.Config
   - Nameservice.Aeson
   - Nameservice.Server
   - Nameservice.Modules.TypedMessage
@@ -103,8 +111,8 @@ executables:
     - base
     - hs-abci-sdk
     - katip
+    - lens
     - nameservice
-    - string-conversions
 
   gen-protos-exe:
     main:                Main.hs

@@ -1,5 +1,17 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Tendermint.SDK.BaseApp.Logger.Katip where
+
+module Tendermint.SDK.BaseApp.Logger.Katip
+  ( -- setup and config
+    LogConfig(..)
+  , logNamespace
+  , logContext
+  , logEnv
+  , InitialLogNamespace(..)
+  , initialLogEnvironment
+  , initialLogProcessName
+  -- eval
+  , evalKatip
+  ) where
 
 import           Control.Lens.TH               (makeLenses)
 import           Data.String                   (fromString)
@@ -16,16 +28,12 @@ data LogConfig = LogConfig
   }
 makeLenses ''LogConfig
 
-mkLogConfig :: Text -> Text -> IO LogConfig
-mkLogConfig environment processName = do
-    le <- mkLogEnv
-    return $ LogConfig
-      { _logNamespace = mempty
-      , _logContext = mempty
-      , _logEnv = le
-      }
-  where
-    mkLogEnv = K.initLogEnv (K.Namespace [processName]) (K.Environment environment)
+data InitialLogNamespace = InitialLogNamespace
+  { _initialLogEnvironment :: Text
+  , _initialLogProcessName :: Text
+  }
+
+makeLenses ''InitialLogNamespace
 
 evalKatip
   :: forall r a.
@@ -34,7 +42,9 @@ evalKatip
   -> Sem r a
 evalKatip = do
   interpret (\case
-    Log severity msg -> K.logFM (coerceSeverity severity) (fromString . cs $ msg)
+    Log severity msg ->
+      K.localKatipNamespace (<> "application") $
+        K.logFM (coerceSeverity severity) (fromString . cs $ msg)
     )
     where
       coerceSeverity :: Severity -> K.Severity
