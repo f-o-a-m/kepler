@@ -1,6 +1,6 @@
 -- venored from: http://hackage.haskell.org/package/time-1.9.3/docs/src/Data.Time.Calendar.Private.html
 
-module Data.Time.Calendar.Private 
+module Data.Time.Calendar.Private
   ( PadOption (..)
   , ShowPadded (..)
   , quotBy

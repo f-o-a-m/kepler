@@ -1,6 +1,6 @@
 module Main where
 
-import Protogen (whoisProtoFile, messagesProtoFile)  
+import           Protogen (messagesProtoFile, whoisProtoFile)
 
 main :: IO ()
 main = do

@@ -1,4 +1,4 @@
-module Tendermint.SDK.Modules.Auth.Query 
+module Tendermint.SDK.Modules.Auth.Query
   ( Api
   , server
   ) where

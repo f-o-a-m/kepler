@@ -1,10 +1,10 @@
 module Main where
 
 import           Control.Exception                         (bracket)
+import           Data.String.Conversions                   (cs)
 import qualified Katip                                     as K
 import           Nameservice.Application                   (makeAppConfig)
 import           Nameservice.Server                        (makeAndServeApplication)
-import Data.String.Conversions (cs)
 import           System.Environment                        (lookupEnv)
 import           System.IO                                 (stdout)
 import           Tendermint.SDK.BaseApp.Logger.Katip       (LogConfig (..),
