@@ -3,7 +3,7 @@
 -- @NOTE: ^ possibly the only language extension needed from tutorial
 -- Seems to be the only requirement for generating the .proto string
 
-module Protogen where
+module Protogen (messagesProtoFile, whoisProtoFile) where
 
 import           Data.Aeson.Casing                        (snakeCase)
 import qualified Data.ByteString.Lazy                     as BL
@@ -27,23 +27,6 @@ import           Proto3.Wire.Types                        (FieldNumber (..))
 import           Tendermint.SDK.Types.Address             (Address (..))
 import qualified Text.PrettyPrint                         as PP
 
---------------------------------------------------------------------------------
--- test
---------------------------------------------------------------------------------
-
-testSN :: SetName
-testSN = SetName (Name "satoshi") (Address "01") "cool cats"
-
-testBN :: BuyName
-testBN = BuyName (Amount 999) (Name "satoshi") "cool cats" (Address "01")
-
-testDN :: DeleteName
-testDN = DeleteName (Address "01") (Name "satoshi")
-
--- @NOTE: for some reason, encoding results in a lazy bytestring
--- while the provided decoder only accepts a strict bytestring
-fromLazyByteString :: Message a => BL.ByteString -> Either Decode.ParseError a
-fromLazyByteString = fromByteString . BL.toStrict
 
 --------------------------------------------------------------------------------
 -- Requires magic hash extension

@@ -1,4 +1,8 @@
 module Main where
 
+import Protogen (whoisProtoFile, messagesProtoFile)  
+
 main :: IO ()
-main = putStrLn "Gen some protos"
+main = do
+  putStrLn messagesProtoFile
+  putStrLn whoisProtoFile

@@ -38,14 +38,6 @@ default-extensions:
   - ConstraintKinds
 
 
-dependencies:
-- base >= 4.7 && < 5
-- bytestring
-- cereal
-- hs-abci-sdk
-- lens
-- string-conversions
-
 custom-setup:
   dependencies:
     - base
@@ -61,20 +53,23 @@ library:
   - -Wall
   dependencies:
     - aeson
+    - base >= 4.7 && < 5
+    - bytestring
+    - cereal
     - cereal-text
     - cryptonite
-    - errors
-    - exceptions
     - hs-abci-extra
     - hs-abci-server
     - hs-abci-types
     - hs-abci-extra
     - hs-abci-sdk
+    - lens
     - memory
     - polysemy
     - polysemy-plugin
     - proto-lens
     - proto-lens-runtime
+    - string-conversions
     - text
     - validation
   exposed-modules:
@@ -105,7 +100,9 @@ executables:
     - -Wincomplete-uni-patterns
     - -Wredundant-constraints
     dependencies:
+    - base >= 4.7 && < 5
     - katip
+    - hs-abci-sdk
     - simple-storage
 
 tests:
@@ -123,12 +120,17 @@ tests:
     dependencies:
       - aeson
       - aeson-pretty
+      - base >= 4.7 && < 5
+      - bytestring
+      - cereal
       - data-default-class
+      - hs-abci-sdk
       - simple-storage
       - hs-abci-types
       - hs-tendermint-client
       - hspec
+      - lens
       - mtl
-      - QuickCheck
       - secp256k1-haskell
       - servant
+      - string-conversions

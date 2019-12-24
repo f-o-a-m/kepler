@@ -99,3 +99,34 @@
       - depends:
         - hspec-discover
         - polysemy-plugin
+
+- package:
+  - name: simple-storage
+  - section:
+    - name: library
+    - message:
+      - name: Missing other-modules entry
+      - module:
+        - Proto.SimpleStorage.Messages
+        - Proto.SimpleStorage.Messages_Fields
+    - message:
+      - name: Module not compiled
+      - module:
+        - Proto.SimpleStorage.Messages
+        - Proto.SimpleStorage.Messages_Fields
+    - message:
+      - name: Redundant build-depends entry
+      - depends:
+        - polysemy-plugin
+        - proto-lens-runtime
+
+
+- package:
+  - name: nameservice
+  - section:
+    - name: library
+    - message:
+      - name: Redundant build-depends entry
+      - depends: polysemy-plugin
+  - section:
+    - name: test:tutorial

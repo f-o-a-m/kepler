@@ -45,34 +45,22 @@ default-extensions:
   - StandaloneDeriving
   - ConstraintKinds
 
-dependencies:
-  - base >= 4.7 && < 5
-  - hs-abci-sdk
-  - polysemy
-  - polysemy-plugin
-
 library:
   source-dirs: src
   dependencies:
     - aeson
     - aeson-casing
+    - base >= 4.7 && < 5
     - bytestring
-    - data-default-class
-    - errors
-    - exceptions
-    - either
     - hs-abci-extra
     - hs-abci-server
+    - hs-abci-sdk
     - hs-abci-types
     - lens
-    - polysemy-zoo
-    - pretty
-    - proto-lens
-    - proto-lens-runtime
+    - polysemy
+    - polysemy-plugin
     - proto3-suite
     - proto3-wire
-    - katip
-    - servant
     - string-conversions
     - text
     - validation
@@ -111,9 +99,9 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    - -fplugin=Polysemy.Plugin
     dependencies:
-    - hs-abci-server
+    - base
+    - hs-abci-sdk
     - katip
     - nameservice
     - string-conversions
@@ -127,7 +115,9 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - aeson-casing
+    - base
     - bytestring
+    - hs-abci-sdk
     - nameservice
     - pretty
     - proto3-suite
@@ -147,10 +137,13 @@ tests:
     ghc-options: -Wall -pgmL markdown-unlit
     dependencies:
     - aeson
+    - base
     - hs-abci-sdk
     - hs-abci-server
     - lens
     - nameservice
+    - polysemy
+    - polysemy-plugin
     - proto3-suite
     - string-conversions
     - text
@@ -164,17 +157,19 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - nameservice
     - aeson
     - aeson-pretty
+    - base >= 4.7 && < 5
     - bytestring
     - data-default-class
-    - hspec
-    - secp256k1-haskell
+    - hs-abci-sdk
     - hs-abci-types
     - hs-tendermint-client
+    - hspec
     - lens
+    - nameservice
     - proto3-suite
+    - secp256k1-haskell
     - servant
     - string-conversions
     - text
