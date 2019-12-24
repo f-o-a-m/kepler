@@ -1,6 +1,6 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-module Data.Time.Orphans where
 -- vendored from: http://hackage.haskell.org/package/time-1.9.3/docs/src/Data.Time.Format.Format.Class.html
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+module Data.Time.Orphans () where
 
 import           Data.Fixed                 (Pico)
 import           Data.Time.Calendar.Private (PadOption (..), ShowPadded (..),

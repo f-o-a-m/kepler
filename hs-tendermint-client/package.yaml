@@ -32,26 +32,23 @@ default-extensions:
 - OverloadedStrings
 - GeneralizedNewtypeDeriving
 
-
 dependencies:
 - aeson
-- aeson-casing
 - base >= 4.7 && < 5
-- base16-bytestring
 - bytestring
-- data-default-class
 - exceptions
-- hs-abci-types
-- http-client
-- http-conduit
-- memory
-- mtl
-- random
-- text
-- time
+- data-default-class
 
 library:
   source-dirs: src
+  dependencies:
+    - aeson-casing
+    - hs-abci-types
+    - http-client
+    - http-conduit
+    - mtl
+    - random
+    - text
   ghc-options:
   - -Werror
   - -Wall
@@ -61,6 +58,7 @@ library:
   - -Wredundant-constraints
   exposed-modules:
   - Network.Tendermint.Client
+  - Network.Tendermint.Client.Internal.RPCClient
 
 tests:
   hs-tendermint-client-kv:
@@ -75,12 +73,9 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-      - aeson
       - aeson-pretty
-      - binary
       - hs-abci-types
       - hs-tendermint-client
       - hspec
       - lens
-      - QuickCheck
       - string-conversions

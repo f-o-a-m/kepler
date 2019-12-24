@@ -1,4 +1,4 @@
-module Tendermint.SDK.Test.AuthTreeStoreSpec where
+module Tendermint.SDK.Test.AuthTreeStoreSpec (spec) where
 
 import           Control.Lens                               (iso)
 import           Control.Monad                              (void)

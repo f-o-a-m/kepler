@@ -25,26 +25,6 @@ default-extensions:
 - MultiParamTypeClasses
 - FunctionalDependencies
 
-
-dependencies:
-- base >= 4.7 && < 5
-- aeson
-- aeson-casing
-- base16-bytestring
-- bytestring
-- conduit
-- conduit-extra
-- data-default-class
-- lens
-- memory
-- proto-lens
-- proto-lens-runtime
-- string-conversions
-- text
-- template-haskell
-- time
-- hs-abci-types
-
 library:
   source-dirs: src
   ghc-options:
@@ -54,6 +34,20 @@ library:
   - -Widentities
   - -Wincomplete-uni-patterns
   - -Wredundant-constraints
+  dependencies:
+    - aeson
+    - base >= 4.7 && < 5
+    - bytestring
+    - base16-bytestring
+    - conduit
+    - conduit-extra
+    - data-default-class
+    - hs-abci-types
+    - lens
+    - proto-lens
+    - string-conversions
+    - text
+
   exposed-modules:
   - Network.ABCI.Server
   - Network.ABCI.Server.App
@@ -74,13 +68,11 @@ tests:
 
 
     dependencies:
-      - generic-arbitrary
+      - base >= 4.7 && < 5
+      - bytestring
       - hs-abci-server
       - hspec
       - hspec-core
       - hspec-discover
       - binary
-      - lens-labels
-      - proto-lens-arbitrary
       - QuickCheck
-      - quickcheck-instances

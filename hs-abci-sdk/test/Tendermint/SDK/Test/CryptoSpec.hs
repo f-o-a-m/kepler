@@ -1,4 +1,4 @@
-module Tendermint.SDK.Test.CryptoSpec where
+module Tendermint.SDK.Test.CryptoSpec (spec) where
 
 import           Crypto.Secp256k1                 (CompactRecSig (..), SecKey,
                                                    derivePubKey,

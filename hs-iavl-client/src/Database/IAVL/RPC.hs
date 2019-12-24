@@ -1,4 +1,4 @@
-module Database.IAVL.RPCCall where
+module Database.IAVL.RPC where
 
 import           Data.ProtoLens.Message      (defMessage)
 import           Network.GRPC.Client         (RPC (..), RawReply)

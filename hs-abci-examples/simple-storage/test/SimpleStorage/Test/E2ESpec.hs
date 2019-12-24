@@ -1,18 +1,16 @@
-module SimpleStorage.Test.E2ESpec where
+module SimpleStorage.Test.E2ESpec (spec) where
 
 import           Control.Lens                         ((^.))
 import           Control.Monad.Reader                 (ReaderT)
-import           Crypto.Secp256k1                     (SecKey, derivePubKey,
+import           Crypto.Secp256k1                     (SecKey,
                                                        exportCompactRecSig,
                                                        secKey)
 import           Data.Aeson                           (ToJSON)
 import           Data.Aeson.Encode.Pretty             (encodePretty)
-import           Data.ByteArray.Base64String          (Base64String)
 import qualified Data.ByteArray.Base64String          as Base64
 import qualified Data.ByteArray.HexString             as Hex
 import           Data.ByteString                      (ByteString)
 import           Data.Default.Class                   (def)
-import           Data.Int                             (Int32)
 import           Data.Maybe                           (fromJust)
 import           Data.Proxy
 import qualified Data.Serialize                       as Serial
@@ -28,9 +26,7 @@ import           Tendermint.SDK.BaseApp.Query.Client  (ClientResponse (..),
                                                        HasClient (..),
                                                        RunClient (..))
 import           Tendermint.SDK.Codec                 (HasCodec (..))
-import           Tendermint.SDK.Crypto                (Secp256k1,
-                                                       addressFromPubKey)
-import           Tendermint.SDK.Types.Address         (Address (..))
+import           Tendermint.SDK.Crypto                (Secp256k1)
 import           Tendermint.SDK.Types.Transaction     (RawTransaction (..),
                                                        signRawTransaction)
 import           Test.Hspec
@@ -71,13 +67,6 @@ spec = do
             }
       ClientResponse{clientResponseData = Just foundCount} <- runQueryRunner $ getCount queryReq
       foundCount `shouldBe` SS.Count 4
-
-
-encodeCount :: Int32 -> Base64String
-encodeCount = Base64.fromBytes  . Serial.encode
-
-decodeCount :: Base64String -> Int32
-decodeCount =  (\(Right a) -> a) . Serial.decode . Base64.toBytes
 
 runRPC :: forall a. RPC.TendermintM a -> IO a
 runRPC = RPC.runTendermintM rpcConfig
@@ -125,7 +114,6 @@ mkSignedRawTransaction privateKey msg = sign unsigned
 
 data User = User
   { userPrivKey :: SecKey
-  , userAddress :: Address
   }
 
 user1 :: User
@@ -134,9 +122,7 @@ user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e03
 makeUser :: String -> User
 makeUser privKeyStr =
   let privateKey = fromJust . secKey . Hex.toBytes . fromString $ privKeyStr
-      pubKey = derivePubKey privateKey
-      address = addressFromPubKey (Proxy @Secp256k1) pubKey
-  in User privateKey address
+  in User privateKey
 
 algProxy :: Proxy Secp256k1
 algProxy = Proxy
