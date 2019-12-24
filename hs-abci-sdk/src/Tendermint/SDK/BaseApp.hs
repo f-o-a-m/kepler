@@ -36,6 +36,7 @@ module Tendermint.SDK.BaseApp
   , Event(..)
   , FromEvent(..)
   , ToEvent(..)
+  , ContextEvent(..)
   , emit
 
   -- * Gas
@@ -45,7 +46,6 @@ module Tendermint.SDK.BaseApp
   , Logger
   , Tendermint.SDK.BaseApp.Logger.log
   , addContext
-  , ContextEvent(..)
   , LogSelect(..)
   , Severity(..)
   , Select(..)

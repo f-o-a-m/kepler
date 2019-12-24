@@ -2,6 +2,7 @@ module Tendermint.SDK.BaseApp.Events
   ( Event(..)
   , ToEvent(..)
   , FromEvent(..)
+  , ContextEvent(..)
   , emit
   , makeEvent
   , EventBuffer
@@ -30,6 +31,7 @@ import           Polysemy                               (Embed, Member, Sem,
 import           Polysemy.Output                        (Output (..), output)
 import           Polysemy.Reader                        (Reader (..), ask)
 import           Polysemy.Resource                      (Resource, onException)
+import Tendermint.SDK.BaseApp.Logger
 
 {-
 TODO : These JSON instances are fragile but convenient. We
@@ -69,6 +71,17 @@ class ToEvent e => FromEvent e where
            in fmapL cs $ do
              kvPairs <- traverse fromKVPair eventAttributes
              A.eitherDecode . A.encode . A.Object . fromList $ kvPairs
+
+-- | Special event wrapper to add contextual event_type info
+newtype ContextEvent t = ContextEvent t
+instance (A.ToJSON a, ToEvent a) => A.ToJSON (ContextEvent a) where
+  toJSON (ContextEvent a) =
+    A.object [ "event_type" A..= makeEventType (Proxy :: Proxy a)
+             , "event" A..= A.toJSON a
+             ]
+instance Select a => Select (ContextEvent a) where
+  select v (ContextEvent a) = select v a
+
 
 -- This is the internal implementation of the interpreter for event
 -- logging. We allocate a buffer that can queue events as they are thrown,
