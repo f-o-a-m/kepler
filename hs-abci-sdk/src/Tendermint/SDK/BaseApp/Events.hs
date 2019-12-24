@@ -142,7 +142,7 @@ logEvent
   => e
   -> Sem r ()
 logEvent event = Log.addContext (ContextEvent event) $
-  Log.log Log.Debug (cs $ makeEventType (Proxy :: Proxy e))
+  Log.log Log.Info (cs $ makeEventType (Proxy :: Proxy e))
 
 emitAndLogEvent
   :: forall e r.
