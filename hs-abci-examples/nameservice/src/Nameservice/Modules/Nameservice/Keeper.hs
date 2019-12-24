@@ -26,7 +26,7 @@ makeSem ''NameserviceKeeper
 type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
 
 storeKey :: BaseApp.StoreKey NameserviceModuleName
-storeKey = BaseApp.StoreKey . cs . symbolVal $ Proxy @ NameserviceModuleName
+storeKey = BaseApp.StoreKey . cs . symbolVal $ Proxy @NameserviceModuleName
 
 eval
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
@@ -68,9 +68,7 @@ setName SetName{..} = do
                 , nameRemappedNewValue = setNameValue
                 , nameRemappedOldValue = whoisValue
                 }
-          BaseApp.emit event
-          BaseApp.addContext (BaseApp.ContextEvent event) $
-            BaseApp.log BaseApp.Debug (cs $ BaseApp.makeEventType (Proxy :: Proxy NameRemapped))
+          BaseApp.emitAndLogEvent event
 
 deleteName
   :: Members [BaseApp.Logger, Token, Output BaseApp.Event] r
@@ -90,10 +88,7 @@ deleteName DeleteName{..} = do
           let event = NameDeleted
                 { nameDeletedName = deleteNameName
                 }
-          BaseApp.emit event
-          BaseApp.addContext (BaseApp.ContextEvent event) $
-            BaseApp.log BaseApp.Debug (cs $ BaseApp.makeEventType (Proxy :: Proxy NameDeleted))
-
+          BaseApp.emitAndLogEvent event
 
 buyName
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
@@ -133,10 +128,7 @@ buyName msg = do
               , nameClaimedValue = buyNameValue
               , nameClaimedBid = buyNameBid
               }
-        BaseApp.emit event
-        BaseApp.addContext (BaseApp.ContextEvent event) $
-          BaseApp.log BaseApp.Debug (cs $ BaseApp.makeEventType (Proxy :: Proxy NameClaimed))
-
+        BaseApp.emitAndLogEvent event
 
       buyClaimedName
         :: Members NameserviceEffs r
@@ -161,8 +153,6 @@ buyName msg = do
                      , nameClaimedValue = buyNameValue
                      , nameClaimedBid = buyNameBid
                      }
-               BaseApp.emit event
-               BaseApp.addContext (BaseApp.ContextEvent event) $
-                 BaseApp.log BaseApp.Debug (cs $ BaseApp.makeEventType (Proxy :: Proxy NameClaimed))
+               BaseApp.emitAndLogEvent event
              else throw (InsufficientBid "Bid must exceed the price.")
 

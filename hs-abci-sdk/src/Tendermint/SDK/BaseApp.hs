@@ -38,6 +38,8 @@ module Tendermint.SDK.BaseApp
   , ToEvent(..)
   , ContextEvent(..)
   , emit
+  , logEvent
+  , emitAndLogEvent
 
   -- * Gas
   , GasMeter

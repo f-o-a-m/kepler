@@ -3,8 +3,6 @@
 module Nameservice.Modules.Token.Keeper where
 
 import           Data.Maybe                         (fromMaybe)
-import           Data.Proxy
-import           Data.String.Conversions            (cs)
 import           Nameservice.Modules.Token.Messages (FaucetAccount (..))
 import           Nameservice.Modules.Token.Types    (Amount (..),
                                                      Faucetted (..),
@@ -57,9 +55,7 @@ faucetAccount FaucetAccount{..} = do
         { faucettedAccount = faucetAccountTo
         , faucettedAmount = faucetAccountAmount
         }
-  BaseApp.emit event
-  BaseApp.addContext (BaseApp.ContextEvent event) $
-    BaseApp.log BaseApp.Debug (cs $ BaseApp.makeEventType (Proxy :: Proxy Faucetted))
+  BaseApp.emitAndLogEvent event
 
 getBalance
   :: Member Token r
@@ -91,9 +87,7 @@ transfer addr1 amount addr2 = do
             , transferEventTo = addr2
             , transferEventFrom = addr1
             }
-      BaseApp.emit event
-      BaseApp.addContext (BaseApp.ContextEvent event) $
-        BaseApp.log BaseApp.Debug (cs $ BaseApp.makeEventType (Proxy :: Proxy TransferEvent))
+      BaseApp.emitAndLogEvent event
     else throw (InsufficientFunds "Insufficient funds for transfer.")
 
 burn

@@ -10,9 +10,9 @@ module Tendermint.SDK.BaseApp.Logger
   , Verbosity(..)
   ) where
 
-import           Data.Aeson                    (ToJSON (..))
-import           Data.Text                     (Text)
-import           Polysemy                      (makeSem)
+import           Data.Aeson (ToJSON (..))
+import           Data.Text  (Text)
+import           Polysemy   (makeSem)
 
 data Severity = Debug | Info | Warning | Error | Exception deriving (Eq, Ord)
 data LogSelect = All | Some [Text]
