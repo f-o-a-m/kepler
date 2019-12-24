@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.Test.GasSpec where
+module Tendermint.SDK.Test.GasSpec (spec) where
 
 import           Control.Monad.IO.Class        (MonadIO (..))
 import           Data.Either                   (isRight)

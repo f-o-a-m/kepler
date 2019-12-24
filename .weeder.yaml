@@ -1,0 +1,132 @@
+- package:
+  - name: hs-abci-server
+  - section:
+    - name: test:hs-abci-server-test
+    - message:
+      - name: Redundant build-depends entry
+      - depends: hspec-discover
+
+- package:
+  - name: hs-abci-types
+  - section:
+    - name: library
+    - message:
+      - name: Missing other-modules entry
+      - module:
+        - Proto.Types
+        - Proto.Types_Fields
+        - Proto.Vendored.Google.Protobuf.Timestamp
+        - Proto.Vendored.Google.Protobuf.Timestamp_Fields
+        - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle
+        - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
+        - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types
+        - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields
+    - message:
+      - name: Module not compiled
+      - module:
+        - Proto.Types
+        - Proto.Types_Fields
+        - Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo
+        - Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo_Fields
+        - Proto.Vendored.Google.Protobuf.Timestamp
+        - Proto.Vendored.Google.Protobuf.Timestamp_Fields
+        - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle
+        - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
+        - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types
+        - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields
+    - message:
+      - name: Redundant build-depends entry
+      - depends: proto-lens-runtime
+  - section:
+    - name: test:hs-abci-types-test
+    - message:
+      - name: Redundant build-depends entry
+      - depends: hspec-discover
+
+- package:
+  - name: hs-iavl-client
+  - section:
+    - name: test:hs-iavl-client-test
+    - message:
+      - name: Redundant build-depends entry
+      - depends: hspec-discover
+  - section:
+    - name: library
+    - message:
+      - name: Missing other-modules entry
+      - module:
+        - Proto.Google.Protobuf.Empty
+        - Proto.Iavl.Api
+    - message:
+      - name: Module not compiled
+      - module:
+        - Proto.Google.Api.Annotations
+        - Proto.Google.Api.Http
+        - Proto.Google.Protobuf.Empty
+        - Proto.Iavl.Api
+        - Proto.Iavl.Api_Fields
+    - message:
+      - name: Redundant build-depends entry
+      - depends: proto-lens-runtime
+
+- package:
+  - name: hs-abci-sdk
+  - section:
+    - name: library
+    - message:
+      - name: Missing other-modules entry
+      - module:
+        - Proto.Modules.Auth
+        - Proto.Modules.Auth_Fields
+        - Proto.Types.Transaction
+        - Proto.Types.Transaction_Fields
+    - message:
+      - name: Module not compiled
+      - module:
+        - Proto.Modules.Auth
+        - Proto.Modules.Auth_Fields
+        - Proto.Types.Transaction
+        - Proto.Types.Transaction_Fields
+    - message:
+      - name: Redundant build-depends entry
+      - depends:
+        - polysemy-plugin
+        - proto-lens-runtime
+  - section:
+    - name: test:hs-abci-sdk-test
+    - message:
+      - name: Redundant build-depends entry
+      - depends:
+        - hspec-discover
+        - polysemy-plugin
+
+- package:
+  - name: simple-storage
+  - section:
+    - name: library
+    - message:
+      - name: Missing other-modules entry
+      - module:
+        - Proto.SimpleStorage.Messages
+        - Proto.SimpleStorage.Messages_Fields
+    - message:
+      - name: Module not compiled
+      - module:
+        - Proto.SimpleStorage.Messages
+        - Proto.SimpleStorage.Messages_Fields
+    - message:
+      - name: Redundant build-depends entry
+      - depends:
+        - polysemy-plugin
+        - proto-lens-runtime
+
+
+- package:
+  - name: nameservice
+  - section:
+    - name: library
+    - message:
+      - name: Redundant build-depends entry
+      - depends: polysemy-plugin
+  - section:
+    - name: test:tutorial

@@ -1,4 +1,4 @@
-module KVStore.Test.KVSpec where
+module KVStore.Test.KVSpec (spec) where
 
 import           Control.Lens                         (to, (^.))
 import           Control.Monad.Catch                  (try)

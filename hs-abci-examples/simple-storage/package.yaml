@@ -37,39 +37,6 @@ default-extensions:
   - StandaloneDeriving
   - ConstraintKinds
 
-
-dependencies:
-- aeson
-- base >= 4.7 && < 5
-- bloodhound
-- bytestring
-- cereal
-- cereal-text
-- containers
-- cryptonite
-- errors
-- exceptions
-- katip
-- katip-datadog
-- katip-elasticsearch
-- hs-abci-extra
-- hs-abci-server
-- hs-abci-types
-- hs-abci-extra
-- hs-abci-sdk
-- http-client
-- lens
-- memory
-- mtl
-- polysemy
-- polysemy-plugin
-- proto-lens
-- proto-lens-runtime
-- servant
-- string-conversions
-- text
-- validation
-
 custom-setup:
   dependencies:
     - base
@@ -83,6 +50,34 @@ library:
   - -fplugin=Polysemy.Plugin
   - -Werror
   - -Wall
+  dependencies:
+    - aeson
+    - base >= 4.7 && < 5
+    - bloodhound
+    - bytestring
+    - cereal
+    - cereal-text
+    - containers
+    - cryptonite
+    - errors
+    - hs-abci-extra
+    - hs-abci-server
+    - hs-abci-types
+    - hs-abci-extra
+    - hs-abci-sdk
+    - http-client
+    - katip
+    - katip-datadog
+    - katip-elasticsearch
+    - lens
+    - memory
+    - polysemy
+    - polysemy-plugin
+    - proto-lens
+    - proto-lens-runtime
+    - string-conversions
+    - text
+    - validation
   exposed-modules:
   - SimpleStorage.Server
   - SimpleStorage.Application
@@ -112,7 +107,10 @@ executables:
     - -Wincomplete-uni-patterns
     - -Wredundant-constraints
     dependencies:
+    - base >= 4.7 && < 5
     - katip
+    - hs-abci-sdk
+    - lens
     - simple-storage
 
 tests:
@@ -130,10 +128,17 @@ tests:
     dependencies:
       - aeson
       - aeson-pretty
+      - base >= 4.7 && < 5
+      - bytestring
+      - cereal
       - data-default-class
+      - hs-abci-sdk
       - simple-storage
       - hs-abci-types
       - hs-tendermint-client
       - hspec
-      - QuickCheck
+      - lens
+      - mtl
       - secp256k1-haskell
+      - servant
+      - string-conversions

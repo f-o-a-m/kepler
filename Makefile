@@ -12,6 +12,9 @@ help: ## Ask for help!
 # Linting and Styling
 #####################
 
+weeder: ## look for unused packages and functions
+	weeder . --build
+
 hlint: ## Run hlint on all haskell projects
 	stack exec hlint -- -e hs -h .hlint.yaml hs-abci-server \
 	hs-tendermint-client \

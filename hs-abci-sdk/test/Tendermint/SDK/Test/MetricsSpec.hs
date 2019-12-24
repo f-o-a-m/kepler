@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.Test.MetricsSpec where
+module Tendermint.SDK.Test.MetricsSpec (spec) where
 
 import           Control.Concurrent.MVar                       (readMVar)
 import           Data.Map.Strict                               ((!))

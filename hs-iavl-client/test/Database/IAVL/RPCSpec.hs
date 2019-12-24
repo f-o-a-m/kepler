@@ -1,10 +1,9 @@
-
-module Database.IAVL.RPCCallSpec where
+module Database.IAVL.RPCSpec (spec) where
 
 import           Control.Lens                ((&), (.~), (^.))
 import           Control.Monad               (void)
 import           Data.ProtoLens.Message      (defMessage)
-import           Database.IAVL.RPCCall
+import           Database.IAVL.RPC
 import           Network.GRPC.Client         (RawReply, uncompressed)
 import           Network.GRPC.Client.Helpers (GrpcClient, GrpcClientConfig (..),
                                               grpcClientConfigSimple,

@@ -1,4 +1,4 @@
-module Tendermint.SDK.Test.EventSpec where
+module Tendermint.SDK.Test.EventSpec (spec) where
 
 import qualified Data.Aeson                    as A
 import           GHC.Generics                  (Generic)
