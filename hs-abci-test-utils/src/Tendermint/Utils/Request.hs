@@ -1,6 +1,7 @@
 module Tendermint.Utils.Request where
 
 import           Control.Lens                         ((^.))
+import           Control.Monad                        (void)
 import           Data.Aeson                           (ToJSON)
 import           Data.Aeson.Encode.Pretty             (encodePretty)
 import qualified Data.ByteArray.Base64String          as Base64
@@ -23,6 +24,15 @@ runRPC = RPC.runTendermintM rpcConfig
           prettyPrint :: forall b. ToJSON b => String -> b -> IO ()
           prettyPrint prefix a = putStrLn $ prefix <> "\n" <> (cs . encodePretty $ a)
       in RPC.Config baseReq (prettyPrint "RPC Request") (prettyPrint "RPC Response")
+
+runRPC_ :: RPC.TendermintM a -> IO ()
+runRPC_ = void . runRPC
+
+-- executes a transaction and throws away the result
+runTransaction_ :: RawTransaction -> IO ()
+runTransaction_ rawTx =
+  let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
+  in runRPC_ $ RPC.broadcastTxCommit txReq
 
 -- executes a query and ensures a 0 response code
 getQueryResponseSuccess :: RPC.TendermintM (ClientResponse a) -> IO a
