@@ -12,7 +12,6 @@ module Tendermint.SDK.BaseApp
   , Context(..)
   , contextLogConfig
   , contextPrometheusEnv
-  , contextEventBuffer
   , contextAuthTree
   , makeContext
   , runCoreEffs
@@ -53,6 +52,9 @@ module Tendermint.SDK.BaseApp
   , CountName(..)
   , HistogramName(..)
 
+  -- * Transaction
+  , TxEffs
+
   -- * Query
   , Queryable(..)
   , FromQueryData(..)
@@ -71,3 +73,5 @@ import           Tendermint.SDK.BaseApp.Logger
 import           Tendermint.SDK.BaseApp.Metrics
 import           Tendermint.SDK.BaseApp.Query
 import           Tendermint.SDK.BaseApp.Store
+import           Tendermint.SDK.BaseApp.Transaction
+import           Tendermint.SDK.Types.Effects       ((:&))

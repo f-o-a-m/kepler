@@ -48,7 +48,7 @@ import           Tendermint.SDK.Application               (Module (..),
 import           Tendermint.SDK.BaseApp                   (BaseAppEffs)
 
 type NameserviceM r =
-  Module "nameservice" NameserviceMessage Api NameserviceEffs r
+  Module "nameservice" NameserviceMessage () Api NameserviceEffs r
 
 nameserviceModule
   :: Members BaseAppEffs r

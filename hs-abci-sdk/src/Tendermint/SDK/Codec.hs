@@ -14,5 +14,9 @@ class HasCodec a where
     encode :: a -> BS.ByteString
     decode :: BS.ByteString -> Either Text a
 
+instance HasCodec () where
+  encode = const ""
+  decode = const $ pure ()
+
 defaultSDKAesonOptions :: String -> Options
 defaultSDKAesonOptions prefix = aesonDrop (length prefix) snakeCase

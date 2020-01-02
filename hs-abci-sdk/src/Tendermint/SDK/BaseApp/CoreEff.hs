@@ -7,7 +7,6 @@ module Tendermint.SDK.BaseApp.CoreEff
   , Context(..)
   , contextLogConfig
   , contextPrometheusEnv
-  , contextEventBuffer
   , contextAuthTree
   , makeContext
   , runCoreEffs
@@ -21,8 +20,6 @@ import           Polysemy                                   (Embed, Members,
                                                              Sem, runM)
 import           Polysemy.Reader                            (Reader, asks,
                                                              local, runReader)
-import           Tendermint.SDK.BaseApp.Events              (EventBuffer,
-                                                             newEventBuffer)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip        as KL
 import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus  as P
 import           Tendermint.SDK.BaseApp.Store               (MergeScopes,
@@ -32,8 +29,7 @@ import qualified Tendermint.SDK.BaseApp.Store.AuthTreeStore as AT
 -- | CoreEffs is one level below BaseAppEffs, and provides one possible
 -- | interpretation for its effects to IO.
 type CoreEffs =
-  '[ Reader EventBuffer
-   , MergeScopes
+  '[ MergeScopes
    , Reader KL.LogConfig
    , Reader (Maybe P.PrometheusEnv)
    , Reader AT.AuthTreeState
@@ -54,7 +50,6 @@ instance (Members CoreEffs r) => K.KatipContext (Sem r) where
 data Context = Context
   { _contextLogConfig     :: KL.LogConfig
   , _contextPrometheusEnv :: Maybe P.PrometheusEnv
-  , _contextEventBuffer   :: EventBuffer
   , _contextAuthTree      :: AT.AuthTreeState
   }
 
@@ -70,12 +65,10 @@ makeContext KL.InitialLogNamespace{..} scrapingCfg = do
         Just scfg -> P.emptyState >>= \es ->
           pure . Just $ P.PrometheusEnv es scfg
   authTreeState <- AT.initAuthTreeState
-  eb <- newEventBuffer
   logCfg <- mkLogConfig _initialLogEnvironment _initialLogProcessName
   pure $ Context
     { _contextLogConfig = logCfg
     , _contextPrometheusEnv = metCfg
-    , _contextEventBuffer = eb
     , _contextAuthTree = authTreeState
     }
     where
@@ -101,5 +94,4 @@ runCoreEffs Context{..} =
     runReader _contextAuthTree .
     runReader _contextPrometheusEnv .
     runReader _contextLogConfig .
-    AT.evalMergeScopes .
-    runReader _contextEventBuffer
+    AT.evalMergeScopes
