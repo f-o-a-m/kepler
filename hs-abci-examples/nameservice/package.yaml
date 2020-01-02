@@ -132,6 +132,23 @@ executables:
     - proto3-suite
     - proto3-wire
 
+  interact:
+    main:                Main.hs
+    source-dirs:         interact
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Werror
+    - -Wall
+    dependencies:
+    - base
+    - nameservice
+    - hs-abci-sdk
+    - hs-abci-test-utils
+    - hs-abci-types
+    - text
+
 tests:
   tutorial:
     main:                README.lhs

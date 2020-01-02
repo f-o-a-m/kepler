@@ -182,6 +182,7 @@ spec = do
         senderAfterFoundAmount `shouldBe` Amount 1200
 
 --------------------------------------------------------------------------------
+
 user1 :: User
 user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
 
