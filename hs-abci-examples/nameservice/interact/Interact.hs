@@ -25,8 +25,8 @@ user2 = makeUser "f65242094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e03
 -- Actions
 --------------------------------------------------------------------------------
 
-createName :: User -> Text -> Text -> IO Response.DeliverTx
-createName user strName val = buyName user (Name strName) val 0
+createName :: User -> Name -> Text -> IO Response.DeliverTx
+createName user name val = buyName user name val 0
 
 buyName :: User -> Name -> Text -> Amount -> IO Response.DeliverTx
 buyName User{userAddress, userPrivKey} name newVal amount =
@@ -40,14 +40,14 @@ deleteName User{userAddress, userPrivKey} name =
       rawTx = mkSignedRawTransactionWithRoute "nameservice" userPrivKey msg
   in getDeliverTxResponse rawTx
 
-setNameValue :: User -> Name -> Text -> IO Response.DeliverTx
-setNameValue User{userAddress, userPrivKey} name val =
+setName :: User -> Name -> Text -> IO Response.DeliverTx
+setName User{userAddress, userPrivKey} name val =
   let msg = TypedMessage "SetName" (encode $ SetName name userAddress val)
       rawTx = mkSignedRawTransactionWithRoute "nameservice" userPrivKey msg
   in getDeliverTxResponse rawTx
 
-faucetAccount :: User -> IO Response.DeliverTx
-faucetAccount User{userAddress, userPrivKey} =
-  let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress 1000)
+faucetAccount :: User -> Amount -> IO Response.DeliverTx
+faucetAccount User{userAddress, userPrivKey} amount =
+  let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress amount)
       rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey msg
   in getDeliverTxResponse rawTx

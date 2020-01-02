@@ -3,6 +3,7 @@ module Nameservice.Modules.Nameservice.Types where
 import           Control.Lens                 (iso)
 import           Data.Aeson                   as A
 import           Data.Bifunctor               (first)
+import           Data.String                  (IsString (..))
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
 import qualified Data.Text.Lazy               as TL
@@ -20,7 +21,6 @@ import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Types.Address (Address)
 import qualified Tendermint.Utils.Events      as Event
-
 --------------------------------------------------------------------------------
 
 type NameserviceModuleName = "nameservice"
@@ -34,6 +34,8 @@ instance Primitive Name where
   primType _ = DotProto.String
 instance HasDefault Name
 instance MessageField Name
+instance IsString Name where
+  fromString = Name . fromString
 
 instance BaseApp.FromQueryData Name
 
