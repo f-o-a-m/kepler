@@ -13,6 +13,7 @@ module Tendermint.SDK.Application.Module
   , Eval(..)
   ) where
 
+import           Control.Monad.IO.Class             (liftIO)
 import           Crypto.Hash                        (Digest)
 import           Crypto.Hash.Algorithms             (SHA256)
 import           Data.ByteString                    (ByteString)
@@ -22,8 +23,8 @@ import qualified Data.Validation                    as V
 import           Data.Void
 import           GHC.TypeLits                       (KnownSymbol, Symbol,
                                                      symbolVal)
-import           Polysemy                           (EffectRow, Member, Members,
-                                                     Sem)
+import           Polysemy                           (EffectRow, Embed, Member,
+                                                     Members, Sem)
 import           Polysemy.Error                     (Error)
 import           Servant.API                        ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp             ((:&), AppError, BaseApp,
@@ -125,7 +126,7 @@ instance {-# OVERLAPPING #-} (Member (Error AppError) r, TxRouter ms r,  KnownSy
     | symbolVal (Proxy :: Proxy name) == cs txRoute = throwSDKError $ UnmatchedRoute txRoute
     | otherwise = routeTx routeContext rest tx
 
-instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, TxRouter ms r, HasCodec msg, HasCodec val, KnownSymbol name) => TxRouter (Module name msg val api s r ': ms) r where
+instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, TxRouter ms r, HasCodec msg, HasCodec val, Member (Embed IO) r, KnownSymbol name) => TxRouter (Module name msg val api s r ': ms) r where
   routeTx routeContext (m :+ rest) tx@Tx{..}
     | symbolVal (Proxy :: Proxy name) == cs txRoute = do
         msg <- case decode $ msgData txMsg of
@@ -133,7 +134,7 @@ instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, TxRouter ms r, HasCode
           Right (msg :: msg) -> return msg
         let msg' = txMsg {msgData = msg}
             tx' = RoutedTx $ tx {txMsg = msg'}
-            ctx = T.newTransactionContext tx'
+        ctx <- liftIO $ T.newTransactionContext tx'
         T.eval ctx $ case routeContext of
           CheckTxContext   -> moduleTxChecker m tx'
           DeliverTxContext -> moduleTxDeliverer m tx'

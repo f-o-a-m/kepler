@@ -15,7 +15,7 @@ import           Tendermint.SDK.BaseApp.Errors (AppError,
                                                 SDKError (OutOfGasException),
                                                 throwSDKError)
 
-newtype GasAmount = GasAmount { unGasAmount :: Int64 } deriving (Eq, Num, Ord)
+newtype GasAmount = GasAmount { unGasAmount :: Int64 } deriving (Eq, Show, Num, Ord)
 
 data GasMeter m a where
     WithGas :: forall m a. GasAmount -> m a -> GasMeter m a

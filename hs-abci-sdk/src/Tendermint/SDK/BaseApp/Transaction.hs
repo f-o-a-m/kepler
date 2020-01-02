@@ -6,13 +6,16 @@ module Tendermint.SDK.BaseApp.Transaction
   ) where
 
 import           Control.Lens                     ((&), (.~))
+import           Control.Monad.IO.Class           (liftIO)
 import qualified Data.ByteArray.Base64String      as Base64
 import           Data.Default.Class               (def)
-import           Polysemy                         (Sem, raiseUnder)
+import           Data.IORef                       (IORef, newIORef, readIORef)
+import           Polysemy                         (Embed, Member, Sem,
+                                                   raiseUnder)
 import           Polysemy.Error                   (Error, runError)
 import           Polysemy.Output                  (Output,
                                                    runOutputMonoidAssocR)
-import           Polysemy.State                   (State, runState)
+import           Polysemy.State                   (State, runStateIORef)
 import           Tendermint.SDK.BaseApp.Errors    (AppError, txResultAppError)
 import qualified Tendermint.SDK.BaseApp.Events    as E
 import qualified Tendermint.SDK.BaseApp.Gas       as G
@@ -31,35 +34,40 @@ type TxEffs =
     ]
 
 data TransactionContext = TransactionContext
-  { initialGas :: G.GasAmount
+  { gas :: IORef G.GasAmount
   }
 
 newTransactionContext
   :: RoutedTx msg
-  -> TransactionContext
+  -> IO TransactionContext
 newTransactionContext (RoutedTx Tx{txGas}) = do
-  TransactionContext
-    { initialGas = G.GasAmount txGas
+  initialGas <- newIORef $ G.GasAmount txGas
+  pure TransactionContext
+    { gas = initialGas
     }
 
 eval
   :: forall r a.
      HasCodec a
+  => Member (Embed IO) r
   => TransactionContext
   -> Sem (TxEffs :& r) a
   -> Sem r TxResult
 eval TransactionContext{..} action = do
+  initialGas <- liftIO $ readIORef gas
   eRes <-
     runError .
-      runState initialGas .
+      runStateIORef gas .
       G.eval .
       raiseUnder @(State G.GasAmount) $
       runOutputMonoidAssocR pure action
+  gasRemaining <- liftIO $ readIORef gas
+  let gasUsed = initialGas - gasRemaining
+      baseResponse =
+        def & txResultGasWanted .~ G.unGasAmount initialGas
+            & txResultGasUsed .~ G.unGasAmount gasUsed
   return $ case eRes of
-    Left e -> def & txResultAppError .~ e
-    Right (gasRemaining, (events, a)) ->
-      let gasUsed = initialGas - gasRemaining
-      in def & txResultEvents .~ events
-             & txResultData .~ Base64.fromBytes (encode a)
-             & txResultGasWanted .~ G.unGasAmount initialGas
-             & txResultGasUsed .~ G.unGasAmount gasUsed
+    Left e -> baseResponse & txResultAppError .~ e
+    Right (events, a) ->
+      baseResponse & txResultEvents .~ events
+                   & txResultData .~ Base64.fromBytes (encode a)

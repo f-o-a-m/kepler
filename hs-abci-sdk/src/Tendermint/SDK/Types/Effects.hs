@@ -8,4 +8,3 @@ type family (as :: [a]) :& (bs :: [a]) :: [a] where
   (a ': as) :& bs = a ': (as :& bs)
 
 infixr 5 :&
-
