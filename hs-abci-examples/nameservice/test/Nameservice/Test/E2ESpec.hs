@@ -1,4 +1,4 @@
-module Nameservice.Test.E2ESpec where
+module Nameservice.Test.E2ESpec (spec) where
 
 import           Control.Lens                         ((^.))
 import           Data.Default.Class                   (def)

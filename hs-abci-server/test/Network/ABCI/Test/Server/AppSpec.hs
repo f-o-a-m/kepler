@@ -1,4 +1,4 @@
-module Network.ABCI.Test.Server.AppSpec where
+module Network.ABCI.Test.Server.AppSpec (spec) where
 
 import           Data.Bifunctor                      (first)
 import qualified Data.Binary.Put                     as Put

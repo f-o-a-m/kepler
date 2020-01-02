@@ -44,46 +44,41 @@ default-extensions:
   - ConstraintKinds
   - PackageImports
 
-
-dependencies:
-- aeson
-- aeson-casing
-- async
-- avl-auth
-- base >= 4.7 && < 5
-- bytestring
-- containers
-- cryptonite
-- data-default-class
-- errors
-- exceptions
-- hs-abci-types
-- hs-abci-server
-- http-types
-- katip
-- lens
-- memory
-- mmorph
-- mtl
-- polysemy
-- polysemy-plugin
-- polysemy-zoo
-- profunctors
-- proto-lens
-- proto-lens-runtime
-- proto3-wire
-- proto3-suite
-- secp256k1-haskell
-- servant
-- stm
-- string-conversions
-- text
-- uri-bytestring
-- validation
-
 library:
   source-dirs:
   - src
+  dependencies:
+    - aeson
+    - aeson-casing
+    - avl-auth
+    - base >= 4.7 && < 5
+    - bytestring
+    - containers
+    - cryptonite
+    - data-default-class
+    - errors
+    - hs-abci-server
+    - hs-abci-types
+    - http-types
+    - katip
+    - lens
+    - memory
+    - mmorph
+    - mtl
+    - polysemy
+    - polysemy-plugin
+    - polysemy-zoo
+    - prometheus
+    - proto-lens
+    - proto-lens-runtime
+    - proto3-wire
+    - secp256k1-haskell
+    - servant
+    - stm
+    - string-conversions
+    - text
+    - time
+    - validation
   ghc-options:
   - -fplugin=Polysemy.Plugin
   - -Werror
@@ -105,6 +100,8 @@ library:
   - Tendermint.SDK.BaseApp.Gas
   - Tendermint.SDK.BaseApp.Logger
   - Tendermint.SDK.BaseApp.Logger.Katip
+  - Tendermint.SDK.BaseApp.Metrics
+  - Tendermint.SDK.BaseApp.Metrics.Prometheus
   - Tendermint.SDK.BaseApp.Query
   - Tendermint.SDK.BaseApp.Query.Class
   - Tendermint.SDK.BaseApp.Query.Delayed
@@ -137,6 +134,7 @@ tests:
     - Tendermint.SDK.Test.AuthTreeStoreSpec
     - Tendermint.SDK.Test.CryptoSpec
     - Tendermint.SDK.Test.GasSpec
+    - Tendermint.SDK.Test.MetricsSpec
 
     ghc-options:
     - -fplugin=Polysemy.Plugin
@@ -147,12 +145,19 @@ tests:
     - -with-rtsopts=-N
 
     dependencies:
+      - base >= 4.7 && < 5
+      - bytestring
+      - containers
+      - lens
       - cereal
-      - generic-arbitrary
-      - hs-abci-server
       - hs-abci-sdk
+      - hs-abci-types
       - hspec
       - hspec-core
       - hspec-discover
-      - QuickCheck
-      - quickcheck-instances
+      - polysemy
+      - polysemy-plugin
+      - polysemy-zoo
+      - prometheus
+      - secp256k1-haskell
+      - string-conversions

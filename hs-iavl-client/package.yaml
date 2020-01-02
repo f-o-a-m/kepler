@@ -1,0 +1,83 @@
+name:                hs-iavl-client
+version:             0.1.0.0
+github:              "f-o-a-m/hs-abci/hs-iavl-client"
+license:             Apache
+author:              "Martin Allen"
+maintainer:          "martin@foam.space"
+copyright:           "2019 Martin Allen"
+
+extra-source-files:
+- protos/**/*.proto
+
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-iavl-client#readme>
+
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-setup
+
+default-extensions:
+- NamedFieldPuns
+- RecordWildCards
+- FlexibleContexts
+- DeriveGeneric
+- LambdaCase
+- TypeFamilies
+- GADTs
+- GeneralizedNewtypeDeriving
+- DataKinds
+- PolyKinds
+- RankNTypes
+- DataKinds
+- ScopedTypeVariables
+- FlexibleInstances
+- OverloadedStrings
+- MultiParamTypeClasses
+- FunctionalDependencies
+
+library:
+  source-dirs: src
+  ghc-options:
+  - -Werror
+  - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
+  dependencies:
+    - base >= 4.7 && < 5
+    - http2-client
+    - http2-client-grpc
+    - proto-lens
+    - proto-lens-runtime
+  exposed-modules:
+  - Database.IAVL.RPC
+  generated-exposed-modules:
+  - Proto.Iavl.Api
+  - Proto.Iavl.Api_Fields
+  - Proto.Google.Api.Http
+  - Proto.Google.Protobuf.Empty
+  - Proto.Google.Api.Annotations
+
+tests:
+  hs-iavl-client-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -Werror
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+
+    dependencies:
+      - base >= 4.7 && < 5
+      - hs-iavl-client
+      - hspec
+      - hspec-core
+      - hspec-discover
+      - http2-client
+      - http2-client-grpc
+      - lens
+      - proto-lens

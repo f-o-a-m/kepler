@@ -21,15 +21,6 @@ description:         Please see the README on GitHub at <https://github.com/f-o-
 
 dependencies:
 - base >= 4.7 && < 5
-- katip
-- hs-abci-server
-- aeson
-- aeson-casing
-- unordered-containers
-- memory
-- text
-- lens
-- bytestring
 
 default-extensions:
 - NamedFieldPuns
@@ -48,6 +39,12 @@ default-extensions:
 
 library:
   source-dirs: src
+  dependencies:
+    - aeson
+    - containers
+    - katip
+    - hs-abci-server
+    - time
   ghc-options:
   - -Werror
   - -Wall

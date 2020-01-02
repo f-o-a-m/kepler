@@ -1,23 +1,29 @@
-help: ## Ask for help!
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+STATS_PORT ?= 9200
 
 export
 
 # This is useful for copying example app binaries built on a linux machine rather than building in docker
 SIMPLE_STORAGE_BINARY := $(shell stack exec -- which simple-storage)
 
+help: ## Ask for help!
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
 #####################
 # Linting and Styling
 #####################
 
+weeder: ## look for unused packages and functions
+	weeder . --build
+
 hlint: ## Run hlint on all haskell projects
-	stack exec hlint -- -h .hlint.yaml hs-abci-server \
+	stack exec hlint -- -e hs -h .hlint.yaml hs-abci-server \
 	hs-tendermint-client \
 	hs-abci-extra \
 	hs-abci-sdk \
 	hs-abci-test-utils \
 	hs-abci-examples/simple-storage \
-	hs-abci-examples/nameservice
+	hs-abci-examples/nameservice \
+	hs-iavl-client
 
 stylish: ## Run stylish-haskell over all haskell projects
 	find ./hs-abci-types \
@@ -27,6 +33,7 @@ stylish: ## Run stylish-haskell over all haskell projects
 	./hs-abci-sdk \
 	./hs-abci-test-utils \
 	./hs-abci-server \
+	./hs-iavl-client \
 	-name "*.hs" | xargs stack exec stylish-haskell -- -c ./.stylish_haskell.yaml -i
 
 ###################
@@ -46,6 +53,9 @@ install: ## Runs stack install to compile library and counter example app
 test-libraries: install ## Run the haskell test suite for all haskell libraries
 	stack test hs-abci-types hs-abci-server hs-abci-sdk hs-abci-test-utils
 
+test-iavl-client: ## test the iavl client library basic operation (requires grpc service running on port 8090)
+	stack test hs-iavl-client
+
 
 #####################
 # Example Application
@@ -58,9 +68,17 @@ deploy-nameservice-docker: install ## run the nameservice docker network
 	docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml up --build
 
 deploy-simple-storage-local: install ## run the simple storage locally
+	ES_HOST=$(ES_HOST) \
+	ES_PORT=$(ES_PORT) \
+	DD_API_KEY=$(DD_API_KEY) \
+	STATS_PORT=$(STATS_PORT) \
 	stack exec simple-storage
 
 deploy-nameservice-local: install ## run the nameservice locally
+	ES_HOST=$(ES_HOST) \
+	ES_PORT=$(ES_PORT) \
+	DD_API_KEY=$(DD_API_KEY) \
+	STATS_PORT=$(STATS_PORT) \
 	stack exec nameservice
 
 test-kv-store: install ## Run the test suite for the client interface
@@ -70,7 +88,11 @@ test-simple-storage: install ## Run the test suite for the simple-storage exampl
 	stack test simple-storage
 
 test-nameservice: install ## Run the test suite for the nameservice example application
-	stack test nameservice
+	stack test nameservice:nameservice-test
+
+test-tutorial: install ## Make sure the tutorial builds
+	stack test nameservice:tutorial
+
 
 
 #####################

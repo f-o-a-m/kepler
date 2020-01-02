@@ -1,4 +1,4 @@
-module SimpleStorage.Test.E2ESpec where
+module SimpleStorage.Test.E2ESpec (spec) where
 
 import           Control.Lens                         ((^.))
 import qualified Data.ByteArray.Base64String          as Base64

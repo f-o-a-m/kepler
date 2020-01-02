@@ -1,4 +1,4 @@
-module Network.ABCI.Test.Types.MessagesSpec where
+module Network.ABCI.Test.Types.MessagesSpec (spec) where
 
 import           Control.Lens                                    (Iso', from,
                                                                   set, to,
@@ -82,13 +82,6 @@ scrubTimestamp
 scrubTimestamp ts =
   ts & T.seconds %~ abs
      & T.nanos %~  (`mod` 1000000000) . abs
-
-scrubTimestampField
-  :: HasField a "time" T.Timestamp
-  => a
-  -> a
-scrubTimestampField a =
-  a & PT.time %~ scrubTimestamp
 
 scrubTimestampFieldMaybe
   :: HasField a "maybe'time" (Maybe T.Timestamp)

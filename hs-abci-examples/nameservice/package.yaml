@@ -45,37 +45,33 @@ default-extensions:
   - StandaloneDeriving
   - ConstraintKinds
 
-dependencies:
-- aeson
-- aeson-casing
-- base >= 4.7 && < 5
-- bytestring
-- data-default-class
-- errors
-- exceptions
-- either
-- hs-abci-extra
-- hs-abci-sdk
-- hs-abci-server
-- hs-abci-test-utils
-- hs-abci-types
-- lens
-- polysemy
-- polysemy-plugin
-- polysemy-zoo
-- pretty
-- proto-lens
-- proto-lens-runtime
-- proto3-suite
-- proto3-wire
-- katip
-- servant
-- string-conversions
-- text
-- validation
-
 library:
   source-dirs: src
+  dependencies:
+    - aeson
+    - aeson-casing
+    - base >= 4.7 && < 5
+    - bloodhound
+    - bytestring
+    - containers
+    - errors
+    - hs-abci-extra
+    - hs-abci-server
+    - hs-abci-sdk
+    - hs-abci-test-utils
+    - hs-abci-types
+    - http-client
+    - katip
+    - katip-datadog
+    - katip-elasticsearch
+    - lens
+    - polysemy
+    - polysemy-plugin
+    - proto3-suite
+    - proto3-wire
+    - string-conversions
+    - text
+    - validation
   ghc-options:
   - -fplugin=Polysemy.Plugin
   - -Werror
@@ -87,6 +83,8 @@ library:
   - -Wredundant-constraints
   exposed-modules:
   - Nameservice.Application
+  - Nameservice.Config
+  - Nameservice.Aeson
   - Nameservice.Server
   - Nameservice.Modules.TypedMessage
   - Nameservice.Modules.Nameservice
@@ -110,15 +108,11 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    - -fplugin=Polysemy.Plugin
-    - -Werror
-    - -Wall
-    - -Wcompat
-    - -Widentities
-    - -Wincomplete-record-updates
-    - -Wincomplete-uni-patterns
-    - -Wredundant-constraints
     dependencies:
+    - base
+    - hs-abci-sdk
+    - katip
+    - lens
     - nameservice
 
   gen-protos-exe:
@@ -129,9 +123,39 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
+    - aeson-casing
+    - base
+    - bytestring
+    - hs-abci-sdk
     - nameservice
+    - pretty
+    - proto3-suite
+    - proto3-wire
 
 tests:
+  tutorial:
+    main:                README.lhs
+    source-dirs:         tutorial
+    other-modules:
+    - Tutorial.Nameservice.Application
+    - Tutorial.Nameservice.Keeper
+    - Tutorial.Nameservice.Message
+    - Tutorial.Nameservice.Module
+    - Tutorial.Nameservice.Query
+    - Tutorial.Nameservice.Types
+    ghc-options: -Wall -pgmL markdown-unlit
+    dependencies:
+    - aeson
+    - base
+    - hs-abci-sdk
+    - hs-abci-server
+    - lens
+    - nameservice
+    - polysemy
+    - polysemy-plugin
+    - proto3-suite
+    - string-conversions
+    - text
   nameservice-test:
     main:                Spec.hs
     source-dirs:         test
@@ -144,8 +168,13 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - nameservice
-    - aeson-pretty
-    - hspec
-    - secp256k1-haskell
+    - base >= 4.7 && < 5
+    - data-default-class
+    - hs-abci-sdk
+    - hs-abci-types
+    - hs-abci-test-utils
     - hs-tendermint-client
+    - hspec
+    - lens
+    - nameservice
+    - servant

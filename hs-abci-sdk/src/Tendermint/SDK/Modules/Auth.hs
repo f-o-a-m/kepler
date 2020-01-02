@@ -1,8 +1,9 @@
 module Tendermint.SDK.Modules.Auth
-  ( authModule
+  ( AuthM
+  , authModule
 
   , AuthEffs
-  , Accounts
+  , Accounts(..)
   , getAccount
   , putAccount
   , eval
@@ -21,7 +22,7 @@ import           Tendermint.SDK.Modules.Auth.Keeper
 import           Tendermint.SDK.Modules.Auth.Query
 import           Tendermint.SDK.Modules.Auth.Types
 
-type AuthM r = Module AuthModule Void Api r
+type AuthM r = Module AuthModule Void Api AuthEffs r
 
 authModule
   :: Members BaseAppEffs r
@@ -30,4 +31,5 @@ authModule = Module
   { moduleTxDeliverer = voidRouter
   , moduleTxChecker = voidRouter
   , moduleQueryServer = server
+  , moduleEval = eval
   }
