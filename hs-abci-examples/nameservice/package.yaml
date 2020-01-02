@@ -150,6 +150,7 @@ tests:
     - hs-abci-sdk
     - hs-abci-server
     - lens
+    - markdown-unlit
     - nameservice
     - polysemy
     - polysemy-plugin
