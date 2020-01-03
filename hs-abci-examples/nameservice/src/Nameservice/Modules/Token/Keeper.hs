@@ -55,7 +55,8 @@ faucetAccount FaucetAccount{..} = do
         { faucettedAccount = faucetAccountTo
         , faucettedAmount = faucetAccountAmount
         }
-  BaseApp.emitAndLogEvent event
+  BaseApp.emit event
+  BaseApp.logEvent event
 
 getBalance
   :: Member Token r
@@ -87,7 +88,8 @@ transfer addr1 amount addr2 = do
             , transferEventTo = addr2
             , transferEventFrom = addr1
             }
-      BaseApp.emitAndLogEvent event
+      BaseApp.emit event
+      BaseApp.logEvent event
     else throw (InsufficientFunds "Insufficient funds for transfer.")
 
 burn

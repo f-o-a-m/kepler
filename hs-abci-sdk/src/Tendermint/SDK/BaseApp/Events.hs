@@ -5,7 +5,6 @@ module Tendermint.SDK.BaseApp.Events
   , ContextEvent(..)
   , emit
   , logEvent
-  , emitAndLogEvent
   , makeEvent
   , EventBuffer
   , newEventBuffer
@@ -28,7 +27,7 @@ import           Data.Text                              (Text)
 import           GHC.Exts                               (fromList, toList)
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..),
                                                          KVPair (..))
-import           Polysemy                               (Embed, Member, Members,
+import           Polysemy                               (Embed, Member,
                                                          Sem, interpret)
 import           Polysemy.Output                        (Output (..), output)
 import           Polysemy.Reader                        (Reader (..), ask)
@@ -143,16 +142,6 @@ logEvent
   -> Sem r ()
 logEvent event = Log.addContext (ContextEvent event) $
   Log.log Log.Info (cs $ makeEventType (Proxy :: Proxy e))
-
-emitAndLogEvent
-  :: forall e r.
-     (ToEvent e, A.ToJSON e, Log.Select e)
-  => Members [Log.Logger, Output Event] r
-  => e
-  -> Sem r ()
-emitAndLogEvent e = do
-  emit e
-  logEvent e
 
 evalWithBuffer
   :: Member (Embed IO) r

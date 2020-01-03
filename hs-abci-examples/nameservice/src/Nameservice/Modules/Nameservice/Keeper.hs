@@ -68,7 +68,8 @@ setName SetName{..} = do
                 , nameRemappedNewValue = setNameValue
                 , nameRemappedOldValue = whoisValue
                 }
-          BaseApp.emitAndLogEvent event
+          BaseApp.emit event
+          BaseApp.logEvent event
 
 deleteName
   :: Members [BaseApp.Logger, Token, Output BaseApp.Event] r
@@ -88,7 +89,8 @@ deleteName DeleteName{..} = do
           let event = NameDeleted
                 { nameDeletedName = deleteNameName
                 }
-          BaseApp.emitAndLogEvent event
+          BaseApp.emit event
+          BaseApp.logEvent event
 
 buyName
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
@@ -128,7 +130,8 @@ buyName msg = do
               , nameClaimedValue = buyNameValue
               , nameClaimedBid = buyNameBid
               }
-        BaseApp.emitAndLogEvent event
+        BaseApp.emit event
+        BaseApp.logEvent event
 
       buyClaimedName
         :: Members NameserviceEffs r
@@ -153,6 +156,7 @@ buyName msg = do
                      , nameClaimedValue = buyNameValue
                      , nameClaimedBid = buyNameBid
                      }
-               BaseApp.emitAndLogEvent event
+               BaseApp.emit event
+               BaseApp.logEvent event
              else throw (InsufficientBid "Bid must exceed the price.")
 
