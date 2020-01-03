@@ -20,6 +20,7 @@ hlint: ## Run hlint on all haskell projects
 	hs-tendermint-client \
 	hs-abci-extra \
 	hs-abci-sdk \
+	hs-abci-test-utils \
 	hs-abci-examples/simple-storage \
 	hs-abci-examples/nameservice \
 	hs-iavl-client
@@ -30,6 +31,7 @@ stylish: ## Run stylish-haskell over all haskell projects
 	./hs-tendermint-client \
 	./hs-abci-examples \
 	./hs-abci-sdk \
+	./hs-abci-test-utils \
 	./hs-abci-server \
 	./hs-iavl-client \
 	-name "*.hs" | xargs stack exec stylish-haskell -- -c ./.stylish_haskell.yaml -i
@@ -49,7 +51,7 @@ install: ## Runs stack install to compile library and counter example app
 	stack install
 
 test-libraries: install ## Run the haskell test suite for all haskell libraries
-	stack test hs-abci-types hs-abci-server hs-abci-sdk
+	stack test hs-abci-types hs-abci-server hs-abci-sdk hs-abci-test-utils
 
 test-iavl-client: ## test the iavl client library basic operation (requires grpc service running on port 8090)
 	stack test hs-iavl-client

@@ -50,6 +50,11 @@ library:
   - -fplugin=Polysemy.Plugin
   - -Werror
   - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
   dependencies:
     - aeson
     - base >= 4.7 && < 5
@@ -126,19 +131,13 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-      - aeson
-      - aeson-pretty
       - base >= 4.7 && < 5
-      - bytestring
-      - cereal
       - data-default-class
       - hs-abci-sdk
       - simple-storage
       - hs-abci-types
+      - hs-abci-test-utils
       - hs-tendermint-client
       - hspec
       - lens
-      - mtl
-      - secp256k1-haskell
       - servant
-      - string-conversions
