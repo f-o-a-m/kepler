@@ -58,6 +58,7 @@ library:
     - hs-abci-extra
     - hs-abci-server
     - hs-abci-sdk
+    - hs-abci-test-utils
     - hs-abci-types
     - http-client
     - katip
@@ -149,6 +150,7 @@ tests:
     - hs-abci-sdk
     - hs-abci-server
     - lens
+    - markdown-unlit
     - nameservice
     - polysemy
     - polysemy-plugin
@@ -161,23 +163,19 @@ tests:
     other-modules:
     - Nameservice.Test.E2ESpec
     ghc-options:
+    - -Werror
+    - -Wall
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - aeson
-    - aeson-pretty
     - base >= 4.7 && < 5
-    - bytestring
     - data-default-class
     - hs-abci-sdk
     - hs-abci-types
+    - hs-abci-test-utils
     - hs-tendermint-client
     - hspec
     - lens
     - nameservice
-    - proto3-suite
-    - secp256k1-haskell
     - servant
-    - string-conversions
-    - text

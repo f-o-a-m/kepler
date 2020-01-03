@@ -1,61 +1,39 @@
 module Nameservice.Test.E2ESpec (spec) where
 
-import           Control.Lens                           ((^.))
-import           Crypto.Secp256k1                       (CompactRecSig (..),
-                                                         SecKey, derivePubKey,
-                                                         exportCompactRecSig,
-                                                         secKey)
-import           Data.Aeson                             (ToJSON)
-import           Data.Aeson.Encode.Pretty               (encodePretty)
-import qualified Data.ByteArray.Base64String            as Base64
-import qualified Data.ByteArray.HexString               as Hex
-import           Data.ByteString                        (ByteString, snoc)
-import qualified Data.ByteString                        as BS
-import qualified Data.ByteString.Lazy                   as BL
-import           Data.ByteString.Short                  (fromShort)
-import           Data.Default.Class                     (def)
-import           Data.Either                            (partitionEithers)
-import           Data.Maybe                             (fromJust)
+import           Control.Lens                         ((^.))
+import           Data.Default.Class                   (def)
 import           Data.Proxy
-import           Data.String                            (fromString)
-import           Data.String.Conversions                (cs)
-import           Data.Text                              (Text)
-import           Data.Word                              (Word32)
-import           Nameservice.Modules.Nameservice        (BuyName (..),
-                                                         DeleteName (..),
-                                                         Name (..),
-                                                         NameClaimed (..),
-                                                         NameDeleted (..),
-                                                         NameRemapped (..),
-                                                         SetName (..),
-                                                         Whois (..))
-import qualified Nameservice.Modules.Nameservice        as N (Api)
-import           Nameservice.Modules.Token              (Amount (..),
-                                                         FaucetAccount (..),
-                                                         Faucetted (..),
-                                                         Transfer (..),
-                                                         TransferEvent (..))
-import qualified Nameservice.Modules.Token              as T (Api)
-import           Nameservice.Modules.TypedMessage       (TypedMessage (..))
-import           Network.ABCI.Types.Messages.FieldTypes (Event (..))
-import qualified Network.ABCI.Types.Messages.Response   as Response
-import qualified Network.Tendermint.Client              as RPC
-import           Proto3.Suite                           (Message,
-                                                         toLazyByteString)
-import           Servant.API                            ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp                 (FromEvent (..),
-                                                         QueryApi)
-import           Tendermint.SDK.BaseApp.Query           (QueryArgs (..),
-                                                         defaultQueryWithData)
-import           Tendermint.SDK.BaseApp.Query.Client    (ClientResponse (..),
-                                                         HasClient (..),
-                                                         RunClient (..))
-import           Tendermint.SDK.Codec                   (HasCodec (..))
-import           Tendermint.SDK.Crypto                  (Secp256k1,
-                                                         addressFromPubKey)
-import           Tendermint.SDK.Types.Address           (Address (..))
-import           Tendermint.SDK.Types.Transaction       (RawTransaction (..),
-                                                         signRawTransaction)
+import           Nameservice.Modules.Nameservice      (BuyName (..),
+                                                       DeleteName (..),
+                                                       Name (..),
+                                                       NameClaimed (..),
+                                                       NameDeleted (..),
+                                                       NameRemapped (..),
+                                                       SetName (..), Whois (..))
+import qualified Nameservice.Modules.Nameservice      as N (Api)
+import           Nameservice.Modules.Token            (Amount (..),
+                                                       FaucetAccount (..),
+                                                       Faucetted (..),
+                                                       Transfer (..),
+                                                       TransferEvent (..))
+import qualified Nameservice.Modules.Token            as T (Api)
+import           Nameservice.Modules.TypedMessage     (TypedMessage (..))
+import qualified Network.ABCI.Types.Messages.Response as Response
+import qualified Network.Tendermint.Client            as RPC
+import           Servant.API                          ((:<|>) (..), (:>))
+import           Tendermint.SDK.BaseApp.Query         (QueryArgs (..),
+                                                       defaultQueryWithData)
+import           Tendermint.SDK.Codec                 (HasCodec (..))
+import           Tendermint.SDK.Types.Address         (Address (..))
+import           Tendermint.Utils.Client              (ClientResponse (..),
+                                                       HasClient (..))
+import           Tendermint.Utils.Request             (ensureCheckAndDeliverResponseCodes,
+                                                       getDeliverTxResponse,
+                                                       getQueryResponseSuccess,
+                                                       runRPC)
+import           Tendermint.Utils.Response            (ensureDeliverResponseCode,
+                                                       ensureEventLogged)
+import           Tendermint.Utils.User                (User (..), makeUser, mkSignedRawTransactionWithRoute)
 import           Test.Hspec
 
 spec :: Spec
@@ -121,8 +99,7 @@ spec = do
         ensureCheckAndDeliverResponseCodes (0,2) rawTx
 
       it "Can buy an existing name (success 0)" $ do
-        let oldVal = "goodbye to a world"
-            newVal = "hello (again) world"
+        let newVal = "hello (again) world"
             msg = TypedMessage "BuyName" (encode $ BuyName 300 satoshi newVal addr2)
             claimedLog = NameClaimed addr2 satoshi newVal 300
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
@@ -204,15 +181,14 @@ spec = do
         senderAfterFoundAmount <- getQueryResponseSuccess $ getBalance senderAfterQueryReq
         senderAfterFoundAmount `shouldBe` Amount 1200
 
-runRPC :: forall a. RPC.TendermintM a -> IO a
-runRPC = RPC.runTendermintM rpcConfig
-  where
-    rpcConfig :: RPC.Config
-    rpcConfig =
-      let RPC.Config baseReq _ _ = RPC.defaultConfig "localhost" 26657
-          prettyPrint :: forall b. ToJSON b => String -> b -> IO ()
-          prettyPrint prefix a = putStrLn $ prefix <> "\n" <> (cs . encodePretty $ a)
-      in RPC.Config baseReq (prettyPrint "RPC Request") (prettyPrint "RPC Response")
+--------------------------------------------------------------------------------
+user1 :: User
+user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
+
+user2 :: User
+user2 = makeUser "f65242094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
+
+--------------------------------------------------------------------------------
 
 faucetAccount :: User -> IO ()
 faucetAccount User{userAddress, userPrivKey} = do
@@ -223,107 +199,6 @@ faucetAccount User{userAddress, userPrivKey} = do
   ensureDeliverResponseCode deliverResp 0
   ensureEventLogged deliverResp "Faucetted" faucetEvent
 
--- executes a query and ensures a 0 response code
-getQueryResponseSuccess :: RPC.TendermintM (ClientResponse a) -> IO a
-getQueryResponseSuccess query = do
-  ClientResponse{clientResponseData,clientResponseRaw} <- runRPC query
-  let responseCode = clientResponseRaw ^. Response._queryCode
-  responseCode `shouldBe` 0
-  return . fromJust $ clientResponseData
-
--- executes a request, then returns the checkTx response
-getCheckTxResponse :: RawTransaction -> IO Response.CheckTx
-getCheckTxResponse rawTx = do
-  let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-  fmap RPC.resultBroadcastTxCommitCheckTx . runRPC $
-    RPC.broadcastTxCommit txReq
-
--- executes a request, then returns the deliverTx response
-getDeliverTxResponse :: RawTransaction -> IO Response.DeliverTx
-getDeliverTxResponse rawTx = do
-  let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-  fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $
-    RPC.broadcastTxCommit txReq
-
-ensureCheckAndDeliverResponseCodes :: (Word32, Word32) -> RawTransaction -> IO ()
-ensureCheckAndDeliverResponseCodes codes rawTx = do
-  let txReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeRawTx rawTx }
-  resp <- runRPC $ RPC.broadcastTxCommit txReq
-  let checkResp = RPC.resultBroadcastTxCommitCheckTx resp
-      deliverResp = RPC.resultBroadcastTxCommitDeliverTx resp
-  codes `shouldBe` (checkResp ^. Response._checkTxCode, deliverResp ^. Response._deliverTxCode)
-
-
--- get the logged events from a deliver response,
-deliverTxEvents :: FromEvent e => Response.DeliverTx -> Text -> IO ([Text],[e])
-deliverTxEvents deliverResp eventName = do
-  let deliverEvents = deliverResp ^. Response._deliverTxEvents
-      filtered = filter ((== eventName) . eventType) deliverEvents
-  return . partitionEithers . map fromEvent $ filtered
-
--- ensures there are no errors when parsing event logs and contains the expectedEvent
-ensureEventLogged :: (Eq e, Show e, FromEvent e) => Response.DeliverTx -> Text -> e -> IO ()
-ensureEventLogged deliverResp eventName expectedEvent = do
-  (errs, events) <- deliverTxEvents deliverResp eventName
-  errs `shouldBe` mempty
-  events `shouldSatisfy` elem expectedEvent
-
--- check for a specific check response code
-ensureCheckResponseCode :: Response.CheckTx -> Word32 -> IO ()
-ensureCheckResponseCode checkResp code = do
-  let checkRespCode = checkResp ^. Response._checkTxCode
-  checkRespCode `shouldBe` code
-
--- check for a specific deliver response code
-ensureDeliverResponseCode :: Response.DeliverTx -> Word32 -> IO ()
-ensureDeliverResponseCode deliverResp code = do
-  let deliverRespCode = deliverResp ^. Response._deliverTxCode
-  deliverRespCode `shouldBe` code
-
---------------------------------------------------------------------------------
-
-decodeValue :: HasCodec a => Base64.Base64String -> a
-decodeValue = (\(Right a) -> a) . decode . Base64.toBytes
-
-encodeRawTx :: RawTransaction -> Base64.Base64String
-encodeRawTx = Base64.fromBytes . encode
-
-encodeMsgData :: Message a => a -> BS.ByteString
-encodeMsgData = BL.toStrict . toLazyByteString
-
--- sign a trx with a user's private key
-mkSignedRawTransactionWithRoute :: Message a => BS.ByteString -> SecKey -> a -> RawTransaction
-mkSignedRawTransactionWithRoute route privateKey msg = sign unsigned
-  where unsigned = RawTransaction { rawTransactionData = encodeMsgData msg
-                                  , rawTransactionRoute = cs route
-                                  , rawTransactionSignature = ""
-                                  }
-        sig = signRawTransaction algProxy privateKey unsigned
-        sign rt = rt { rawTransactionSignature = encodeCompactRecSig $ exportCompactRecSig sig }
-
-data User = User
-  { userPrivKey :: SecKey
-  , userAddress :: Address
-  }
-
-user1 :: User
-user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
-
-user2 :: User
-user2 = makeUser "f65242094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
-
-makeUser :: String -> User
-makeUser privKeyStr =
-  let privateKey = fromJust . secKey . Hex.toBytes . fromString $ privKeyStr
-      pubKey = derivePubKey privateKey
-      address = addressFromPubKey (Proxy @Secp256k1) pubKey
-  in User privateKey address
-
-algProxy :: Proxy Secp256k1
-algProxy = Proxy
-
---------------------------------------------------------------------------------
-
 getWhois :: QueryArgs Name -> RPC.TendermintM (ClientResponse Whois)
 getBalance :: QueryArgs Address -> RPC.TendermintM (ClientResponse Amount)
 
@@ -332,6 +207,3 @@ apiP = Proxy
 
 (getBalance :<|> getWhois) =
   genClient (Proxy :: Proxy RPC.TendermintM) apiP def
-
-encodeCompactRecSig :: CompactRecSig -> ByteString
-encodeCompactRecSig (CompactRecSig r s v) = snoc (fromShort r <> fromShort s) v

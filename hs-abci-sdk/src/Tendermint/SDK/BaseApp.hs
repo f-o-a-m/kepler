@@ -34,7 +34,6 @@ module Tendermint.SDK.BaseApp
 
   -- * Events
   , Event(..)
-  , FromEvent(..)
   , ToEvent(..)
   , ContextEvent(..)
   , emit

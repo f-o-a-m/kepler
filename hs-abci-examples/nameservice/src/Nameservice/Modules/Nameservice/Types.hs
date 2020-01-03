@@ -19,6 +19,7 @@ import qualified Proto3.Wire.Encode           as Encode
 import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Types.Address (Address)
+import qualified Tendermint.Utils.Events      as Event
 
 --------------------------------------------------------------------------------
 
@@ -106,8 +107,8 @@ instance FromJSON NameClaimed where
   parseJSON = A.genericParseJSON nameClaimedAesonOptions
 instance BaseApp.ToEvent NameClaimed where
   makeEventType _ = "NameClaimed"
-instance BaseApp.FromEvent NameClaimed
 instance BaseApp.Select NameClaimed
+instance Event.FromEvent NameClaimed
 
 data NameRemapped = NameRemapped
   { nameRemappedName     :: Name
@@ -124,8 +125,8 @@ instance FromJSON NameRemapped where
   parseJSON = A.genericParseJSON nameRemappedAesonOptions
 instance BaseApp.ToEvent NameRemapped where
   makeEventType _ = "NameRemapped"
-instance BaseApp.FromEvent NameRemapped
 instance BaseApp.Select NameRemapped
+instance Event.FromEvent NameRemapped
 
 data NameDeleted = NameDeleted
   { nameDeletedName :: Name
@@ -140,5 +141,6 @@ instance FromJSON NameDeleted where
   parseJSON = A.genericParseJSON nameDeletedAesonOptions
 instance BaseApp.ToEvent NameDeleted where
   makeEventType _ = "NameDeleted"
-instance BaseApp.FromEvent NameDeleted
 instance BaseApp.Select NameDeleted
+instance Event.FromEvent NameDeleted
+
