@@ -24,8 +24,8 @@ import           Data.String.Conversions                (cs)
 import           GHC.Exts                               (toList)
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..),
                                                          KVPair (..))
-import           Polysemy                               (Embed, Member,
-                                                         Sem, interpret)
+import           Polysemy                               (Embed, Member, Sem,
+                                                         interpret)
 import           Polysemy.Output                        (Output (..), output)
 import           Polysemy.Reader                        (Reader (..), ask)
 import           Polysemy.Resource                      (Resource, onException)
