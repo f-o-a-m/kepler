@@ -17,19 +17,20 @@ services:
     ports:
       - "26656-26657:26656-26657"
   nameservice:
-    command: sh -c "./wait-for-it.sh -t 60 -h $ES_HOST -p $ES_PORT -q -- /usr/local/bin/nameservice"
+    entrypoint: /usr/local/bin/nameservice
     build:
-      context: .
+      context: ../../.
       dockerfile: Dockerfile
     image: hs-abci:test
     environment:
      - DD_API_KEY=${DD_API_KEY}
-     - ES_HOST=${ES_HOST}
-     - ES_PORT=${ES_PORT}
+     - ES_HOST=elk
+     - ES_PORT=9200
      - STATS_PORT=5555
     restart: always
     depends_on:
       - elk
+      - datadog
     expose:
       - "26658"
       - "5555"

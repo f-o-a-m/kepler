@@ -62,9 +62,13 @@ test-iavl-client: ## test the iavl client library basic operation (requires grpc
 #####################
 
 deploy-simple-storage-docker: install ## run the simple storage docker network
-	docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml up --build
+	docker-compose -f hs-abci-examples/simple-storage/docker-compose-elk.yaml up --build
+
+deploy-nameservice-elk-docker: install ## run the nameservice docker network with elk stack for logging
+	docker-compose -f hs-abci-examples/nameservice/docker-compose-elk.yaml up --build
 
 deploy-nameservice-docker: install ## run the nameservice docker network
+	DD_API_KEY=$(DD_API_KEY) \
 	docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml up --build
 
 deploy-simple-storage-local: install ## run the simple storage locally
