@@ -6,13 +6,14 @@ import           Nameservice.Modules.Token.Messages (Burn (..),
                                                      TokenMessage (..),
                                                      Transfer (..))
 import           Polysemy                           (Members, Sem)
-import           Tendermint.SDK.BaseApp             (BaseAppEffs)
+import           Tendermint.SDK.BaseApp             (BaseAppEffs, TxEffs)
 import           Tendermint.SDK.Types.Message       (Msg (..))
 import           Tendermint.SDK.Types.Transaction   (RoutedTx (..), Tx (..))
 
 router
   :: Members TokenEffs r
   => Members BaseAppEffs r
+  => Members TxEffs r
   => RoutedTx TokenMessage
   -> Sem r ()
 router (RoutedTx Tx{txMsg}) =
