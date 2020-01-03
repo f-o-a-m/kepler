@@ -4,7 +4,8 @@ module Tendermint.SDK.Application.Handlers
   , makeApp
   ) where
 
-import           Control.Lens                         (to, (&), (.~), (^.))
+import           Control.Lens                         (from, to, (&), (.~),
+                                                       (^.))
 import           Crypto.Hash                          (Digest)
 import           Crypto.Hash.Algorithms               (SHA256)
 import qualified Data.ByteArray.Base64String          as Base64
@@ -21,19 +22,15 @@ import           Polysemy.Error                       (Error, catch)
 import qualified Tendermint.SDK.Application.Module    as M
 import qualified Tendermint.SDK.BaseApp.BaseApp       as BA
 import           Tendermint.SDK.BaseApp.CoreEff       (CoreEffs)
-import           Tendermint.SDK.BaseApp.Errors        (AppError,
-                                                       checkTxAppError,
-                                                       deliverTxAppError,
-                                                       queryAppError)
-import           Tendermint.SDK.BaseApp.Events        (withEventBuffer)
+import           Tendermint.SDK.BaseApp.Errors        (AppError, queryAppError,
+                                                       txResultAppError)
 import           Tendermint.SDK.BaseApp.Query         (HasRouter)
 import           Tendermint.SDK.BaseApp.Store         (ConnectionScope (..))
 import qualified Tendermint.SDK.BaseApp.Store         as Store
 import           Tendermint.SDK.Crypto                (RecoverableSignatureSchema,
                                                        SignatureSchema (..))
 import           Tendermint.SDK.Types.TxResult        (checkTxTxResult,
-                                                       deliverTxTxResult,
-                                                       txResultEvents)
+                                                       deliverTxTxResult)
 
 type Handler mt r = Request mt -> Sem r (Response mt)
 
@@ -93,12 +90,8 @@ makeHandlers HandlersContext{..} =
   let
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
-      txRouter context =  M.txRouter signatureAlgP context modules
+      txRouter context =  compileToBaseApp . M.txRouter signatureAlgP context modules
       queryRouter = compileToBaseApp . M.queryRouter modules
-
-      transactionHandler router bs = do
-        events <- withEventBuffer . compileToBaseApp $ router bs
-        pure $ def & txResultEvents .~ events
 
       query (RequestQuery q) = Store.applyScope $
         catch
@@ -112,27 +105,25 @@ makeHandlers HandlersContext{..} =
 
       beginBlock _ = Store.applyScope (def <$ Store.beginBlock)
 
-      checkTx (RequestCheckTx _checkTx) = Store.applyScope $
-        catch
-          (do
-            txResult <- transactionHandler (txRouter M.CheckTxContext) $
-              _checkTx ^. Req._checkTxTx . to Base64.toBytes
-            return $ ResponseCheckTx $ def & checkTxTxResult .~ txResult
+      checkTx (RequestCheckTx _checkTx) = Store.applyScope $ do
+        res <- catch
+          ( let txBytes =  _checkTx ^. Req._checkTxTx . to Base64.toBytes
+            in txRouter M.CheckTxContext txBytes
           )
           (\(err :: AppError) ->
-            return . ResponseCheckTx $ def & checkTxAppError .~ err
+            return $ def & txResultAppError .~ err
           )
+        return . ResponseCheckTx $ res ^. from checkTxTxResult
 
-      deliverTx (RequestDeliverTx _deliverTx) = Store.applyScope $
-        catch @AppError
-          (do
-            txResult <- transactionHandler (txRouter M.DeliverTxContext) $
-              _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
-            return $ ResponseDeliverTx $ def & deliverTxTxResult .~ txResult
+      deliverTx (RequestDeliverTx _deliverTx) = Store.applyScope $ do
+        res <- catch @AppError
+          ( let txBytes = _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
+            in txRouter M.DeliverTxContext txBytes
           )
           (\(err :: AppError) ->
-            return . ResponseDeliverTx $ def & deliverTxAppError .~ err
+            return $ def & txResultAppError .~ err
           )
+        return . ResponseDeliverTx $ res ^. from deliverTxTxResult
 
       commit :: Handler 'MTCommit (BA.ScopedBaseApp 'Consensus core)
       commit _ = Store.applyScope $ do
@@ -152,7 +143,7 @@ makeHandlers HandlersContext{..} =
 
 makeApp
   :: forall alg ms r core.
-     Member (Error AppError) r
+     Members [Error AppError, Embed IO] r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r

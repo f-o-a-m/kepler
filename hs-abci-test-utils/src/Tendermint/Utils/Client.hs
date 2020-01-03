@@ -1,6 +1,6 @@
 {-# LANGUAGE UndecidableInstances #-}
 
-module Tendermint.SDK.BaseApp.Query.Client
+module Tendermint.Utils.Client
   ( RunClient(..)
   , HasClient(..)
   , ClientResponse(..)

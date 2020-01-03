@@ -59,7 +59,6 @@ library:
     - errors
     - hs-abci-server
     - hs-abci-types
-    - hs-tendermint-client
     - http-types
     - katip
     - lens
@@ -105,7 +104,6 @@ library:
   - Tendermint.SDK.BaseApp.Metrics.Prometheus
   - Tendermint.SDK.BaseApp.Query
   - Tendermint.SDK.BaseApp.Query.Class
-  - Tendermint.SDK.BaseApp.Query.Client
   - Tendermint.SDK.BaseApp.Query.Delayed
   - Tendermint.SDK.BaseApp.Query.Router
   - Tendermint.SDK.BaseApp.Query.Store
@@ -117,9 +115,10 @@ library:
   - Tendermint.SDK.Codec
   - Tendermint.SDK.Crypto
   - Tendermint.SDK.Modules.Auth
+  - Tendermint.SDK.Types.Address
+  - Tendermint.SDK.Types.Effects
   - Tendermint.SDK.Types.Message
   - Tendermint.SDK.Types.Transaction
-  - Tendermint.SDK.Types.Address
   - Tendermint.SDK.Types.TxResult
 
   generated-exposed-modules:
@@ -135,7 +134,6 @@ tests:
     other-modules:
     - Tendermint.SDK.Test.AuthTreeStoreSpec
     - Tendermint.SDK.Test.CryptoSpec
-    - Tendermint.SDK.Test.EventSpec
     - Tendermint.SDK.Test.GasSpec
     - Tendermint.SDK.Test.MetricsSpec
 
@@ -148,7 +146,6 @@ tests:
     - -with-rtsopts=-N
 
     dependencies:
-      - aeson
       - base >= 4.7 && < 5
       - bytestring
       - containers
