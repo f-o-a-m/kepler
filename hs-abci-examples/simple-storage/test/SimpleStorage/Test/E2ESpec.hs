@@ -108,6 +108,7 @@ mkSignedRawTransaction privateKey msg = sign unsigned
   where unsigned = RawTransaction { rawTransactionData = encode msg
                                   , rawTransactionRoute = "simple_storage"
                                   , rawTransactionSignature = ""
+                                  , rawTransactionGas = 0
                                   }
         sig = signRawTransaction algProxy privateKey unsigned
         sign rt = rt { rawTransactionSignature = Serial.encode $ exportCompactRecSig sig }
