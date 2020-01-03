@@ -60,14 +60,15 @@ eval TransactionContext{..} action = do
       runStateIORef gas .
       G.eval .
       raiseUnder @(State G.GasAmount) $
-      runOutputMonoidAssocR pure action
+      runOutputMonoidAssocR (pure @[]) action
   gasRemaining <- liftIO $ readIORef gas
   let gasUsed = initialGas - gasRemaining
       baseResponse =
         def & txResultGasWanted .~ G.unGasAmount initialGas
             & txResultGasUsed .~ G.unGasAmount gasUsed
   return $ case eRes of
-    Left e -> baseResponse & txResultAppError .~ e
+    Left e ->
+      baseResponse & txResultAppError .~ e
     Right (events, a) ->
       baseResponse & txResultEvents .~ events
                    & txResultData .~ Base64.fromBytes (encode a)
