@@ -1,9 +1,10 @@
 module Main where
 
-import           Data.String (fromString)
-import           Faker.Name  (name)
+import           Control.Monad   (forever)
+import           Control.Timeout (sleep)
+import           Data.String     (fromString)
+import           Faker.Name      (name)
 import           Interact
-import Control.Monad (forever)
 
 main :: IO ()
 main = do
@@ -18,3 +19,5 @@ main = do
     buyName user2 aName "some val" 10
     setName user2 aName "some val (again)"
     deleteName user2 aName
+    putStrLn "Sleeping for 60 seconds..."
+    sleep 60

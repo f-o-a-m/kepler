@@ -1,15 +1,15 @@
 module Interact where
 
-import           Data.Text                            (Text)
-import           Nameservice.Modules.Nameservice      (BuyName (..),
-                                                       DeleteName (..),
-                                                       Name (..), SetName (..))
-import           Nameservice.Modules.Token            (Amount (..),
-                                                       FaucetAccount (..))
-import           Nameservice.Modules.TypedMessage     (TypedMessage (..))
-import           Tendermint.SDK.Codec                 (HasCodec (..))
-import           Tendermint.Utils.Request             (runTransaction_)
-import           Tendermint.Utils.User                (User (..), makeUser, mkSignedRawTransactionWithRoute)
+import           Data.Text                        (Text)
+import           Nameservice.Modules.Nameservice  (BuyName (..),
+                                                   DeleteName (..), Name (..),
+                                                   SetName (..))
+import           Nameservice.Modules.Token        (Amount (..),
+                                                   FaucetAccount (..))
+import           Nameservice.Modules.TypedMessage (TypedMessage (..))
+import           Tendermint.SDK.Codec             (HasCodec (..))
+import           Tendermint.Utils.Request         (runTransaction_)
+import           Tendermint.Utils.User            (User (..), makeUser, mkSignedRawTransactionWithRoute)
 --------------------------------------------------------------------------------
 -- Users
 --------------------------------------------------------------------------------

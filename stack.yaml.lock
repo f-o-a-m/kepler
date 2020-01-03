@@ -19,19 +19,26 @@ packages:
   original:
     hackage: gimlh-0.1.3.0
 - completed:
-    hackage: proto-lens-runtime-0.5.0.0@sha256:cb39cf13ce4f7dac5414f94a7afe0adc9b831312e6b60588a23bd816accc385f,3132
+    hackage: http2-client-0.9.0.0@sha256:b8885c89adcc8b9d4ebb9abf6ae0ac6336e3fdf947a2b1f2b95c4e2c8c4acf01,2685
     pantry-tree:
-      size: 168
-      sha256: c45212c2b75d27b7a1e32bb34e1ffd7b3cca98e16f4d5a02016ff9b744a0df64
+      size: 853
+      sha256: d7a1be66eb14e84cfedd87e8363e406abb244bb74b742e8f0141efce27545008
   original:
-    hackage: proto-lens-runtime-0.5.0.0
+    hackage: http2-client-0.9.0.0
 - completed:
-    hackage: proto-lens-setup-0.4.0.2@sha256:2bcc26cd79a318b1988ed89d62f759054fb58bc515700bc4f594bae4a3a64271,3185
+    hackage: http2-grpc-types-0.4.0.0@sha256:ffb02152397186dbc925358498b5c005b982ef54f191f4465f9c7947afd7f9d4,1354
     pantry-tree:
-      size: 235
-      sha256: 2665efe3a077ba832137de64d2c44493ae7db536b7a0aece2b1778d8a865a76d
+      size: 405
+      sha256: e5025945fee56509538efe6377dd1930189be2bf908bbce428555aa5efab51ff
   original:
-    hackage: proto-lens-setup-0.4.0.2
+    hackage: http2-grpc-types-0.4.0.0
+- completed:
+    hackage: katip-datadog-0.1.0.0@sha256:4e72dca402b953bd34b7a744ad23eb90600a420adef67192c9702073564f1cae,1885
+    pantry-tree:
+      size: 415
+      sha256: c3d816dcd90b113a246520c8069d3278ee77eacf0f45dd0eb77eb2f7c53d5b3b
+  original:
+    hackage: katip-datadog-0.1.0.0
 - completed:
     hackage: lens-labels-0.3.0.1@sha256:228b70bc37d3531c7a80aaa56f7d69bf9f9f0d85637bd886966b01f7d03d3f6b,1196
     pantry-tree:
@@ -39,6 +46,27 @@ packages:
       sha256: d0898958b1d869aafe7796452bb04d0e6aef102457ca4c9dcc0fe329271e6091
   original:
     hackage: lens-labels-0.3.0.1
+- completed:
+    hackage: polysemy-1.2.3.0@sha256:d9cfa7942940c7c6d07d1f26ae70c4f1170f9bd6c331bdbe586e810fafc25f17,5878
+    pantry-tree:
+      size: 3625
+      sha256: a54b1b565848944e37a5533bd91e91ecb7cdfa21294ba599c13d015d354c4f39
+  original:
+    hackage: polysemy-1.2.3.0
+- completed:
+    hackage: polysemy-zoo-0.6.0.0@sha256:44595a96a37b9e33edb87c9f7ff79f8d10f6453d826bc9881b00d8988b69729a,3852
+    pantry-tree:
+      size: 3012
+      sha256: 9a8ddbf6c0a5ed2e254202c2990aae99dc4a66fa24949622a123c48795ec6547
+  original:
+    hackage: polysemy-zoo-0.6.0.0
+- completed:
+    hackage: prometheus-2.1.3@sha256:4fdf8602f7c74367cda182cf71dab108f78a86993b428bf96b61dd6c519b6f22,4296
+    pantry-tree:
+      size: 1559
+      sha256: a8d0a0150abddf0d7b673fcb19ff2ef235d4005161826e1538ad802394c9fc0e
+  original:
+    hackage: prometheus-2.1.3
 - completed:
     hackage: proto-lens-0.5.0.0@sha256:ec3ad0ab6bd55ac0cd95a2daacb7e826fa2ced6e96c67a57ae1d799b79019c6b,3260
     pantry-tree:
@@ -54,19 +82,26 @@ packages:
   original:
     hackage: proto-lens-protoc-0.5.0.0
 - completed:
-    hackage: containers-0.5.11.0@sha256:28ad7337057442f75bc689315ab4ec7bdf5e6b2c39668f306672cecd82c02798,16685
+    hackage: proto-lens-runtime-0.5.0.0@sha256:cb39cf13ce4f7dac5414f94a7afe0adc9b831312e6b60588a23bd816accc385f,3132
     pantry-tree:
-      size: 4849
-      sha256: faa4e75922a28f7cfe9920c1d7ab3866b792cefcd29bf79f54cfe3b6b5f57cbf
+      size: 168
+      sha256: c45212c2b75d27b7a1e32bb34e1ffd7b3cca98e16f4d5a02016ff9b744a0df64
   original:
-    hackage: containers-0.5.11.0@sha256:28ad7337057442f75bc689315ab4ec7bdf5e6b2c39668f306672cecd82c02798,16685
+    hackage: proto-lens-runtime-0.5.0.0
 - completed:
-    hackage: http-client-0.5.14@sha256:4880b27d6741e331454a1d4c887d96ce3d7d625322c8433983a4b1cd08538577,5348
+    hackage: proto-lens-setup-0.4.0.2@sha256:2bcc26cd79a318b1988ed89d62f759054fb58bc515700bc4f594bae4a3a64271,3185
     pantry-tree:
-      size: 2457
-      sha256: 02bcffba9cad572fefb4640f5fc9be68e770b32ab73efcac649db20290994c6d
+      size: 235
+      sha256: 2665efe3a077ba832137de64d2c44493ae7db536b7a0aece2b1778d8a865a76d
   original:
-    hackage: http-client-0.5.14@sha256:4880b27d6741e331454a1d4c887d96ce3d7d625322c8433983a4b1cd08538577,5348
+    hackage: proto-lens-setup-0.4.0.2
+- completed:
+    hackage: timeout-0.1.1@sha256:56c1d3321d7139d1f7ebf04d46c95d3a3f1c8c9e0f15666ae3ccd6bae6204b6e,1427
+    pantry-tree:
+      size: 437
+      sha256: e571503d7e609c3fe496de7e858613360bfa6c06e20ac57d9659bd32d0645889
+  original:
+    hackage: timeout-0.1.1
 - completed:
     hackage: binary-0.8.7.0@sha256:ae3e6cca723ac55c54bbb3fa771bcf18142bc727afd57818e66d6ee6c8044f12,7705
     pantry-tree:
@@ -75,26 +110,19 @@ packages:
   original:
     hackage: binary-0.8.7.0@sha256:ae3e6cca723ac55c54bbb3fa771bcf18142bc727afd57818e66d6ee6c8044f12,7705
 - completed:
-    hackage: text-1.2.4.0@sha256:8c24450feb8e3bbb7ea3e17af24ef57e85db077c4bf53e5bcc345b283d1b1d5b,10081
-    pantry-tree:
-      size: 7457
-      sha256: 3437b0a73ce2ae1a81aa8b3438d41a85981c00894cdbee0d6d6d6873046a5d5d
-  original:
-    hackage: text-1.2.4.0@sha256:8c24450feb8e3bbb7ea3e17af24ef57e85db077c4bf53e5bcc345b283d1b1d5b,10081
-- completed:
-    hackage: katip-elasticsearch-0.6.0.0@sha256:be8513ce611db989c63c9f836af99699767d4fc3a9cb0fd81fcbae4d1f2ed7ee,2746
-    pantry-tree:
-      size: 679
-      sha256: 907421eb58249f6bed58f4e94f00627b383e53fd0ea0737050c1b1f7ab9fee44
-  original:
-    hackage: katip-elasticsearch-0.6.0.0@sha256:be8513ce611db989c63c9f836af99699767d4fc3a9cb0fd81fcbae4d1f2ed7ee,2746
-- completed:
     hackage: bloodhound-0.16.0.0@sha256:b7be3a83e7b914fbe80a9b9de29009ad60cff072f5f8d4af4ee64de8e6406d32,5508
     pantry-tree:
       size: 4812
       sha256: 7f21ce00e92f7fd24a91dd19a82aab38f62047c1b93f2cc070481760b41a4d37
   original:
     hackage: bloodhound-0.16.0.0@sha256:b7be3a83e7b914fbe80a9b9de29009ad60cff072f5f8d4af4ee64de8e6406d32,5508
+- completed:
+    hackage: containers-0.5.11.0@sha256:28ad7337057442f75bc689315ab4ec7bdf5e6b2c39668f306672cecd82c02798,16685
+    pantry-tree:
+      size: 4849
+      sha256: faa4e75922a28f7cfe9920c1d7ab3866b792cefcd29bf79f54cfe3b6b5f57cbf
+  original:
+    hackage: containers-0.5.11.0@sha256:28ad7337057442f75bc689315ab4ec7bdf5e6b2c39668f306672cecd82c02798,16685
 - completed:
     hackage: hpc-0.6.0.3@sha256:de3f7982345d315f1d7713df38b4f2cf09bd274f7d64dffec0cf2a0d9c8aab19,1185
     pantry-tree:
@@ -103,19 +131,26 @@ packages:
   original:
     hackage: hpc-0.6.0.3@sha256:de3f7982345d315f1d7713df38b4f2cf09bd274f7d64dffec0cf2a0d9c8aab19,1185
 - completed:
-    hackage: katip-datadog-0.1.0.0@sha256:4e72dca402b953bd34b7a744ad23eb90600a420adef67192c9702073564f1cae,1885
+    hackage: http-client-0.5.14@sha256:4880b27d6741e331454a1d4c887d96ce3d7d625322c8433983a4b1cd08538577,5348
     pantry-tree:
-      size: 415
-      sha256: c3d816dcd90b113a246520c8069d3278ee77eacf0f45dd0eb77eb2f7c53d5b3b
+      size: 2457
+      sha256: 02bcffba9cad572fefb4640f5fc9be68e770b32ab73efcac649db20290994c6d
   original:
-    hackage: katip-datadog-0.1.0.0
+    hackage: http-client-0.5.14@sha256:4880b27d6741e331454a1d4c887d96ce3d7d625322c8433983a4b1cd08538577,5348
 - completed:
-    hackage: prometheus-2.1.3@sha256:4fdf8602f7c74367cda182cf71dab108f78a86993b428bf96b61dd6c519b6f22,4296
+    hackage: katip-elasticsearch-0.6.0.0@sha256:be8513ce611db989c63c9f836af99699767d4fc3a9cb0fd81fcbae4d1f2ed7ee,2746
     pantry-tree:
-      size: 1559
-      sha256: a8d0a0150abddf0d7b673fcb19ff2ef235d4005161826e1538ad802394c9fc0e
+      size: 679
+      sha256: 907421eb58249f6bed58f4e94f00627b383e53fd0ea0737050c1b1f7ab9fee44
   original:
-    hackage: prometheus-2.1.3
+    hackage: katip-elasticsearch-0.6.0.0@sha256:be8513ce611db989c63c9f836af99699767d4fc3a9cb0fd81fcbae4d1f2ed7ee,2746
+- completed:
+    hackage: text-1.2.4.0@sha256:8c24450feb8e3bbb7ea3e17af24ef57e85db077c4bf53e5bcc345b283d1b1d5b,10081
+    pantry-tree:
+      size: 7457
+      sha256: 3437b0a73ce2ae1a81aa8b3438d41a85981c00894cdbee0d6d6d6873046a5d5d
+  original:
+    hackage: text-1.2.4.0@sha256:8c24450feb8e3bbb7ea3e17af24ef57e85db077c4bf53e5bcc345b283d1b1d5b,10081
 - completed:
     cabal-file:
       size: 1872
@@ -158,34 +193,6 @@ packages:
   original:
     git: https://github.com/awakesecurity/proto3-wire
     commit: 23015cf6363d1962fde6bdff0de111f7ec59ab75
-- completed:
-    hackage: polysemy-1.2.3.0@sha256:d9cfa7942940c7c6d07d1f26ae70c4f1170f9bd6c331bdbe586e810fafc25f17,5878
-    pantry-tree:
-      size: 3625
-      sha256: a54b1b565848944e37a5533bd91e91ecb7cdfa21294ba599c13d015d354c4f39
-  original:
-    hackage: polysemy-1.2.3.0
-- completed:
-    hackage: polysemy-zoo-0.6.0.0@sha256:44595a96a37b9e33edb87c9f7ff79f8d10f6453d826bc9881b00d8988b69729a,3852
-    pantry-tree:
-      size: 3012
-      sha256: 9a8ddbf6c0a5ed2e254202c2990aae99dc4a66fa24949622a123c48795ec6547
-  original:
-    hackage: polysemy-zoo-0.6.0.0
-- completed:
-    hackage: http2-client-0.9.0.0@sha256:b8885c89adcc8b9d4ebb9abf6ae0ac6336e3fdf947a2b1f2b95c4e2c8c4acf01,2685
-    pantry-tree:
-      size: 853
-      sha256: d7a1be66eb14e84cfedd87e8363e406abb244bb74b742e8f0141efce27545008
-  original:
-    hackage: http2-client-0.9.0.0
-- completed:
-    hackage: http2-grpc-types-0.4.0.0@sha256:ffb02152397186dbc925358498b5c005b982ef54f191f4465f9c7947afd7f9d4,1354
-    pantry-tree:
-      size: 405
-      sha256: e5025945fee56509538efe6377dd1930189be2bf908bbce428555aa5efab51ff
-  original:
-    hackage: http2-grpc-types-0.4.0.0
 - completed:
     cabal-file:
       size: 1910

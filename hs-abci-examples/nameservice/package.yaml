@@ -148,6 +148,7 @@ executables:
     - hs-abci-sdk
     - hs-abci-test-utils
     - text
+    - timeout
 
 tests:
   tutorial:
