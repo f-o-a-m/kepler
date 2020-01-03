@@ -20,7 +20,7 @@ import Tendermint.SDK.BaseApp                   (BaseAppEffs)
 
 -- a convenient type alias
 type NameserviceM r =
-  Module NameserviceModuleName NameserviceMessage Api NameserviceEffs r
+  Module NameserviceModuleName NameserviceMessage () Api NameserviceEffs r
 
 nameserviceModule
   :: Members BaseAppEffs r

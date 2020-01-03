@@ -3,7 +3,7 @@ module SimpleStorage.Modules.SimpleStorage.Keeper
   ( SimpleStorage
   , SimpleStorageEffs
   , storeKey
-  , putCount
+  , updateCount
   , getCount
   , eval
   ) where
@@ -29,14 +29,19 @@ makeSem ''SimpleStorage
 
 type SimpleStorageEffs = '[SimpleStorage]
 
+updateCount
+  ::  Members '[SimpleStorage, Output BaseApp.Event] r
+  => Count
+  -> Sem r ()
+updateCount count = do
+  putCount count
+  BaseApp.emit $ CountSet count
+
 eval
   :: forall r.
-     Members '[BaseApp.RawStore, Output BaseApp.Event, Error BaseApp.AppError] r
+     Members '[BaseApp.RawStore, Error BaseApp.AppError] r
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
-  PutCount count -> do
-    BaseApp.put storeKey CountKey count
-    BaseApp.emit $ CountSet count
-
+  PutCount count -> BaseApp.put storeKey CountKey count
   GetCount -> fromJust <$> BaseApp.get storeKey CountKey
   )

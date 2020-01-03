@@ -159,27 +159,37 @@ spec = do
         clientResponseData `shouldBe` Nothing
 
       it "Can fail a transfer (failure 1)" $ do
-        let msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 2000)
+        let senderBeforeQueryReq = defaultQueryWithData addr2
+        addr2Balance <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
+        let tooMuchToTransfer = addr2Balance + 1
+            msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 tooMuchToTransfer)
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
         ensureCheckAndDeliverResponseCodes (0,1) rawTx
 
       it "Can transfer (success 0)" $ do
-        let senderBeforeQueryReq = defaultQueryWithData addr2
-        senderBeforeFoundAmount <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
-        senderBeforeFoundAmount `shouldBe` Amount 1700
-        let msg = TypedMessage "Transfer" (encode $ Transfer addr1 addr2 500)
-            transferEvent = TransferEvent 500 addr1 addr2
+        balance1 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
+        balance2 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr2
+        let transferAmount = 1
+            msg = TypedMessage "Transfer" $ encode
+              Transfer
+                { transferFrom = addr1
+                , transferTo = addr2
+                , transferAmount = transferAmount
+                }
+            transferEvent = TransferEvent
+              { transferEventAmount = transferAmount
+              , transferEventTo = addr2
+              , transferEventFrom = addr1
+              }
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "TransferEvent" transferEvent
         -- check balances
-        let receiverQueryReq = defaultQueryWithData addr1
-        receiverFoundAmount <- getQueryResponseSuccess $ getBalance receiverQueryReq
-        receiverFoundAmount `shouldBe` Amount 1800
-        let senderAfterQueryReq = defaultQueryWithData addr2
-        senderAfterFoundAmount <- getQueryResponseSuccess $ getBalance senderAfterQueryReq
-        senderAfterFoundAmount `shouldBe` Amount 1200
+        balance1' <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
+        balance1' `shouldBe` balance1 - transferAmount
+        balance2' <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr2
+        balance2' `shouldBe` balance2 + transferAmount
 
 --------------------------------------------------------------------------------
 user1 :: User
