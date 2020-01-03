@@ -4,10 +4,10 @@ module Tendermint.SDK.Test.GasSpec (spec) where
 
 import           Control.Monad.IO.Class        (MonadIO (..))
 import           Data.Either                   (isRight)
-import           Data.Int                      (Int64)
 import qualified Data.IORef                    as Ref
 import           Polysemy
 import           Polysemy.Error                (Error, runError)
+import           Polysemy.State                (State, runStateIORef)
 import           Tendermint.SDK.BaseApp.Errors (AppError (..))
 import qualified Tendermint.SDK.BaseApp.Gas    as G
 import           Test.Hspec
@@ -22,10 +22,16 @@ evalDog = interpret $ \case
   Bark -> pure ()
 
 eval
-  :: Ref.IORef Int64
+  :: Ref.IORef G.GasAmount
   -> Sem [Dog, G.GasMeter, Error AppError, Embed IO] a
   -> IO (Either AppError a)
-eval meter = runM . runError . G.eval meter . evalDog
+eval meter =
+  runM .
+    runError .
+    runStateIORef meter .
+    G.eval .
+    raiseUnder @(State G.GasAmount) .
+    evalDog
 
 spec :: Spec
 spec = describe "Gas Tests" $ do

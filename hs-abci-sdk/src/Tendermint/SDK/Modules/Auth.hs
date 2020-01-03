@@ -22,7 +22,7 @@ import           Tendermint.SDK.Modules.Auth.Keeper
 import           Tendermint.SDK.Modules.Auth.Query
 import           Tendermint.SDK.Modules.Auth.Types
 
-type AuthM r = Module AuthModule Void Api AuthEffs r
+type AuthM r = Module AuthModule Void Void Api AuthEffs r
 
 authModule
   :: Members BaseAppEffs r

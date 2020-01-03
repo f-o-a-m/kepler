@@ -20,6 +20,7 @@ spec = describe "Crypto Tests" $ do
             { rawTransactionData = "abcd"
             , rawTransactionSignature = ""
             , rawTransactionRoute= "dog"
+            , rawTransactionGas = 10
             }
           signature = signRawTransaction algProxy privateKey rawTxWithoutSig
           rawTxWithSig = rawTxWithoutSig {rawTransactionSignature =

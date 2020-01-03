@@ -115,9 +115,10 @@ library:
   - Tendermint.SDK.Codec
   - Tendermint.SDK.Crypto
   - Tendermint.SDK.Modules.Auth
+  - Tendermint.SDK.Types.Address
+  - Tendermint.SDK.Types.Effects
   - Tendermint.SDK.Types.Message
   - Tendermint.SDK.Types.Transaction
-  - Tendermint.SDK.Types.Address
   - Tendermint.SDK.Types.TxResult
 
   generated-exposed-modules:
