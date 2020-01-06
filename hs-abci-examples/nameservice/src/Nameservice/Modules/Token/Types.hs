@@ -20,7 +20,6 @@ import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
                                                addressToBytes)
-import qualified Tendermint.Utils.Events      as Event
 
 --------------------------------------------------------------------------------
 
@@ -98,7 +97,6 @@ instance FromJSON Faucetted where
 instance BaseApp.ToEvent Faucetted where
   makeEventType _ = "Faucetted"
 instance BaseApp.Select Faucetted
-instance Event.FromEvent Faucetted
 
 data TransferEvent = TransferEvent
   { transferEventAmount :: Amount
@@ -116,4 +114,3 @@ instance A.FromJSON TransferEvent where
 instance BaseApp.ToEvent TransferEvent where
   makeEventType _ = "TransferEvent"
 instance BaseApp.Select TransferEvent
-instance Event.FromEvent TransferEvent

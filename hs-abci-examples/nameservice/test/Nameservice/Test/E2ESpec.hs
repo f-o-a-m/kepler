@@ -18,6 +18,7 @@ import           Nameservice.Modules.Token            (Amount (..),
                                                        TransferEvent (..))
 import qualified Nameservice.Modules.Token            as T (Api)
 import           Nameservice.Modules.TypedMessage     (TypedMessage (..))
+import           Nameservice.Test.EventOrphans        ()
 import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Network.Tendermint.Client            as RPC
 import           Servant.API                          ((:<|>) (..), (:>))
