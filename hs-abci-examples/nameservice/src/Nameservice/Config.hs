@@ -51,7 +51,7 @@ makeAppConfig = do
     ddApiKey <- cs <$> MaybeT (lookupEnv "DD_API_KEY")
     pure $ P.MetricsScrapingConfig prometheusPort ddApiKey
   metricsMap <- newMVar empty
-  c <- BaseApp.makeContext (KL.InitialLogNamespace "dev" "simple-storage") prometheusEnv
+  c <- BaseApp.makeContext (KL.InitialLogNamespace "dev" "nameservice") prometheusEnv
   prometheusServer <- newIORef Nothing
   addScribesToLogEnv $
     AppConfig { _baseAppContext = c

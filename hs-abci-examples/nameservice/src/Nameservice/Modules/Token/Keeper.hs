@@ -45,15 +45,18 @@ eval = mapError BaseApp.makeAppError . evalToken
 --------------------------------------------------------------------------------
 
 faucetAccount
-  :: Members [Error TokenError, Output BaseApp.Event, Token] r
+  :: Members [BaseApp.Logger, Output BaseApp.Event] r
+  => Members TokenEffs r
   => FaucetAccount
   -> Sem r ()
 faucetAccount FaucetAccount{..} = do
   mint faucetAccountTo faucetAccountAmount
-  BaseApp.emit Faucetted
-    { faucettedAccount = faucetAccountTo
-    , faucettedAmount = faucetAccountAmount
-    }
+  let event = Faucetted
+        { faucettedAccount = faucetAccountTo
+        , faucettedAmount = faucetAccountAmount
+        }
+  BaseApp.emit event
+  BaseApp.logEvent event
 
 getBalance
   :: Member Token r
@@ -63,7 +66,8 @@ getBalance address =
   fromMaybe (Amount 0) <$> getBalance' address
 
 transfer
-  :: Members [Error TokenError, Output BaseApp.Event, Token] r
+  :: Members [BaseApp.Logger, Output BaseApp.Event] r
+  => Members TokenEffs r
   => Address
   -> Amount
   -> Address
@@ -79,15 +83,17 @@ transfer addr1 amount addr2 = do
       -- update both balances
       putBalance addr1 newBalance1
       putBalance addr2 newBalance2
-      BaseApp.emit $ TransferEvent
-        { transferEventAmount = amount
-        , transferEventTo = addr2
-        , transferEventFrom = addr1
-        }
+      let event = TransferEvent
+            { transferEventAmount = amount
+            , transferEventTo = addr2
+            , transferEventFrom = addr1
+            }
+      BaseApp.emit event
+      BaseApp.logEvent event
     else throw (InsufficientFunds "Insufficient funds for transfer.")
 
 burn
-  :: Members [Error TokenError, Token] r
+  :: Members TokenEffs r
   => Address
   -> Amount
   -> Sem r ()
