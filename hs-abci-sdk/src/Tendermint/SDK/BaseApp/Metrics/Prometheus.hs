@@ -166,7 +166,9 @@ evalNothing
 evalNothing = do
   interpretH (\case
     IncCount _ -> pureT ()
-    WithTimer _ _ -> pureT ()
+    WithTimer _ action -> do
+      a <- runT action
+      raise $ evalNothing a
     )
 
 evalMetrics
@@ -203,8 +205,7 @@ evalMetrics state@MetricsState{..} = do
       end <- liftIO $ getCurrentTime
       let time = fromRational . (* 1000.0) . toRational $ (end `diffUTCTime` start)
       observeHistogram state histName time
-      _ <- raise $ evalMetrics state a
-      pureT ()
+      raise $ evalMetrics state a
     )
 
 -- | Updates a histogram with an observed value

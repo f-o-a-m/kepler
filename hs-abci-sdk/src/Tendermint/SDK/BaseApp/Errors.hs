@@ -2,8 +2,7 @@ module Tendermint.SDK.BaseApp.Errors
   ( AppError(..)
   , IsAppError(..)
   , queryAppError
-  , checkTxAppError
-  , deliverTxAppError
+  , txResultAppError
   , SDKError(..)
   , throwSDKError
   ) where
@@ -15,6 +14,7 @@ import           Data.Word                            (Word32)
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Polysemy
 import           Polysemy.Error                       (Error, throw)
+import           Tendermint.SDK.Types.TxResult        (TxResult (..))
 
 -- | This type represents a common error response for the query, checkTx,
 -- | and deliver tx abci-messages.
@@ -31,7 +31,7 @@ instance Exception AppError
 class IsAppError e where
   makeAppError :: e -> AppError
 
--- | This class is used to set the 'AppError' data into the appropriate
+-- | This lens is used to set the 'AppError' data into the appropriate
 -- | response fields for the query abci-message.
 queryAppError :: Lens' Response.Query AppError
 queryAppError = lens g s
@@ -47,36 +47,20 @@ queryAppError = lens g s
       , Response.queryLog = appErrorMessage
       }
 
--- | This class is used to set the 'AppError' data into the appropriate
--- | response fields for the checkTx abci-message.
-checkTxAppError :: Lens' Response.CheckTx AppError
-checkTxAppError = lens g s
+-- | This lens is used to set the 'AppError' data into the appropriate
+-- | response fields for the checkTx/deliverTx abci-message.
+txResultAppError :: Lens' TxResult AppError
+txResultAppError = lens g s
   where
-    g Response.CheckTx{..} = AppError
-      { appErrorCode = checkTxCode
-      , appErrorCodespace = checkTxCodespace
-      , appErrorMessage = checkTxLog
+    g TxResult{..} = AppError
+      { appErrorCode = _txResultCode
+      , appErrorCodespace = _txResultCodespace
+      , appErrorMessage = _txResultLog
       }
-    s checkTx AppError{..} = checkTx
-      { Response.checkTxCode = appErrorCode
-      , Response.checkTxCodespace  = appErrorCodespace
-      , Response.checkTxLog = appErrorMessage
-      }
-
--- | This class is used to set the 'AppError' data into the appropriate
--- | response fields for the deliverTx abci-message.
-deliverTxAppError :: Lens' Response.DeliverTx AppError
-deliverTxAppError = lens g s
-  where
-    g Response.DeliverTx{..} = AppError
-      { appErrorCode = deliverTxCode
-      , appErrorCodespace = deliverTxCodespace
-      , appErrorMessage = deliverTxLog
-      }
-    s deliverTx AppError{..} = deliverTx
-      { Response.deliverTxCode = appErrorCode
-      , Response.deliverTxCodespace  = appErrorCodespace
-      , Response.deliverTxLog = appErrorMessage
+    s txResult AppError{..} = txResult
+      { _txResultCode = appErrorCode
+      , _txResultCodespace  = appErrorCodespace
+      , _txResultLog = appErrorMessage
       }
 
 --------------------------------------------------------------------------------

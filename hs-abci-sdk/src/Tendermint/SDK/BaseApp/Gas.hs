@@ -1,39 +1,40 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Tendermint.SDK.BaseApp.Gas
   ( GasMeter(..)
+  , GasAmount(..)
   , withGas
   , eval
   ) where
 
-import           Control.Monad.IO.Class        (MonadIO (..))
 import           Data.Int                      (Int64)
-import qualified Data.IORef                    as Ref
-import           Polysemy                      (Embed, Members, Sem, interpretH,
+import           Polysemy                      (Members, Sem, interpretH,
                                                 makeSem, raise, runT)
 import           Polysemy.Error                (Error)
+import           Polysemy.State                (State, get, put)
 import           Tendermint.SDK.BaseApp.Errors (AppError,
                                                 SDKError (OutOfGasException),
                                                 throwSDKError)
 
+newtype GasAmount = GasAmount { unGasAmount :: Int64 } deriving (Eq, Show, Num, Ord)
+
 data GasMeter m a where
-    WithGas :: forall m a. Int64 -> m a -> GasMeter m a
+    WithGas :: forall m a. GasAmount -> m a -> GasMeter m a
 
 makeSem ''GasMeter
 
+
 eval
-  :: Members [Error AppError, Embed IO] r
-  => Ref.IORef Int64
-  -> Sem (GasMeter ': r) a
+  :: Members [Error AppError, State GasAmount] r
+  => Sem (GasMeter ': r) a
   -> Sem r a
-eval meter = interpretH (\case
+eval = interpretH (\case
   WithGas gasCost action -> do
-    remainingGas <- liftIO $ Ref.readIORef meter
+    remainingGas <- get
     let balanceAfterAction = remainingGas - gasCost
     if balanceAfterAction < 0
       then throwSDKError OutOfGasException
       else do
-        liftIO $ Ref.writeIORef meter balanceAfterAction
+        put balanceAfterAction
         a <- runT action
-        raise $ eval meter a
+        raise $ eval a
   )
-

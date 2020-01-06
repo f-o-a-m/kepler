@@ -14,7 +14,6 @@ import qualified Tendermint.SDK.BaseApp          as BaseApp
 import           Tendermint.SDK.Crypto           (Secp256k1)
 import qualified Tendermint.SDK.Modules.Auth     as A
 
-
 type EffR =
    N.NameserviceEffs :&
    T.TokenEffs :&

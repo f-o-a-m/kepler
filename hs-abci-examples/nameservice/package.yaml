@@ -180,6 +180,7 @@ tests:
     source-dirs:         test
     other-modules:
     - Nameservice.Test.E2ESpec
+    - Nameservice.Test.EventOrphans
     ghc-options:
     - -Werror
     - -Wall

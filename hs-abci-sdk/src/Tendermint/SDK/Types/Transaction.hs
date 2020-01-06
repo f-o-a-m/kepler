@@ -7,6 +7,7 @@ import           Crypto.Hash                    (Digest, hashWith)
 import           Crypto.Hash.Algorithms         (SHA256 (..))
 import           Data.Bifunctor                 (bimap)
 import           Data.ByteString                (ByteString)
+import           Data.Int                       (Int64)
 import qualified Data.ProtoLens                 as P
 import           Data.Proxy
 import           Data.String.Conversions        (cs)
@@ -25,6 +26,7 @@ import           Tendermint.SDK.Types.Message   (Msg (..))
 data Tx alg msg = Tx
   { txMsg       :: Msg msg
   , txRoute     :: Text
+  , txGas       :: Int64
   , txSignature :: RecoverableSignature alg
   , txSignBytes :: Message alg
   , txSigner    :: PubKey alg
@@ -42,6 +44,7 @@ instance Functor (Tx alg) where
 data RawTransaction = RawTransaction
   { rawTransactionData      :: ByteString
   -- ^ the encoded message via protobuf encoding
+  , rawTransactionGas       :: Int64
   , rawTransactionRoute     :: Text
   -- ^ module name
   , rawTransactionSignature :: ByteString
@@ -55,10 +58,12 @@ instance Wrapped RawTransaction where
     t RawTransaction {..} =
       P.defMessage
         & T.data' .~ rawTransactionData
+        & T.gas .~ rawTransactionGas
         & T.route .~ cs rawTransactionRoute
         & T.signature .~ rawTransactionSignature
     f message = RawTransaction
       { rawTransactionData      = message ^. T.data'
+      , rawTransactionGas = message ^. T.gas
       , rawTransactionRoute = message ^. T.route
       , rawTransactionSignature = message ^. T.signature
       }
@@ -103,6 +108,7 @@ parseTx p rawTx@RawTransaction{..} = do
       , msgAuthor = addressFromPubKey p signerPubKey
       }
     , txRoute = cs rawTransactionRoute
+    , txGas = rawTransactionGas
     , txSignature = recSig
     , txSignBytes = signBytes
     , txSigner = signerPubKey
