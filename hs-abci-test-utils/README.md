@@ -1,6 +1,6 @@
 # hs-abci-test-utils
 
-Utils for apps and tests.
+Utils for tests.
 
 Includes the following:
 
