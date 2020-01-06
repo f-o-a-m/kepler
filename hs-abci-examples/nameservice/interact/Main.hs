@@ -15,4 +15,4 @@ main = do
   putStrLn $ "Running nameservice interaction with #threads: " <> show threads
   faucetAccount user1 10000
   faucetAccount user2 10000
-  for_ [1..threads] $ const . forkIO . forever $ actionBlock (user1, user2)
+  for_ [1..threads] $ \_ -> forkIO . forever $ actionBlock (user1, user2)
