@@ -24,6 +24,7 @@ default-extensions:
 - OverloadedStrings
 - MultiParamTypeClasses
 - FunctionalDependencies
+- TypeApplications
 
 library:
   source-dirs: src
@@ -41,9 +42,11 @@ library:
     - base16-bytestring
     - conduit
     - conduit-extra
+    - cryptonite
     - data-default-class
     - hs-abci-types
     - lens
+    - memory
     - proto-lens
     - string-conversions
     - text

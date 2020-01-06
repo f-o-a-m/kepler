@@ -58,12 +58,12 @@ mkMetricsLoggerM mvarMap (App app) = App $ \ req -> do
 ---------------------------------------------------------------------------
 -- | Metrics logger function.
 logMetrics :: (KatipContext m) => Request (t :: MessageType) -> Metrics -> m ()
-logMetrics req metrics = 
+logMetrics req metrics =
   let logLevel = case req of
         RequestFlush _ -> DebugS
-        RequestEcho _ -> DebugS
-        _ -> InfoS
-  in localKatipNamespace (<> "server") $ 
+        RequestEcho _  -> DebugS
+        _              -> InfoS
+  in localKatipNamespace (<> "server") $
        katipAddContext metrics $ logFM logLevel ""
 
 
