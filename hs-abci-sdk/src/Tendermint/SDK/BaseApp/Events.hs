@@ -1,7 +1,9 @@
 module Tendermint.SDK.BaseApp.Events
   ( Event(..)
   , ToEvent(..)
+  , ContextEvent(..)
   , emit
+  , logEvent
   , makeEvent
   ) where
 
@@ -16,6 +18,7 @@ import           Network.ABCI.Types.Messages.FieldTypes (Event (..),
                                                          KVPair (..))
 import           Polysemy                               (Member, Sem)
 import           Polysemy.Output                        (Output, output)
+import qualified Tendermint.SDK.BaseApp.Logger          as Log
 
 {-
 TODO : These JSON instances are fragile but convenient. We
@@ -48,3 +51,22 @@ emit
   => e
   -> Sem r ()
 emit e = output $ makeEvent e
+
+-- | Special event wrapper to add contextual event_type info
+newtype ContextEvent t = ContextEvent t
+instance (A.ToJSON a, ToEvent a) => A.ToJSON (ContextEvent a) where
+  toJSON (ContextEvent a) =
+    A.object [ "event_type" A..= makeEventType (Proxy :: Proxy a)
+             , "event" A..= A.toJSON a
+             ]
+instance Log.Select a => Log.Select (ContextEvent a) where
+  select v (ContextEvent a) = Log.select v a
+
+logEvent
+  :: forall e r.
+     (A.ToJSON e, ToEvent e, Log.Select e)
+  => Member Log.Logger r
+  => e
+  -> Sem r ()
+logEvent event = Log.addContext (ContextEvent event) $
+  Log.log Log.Info (cs $ makeEventType (Proxy :: Proxy e))

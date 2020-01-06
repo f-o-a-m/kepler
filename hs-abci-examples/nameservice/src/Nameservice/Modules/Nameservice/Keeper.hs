@@ -9,7 +9,7 @@ import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Types
 import           Nameservice.Modules.Token                (Token, TokenEffs,
                                                            burn, mint, transfer)
-import           Polysemy                                 (Member, Members, Sem,
+import           Polysemy                                 (Members, Sem,
                                                            interpret, makeSem)
 import           Polysemy.Error                           (Error, mapError,
                                                            throw)
@@ -26,7 +26,7 @@ makeSem ''NameserviceKeeper
 type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
 
 storeKey :: BaseApp.StoreKey NameserviceModuleName
-storeKey = BaseApp.StoreKey . cs . symbolVal $ Proxy @ NameserviceModuleName
+storeKey = BaseApp.StoreKey . cs . symbolVal $ Proxy @NameserviceModuleName
 
 eval
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
@@ -50,7 +50,7 @@ eval = mapError BaseApp.makeAppError . evalNameservice
 --------------------------------------------------------------------------------
 
 setName
-  :: Member (Output BaseApp.Event) r
+  :: Members [BaseApp.Logger, Output BaseApp.Event] r
   => Members NameserviceEffs r
   => SetName
   -> Sem r ()
@@ -63,14 +63,16 @@ setName SetName{..} = do
         then throw $ UnauthorizedSet "Setter must be the owner of the Name."
         else do
           putWhois setNameName currentWhois {whoisValue = setNameValue}
-          BaseApp.emit NameRemapped
-             { nameRemappedName = setNameName
-             , nameRemappedNewValue = setNameValue
-             , nameRemappedOldValue = whoisValue
-             }
+          let event = NameRemapped
+                { nameRemappedName = setNameName
+                , nameRemappedNewValue = setNameValue
+                , nameRemappedOldValue = whoisValue
+                }
+          BaseApp.emit event
+          BaseApp.logEvent event
 
 deleteName
-  :: Members [Token, Output BaseApp.Event] r
+  :: Members [BaseApp.Logger, Token, Output BaseApp.Event] r
   => Members NameserviceEffs r
   => DeleteName
   -> Sem r ()
@@ -84,13 +86,14 @@ deleteName DeleteName{..} = do
         else do
           mint deleteNameOwner whoisPrice
           deleteWhois deleteNameName
-          BaseApp.emit NameDeleted
-            { nameDeletedName = deleteNameName
-            }
-
+          let event = NameDeleted
+                { nameDeletedName = deleteNameName
+                }
+          BaseApp.emit event
+          BaseApp.logEvent event
 
 buyName
-  :: Member (Output BaseApp.Event) r
+  :: Members [BaseApp.Logger, Output BaseApp.Event] r
   => Members TokenEffs r
   => Members NameserviceEffs r
   => BuyName
@@ -108,7 +111,7 @@ buyName msg = do
     Just whois -> buyClaimedName msg whois
     where
       buyUnclaimedName
-        :: Member (Output BaseApp.Event) r
+        :: Members [BaseApp.Logger, Output BaseApp.Event] r
         => Members TokenEffs r
         => Members NameserviceEffs r
         => BuyName
@@ -121,17 +124,19 @@ buyName msg = do
               , whoisPrice = buyNameBid
               }
         putWhois buyNameName whois
-        BaseApp.emit NameClaimed
-          { nameClaimedOwner = buyNameBuyer
-          , nameClaimedName = buyNameName
-          , nameClaimedValue = buyNameValue
-          , nameClaimedBid = buyNameBid
-          }
+        let event = NameClaimed
+              { nameClaimedOwner = buyNameBuyer
+              , nameClaimedName = buyNameName
+              , nameClaimedValue = buyNameValue
+              , nameClaimedBid = buyNameBid
+              }
+        BaseApp.emit event
+        BaseApp.logEvent event
 
       buyClaimedName
         :: Members NameserviceEffs r
         => Members TokenEffs r
-        => Member (Output BaseApp.Event) r
+        => Members [BaseApp.Logger, Output BaseApp.Event] r
         => BuyName
         -> Whois
         -> Sem r ()
@@ -145,11 +150,13 @@ buyName msg = do
                                                  , whoisPrice = buyNameBid
                                                  , whoisValue = buyNameValue
                                                  }
-               BaseApp.emit NameClaimed
-                 { nameClaimedOwner = buyNameBuyer
-                 , nameClaimedName = buyNameName
-                 , nameClaimedValue = buyNameValue
-                 , nameClaimedBid = buyNameBid
-                 }
+               let event = NameClaimed
+                     { nameClaimedOwner = buyNameBuyer
+                     , nameClaimedName = buyNameName
+                     , nameClaimedValue = buyNameValue
+                     , nameClaimedBid = buyNameBid
+                     }
+               BaseApp.emit event
+               BaseApp.logEvent event
              else throw (InsufficientBid "Bid must exceed the price.")
 
