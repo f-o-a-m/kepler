@@ -1,20 +1,18 @@
 module Main where
 
-import           Data.String (fromString)
-import           Faker.Name  (name)
+import           Control.Concurrent (forkIO)
+import           Control.Monad      (forever)
+import           Data.Foldable      (for_)
+import           Data.Maybe         (maybe)
 import           Interact
-import Control.Monad (forever)
+import           System.Environment (lookupEnv)
+import           Text.Read          (read)
 
 main :: IO ()
 main = do
-  putStrLn "Running nameservice interaction..."
-  faucetAccount user1 1000
-  faucetAccount user2 1000
-  forever $ do
-    genName <- name
-    putStrLn $ "Generated name: " <> genName
-    let aName = fromString genName
-    createName user1 aName "no val"
-    buyName user2 aName "some val" 10
-    setName user2 aName "some val (again)"
-    deleteName user2 aName
+  mThreads <- lookupEnv "TX_COUNT"
+  let threads = maybe 1 read mThreads :: Int
+  putStrLn $ "Running nameservice interaction with #threads: " <> show threads
+  faucetAccount user1 10000
+  faucetAccount user2 10000
+  for_ [1..threads] $ const . forkIO . forever $ actionBlock (user1, user2)

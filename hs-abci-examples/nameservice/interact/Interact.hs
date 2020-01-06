@@ -1,15 +1,25 @@
-module Interact where
+module Interact
+  ( user1
+  , user2
+  , faucetAccount
+  , actionBlock
+  ) where
 
-import           Data.Text                            (Text)
-import           Nameservice.Modules.Nameservice      (BuyName (..),
-                                                       DeleteName (..),
-                                                       Name (..), SetName (..))
-import           Nameservice.Modules.Token            (Amount (..),
-                                                       FaucetAccount (..))
-import           Nameservice.Modules.TypedMessage     (TypedMessage (..))
-import           Tendermint.SDK.Codec                 (HasCodec (..))
-import           Tendermint.Utils.Request             (runTransaction_)
-import           Tendermint.Utils.User                (User (..), makeUser, mkSignedRawTransactionWithRoute)
+import           Data.String                      (fromString)
+import           Data.String.Conversions          (cs)
+import           Data.Text                        (Text)
+import qualified Faker.Lorem                      as Lorem
+import qualified Faker.Name                       as Name
+import           Nameservice.Modules.Nameservice  (BuyName (..),
+                                                   DeleteName (..), Name (..),
+                                                   SetName (..))
+import           Nameservice.Modules.Token        (Amount (..),
+                                                   FaucetAccount (..))
+import           Nameservice.Modules.TypedMessage (TypedMessage (..))
+import           Tendermint.SDK.Codec             (HasCodec (..))
+import           Tendermint.Utils.Request         (runTransaction_)
+import           Tendermint.Utils.User            (User (..), makeUser, mkSignedRawTransactionWithRoute)
+
 --------------------------------------------------------------------------------
 -- Users
 --------------------------------------------------------------------------------
@@ -44,6 +54,18 @@ setName User{userAddress, userPrivKey} name val =
   let msg = TypedMessage "SetName" (encode $ SetName name userAddress val)
       rawTx = mkSignedRawTransactionWithRoute "nameservice" userPrivKey msg
   in runTransaction_ rawTx
+
+actionBlock :: (User, User) -> IO ()
+actionBlock (u1, u2) = do
+  genName <- Name.name
+  genCVal <- Lorem.word
+  genBVal <- Lorem.word
+  genSVal <- Lorem.word
+  let name = fromString genName
+  createName u1 name (cs genCVal)
+  buyName u2 name (cs genBVal) 10
+  setName u2 name (cs genSVal)
+  deleteName user2 name
 
 faucetAccount :: User -> Amount -> IO ()
 faucetAccount User{userAddress, userPrivKey} amount =
