@@ -58,7 +58,6 @@ library:
     - hs-abci-extra
     - hs-abci-server
     - hs-abci-sdk
-    - hs-abci-test-utils
     - hs-abci-types
     - http-client
     - katip
@@ -162,6 +161,7 @@ tests:
     source-dirs:         test
     other-modules:
     - Nameservice.Test.E2ESpec
+    - Nameservice.Test.EventOrphans
     ghc-options:
     - -Werror
     - -Wall
