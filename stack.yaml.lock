@@ -96,13 +96,6 @@ packages:
   original:
     hackage: proto-lens-setup-0.4.0.2
 - completed:
-    hackage: timeout-0.1.1@sha256:56c1d3321d7139d1f7ebf04d46c95d3a3f1c8c9e0f15666ae3ccd6bae6204b6e,1427
-    pantry-tree:
-      size: 437
-      sha256: e571503d7e609c3fe496de7e858613360bfa6c06e20ac57d9659bd32d0645889
-  original:
-    hackage: timeout-0.1.1
-- completed:
     hackage: binary-0.8.7.0@sha256:ae3e6cca723ac55c54bbb3fa771bcf18142bc727afd57818e66d6ee6c8044f12,7705
     pantry-tree:
       size: 1976

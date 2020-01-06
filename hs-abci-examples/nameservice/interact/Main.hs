@@ -1,23 +1,25 @@
 module Main where
 
-import           Control.Monad   (forever)
-import           Control.Timeout (sleep)
-import           Data.String     (fromString)
-import           Faker.Name      (name)
+import           Control.Monad      (forever)
+import           Data.Maybe         (maybe)
 import           Interact
+import           System.Environment (lookupEnv)
+import           Text.Read          (read)
 
 main :: IO ()
 main = do
-  putStrLn "Running nameservice interaction..."
-  faucetAccount user1 1000
-  faucetAccount user2 1000
+  mConc <- lookupEnv "TX_COUNT"
+  let conc = maybe 1 read mConc
+  putStrLn $ "Running nameservice interaction w/ TX_COUNT: " <> show conc
+  faucetAccount user1 10000
+  faucetAccount user2 10000
   forever $ do
-    genName <- name
-    putStrLn $ "Generated name: " <> genName
-    let aName = fromString genName
-    createName user1 aName "no val"
-    buyName user2 aName "some val" 10
-    setName user2 aName "some val (again)"
-    deleteName user2 aName
-    putStrLn "Sleeping for 60 seconds..."
-    sleep 60
+    names <- genNames conc
+    vals <- genVals conc
+    buyVals <- genVals conc
+    let buyAmts = replicate conc 10
+    setVals <- genVals conc
+    createNames user1 (zip names vals)
+    buyNames user2 (zip3 names buyVals buyAmts)
+    setNames user2 (zip names setVals)
+    deleteNames user2 names

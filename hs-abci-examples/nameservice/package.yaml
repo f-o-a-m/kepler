@@ -147,8 +147,8 @@ executables:
     - nameservice
     - hs-abci-sdk
     - hs-abci-test-utils
+    - string-conversions
     - text
-    - timeout
 
 tests:
   tutorial:

@@ -30,7 +30,6 @@ extra-deps:
   - proto-lens-protoc-0.5.0.0
   - proto-lens-runtime-0.5.0.0
   - proto-lens-setup-0.4.0.2
-  - timeout-0.1.1
   - binary-0.8.7.0@sha256:ae3e6cca723ac55c54bbb3fa771bcf18142bc727afd57818e66d6ee6c8044f12,7705
   - bloodhound-0.16.0.0@sha256:b7be3a83e7b914fbe80a9b9de29009ad60cff072f5f8d4af4ee64de8e6406d32,5508
   - containers-0.5.11.0@sha256:28ad7337057442f75bc689315ab4ec7bdf5e6b2c39668f306672cecd82c02798,16685
