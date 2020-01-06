@@ -141,6 +141,7 @@ executables:
     - -Werror
     - -Wall
     dependencies:
+    - async
     - base
     - faker
     - nameservice
