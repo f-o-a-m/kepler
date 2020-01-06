@@ -52,5 +52,10 @@ mkResponseLoggerM (App app) = App $ \ req -> do
 ---------------------------------------------------------------------------
 -- | Response logger function.
 logResponse :: (KatipContext m) => Response t ->  m ()
-logResponse req = localKatipNamespace (<> "server") $
-  katipAddContext (Loggable req) $ logFM InfoS "Response Received"
+logResponse resp =
+  let logLevel = case resp of
+        ResponseFlush _ -> DebugS
+        ResponseEcho _ -> DebugS
+        _ -> InfoS
+  in localKatipNamespace (<> "server") $
+       katipAddContext (Loggable resp) $ logFM logLevel "Response Sent"

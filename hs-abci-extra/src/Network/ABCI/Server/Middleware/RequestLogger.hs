@@ -49,5 +49,10 @@ mkRequestLoggerM (App app) = App $ \ req -> logRequest req >> app req
 ---------------------------------------------------------------------------
 -- | Request logger function.
 logRequest :: (KatipContext m) => Request t ->  m ()
-logRequest req = localKatipNamespace (<> "server") $
-  katipAddContext (Loggable req) $ logFM InfoS "Request Received"
+logRequest req = 
+  let logLevel = case req of
+        RequestFlush _ -> DebugS
+        RequestEcho _ -> DebugS
+        _ -> InfoS
+  in localKatipNamespace (<> "server") $
+       katipAddContext (Loggable req) $ logFM logLevel "Request Received"
