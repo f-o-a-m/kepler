@@ -20,7 +20,7 @@ import qualified Proto3.Wire.Encode           as Encode
 import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Types.Address (Address)
-import qualified Tendermint.Utils.Events      as Event
+
 --------------------------------------------------------------------------------
 
 type NameserviceModuleName = "nameservice"

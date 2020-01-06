@@ -20,7 +20,6 @@ import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
                                                addressToBytes)
-import qualified Tendermint.Utils.Events      as Event
 
 --------------------------------------------------------------------------------
 
