@@ -1,5 +1,15 @@
 # nameservice
 
+## Environment Variables
+- LOG_SEVERITY (defaults to **info**) : minimum log severtiy level {debug, info, notice, warning, error, critical, alert, emergency}
+- LOG_VERBOSITY (defaults to **0**) : for each loggable data point, the level of information actually logged {0, 1, 2, 3}
+- ES_HOST (optional) : hostname of the elasticsearch instance for logging
+- ES_PORT (optional) : port number of elasticsearch instance for logging
+- STATS_PORT (optional) : port to run the prometheus metrics server.
+- (DD_API_KEY) (optional) : key to post metrics data to datadog
+
+**NOTE** If you do not provide both of the elasticsearch variables, the logger will default to logging to the console.
+
 ## Metrics via Prometheus
 
 Run `nameservice` via the `Makefile`:
