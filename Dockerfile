@@ -2,11 +2,13 @@ FROM haskell:8
 
 RUN apt-get update && apt-get install --assume-yes protobuf-compiler libsecp256k1-dev
 
+COPY stack.yaml /tmp/stack.resolver-dummy.yaml
+RUN stack --resolver `cat /tmp/stack.resolver-dummy.yaml | grep resolver | sed 's/resolver://'` setup && stack exec -- ghc --version
+
 # Install GHC.
 WORKDIR /project
 COPY . /project
 
 # Install project to /usr/local/bin
-RUN stack setup && stack exec -- ghc --version
 RUN stack build --copy-bins --local-bin-path /usr/local/bin
 
