@@ -87,13 +87,13 @@ makeKatipScribe kcfg = Kleisli $ \le ->
   let verbosity = K.V0
   in case kcfg of
     Console -> do
-      handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem K.DebugS) verbosity
+      handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem K.InfoS) verbosity
       K.registerScribe "stdout" handleScribe K.defaultScribeSettings le
     ES {host, port} -> do
       mgr <- Client.newManager Client.defaultManagerSettings
       let serverAddress = "http://" <> host <> ":" <> port
           bloodhoundEnv = BH.mkBHEnv (BH.Server $ cs serverAddress) mgr
-      esScribe <- ES.mkEsScribe ES.defaultEsScribeCfgV5 bloodhoundEnv (BH.IndexName "nameservice")
+      esScribe <- ES.mkEsScribe ES.defaultEsScribeCfgV5 bloodhoundEnv (BH.IndexName "simple-storage")
         (BH.MappingName "application-logs") (K.permitItem K.DebugS) verbosity
       K.registerScribe "es" esScribe K.defaultScribeSettings le
 

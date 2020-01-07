@@ -88,7 +88,7 @@ makeKatipScribe kcfg = Kleisli $ \le ->
   let verbosity = K.V0
   in case kcfg of
     Console -> do
-      handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem K.DebugS) verbosity
+      handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem K.InfoS) verbosity
       K.registerScribe "stdout" handleScribe K.defaultScribeSettings le
     ES {host, port} -> do
       mgr <- Client.newManager Client.defaultManagerSettings

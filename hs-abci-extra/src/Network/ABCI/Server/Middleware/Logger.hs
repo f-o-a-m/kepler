@@ -7,8 +7,7 @@ module Network.ABCI.Server.Middleware.Logger
 import           Control.Monad.IO.Class    (MonadIO)
 import           Control.Monad.Trans.Class (lift)
 import qualified Data.Aeson                as A
-import qualified Data.List.NonEmpty        as NE
-import           Data.Semigroup            (sconcat)
+import           Data.ByteArray.HexString  (HexString)
 import           Data.String               (fromString)
 import           Katip
 import           Network.ABCI.Server.App   (App (..), MessageType, Middleware,
@@ -63,10 +62,10 @@ mkLoggerM
   :: KatipContext m
   => Middleware m
 mkLoggerM (App app) = App $ \ req -> do
-  let globalContext = sconcat . NE.fromList $
-        [ liftPayload $ sl "message_type" (msgTypeKey $ demoteRequestType req)
-        , liftPayload $ sl "message_id" (hashRequest req)
-        ]
+  let globalContext = GlobalMessageContext
+        { messageHash = hashRequest req
+        , messageType = demoteRequestType req
+        }
   katipAddContext globalContext $ do
     katipAddNamespace (fromString "server") $
       logRequest req
@@ -79,6 +78,22 @@ mkLoggerM (App app) = App $ \ req -> do
 ---------------------------------------------------------------------------
 -- Common
 ---------------------------------------------------------------------------
+
+data GlobalMessageContext = GlobalMessageContext
+  { messageHash :: HexString
+  , messageType :: MessageType
+  }
+
+instance A.ToJSON GlobalMessageContext where
+  toJSON GlobalMessageContext {..} =
+    A.object [ "message_type" A..= msgTypeKey messageType
+             , "message_hash" A..= messageHash
+             ]
+
+instance ToObject GlobalMessageContext
+
+instance LogItem GlobalMessageContext where
+    payloadKeys _ _ = AllKeys
 
 -- | Request logger function.
 logRequest
