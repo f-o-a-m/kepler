@@ -10,7 +10,7 @@ allows users to update and query the count.
 - ES_HOST (optional) : hostname of the elasticsearch instance for logging
 - ES_PORT (optional) : port number of elasticsearch instance for logging
 - STATS_PORT (optional) : port to run the prometheus metrics server.
-- (DD_API_KEY) (optional) : key to post metrics data to datadog
+- DD_API_KEY (optional) : key to post metrics data to datadog
 
 **NOTE** If you do not provide both of the elasticsearch variables, the logger will default to logging to the console.
 
