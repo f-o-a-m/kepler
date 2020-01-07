@@ -5,6 +5,7 @@ module Tendermint.SDK.Modules.Auth
   , AuthEffs
   , Accounts(..)
   , getAccount
+  , modifyAccount
   , putAccount
   , eval
 
