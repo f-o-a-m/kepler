@@ -60,18 +60,43 @@ makeAppConfig = do
 
 addScribesToLogEnv :: AppConfig -> IO AppConfig
 addScribesToLogEnv cfg = do
+  logLevel <- makeLogLevel
   consoleCfg <- makeConsoleLoggingConfig
   let initialLogEnv =  cfg ^. baseAppContext . BaseApp.contextLogConfig  . KL.logEnv
       mdatadogApiKey =  cfg ^? baseAppContext . BaseApp.contextPrometheusEnv .
         _Just . P.envMetricsScrapingConfig . P.dataDogApiKey
       addScribes = runKleisli $
-             makeKatipScribe consoleCfg
-         >>> maybe returnA makeMetricsScribe mdatadogApiKey
+             makeKatipScribe consoleCfg logLevel
+         >>> maybe returnA (makeMetricsScribe logLevel) mdatadogApiKey
   scribesLogEnv <- addScribes initialLogEnv
   pure $ cfg &
     baseAppContext . BaseApp.contextLogConfig  . KL.logEnv .~ scribesLogEnv
 
 --------------------------------------------------------------------------------
+
+data LogLevel = LogLevel
+  { severity  :: K.Severity
+  , verbosity :: K.Verbosity
+  }
+
+makeLogLevel :: IO LogLevel
+makeLogLevel = do
+  -- LOG_SEVERITY should be in {debug, info, notice, warning, error, critical, alert, emergency}
+  msev <- lookupEnv "LOG_SEVERITY"
+  let s = fromMaybe K.InfoS (parseSeverity =<< msev)
+  -- LOG_VERBOSITY should be in {0,1,2,3}
+  mverb <-  lookupEnv "LOG_VERBOSITY"
+  let v = fromMaybe K.V0 (parseVerbosity =<< mverb)
+  return LogLevel {severity = s, verbosity = v}
+  where
+    parseSeverity = K.textToSeverity . cs
+    parseVerbosity v
+      | v == "0" = Just K.V0
+      | v == "1" = Just K.V1
+      | v == "2" = Just K.V2
+      | v == "3" = Just K.V3
+      | otherwise = Nothing
+
 
 data KatipConfig = ES {host :: String, port :: String} | Console
 
@@ -82,27 +107,26 @@ makeConsoleLoggingConfig = do
   pure $ fromMaybe Console mEsConfig
 
 -- makes a log environment for console logs / ES logs
-makeKatipScribe :: KatipConfig -> Kleisli IO K.LogEnv K.LogEnv
-makeKatipScribe kcfg = Kleisli $ \le ->
-  let verbosity = K.V0
-  in case kcfg of
+makeKatipScribe :: KatipConfig -> LogLevel -> Kleisli IO K.LogEnv K.LogEnv
+makeKatipScribe kcfg LogLevel{..} = Kleisli $ \le ->
+  case kcfg of
     Console -> do
-      handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem K.DebugS) verbosity
+      handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem severity) verbosity
       K.registerScribe "stdout" handleScribe K.defaultScribeSettings le
     ES {host, port} -> do
       mgr <- Client.newManager Client.defaultManagerSettings
       let serverAddress = "http://" <> host <> ":" <> port
           bloodhoundEnv = BH.mkBHEnv (BH.Server $ cs serverAddress) mgr
-      esScribe <- ES.mkEsScribe ES.defaultEsScribeCfgV5 bloodhoundEnv (BH.IndexName "nameservice")
-        (BH.MappingName "application-logs") (K.permitItem K.DebugS) verbosity
+      esScribe <- ES.mkEsScribe ES.defaultEsScribeCfgV5 bloodhoundEnv (BH.IndexName "simple-storage")
+        (BH.MappingName "application-logs") (K.permitItem severity) verbosity
       K.registerScribe "es" esScribe K.defaultScribeSettings le
 
 --------------------------------------------------------------------------------
 
 -- makes a log environment for metrics logs
-makeMetricsScribe :: Text -> Kleisli IO K.LogEnv K.LogEnv
-makeMetricsScribe key = Kleisli $ \le -> do
+makeMetricsScribe :: LogLevel -> Text -> Kleisli IO K.LogEnv K.LogEnv
+makeMetricsScribe LogLevel{..} key = Kleisli $ \le -> do
   let apiKey = DD.APIKey key
   datadogScribeSettings <- DD.mkDatadogScribeSettings DD.directAPIConnectionParams (DD.DirectAuth apiKey)
-  scribe <- DD.mkDatadogScribe datadogScribeSettings (K.permitItem K.InfoS) K.V0
+  scribe <- DD.mkDatadogScribe datadogScribeSettings (K.permitItem severity) verbosity
   K.registerScribe "datadog" scribe K.defaultScribeSettings le

@@ -31,7 +31,7 @@ mkMetricsLogger mvarMap le ns (App app) = App $ \ req -> do
         metrics   = Metrics mt count (diffUTCTime endTime startTime)
         newMetMap = Map.insert mt count metMap
     in  pure (newMetMap, metrics)
-  runKatipContextT le () ns $ logMetrics metrics
+  runKatipContextT le () ns $ logMetrics req metrics
   pure res
 
 ---------------------------------------------------------------------------
@@ -50,16 +50,21 @@ mkMetricsLoggerM mvarMap (App app) = App $ \ req -> do
         metrics   = Metrics mt count (diffUTCTime endTime startTime)
         newMetMap = Map.insert mt count metMap
     in  pure (newMetMap, metrics)
-  localKatipNamespace (<> "server") $
-    logMetrics metrics
+  logMetrics req metrics
   pure res
 
 ---------------------------------------------------------------------------
 -- Common
 ---------------------------------------------------------------------------
 -- | Metrics logger function.
-logMetrics :: (KatipContext m) => Metrics -> m ()
-logMetrics metrics = katipAddContext metrics $ logFM InfoS ""
+logMetrics :: (KatipContext m) => Request (t :: MessageType) -> Metrics -> m ()
+logMetrics req metrics =
+  let logLevel = case req of
+        RequestFlush _ -> DebugS
+        RequestEcho _  -> DebugS
+        _              -> InfoS
+  in localKatipNamespace (<> "server") $
+       katipAddContext metrics $ logFM logLevel ""
 
 
 data Metrics = Metrics

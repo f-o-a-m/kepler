@@ -44,7 +44,9 @@ library:
     - containers
     - katip
     - hs-abci-server
+    - hs-abci-types
     - time
+    - transformers
   ghc-options:
   - -Werror
   - -Wall
