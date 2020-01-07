@@ -38,7 +38,8 @@ import           Tendermint.SDK.Crypto              (RecoverableSignatureSchema,
 import           Tendermint.SDK.Types.Message       (Msg (..),
                                                      ValidateMessage (..),
                                                      formatMessageSemanticError)
-import           Tendermint.SDK.Types.Transaction   (RoutedTx (..), Tx (..),
+import           Tendermint.SDK.Types.Transaction   (RawTransaction (..),
+                                                     RoutedTx (..), Tx (..),
                                                      parseTx)
 import           Tendermint.SDK.Types.TxResult      (TxResult)
 
@@ -106,10 +107,10 @@ txRouter
   => Proxy alg
   -> RoutingContext
   -> Modules ms r
-  -> ByteString
+  -> RawTransaction
   -> Sem r TxResult
-txRouter (p  :: Proxy alg) routeContext ms bs =
-  let etx = decode bs >>= parseTx p
+txRouter (p  :: Proxy alg) routeContext ms rawTx =
+  let etx = parseTx p rawTx
   in case etx of
        Left errMsg -> throwSDKError $ ParseError ("Transaction ParseError: " <> errMsg)
        Right tx    -> routeTx routeContext ms tx

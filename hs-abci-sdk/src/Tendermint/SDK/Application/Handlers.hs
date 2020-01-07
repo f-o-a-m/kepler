@@ -22,11 +22,14 @@ import           Polysemy.Error                       (Error, catch)
 import qualified Tendermint.SDK.Application.Module    as M
 import qualified Tendermint.SDK.BaseApp.BaseApp       as BA
 import           Tendermint.SDK.BaseApp.CoreEff       (CoreEffs)
-import           Tendermint.SDK.BaseApp.Errors        (AppError, queryAppError,
+import           Tendermint.SDK.BaseApp.Errors        (AppError, SDKError (..),
+                                                       queryAppError,
+                                                       throwSDKError,
                                                        txResultAppError)
 import           Tendermint.SDK.BaseApp.Query         (HasRouter)
 import           Tendermint.SDK.BaseApp.Store         (ConnectionScope (..))
 import qualified Tendermint.SDK.BaseApp.Store         as Store
+import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Crypto                (RecoverableSignatureSchema,
                                                        SignatureSchema (..))
 import           Tendermint.SDK.Types.TxResult        (checkTxTxResult,
@@ -108,7 +111,7 @@ makeHandlers HandlersContext{..} =
       checkTx (RequestCheckTx _checkTx) = Store.applyScope $ do
         res <- catch
           ( let txBytes =  _checkTx ^. Req._checkTxTx . to Base64.toBytes
-            in txRouter M.CheckTxContext txBytes
+            in either (throwSDKError . ParseError) (txRouter M.CheckTxContext) (decode txBytes)
           )
           (\(err :: AppError) ->
             return $ def & txResultAppError .~ err
@@ -118,7 +121,7 @@ makeHandlers HandlersContext{..} =
       deliverTx (RequestDeliverTx _deliverTx) = Store.applyScope $ do
         res <- catch @AppError
           ( let txBytes = _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
-            in txRouter M.DeliverTxContext txBytes
+            in either (throwSDKError . ParseError) (txRouter M.DeliverTxContext) (decode txBytes)
           )
           (\(err :: AppError) ->
             return $ def & txResultAppError .~ err
