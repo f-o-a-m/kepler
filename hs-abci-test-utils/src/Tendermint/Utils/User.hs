@@ -39,6 +39,7 @@ mkSignedRawTransactionWithRoute route privateKey msg = sign unsigned
                                   , rawTransactionRoute = cs route
                                   , rawTransactionSignature = ""
                                   , rawTransactionGas = 0
+                                  , rawTransactionNonce = 0
                                   }
         sig = signRawTransaction algProxy privateKey unsigned
         sign rt = rt { rawTransactionSignature = encodeCompactRecSig $ exportCompactRecSig sig }

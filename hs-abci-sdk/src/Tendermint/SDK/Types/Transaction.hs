@@ -12,6 +12,7 @@ import qualified Data.ProtoLens                 as P
 import           Data.Proxy
 import           Data.String.Conversions        (cs)
 import           Data.Text                      (Text)
+import           Data.Word                      (Word64)
 import           GHC.Generics                   (Generic)
 import qualified Proto.Types.Transaction        as T
 import qualified Proto.Types.Transaction_Fields as T
@@ -20,7 +21,6 @@ import           Tendermint.SDK.Crypto          (MakeDigest (..),
                                                  RecoverableSignatureSchema (..),
                                                  SignatureSchema (..))
 import           Tendermint.SDK.Types.Message   (Msg (..))
-
 -- Our standard transaction type parameterized by the signature schema 'alg'
 -- and an underlying message type 'msg'.
 data Tx alg msg = Tx
@@ -48,6 +48,7 @@ data RawTransaction = RawTransaction
   , rawTransactionRoute     :: Text
   -- ^ module name
   , rawTransactionSignature :: ByteString
+  , rawTransactionNonce     :: Word64
   } deriving Generic
 
 instance Wrapped RawTransaction where
@@ -61,11 +62,13 @@ instance Wrapped RawTransaction where
         & T.gas .~ rawTransactionGas
         & T.route .~ cs rawTransactionRoute
         & T.signature .~ rawTransactionSignature
+        & T.nonce .~ rawTransactionNonce
     f message = RawTransaction
       { rawTransactionData      = message ^. T.data'
       , rawTransactionGas = message ^. T.gas
       , rawTransactionRoute = message ^. T.route
       , rawTransactionSignature = message ^. T.signature
+      , rawTransactionNonce = message ^. T.nonce
       }
 
 instance HasCodec RawTransaction where

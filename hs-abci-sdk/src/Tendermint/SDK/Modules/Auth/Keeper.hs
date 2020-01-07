@@ -32,7 +32,7 @@ eval =
       ModifyAccount addr f -> do
         mAcnt <- get storeKey addr
         case mAcnt of
-          Nothing -> pure ()
+          Nothing   -> pure ()
           Just acnt -> put storeKey addr (f acnt)
       PutAccount addr acnt ->
         put storeKey addr acnt
