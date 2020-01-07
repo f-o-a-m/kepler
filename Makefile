@@ -1,4 +1,5 @@
 STATS_PORT ?= 9200
+INTERACT_THREAD_COUNT ?= 10
 
 export
 
@@ -89,6 +90,10 @@ test-simple-storage: install ## Run the test suite for the simple-storage exampl
 
 test-nameservice: install ## Run the test suite for the nameservice example application
 	stack test nameservice:nameservice-test
+
+interact-nameservice: install ## Run nameservice interaction script
+	INTERACT_THREAD_COUNT=$(INTERACT_THREAD_COUNT) \
+	stack exec interact
 
 test-tutorial: install ## Make sure the tutorial builds
 	stack test nameservice:tutorial
