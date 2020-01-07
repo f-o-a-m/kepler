@@ -72,8 +72,8 @@ jobs:
     - docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e up -d
     - make test-simple-storage
     - docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e down -v --rmi local
+  - script:
     name: "Test Nameservice Example E2E"
-    script:
     - make docker-test-prebake
     - docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml -p test-hs-abci-examples-nameservice-e2e up -d
     - make test-nameservice
