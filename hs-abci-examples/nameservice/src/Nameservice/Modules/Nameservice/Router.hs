@@ -9,7 +9,7 @@ import           Polysemy                                 (Members, Sem)
 import           Tendermint.SDK.BaseApp                   (BaseAppEffs, TxEffs,
                                                            incCount, withTimer)
 import           Tendermint.SDK.Types.Message             (Msg (..))
-import           Tendermint.SDK.Types.Transaction         (RoutedTx (..),
+import           Tendermint.SDK.Types.Transaction         (PreRoutedTx (..),
                                                            Tx (..))
 
 router
@@ -17,9 +17,9 @@ router
   => Members NameserviceEffs r
   => Members BaseAppEffs r
   => Members TxEffs r
-  => RoutedTx NameserviceMessage
+  => PreRoutedTx NameserviceMessage
   -> Sem r ()
-router (RoutedTx Tx{txMsg}) =
+router (PreRoutedTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
   in case msgData of
        NSetName msg    -> do

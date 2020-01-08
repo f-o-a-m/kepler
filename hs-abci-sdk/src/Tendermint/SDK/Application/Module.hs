@@ -39,13 +39,13 @@ import           Tendermint.SDK.Types.Message       (Msg (..),
                                                      ValidateMessage (..),
                                                      formatMessageSemanticError)
 import           Tendermint.SDK.Types.Transaction   (RawTransaction (..),
-                                                     RoutedTx (..), Tx (..),
+                                                     PreRoutedTx (..), Tx (..),
                                                      parseTx)
 import           Tendermint.SDK.Types.TxResult      (TxResult)
 
 data Module (name :: Symbol) msg val (api :: *) (s :: EffectRow) (r :: EffectRow) = Module
-  { moduleTxDeliverer :: RoutedTx msg -> Sem (T.TxEffs :& r) val
-  , moduleTxChecker   :: RoutedTx msg -> Sem (T.TxEffs :& r) val
+  { moduleTxDeliverer :: PreRoutedTx msg -> Sem (T.TxEffs :& r) val
+  , moduleTxChecker   :: PreRoutedTx msg -> Sem (T.TxEffs :& r) val
   , moduleQueryServer :: Q.RouteT api (Sem r)
   , moduleEval :: forall deps. Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
   }
@@ -59,9 +59,9 @@ voidModuleMessages m =
 defaultTxChecker
   :: Member (Error AppError) r
   => ValidateMessage msg
-  => RoutedTx msg
+  => PreRoutedTx msg
   -> Sem r ()
-defaultTxChecker (RoutedTx Tx{txMsg}) =
+defaultTxChecker (PreRoutedTx Tx{txMsg}) =
   case validateMessage txMsg of
     V.Failure err ->
       throwSDKError . MessageValidation . map formatMessageSemanticError $ err
@@ -134,7 +134,7 @@ instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, TxRouter ms r, HasCode
           Left err           -> throwSDKError $ ParseError err
           Right (msg :: msg) -> return msg
         let msg' = txMsg {msgData = msg}
-            tx' = RoutedTx $ tx {txMsg = msg'}
+            tx' = PreRoutedTx $ tx {txMsg = msg'}
         ctx <- liftIO $ T.newTransactionContext tx'
         T.eval ctx $ case routeContext of
           CheckTxContext   -> moduleTxChecker m tx'
@@ -143,9 +143,9 @@ instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, TxRouter ms r, HasCode
 
 voidRouter
   :: forall a r.
-     RoutedTx Void
+     PreRoutedTx Void
   -> Sem r a
-voidRouter (RoutedTx tx) =
+voidRouter (PreRoutedTx tx) =
   let Tx{txMsg} = tx
       Msg{msgData} = txMsg
   in pure $ absurd msgData

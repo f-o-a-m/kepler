@@ -119,8 +119,8 @@ parseTx p rawTx@RawTransaction{..} = do
     , txNonce = rawTransactionNonce
     }
 
-data RoutedTx msg where
-  RoutedTx :: Tx alg msg -> RoutedTx msg
+data PreRoutedTx msg where
+  PreRoutedTx :: Tx alg msg -> PreRoutedTx msg
 
-instance Functor RoutedTx where
-  fmap f (RoutedTx tx) = RoutedTx $ fmap f tx
+instance Functor PreRoutedTx where
+  fmap f (PreRoutedTx tx) = PreRoutedTx $ fmap f tx
