@@ -93,7 +93,8 @@ makeHandlers HandlersContext{..} =
   let
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
-      txRouter context =  compileToBaseApp . M.txRouter signatureAlgP context modules
+      compileRawTx context = compileToBaseApp . M.txRouter signatureAlgP context modules
+      txRouter context = either (throwSDKError . ParseError) (compileRawTx context) . decode
       queryRouter = compileToBaseApp . M.queryRouter modules
 
       query (RequestQuery q) = Store.applyScope $
@@ -111,7 +112,7 @@ makeHandlers HandlersContext{..} =
       checkTx (RequestCheckTx _checkTx) = Store.applyScope $ do
         res <- catch
           ( let txBytes =  _checkTx ^. Req._checkTxTx . to Base64.toBytes
-            in either (throwSDKError . ParseError) (txRouter M.CheckTxContext) (decode txBytes)
+            in txRouter M.CheckTxContext txBytes
           )
           (\(err :: AppError) ->
             return $ def & txResultAppError .~ err
@@ -121,7 +122,7 @@ makeHandlers HandlersContext{..} =
       deliverTx (RequestDeliverTx _deliverTx) = Store.applyScope $ do
         res <- catch @AppError
           ( let txBytes = _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
-            in either (throwSDKError . ParseError) (txRouter M.DeliverTxContext) (decode txBytes)
+            in txRouter M.DeliverTxContext txBytes
           )
           (\(err :: AppError) ->
             return $ def & txResultAppError .~ err
