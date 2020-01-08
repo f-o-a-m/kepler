@@ -31,14 +31,12 @@ import           Tendermint.SDK.BaseApp.Errors        (AppError, SDKError (..),
 import           Tendermint.SDK.BaseApp.Query         (HasRouter)
 import           Tendermint.SDK.BaseApp.Store         (ConnectionScope (..))
 import qualified Tendermint.SDK.BaseApp.Store         as Store
-import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Crypto                (RecoverableSignatureSchema,
                                                        SignatureSchema (..))
 import qualified Tendermint.SDK.Modules.Auth          as A
 import           Tendermint.SDK.Types.Message         (Msg (..))
--- import           Tendermint.SDK.Types.Transaction     (RawTransaction (..),
---                                                        Tx (..), parseTx)
-import Tendermint.SDK.Types.Transaction (PreRoutedTx(..), Tx(..))
+import           Tendermint.SDK.Types.Transaction     (PreRoutedTx (..),
+                                                       Tx (..), parseTx)
 import           Tendermint.SDK.Types.TxResult        (checkTxTxResult,
                                                        deliverTxTxResult)
 
@@ -124,9 +122,8 @@ makeHandlers HandlersContext{..} =
   let
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
-
-      compileRawTx context = compileToBaseApp . M.txRouter signatureAlgP context modules
-      txRouter context = either (throwSDKError . ParseError) (compileRawTx context) . decode
+      compileTx context = compileToBaseApp . M.txRouter context modules
+      txRouter context = either (throwSDKError . ParseError) (compileTx context) . parseTx signatureAlgP
       queryRouter = compileToBaseApp . M.queryRouter modules
 
       query (RequestQuery q) = Store.applyScope $

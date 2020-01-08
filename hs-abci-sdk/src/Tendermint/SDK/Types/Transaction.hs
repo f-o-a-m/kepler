@@ -89,8 +89,8 @@ signRawTransaction
   -> RecoverableSignature alg
 signRawTransaction p priv tx = signRecoverableMessage p priv (makeDigest tx)
 
--- | Attempt to parse a 'RawTransaction' as a 'Tx' without attempting
--- | to parse the underlying message. This is done as a preprocessing
+-- | Attempt to parse a Bytestring into a 'RawTransaction' then as a 'Tx' without
+-- | attempting to parse the underlying message. This is done as a preprocessing
 -- | step to the router, allowing for failure before the router is ever
 -- | reached.
 parseTx
@@ -98,26 +98,29 @@ parseTx
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => Proxy alg
-  -> RawTransaction
-  -> Either Text (Tx alg ByteString)
-parseTx p rawTx@RawTransaction{..} = do
+  -> ByteString
+  -> Either Text (PreRoutedTx ByteString)
+parseTx p bs = do
+  rawTx@RawTransaction{..} <- decode bs
   recSig <- note "Unable to parse transaction signature as a recovery signature." $
-       makeRecoverableSignature p rawTransactionSignature
+    makeRecoverableSignature p rawTransactionSignature
   let txForSigning = rawTx {rawTransactionSignature = ""}
       signBytes = makeDigest txForSigning
   signerPubKey <- note "Signature recovery failed." $ recover p recSig signBytes
-  return Tx
-    { txMsg = Msg
-      { msgData = rawTransactionData
-      , msgAuthor = addressFromPubKey p signerPubKey
-      }
-    , txRoute = cs rawTransactionRoute
-    , txGas = rawTransactionGas
-    , txSignature = recSig
-    , txSignBytes = signBytes
-    , txSigner = signerPubKey
-    , txNonce = rawTransactionNonce
-    }
+  let tx :: Tx alg ByteString
+      tx = Tx
+        { txMsg = Msg
+          { msgData = rawTransactionData
+          , msgAuthor = addressFromPubKey p signerPubKey
+          }
+        , txRoute = cs rawTransactionRoute
+        , txGas = rawTransactionGas
+        , txSignature = recSig
+        , txSignBytes = signBytes
+        , txSigner = signerPubKey
+        , txNonce = rawTransactionNonce
+        }
+  return . PreRoutedTx $ tx
 
 data PreRoutedTx msg where
   PreRoutedTx :: Tx alg msg -> PreRoutedTx msg

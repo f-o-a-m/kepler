@@ -7,8 +7,8 @@ module SimpleStorage.Application
 import           Data.Proxy
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
 import           Tendermint.SDK.Application          (HandlersContext (..),
-                                                      baseAppAnteHandler,
-                                                      Modules (..))
+                                                      Modules (..),
+                                                      baseAppAnteHandler)
 import           Tendermint.SDK.BaseApp              ((:&))
 import qualified Tendermint.SDK.BaseApp              as BaseApp
 import           Tendermint.SDK.Crypto               (Secp256k1)

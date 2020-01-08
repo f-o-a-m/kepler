@@ -14,8 +14,6 @@ module Tendermint.SDK.Application.Module
   ) where
 
 import           Control.Monad.IO.Class             (liftIO)
-import           Crypto.Hash                        (Digest)
-import           Crypto.Hash.Algorithms             (SHA256)
 import           Data.ByteString                    (ByteString)
 import           Data.Proxy
 import           Data.String.Conversions            (cs)
@@ -33,14 +31,10 @@ import           Tendermint.SDK.BaseApp             ((:&), AppError, BaseApp,
 import qualified Tendermint.SDK.BaseApp.Query       as Q
 import qualified Tendermint.SDK.BaseApp.Transaction as T
 import           Tendermint.SDK.Codec               (HasCodec (..))
-import           Tendermint.SDK.Crypto              (RecoverableSignatureSchema,
-                                                     SignatureSchema (..))
 import           Tendermint.SDK.Types.Message       (Msg (..),
                                                      ValidateMessage (..),
                                                      formatMessageSemanticError)
-import           Tendermint.SDK.Types.Transaction   (RawTransaction (..),
-                                                     PreRoutedTx (..), Tx (..),
-                                                     parseTx)
+import           Tendermint.SDK.Types.Transaction   (PreRoutedTx (..), Tx (..))
 import           Tendermint.SDK.Types.TxResult      (TxResult)
 
 data Module (name :: Symbol) msg val (api :: *) (s :: EffectRow) (r :: EffectRow) = Module
@@ -99,21 +93,12 @@ instance QueryRouter (m' ': ms) r => QueryRouter (Module name msg val api s r ':
 data RoutingContext = CheckTxContext | DeliverTxContext
 
 txRouter
-  :: forall alg ms r .
-     RecoverableSignatureSchema alg
-  => Member (Error AppError) r
-  => Message alg ~ Digest SHA256
-  => TxRouter ms r
-  => Proxy alg
-  -> RoutingContext
+  :: TxRouter ms r
+  => RoutingContext
   -> Modules ms r
-  -> RawTransaction
+  -> PreRoutedTx ByteString
   -> Sem r TxResult
-txRouter (p  :: Proxy alg) routeContext ms rawTx =
-  let etx = parseTx p rawTx
-  in case etx of
-       Left errMsg -> throwSDKError $ ParseError ("Transaction ParseError: " <> errMsg)
-       Right tx    -> routeTx routeContext ms tx
+txRouter routeContext ms (PreRoutedTx tx) = routeTx routeContext ms tx
 
 class TxRouter ms r where
   routeTx :: forall alg. RoutingContext -> Modules ms r -> Tx alg ByteString -> Sem r TxResult
