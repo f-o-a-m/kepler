@@ -1,7 +1,9 @@
 module Tendermint.SDK.Application.Handlers
   ( Handler
   , HandlersContext(..)
+  , AnteHandler(..)
   , makeApp
+  , baseAppAnteHandler
   ) where
 
 import           Control.Lens                         (from, to, (&), (.~),
@@ -33,9 +35,10 @@ import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Crypto                (RecoverableSignatureSchema,
                                                        SignatureSchema (..))
 import qualified Tendermint.SDK.Modules.Auth          as A
--- import           Tendermint.SDK.Types.Message         (Msg (..))
+import           Tendermint.SDK.Types.Message         (Msg (..))
 -- import           Tendermint.SDK.Types.Transaction     (RawTransaction (..),
 --                                                        Tx (..), parseTx)
+import Tendermint.SDK.Types.Transaction (PreRoutedTx(..), Tx(..))
 import           Tendermint.SDK.Types.TxResult        (checkTxTxResult,
                                                        deliverTxTxResult)
 
@@ -77,34 +80,31 @@ data HandlersContext alg ms r core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.Modules ms r
   , compileToCore :: forall a. BA.ScopedEff core a -> Sem core a
+  , anteHandlers  :: AnteHandler r
   }
 
--- check/validate nonce
--- @TODO: don't parse the tx twice
--- probably need to change the args for txRouter
--- txAnteHandler
---   :: forall alg r.
---      Member A.Accounts r
---   => RawTransaction
---   -> Sem r ()
--- txAnteHandler (p :: Proxy alg) rawTx = do
---   let eTx = parseTx p rawTx
---   case eTx of
---     Left errMsg -> throwSDKError $ ParseError ("Transaction ParseError: " <> errMsg)
---     Right Tx{txMsg, txNonce} -> do
---       let Msg{msgAuthor} = txMsg
---       mAcnt <- A.getAccount msgAuthor
---       case mAcnt of
---         -- this should be probably be an error
---         -- but it doesn't make much sense to have a tx without an acc
---         -- signing it first
---         Nothing -> pure ()
---         Just A.Account{accountNonce} -> do
---           -- make sure nonce is strictly less than
---           -- for more strict validation, txNonce should be accountNonce + 1
---           if accountNonce < txNonce
---             then pure ()
---             else throwSDKError NonceException
+data AnteHandler r where
+  AnteHandler :: forall msg r. (PreRoutedTx msg -> Sem r ()) -> AnteHandler r
+
+nonceChecker
+  :: Members A.AuthEffs r
+  => Member (Error AppError) r
+  => AnteHandler r
+nonceChecker = AnteHandler $ \(PreRoutedTx Tx{txNonce, txMsg}) -> do
+  let Msg{msgAuthor} = txMsg
+  mAcnt <- A.getAccount msgAuthor
+  case mAcnt of
+    Nothing -> pure ()
+    Just A.Account{accountNonce} ->
+      if accountNonce < txNonce
+      then pure ()
+      else throwSDKError NonceException
+
+baseAppAnteHandler
+  :: Members A.AuthEffs r
+  => Member (Error AppError) r
+  => AnteHandler r
+baseAppAnteHandler = nonceChecker
 
 -- Common function between checkTx and deliverTx
 makeHandlers

@@ -3,6 +3,7 @@ module Tendermint.SDK.Application
   , Module(..)
   , defaultTxChecker
   , HandlersContext(..)
+  , baseAppAnteHandler
   , createIOApp
   , makeApp
   ) where

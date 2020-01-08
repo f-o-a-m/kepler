@@ -8,6 +8,7 @@ import           Data.Proxy
 import qualified Nameservice.Modules.Nameservice as N
 import qualified Nameservice.Modules.Token       as T
 import           Tendermint.SDK.Application      (HandlersContext (..),
+                                                  baseAppAnteHandler,
                                                   Modules (..))
 import           Tendermint.SDK.BaseApp          ((:&))
 import qualified Tendermint.SDK.BaseApp          as BaseApp
@@ -31,6 +32,7 @@ handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = nameserviceModules
   , compileToCore  = BaseApp.compileScopedEff
+  , anteHandlers = baseAppAnteHandler
   }
   where
   nameserviceModules :: Modules NameserviceModules EffR
