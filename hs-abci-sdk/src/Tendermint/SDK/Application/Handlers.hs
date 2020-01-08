@@ -109,8 +109,7 @@ baseAppAnteHandler = nonceChecker
 -- Common function between checkTx and deliverTx
 makeHandlers
   :: forall alg ms r core.
-     Members A.AuthEffs r
-  => Member (Error AppError) r
+     Member (Error AppError) r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r
@@ -180,8 +179,7 @@ makeHandlers HandlersContext{..} =
 
 makeApp
   :: forall alg ms r core.
-     Members A.AuthEffs r
-  => Members [Error AppError, Embed IO] r
+     Members [Error AppError, Embed IO] r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r
