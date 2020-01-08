@@ -2,6 +2,7 @@ module Tendermint.SDK.Application.Handlers
   ( Handler
   , HandlersContext(..)
   , makeApp
+  , txAnteHandler
   ) where
 
 import           Control.Lens                         (from, to, (&), (.~),
@@ -32,7 +33,12 @@ import qualified Tendermint.SDK.BaseApp.Store         as Store
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Crypto                (RecoverableSignatureSchema,
                                                        SignatureSchema (..))
-import           Tendermint.SDK.Types.TxResult        (checkTxTxResult,
+import qualified Tendermint.SDK.Modules.Auth          as A
+import           Tendermint.SDK.Types.Message         (Msg (..))
+import           Tendermint.SDK.Types.Transaction     (RawTransaction (..),
+                                                       Tx (..), parseTx)
+import           Tendermint.SDK.Types.TxResult        (TxResult (..),
+                                                       checkTxTxResult,
                                                        deliverTxTxResult)
 
 type Handler mt r = Request mt -> Sem r (Response mt)
@@ -75,10 +81,42 @@ data HandlersContext alg ms r core = HandlersContext
   , compileToCore :: forall a. BA.ScopedEff core a -> Sem core a
   }
 
+-- check/validate nonce
+-- @TODO: don't parse the tx twice
+-- probably need to change the args for txRouter
+txAnteHandler
+  :: forall alg r.
+     Members A.AuthEffs r
+  => Member (Error AppError) r
+  => RecoverableSignatureSchema alg
+  => Message alg ~ Digest SHA256
+  => Proxy alg
+  -> RawTransaction
+  -> Sem r ()
+txAnteHandler (p :: Proxy alg) rawTx = do
+  let eTx = parseTx p rawTx
+  case eTx of
+    Left errMsg -> throwSDKError $ ParseError ("Transaction ParseError: " <> errMsg)
+    Right Tx{txMsg, txNonce} -> do
+      let Msg{msgAuthor} = txMsg
+      mAcnt <- A.getAccount msgAuthor
+      case mAcnt of
+        -- this should be probably be an error
+        -- but it doesn't make much sense to have a tx without an acc
+        -- signing it first
+        Nothing -> pure ()
+        Just A.Account{accountNonce} -> do
+          -- make sure nonce is strictly less than
+          -- for more strict validation, txNonce should be accountNonce + 1
+          if accountNonce < txNonce
+            then pure ()
+            else throwSDKError NonceException
+
 -- Common function between checkTx and deliverTx
 makeHandlers
   :: forall alg ms r core.
-     Member (Error AppError) r
+     Members A.AuthEffs r
+  => Member (Error AppError) r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r
@@ -93,7 +131,10 @@ makeHandlers HandlersContext{..} =
   let
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
-      compileRawTx context = compileToBaseApp . M.txRouter signatureAlgP context modules
+      -- compileRawTx :: forall a. M.RoutingContext -> RawTransaction -> Sem (BA.BaseApp core) TxResult
+      compileRawTx context rawTx = do
+        txAnteHandler signatureAlgP rawTx
+        compileToBaseApp . M.txRouter signatureAlgP context modules $ rawTx
       txRouter context = either (throwSDKError . ParseError) (compileRawTx context) . decode
       queryRouter = compileToBaseApp . M.queryRouter modules
 
@@ -147,7 +188,8 @@ makeHandlers HandlersContext{..} =
 
 makeApp
   :: forall alg ms r core.
-     Members [Error AppError, Embed IO] r
+     Members A.AuthEffs r
+  => Members [Error AppError, Embed IO] r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r

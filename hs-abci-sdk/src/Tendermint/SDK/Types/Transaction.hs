@@ -30,6 +30,7 @@ data Tx alg msg = Tx
   , txSignature :: RecoverableSignature alg
   , txSignBytes :: Message alg
   , txSigner    :: PubKey alg
+  , txNonce     :: Word64
   }
 
 instance Functor (Tx alg) where
@@ -115,6 +116,7 @@ parseTx p rawTx@RawTransaction{..} = do
     , txSignature = recSig
     , txSignBytes = signBytes
     , txSigner = signerPubKey
+    , txNonce = rawTransactionNonce
     }
 
 data RoutedTx msg where
