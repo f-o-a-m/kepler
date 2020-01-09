@@ -30,6 +30,8 @@ services:
       - "9200"
   datadog:
     image: datadog/agent:latest
+    environment:
+     - DD_API_KEY=${DD_API_KEY}
     volumes:
      - /var/run/docker.sock:/var/run/docker.sock
      - /proc/:/host/proc/:ro

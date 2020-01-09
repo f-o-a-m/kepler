@@ -35,14 +35,10 @@ services:
       - "5555"
   datadog:
     image: datadog/agent:latest
+    environment:
+     - DD_API_KEY=${DD_API_KEY}
     volumes:
-     - /var/run/docker.sock:/var/run/docker.sock
-     - /proc/:/host/proc/:ro
-     - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
-    labels:
-      com.datadoghq.ad.check_names: '["openmetrics"]'
-      com.datadoghq.ad.init_configs: '["{}"]'
-      com.datadoghq.ad.instances: '["{\"prometheus_url\":\"http://%%host%%:5555/metrics \",\"namespace\":\"nameservice\",\"metrics\":[\"count_buy\" \"count_set\" \"count_delete\" \"histogram_buy*\" \"histogram_set*\" \"histogram_delete*\"]}"]'
+     - conf.d/openmetrics.d:/etc/datadog-agent/conf.d/openmetrics.d
   elk:
     image: sebp/elk:683
     ports:

@@ -23,11 +23,11 @@ router (RoutedTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
   in case msgData of
        NSetName msg    -> do
-         incCount "count_set"
-         withTimer "histogram_set" $ setName msg
+         incCount "set_total"
+         withTimer "set_duration_seconds" $ setName msg
        NBuyName msg    -> do
-         incCount "count_buy"
-         withTimer "histogram_buy" $ buyName msg
+         incCount "buy_total"
+         withTimer "buy_duration_seconds" $ buyName msg
        NDeleteName msg -> do
-         incCount "count_delete"
-         withTimer "histogram_delete" $ deleteName msg
+         incCount "delete_total"
+         withTimer "delete_duration_seconds" $ deleteName msg
