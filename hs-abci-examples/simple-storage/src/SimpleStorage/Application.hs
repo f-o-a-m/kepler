@@ -31,7 +31,7 @@ handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = simpleStorageModules
   , compileToCore  = BaseApp.compileScopedEff
-  , anteHandlers = baseAppAnteHandler
+  , anteHandler = baseAppAnteHandler
   }
   where
   simpleStorageModules :: Modules SimpleStorageModules EffR

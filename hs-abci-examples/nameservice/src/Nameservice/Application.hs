@@ -32,7 +32,7 @@ handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = nameserviceModules
   , compileToCore  = BaseApp.compileScopedEff
-  , anteHandlers = baseAppAnteHandler
+  , anteHandler = baseAppAnteHandler
   }
   where
   nameserviceModules :: Modules NameserviceModules EffR

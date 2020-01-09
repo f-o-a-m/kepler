@@ -104,8 +104,10 @@ baseAppAnteHandler
   => AnteHandler r
 baseAppAnteHandler = nonceChecker
 
-runAnteHandler :: AnteHandler r -> PreRoutedTx msg -> Sem r ()
-runAnteHandler (AnteHandler f) = f
+preComposeAnteHandler :: AnteHandler r -> M.Router r msg -> M.Router r msg
+preComposeAnteHandler (AnteHandler runAnte) router = M.Router $ \preRoutedTx -> do
+  runAnte preRoutedTx
+  M.runRouter router preRoutedTx
 
 -- Common function between checkTx and deliverTx
 makeHandlers
@@ -125,9 +127,9 @@ makeHandlers HandlersContext{..} =
   let
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
-      compileTx context preRoutedTx = do
-        runAnteHandler anteHandler preRoutedTx
-        compileToBaseApp . M.txRouter context modules $ preRoutedTx
+      compileTx context = do
+        let router = M.txRouter context modules
+        compileToBaseApp . (M.runRouter $ preComposeAnteHandler anteHandler router)
       txRouter context =
         either (throwSDKError . ParseError) (compileTx context . PreRoutedTx) . parseTx signatureAlgP
       queryRouter = compileToBaseApp . M.queryRouter modules

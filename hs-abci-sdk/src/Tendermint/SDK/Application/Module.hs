@@ -7,6 +7,7 @@ module Tendermint.SDK.Application.Module
   , QueryRouter(Api)
   , queryRouter
   , RoutingContext(..)
+  , Router(..)
   , TxRouter
   , txRouter
   , voidRouter
@@ -92,13 +93,15 @@ instance QueryRouter (m' ': ms) r => QueryRouter (Module name msg val api s r ':
 
 data RoutingContext = CheckTxContext | DeliverTxContext
 
+data Router r msg = Router { runRouter :: PreRoutedTx msg -> Sem r TxResult }
+
 txRouter
   :: TxRouter ms r
   => RoutingContext
   -> Modules ms r
-  -> PreRoutedTx ByteString
-  -> Sem r TxResult
-txRouter routeContext ms (PreRoutedTx tx) = routeTx routeContext ms tx
+  -> Router r ByteString
+txRouter routeContext ms = Router $ \(PreRoutedTx tx) ->
+  routeTx routeContext ms tx
 
 class TxRouter ms r where
   routeTx :: forall alg. RoutingContext -> Modules ms r -> Tx alg ByteString -> Sem r TxResult
