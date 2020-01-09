@@ -123,7 +123,8 @@ makeHandlers HandlersContext{..} =
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
       compileTx context = compileToBaseApp . M.txRouter context modules
-      txRouter context = either (throwSDKError . ParseError) (compileTx context) . parseTx signatureAlgP
+      txRouter context =
+        either (throwSDKError . ParseError) (compileTx context . PreRoutedTx) . parseTx signatureAlgP
       queryRouter = compileToBaseApp . M.queryRouter modules
 
       query (RequestQuery q) = Store.applyScope $

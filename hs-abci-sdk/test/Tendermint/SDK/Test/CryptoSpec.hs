@@ -29,7 +29,7 @@ spec = describe "Crypto Tests" $ do
                            encodeCompactSig $ exportCompactRecSig signature}
           -- @NOTE: this is kinda dumb bc parseTx decodes a bs into a rawTx
           eTx = parseTx algProxy . encode $ rawTxWithSig
-          (PreRoutedTx Tx{..}) = case eTx of
+          (Tx {..}) = case eTx of
             Left errMsg -> error $ show errMsg
             Right a     -> a
       txSigner `shouldBe` derivePubKey privateKey

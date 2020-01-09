@@ -99,7 +99,7 @@ parseTx
   => Message alg ~ Digest SHA256
   => Proxy alg
   -> ByteString
-  -> Either Text (PreRoutedTx ByteString)
+  -> Either Text (Tx alg ByteString)
 parseTx p bs = do
   rawTx@RawTransaction{..} <- decode bs
   recSig <- note "Unable to parse transaction signature as a recovery signature." $
@@ -107,20 +107,18 @@ parseTx p bs = do
   let txForSigning = rawTx {rawTransactionSignature = ""}
       signBytes = makeDigest txForSigning
   signerPubKey <- note "Signature recovery failed." $ recover p recSig signBytes
-  let tx :: Tx alg ByteString
-      tx = Tx
-        { txMsg = Msg
-          { msgData = rawTransactionData
-          , msgAuthor = addressFromPubKey p signerPubKey
-          }
-        , txRoute = cs rawTransactionRoute
-        , txGas = rawTransactionGas
-        , txSignature = recSig
-        , txSignBytes = signBytes
-        , txSigner = signerPubKey
-        , txNonce = rawTransactionNonce
-        }
-  return . PreRoutedTx $ tx
+  return $ Tx
+    { txMsg = Msg
+              { msgData = rawTransactionData
+              , msgAuthor = addressFromPubKey p signerPubKey
+              }
+    , txRoute = cs rawTransactionRoute
+    , txGas = rawTransactionGas
+    , txSignature = recSig
+    , txSignBytes = signBytes
+    , txSigner = signerPubKey
+    , txNonce = rawTransactionNonce
+    }
 
 data PreRoutedTx msg where
   PreRoutedTx :: Tx alg msg -> PreRoutedTx msg
