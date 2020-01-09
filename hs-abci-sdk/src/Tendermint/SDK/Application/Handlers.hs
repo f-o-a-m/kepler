@@ -109,10 +109,33 @@ preComposeAnteHandler (AnteHandler runAnte) router = M.Router $ \preRoutedTx -> 
   runAnte preRoutedTx
   M.runRouter router preRoutedTx
 
+data PostAnteHandler r where
+  PostAnteHandler :: (forall msg. PreRoutedTx msg -> Sem r (PreRoutedTx msg)) -> PostAnteHandler r
+
+nonceUpdater
+  :: Members A.AuthEffs r
+  => Member (Error AppError) r
+  => PostAnteHandler r
+nonceUpdater = PostAnteHandler $ \(PreRoutedTx tx@Tx{txMsg}) -> do
+  let Msg{msgAuthor} = txMsg
+  A.modifyAccount msgAuthor $ \(A.Account {..}) ->
+    A.Account accountCoins (accountNonce + 1)
+  mAcnt <- A.getAccount msgAuthor
+  case mAcnt of
+    Nothing -> throwSDKError NonceException
+    Just acnt ->
+      pure . PreRoutedTx $ tx { txNonce = A.accountNonce acnt }
+
+preComposePostAnteHandler :: PostAnteHandler r -> M.Router r msg -> M.Router r msg
+preComposePostAnteHandler (PostAnteHandler runAnte) router = M.Router $ \preRoutedTx -> do
+  newTx <- runAnte preRoutedTx
+  M.runRouter router newTx
+
 -- Common function between checkTx and deliverTx
 makeHandlers
   :: forall alg ms r core.
-     Member (Error AppError) r
+     Members A.AuthEffs r
+  => Member (Error AppError) r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r
@@ -129,7 +152,7 @@ makeHandlers HandlersContext{..} =
       compileToBaseApp = M.eval modules
       compileTx context = do
         let router = M.txRouter context modules
-        compileToBaseApp . (M.runRouter $ preComposeAnteHandler anteHandler router)
+        compileToBaseApp . (M.runRouter $ preComposePostAnteHandler nonceUpdater $ preComposeAnteHandler anteHandler router)
       txRouter context =
         either (throwSDKError . ParseError) (compileTx context . PreRoutedTx) . parseTx signatureAlgP
       queryRouter = compileToBaseApp . M.queryRouter modules
@@ -184,7 +207,8 @@ makeHandlers HandlersContext{..} =
 
 makeApp
   :: forall alg ms r core.
-     Members [Error AppError, Embed IO] r
+     Members A.AuthEffs r
+  => Members [Error AppError, Embed IO] r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r
