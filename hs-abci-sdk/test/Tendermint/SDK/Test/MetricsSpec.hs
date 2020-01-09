@@ -40,17 +40,17 @@ spec = describe "Metrics tests" $ do
     state@MetricsState{..} <- emptyState
     -- Creates new count and sets it to 1
     _ <- eval state $ incCount countName
-    newCtrIndex <- readMVar metricsCounters
+    newCtrIndex <- readMVar _metricsCounters
     newCtrValue <- Counter.sample $ newCtrIndex ! cid
     Counter.unCounterSample newCtrValue `shouldBe` 1
     -- register should contain new counter metric
-    newRegistrySample <- Registry.sample metricsRegistry
+    newRegistrySample <- Registry.sample _metricsRegistry
     let registryMap = RSample.unRegistrySample newRegistrySample
         (Metric.CounterMetricSample registryCtrSample) = registryMap ! cMetricId
     Counter.unCounterSample registryCtrSample `shouldBe` 1
     -- increment it again
     _ <- eval state $ incCount countName
-    incCtrIndex <- readMVar metricsCounters
+    incCtrIndex <- readMVar _metricsCounters
     incCtrValue <- Counter.sample $ incCtrIndex ! cid
     Counter.unCounterSample incCtrValue `shouldBe` 2
 
@@ -62,7 +62,7 @@ spec = describe "Metrics tests" $ do
     -- time an action
     _ <- eval state $ withTimer buckettedHistName shine
     -- check registry hist buckets
-    newRegistrySample <- Registry.sample metricsRegistry
+    newRegistrySample <- Registry.sample _metricsRegistry
     let registryMap = RSample.unRegistrySample newRegistrySample
         (Metric.HistogramMetricSample registryHistSample) = registryMap ! buckettedHMetricId
         histBuckets = Histogram.histBuckets registryHistSample
