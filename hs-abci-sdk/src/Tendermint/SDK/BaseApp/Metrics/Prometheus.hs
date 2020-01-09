@@ -4,8 +4,10 @@ module Tendermint.SDK.BaseApp.Metrics.Prometheus
   ( -- config and setup
     MetricsScrapingConfig(..)
   , prometheusPort
-  , dataDogApiKey
   , MetricsState(..)
+  , metricsRegistry
+  , metricsCounters
+  , metricsHistograms
   , PrometheusEnv(..)
   , envMetricsState
   , envMetricsScrapingConfig
@@ -59,10 +61,11 @@ import           Tendermint.SDK.BaseApp.Metrics                (CountName (..), 
 type MetricsMap a = Map (Text, MetricId.Labels) a
 
 data MetricsState = MetricsState
-  { metricsRegistry   :: Registry.Registry
-  , metricsCounters   :: MVar (MetricsMap Counter.Counter)
-  , metricsHistograms :: MVar (MetricsMap Histogram.Histogram)
+  { _metricsRegistry   :: Registry.Registry
+  , _metricsCounters   :: MVar (MetricsMap Counter.Counter)
+  , _metricsHistograms :: MVar (MetricsMap Histogram.Histogram)
   }
+makeLenses ''MetricsState
 
 -- | Intermediary prometheus registry index key
 data MetricIdentifier = MetricIdentifier
@@ -116,7 +119,6 @@ metricIdStorable c = (fixMetricName $ metricIdName c, fixMetricLabels $ metricId
 -- | Core metrics config
 data MetricsScrapingConfig = MetricsScrapingConfig
   { _prometheusPort :: Int
-  , _dataDogApiKey  :: Text
   }
 
 makeLenses ''MetricsScrapingConfig
@@ -143,7 +145,7 @@ forkMetricsServer metCfg = liftIO $
   let PrometheusEnv{..} = metCfg
       port = _prometheusPort $ _envMetricsScrapingConfig
       MetricsState{..} = _envMetricsState
-  in forkIO $ Http.serveHttpTextMetrics port ["metrics"] (Registry.sample metricsRegistry)
+  in forkIO $ Http.serveHttpTextMetrics port ["metrics"] (Registry.sample _metricsRegistry)
 
 --------------------------------------------------------------------------------
 -- eval
@@ -184,11 +186,11 @@ evalMetrics state@MetricsState{..} = do
       let c@MetricIdentifier{..} = countToIdentifier ctrName
           cid = metricIdStorable c
           cMetricIdName = MetricId.Name metricIdName
-      liftIO $ modifyMVar_ metricsCounters $ \counterMap ->
+      liftIO $ modifyMVar_ _metricsCounters $ \counterMap ->
         case Map.lookup cid counterMap of
           Nothing -> do
             newCtr <- liftIO $
-              Registry.registerCounter cMetricIdName metricIdLabels metricsRegistry
+              Registry.registerCounter cMetricIdName metricIdLabels _metricsRegistry
             let newCounterMap = insert cid newCtr counterMap
             liftIO $ Counter.inc newCtr
             pure newCounterMap
@@ -214,11 +216,11 @@ observeHistogram MetricsState{..} histName val = liftIO $ do
   let h@MetricIdentifier{..} = histogramToIdentifier histName
       hid = metricIdStorable h
       hMetricIdName = MetricId.Name metricIdName
-  modifyMVar_ metricsHistograms $ \histMap ->
+  modifyMVar_ _metricsHistograms $ \histMap ->
     case Map.lookup hid histMap of
       Nothing -> do
         newHist <-
-          Registry.registerHistogram hMetricIdName metricIdLabels metricIdHistoBuckets metricsRegistry
+          Registry.registerHistogram hMetricIdName metricIdLabels metricIdHistoBuckets _metricsRegistry
         let newHistMap = insert hid newHist histMap
         Histogram.observe val newHist
         pure $ newHistMap

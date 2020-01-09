@@ -72,7 +72,6 @@ library:
     - hs-abci-sdk
     - http-client
     - katip
-    - katip-datadog
     - katip-elasticsearch
     - lens
     - memory
