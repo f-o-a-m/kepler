@@ -53,7 +53,6 @@ library:
     - base >= 4.7 && < 5
     - bloodhound
     - bytestring
-    - containers
     - errors
     - hs-abci-extra
     - hs-abci-server
@@ -61,7 +60,6 @@ library:
     - hs-abci-types
     - http-client
     - katip
-    - katip-datadog
     - katip-elasticsearch
     - lens
     - polysemy

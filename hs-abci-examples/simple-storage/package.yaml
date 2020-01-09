@@ -62,7 +62,6 @@ library:
     - bytestring
     - cereal
     - cereal-text
-    - containers
     - cryptonite
     - errors
     - hs-abci-extra
