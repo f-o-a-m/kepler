@@ -1,6 +1,7 @@
 module Nameservice.Test.E2ESpec (spec) where
 
 import           Control.Lens                         ((^.))
+import           Control.Monad                        (void)
 import           Data.Default.Class                   (def)
 import           Data.Proxy
 import           Nameservice.Modules.Nameservice      (BuyName (..),
@@ -44,8 +45,9 @@ spec = do
       privateKey1 = userPrivKey user1
       addr2 = userAddress user2
       privateKey2 = userPrivKey user2
+      faucetAmount = 1000
 
-  beforeAll (do faucetAccount user1; faucetAccount user2) $
+  beforeAll (do faucetAccount user1 faucetAmount; faucetAccount user2 faucetAmount) $
     describe "Nameservice Spec" $ do
       it "Can query /health to make sure the node is alive" $ do
         resp <- runRPC RPC.health
@@ -53,8 +55,7 @@ spec = do
 
       it "Can query account balances" $ do
         let queryReq = defaultQueryWithData addr1
-        foundAmount <- getQueryResponseSuccess $ getBalance queryReq
-        foundAmount `shouldBe` Amount 1000
+        void $ getQueryResponseSuccess $ getBalance queryReq
 
       it "Can create a name (success 0)" $ do
         let val = "hello world"
@@ -100,9 +101,13 @@ spec = do
         ensureCheckAndDeliverResponseCodes (0,2) rawTx
 
       it "Can buy an existing name (success 0)" $ do
-        let newVal = "hello (again) world"
-            msg = TypedMessage "BuyName" (encode $ BuyName 300 satoshi newVal addr2)
-            claimedLog = NameClaimed addr2 satoshi newVal 300
+        balance1 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
+        balance2 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr2
+        Whois{whoisPrice} <- getQueryResponseSuccess $ getWhois $ defaultQueryWithData satoshi
+        let purchaseAmount = whoisPrice + 1
+            newVal = "hello (again) world"
+            msg = TypedMessage "BuyName" (encode $ BuyName purchaseAmount satoshi newVal addr2)
+            claimedLog = NameClaimed addr2 satoshi newVal purchaseAmount
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
@@ -110,14 +115,14 @@ spec = do
         -- check for updated balances - seller: addr1, buyer: addr2
         let sellerQueryReq = defaultQueryWithData addr1
         sellerFoundAmount <- getQueryResponseSuccess $ getBalance sellerQueryReq
-        sellerFoundAmount `shouldBe` Amount 1300
+        sellerFoundAmount `shouldBe` (balance1 + purchaseAmount)
         let buyerQueryReq = defaultQueryWithData addr2
         buyerFoundAmount <- getQueryResponseSuccess $ getBalance buyerQueryReq
-        buyerFoundAmount `shouldBe` Amount 700
+        buyerFoundAmount `shouldBe` (balance2 - purchaseAmount)
         -- check for ownership changes
         let queryReq = defaultQueryWithData satoshi
         foundWhois <- getQueryResponseSuccess $ getWhois queryReq
-        foundWhois `shouldBe` Whois "hello (again) world" addr2 300
+        foundWhois `shouldBe` Whois "hello (again) world" addr2 purchaseAmount
 
       -- @NOTE: this is possibly a problem with the go application too
       -- https://cosmos.network/docs/tutorial/buy-name.html#msg
@@ -201,10 +206,10 @@ user2 = makeUser "f65242094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e03
 
 --------------------------------------------------------------------------------
 
-faucetAccount :: User -> IO ()
-faucetAccount User{userAddress, userPrivKey} = do
-  let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress 1000)
-      faucetEvent = Faucetted userAddress 1000
+faucetAccount :: User -> Amount -> IO ()
+faucetAccount User{userAddress, userPrivKey} amount = do
+  let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress amount)
+      faucetEvent = Faucetted userAddress amount
       rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey msg
   deliverResp <- getDeliverTxResponse rawTx
   ensureDeliverResponseCode deliverResp 0
