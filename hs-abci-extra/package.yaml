@@ -45,6 +45,8 @@ library:
     - katip
     - hs-abci-server
     - hs-abci-types
+    - prometheus
+    - string-conversions
     - time
     - transformers
   ghc-options:
