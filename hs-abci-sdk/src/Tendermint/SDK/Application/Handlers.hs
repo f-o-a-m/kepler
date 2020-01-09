@@ -78,11 +78,11 @@ data HandlersContext alg ms r core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.Modules ms r
   , compileToCore :: forall a. BA.ScopedEff core a -> Sem core a
-  , anteHandlers  :: AnteHandler r
+  , anteHandler   :: AnteHandler r
   }
 
 data AnteHandler r where
-  AnteHandler :: forall msg r. (PreRoutedTx msg -> Sem r ()) -> AnteHandler r
+  AnteHandler :: (forall msg. PreRoutedTx msg -> Sem r ()) -> AnteHandler r
 
 nonceChecker
   :: Members A.AuthEffs r
@@ -104,6 +104,9 @@ baseAppAnteHandler
   => AnteHandler r
 baseAppAnteHandler = nonceChecker
 
+runAnteHandler :: AnteHandler r -> PreRoutedTx msg -> Sem r ()
+runAnteHandler (AnteHandler f) = f
+
 -- Common function between checkTx and deliverTx
 makeHandlers
   :: forall alg ms r core.
@@ -122,7 +125,9 @@ makeHandlers HandlersContext{..} =
   let
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
-      compileTx context = compileToBaseApp . M.txRouter context modules
+      compileTx context preRoutedTx = do
+        runAnteHandler anteHandler preRoutedTx
+        compileToBaseApp . M.txRouter context modules $ preRoutedTx
       txRouter context =
         either (throwSDKError . ParseError) (compileTx context . PreRoutedTx) . parseTx signatureAlgP
       queryRouter = compileToBaseApp . M.queryRouter modules
