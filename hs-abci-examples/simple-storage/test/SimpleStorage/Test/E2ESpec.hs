@@ -4,6 +4,7 @@ import           Control.Lens                         ((^.))
 import qualified Data.ByteArray.Base64String          as Base64
 import           Data.Default.Class                   (def)
 import           Data.Proxy
+import           Data.Word                            (Word64)
 import qualified Network.ABCI.Types.Messages.Response as Resp
 import qualified Network.Tendermint.Client            as RPC
 import           Servant.API                          ((:<|>) (..), (:>))
@@ -16,8 +17,7 @@ import qualified Tendermint.SDK.Modules.Auth          as Auth
 import           Tendermint.SDK.Types.Address         (Address (..))
 import           Tendermint.Utils.Client              (ClientResponse (..),
                                                        HasClient (..))
-import           Tendermint.Utils.Request             (getQueryResponseSuccess,
-                                                       runRPC)
+import           Tendermint.Utils.Request             (runRPC)
 import           Tendermint.Utils.User                (User (..), makeUser, mkSignedRawTransactionWithRoute)
 import           Test.Hspec
 
@@ -39,9 +39,8 @@ spec = do
     --  foundCount `shouldBe` SS.Count 0
 
     it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
-      acc1 <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData (userAddress user1)
+      nonce <- getAccountNonce $ userAddress user1
       let txMsg = SS.UpdateCount $ SS.UpdateCountTx "irakli" 4
-          nonce = accountNonce acc1
           tx = mkSignedRawTransactionWithRoute "simple_storage" (userPrivKey user1) nonce txMsg
           txReq = RPC.RequestBroadcastTxCommit
                     { RPC.requestBroadcastTxCommitTx = Base64.fromBytes . encode $ tx
@@ -60,6 +59,14 @@ spec = do
       foundCount `shouldBe` SS.Count 4
 
 --------------------------------------------------------------------------------
+
+getAccountNonce :: Address -> IO Word64
+getAccountNonce userAddress = do
+  let query = getAccount $ defaultQueryWithData userAddress
+  ClientResponse{clientResponseData} <- runRPC query
+  case clientResponseData of
+    Nothing                     -> return 0
+    Just Account {accountNonce} -> return accountNonce
 
 getCount :: QueryArgs SS.CountKey -> RPC.TendermintM (ClientResponse SS.Count)
 getAccount :: QueryArgs Address -> RPC.TendermintM (ClientResponse Account)

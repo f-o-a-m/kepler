@@ -3,6 +3,7 @@ module Nameservice.Test.E2ESpec (spec) where
 import           Control.Lens                         ((^.))
 import           Data.Default.Class                   (def)
 import           Data.Proxy
+import           Data.Word                            (Word64)
 import           Nameservice.Modules.Nameservice      (BuyName (..),
                                                        DeleteName (..),
                                                        Name (..),
@@ -59,11 +60,10 @@ spec = do
         foundAmount `shouldBe` Amount 1000
 
       it "Can create a name (success 0)" $ do
-        acc1 <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData addr1
+        nonce <- getAccountNonce addr1
         let val = "hello world"
             msg = TypedMessage "BuyName" (encode $ BuyName 0 satoshi val addr1)
             claimedLog = NameClaimed addr1 satoshi val 0
-            nonce = accountNonce acc1
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 nonce msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
@@ -84,12 +84,11 @@ spec = do
         clientResponseData `shouldBe` Nothing
 
       it "Can set a name value (success 0)" $ do
-        acc1 <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData addr1
+        nonce <- getAccountNonce addr2
         let oldVal = "hello world"
             newVal = "goodbye to a world"
             msg = TypedMessage "SetName" (encode $ SetName satoshi addr1 newVal)
             remappedLog = NameRemapped satoshi oldVal newVal
-            nonce = accountNonce acc1
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 nonce msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
@@ -100,19 +99,17 @@ spec = do
         foundWhois `shouldBe` Whois "goodbye to a world" addr1 0
 
       it "Can fail to set a name (failure 2)" $ do
-        acc2 <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData addr2
+        nonce <- getAccountNonce addr2
         -- try to set a name without being the owner
         let msg = TypedMessage "SetName" (encode $ SetName satoshi addr2 "goodbye to a world")
-            nonce = accountNonce acc2
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 nonce msg
         ensureCheckAndDeliverResponseCodes (0,2) rawTx
 
       it "Can buy an existing name (success 0)" $ do
-        acc2 <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData addr2
+        nonce <- getAccountNonce addr2
         let newVal = "hello (again) world"
             msg = TypedMessage "BuyName" (encode $ BuyName 300 satoshi newVal addr2)
             claimedLog = NameClaimed addr2 satoshi newVal 300
-            nonce = accountNonce acc2
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 nonce msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
@@ -132,7 +129,7 @@ spec = do
       -- @NOTE: this is possibly a problem with the go application too
       -- https://cosmos.network/docs/tutorial/buy-name.html#msg
       it "Can buy self-owned names and make a profit (success 0)" $ do
-        acc2 <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData addr2
+        nonce <- getAccountNonce addr2
         -- check balance before
         let queryReq = defaultQueryWithData addr2
         beforeBuyAmount <- getQueryResponseSuccess $ getBalance queryReq
@@ -140,7 +137,6 @@ spec = do
         let val = "hello (again) world"
             msg = TypedMessage "BuyName" (encode $ BuyName 500 satoshi val addr2)
             claimedLog = NameClaimed addr2 satoshi val 500
-            nonce = accountNonce acc2
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 nonce msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
@@ -151,18 +147,16 @@ spec = do
         afterBuyAmount `shouldSatisfy` (> beforeBuyAmount)
 
       it "Can fail to buy a name (failure 1)" $ do
-        acc1 <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData addr1
+        nonce <- getAccountNonce addr1
         -- try to buy at a lower price
         let msg = TypedMessage "BuyName" (encode $ BuyName 100 satoshi "hello (again) world" addr1)
-            nonce = accountNonce acc1
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 nonce msg
         ensureCheckAndDeliverResponseCodes (0,1) rawTx
 
       it "Can delete names (success 0)" $ do
-        acc2 <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData addr2
+        nonce <- getAccountNonce addr2
         let msg = TypedMessage "DeleteName" (encode $ DeleteName addr2 satoshi)
             deletedLog = NameDeleted satoshi
-            nonce = accountNonce acc2
             rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 nonce msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
@@ -176,17 +170,16 @@ spec = do
         clientResponseData `shouldBe` Nothing
 
       it "Can fail a transfer (failure 1)" $ do
-        acc2 <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData addr2
+        nonce <- getAccountNonce addr2
         let senderBeforeQueryReq = defaultQueryWithData addr2
         addr2Balance <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
         let tooMuchToTransfer = addr2Balance + 1
             msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 tooMuchToTransfer)
-            nonce = accountNonce acc2
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 nonce msg
         ensureCheckAndDeliverResponseCodes (0,1) rawTx
 
       it "Can transfer (success 0)" $ do
-        acc1 <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData addr1
+        nonce <- getAccountNonce addr1
         balance1 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
         balance2 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr2
         let transferAmount = 1
@@ -201,7 +194,6 @@ spec = do
               , transferEventTo = addr2
               , transferEventFrom = addr1
               }
-            nonce = accountNonce acc1
             rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 nonce msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
@@ -213,6 +205,7 @@ spec = do
         balance2' `shouldBe` balance2 + transferAmount
 
 --------------------------------------------------------------------------------
+
 user1 :: User
 user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
 
@@ -221,12 +214,20 @@ user2 = makeUser "f65242094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e03
 
 --------------------------------------------------------------------------------
 
+getAccountNonce :: Address -> IO Word64
+getAccountNonce userAddress = do
+  let query = getAccount $ defaultQueryWithData userAddress
+  ClientResponse{clientResponseData} <- runRPC query
+  case clientResponseData of
+    Nothing                     -> return 0
+    Just Account {accountNonce} -> return accountNonce
+
 faucetAccount :: User -> IO ()
 faucetAccount User{userAddress, userPrivKey} = do
-  Account{accountNonce} <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData userAddress
+  nonce <- getAccountNonce userAddress
   let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress 1000)
       faucetEvent = Faucetted userAddress 1000
-      rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey accountNonce msg
+      rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey nonce msg
   deliverResp <- getDeliverTxResponse rawTx
   ensureDeliverResponseCode deliverResp 0
   ensureEventLogged deliverResp "Faucetted" faucetEvent

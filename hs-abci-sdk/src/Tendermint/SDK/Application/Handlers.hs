@@ -13,6 +13,7 @@ import           Crypto.Hash.Algorithms               (SHA256)
 import qualified Data.ByteArray.Base64String          as Base64
 import           Data.Default.Class                   (Default (..))
 import           Data.Proxy
+import           Data.String.Conversions              (cs)
 import           Network.ABCI.Server.App              (App (..),
                                                        MessageType (..),
                                                        Request (..),
@@ -94,9 +95,10 @@ nonceChecker = AnteHandler $ \(PreRoutedTx Tx{txNonce, txMsg}) -> do
   case mAcnt of
     Nothing -> pure ()
     Just A.Account{accountNonce} ->
-      if accountNonce < txNonce
+      if accountNonce == txNonce
       then pure ()
-      else throwSDKError $ NonceException "Failed nonce check."
+      else
+        throwSDKError $ NonceException . cs $ "accountNonce " <> show accountNonce <> " txNonce " <> show txNonce
 
 baseAppAnteHandler
   :: Members A.AuthEffs r
@@ -114,8 +116,8 @@ nonceUpdater
   => AnteHandler r
 nonceUpdater = AnteHandler $ \(PreRoutedTx Tx{txMsg}) -> do
   let Msg{msgAuthor} = txMsg
-  A.modifyAccount msgAuthor $ \A.Account {..} ->
-    A.Account accountCoins (accountNonce + 1)
+  A.modifyAccount msgAuthor $ \acc ->
+    acc { A.accountNonce = A.accountNonce acc + 1}
 
 -- Common function between checkTx and deliverTx
 makeHandlers
