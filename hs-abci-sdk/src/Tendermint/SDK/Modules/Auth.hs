@@ -3,6 +3,7 @@ module Tendermint.SDK.Modules.Auth
   , authModule
 
   , AuthEffs
+  , Account(..)
   , Accounts(..)
   , getAccount
   , modifyAccount

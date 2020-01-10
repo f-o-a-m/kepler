@@ -11,17 +11,16 @@ import           Data.Maybe                       (fromJust)
 import           Data.Proxy
 import           Data.String                      (fromString)
 import           Data.String.Conversions          (cs)
+import           Data.Word                        (Word64)
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Crypto            (Secp256k1, addressFromPubKey)
 import           Tendermint.SDK.Types.Address     (Address (..))
 import           Tendermint.SDK.Types.Transaction (RawTransaction (..),
                                                    signRawTransaction)
--- import Data.Word (Word64)
 
 data User = User
   { userPrivKey :: SecKey
   , userAddress :: Address
-  -- , userNonce   :: Word64
   }
 
 makeUser :: String -> User
@@ -35,13 +34,13 @@ algProxy :: Proxy Secp256k1
 algProxy = Proxy
 
 -- sign a trx with a user's private key
-mkSignedRawTransactionWithRoute :: HasCodec a => BS.ByteString -> SecKey -> a -> RawTransaction
-mkSignedRawTransactionWithRoute route privateKey msg = sign unsigned
+mkSignedRawTransactionWithRoute :: HasCodec a => BS.ByteString -> SecKey -> Word64 -> a -> RawTransaction
+mkSignedRawTransactionWithRoute route privateKey nonce msg = sign unsigned
   where unsigned = RawTransaction { rawTransactionData = encode msg
                                   , rawTransactionRoute = cs route
                                   , rawTransactionSignature = ""
                                   , rawTransactionGas = 0
-                                  , rawTransactionNonce = 0
+                                  , rawTransactionNonce = nonce
                                   }
         sig = signRawTransaction algProxy privateKey unsigned
         sign rt = rt { rawTransactionSignature = encodeCompactRecSig $ exportCompactRecSig sig }
