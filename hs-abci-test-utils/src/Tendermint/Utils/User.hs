@@ -16,10 +16,12 @@ import           Tendermint.SDK.Crypto            (Secp256k1, addressFromPubKey)
 import           Tendermint.SDK.Types.Address     (Address (..))
 import           Tendermint.SDK.Types.Transaction (RawTransaction (..),
                                                    signRawTransaction)
+-- import Data.Word (Word64)
 
 data User = User
   { userPrivKey :: SecKey
   , userAddress :: Address
+  -- , userNonce   :: Word64
   }
 
 makeUser :: String -> User

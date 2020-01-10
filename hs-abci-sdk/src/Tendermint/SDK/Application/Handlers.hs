@@ -39,6 +39,7 @@ import           Tendermint.SDK.Types.Transaction     (PreRoutedTx (..),
                                                        Tx (..), parseTx)
 import           Tendermint.SDK.Types.TxResult        (checkTxTxResult,
                                                        deliverTxTxResult)
+import Data.ByteString (ByteString)
 
 type Handler mt r = Request mt -> Sem r (Response mt)
 
@@ -96,7 +97,7 @@ nonceChecker = AnteHandler $ \(PreRoutedTx Tx{txNonce, txMsg}) -> do
     Just A.Account{accountNonce} ->
       if accountNonce < txNonce
       then pure ()
-      else throwSDKError NonceException
+      else throwSDKError $ NonceException "Failed nonce check."
 
 baseAppAnteHandler
   :: Members A.AuthEffs r
@@ -109,27 +110,33 @@ preComposeAnteHandler (AnteHandler runAnte) router = M.Router $ \preRoutedTx -> 
   runAnte preRoutedTx
   M.runRouter router preRoutedTx
 
-data PostAnteHandler r where
-  PostAnteHandler :: (forall msg. PreRoutedTx msg -> Sem r (PreRoutedTx msg)) -> PostAnteHandler r
-
 nonceUpdater
   :: Members A.AuthEffs r
-  => Member (Error AppError) r
-  => PostAnteHandler r
-nonceUpdater = PostAnteHandler $ \(PreRoutedTx tx@Tx{txMsg}) -> do
+  => AnteHandler r
+nonceUpdater = AnteHandler $ \(PreRoutedTx Tx{txMsg}) -> do
   let Msg{msgAuthor} = txMsg
   A.modifyAccount msgAuthor $ \(A.Account {..}) ->
     A.Account accountCoins (accountNonce + 1)
+
+-- very very specific
+data TxHandler r where
+  TxHandler :: (PreRoutedTx ByteString-> Sem r (PreRoutedTx ByteString)) -> TxHandler r
+
+preComposeTxHandler :: TxHandler r -> M.Router r ByteString -> M.Router r ByteString
+preComposeTxHandler (TxHandler runPreTxHandler) router = M.Router $ \preRoutedTx -> do
+  newTx <- runPreTxHandler preRoutedTx
+  M.runRouter router newTx
+
+txNonceUpdater
+  :: Members A.AuthEffs r
+  => TxHandler r
+txNonceUpdater = TxHandler $ \preRoutedTx@(PreRoutedTx tx@Tx{txMsg}) -> do
+  let Msg{msgAuthor} = txMsg
   mAcnt <- A.getAccount msgAuthor
   case mAcnt of
-    Nothing -> throwSDKError NonceException
-    Just acnt ->
-      pure . PreRoutedTx $ tx { txNonce = A.accountNonce acnt }
-
-preComposePostAnteHandler :: PostAnteHandler r -> M.Router r msg -> M.Router r msg
-preComposePostAnteHandler (PostAnteHandler runAnte) router = M.Router $ \preRoutedTx -> do
-  newTx <- runAnte preRoutedTx
-  M.runRouter router newTx
+    Nothing -> pure preRoutedTx
+    Just A.Account{accountNonce} -> do
+      pure . PreRoutedTx $ tx { txNonce = accountNonce }
 
 -- Common function between checkTx and deliverTx
 makeHandlers
@@ -150,9 +157,16 @@ makeHandlers HandlersContext{..} =
   let
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
-      compileTx context = do
+      compileTx context =
         let router = M.txRouter context modules
-        compileToBaseApp . (M.runRouter $ preComposePostAnteHandler nonceUpdater $ preComposeAnteHandler anteHandler router)
+            cRouter =
+              -- 2. update nonce
+              preComposeAnteHandler nonceUpdater .
+              -- 1. run anteHandlers (maybe check nonce)
+              preComposeAnteHandler anteHandler .
+              -- 0. put the right nonce from the user address???
+              preComposeTxHandler txNonceUpdater $ router
+        in compileToBaseApp . M.runRouter cRouter
       txRouter context =
         either (throwSDKError . ParseError) (compileTx context . PreRoutedTx) . parseTx signatureAlgP
       queryRouter = compileToBaseApp . M.queryRouter modules
