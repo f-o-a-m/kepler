@@ -29,16 +29,19 @@ services:
     restart: always
     depends_on:
       - elk
-      - datadog
     expose:
       - "26658"
-      - "5555"
+      - "5555:5555"
   datadog:
     image: datadog/agent:latest
+    depends_on:
+      - nameservice
+    restart: always
     environment:
      - DD_API_KEY=${DD_API_KEY}
     volumes:
-     - conf.d/openmetrics.d:/etc/datadog-agent/conf.d/openmetrics.d
+     - /proc/:/host/proc/:ro
+     - ./conf.d/openmetrics.d:/etc/datadog-agent/conf.d/openmetrics.d
   elk:
     image: sebp/elk:683
     ports:

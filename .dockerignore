@@ -3,3 +3,4 @@
 **/.stack
 **/stack.yaml.lock
 **/.git
+hs-abci-examples/nameservice/conf.d

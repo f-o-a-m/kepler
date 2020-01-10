@@ -3,7 +3,7 @@
 init_config:
 
 instances:
-  - prometheus_url: http://nameservice:9200/metrics
+  - prometheus_url: http://nameservice:5555/metrics
     ## namespace option prefixes all metric names in datadog
     namespace: nameservice
     ## metrics names used in the nameservice app
