@@ -79,7 +79,7 @@ data SDKError =
   | OutOfGasException
   | MessageValidation [Text]
   | SignatureRecoveryError Text
-  | NonceException
+  | NonceException Text
 
 -- | As of right now it's not expected that one can recover from an 'SDKError',
 -- | so we are throwing them as 'AppError's directly.
@@ -125,8 +125,8 @@ instance IsAppError SDKError where
     , appErrorMessage = "Signature Recovery Error: " <> msg
     }
 
-  makeAppError NonceException = AppError
+  makeAppError (NonceException msg) = AppError
     { appErrorCode = 7
     , appErrorCodespace = "sdk"
-    , appErrorMessage = "Unexpected nonce value in transaction."
+    , appErrorMessage = "Unexpected nonce value in transaction: " <> msg
     }
