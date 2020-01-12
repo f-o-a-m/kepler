@@ -65,10 +65,10 @@ deploy-simple-storage-docker: install ## run the simple storage docker network
 	docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml up --build
 
 deploy-nameservice: install ## run the nameservice docker network with elk stack for logging
-	docker-compose -f hs-abci-examples/nameservice/docker-compose-elk.yaml up --build
+	docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml up --build
 
 deploy-nameservice-test: install ## run the nameservice docker network for testing
-	docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml up --build
+	docker-compose -f hs-abci-examples/nameservice/docker-compose-test.yaml up --build
 
 
 #####################
