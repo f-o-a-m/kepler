@@ -68,7 +68,7 @@ evalKatip
 evalKatip = do
   interpretH (\case
     Log severity msg -> do
-      raise $ K.localKatipNamespace (<> "application") $
+      raise $
         K.logFM (coerceSeverity severity) (fromString . cs $ msg)
       pureT ()
     AddContext obj action -> do

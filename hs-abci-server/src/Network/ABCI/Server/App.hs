@@ -1,5 +1,19 @@
-
-module Network.ABCI.Server.App where
+module Network.ABCI.Server.App
+  ( App(..)
+  , runApp
+  , transformApp
+  , withProto
+  , Middleware
+  , MessageType(..)
+  , demoteRequestType
+  , msgTypeKey
+  , Request(..)
+  , hashRequest
+  , Response(..)
+  , LPByteStrings(..)
+  , decodeLengthPrefix
+  , encodeLengthPrefix
+  ) where
 
 import           Control.Lens                         ((?~), (^.))
 import           Control.Lens.Wrapped                 (Wrapped (..),
@@ -26,6 +40,10 @@ import qualified Network.ABCI.Server.App.DecodeError  as DecodeError
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 
+import           Crypto.Hash                          (hashWith)
+import           Crypto.Hash.Algorithms               (SHA256 (..))
+import           Data.ByteArray                       (convert)
+import qualified Data.ByteArray.HexString             as Hex
 import           Data.Default.Class                   (Default (..))
 import           Data.ProtoLens.Message               (Message (defMessage))
 import           Data.ProtoLens.Prism                 (( # ))
@@ -45,6 +63,7 @@ data MessageType
   | MTDeliverTx
   | MTEndBlock
   | MTCommit
+  deriving (Eq, Ord, Enum)
 
 msgTypeKey :: MessageType -> String
 msgTypeKey m = case m of
@@ -60,7 +79,21 @@ msgTypeKey m = case m of
   MTEndBlock   -> "endBlock"
   MTCommit     -> "commit"
 
-reqParseJSON :: FromJSON inner => MessageType -> (inner -> Request t) -> Value -> Parser (Request t)
+demoteRequestType :: forall (t :: MessageType). Request t -> MessageType
+demoteRequestType req = case req of
+  RequestEcho _       -> MTEcho
+  RequestInfo _       -> MTInfo
+  RequestSetOption _  -> MTSetOption
+  RequestQuery _      -> MTQuery
+  RequestCheckTx _    -> MTCheckTx
+  RequestFlush _      -> MTFlush
+  RequestInitChain _  -> MTInitChain
+  RequestBeginBlock _ -> MTBeginBlock
+  RequestDeliverTx _  -> MTDeliverTx
+  RequestEndBlock _   -> MTEndBlock
+  RequestCommit _     -> MTCommit
+
+reqParseJSON :: forall t inner. FromJSON inner => MessageType -> (inner -> Request t) -> Value -> Parser (Request t)
 reqParseJSON msgType ctr = withObject ("req:" <> expectedType) $ \v -> do
   actualType <- v .: "type"
   if actualType == expectedType
@@ -138,6 +171,24 @@ instance FromJSON (Request 'MTDeliverTx) where parseJSON = reqParseJSON MTDelive
 instance FromJSON (Request 'MTEndBlock) where parseJSON = reqParseJSON MTEndBlock RequestEndBlock
 instance FromJSON (Request 'MTCommit) where parseJSON = reqParseJSON MTCommit RequestCommit
 
+hashRequest
+  :: forall (t :: MessageType).
+     Request t
+  -> Hex.HexString
+hashRequest req =
+  let requestBytes :: BS.ByteString = case req of
+        RequestEcho v       -> PL.encodeMessage $ v ^. _Wrapped'
+        RequestFlush v      -> PL.encodeMessage $ v ^. _Wrapped'
+        RequestInfo v       -> PL.encodeMessage $ v ^. _Wrapped'
+        RequestSetOption v  -> PL.encodeMessage $ v ^. _Wrapped'
+        RequestInitChain v  -> PL.encodeMessage $ v ^. _Wrapped'
+        RequestQuery v      -> PL.encodeMessage $ v ^. _Wrapped'
+        RequestBeginBlock v -> PL.encodeMessage $ v ^. _Wrapped'
+        RequestCheckTx v    -> PL.encodeMessage $ v ^. _Wrapped'
+        RequestDeliverTx v  -> PL.encodeMessage $ v ^. _Wrapped'
+        RequestEndBlock v   -> PL.encodeMessage $ v ^. _Wrapped'
+        RequestCommit v     -> PL.encodeMessage $ v ^. _Wrapped'
+  in Hex.fromBytes @BS.ByteString . convert $ hashWith SHA256 requestBytes
 
 withProto
   :: (forall (t :: MessageType). Request t -> a)

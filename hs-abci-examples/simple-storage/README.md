@@ -4,6 +4,15 @@ The example application is meant to test all of the other hs-abci libraries and 
 It's a simple application called **Simple Storage** that maintains a shared 32-byte integer and
 allows users to update and query the count.
 
+## Environment Variables
+- LOG_SEVERITY (defaults to **info**) : minimum log severtiy level {debug, info, notice, warning, error, critical, alert, emergency}
+- LOG_VERBOSITY (defaults to **0**) : for each loggable data point, the level of information actually logged {0, 1, 2, 3}
+- ES_HOST (optional) : hostname of the elasticsearch instance for logging
+- ES_PORT (optional) : port number of elasticsearch instance for logging
+- STATS_PORT (optional) : port to run the prometheus metrics server.
+
+**NOTE** If you do not provide both of the elasticsearch variables, the logger will default to logging to the console.
+
 ## Running with Docker
 There is a `docker-compose.yaml` file in this directory. If you use the `make` command from the project root
 

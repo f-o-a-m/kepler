@@ -17,17 +17,22 @@ services:
     ports:
       - "26656-26657:26656-26657"
   nameservice:
+    entrypoint: /usr/local/bin/nameservice
     build:
       context: ../../.
       dockerfile: Dockerfile
     image: hs-abci:test
     environment:
-     - STATS_PORT=9200
+     - ES_HOST=elk
+     - ES_PORT=9200
+     - STATS_PORT=5555
     restart: always
-    entrypoint: /usr/local/bin/nameservice
+    depends_on:
+      - elk
+      - datadog
     expose:
       - "26658"
-      - "9200"
+      - "5555"
   datadog:
     image: datadog/agent:latest
     volumes:
@@ -37,6 +42,15 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["openmetrics"]'
       com.datadoghq.ad.init_configs: '["{}"]'
-      com.datadoghq.ad.instances: '["{\"prometheus_url\":\"http://%%host%%:9200/metrics \",\"namespace\":\"nameservice\",\"metrics\":[\"count_buy\" \"count_set\" \"count_delete\" \"histogram_buy*\" \"histogram_set*\" \"histogram_delete*\"]}"]'
+      com.datadoghq.ad.instances: '["{\"prometheus_url\":\"http://%%host%%:5555/metrics \",\"namespace\":\"nameservice\",\"metrics\":[\"count_buy\" \"count_set\" \"count_delete\" \"histogram_buy*\" \"histogram_set*\" \"histogram_delete*\"]}"]'
+  elk:
+    image: sebp/elk:683
+    ports:
+      - "5601:5601"
+      - "9200:9200"
+      - "5044:5044"
+    expose:
+      - "9200"
+      - "5601"
 volumes:
   tendermint-storage:
