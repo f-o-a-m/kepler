@@ -17,39 +17,16 @@ services:
     ports:
       - "26656-26657:26656-26657"
   nameservice:
-    entrypoint: /usr/local/bin/nameservice
     build:
       context: ../../.
       dockerfile: Dockerfile
     image: hs-abci:test
     environment:
-     - ES_HOST=elk
-     - ES_PORT=9200
-     - STATS_PORT=5555
+     - STATS_PORT=9200
     restart: always
-    depends_on:
-      - elk
+    entrypoint: /usr/local/bin/nameservice
     expose:
       - "26658"
-      - "5555:5555"
-  datadog:
-    image: datadog/agent:latest
-    depends_on:
-      - nameservice
-    restart: always
-    environment:
-     - DD_API_KEY=${DD_API_KEY}
-    volumes:
-     - /proc/:/host/proc/:ro
-     - ./conf.d/openmetrics.d:/etc/datadog-agent/conf.d/openmetrics.d
-  elk:
-    image: sebp/elk:683
-    ports:
-      - "5601:5601"
-      - "9200:9200"
-      - "5044:5044"
-    expose:
       - "9200"
-      - "5601"
 volumes:
   tendermint-storage:
