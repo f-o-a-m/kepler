@@ -4,6 +4,8 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   ( RawStore(..)
   , RawKey(..)
   , IsKey(..)
+  , RawStoreKey(..)
+  , makeRawKey
   , StoreKey(..)
   , get
   , put
@@ -29,13 +31,19 @@ import           Tendermint.SDK.Codec          (HasCodec (..))
 import           Tendermint.SDK.Types.Address  (Address, addressFromBytes,
                                                 addressToBytes)
 
-newtype StoreKey n = StoreKey BS.ByteString
+data RawStoreKey = RawStoreKey
+  { rsStoreKey :: BS.ByteString
+  , rsKey      :: BS.ByteString
+  }
+
+makeRawKey :: RawStoreKey -> BS.ByteString
+makeRawKey RawStoreKey{..} = rsStoreKey <> rsKey
 
 data RawStore m a where
-  RawStorePut   :: StoreKey ns -> BS.ByteString -> BS.ByteString -> RawStore m ()
-  RawStoreGet   :: StoreKey ns -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
-  RawStoreDelete :: StoreKey ns -> BS.ByteString -> RawStore m ()
-  RawStoreProve :: StoreKey ns -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
+  RawStorePut   :: RawStoreKey -> BS.ByteString -> RawStore m ()
+  RawStoreGet   :: RawStoreKey -> RawStore m (Maybe BS.ByteString)
+  RawStoreDelete :: RawStoreKey -> RawStore m ()
+  RawStoreProve :: RawStoreKey -> RawStore m (Maybe BS.ByteString)
   RawStoreRoot :: RawStore m BS.ByteString
   RawStoreBeginTransaction :: RawStore m ()
   RawStoreRollback :: RawStore m ()
@@ -49,14 +57,14 @@ class RawKey k where
 instance RawKey Address where
     rawKey = iso addressToBytes addressFromBytes
 
-
 class RawKey k => IsKey k ns where
   type Value k ns = a | a -> ns k
-  prefixWith :: Proxy k -> Proxy ns -> BS.ByteString
+  prefix :: Proxy k -> Proxy ns -> BS.ByteString
 
-  default prefixWith :: Proxy k -> Proxy ns -> BS.ByteString
-  prefixWith _ _ = ""
+  default prefix :: Proxy k -> Proxy ns -> BS.ByteString
+  prefix _ _ = ""
 
+newtype StoreKey ns = StoreKey BS.ByteString
 
 put
   :: forall k r ns.
@@ -67,10 +75,13 @@ put
   -> k
   -> Value k ns
   -> Sem r ()
-put sk k a =
-  let key = prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
+put (StoreKey sk) k a =
+  let key = RawStoreKey
+        { rsStoreKey = sk
+        , rsKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
+        }
       val = encode a
-  in rawStorePut sk key val
+  in rawStorePut key val
 
 get
   :: forall k r ns.
@@ -80,9 +91,12 @@ get
   => StoreKey ns
   -> k
   -> Sem r (Maybe (Value k ns))
-get sk k = do
-  let key = prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
-  mRes <- rawStoreGet sk key
+get (StoreKey sk) k = do
+  let key = RawStoreKey
+        { rsStoreKey = sk
+        , rsKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
+        }
+  mRes <- rawStoreGet key
   case mRes of
     Nothing -> pure Nothing
     Just raw -> case decode raw of
@@ -96,8 +110,12 @@ delete
   => StoreKey ns
   -> k
   -> Sem r ()
-delete sk k = rawStoreDelete sk $
-  prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
+delete (StoreKey sk) k =
+  let key = RawStoreKey
+        { rsStoreKey = sk
+        , rsKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
+        }
+  in rawStoreDelete key
 
 prove
   :: forall k ns r.
@@ -106,8 +124,13 @@ prove
   => StoreKey ns
   -> k
   -> Sem r (Maybe BS.ByteString)
-prove sk k = rawStoreProve sk $
-  prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
+prove (StoreKey sk) k =
+  let key = RawStoreKey
+        { rsStoreKey = sk
+        , rsKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
+        }
+  in rawStoreProve key
+
 
 beginBlock
   :: Member RawStore r
