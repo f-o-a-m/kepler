@@ -13,7 +13,6 @@ import           Crypto.Hash.Algorithms               (SHA256)
 import qualified Data.ByteArray.Base64String          as Base64
 import           Data.Default.Class                   (Default (..))
 import           Data.Proxy
-import           Data.String.Conversions              (cs)
 import           Network.ABCI.Server.App              (App (..),
                                                        MessageType (..),
                                                        Request (..),
@@ -102,9 +101,7 @@ nonceChecker = AnteHandler $ \context (PreRoutedTx Tx{txNonce, txMsg}) ->
         Just A.Account{accountNonce} ->
           if accountNonce <= txNonce
           then pure ()
-          else
-            let msg = "Message author: " <> show msgAuthor <> "... accountNonce " <> show accountNonce <> " txNonce " <> show txNonce
-            in throwSDKError $ NonceException . cs $ msg
+          else throwSDKError NonceException
 
 baseAppAnteHandler
   :: Members A.AuthEffs r
