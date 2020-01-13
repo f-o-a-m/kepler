@@ -32,8 +32,6 @@ eval =
       ModifyAccount addr f -> do
         mAcnt <- get storeKey addr
         case mAcnt of
-          -- -- when Nothing, create a new account and modify it
-          -- Nothing   -> put storeKey addr (f $ Account [] 0)
           -- when Nothing, create a new account
           Nothing   -> put storeKey addr (f $ Account [] 0)
           Just acnt -> put storeKey addr (f acnt)
