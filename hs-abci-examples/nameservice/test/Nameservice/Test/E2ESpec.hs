@@ -59,8 +59,7 @@ spec = do
         let val = "hello world"
             msg = TypedMessage "BuyName" (encode $ BuyName 0 satoshi val addr1)
             claimedLog = NameClaimed addr1 satoshi val 0
-        rawTx <- mkSignedRawTransactionWithRoute "nameservice" user1 msg
-        deliverResp <- getDeliverTxResponse rawTx
+        deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user1 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameClaimed" claimedLog
 
@@ -83,8 +82,7 @@ spec = do
             newVal = "goodbye to a world"
             msg = TypedMessage "SetName" (encode $ SetName satoshi addr1 newVal)
             remappedLog = NameRemapped satoshi oldVal newVal
-        rawTx <- mkSignedRawTransactionWithRoute "nameservice" user1 msg
-        deliverResp <- getDeliverTxResponse rawTx
+        deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user1 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameRemapped" remappedLog
         -- check for changes
@@ -95,8 +93,7 @@ spec = do
       it "Can fail to set a name (failure 2)" $ do
         -- try to set a name without being the owner
         let msg = TypedMessage "SetName" (encode $ SetName satoshi addr2 "goodbye to a world")
-        rawTx <- mkSignedRawTransactionWithRoute "nameservice" user2 msg
-        ensureCheckAndDeliverResponseCodes (0,2) rawTx
+        ensureCheckAndDeliverResponseCodes (0,2) =<< mkSignedRawTransactionWithRoute "nameservice" user2 msg
 
       it "Can buy an existing name (success 0)" $ do
         balance1 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
@@ -106,8 +103,7 @@ spec = do
             newVal = "hello (again) world"
             msg = TypedMessage "BuyName" (encode $ BuyName purchaseAmount satoshi newVal addr2)
             claimedLog = NameClaimed addr2 satoshi newVal purchaseAmount
-        rawTx <- mkSignedRawTransactionWithRoute "nameservice" user2 msg
-        deliverResp <- getDeliverTxResponse rawTx
+        deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user2 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check for updated balances - seller: addr1, buyer: addr2
@@ -132,8 +128,7 @@ spec = do
         let val = "hello (again) world"
             msg = TypedMessage "BuyName" (encode $ BuyName 500 satoshi val addr2)
             claimedLog = NameClaimed addr2 satoshi val 500
-        rawTx <- mkSignedRawTransactionWithRoute "nameservice" user2 msg
-        deliverResp <- getDeliverTxResponse rawTx
+        deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user2 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check balance after
@@ -144,14 +139,12 @@ spec = do
       it "Can fail to buy a name (failure 1)" $ do
         -- try to buy at a lower price
         let msg = TypedMessage "BuyName" (encode $ BuyName 100 satoshi "hello (again) world" addr1)
-        rawTx <- mkSignedRawTransactionWithRoute "nameservice" user1 msg
-        ensureCheckAndDeliverResponseCodes (0,1) rawTx
+        mkSignedRawTransactionWithRoute "nameservice" user1 msg >>= ensureCheckAndDeliverResponseCodes (0,1)
 
       it "Can delete names (success 0)" $ do
         let msg = TypedMessage "DeleteName" (encode $ DeleteName addr2 satoshi)
             deletedLog = NameDeleted satoshi
-        rawTx <- mkSignedRawTransactionWithRoute "nameservice" user2 msg
-        deliverResp <- getDeliverTxResponse rawTx
+        deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user2 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameDeleted" deletedLog
         -- name shouldn't exist
@@ -167,8 +160,7 @@ spec = do
         addr2Balance <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
         let tooMuchToTransfer = addr2Balance + 1
             msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 tooMuchToTransfer)
-        rawTx <- mkSignedRawTransactionWithRoute "token" user2 msg
-        ensureCheckAndDeliverResponseCodes (0,1) rawTx
+        ensureCheckAndDeliverResponseCodes (0,1) =<< mkSignedRawTransactionWithRoute "token" user2 msg
 
       it "Can transfer (success 0)" $ do
         balance1 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
@@ -185,8 +177,7 @@ spec = do
               , transferEventTo = addr2
               , transferEventFrom = addr1
               }
-        rawTx <- mkSignedRawTransactionWithRoute "token" user1 msg
-        deliverResp <- getDeliverTxResponse rawTx
+        deliverResp <- mkSignedRawTransactionWithRoute "token" user1 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "TransferEvent" transferEvent
         -- check balances
@@ -209,8 +200,7 @@ faucetAccount :: User -> Amount -> IO ()
 faucetAccount user@User{userAddress} amount = do
   let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress amount)
       faucetEvent = Faucetted userAddress amount
-  rawTx <- mkSignedRawTransactionWithRoute "token" user msg
-  deliverResp <- getDeliverTxResponse rawTx
+  deliverResp <- mkSignedRawTransactionWithRoute "token" user msg >>= getDeliverTxResponse
   ensureDeliverResponseCode deliverResp 0
   ensureEventLogged deliverResp "Faucetted" faucetEvent
 
