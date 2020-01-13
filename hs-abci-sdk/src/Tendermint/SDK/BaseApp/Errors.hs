@@ -79,6 +79,7 @@ data SDKError =
   | OutOfGasException
   | MessageValidation [Text]
   | SignatureRecoveryError Text
+  | CacheStoreUnsupportedOperation Text
 
 -- | As of right now it's not expected that one can recover from an 'SDKError',
 -- | so we are throwing them as 'AppError's directly.
@@ -122,4 +123,9 @@ instance IsAppError SDKError where
     { appErrorCode = 6
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Signature Recovery Error: " <> msg
+    }
+  makeAppError (CacheStoreUnsupportedOperation msg) = AppError
+    { appErrorCode = 7
+    , appErrorCodespace = "sdk"
+    , appErrorMessage = "Unsupported CacheStore Operation: " <> msg
     }

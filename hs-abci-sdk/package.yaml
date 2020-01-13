@@ -110,6 +110,7 @@ library:
   - Tendermint.SDK.BaseApp.Query.Types
   - Tendermint.SDK.BaseApp.Store
   - Tendermint.SDK.BaseApp.Store.AuthTreeStore
+  # - Tendermint.SDK.BaseApp.Store.IAVLStore
   - Tendermint.SDK.BaseApp.Store.RawStore
   - Tendermint.SDK.BaseApp.Store.Scope
   - Tendermint.SDK.Codec

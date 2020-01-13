@@ -135,9 +135,14 @@ instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, TxRouter ms r, HasCode
         let msg' = txMsg {msgData = msg}
             tx' = RoutedTx $ tx {txMsg = msg'}
         ctx <- liftIO $ T.newTransactionContext tx'
-        T.eval ctx $ case routeContext of
-          CheckTxContext   -> moduleTxChecker m tx'
-          DeliverTxContext -> moduleTxDeliverer m tx'
+        --
+        case routeContext of
+          CheckTxContext   -> T.eval ctx $ moduleTxChecker m tx'
+          DeliverTxContext -> do
+            res <- T.eval ctx $ moduleTxDeliverer m tx'
+            -- Write in terms of rawstore
+            saveCache $ storeCache ctx
+            pure res
     | otherwise = routeTx routeContext rest tx
 
 voidRouter
