@@ -115,7 +115,7 @@ spec = do
             newVal = "hello (again) world"
             msg = TypedMessage "BuyName" (encode $ BuyName purchaseAmount satoshi newVal addr2)
             claimedLog = NameClaimed addr2 satoshi newVal purchaseAmount
-            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
+            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 nonce msg
         deliverResp <- getDeliverTxResponse rawTx
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameClaimed" claimedLog
@@ -228,11 +228,11 @@ getAccountNonce userAddress = do
     Nothing                     -> return 0
     Just Account {accountNonce} -> return accountNonce
 
-faucetAccount :: User -> IO ()
-faucetAccount User{userAddress, userPrivKey} = do
+faucetAccount :: User -> Amount -> IO ()
+faucetAccount User{userAddress, userPrivKey} amount = do
   nonce <- getAccountNonce userAddress
-  let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress 1000)
-      faucetEvent = Faucetted userAddress 1000
+  let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress amount)
+      faucetEvent = Faucetted userAddress amount
       rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey nonce msg
   deliverResp <- getDeliverTxResponse rawTx
   ensureDeliverResponseCode deliverResp 0
