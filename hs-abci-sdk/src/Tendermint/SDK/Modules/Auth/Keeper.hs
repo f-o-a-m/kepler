@@ -35,7 +35,7 @@ eval =
           -- -- when Nothing, create a new account and modify it
           -- Nothing   -> put storeKey addr (f $ Account [] 0)
           -- when Nothing, create a new account
-          Nothing   -> put storeKey addr (Account [] 0)
+          Nothing   -> put storeKey addr (f $ Account [] 0)
           Just acnt -> put storeKey addr (f acnt)
       PutAccount addr acnt ->
         put storeKey addr acnt

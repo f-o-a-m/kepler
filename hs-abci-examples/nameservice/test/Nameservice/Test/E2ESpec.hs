@@ -84,7 +84,7 @@ spec = do
         clientResponseData `shouldBe` Nothing
 
       it "Can set a name value (success 0)" $ do
-        nonce <- getAccountNonce addr2
+        nonce <- getAccountNonce addr1
         let oldVal = "hello world"
             newVal = "goodbye to a world"
             msg = TypedMessage "SetName" (encode $ SetName satoshi addr1 newVal)
@@ -175,7 +175,7 @@ spec = do
         addr2Balance <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
         let tooMuchToTransfer = addr2Balance + 1
             msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 tooMuchToTransfer)
-            rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 nonce msg
+            rawTx = mkSignedRawTransactionWithRoute "token" privateKey2 nonce msg
         ensureCheckAndDeliverResponseCodes (0,1) rawTx
 
       it "Can transfer (success 0)" $ do
