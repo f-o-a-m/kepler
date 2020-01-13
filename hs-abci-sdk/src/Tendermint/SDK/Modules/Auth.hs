@@ -8,6 +8,7 @@ module Tendermint.SDK.Modules.Auth
   , getAccount
   , modifyAccount
   , putAccount
+  , createAccount
   , eval
 
   , Api

@@ -9,8 +9,9 @@ module Tendermint.SDK.BaseApp.Errors
 
 import           Control.Exception                    (Exception)
 import           Control.Lens                         (Lens', lens)
+import           Data.String.Conversions              (cs)
 import           Data.Text                            (Text, intercalate)
-import           Data.Word                            (Word32)
+import           Data.Word                            (Word32, Word64)
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Polysemy
 import           Polysemy.Error                       (Error, throw)
@@ -79,7 +80,7 @@ data SDKError =
   | OutOfGasException
   | MessageValidation [Text]
   | SignatureRecoveryError Text
-  | NonceException
+  | NonceException Word64 Word64
 
 -- | As of right now it's not expected that one can recover from an 'SDKError',
 -- | so we are throwing them as 'AppError's directly.
@@ -125,8 +126,9 @@ instance IsAppError SDKError where
     , appErrorMessage = "Signature Recovery Error: " <> msg
     }
 
-  makeAppError NonceException = AppError
+  makeAppError (NonceException expected found) = AppError
     { appErrorCode = 7
     , appErrorCodespace = "sdk"
-    , appErrorMessage = "Transaction failed nonce check"
+    , appErrorMessage = "Incorrect Transaction Nonce: Expected " <> (cs . show $ toInteger expected) <>
+         " but got " <> (cs . show $ toInteger found) <> "."
     }

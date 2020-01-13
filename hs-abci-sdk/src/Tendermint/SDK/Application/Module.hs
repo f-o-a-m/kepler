@@ -93,13 +93,14 @@ instance QueryRouter (m' ': ms) r => QueryRouter (Module name msg val api s r ':
 
 data RoutingContext = CheckTxContext | DeliverTxContext
 
-data Router r msg = Router { runRouter :: RoutingContext -> PreRoutedTx msg -> Sem r TxResult }
+data Router r msg = Router { runRouter :: PreRoutedTx msg -> Sem r TxResult }
 
 txRouter
   :: TxRouter ms r
-  => Modules ms r
+  => RoutingContext
+  -> Modules ms r
   -> Router r ByteString
-txRouter ms = Router $ \routeContext (PreRoutedTx tx) ->
+txRouter routeContext ms = Router $ \(PreRoutedTx tx) ->
   routeTx routeContext ms tx
 
 class TxRouter ms r where

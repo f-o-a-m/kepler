@@ -89,6 +89,7 @@ library:
   - -Wredundant-constraints
   exposed-modules:
   - Tendermint.SDK.Application
+  - Tendermint.SDK.Application.AnteHandler
   - Tendermint.SDK.Application.App
   - Tendermint.SDK.Application.Module
   - Tendermint.SDK.Application.Handlers

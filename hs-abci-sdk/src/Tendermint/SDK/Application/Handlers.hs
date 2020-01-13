@@ -1,44 +1,45 @@
 module Tendermint.SDK.Application.Handlers
   ( Handler
   , HandlersContext(..)
-  , AnteHandler(..)
   , makeApp
-  , baseAppAnteHandler
   ) where
 
-import           Control.Lens                         (from, to, (&), (.~),
-                                                       (^.))
-import           Crypto.Hash                          (Digest)
-import           Crypto.Hash.Algorithms               (SHA256)
-import qualified Data.ByteArray.Base64String          as Base64
-import           Data.Default.Class                   (Default (..))
+import           Control.Lens                           (from, to, (&), (.~),
+                                                         (^.))
+import           Crypto.Hash                            (Digest)
+import           Crypto.Hash.Algorithms                 (SHA256)
+import qualified Data.ByteArray.Base64String            as Base64
+import           Data.Default.Class                     (Default (..))
 import           Data.Proxy
-import           Network.ABCI.Server.App              (App (..),
-                                                       MessageType (..),
-                                                       Request (..),
-                                                       Response (..))
-import qualified Network.ABCI.Types.Messages.Request  as Req
-import qualified Network.ABCI.Types.Messages.Response as Resp
+import           Network.ABCI.Server.App                (App (..),
+                                                         MessageType (..),
+                                                         Request (..),
+                                                         Response (..))
+import qualified Network.ABCI.Types.Messages.Request    as Req
+import qualified Network.ABCI.Types.Messages.Response   as Resp
 import           Polysemy
-import           Polysemy.Error                       (Error, catch)
-import qualified Tendermint.SDK.Application.Module    as M
-import qualified Tendermint.SDK.BaseApp.BaseApp       as BA
-import           Tendermint.SDK.BaseApp.CoreEff       (CoreEffs)
-import           Tendermint.SDK.BaseApp.Errors        (AppError, SDKError (..),
-                                                       queryAppError,
-                                                       throwSDKError,
-                                                       txResultAppError)
-import           Tendermint.SDK.BaseApp.Query         (HasRouter)
-import           Tendermint.SDK.BaseApp.Store         (ConnectionScope (..))
-import qualified Tendermint.SDK.BaseApp.Store         as Store
-import           Tendermint.SDK.Crypto                (RecoverableSignatureSchema,
-                                                       SignatureSchema (..))
-import qualified Tendermint.SDK.Modules.Auth          as A
-import           Tendermint.SDK.Types.Message         (Msg (..))
-import           Tendermint.SDK.Types.Transaction     (PreRoutedTx (..),
-                                                       Tx (..), parseTx)
-import           Tendermint.SDK.Types.TxResult        (checkTxTxResult,
-                                                       deliverTxTxResult)
+import           Polysemy.Error                         (Error, catch)
+import           Tendermint.SDK.Application.AnteHandler (AnteHandler,
+                                                         applyAnteHandler)
+import qualified Tendermint.SDK.Application.Module      as M
+import qualified Tendermint.SDK.BaseApp.BaseApp         as BA
+import           Tendermint.SDK.BaseApp.CoreEff         (CoreEffs)
+import           Tendermint.SDK.BaseApp.Errors          (AppError,
+                                                         SDKError (..),
+                                                         queryAppError,
+                                                         throwSDKError,
+                                                         txResultAppError)
+import           Tendermint.SDK.BaseApp.Query           (HasRouter)
+import           Tendermint.SDK.BaseApp.Store           (ConnectionScope (..))
+import qualified Tendermint.SDK.BaseApp.Store           as Store
+import           Tendermint.SDK.Crypto                  (RecoverableSignatureSchema,
+                                                         SignatureSchema (..))
+import qualified Tendermint.SDK.Modules.Auth            as A
+import           Tendermint.SDK.Types.Transaction       (PreRoutedTx (..),
+                                                         parseTx)
+import           Tendermint.SDK.Types.TxResult          (checkTxTxResult,
+                                                         deliverTxTxResult)
+
 
 type Handler mt r = Request mt -> Sem r (Response mt)
 
@@ -81,51 +82,6 @@ data HandlersContext alg ms r core = HandlersContext
   , anteHandler   :: AnteHandler r
   }
 
-data AnteHandler r where
-  AnteHandler :: (forall msg. M.RoutingContext -> PreRoutedTx msg -> Sem r ()) -> AnteHandler r
-
-nonceChecker
-  :: Members A.AuthEffs r
-  => Member (Error AppError) r
-  => AnteHandler r
-nonceChecker = AnteHandler $ \context (PreRoutedTx Tx{txNonce, txMsg}) ->
-  case context of
-    -- don't check/throw anything during deliver
-    M.DeliverTxContext -> pure ()
-    _ -> do
-      let Msg{msgAuthor} = txMsg
-      mAcnt <- A.getAccount msgAuthor
-      case mAcnt of
-        -- probably.new tx
-        Nothing -> pure ()
-        Just A.Account{accountNonce} ->
-          if accountNonce <= txNonce
-          then pure ()
-          else throwSDKError NonceException
-
-baseAppAnteHandler
-  :: Members A.AuthEffs r
-  => Member (Error AppError) r
-  => AnteHandler r
-baseAppAnteHandler = nonceChecker
-
-preComposeAnteHandler :: AnteHandler r -> M.Router r msg -> M.Router r msg
-preComposeAnteHandler (AnteHandler runAnte) router = M.Router $ \context preRoutedTx -> do
-  runAnte context preRoutedTx
-  M.runRouter router context preRoutedTx
-
-nonceUpdater
-  :: Members A.AuthEffs r
-  => AnteHandler r
-nonceUpdater = AnteHandler $ \context (PreRoutedTx Tx{txMsg}) ->
-  case context of
-    M.DeliverTxContext -> do
-      let Msg{msgAuthor} = txMsg
-      A.modifyAccount msgAuthor $ \acc ->
-        acc { A.accountNonce = A.accountNonce acc + 1}
-    -- updates shouldn't happen on checkTx
-    _ -> pure ()
-
 -- Common function between checkTx and deliverTx
 makeHandlers
   :: forall alg ms r core.
@@ -145,15 +101,10 @@ makeHandlers HandlersContext{..} =
   let
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
-      compileTx context =
-        let router =
-              -- 2. update account nonce
-              preComposeAnteHandler nonceUpdater .
-              -- 1. run anteHandlers (maybe check nonce)
-              preComposeAnteHandler anteHandler $ M.txRouter modules
-        in compileToBaseApp . M.runRouter router context
-      txRouter context =
-        either (throwSDKError . ParseError) (compileTx context . PreRoutedTx) . parseTx signatureAlgP
+      routerWithAH context = applyAnteHandler anteHandler $ M.txRouter context modules
+      txRouter context bs = case parseTx signatureAlgP bs of
+        Left err -> throwSDKError $ ParseError err
+        Right tx -> compileToBaseApp $ M.runRouter (routerWithAH context) (PreRoutedTx tx)
       queryRouter = compileToBaseApp . M.queryRouter modules
 
       query (RequestQuery q) = Store.applyScope $
