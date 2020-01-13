@@ -62,7 +62,6 @@ library:
     - bytestring
     - cereal
     - cereal-text
-    - containers
     - cryptonite
     - errors
     - hs-abci-extra
@@ -72,7 +71,6 @@ library:
     - hs-abci-sdk
     - http-client
     - katip
-    - katip-datadog
     - katip-elasticsearch
     - lens
     - memory

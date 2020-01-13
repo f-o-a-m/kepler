@@ -63,6 +63,7 @@ data MessageType
   | MTDeliverTx
   | MTEndBlock
   | MTCommit
+  deriving (Eq, Ord, Enum)
 
 msgTypeKey :: MessageType -> String
 msgTypeKey m = case m of

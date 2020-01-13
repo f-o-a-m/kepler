@@ -22,7 +22,6 @@ services:
       dockerfile: Dockerfile
     image: hs-abci:test
     environment:
-     - DD_API_KEY=${DD_API_KEY}
      - STATS_PORT=9200
     restart: always
     entrypoint: /usr/local/bin/nameservice
@@ -31,8 +30,6 @@ services:
       - "9200"
   datadog:
     image: datadog/agent:latest
-    environment:
-     - DD_API_KEY=${DD_API_KEY}
     volumes:
      - /var/run/docker.sock:/var/run/docker.sock
      - /proc/:/host/proc/:ro

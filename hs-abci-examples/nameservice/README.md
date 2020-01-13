@@ -6,7 +6,6 @@
 - ES_HOST (optional) : hostname of the elasticsearch instance for logging
 - ES_PORT (optional) : port number of elasticsearch instance for logging
 - STATS_PORT (optional) : port to run the prometheus metrics server.
-- DD_API_KEY (optional) : key to post metrics data to datadog
 
 **NOTE** If you do not provide both of the elasticsearch variables, the logger will default to logging to the console.
 
@@ -110,7 +109,6 @@ Alternatively, the app is set up to log the same information to ES
 and Datadog by setting the following environment variables:
 
 ```bash
-DD_API_KEY ## Datadog API key
 ES_HOST    ## Elasticsearch server host
 ES_PORT    ## Elasticsearch server port
 ```
@@ -130,7 +128,7 @@ After both Kibana and ES are running, start `nameservice` and a Tendermint node
 via the commands:
 
 ```bash
-> DD_API_KEY=<DD_API_KEY> ES_HOST=localhost ES_PORT=9201 make deploy-nameservice
+> ES_HOST=localhost ES_PORT=9201 make deploy-nameservice
 > tendermint init
 > tendermint node
 ```
