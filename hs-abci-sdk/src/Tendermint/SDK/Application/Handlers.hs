@@ -83,24 +83,28 @@ data HandlersContext alg ms r core = HandlersContext
   }
 
 data AnteHandler r where
-  AnteHandler :: (forall msg. PreRoutedTx msg -> Sem r ()) -> AnteHandler r
+  AnteHandler :: (forall msg. M.RoutingContext -> PreRoutedTx msg -> Sem r ()) -> AnteHandler r
 
 nonceChecker
   :: Members A.AuthEffs r
   => Member (Error AppError) r
   => AnteHandler r
-nonceChecker = AnteHandler $ \(PreRoutedTx Tx{txNonce, txMsg}) -> do
-  let Msg{msgAuthor} = txMsg
-  mAcnt <- A.getAccount msgAuthor
-  case mAcnt of
-    -- probably.new tx
-    Nothing -> pure ()
-    Just A.Account{accountNonce} ->
-      if accountNonce <= txNonce
-      then pure ()
-      else
-        let msg = "Message author: " <> show msgAuthor <> "... accountNonce " <> show accountNonce <> " txNonce " <> show txNonce
-        in throwSDKError $ NonceException . cs $ msg
+nonceChecker = AnteHandler $ \context (PreRoutedTx Tx{txNonce, txMsg}) ->
+  case context of
+    -- don't check/throw anything during deliver
+    M.DeliverTxContext -> pure ()
+    _ -> do
+      let Msg{msgAuthor} = txMsg
+      mAcnt <- A.getAccount msgAuthor
+      case mAcnt of
+        -- probably.new tx
+        Nothing -> pure ()
+        Just A.Account{accountNonce} ->
+          if accountNonce <= txNonce
+          then pure ()
+          else
+            let msg = "Message author: " <> show msgAuthor <> "... accountNonce " <> show accountNonce <> " txNonce " <> show txNonce
+            in throwSDKError $ NonceException . cs $ msg
 
 baseAppAnteHandler
   :: Members A.AuthEffs r
@@ -109,15 +113,14 @@ baseAppAnteHandler
 baseAppAnteHandler = nonceChecker
 
 preComposeAnteHandler :: AnteHandler r -> M.Router r msg -> M.Router r msg
-preComposeAnteHandler (AnteHandler runAnte) router = M.Router $ \preRoutedTx -> do
-  runAnte preRoutedTx
-  M.runRouter router preRoutedTx
+preComposeAnteHandler (AnteHandler runAnte) router = M.Router $ \context preRoutedTx -> do
+  runAnte context preRoutedTx
+  M.runRouter router context preRoutedTx
 
 nonceUpdater
   :: Members A.AuthEffs r
-  => M.RoutingContext
-  -> AnteHandler r
-nonceUpdater context = AnteHandler $ \(PreRoutedTx Tx{txMsg}) ->
+  => AnteHandler r
+nonceUpdater = AnteHandler $ \context (PreRoutedTx Tx{txMsg}) ->
   case context of
     M.DeliverTxContext -> do
       let Msg{msgAuthor} = txMsg
@@ -146,13 +149,12 @@ makeHandlers HandlersContext{..} =
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
       compileTx context =
-        let router = M.txRouter context modules
-            cRouter =
+        let router =
               -- 2. update account nonce
-              preComposeAnteHandler (nonceUpdater context) .
+              preComposeAnteHandler nonceUpdater .
               -- 1. run anteHandlers (maybe check nonce)
-              preComposeAnteHandler anteHandler $ router
-        in compileToBaseApp . M.runRouter cRouter
+              preComposeAnteHandler anteHandler $ M.txRouter modules
+        in compileToBaseApp . M.runRouter router context
       txRouter context =
         either (throwSDKError . ParseError) (compileTx context . PreRoutedTx) . parseTx signatureAlgP
       queryRouter = compileToBaseApp . M.queryRouter modules
