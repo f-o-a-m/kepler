@@ -218,9 +218,15 @@ getAccountNonce :: Address -> IO Word64
 getAccountNonce userAddress = do
   let query = getAccount $ defaultQueryWithData userAddress
   ClientResponse{clientResponseData} <- runRPC query
+  putStrLn $ "Attempting to find address: " <> show userAddress
   case clientResponseData of
-    Nothing                     -> return 0
-    Just Account {accountNonce} -> return accountNonce
+    -- unitialized account = 0 nonce
+    Nothing                     -> do
+      putStrLn "NO ACCOUNT FOUND. DEFAULTED NONCE TO 0!!!!!!!!!"
+      return 0
+    Just Account {accountNonce} -> do
+      putStrLn $ "FOUND ACCOUNT. NONCE IS " <> show accountNonce
+      return accountNonce
 
 faucetAccount :: User -> IO ()
 faucetAccount User{userAddress, userPrivKey} = do

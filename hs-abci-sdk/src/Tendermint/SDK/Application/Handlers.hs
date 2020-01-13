@@ -93,12 +93,14 @@ nonceChecker = AnteHandler $ \(PreRoutedTx Tx{txNonce, txMsg}) -> do
   let Msg{msgAuthor} = txMsg
   mAcnt <- A.getAccount msgAuthor
   case mAcnt of
+    -- probably.new tx
     Nothing -> pure ()
     Just A.Account{accountNonce} ->
-      if accountNonce == txNonce
+      if accountNonce <= txNonce
       then pure ()
       else
-        throwSDKError $ NonceException . cs $ "accountNonce " <> show accountNonce <> " txNonce " <> show txNonce
+        let msg = "Message author: " <> show msgAuthor <> "... accountNonce " <> show accountNonce <> " txNonce " <> show txNonce
+        in throwSDKError $ NonceException . cs $ msg
 
 baseAppAnteHandler
   :: Members A.AuthEffs r
@@ -113,11 +115,16 @@ preComposeAnteHandler (AnteHandler runAnte) router = M.Router $ \preRoutedTx -> 
 
 nonceUpdater
   :: Members A.AuthEffs r
-  => AnteHandler r
-nonceUpdater = AnteHandler $ \(PreRoutedTx Tx{txMsg}) -> do
-  let Msg{msgAuthor} = txMsg
-  A.modifyAccount msgAuthor $ \acc ->
-    acc { A.accountNonce = A.accountNonce acc + 1}
+  => M.RoutingContext
+  -> AnteHandler r
+nonceUpdater context = AnteHandler $ \(PreRoutedTx Tx{txMsg}) ->
+  case context of
+    M.DeliverTxContext -> do
+      let Msg{msgAuthor} = txMsg
+      A.modifyAccount msgAuthor $ \acc ->
+        acc { A.accountNonce = A.accountNonce acc + 1}
+    -- updates shouldn't happen on checkTx
+    _ -> pure ()
 
 -- Common function between checkTx and deliverTx
 makeHandlers
@@ -141,8 +148,8 @@ makeHandlers HandlersContext{..} =
       compileTx context =
         let router = M.txRouter context modules
             cRouter =
-              -- 2. update nonce
-              preComposeAnteHandler nonceUpdater .
+              -- 2. update account nonce
+              preComposeAnteHandler (nonceUpdater context) .
               -- 1. run anteHandlers (maybe check nonce)
               preComposeAnteHandler anteHandler $ router
         in compileToBaseApp . M.runRouter cRouter
