@@ -23,7 +23,7 @@ import           Polysemy                              (Embed, Members, Sem,
 import           Polysemy.Reader                       (Reader, ask, asks)
 import           Polysemy.Tagged                       (Tagged (..))
 import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore (..),
-                                                        StoreKey (..))
+                                                        makeRawKey)
 import           Tendermint.SDK.BaseApp.Store.Scope    (ConnectionScope (..),
                                                         MergeScopes (..))
 
@@ -76,16 +76,16 @@ evalTagged m = do
   AuthTree{treeVar} <- asks (getAuthTree (Proxy :: Proxy s))
   interpret
     (\(Tagged action) -> case action of
-      RawStorePut (StoreKey sk) k v -> liftIO . atomically $ do
+      RawStorePut k v -> liftIO . atomically $ do
         tree NE.:| ts <- readTVar treeVar
-        writeTVar treeVar $ AT.insert (sk <> k) v tree NE.:| ts
-      RawStoreGet (StoreKey sk) k -> liftIO . atomically $ do
+        writeTVar treeVar $ AT.insert (makeRawKey k) v tree NE.:| ts
+      RawStoreGet k -> liftIO . atomically $ do
         tree NE.:| _ <- readTVar treeVar
-        pure $ AT.lookup (sk <> k) tree
-      RawStoreProve _ _ -> pure Nothing
-      RawStoreDelete (StoreKey sk) k -> liftIO . atomically $ do
+        pure $ AT.lookup (makeRawKey k) tree
+      RawStoreProve _ -> pure Nothing
+      RawStoreDelete k -> liftIO . atomically $ do
         tree NE.:| ts <- readTVar treeVar
-        writeTVar treeVar $ AT.delete (sk <> k) tree NE.:| ts
+        writeTVar treeVar $ AT.delete (makeRawKey k) tree NE.:| ts
       RawStoreRoot -> liftIO . atomically $ do
         tree NE.:| _ <- readTVar treeVar
         let AuthTreeHash hash = AT.merkleHash tree
