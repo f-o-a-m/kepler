@@ -13,34 +13,40 @@ module Tendermint.SDK.Application.Module
   , Eval(..)
   ) where
 
-import           Control.Monad.IO.Class             (liftIO)
-import           Crypto.Hash                        (Digest)
-import           Crypto.Hash.Algorithms             (SHA256)
-import           Data.ByteString                    (ByteString)
+import Control.Monad (forM_)
+import           Data.IORef                            ( readIORef, writeIORef)
+import           Control.Monad.IO.Class                (liftIO)
+import           Crypto.Hash                           (Digest)
+import           Crypto.Hash.Algorithms                (SHA256)
+import           Data.ByteString                       (ByteString)
 import           Data.Proxy
-import           Data.String.Conversions            (cs)
-import qualified Data.Validation                    as V
+import           Data.String.Conversions               (cs)
+import qualified Data.Validation                       as V
 import           Data.Void
-import           GHC.TypeLits                       (KnownSymbol, Symbol,
-                                                     symbolVal)
-import           Polysemy                           (EffectRow, Embed, Member,
-                                                     Members, Sem)
-import           Polysemy.Error                     (Error)
-import           Servant.API                        ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp             ((:&), AppError, BaseApp,
-                                                     BaseAppEffs, SDKError (..),
-                                                     throwSDKError)
-import qualified Tendermint.SDK.BaseApp.Query       as Q
-import qualified Tendermint.SDK.BaseApp.Transaction as T
-import           Tendermint.SDK.Codec               (HasCodec (..))
-import           Tendermint.SDK.Crypto              (RecoverableSignatureSchema,
-                                                     SignatureSchema (..))
-import           Tendermint.SDK.Types.Message       (Msg (..),
-                                                     ValidateMessage (..),
-                                                     formatMessageSemanticError)
-import           Tendermint.SDK.Types.Transaction   (RoutedTx (..), Tx (..),
-                                                     parseTx)
-import           Tendermint.SDK.Types.TxResult      (TxResult)
+import           GHC.TypeLits                          (KnownSymbol, Symbol,
+                                                        symbolVal)
+import qualified Data.Map.Strict as Map
+import           Polysemy                              (EffectRow, Embed,
+                                                        Member, Members, Sem)
+import           Polysemy.Error                        (Error)
+import Polysemy.Internal (send)
+import           Servant.API                           ((:<|>) (..), (:>))
+import           Tendermint.SDK.BaseApp                ((:&), AppError, BaseApp,
+                                                        BaseAppEffs,
+                                                        SDKError (..),
+                                                        throwSDKError)
+import qualified Tendermint.SDK.BaseApp.Query          as Q
+import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore(..))
+import qualified Tendermint.SDK.BaseApp.Transaction    as T
+import           Tendermint.SDK.Codec                  (HasCodec (..))
+import           Tendermint.SDK.Crypto                 (RecoverableSignatureSchema,
+                                                        SignatureSchema (..))
+import           Tendermint.SDK.Types.Message          (Msg (..),
+                                                        ValidateMessage (..),
+                                                        formatMessageSemanticError)
+import           Tendermint.SDK.Types.Transaction      (RoutedTx (..), Tx (..),
+                                                        parseTx)
+import           Tendermint.SDK.Types.TxResult         (TxResult)
 
 data Module (name :: Symbol) msg val (api :: *) (s :: EffectRow) (r :: EffectRow) = Module
   { moduleTxDeliverer :: RoutedTx msg -> Sem (T.TxEffs :& r) val
@@ -126,7 +132,7 @@ instance {-# OVERLAPPING #-} (Member (Error AppError) r, TxRouter ms r,  KnownSy
     | symbolVal (Proxy :: Proxy name) == cs txRoute = throwSDKError $ UnmatchedRoute txRoute
     | otherwise = routeTx routeContext rest tx
 
-instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, TxRouter ms r, HasCodec msg, HasCodec val, Member (Embed IO) r, KnownSymbol name) => TxRouter (Module name msg val api s r ': ms) r where
+instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, Member RawStore r, TxRouter ms r, HasCodec msg, HasCodec val, Member (Embed IO) r, KnownSymbol name) => TxRouter (Module name msg val api s r ': ms) r where
   routeTx routeContext (m :+ rest) tx@Tx{..}
     | symbolVal (Proxy :: Proxy name) == cs txRoute = do
         msg <- case decode $ msgData txMsg of
@@ -140,10 +146,15 @@ instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, TxRouter ms r, HasCode
           CheckTxContext   -> T.eval ctx $ moduleTxChecker m tx'
           DeliverTxContext -> do
             res <- T.eval ctx $ moduleTxDeliverer m tx'
-            -- Write in terms of rawstore
-            saveCache $ storeCache ctx
+            _ <- saveCache $ T.storeCache ctx
             pure res
     | otherwise = routeTx routeContext rest tx
+   where
+    saveCache cache = do
+      c <- liftIO $ readIORef cache
+      forM_ (Map.toList c) $ \(k, v) -> send (RawStorePut k v)
+      liftIO $ writeIORef cache mempty
+
 
 voidRouter
   :: forall a r.

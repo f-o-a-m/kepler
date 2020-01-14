@@ -34,7 +34,10 @@ import           Tendermint.SDK.Types.Address  (Address, addressFromBytes,
 data RawStoreKey = RawStoreKey
   { rsStoreKey :: BS.ByteString
   , rsKey      :: BS.ByteString
-  }
+  } deriving (Eq)
+
+instance Ord RawStoreKey where
+  (<=) a b = makeRawKey a <= makeRawKey b
 
 makeRawKey :: RawStoreKey -> BS.ByteString
 makeRawKey RawStoreKey{..} = rsStoreKey <> rsKey

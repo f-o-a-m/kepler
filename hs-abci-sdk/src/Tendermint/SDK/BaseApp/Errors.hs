@@ -79,7 +79,8 @@ data SDKError =
   | OutOfGasException
   | MessageValidation [Text]
   | SignatureRecoveryError Text
-  | CacheStoreUnsupportedOperation Text
+  | RawStoreInvalidOperation Text
+  | GrpcError Text
 
 -- | As of right now it's not expected that one can recover from an 'SDKError',
 -- | so we are throwing them as 'AppError's directly.
@@ -124,8 +125,13 @@ instance IsAppError SDKError where
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Signature Recovery Error: " <> msg
     }
-  makeAppError (CacheStoreUnsupportedOperation msg) = AppError
+  makeAppError (RawStoreInvalidOperation operation) = AppError
     { appErrorCode = 7
     , appErrorCodespace = "sdk"
-    , appErrorMessage = "Unsupported CacheStore Operation: " <> msg
+    , appErrorMessage = "Unsupported RawStore operation: `" <> operation <> "`"
+    }
+  makeAppError (GrpcError msg) = AppError
+    { appErrorCode = 8
+    , appErrorCodespace = "sdk"
+    , appErrorMessage = "Grpc error: \n" <> msg
     }
