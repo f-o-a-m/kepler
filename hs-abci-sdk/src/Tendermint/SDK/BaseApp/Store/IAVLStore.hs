@@ -44,6 +44,7 @@ initIAVLVersion :: Version -> IO (IAVLVersion c)
 initIAVLVersion v = IAVLVersion <$> newIORef v
 
 data Version = Latest
+             | Genesis
              | Version Integer
 
 
@@ -53,14 +54,9 @@ data ScopeVersions = ScopeVersions
   , consensus :: IAVLVersion 'Consensus
   }
 
-initScopeVersions :: GrpcClient -> IO ScopeVersions
-initScopeVersions gc = do
-  eversion <- runGrpc $ IAVL.version gc
-  case eversion of
-    Left _ -> error "unable to get initial IAVL Version"
-    Right res -> do
-      let version = toInteger $ res ^. Api.version
-      ScopeVersions <$> initIAVLVersion (Version version) <*> initIAVLVersion (Version version) <*> initIAVLVersion Latest
+initScopeVersions :: IO ScopeVersions
+initScopeVersions = do
+  ScopeVersions <$> initIAVLVersion Genesis <*> initIAVLVersion Genesis <*> initIAVLVersion Latest
 
 class IAVLVersionGetter (s :: ConnectionScope) where
   getIAVLVersion :: Proxy s -> ScopeVersions -> IAVLVersion s
@@ -91,21 +87,29 @@ evalTagged gc m = do
             let setReq = defMessage & Api.key .~ makeRawKey k
                                     & Api.value .~ v
             in void . runGrpc' $ IAVL.set gc setReq
-          Version _ -> throwSDKError $ RawStoreInvalidOperation "Put"
+          _ -> throwSDKError $ RawStoreInvalidOperation "Put"
       RawStoreGet k -> do
         version <- liftIO $ readIORef iavlVersion
         case version of
           Latest -> do
             let getReq = defMessage & Api.key .~ makeRawKey k
             res <- runGrpc' $ IAVL.get gc getReq
-            -- TODO :: Returns empty ByteString if not there, expected behavior?
-            pure $ Just $ res ^. Api.value
+            case res ^. Api.value of
+              "" -> pure Nothing
+              val  -> pure $ Just val
+          Genesis -> do
+            let getReq = defMessage & Api.key .~ makeRawKey k
+            res <- runGrpc' $ IAVL.get gc getReq
+            case res ^. Api.value of
+              "" -> pure Nothing
+              val  -> pure $ Just val
           Version v -> do
             let getVerReq = defMessage & Api.key .~ makeRawKey k
                                        & Api.version .~ fromInteger v
             res <- runGrpc' $ IAVL.getVersioned gc getVerReq
-            -- TODO :: Returns empty ByteString if not there, expected behavior?
-            pure $ Just $ res ^. Api.value
+            case res ^. Api.value of
+              "" -> pure Nothing
+              val  -> pure $ Just val
       RawStoreProve _ -> pure Nothing
       RawStoreDelete k -> do
         version <- liftIO $ readIORef iavlVersion
@@ -113,27 +117,31 @@ evalTagged gc m = do
           Latest ->
             let remReq = defMessage & Api.key .~ makeRawKey k
             in void . runGrpc' $ IAVL.remove gc remReq
-          Version _ -> throwSDKError $ RawStoreInvalidOperation "Delete"
+          _ -> throwSDKError $ RawStoreInvalidOperation "Delete"
       RawStoreRoot -> do
         version <- liftIO $ readIORef iavlVersion
         case version of
           Latest -> do
             res <- runGrpc' $ IAVL.hash gc
             pure $ res ^. Api.rootHash
+          Genesis -> do
+            res <- runGrpc' $ IAVL.hash gc
+            pure $ res ^. Api.rootHash
           Version _ -> throwSDKError $ RawStoreInvalidOperation "Root"
-      RawStoreBeginTransaction -> undefined
+      -- NOTICE :: Currently unnecessary with the DB commit/version implementation.
+      RawStoreBeginTransaction -> pure ()
       RawStoreRollback -> do
         version <- liftIO $ readIORef iavlVersion
         case version of
           Latest -> do
             void . runGrpc' $ IAVL.rollback gc
-          Version _ -> throwSDKError $ RawStoreInvalidOperation "Rollback"
+          _ -> throwSDKError $ RawStoreInvalidOperation "Rollback"
       RawStoreCommit -> do
         version <- liftIO $ readIORef iavlVersion
         case version of
           Latest -> do
             void . runGrpc' $ IAVL.saveVersion gc
-          Version _ -> throwSDKError $ RawStoreInvalidOperation "Commit"
+          _ -> throwSDKError $ RawStoreInvalidOperation "Commit"
     ) m
 
 evalMergeScopes
