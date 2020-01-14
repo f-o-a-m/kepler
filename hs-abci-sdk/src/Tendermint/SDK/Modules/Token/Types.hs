@@ -1,15 +1,16 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Nameservice.Modules.Token.Types where
+module Tendermint.SDK.Modules.Token.Types where
 
 import           Data.Aeson                   as A
+import           Data.Aeson                   (Options)
+import           Data.Aeson.Casing            (aesonDrop, snakeCase)
 import           Data.Bifunctor               (bimap)
 import qualified Data.ByteArray.HexString     as Hex
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
 import           Data.Word                    (Word64)
 import           GHC.Generics                 (Generic)
-import           Nameservice.Aeson            (defaultNameserviceOptions)
 import           Proto3.Suite                 (HasDefault (..), MessageField,
                                                Primitive (..))
 import qualified Proto3.Suite.DotProto        as DotProto
@@ -20,6 +21,9 @@ import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
                                                addressToBytes)
+
+defaultNameserviceOptions :: String -> Options
+defaultNameserviceOptions prefix = aesonDrop (length prefix) snakeCase
 
 --------------------------------------------------------------------------------
 

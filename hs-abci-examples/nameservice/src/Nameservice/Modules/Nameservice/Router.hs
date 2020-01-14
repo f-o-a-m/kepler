@@ -4,10 +4,10 @@ import           Nameservice.Modules.Nameservice.Keeper   (NameserviceEffs,
                                                            buyName, deleteName,
                                                            setName)
 import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (..))
-import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members, Sem)
 import           Tendermint.SDK.BaseApp                   (BaseAppEffs, TxEffs,
                                                            incCount, withTimer)
+import           Tendermint.SDK.Modules.Token             (TokenEffs)
 import           Tendermint.SDK.Types.Message             (Msg (..))
 import           Tendermint.SDK.Types.Transaction         (PreRoutedTx (..),
                                                            Tx (..))

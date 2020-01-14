@@ -12,11 +12,11 @@ import Nameservice.Modules.Nameservice.Messages (NameserviceMessage)
 import Nameservice.Modules.Nameservice.Query (Api, server)
 import Nameservice.Modules.Nameservice.Router (router)
 import Nameservice.Modules.Nameservice.Types (NameserviceModuleName)
-import Nameservice.Modules.Token                (TokenEffs)
 import Polysemy                                 (Members)
 import Tendermint.SDK.Application               (Module (..),
                                                  defaultTxChecker)
 import Tendermint.SDK.BaseApp                   (BaseAppEffs)
+import Tendermint.SDK.Modules.Token                (TokenEffs)
 
 -- a convenient type alias
 type NameserviceM r =

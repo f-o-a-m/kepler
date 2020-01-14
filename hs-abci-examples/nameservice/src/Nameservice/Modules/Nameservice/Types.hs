@@ -8,7 +8,6 @@ import           Data.Text                    (Text)
 import qualified Data.Text.Lazy               as TL
 import           GHC.Generics                 (Generic)
 import           Nameservice.Aeson            (defaultNameserviceOptions)
-import           Nameservice.Modules.Token    (Amount (..))
 import           Proto3.Suite                 (HasDefault, Message,
                                                MessageField, Named,
                                                Primitive (..), fromByteString,
@@ -18,6 +17,7 @@ import qualified Proto3.Wire.Decode           as Decode
 import qualified Proto3.Wire.Encode           as Encode
 import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
+import           Tendermint.SDK.Modules.Token (Amount (..))
 import           Tendermint.SDK.Types.Address (Address)
 
 --------------------------------------------------------------------------------

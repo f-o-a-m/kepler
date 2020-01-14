@@ -1,18 +1,18 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Nameservice.Modules.Token.Keeper where
+module Tendermint.SDK.Modules.Token.Keeper where
 
-import           Data.Maybe                         (fromMaybe)
-import           Nameservice.Modules.Token.Messages (FaucetAccount (..))
-import           Nameservice.Modules.Token.Types    (Amount (..),
-                                                     Faucetted (..),
-                                                     TokenError (..),
-                                                     TransferEvent (..))
+import           Data.Maybe                            (fromMaybe)
 import           Polysemy
-import           Polysemy.Error                     (Error, mapError, throw)
-import           Polysemy.Output                    (Output)
-import qualified Tendermint.SDK.BaseApp             as BaseApp
-import           Tendermint.SDK.Types.Address       (Address)
+import           Polysemy.Error                        (Error, mapError, throw)
+import           Polysemy.Output                       (Output)
+import qualified Tendermint.SDK.BaseApp                as BaseApp
+import           Tendermint.SDK.Modules.Token.Messages (FaucetAccount (..))
+import           Tendermint.SDK.Modules.Token.Types    (Amount (..),
+                                                        Faucetted (..),
+                                                        TokenError (..),
+                                                        TransferEvent (..))
+import           Tendermint.SDK.Types.Address          (Address)
 
 data Token m a where
     PutBalance :: Address -> Amount -> Token m ()

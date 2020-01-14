@@ -1,20 +1,20 @@
-module Nameservice.Modules.Token.Messages where
+module Tendermint.SDK.Modules.Token.Messages where
 
-import           Data.Bifunctor                   (first)
-import           Data.String.Conversions          (cs)
-import           Data.Validation                  (Validation (..))
-import           GHC.Generics                     (Generic)
-import           Nameservice.Modules.Token.Types  (Amount)
-import           Nameservice.Modules.TypedMessage (TypedMessage (..))
-import           Proto3.Suite                     (Message, Named,
-                                                   fromByteString,
-                                                   toLazyByteString)
-import           Tendermint.SDK.Codec             (HasCodec (..))
-import           Tendermint.SDK.Types.Address     (Address)
-import           Tendermint.SDK.Types.Message     (Msg (..),
-                                                   ValidateMessage (..),
-                                                   coerceProto3Error,
-                                                   formatMessageParseError)
+import           Data.Bifunctor                      (first)
+import           Data.String.Conversions             (cs)
+import           Data.Validation                     (Validation (..))
+import           GHC.Generics                        (Generic)
+import           Proto3.Suite                        (Message, Named,
+                                                      fromByteString,
+                                                      toLazyByteString)
+import           Tendermint.SDK.Codec                (HasCodec (..))
+import           Tendermint.SDK.Modules.Token.Types  (Amount)
+import           Tendermint.SDK.Modules.TypedMessage (TypedMessage (..))
+import           Tendermint.SDK.Types.Address        (Address)
+import           Tendermint.SDK.Types.Message        (Msg (..),
+                                                      ValidateMessage (..),
+                                                      coerceProto3Error,
+                                                      formatMessageParseError)
 
 data TokenMessage =
     TTransfer Transfer

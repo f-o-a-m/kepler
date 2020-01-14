@@ -1,12 +1,12 @@
-module Nameservice.Modules.Token.Query where
+module Tendermint.SDK.Modules.Token.Query where
 
 import           Data.Proxy
-import           Nameservice.Modules.Token.Keeper (storeKey)
-import           Nameservice.Modules.Token.Types  (Amount)
 import           Polysemy
-import           Polysemy.Error                   (Error)
-import qualified Tendermint.SDK.BaseApp           as BaseApp
-import           Tendermint.SDK.Types.Address     (Address)
+import           Polysemy.Error                      (Error)
+import qualified Tendermint.SDK.BaseApp              as BaseApp
+import           Tendermint.SDK.Modules.Token.Keeper (storeKey)
+import           Tendermint.SDK.Modules.Token.Types  (Amount)
+import           Tendermint.SDK.Types.Address        (Address)
 
 --------------------------------------------------------------------------------
 -- | Query Api

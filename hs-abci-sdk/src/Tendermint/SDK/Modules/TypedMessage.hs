@@ -1,4 +1,4 @@
-module Nameservice.Modules.TypedMessage where
+module Tendermint.SDK.Modules.TypedMessage where
 
 import           Data.Bifunctor               (first)
 import qualified Data.ByteString              as BS

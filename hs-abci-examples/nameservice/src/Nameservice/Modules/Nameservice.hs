@@ -41,11 +41,11 @@ import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Query
 import           Nameservice.Modules.Nameservice.Router
 import           Nameservice.Modules.Nameservice.Types
-import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members)
 import           Tendermint.SDK.Application               (Module (..),
                                                            defaultTxChecker)
 import           Tendermint.SDK.BaseApp                   (BaseAppEffs)
+import           Tendermint.SDK.Modules.Token             (TokenEffs)
 
 type NameserviceM r =
   Module "nameservice" NameserviceMessage () Api NameserviceEffs r

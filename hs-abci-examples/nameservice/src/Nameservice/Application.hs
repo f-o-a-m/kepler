@@ -6,7 +6,6 @@ module Nameservice.Application
 
 import           Data.Proxy
 import qualified Nameservice.Modules.Nameservice as N
-import qualified Nameservice.Modules.Token       as T
 import           Tendermint.SDK.Application      (HandlersContext (..),
                                                   Modules (..),
                                                   baseAppAnteHandler)
@@ -14,6 +13,7 @@ import           Tendermint.SDK.BaseApp          ((:&))
 import qualified Tendermint.SDK.BaseApp          as BaseApp
 import           Tendermint.SDK.Crypto           (Secp256k1)
 import qualified Tendermint.SDK.Modules.Auth     as A
+import qualified Tendermint.SDK.Modules.Token    as T
 
 type EffR =
    N.NameserviceEffs :&

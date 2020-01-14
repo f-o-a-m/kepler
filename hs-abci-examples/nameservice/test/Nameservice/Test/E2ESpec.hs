@@ -12,13 +12,6 @@ import           Nameservice.Modules.Nameservice      (BuyName (..),
                                                        NameRemapped (..),
                                                        SetName (..), Whois (..))
 import qualified Nameservice.Modules.Nameservice      as N (Api)
-import           Nameservice.Modules.Token            (Amount (..),
-                                                       FaucetAccount (..),
-                                                       Faucetted (..),
-                                                       Transfer (..),
-                                                       TransferEvent (..))
-import qualified Nameservice.Modules.Token            as T (Api)
-import           Nameservice.Modules.TypedMessage     (TypedMessage (..))
 import           Nameservice.Test.EventOrphans        ()
 import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Network.Tendermint.Client            as RPC
@@ -26,6 +19,13 @@ import           Servant.API                          ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp.Query         (QueryArgs (..),
                                                        defaultQueryWithData)
 import           Tendermint.SDK.Codec                 (HasCodec (..))
+import           Tendermint.SDK.Modules.Token         (Amount (..),
+                                                       FaucetAccount (..),
+                                                       Faucetted (..),
+                                                       Transfer (..),
+                                                       TransferEvent (..))
+import qualified Tendermint.SDK.Modules.Token         as T (Api)
+import           Tendermint.SDK.Modules.TypedMessage  (TypedMessage (..))
 import           Tendermint.SDK.Types.Address         (Address (..))
 import           Tendermint.Utils.Client              (ClientResponse (..),
                                                        HasClient (..))

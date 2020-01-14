@@ -18,8 +18,8 @@ import Polysemy.Error (Error, throw, mapError)
 import Polysemy.Output (Output)
 import Nameservice.Modules.Nameservice.Messages (DeleteName(..))
 import Nameservice.Modules.Nameservice.Types (Whois(..), Name, NameDeleted(..), NameserviceModuleName, NameserviceError(..))
-import Nameservice.Modules.Token (Token, mint)
 import qualified Tendermint.SDK.BaseApp as BA
+import Tendermint.SDK.Modules.Token (Token, mint)
 ~~~
 
 Generally a keeper is defined by a set of effects that the module introduces and depends on. In the case of Nameservice, we introduce the custom `Nameservice` effect:

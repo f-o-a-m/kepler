@@ -6,12 +6,12 @@ import           Data.String.Conversions               (cs)
 import           Data.Text                             (Text)
 import           GHC.Generics                          (Generic)
 import           Nameservice.Modules.Nameservice.Types (Name (..))
-import           Nameservice.Modules.Token             (Amount (..))
-import           Nameservice.Modules.TypedMessage      (TypedMessage (..))
 import           Proto3.Suite                          (Message, Named,
                                                         fromByteString,
                                                         toLazyByteString)
 import           Tendermint.SDK.Codec                  (HasCodec (..))
+import           Tendermint.SDK.Modules.Token          (Amount (..))
+import           Tendermint.SDK.Modules.TypedMessage   (TypedMessage (..))
 import           Tendermint.SDK.Types.Address          (Address (..))
 import           Tendermint.SDK.Types.Message          (Msg (..),
                                                         ValidateMessage (..),

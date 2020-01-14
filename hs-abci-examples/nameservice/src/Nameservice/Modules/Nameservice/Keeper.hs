@@ -7,14 +7,14 @@ import           Data.String.Conversions                  (cs)
 import           GHC.TypeLits                             (symbolVal)
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Types
-import           Nameservice.Modules.Token                (Token, TokenEffs,
-                                                           burn, mint, transfer)
 import           Polysemy                                 (Members, Sem,
                                                            interpret, makeSem)
 import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
 import qualified Tendermint.SDK.BaseApp                   as BaseApp
+import           Tendermint.SDK.Modules.Token             (Token, TokenEffs,
+                                                           burn, mint, transfer)
 
 data NameserviceKeeper m a where
   PutWhois :: Name -> Whois -> NameserviceKeeper m ()

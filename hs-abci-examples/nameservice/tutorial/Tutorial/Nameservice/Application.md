@@ -38,10 +38,10 @@ module Tutorial.Nameservice.Application where
 
 import Data.Proxy
 import Nameservice.Modules.Nameservice (nameserviceModule, NameserviceM, NameserviceEffs)
-import Nameservice.Modules.Token (tokenModule, TokenM, TokenEffs)
 import Network.ABCI.Server.App (App)
 import Polysemy (Sem)
 import Tendermint.SDK.Modules.Auth (authModule, AuthEffs, AuthM)
+import Tendermint.SDK.Modules.Token (tokenModule, TokenM, TokenEffs)
 import Tendermint.SDK.Application (Modules(..), HandlersContext(..), baseAppAnteHandler, makeApp)
 import Tendermint.SDK.BaseApp (BaseApp, CoreEffs, (:&), compileScopedEff)
 import Tendermint.SDK.Crypto (Secp256k1)
