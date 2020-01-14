@@ -22,8 +22,10 @@ import           Tendermint.SDK.Types.Address (Address)
 
 type AuthModule = "auth"
 
+newtype Denomination = Denomination { unDenomination :: Text }
+
 data Coin = Coin
-  { coinDenomination :: Text
+  { coinDenomination :: Denomination
   , coinAmount       :: Word64
   } deriving Generic
 
@@ -40,6 +42,12 @@ instance Wrapped Coin where
       { coinDenomination = message ^. A.denomination
       , coinAmount = message ^. A.amount
       }
+
+instance HasCodec Coin where
+  encode = P.encodeMessage . view _Wrapped'
+  decode = bimap cs (view $ from _Wrapped') . P.decodeMessage
+
+-- Coin probably need a to/from json instance
 
 data Account = Account
   { accountCoins :: [Coin]
@@ -71,7 +79,7 @@ instance Queryable Account where
   type Name Account = "account"
 
 data AuthError =
-  AccountAlreadExists Address
+  AccountAlreadyExists Address
 
 instance IsAppError AuthError where
   makeAppError (AccountAlreadExists addr) =
