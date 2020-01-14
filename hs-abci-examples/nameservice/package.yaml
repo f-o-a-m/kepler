@@ -52,7 +52,6 @@ library:
     - aeson-casing
     - base >= 4.7 && < 5
     - bloodhound
-    - bytestring
     - errors
     - hs-abci-extra
     - hs-abci-server
@@ -68,7 +67,6 @@ library:
     - proto3-wire
     - string-conversions
     - text
-    - validation
   ghc-options:
   - -fplugin=Polysemy.Plugin
   - -Werror
