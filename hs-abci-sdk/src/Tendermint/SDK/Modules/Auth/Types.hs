@@ -7,13 +7,16 @@ import           Control.Lens                 (Wrapped (..), from, iso, view,
                                                _Unwrapped')
 import           Data.Bifunctor               (bimap)
 import qualified Data.ProtoLens               as P
+import           Data.Proxy                   (Proxy (..))
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
 import           Data.Word
 import           GHC.Generics                 (Generic)
+import           GHC.TypeLits                 (symbolVal)
 import qualified Proto.Modules.Auth           as A
 import qualified Proto.Modules.Auth_Fields    as A
-import           Tendermint.SDK.BaseApp       (IsKey (..), Queryable (..))
+import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..),
+                                               IsKey (..), Queryable (..))
 import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Types.Address (Address)
 
@@ -66,3 +69,14 @@ instance IsKey Address AuthModule where
 
 instance Queryable Account where
   type Name Account = "account"
+
+data AuthError =
+  AccountAlreadExists Address
+
+instance IsAppError AuthError where
+  makeAppError (AccountAlreadExists addr) =
+    AppError
+      { appErrorCode = 1
+      , appErrorCodespace = cs (symbolVal $ Proxy @AuthModule)
+      , appErrorMessage = "Account Already Exists " <> (cs . show $ addr) <> "."
+      }

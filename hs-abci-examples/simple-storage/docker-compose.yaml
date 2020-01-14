@@ -21,6 +21,8 @@ services:
       context: ../../.
       dockerfile: Dockerfile
     image: hs-abci:test
+    environment:
+     - DD_API_KEY=${DD_API_KEY}
     restart: always
     entrypoint: /usr/local/bin/simple-storage
     expose:

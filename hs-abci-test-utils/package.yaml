@@ -19,6 +19,7 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/githubuser/hs-abci-test-utils#readme>
 
 default-extensions:
+  - DataKinds
   - DefaultSignatures
   - DeriveGeneric
   - FlexibleInstances
@@ -45,6 +46,7 @@ library:
     - aeson-pretty
     - base >= 4.7 && < 5
     - bytestring
+    - data-default-class
     - errors
     - hspec
     - lens

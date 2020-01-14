@@ -63,21 +63,18 @@ test-iavl-client: ## test the iavl client library basic operation (requires grpc
 #####################
 
 deploy-simple-storage-docker: install ## run the simple storage docker network
-	docker-compose -f hs-abci-examples/simple-storage/docker-compose-elk.yaml up --build
+	docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml up --build
 
-deploy-nameservice-elk-docker: install ## run the nameservice docker network with elk stack for logging
-	docker-compose -f hs-abci-examples/nameservice/docker-compose-elk.yaml up --build
-
-deploy-nameservice-docker: install ## run the nameservice docker network
+deploy-nameservice: install ## run the nameservice docker network with elk stack for logging
 	docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml up --build
 
-deploy-simple-storage-local: install ## run the simple storage locally
-	STATS_PORT=$(STATS_PORT) \
-	stack exec simple-storage
+deploy-nameservice-test: install ## run the nameservice docker network for testing
+	docker-compose -f hs-abci-examples/nameservice/docker-compose-test.yaml up --build
 
-deploy-nameservice-local: install ## run the nameservice locally
-	STATS_PORT=$(STATS_PORT) \
-	stack exec nameservice
+
+#####################
+# Tests
+#####################
 
 test-kv-store: install ## Run the test suite for the client interface
 	stack test hs-tendermint-client
@@ -94,8 +91,6 @@ interact-nameservice: install ## Run nameservice interaction script
 
 test-tutorial: install ## Make sure the tutorial builds
 	stack test nameservice:tutorial
-
-
 
 #####################
 # CI Support
