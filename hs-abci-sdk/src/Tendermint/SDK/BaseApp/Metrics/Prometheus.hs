@@ -205,7 +205,7 @@ evalMetrics state@MetricsState{..} = do
       start <- liftIO $ getCurrentTime
       a <- runT action
       end <- liftIO $ getCurrentTime
-      let time = fromRational . (* 1000.0) . toRational $ (end `diffUTCTime` start)
+      let time = realToFrac (end `diffUTCTime` start)
       observeHistogram state histName time
       raise $ evalMetrics state a
     )

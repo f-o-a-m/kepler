@@ -8,15 +8,15 @@ import           Nameservice.Modules.Token.Messages (Burn (..),
 import           Polysemy                           (Members, Sem)
 import           Tendermint.SDK.BaseApp             (BaseAppEffs, TxEffs)
 import           Tendermint.SDK.Types.Message       (Msg (..))
-import           Tendermint.SDK.Types.Transaction   (RoutedTx (..), Tx (..))
+import           Tendermint.SDK.Types.Transaction   (PreRoutedTx (..), Tx (..))
 
 router
   :: Members TokenEffs r
   => Members BaseAppEffs r
   => Members TxEffs r
-  => RoutedTx TokenMessage
+  => PreRoutedTx TokenMessage
   -> Sem r ()
-router (RoutedTx Tx{txMsg}) =
+router (PreRoutedTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
   in case msgData of
        TFaucetAccount faucet ->

@@ -35,8 +35,8 @@ spec = do
 
     it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
       let txMsg = SS.UpdateCount $ SS.UpdateCountTx "irakli" 4
-          tx = mkSignedRawTransactionWithRoute "simple_storage" (userPrivKey user1) txMsg
-          txReq = RPC.RequestBroadcastTxCommit
+      tx <- mkSignedRawTransactionWithRoute "simple_storage" user1 txMsg
+      let txReq = RPC.RequestBroadcastTxCommit
                     { RPC.requestBroadcastTxCommitTx = Base64.fromBytes . encode $ tx
                     }
       deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq

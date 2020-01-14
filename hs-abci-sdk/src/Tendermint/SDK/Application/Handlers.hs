@@ -4,33 +4,42 @@ module Tendermint.SDK.Application.Handlers
   , makeApp
   ) where
 
-import           Control.Lens                         (from, to, (&), (.~),
-                                                       (^.))
-import           Crypto.Hash                          (Digest)
-import           Crypto.Hash.Algorithms               (SHA256)
-import qualified Data.ByteArray.Base64String          as Base64
-import           Data.Default.Class                   (Default (..))
+import           Control.Lens                           (from, to, (&), (.~),
+                                                         (^.))
+import           Crypto.Hash                            (Digest)
+import           Crypto.Hash.Algorithms                 (SHA256)
+import qualified Data.ByteArray.Base64String            as Base64
+import           Data.Default.Class                     (Default (..))
 import           Data.Proxy
-import           Network.ABCI.Server.App              (App (..),
-                                                       MessageType (..),
-                                                       Request (..),
-                                                       Response (..))
-import qualified Network.ABCI.Types.Messages.Request  as Req
-import qualified Network.ABCI.Types.Messages.Response as Resp
+import           Network.ABCI.Server.App                (App (..),
+                                                         MessageType (..),
+                                                         Request (..),
+                                                         Response (..))
+import qualified Network.ABCI.Types.Messages.Request    as Req
+import qualified Network.ABCI.Types.Messages.Response   as Resp
 import           Polysemy
-import           Polysemy.Error                       (Error, catch)
-import qualified Tendermint.SDK.Application.Module    as M
-import qualified Tendermint.SDK.BaseApp.BaseApp       as BA
-import           Tendermint.SDK.BaseApp.CoreEff       (CoreEffs)
-import           Tendermint.SDK.BaseApp.Errors        (AppError, queryAppError,
-                                                       txResultAppError)
-import           Tendermint.SDK.BaseApp.Query         (HasRouter)
-import           Tendermint.SDK.BaseApp.Store         (ConnectionScope (..))
-import qualified Tendermint.SDK.BaseApp.Store         as Store
-import           Tendermint.SDK.Crypto                (RecoverableSignatureSchema,
-                                                       SignatureSchema (..))
-import           Tendermint.SDK.Types.TxResult        (checkTxTxResult,
-                                                       deliverTxTxResult)
+import           Polysemy.Error                         (Error, catch)
+import           Tendermint.SDK.Application.AnteHandler (AnteHandler,
+                                                         applyAnteHandler)
+import qualified Tendermint.SDK.Application.Module      as M
+import qualified Tendermint.SDK.BaseApp.BaseApp         as BA
+import           Tendermint.SDK.BaseApp.CoreEff         (CoreEffs)
+import           Tendermint.SDK.BaseApp.Errors          (AppError,
+                                                         SDKError (..),
+                                                         queryAppError,
+                                                         throwSDKError,
+                                                         txResultAppError)
+import           Tendermint.SDK.BaseApp.Query           (HasRouter)
+import           Tendermint.SDK.BaseApp.Store           (ConnectionScope (..))
+import qualified Tendermint.SDK.BaseApp.Store           as Store
+import           Tendermint.SDK.Crypto                  (RecoverableSignatureSchema,
+                                                         SignatureSchema (..))
+import qualified Tendermint.SDK.Modules.Auth            as A
+import           Tendermint.SDK.Types.Transaction       (PreRoutedTx (..),
+                                                         parseTx)
+import           Tendermint.SDK.Types.TxResult          (checkTxTxResult,
+                                                         deliverTxTxResult)
+
 
 type Handler mt r = Request mt -> Sem r (Response mt)
 
@@ -70,12 +79,14 @@ data HandlersContext alg ms r core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.Modules ms r
   , compileToCore :: forall a. BA.ScopedEff core a -> Sem core a
+  , anteHandler   :: AnteHandler r
   }
 
 -- Common function between checkTx and deliverTx
 makeHandlers
   :: forall alg ms r core.
-     Member (Error AppError) r
+     Members A.AuthEffs r
+  => Member (Error AppError) r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r
@@ -90,7 +101,10 @@ makeHandlers HandlersContext{..} =
   let
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
-      txRouter context =  compileToBaseApp . M.txRouter signatureAlgP context modules
+      routerWithAH context = applyAnteHandler anteHandler $ M.txRouter context modules
+      txRouter context bs = case parseTx signatureAlgP bs of
+        Left err -> throwSDKError $ ParseError err
+        Right tx -> compileToBaseApp $ M.runRouter (routerWithAH context) (PreRoutedTx tx)
       queryRouter = compileToBaseApp . M.queryRouter modules
 
       query (RequestQuery q) = Store.applyScope $
@@ -143,7 +157,8 @@ makeHandlers HandlersContext{..} =
 
 makeApp
   :: forall alg ms r core.
-     Members [Error AppError, Embed IO] r
+     Members A.AuthEffs r
+  => Members [Error AppError, Embed IO] r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r
