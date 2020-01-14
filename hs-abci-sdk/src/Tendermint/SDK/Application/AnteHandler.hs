@@ -45,7 +45,7 @@ nonceAnteHandler = AnteHandler $ \(M.Router router) ->
             throwSDKError (NonceException 0 txNonce)
           A.createAccount msgAuthor
       result <- router tx
-      A.putAccount msgAuthor $ 
+      A.putAccount msgAuthor $
         account { A.accountNonce = A.accountNonce account + 1}
       pure result
 
