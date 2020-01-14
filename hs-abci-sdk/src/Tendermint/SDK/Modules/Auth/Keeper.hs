@@ -12,7 +12,6 @@ import           Tendermint.SDK.Types.Address      (Address)
 
 data Accounts m a where
   PutAccount :: Address -> Account -> Accounts m ()
-  ModifyAccount :: Address -> (Account -> Account) -> Accounts m ()
   GetAccount :: Address -> Accounts m (Maybe Account)
 
 makeSem ''Accounts
@@ -25,7 +24,7 @@ storeKey = StoreKey "auth"
 createAccount
   :: Members [Accounts, Error AuthError] r
   => Address
-  -> Sem r ()
+  -> Sem r Account
 createAccount addr = do
   mAcct <- getAccount addr
   case mAcct of
@@ -36,7 +35,7 @@ createAccount addr = do
             , accountNonce = 0
             }
       putAccount addr emptyAccount
-
+      pure emptyAccount
 
 eval
   :: Members [RawStore, Error AppError] r
@@ -51,12 +50,6 @@ eval = mapError makeAppError . evalAuth
       interpret (\case
           GetAccount addr ->
             get storeKey addr
-          ModifyAccount addr f -> do
-            mAcnt <- get storeKey addr
-            case mAcnt of
-              -- when Nothing, create a new account
-              Nothing   -> put storeKey addr (f $ Account [] 0)
-              Just acnt -> put storeKey addr (f acnt)
           PutAccount addr acnt ->
             put storeKey addr acnt
         )

@@ -35,17 +35,18 @@ nonceAnteHandler = AnteHandler $ \(M.Router router) ->
     M.Router $ \tx@(PreRoutedTx Tx{..}) -> do
       let Msg{msgAuthor} = txMsg
       mAcnt <- A.getAccount msgAuthor
-      case mAcnt of
-        Just A.Account{accountNonce} -> do
+      account <- case mAcnt of
+        Just a@A.Account{accountNonce} -> do
           unless (accountNonce <= txNonce) $
             throwSDKError (NonceException accountNonce txNonce)
+          pure a
         Nothing -> do
           unless (txNonce == 0) $
             throwSDKError (NonceException 0 txNonce)
           A.createAccount msgAuthor
       result <- router tx
-      A.modifyAccount msgAuthor $ \acc ->
-        acc { A.accountNonce = A.accountNonce acc + 1}
+      A.putAccount msgAuthor $ 
+        account { A.accountNonce = A.accountNonce account + 1}
       pure result
 
 baseAppAnteHandler
