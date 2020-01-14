@@ -12,6 +12,4 @@ main = do
   mThreads <- lookupEnv "INTERACT_THREAD_COUNT"
   let threads = maybe 1 read mThreads :: Int
   putStrLn $ "Running nameservice interaction with #threads: " <> show threads
-  faucetAccount user1 10000
-  faucetAccount user2 10000
   forever $ forConcurrently_ [1..threads] $ const actionBlock

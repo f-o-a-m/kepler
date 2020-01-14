@@ -141,6 +141,7 @@ executables:
     dependencies:
     - async
     - base
+    - bytestring
     - faker
     - nameservice
     - hs-abci-sdk

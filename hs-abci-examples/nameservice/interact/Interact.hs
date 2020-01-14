@@ -1,11 +1,9 @@
 module Interact
-  ( user1
-  , user2
-  , faucetAccount
-  , actionBlock
+  ( actionBlock
   ) where
 
 import           Control.Monad                    (replicateM)
+import           Data.ByteString                  (ByteString)
 import           Data.String                      (fromString)
 import           Data.String.Conversions          (cs)
 import           Data.Text                        (Text)
@@ -26,26 +24,34 @@ import           Tendermint.Utils.User            (User (..), makeUser, mkSigned
 -- Actions
 --------------------------------------------------------------------------------
 
+faucetAccount :: User -> Amount -> IO ()
+faucetAccount user@User{userAddress} amount =
+  runAction_ user "token" "FaucetAccount" (FaucetAccount userAddress amount)
+
 createName :: User -> Name -> Text -> IO ()
 createName user name val = buyName user name val 0
 
 buyName :: User -> Name -> Text -> Amount -> IO ()
-buyName User{userAddress, userPrivKey} name newVal amount =
-  let msg = TypedMessage "BuyName" (encode $ BuyName amount name newVal userAddress)
-      rawTx = mkSignedRawTransactionWithRoute "nameservice" userPrivKey msg
-  in runTransaction_ rawTx
+buyName user@User{userAddress} name newVal amount =
+  runAction_ user "nameservice" "BuyName" (BuyName amount name newVal userAddress)
 
 deleteName :: User -> Name -> IO ()
-deleteName User{userAddress, userPrivKey} name =
-  let msg = TypedMessage "DeleteName" (encode $ DeleteName userAddress name)
-      rawTx = mkSignedRawTransactionWithRoute "nameservice" userPrivKey msg
-  in runTransaction_ rawTx
+deleteName user@User{userAddress} name =
+  runAction_ user "nameservice" "DeleteName" (DeleteName userAddress name)
 
 setName :: User -> Name -> Text -> IO ()
-setName User{userAddress, userPrivKey} name val =
-  let msg = TypedMessage "SetName" (encode $ SetName name userAddress val)
-      rawTx = mkSignedRawTransactionWithRoute "nameservice" userPrivKey msg
-  in runTransaction_ rawTx
+setName user@User{userAddress} name val =
+  runAction_ user "nameservice" "SetName" (SetName name userAddress val)
+
+runAction_
+  :: HasCodec a
+  => User
+  -> ByteString
+  -> Text
+  -> a
+  -> IO ()
+runAction_ user bs t msg = runTransaction_ =<<
+  mkSignedRawTransactionWithRoute bs user (TypedMessage t (encode msg))
 
 actionBlock :: IO ()
 actionBlock = do
@@ -54,16 +60,11 @@ actionBlock = do
   genBVal <- genWords
   genBAmt <- genAmount
   genSVal <- genWords
+  faucetAccount user2 genBAmt
   createName user1 name genCVal
   buyName user2 name genBVal genBAmt
   setName user2 name genSVal
   deleteName user2 name
-
-faucetAccount :: User -> Amount -> IO ()
-faucetAccount User{userAddress, userPrivKey} amount =
-  let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress amount)
-      rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey msg
-  in runTransaction_ rawTx
 
 --------------------------------------------------------------------------------
 -- Users
@@ -79,11 +80,9 @@ user2 = makeUser "f65242094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e03
 -- Generation
 --------------------------------------------------------------------------------
 
--- should be as unique as possible to avoid Tx clashing
-
 genWords :: IO Text
 genWords = do
-  numWords <- Utils.randomNum (1, 25)
+  numWords <- Utils.randomNum (1, 10)
   ws <- replicateM numWords Lorem.word
   return . cs . unwords $ ws
 
@@ -94,5 +93,5 @@ genName = do
 
 genAmount :: IO Amount
 genAmount = do
-  genAmt <- Utils.randomNum (1, 1000)
+  genAmt <- Utils.randomNum (1, 100)
   return . fromInteger . toInteger $ genAmt
