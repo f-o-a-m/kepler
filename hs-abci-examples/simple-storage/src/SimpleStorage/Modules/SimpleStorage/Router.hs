@@ -10,16 +10,16 @@ import           SimpleStorage.Modules.SimpleStorage.Message
 import           SimpleStorage.Modules.SimpleStorage.Types   (Count (..))
 import           Tendermint.SDK.BaseApp                      (TxEffs)
 import           Tendermint.SDK.Types.Message                (Msg (..))
-import           Tendermint.SDK.Types.Transaction            (RoutedTx (..),
+import           Tendermint.SDK.Types.Transaction            (PreRoutedTx (..),
                                                               Tx (..))
 
 
 router
   :: Member SimpleStorage r
   => Members TxEffs r
-  => RoutedTx SimpleStorageMessage
+  => PreRoutedTx SimpleStorageMessage
   -> Sem r ()
-router (RoutedTx Tx{txMsg}) =
+router (PreRoutedTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
   in case msgData of
        UpdateCount UpdateCountTx{updateCountTxCount} ->

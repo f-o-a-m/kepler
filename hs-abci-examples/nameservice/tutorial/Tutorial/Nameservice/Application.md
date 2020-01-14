@@ -42,7 +42,7 @@ import Nameservice.Modules.Token (tokenModule, TokenM, TokenEffs)
 import Network.ABCI.Server.App (App)
 import Polysemy (Sem)
 import Tendermint.SDK.Modules.Auth (authModule, AuthEffs, AuthM)
-import Tendermint.SDK.Application (Modules(..), HandlersContext(..), makeApp)
+import Tendermint.SDK.Application (Modules(..), HandlersContext(..), baseAppAnteHandler, makeApp)
 import Tendermint.SDK.BaseApp (BaseApp, CoreEffs, (:&), compileScopedEff)
 import Tendermint.SDK.Crypto (Secp256k1)
 ~~~
@@ -76,6 +76,7 @@ handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = nameserviceModules
   , compileToCore  = compileScopedEff
+  , anteHandler = baseAppAnteHandler
   }
   where
   nameserviceModules :: Modules NameserviceModules EffR

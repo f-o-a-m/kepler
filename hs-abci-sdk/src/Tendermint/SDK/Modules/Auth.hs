@@ -3,9 +3,11 @@ module Tendermint.SDK.Modules.Auth
   , authModule
 
   , AuthEffs
+  , Account(..)
   , Accounts(..)
   , getAccount
   , putAccount
+  , createAccount
   , eval
 
   , Api

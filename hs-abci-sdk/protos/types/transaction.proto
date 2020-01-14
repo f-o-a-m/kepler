@@ -6,4 +6,5 @@ message RawTransaction {
   int64 gas = 2;
   bytes signature = 3;
   string route = 4;
+  uint64 nonce = 5; 
 }

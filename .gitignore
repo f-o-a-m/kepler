@@ -2,3 +2,4 @@
 *.cabal
 *~
 .ci-bins/
+*.dump-hi
