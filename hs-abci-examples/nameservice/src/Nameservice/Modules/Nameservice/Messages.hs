@@ -10,7 +10,7 @@ import           Proto3.Suite                          (Message, Named,
                                                         fromByteString,
                                                         toLazyByteString)
 import           Tendermint.SDK.Codec                  (HasCodec (..))
-import           Tendermint.SDK.Modules.Token          (Amount (..))
+import           Tendermint.SDK.Modules.Bank           (Amount (..))
 import           Tendermint.SDK.Modules.TypedMessage   (TypedMessage (..))
 import           Tendermint.SDK.Types.Address          (Address (..))
 import           Tendermint.SDK.Types.Message          (Msg (..),

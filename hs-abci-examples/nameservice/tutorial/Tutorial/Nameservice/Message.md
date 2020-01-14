@@ -30,7 +30,7 @@ import Tendermint.SDK.Types.Address (Address)
 import Tendermint.SDK.Types.Message (Msg(..), ValidateMessage(..),
                                      isAuthorCheck, nonEmptyCheck,
                                      coerceProto3Error, formatMessageParseError)
-import Tendermint.SDK.Modules.Token (Amount)
+import Tendermint.SDK.Modules.Bank (Amount)
 import Tendermint.SDK.Modules.TypedMessage (TypedMessage(..))
 import Tendermint.SDK.Codec (HasCodec(..))
 ~~~

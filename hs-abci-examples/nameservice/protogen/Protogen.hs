@@ -23,7 +23,7 @@ import           Proto3.Suite.DotProto.Rendering          (RenderingOptions,
                                                            defRenderingOptions)
 import qualified Proto3.Wire.Decode                       as Decode
 import           Proto3.Wire.Types                        (FieldNumber (..))
-import           Tendermint.SDK.Modules.Token             (Amount (..))
+import           Tendermint.SDK.Modules.Bank              (Amount (..))
 import           Tendermint.SDK.Types.Address             (Address (..))
 import qualified Text.PrettyPrint                         as PP
 

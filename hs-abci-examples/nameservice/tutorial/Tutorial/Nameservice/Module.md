@@ -16,7 +16,7 @@ import Polysemy                                 (Members)
 import Tendermint.SDK.Application               (Module (..),
                                                  defaultTxChecker)
 import Tendermint.SDK.BaseApp                   (BaseAppEffs)
-import Tendermint.SDK.Modules.Token                (TokenEffs)
+import Tendermint.SDK.Modules.Bank                (BankEffs)
 
 -- a convenient type alias
 type NameserviceM r =
@@ -24,7 +24,7 @@ type NameserviceM r =
 
 nameserviceModule
   :: Members BaseAppEffs r
-  => Members TokenEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
   => NameserviceM r
 nameserviceModule = Module
@@ -57,12 +57,12 @@ Note the constraints on the module's effects `r`:
 ~~~ haskell ignore
 ...
   :: Members BaseAppEffs r
-  => Members TokenEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
 ...
 ~~~
 
-This is saying that we can run this module in any context for which `r` has the effects from `BaseApp`, `Token`, and `Nameservice`. This is how we explicitly declare module dependencies, by using the constraint system.
+This is saying that we can run this module in any context for which `r` has the effects from `BaseApp`, `Bank`, and `Nameservice`. This is how we explicitly declare module dependencies, by using the constraint system.
 
 Other than that, there is nothing really to note. We are just collecting the pieces we have already defined in one place.
 

@@ -19,12 +19,12 @@ import           Servant.API                          ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp.Query         (QueryArgs (..),
                                                        defaultQueryWithData)
 import           Tendermint.SDK.Codec                 (HasCodec (..))
-import           Tendermint.SDK.Modules.Token         (Amount (..),
+import           Tendermint.SDK.Modules.Bank          (Amount (..),
                                                        FaucetAccount (..),
                                                        Faucetted (..),
                                                        Transfer (..),
                                                        TransferEvent (..))
-import qualified Tendermint.SDK.Modules.Token         as T (Api)
+import qualified Tendermint.SDK.Modules.Bank          as Bank (Api)
 import           Tendermint.SDK.Modules.TypedMessage  (TypedMessage (..))
 import           Tendermint.SDK.Types.Address         (Address (..))
 import           Tendermint.Utils.Client              (ClientResponse (..),
@@ -160,7 +160,7 @@ spec = do
         addr2Balance <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
         let tooMuchToTransfer = addr2Balance + 1
             msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 tooMuchToTransfer)
-        ensureCheckAndDeliverResponseCodes (0,1) =<< mkSignedRawTransactionWithRoute "token" user2 msg
+        ensureCheckAndDeliverResponseCodes (0,1) =<< mkSignedRawTransactionWithRoute "bank" user2 msg
 
       it "Can transfer (success 0)" $ do
         balance1 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
@@ -177,7 +177,7 @@ spec = do
               , transferEventTo = addr2
               , transferEventFrom = addr1
               }
-        deliverResp <- mkSignedRawTransactionWithRoute "token" user1 msg >>= getDeliverTxResponse
+        deliverResp <- mkSignedRawTransactionWithRoute "bank" user1 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "TransferEvent" transferEvent
         -- check balances
@@ -200,14 +200,14 @@ faucetAccount :: User -> Amount -> IO ()
 faucetAccount user@User{userAddress} amount = do
   let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress amount)
       faucetEvent = Faucetted userAddress amount
-  deliverResp <- mkSignedRawTransactionWithRoute "token" user msg >>= getDeliverTxResponse
+  deliverResp <- mkSignedRawTransactionWithRoute "bank" user msg >>= getDeliverTxResponse
   ensureDeliverResponseCode deliverResp 0
   ensureEventLogged deliverResp "Faucetted" faucetEvent
 
 getWhois :: QueryArgs Name -> RPC.TendermintM (ClientResponse Whois)
 getBalance :: QueryArgs Address -> RPC.TendermintM (ClientResponse Amount)
 
-apiP :: Proxy ("token" :> T.Api :<|> ("nameservice" :> N.Api))
+apiP :: Proxy ("bank" :> Bank.Api :<|> ("nameservice" :> N.Api))
 apiP = Proxy
 
 (getBalance :<|> getWhois) =

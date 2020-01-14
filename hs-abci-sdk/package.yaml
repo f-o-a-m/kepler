@@ -117,12 +117,12 @@ library:
   - Tendermint.SDK.Codec
   - Tendermint.SDK.Crypto
   - Tendermint.SDK.Modules.Auth
-  - Tendermint.SDK.Modules.Token
-  - Tendermint.SDK.Modules.Token.Messages
-  - Tendermint.SDK.Modules.Token.Types
-  - Tendermint.SDK.Modules.Token.Keeper
-  - Tendermint.SDK.Modules.Token.Query
-  - Tendermint.SDK.Modules.Token.Router
+  - Tendermint.SDK.Modules.Bank
+  - Tendermint.SDK.Modules.Bank.Messages
+  - Tendermint.SDK.Modules.Bank.Types
+  - Tendermint.SDK.Modules.Bank.Keeper
+  - Tendermint.SDK.Modules.Bank.Query
+  - Tendermint.SDK.Modules.Bank.Router
   - Tendermint.SDK.Modules.TypedMessage
   - Tendermint.SDK.Types.Address
   - Tendermint.SDK.Types.Effects

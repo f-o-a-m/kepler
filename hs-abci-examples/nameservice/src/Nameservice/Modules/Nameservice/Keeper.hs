@@ -13,8 +13,8 @@ import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
 import qualified Tendermint.SDK.BaseApp                   as BaseApp
-import           Tendermint.SDK.Modules.Token             (Token, TokenEffs,
-                                                           burn, mint, transfer)
+import           Tendermint.SDK.Modules.Bank              (Bank, BankEffs, burn,
+                                                           mint, transfer)
 
 data NameserviceKeeper m a where
   PutWhois :: Name -> Whois -> NameserviceKeeper m ()
@@ -72,7 +72,7 @@ setName SetName{..} = do
           BaseApp.logEvent event
 
 deleteName
-  :: Members [BaseApp.Logger, Token, Output BaseApp.Event] r
+  :: Members [BaseApp.Logger, Bank, Output BaseApp.Event] r
   => Members NameserviceEffs r
   => DeleteName
   -> Sem r ()
@@ -94,7 +94,7 @@ deleteName DeleteName{..} = do
 
 buyName
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
-  => Members TokenEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
   => BuyName
   -> Sem r ()
@@ -112,7 +112,7 @@ buyName msg = do
     where
       buyUnclaimedName
         :: Members [BaseApp.Logger, Output BaseApp.Event] r
-        => Members TokenEffs r
+        => Members BankEffs r
         => Members NameserviceEffs r
         => BuyName
         -> Sem r ()
@@ -135,7 +135,7 @@ buyName msg = do
 
       buyClaimedName
         :: Members NameserviceEffs r
-        => Members TokenEffs r
+        => Members BankEffs r
         => Members [BaseApp.Logger, Output BaseApp.Event] r
         => BuyName
         -> Whois

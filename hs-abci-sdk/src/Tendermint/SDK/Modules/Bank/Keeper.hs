@@ -1,39 +1,39 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.Modules.Token.Keeper where
+module Tendermint.SDK.Modules.Bank.Keeper where
 
-import           Data.Maybe                            (fromMaybe)
+import           Data.Maybe                           (fromMaybe)
 import           Polysemy
-import           Polysemy.Error                        (Error, mapError, throw)
-import           Polysemy.Output                       (Output)
-import qualified Tendermint.SDK.BaseApp                as BaseApp
-import           Tendermint.SDK.Modules.Token.Messages (FaucetAccount (..))
-import           Tendermint.SDK.Modules.Token.Types    (Amount (..),
-                                                        Faucetted (..),
-                                                        TokenError (..),
-                                                        TransferEvent (..))
-import           Tendermint.SDK.Types.Address          (Address)
+import           Polysemy.Error                       (Error, mapError, throw)
+import           Polysemy.Output                      (Output)
+import qualified Tendermint.SDK.BaseApp               as BaseApp
+import           Tendermint.SDK.Modules.Bank.Messages (FaucetAccount (..))
+import           Tendermint.SDK.Modules.Bank.Types    (Amount (..),
+                                                       BankError (..),
+                                                       Faucetted (..),
+                                                       TransferEvent (..))
+import           Tendermint.SDK.Types.Address         (Address)
 
-data Token m a where
-    PutBalance :: Address -> Amount -> Token m ()
-    GetBalance' :: Address -> Token m (Maybe Amount)
+data Bank m a where
+    PutBalance :: Address -> Amount -> Bank m ()
+    GetBalance' :: Address -> Bank m (Maybe Amount)
 
-makeSem ''Token
+makeSem ''Bank
 
-type TokenEffs = '[Token, Error TokenError]
+type BankEffs = '[Bank, Error BankError]
 
-storeKey :: BaseApp.StoreKey "token"
-storeKey = BaseApp.StoreKey "token"
+storeKey :: BaseApp.StoreKey "bank"
+storeKey = BaseApp.StoreKey "bank"
 
 eval
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-  => forall a. Sem (Token ': Error TokenError ': r) a -> Sem r a
-eval = mapError BaseApp.makeAppError . evalToken
+  => forall a. Sem (Bank ': Error BankError ': r) a -> Sem r a
+eval = mapError BaseApp.makeAppError . evalBank
   where
-    evalToken
+    evalBank
       :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-      => forall a. Sem (Token ': r) a -> Sem r a
-    evalToken =
+      => forall a. Sem (Bank ': r) a -> Sem r a
+    evalBank =
       interpret
         (\case
           GetBalance' address ->
@@ -46,7 +46,7 @@ eval = mapError BaseApp.makeAppError . evalToken
 
 faucetAccount
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
-  => Members TokenEffs r
+  => Members BankEffs r
   => FaucetAccount
   -> Sem r ()
 faucetAccount FaucetAccount{..} = do
@@ -59,7 +59,7 @@ faucetAccount FaucetAccount{..} = do
   BaseApp.logEvent event
 
 getBalance
-  :: Member Token r
+  :: Member Bank r
   => Address
   -> Sem r Amount
 getBalance address =
@@ -67,7 +67,7 @@ getBalance address =
 
 transfer
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
-  => Members TokenEffs r
+  => Members BankEffs r
   => Address
   -> Amount
   -> Address
@@ -93,7 +93,7 @@ transfer addr1 amount addr2 = do
     else throw (InsufficientFunds "Insufficient funds for transfer.")
 
 burn
-  :: Members TokenEffs r
+  :: Members BankEffs r
   => Address
   -> Amount
   -> Sem r ()
@@ -104,7 +104,7 @@ burn addr amount = do
     else putBalance addr (bal - amount)
 
 mint
-  :: Member Token r
+  :: Member Bank r
   => Address
   -> Amount
   -> Sem r ()

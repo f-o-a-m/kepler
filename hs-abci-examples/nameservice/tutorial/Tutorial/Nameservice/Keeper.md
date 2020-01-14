@@ -19,7 +19,7 @@ import Polysemy.Output (Output)
 import Nameservice.Modules.Nameservice.Messages (DeleteName(..))
 import Nameservice.Modules.Nameservice.Types (Whois(..), Name, NameDeleted(..), NameserviceModuleName, NameserviceError(..))
 import qualified Tendermint.SDK.BaseApp as BA
-import Tendermint.SDK.Modules.Token (Token, mint)
+import Tendermint.SDK.Modules.Bank (Bank, mint)
 ~~~
 
 Generally a keeper is defined by a set of effects that the module introduces and depends on. In the case of Nameservice, we introduce the custom `Nameservice` effect:
@@ -48,7 +48,7 @@ We can then write the top level function for example for deleting a name:
 
 ~~~ haskell
 deleteName
-  :: Members [Token, Output BA.Event] r
+  :: Members [Bank, Output BA.Event] r
   => Members [NameserviceKeeper, Error NameserviceError] r
   => DeleteName
   -> Sem r ()
@@ -77,12 +77,12 @@ The control flow should be pretty clear:
 Taking a look at the class constraints, we see
 
 ~~~ haskell ignore
-(Members NameserviceEffs, Members [Token, Output Event] r)
+(Members NameserviceEffs, Members [Bank, Output Event] r)
 ~~~
 
 - The `NameserviceKeeper` effect is required because the function may manipulate the modules database with `deleteName`.
 - The `Error NameserviceError` effect is required because the function may throw an error.
-- The `Token` effect is required because the function will mint coins.
+- The `Bank` effect is required because the function will mint coins.
 - The `Output Event` effect is required because the function may emit a `NameDeleted` event.
 
 ### Evaluating Module Effects

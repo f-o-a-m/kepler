@@ -41,7 +41,7 @@ import Nameservice.Modules.Nameservice (nameserviceModule, NameserviceM, Nameser
 import Network.ABCI.Server.App (App)
 import Polysemy (Sem)
 import Tendermint.SDK.Modules.Auth (authModule, AuthEffs, AuthM)
-import Tendermint.SDK.Modules.Token (tokenModule, TokenM, TokenEffs)
+import Tendermint.SDK.Modules.Bank (bankModule, BankM, BankEffs)
 import Tendermint.SDK.Application (Modules(..), HandlersContext(..), baseAppAnteHandler, makeApp)
 import Tendermint.SDK.BaseApp (BaseApp, CoreEffs, (:&), compileScopedEff)
 import Tendermint.SDK.Crypto (Secp256k1)
@@ -55,13 +55,13 @@ to the fact that type level lists are used to represent the effects in `polysemy
 ~~~ haskell
 type EffR =
    NameserviceEffs :&
-   TokenEffs :&
+   BankEffs :&
    AuthEffs :&
    BaseApp CoreEffs
 
 type NameserviceModules =
    '[ NameserviceM EffR
-    , TokenM EffR
+    , BankM EffR
     , AuthM EffR
     ]
 ~~~
@@ -82,7 +82,7 @@ handlersContext = HandlersContext
   nameserviceModules :: Modules NameserviceModules EffR
   nameserviceModules =
        nameserviceModule
-    :+ tokenModule
+    :+ bankModule
     :+ authModule
     :+ NilModules
 ~~~

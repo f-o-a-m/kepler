@@ -1,4 +1,4 @@
-module Tendermint.SDK.Modules.Token.Messages where
+module Tendermint.SDK.Modules.Bank.Messages where
 
 import           Data.Bifunctor                      (first)
 import           Data.String.Conversions             (cs)
@@ -8,7 +8,7 @@ import           Proto3.Suite                        (Message, Named,
                                                       fromByteString,
                                                       toLazyByteString)
 import           Tendermint.SDK.Codec                (HasCodec (..))
-import           Tendermint.SDK.Modules.Token.Types  (Amount)
+import           Tendermint.SDK.Modules.Bank.Types   (Amount)
 import           Tendermint.SDK.Modules.TypedMessage (TypedMessage (..))
 import           Tendermint.SDK.Types.Address        (Address)
 import           Tendermint.SDK.Types.Message        (Msg (..),
@@ -16,7 +16,7 @@ import           Tendermint.SDK.Types.Message        (Msg (..),
                                                       coerceProto3Error,
                                                       formatMessageParseError)
 
-data TokenMessage =
+data BankMessage =
     TTransfer Transfer
   | TFaucetAccount FaucetAccount
   | TBurn Burn
@@ -59,20 +59,20 @@ instance HasCodec Burn where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
-instance HasCodec TokenMessage where
+instance HasCodec BankMessage where
   decode bs = do
     TypedMessage{..} <- decode bs
     case typedMessageType of
       "Transfer" -> TTransfer <$> decode typedMessageContents
       "Burn" -> TBurn <$> decode typedMessageContents
       "FaucetAccount" -> TFaucetAccount <$> decode typedMessageContents
-      _ -> Left . cs $ "Unknown Token message type " ++ cs typedMessageType
+      _ -> Left . cs $ "Unknown Bank message type " ++ cs typedMessageType
   encode = \case
     TTransfer msg -> encode msg
     TBurn msg -> encode msg
     TFaucetAccount msg -> encode msg
 
-instance ValidateMessage TokenMessage where
+instance ValidateMessage BankMessage where
   validateMessage m@Msg{msgData} = case msgData of
     TTransfer msg      -> validateMessage m {msgData = msg}
     TFaucetAccount msg -> validateMessage m {msgData = msg}

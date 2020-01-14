@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Tendermint.SDK.Modules.Token.Types where
+module Tendermint.SDK.Modules.Bank.Types where
 
 import           Data.Aeson                   as A
 import           Data.Aeson                   (Options)
@@ -27,7 +27,7 @@ defaultNameserviceOptions prefix = aesonDrop (length prefix) snakeCase
 
 --------------------------------------------------------------------------------
 
-type TokenModule = "token"
+type BankModule = "bank"
 
 --------------------------------------------------------------------------------
 
@@ -64,21 +64,21 @@ instance HasDefault Hex.HexString
 instance HasDefault Address
 instance MessageField Address
 
-instance BaseApp.IsKey Address "token" where
-  type Value Address "token" = Amount
+instance BaseApp.IsKey Address "bank" where
+  type Value Address "bank" = Amount
 
 --------------------------------------------------------------------------------
 -- Exceptions
 --------------------------------------------------------------------------------
 
-data TokenError =
+data BankError =
     InsufficientFunds Text
 
-instance BaseApp.IsAppError TokenError where
+instance BaseApp.IsAppError BankError where
     makeAppError (InsufficientFunds msg) =
       BaseApp.AppError
         { appErrorCode = 1
-        , appErrorCodespace = "token"
+        , appErrorCodespace = "bank"
         , appErrorMessage = msg
         }
 

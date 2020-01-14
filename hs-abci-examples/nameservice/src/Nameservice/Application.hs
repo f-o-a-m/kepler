@@ -13,17 +13,17 @@ import           Tendermint.SDK.BaseApp          ((:&))
 import qualified Tendermint.SDK.BaseApp          as BaseApp
 import           Tendermint.SDK.Crypto           (Secp256k1)
 import qualified Tendermint.SDK.Modules.Auth     as A
-import qualified Tendermint.SDK.Modules.Token    as T
+import qualified Tendermint.SDK.Modules.Bank     as B
 
 type EffR =
    N.NameserviceEffs :&
-   T.TokenEffs :&
+   B.BankEffs :&
    A.AuthEffs :&
    BaseApp.BaseApp BaseApp.CoreEffs
 
 type NameserviceModules =
    '[ N.NameserviceM EffR
-    , T.TokenM EffR
+    , B.BankM EffR
     , A.AuthM EffR
     ]
 
@@ -38,6 +38,6 @@ handlersContext = HandlersContext
   nameserviceModules :: Modules NameserviceModules EffR
   nameserviceModules =
        N.nameserviceModule
-    :+ T.tokenModule
+    :+ B.bankModule
     :+ A.authModule
     :+ NilModules

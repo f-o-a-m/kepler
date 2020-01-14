@@ -45,14 +45,14 @@ import           Polysemy                                 (Members)
 import           Tendermint.SDK.Application               (Module (..),
                                                            defaultTxChecker)
 import           Tendermint.SDK.BaseApp                   (BaseAppEffs)
-import           Tendermint.SDK.Modules.Token             (TokenEffs)
+import           Tendermint.SDK.Modules.Bank              (BankEffs)
 
 type NameserviceM r =
   Module "nameservice" NameserviceMessage () Api NameserviceEffs r
 
 nameserviceModule
   :: Members BaseAppEffs r
-  => Members TokenEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
   => NameserviceM r
 nameserviceModule = Module
