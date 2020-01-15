@@ -75,7 +75,7 @@ transfer
 transfer addr1 amount addr2 = do
   -- check if addr1 has amt
   addr1Bal <- getBalance addr1
-  if addr1Bal > amount
+  if addr1Bal >= amount
     then do
       addr2Bal <- getBalance addr2
       let newBalance1 = addr1Bal - amount
