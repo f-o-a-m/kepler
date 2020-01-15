@@ -18,8 +18,6 @@ You can provide the following environment variables when running `make deploy-na
 - LOG_SEVERITY (defaults to **info**) : minimum log severtiy level {debug, info, notice, warning, error, critical, alert, emergency}
 - LOG_VERBOSITY (defaults to **0**) : for each loggable data point, the level of information actually logged {0, 1, 2, 3}
 
-**NOTE** If you do not provide both of the elasticsearch variables, the logger will default to logging to the console.
-
 ## Logging and Metrics
 
 There is a lot to say about how [logging](./docs/Logging.md) and [metrics](./docs/Metrics.md) are managed if you decide to use them.
