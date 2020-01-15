@@ -6,7 +6,6 @@ module Tendermint.SDK.Modules.Bank
   , bankModule
   -- * types
   , Address
-  , Amount(..)
   , BankError(..)
   , Transfer(..)
 

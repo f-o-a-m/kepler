@@ -4,15 +4,15 @@ import           Data.Proxy
 import           Polysemy
 import           Polysemy.Error                     (Error)
 import qualified Tendermint.SDK.BaseApp             as BaseApp
+import qualified Tendermint.SDK.Modules.Auth        as Auth
 import           Tendermint.SDK.Modules.Bank.Keeper (storeKey)
-import           Tendermint.SDK.Modules.Bank.Types  (Amount)
 import           Tendermint.SDK.Types.Address       (Address)
 
 --------------------------------------------------------------------------------
 -- | Query Api
 --------------------------------------------------------------------------------
 
-type BankContents = '[(Address, Amount)]
+type BankContents = '[((Address, Text), [Auth.Coin])]
 
 type Api = BaseApp.QueryApi BankContents
 

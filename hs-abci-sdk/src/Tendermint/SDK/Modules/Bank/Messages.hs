@@ -8,13 +8,14 @@ import           Proto3.Suite                        (Message, Named,
                                                       fromByteString,
                                                       toLazyByteString)
 import           Tendermint.SDK.Codec                (HasCodec (..))
-import           Tendermint.SDK.Modules.Bank.Types   (Amount)
 import           Tendermint.SDK.Modules.TypedMessage (TypedMessage (..))
 import           Tendermint.SDK.Types.Address        (Address)
 import           Tendermint.SDK.Types.Message        (Msg (..),
                                                       ValidateMessage (..),
                                                       coerceProto3Error,
                                                       formatMessageParseError)
+import qualified Tendermint.SDK.Modules.Auth as Auth
+import Tendermint.SDK.Modules.Bank.Types ()
 
 data BankMessage =
     TTransfer Transfer
@@ -24,7 +25,7 @@ data BankMessage =
 
 data FaucetAccount = FaucetAccount
   { faucetAccountTo     :: Address
-  , faucetAccountAmount :: Amount
+  , faucetAccountAmount :: Auth.Coin
   } deriving (Eq, Show, Generic)
 
 instance Message FaucetAccount
@@ -37,7 +38,7 @@ instance HasCodec FaucetAccount where
 data Transfer = Transfer
   { transferTo     :: Address
   , transferFrom   :: Address
-  , transferAmount :: Amount
+  , transferAmount :: Auth.Coin
   } deriving (Eq, Show, Generic)
 
 instance Message Transfer
@@ -49,7 +50,7 @@ instance HasCodec Transfer where
 
 data Burn = Burn
   { burnAddress :: Address
-  , burnAmount  :: Amount
+  , burnAmount  :: Auth.Coin
   } deriving (Eq, Show, Generic)
 
 instance Message Burn

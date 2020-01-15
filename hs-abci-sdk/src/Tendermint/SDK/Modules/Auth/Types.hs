@@ -17,17 +17,22 @@ import qualified Proto.Modules.Auth           as A
 import qualified Proto.Modules.Auth_Fields    as A
 import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..),
                                                IsKey (..), Queryable (..))
-import           Tendermint.SDK.Codec         (HasCodec (..))
+import           Tendermint.SDK.Codec         (HasCodec (..), defaultSDKAesonOptions)
+import qualified Tendermint.SDK.Codec         as Codec
 import           Tendermint.SDK.Types.Address (Address)
+import           Data.Aeson                   as JSON
+import           Proto3.Suite                 (HasDefault (..), MessageField,
+                                               Primitive (..))
+import qualified Proto3.Wire.Decode           as Decode
+import qualified Proto3.Wire.Encode           as Encode
+import qualified Proto3.Suite.DotProto        as DotProto
 
 type AuthModule = "auth"
 
-newtype Denomination = Denomination { unDenomination :: Text }
-
 data Coin = Coin
-  { coinDenomination :: Denomination
+  { coinDenomination :: Text
   , coinAmount       :: Word64
-  } deriving Generic
+  } deriving (Eq, Show, Generic)
 
 instance Wrapped Coin where
   type Unwrapped Coin = A.Coin
@@ -47,7 +52,24 @@ instance HasCodec Coin where
   encode = P.encodeMessage . view _Wrapped'
   decode = bimap cs (view $ from _Wrapped') . P.decodeMessage
 
--- Coin probably need a to/from json instance
+
+coinAesonOptions :: JSON.Options
+coinAesonOptions = defaultSDKAesonOptions "coin"
+
+instance JSON.ToJSON Coin where
+  toJSON = JSON.genericToJSON coinAesonOptions
+instance JSON.FromJSON Coin where
+  parseJSON = JSON.genericParseJSON coinAesonOptions
+instance Primitive Coin where
+  encodePrimitive n = Encode.byteString n . Codec.encode
+  decodePrimitive =
+    let parser :: Decode.Parser Decode.RawPrimitive (Either Text Coin)
+        parser = Codec.decode <$> Decode.byteString
+    in either (error "@TODO: define left for coin primitive") id <$> parser
+  primType _ = DotProto.Bytes
+instance HasDefault Coin
+instance MessageField Coin
+
 
 data Account = Account
   { accountCoins :: [Coin]
@@ -82,7 +104,7 @@ data AuthError =
   AccountAlreadyExists Address
 
 instance IsAppError AuthError where
-  makeAppError (AccountAlreadExists addr) =
+  makeAppError (AccountAlreadyExists addr) =
     AppError
       { appErrorCode = 1
       , appErrorCodespace = cs (symbolVal $ Proxy @AuthModule)

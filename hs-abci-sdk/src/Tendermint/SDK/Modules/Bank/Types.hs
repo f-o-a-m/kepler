@@ -3,59 +3,27 @@
 module Tendermint.SDK.Modules.Bank.Types where
 
 import           Data.Aeson                   as A
-import           Data.Aeson                   (Options)
-import           Data.Aeson.Casing            (aesonDrop, snakeCase)
-import           Data.Bifunctor               (bimap)
 import qualified Data.ByteArray.HexString     as Hex
-import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
-import           Data.Word                    (Word64)
 import           GHC.Generics                 (Generic)
 import           Proto3.Suite                 (HasDefault (..), MessageField,
                                                Primitive (..))
 import qualified Proto3.Suite.DotProto        as DotProto
 import qualified Proto3.Wire.Decode           as Decode
 import qualified Proto3.Wire.Encode           as Encode
-import           Proto3.Wire.Types            (fieldNumber)
 import qualified Tendermint.SDK.BaseApp       as BaseApp
-import           Tendermint.SDK.Codec         (HasCodec (..))
+import qualified Tendermint.SDK.Modules.Auth  as Auth
+import           Tendermint.SDK.Codec         (defaultSDKAesonOptions)
 import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
                                                addressToBytes)
-
-defaultNameserviceOptions :: String -> Options
-defaultNameserviceOptions prefix = aesonDrop (length prefix) snakeCase
-
+import Tendermint.SDK.Types.BankStoreKey (BankStoreKey)
 --------------------------------------------------------------------------------
 
 type BankModule = "bank"
 
 --------------------------------------------------------------------------------
 
-newtype Amount = Amount Word64 deriving (Eq, Show, Num, Generic, Ord, A.ToJSON, A.FromJSON)
-
-instance Primitive Amount where
-  encodePrimitive n (Amount amt) = Encode.uint64 n amt
-  decodePrimitive = Amount <$> Decode.uint64
-  primType _ = DotProto.UInt64
-instance HasDefault Amount
-instance MessageField Amount
-
-instance BaseApp.Queryable Amount where
-  type Name Amount = "balance"
-
--- @NOTE: hacks
-instance HasCodec Amount where
-  encode (Amount b) =
-    -- proto3-wire only exports encoders for message types
-    let dummyMsgEncoder = Encode.uint64 (fieldNumber 1)
-    in cs . Encode.toLazyByteString . dummyMsgEncoder $ b
-  decode = bimap (cs . show) Amount . Decode.parse dummyMsgParser
-    where
-      -- field is always present; 0 is an arbitrary value
-      fieldParser = Decode.one Decode.uint64 0
-      dummyMsgParser = Decode.at fieldParser (fieldNumber 1)
-
--- orphans
+-- Address orphans
 instance Primitive Address where
   encodePrimitive n a = Encode.byteString n $ addressToBytes a
   decodePrimitive = addressFromBytes <$> Decode.byteString
@@ -64,8 +32,8 @@ instance HasDefault Hex.HexString
 instance HasDefault Address
 instance MessageField Address
 
-instance BaseApp.IsKey Address "bank" where
-  type Value Address "bank" = Amount
+instance BaseApp.IsKey BankStoreKey "bank" where
+  type Value BankStoreKey "bank" = Auth.Coin
 
 --------------------------------------------------------------------------------
 -- Exceptions
@@ -88,11 +56,11 @@ instance BaseApp.IsAppError BankError where
 
 data Faucetted = Faucetted
   { faucettedAccount :: Address
-  , faucettedAmount  :: Amount
+  , faucettedAmount  :: Auth.Coin
   } deriving (Eq, Show, Generic)
 
 faucettedAesonOptions :: A.Options
-faucettedAesonOptions = defaultNameserviceOptions "faucetted"
+faucettedAesonOptions = defaultSDKAesonOptions "faucetted"
 
 instance ToJSON Faucetted where
   toJSON = A.genericToJSON faucettedAesonOptions
@@ -103,13 +71,13 @@ instance BaseApp.ToEvent Faucetted where
 instance BaseApp.Select Faucetted
 
 data TransferEvent = TransferEvent
-  { transferEventAmount :: Amount
+  { transferEventAmount :: Auth.Coin
   , transferEventTo     :: Address
   , transferEventFrom   :: Address
   } deriving (Eq, Show, Generic)
 
 transferEventAesonOptions :: A.Options
-transferEventAesonOptions = defaultNameserviceOptions "transferEvent"
+transferEventAesonOptions = defaultSDKAesonOptions "transferEvent"
 
 instance A.ToJSON TransferEvent where
   toJSON = A.genericToJSON transferEventAesonOptions
