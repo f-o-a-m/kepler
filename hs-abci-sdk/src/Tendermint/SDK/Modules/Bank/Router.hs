@@ -2,6 +2,7 @@ module Tendermint.SDK.Modules.Bank.Router where
 
 import           Polysemy                             (Members, Sem)
 import           Tendermint.SDK.BaseApp               (BaseAppEffs, TxEffs)
+import qualified Tendermint.SDK.Modules.Auth          as Auth
 import           Tendermint.SDK.Modules.Bank.Keeper   (BankEffs, burn,
                                                        faucetAccount, transfer)
 import           Tendermint.SDK.Modules.Bank.Messages (BankMessage (..),
@@ -22,6 +23,8 @@ router (PreRoutedTx Tx{txMsg}) =
        TFaucetAccount faucet ->
          faucetAccount faucet
        TTransfer Transfer{..} ->
-         transfer transferFrom transferAmount transferTo
+         let coin = Auth.Coin transferDenomination transferAmount
+         in transfer transferFrom coin transferTo
        TBurn Burn{..} ->
-         burn burnAddress burnAmount
+         let coin = Auth.Coin burnDenomonination burnAmount
+         in burn burnAddress coin

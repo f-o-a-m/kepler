@@ -5,6 +5,7 @@ module Tendermint.SDK.Modules.Bank.Types where
 import           Data.Aeson                   as A
 import qualified Data.ByteArray.HexString     as Hex
 import           Data.Text                    (Text)
+import           Data.Word                    (Word64)
 import           GHC.Generics                 (Generic)
 import           Proto3.Suite                 (HasDefault (..), MessageField,
                                                Primitive (..))
@@ -12,11 +13,11 @@ import qualified Proto3.Suite.DotProto        as DotProto
 import qualified Proto3.Wire.Decode           as Decode
 import qualified Proto3.Wire.Encode           as Encode
 import qualified Tendermint.SDK.BaseApp       as BaseApp
-import qualified Tendermint.SDK.Modules.Auth  as Auth
 import           Tendermint.SDK.Codec         (defaultSDKAesonOptions)
+import qualified Tendermint.SDK.Modules.Auth  as Auth
 import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
                                                addressToBytes)
-import Tendermint.SDK.Types.BankStoreKey (BankStoreKey)
+
 --------------------------------------------------------------------------------
 
 type BankModule = "bank"
@@ -32,8 +33,8 @@ instance HasDefault Hex.HexString
 instance HasDefault Address
 instance MessageField Address
 
-instance BaseApp.IsKey BankStoreKey "bank" where
-  type Value BankStoreKey "bank" = Auth.Coin
+instance BaseApp.IsKey Address "bank" where
+  type Value Address "bank" = Auth.Coin
 
 --------------------------------------------------------------------------------
 -- Exceptions
@@ -55,8 +56,9 @@ instance BaseApp.IsAppError BankError where
 --------------------------------------------------------------------------------
 
 data Faucetted = Faucetted
-  { faucettedAccount :: Address
-  , faucettedAmount  :: Auth.Coin
+  { faucettedAccount      :: Address
+  , faucettedDenomination :: Text
+  , faucettedAmount       :: Word64
   } deriving (Eq, Show, Generic)
 
 faucettedAesonOptions :: A.Options
@@ -71,9 +73,10 @@ instance BaseApp.ToEvent Faucetted where
 instance BaseApp.Select Faucetted
 
 data TransferEvent = TransferEvent
-  { transferEventAmount :: Auth.Coin
-  , transferEventTo     :: Address
-  , transferEventFrom   :: Address
+  { transferEventDenomination :: Text
+  , transferEventAmount       :: Word64
+  , transferEventTo           :: Address
+  , transferEventFrom         :: Address
   } deriving (Eq, Show, Generic)
 
 transferEventAesonOptions :: A.Options
