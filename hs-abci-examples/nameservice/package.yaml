@@ -146,8 +146,9 @@ executables:
     - nameservice
     - hs-abci-sdk
     - hs-abci-test-utils
-    - text
+    - random-strings
     - string-conversions
+    - text
 
 tests:
   tutorial:

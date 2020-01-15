@@ -1,9 +1,11 @@
 module Interact
   ( actionBlock
+  , makeRandomUsers
   ) where
 
 import           Control.Monad                    (replicateM)
 import           Data.ByteString                  (ByteString)
+import           Data.Char                        (isHexDigit)
 import           Data.String                      (fromString)
 import           Data.String.Conversions          (cs)
 import           Data.Text                        (Text)
@@ -19,6 +21,8 @@ import           Nameservice.Modules.TypedMessage (TypedMessage (..))
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.Utils.Request         (runTransaction_)
 import           Tendermint.Utils.User            (User (..), makeUser, mkSignedRawTransactionWithRoute)
+import           Test.RandomStrings               (onlyWith, randomASCII,
+                                                   randomString)
 
 --------------------------------------------------------------------------------
 -- Actions
@@ -53,8 +57,8 @@ runAction_
 runAction_ user bs t msg = runTransaction_ =<<
   mkSignedRawTransactionWithRoute bs user (TypedMessage t (encode msg))
 
-actionBlock :: IO ()
-actionBlock = do
+actionBlock :: (User, User) -> IO ()
+actionBlock (user1, user2) = do
   name <- genName
   genCVal <- genWords
   genBVal <- genWords
@@ -70,11 +74,11 @@ actionBlock = do
 -- Users
 --------------------------------------------------------------------------------
 
-user1 :: User
-user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
-
-user2 :: User
-user2 = makeUser "f65242094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
+makeRandomUsers :: IO (User, User)
+makeRandomUsers = do
+  str1 <- randomString (onlyWith isHexDigit randomASCII) 64
+  str2 <- randomString (onlyWith isHexDigit randomASCII) 64
+  return $ (makeUser str1, makeUser str2)
 
 --------------------------------------------------------------------------------
 -- Generation
@@ -93,5 +97,5 @@ genName = do
 
 genAmount :: IO Amount
 genAmount = do
-  genAmt <- Utils.randomNum (1, 100)
+  genAmt <- Utils.randomNum (1, 1000)
   return . fromInteger . toInteger $ genAmt
