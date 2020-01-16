@@ -113,6 +113,7 @@ library:
   - Tendermint.SDK.BaseApp.Store.AuthTreeStore
   - Tendermint.SDK.BaseApp.Store.RawStore
   - Tendermint.SDK.BaseApp.Store.Scope
+  - Tendermint.SDK.BaseApp.Transaction
   - Tendermint.SDK.Codec
   - Tendermint.SDK.Crypto
   - Tendermint.SDK.Modules.Auth
@@ -138,6 +139,7 @@ tests:
     - Tendermint.SDK.Test.GasSpec
     - Tendermint.SDK.Test.MetricsSpec
     - Tendermint.SDK.Test.SimpleStorage
+    - Tendermint.SDK.Test.QuerySpec
 
     ghc-options:
     - -fplugin=Polysemy.Plugin
@@ -148,7 +150,6 @@ tests:
     - -with-rtsopts=-N
 
     dependencies:
-      - aeson
       - base >= 4.7 && < 5
       - bytestring
       - cereal

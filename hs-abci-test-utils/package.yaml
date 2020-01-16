@@ -49,6 +49,7 @@ library:
     - data-default-class
     - errors
     - hspec
+    - http-api-data
     - lens
     - mtl
     - secp256k1-haskell

@@ -1,6 +1,15 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.Test.SimpleStorage where
+module Tendermint.SDK.Test.SimpleStorage
+  ( SimpleStorageMessage(..)
+  , SimpleStorageM
+  , SimpleStorage
+  , UpdateCountTx(..)
+  , simpleStorageModule
+  , evalToIO
+  , Count(..)
+  , CountKey(..)
+  ) where
 
 import           Control.Lens                     (iso, (^.))
 import           Crypto.Hash                      (SHA256 (..), hashWith)
@@ -140,10 +149,9 @@ server
      Members [SimpleStorage, BaseApp.RawStore, Error BaseApp.AppError] r
   => BaseApp.RouteT Api r
 server =
-  let storeHandlers :: BaseApp.RouteT (BaseApp.QueryApi CountStoreContents) r
-      storeHandlers = BaseApp.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
+  let storeHandlers = BaseApp.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
         storeKey (Proxy :: Proxy r)
-  in getMultipliedCount @r :<|> storeHandlers
+  in getMultipliedCount :<|> storeHandlers
 
 --------------------------------------------------------------------------------
 -- Module Definition
