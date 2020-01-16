@@ -2,7 +2,7 @@
 
 The `Nameservice` application is a sample application that showcases the SDK. It roughly follows the example application from the golang cosmos-sdk, which you can find [here](https://github.com/cosmos/sdk-tutorials/tree/master/nameservice).
 
-Not that the app itself is also a [tutorial]!(./tutorial/README.md). This tutorial explains in depth how the Nameservice app was built. You're encouraged to read this tutorial after reading this.
+Not that the app itself is also a [tutorial](./tutorial/README.md)! This tutorial explains in depth how the Nameservice app was built. You're encouraged to read this tutorial after reading this.
 
 ## Running the Application
 
