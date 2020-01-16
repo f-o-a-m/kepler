@@ -138,6 +138,7 @@ tests:
     - Tendermint.SDK.Test.CryptoSpec
     - Tendermint.SDK.Test.GasSpec
     - Tendermint.SDK.Test.MetricsSpec
+    - Tendermint.SDK.Test.SimpleStorage
 
     ghc-options:
     - -fplugin=Polysemy.Plugin
@@ -148,19 +149,25 @@ tests:
     - -with-rtsopts=-N
 
     dependencies:
+      - aeson
       - base >= 4.7 && < 5
       - bytestring
+      - cereal
+      - cereal-text
       - containers
-      - lens
+      - cryptonite
       - cereal
       - hs-abci-sdk
       - hs-abci-types
       - hspec
       - hspec-core
       - hspec-discover
+      - lens
+      - memory
       - polysemy
       - polysemy-plugin
       - polysemy-zoo
       - prometheus
       - secp256k1-haskell
       - string-conversions
+      - text

@@ -25,6 +25,10 @@ module Tendermint.SDK.BaseApp
   , get
   , delete
 
+  -- * Scope
+  , ConnectionScope(..)
+  , applyScope
+
   -- * Errors
   , AppError(..)
   , IsAppError(..)
