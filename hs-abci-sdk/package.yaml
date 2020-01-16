@@ -59,6 +59,7 @@ library:
     - errors
     - hs-abci-server
     - hs-abci-types
+    - http-api-data
     - http-types
     - katip
     - lens

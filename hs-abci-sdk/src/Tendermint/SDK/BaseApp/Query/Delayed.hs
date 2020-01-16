@@ -31,12 +31,13 @@ runDelayedM m req = runRouteResultT $ runReaderT (runDelayedM' m) req
 
 data Delayed m env a where
   Delayed :: { delayedQueryArgs :: env -> DelayedM m qa
-             , delayedHandler :: qa -> Request.Query -> RouteResult a
+             , delayedParams :: DelayedM m params
+             , delayedHandler :: qa -> params -> Request.Query -> RouteResult a
              } -> Delayed m env a
 
-instance Functor (Delayed m env) where
+instance Functor m => Functor (Delayed m env) where
   fmap f Delayed{..} =
-    Delayed { delayedHandler = fmap (fmap f) . delayedHandler
+    Delayed { delayedHandler = \qa params q -> f <$> delayedHandler qa params q
             , ..
             }
 
@@ -48,7 +49,8 @@ runDelayed :: Monad m
 runDelayed Delayed{..} env = runDelayedM (do
     q <- ask
     qa <- delayedQueryArgs env
-    liftRouteResult $ delayedHandler qa q
+    params <- delayedParams
+    liftRouteResult $ delayedHandler qa params q
   )
 
 runAction :: Monad m
@@ -92,11 +94,32 @@ addQueryArgs
 addQueryArgs Delayed{..} new =
   Delayed
     { delayedQueryArgs = \ (qa, env) -> (,) <$> delayedQueryArgs env <*> new qa
-    , delayedHandler   = \ (x, v) query -> ($ v) <$> delayedHandler x query
+    , delayedHandler   = \ (x, v) params query -> ($ v) <$> delayedHandler x params query
+    , ..
+    }
+
+addParameter
+  :: Monad m
+  => Delayed m env (a -> b)
+  -> DelayedM m a
+  -> Delayed m env b
+addParameter Delayed {..} new =
+  Delayed
+    { delayedParams = (,) <$> delayedParams <*> new
+    , delayedHandler = \qa (p, pNew) query -> ($ pNew) <$> delayedHandler qa p query
     , ..
     }
 
 emptyDelayed :: Monad m => RouteResult a -> Delayed m b a
 emptyDelayed response =
   let r = pure ()
-  in Delayed (const r) $ \_ _ -> response
+  in Delayed (const r) r $ \_ _ _ -> response
+
+-- | Gain access to the incoming request.
+withQuery
+  :: Monad m
+  => (Request.Query -> DelayedM m a)
+  -> DelayedM m a
+withQuery f = do
+  req <- ask
+  f req

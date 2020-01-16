@@ -2,13 +2,23 @@
 module Tendermint.SDK.BaseApp.Query.Class where
 
 import           Control.Error
+import           Control.Monad                        (join)
 import           Control.Monad.Morph                  (hoist)
 import           Data.Proxy
 import           Data.String.Conversions              (cs)
+import           Data.Text                            (Text)
 import           GHC.TypeLits                         (KnownSymbol, symbolVal)
+import qualified Network.ABCI.Types.Messages.Request  as Request
+import           Network.HTTP.Types.URI               (parseQueryText)
 import           Servant.API
-import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, addQueryArgs,
-                                                       delayedFail)
+import           Servant.API.Modifiers                (FoldLenient,
+                                                       FoldRequired,
+                                                       RequestArgument,
+                                                       unfoldRequestArgument)
+import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, DelayedM,
+                                                       addParameter,
+                                                       addQueryArgs,
+                                                       delayedFail, withQuery)
 import           Tendermint.SDK.BaseApp.Query.Router  (Router, Router' (..),
                                                        choice, methodRouter,
                                                        pathRouter)
@@ -17,6 +27,7 @@ import           Tendermint.SDK.BaseApp.Query.Types   (FromQueryData (..), Leaf,
                                                        QueryError (..),
                                                        QueryResult,
                                                        Queryable (..))
+import           Web.Internal.HttpApiData             (FromHttpApiData (..))
 
 --------------------------------------------------------------------------------
 
@@ -53,6 +64,26 @@ instance (HasRouter sublayout, KnownSymbol path) => HasRouter (path :> sublayout
 
   hoistRoute _ = hoistRoute (Proxy :: Proxy sublayout)
 
+instance ( HasRouter sublayout, KnownSymbol sym, FromHttpApiData a
+         , SBoolI (FoldRequired mods), SBoolI (FoldLenient mods)
+         ) => HasRouter (QueryParam' mods sym a :> sublayout) where
+
+  type RouteT (QueryParam' mods sym a :> sublayout) m = RequestArgument mods a -> RouteT sublayout m
+
+  route _ subserver =
+    let querytext q = parseQueryText . cs $ Request.queryPath q
+        paramname = cs $ symbolVal (Proxy :: Proxy sym)
+        parseParam :: Monad m => Request.Query -> DelayedM m (RequestArgument mods a)
+        parseParam q = unfoldRequestArgument (Proxy :: Proxy mods) errReq errSt mev
+          where
+            mev :: Maybe (Either Text a)
+            mev = fmap parseQueryParam $ join $ lookup paramname $ querytext q
+            errReq = delayedFail $ InvalidQuery ("Query parameter " <> cs paramname <> " is required.")
+            errSt e = delayedFail $ InvalidQuery ("Error parsing query param " <> cs paramname <> " " <> cs e <> ".")
+        delayed = addParameter subserver $ withQuery parseParam
+    in route (Proxy :: Proxy sublayout) delayed
+
+  hoistRoute _ phi f = hoistRoute (Proxy :: Proxy sublayout) phi . f
 
 instance (Queryable a, KnownSymbol (Name a)) => HasRouter (Leaf a) where
 
@@ -60,7 +91,6 @@ instance (Queryable a, KnownSymbol (Name a)) => HasRouter (Leaf a) where
    route _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter
      where proxyPath = Proxy :: Proxy (Name a)
    hoistRoute _ = hoist
-
 
 
 instance (FromQueryData a, HasRouter layout)
