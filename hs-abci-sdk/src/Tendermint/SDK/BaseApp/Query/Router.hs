@@ -1,6 +1,5 @@
 module Tendermint.SDK.BaseApp.Query.Router where
 
-import           Control.Error
 import           Control.Lens                         (to, (&), (.~), (^.))
 import           Data.ByteArray.Base64String          (Base64String)
 import           Data.Default.Class                   (def)
@@ -12,13 +11,13 @@ import qualified Data.Text.Encoding                   as T
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Network.HTTP.Types                   (decodePathSegments)
+import           Polysemy                             (Sem)
 import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, runAction)
 import           Tendermint.SDK.BaseApp.Query.Types   (QueryArgs (..),
                                                        QueryError (..),
                                                        QueryResult (..),
                                                        Queryable (..),
                                                        RouteResult (..))
-
 
 -- NOTE: most of this was vendored and repurposed from servant
 
@@ -27,9 +26,9 @@ data Router' env a =
   | RStatic (Map Text (Router' env a)) [env -> a]
   | RQueryArgs (Router' (QueryArgs Base64String, env) a)
 
-type RoutingApplication m = Request.Query -> m (RouteResult Response.Query)
+type RoutingApplication r = Request.Query -> Sem r (RouteResult Response.Query)
 
-type Router env m = Router' env (RoutingApplication m)
+type Router env r = Router' env (RoutingApplication r)
 
 pathRouter :: Text -> Router' env a -> Router' env a
 pathRouter t r = RStatic (M.singleton t r) []
@@ -45,10 +44,9 @@ choice router1 router2 = RChoice router1 router2
 
 
 methodRouter
-  :: Monad m
-  => Queryable b
-  => Delayed m env (ExceptT QueryError m (QueryResult b))
-  -> Router env m
+  :: Queryable b
+  => Delayed (Sem r) env (Sem r (QueryResult b))
+  -> Router env r
 methodRouter action = leafRouter route'
   where
     route' env query = runAction action env query $ \QueryResult{..} ->
@@ -59,10 +57,9 @@ methodRouter action = leafRouter route'
                    & Response._queryHeight .~ queryResultHeight
 
 runRouter
-  :: Monad m
-  => Router env m
+  :: Router env r
   -> env
-  -> RoutingApplication m
+  -> RoutingApplication r
 runRouter router env query =
   case router of
     RStatic table ls ->
@@ -85,7 +82,7 @@ runRouter router env query =
     RChoice r1 r2 ->
       runChoice [runRouter r1, runRouter r2] env query
 
-runChoice :: Monad m => [env -> RoutingApplication m] -> env -> RoutingApplication m
+runChoice :: [env -> RoutingApplication r] -> env -> RoutingApplication r
 runChoice ls =
   case ls of
     []       -> \ _ _ -> pure $ Fail PathNotFound
@@ -96,4 +93,3 @@ runChoice ls =
         case response1 of
           Fail _ -> runChoice rs env query
           _      ->  pure response1
-

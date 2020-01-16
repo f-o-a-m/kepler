@@ -18,6 +18,6 @@ type Api = BaseApp.QueryApi TokenContents
 
 server
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-  => BaseApp.RouteT Api (Sem r)
+  => BaseApp.RouteT Api r
 server =
-  BaseApp.storeQueryHandlers (Proxy :: Proxy TokenContents) storeKey (Proxy :: Proxy (Sem r))
+  BaseApp.storeQueryHandlers (Proxy :: Proxy TokenContents) storeKey (Proxy :: Proxy r)

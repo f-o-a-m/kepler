@@ -1,6 +1,5 @@
 module Tendermint.SDK.BaseApp.Query.Delayed where
 
-import           Control.Error                        (ExceptT, runExceptT)
 import           Control.Monad.Reader                 (MonadReader, ReaderT,
                                                        ask, runReaderT)
 import           Control.Monad.Trans                  (MonadTrans (..))
@@ -9,6 +8,7 @@ import           Data.Default.Class                   (def)
 import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
+import           Polysemy                             (Sem)
 import           Tendermint.SDK.BaseApp.Query.Types   (QueryError (..),
                                                        RouteResult (..),
                                                        RouteResultT (..))
@@ -41,11 +41,12 @@ instance Functor m => Functor (Delayed m env) where
             , ..
             }
 
-runDelayed :: Monad m
-           => Delayed m env a
-           -> env
-           -> Request.Query
-           -> m (RouteResult a)
+runDelayed
+  :: Monad m
+  => Delayed m env a
+  -> env
+  -> Request.Query
+  -> m (RouteResult a)
 runDelayed Delayed{..} env = runDelayedM (do
     q <- ask
     qa <- delayedQueryArgs env
@@ -53,22 +54,18 @@ runDelayed Delayed{..} env = runDelayedM (do
     liftRouteResult $ delayedHandler qa params q
   )
 
-runAction :: Monad m
-          => Delayed m env (ExceptT QueryError m a)
-          -> env
-          -> Request.Query
-          -> (a -> RouteResult Response.Query)
-          -> m (RouteResult Response.Query)
-runAction action env query k =
-  runDelayed action env query >>= go
-  where
-    go (Fail e) = pure $ Fail e
-    go (FailFatal e) = pure $ FailFatal e
-    go (Route a) = do
-      e <- runExceptT a
-      case e of
-        Left err -> pure $ Route (responseQueryError query err)
-        Right a' -> pure $ k a'
+runAction
+  :: Delayed (Sem r) env (Sem r a)
+  -> env
+  -> Request.Query
+  -> (a -> RouteResult Response.Query)
+  -> Sem r (RouteResult Response.Query)
+runAction action env query k = do
+    res <- runDelayed action env query
+    case res of
+      Route a     -> k <$> a
+      Fail e      -> pure $ Fail e
+      FailFatal e -> pure $ FailFatal e
 
 -- | Fail with the option to recover.
 delayedFail :: Monad m => QueryError -> DelayedM m a

@@ -2,10 +2,11 @@
 
 module Tendermint.SDK.Test.SimpleStorage where
 
-import           Control.Lens                     (iso)
+import           Control.Lens                     (iso, (^.))
 import           Crypto.Hash                      (SHA256 (..), hashWith)
 import           Data.Bifunctor                   (first)
 import           Data.ByteArray                   (convert)
+import qualified Data.ByteArray.Base64String      as Base64
 import           Data.ByteString                  (ByteString)
 import           Data.Int                         (Int32)
 import           Data.Maybe                       (fromJust)
@@ -17,6 +18,7 @@ import           Data.String.Conversions          (cs)
 import           GHC.Generics                     (Generic)
 import           Polysemy
 import           Polysemy.Error                   (Error)
+import           Servant.API
 import           Tendermint.SDK.Application       (Module (..))
 import qualified Tendermint.SDK.BaseApp           as BaseApp
 import           Tendermint.SDK.Codec             (HasCodec (..))
@@ -27,7 +29,7 @@ import           Tendermint.SDK.Types.Transaction (PreRoutedTx (..), Tx (..))
 -- Types
 --------------------------------------------------------------------------------
 
-newtype Count = Count Int32 deriving (Eq, Show, Serialize.Serialize)
+newtype Count = Count Int32 deriving (Eq, Show, Ord, Num, Serialize.Serialize)
 
 data CountKey = CountKey
 
@@ -111,14 +113,37 @@ router (PreRoutedTx Tx{txMsg}) =
 
 type CountStoreContents = '[(CountKey, Count)]
 
-type Api = BaseApp.QueryApi CountStoreContents
+type GetMultipliedCount =
+     "multiply"
+  :> QueryParam' '[Required, Strict] "factor" Integer
+  :> BaseApp.Leaf Count
+
+getMultipliedCount
+  :: Member SimpleStorage r
+  => Integer
+  -> Sem r (BaseApp.QueryResult Count)
+getMultipliedCount multiplier = do
+  let m = fromInteger multiplier
+  c <- getCount
+  pure $ BaseApp.QueryResult
+    { queryResultData = m * c
+    , queryResultIndex = 0
+    , queryResultKey = Base64.fromBytes $ CountKey ^. BaseApp.rawKey
+    , queryResultProof  = Nothing
+    , queryResultHeight = 0
+    }
+
+type Api = GetMultipliedCount :<|> BaseApp.QueryApi CountStoreContents
 
 server
-  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-  => BaseApp.RouteT Api (Sem r)
+  :: forall r.
+     Members [SimpleStorage, BaseApp.RawStore, Error BaseApp.AppError] r
+  => BaseApp.RouteT Api r
 server =
-  BaseApp.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
-    storeKey (Proxy :: Proxy (Sem r))
+  let storeHandlers :: BaseApp.RouteT (BaseApp.QueryApi CountStoreContents) r
+      storeHandlers = BaseApp.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
+        storeKey (Proxy :: Proxy r)
+  in getMultipliedCount @r :<|> storeHandlers
 
 --------------------------------------------------------------------------------
 -- Module Definition

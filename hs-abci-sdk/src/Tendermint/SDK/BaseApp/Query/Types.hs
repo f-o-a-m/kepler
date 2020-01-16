@@ -11,6 +11,8 @@ import           GHC.TypeLits                           (Symbol)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof, WrappedVal (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
+import           Tendermint.SDK.BaseApp.Errors          (AppError (..),
+                                                         IsAppError (..))
 import           Tendermint.SDK.BaseApp.Store           (RawKey (..))
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 import           Tendermint.SDK.Types.Address           (Address)
@@ -28,9 +30,35 @@ type QueryApplication m = Request.Query -> m Response.Query
 data QueryError =
     PathNotFound
   | ResourceNotFound
-  | InvalidQuery String
-  | InternalError String
+  | InvalidQuery Text
+  | InternalError Text
   deriving (Show)
+
+instance IsAppError QueryError where
+  makeAppError PathNotFound =
+    AppError
+      { appErrorCode = 1
+      , appErrorCodespace = "query"
+      , appErrorMessage = "Path not found."
+      }
+  makeAppError ResourceNotFound =
+    AppError
+      { appErrorCode = 2
+      , appErrorCodespace = "query"
+      , appErrorMessage = "Resource not found."
+      }
+  makeAppError (InvalidQuery msg) =
+    AppError
+      { appErrorCode = 3
+      , appErrorCodespace = "query"
+      , appErrorMessage = "Invalid query: " <> msg
+      }
+  makeAppError (InternalError _) =
+    AppError
+      { appErrorCode = 4
+      , appErrorCodespace = "query"
+      , appErrorMessage = "Internal error."
+      }
 
 data QueryArgs a = QueryArgs
   { queryArgsProve  :: Bool

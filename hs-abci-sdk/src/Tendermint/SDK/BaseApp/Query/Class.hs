@@ -1,15 +1,14 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.BaseApp.Query.Class where
 
-import           Control.Error
 import           Control.Monad                        (join)
-import           Control.Monad.Morph                  (hoist)
 import           Data.Proxy
 import           Data.String.Conversions              (cs)
 import           Data.Text                            (Text)
 import           GHC.TypeLits                         (KnownSymbol, symbolVal)
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import           Network.HTTP.Types.URI               (parseQueryText)
+import           Polysemy                             (Sem)
 import           Servant.API
 import           Servant.API.Modifiers                (FoldLenient,
                                                        FoldRequired,
@@ -34,43 +33,35 @@ import           Web.Internal.HttpApiData             (FromHttpApiData (..))
 -- | This class is used to construct a router given a 'layout' type. The layout
 -- | is constructed using the combinators that appear in the instances here, no other
 -- | Servant combinators are recognized.
-class HasRouter layout where
+class HasRouter layout r where
   -- | A route handler.
-  type RouteT layout (m :: * -> *) :: *
+  type RouteT layout r :: *
   -- | Transform a route handler into a 'Router'.
-  route :: Monad m => Proxy layout -> Delayed m env (RouteT layout m) -> Router env m
-  hoistRoute :: (Monad m, Monad n) => Proxy layout -> (forall a. m a -> n a) -> RouteT layout m -> RouteT layout n
+  route :: Proxy layout -> Proxy r -> Delayed (Sem r) env (RouteT layout r) -> Router env r
 
+instance (HasRouter a r, HasRouter b r) => HasRouter (a :<|> b) r where
+  type RouteT (a :<|> b) r = RouteT a r :<|> RouteT b r
 
-instance (HasRouter a, HasRouter b) => HasRouter (a :<|> b) where
-  type RouteT (a :<|> b) m = RouteT a m :<|> RouteT b m
-
-  route _ server = choice (route pa ((\ (a :<|> _) -> a) <$> server))
-                          (route pb ((\ (_ :<|> b) -> b) <$> server))
+  route _ pr server = choice (route pa pr ((\ (a :<|> _) -> a) <$> server))
+                        (route pb pr ((\ (_ :<|> b) -> b) <$> server))
     where pa = Proxy :: Proxy a
           pb = Proxy :: Proxy b
 
-  hoistRoute _ phi (a :<|> b) =
-    hoistRoute (Proxy :: Proxy a) phi a :<|>
-    hoistRoute (Proxy :: Proxy b) phi b
+instance (HasRouter sublayout r, KnownSymbol path) => HasRouter (path :> sublayout) r where
 
-instance (HasRouter sublayout, KnownSymbol path) => HasRouter (path :> sublayout) where
+  type RouteT (path :> sublayout) r = RouteT sublayout r
 
-  type RouteT (path :> sublayout) m = RouteT sublayout m
-
-  route _ subserver =
-    pathRouter (cs (symbolVal proxyPath)) (route (Proxy :: Proxy sublayout) subserver)
+  route _ pr subserver =
+    pathRouter (cs (symbolVal proxyPath)) (route (Proxy :: Proxy sublayout) pr subserver)
     where proxyPath = Proxy :: Proxy path
 
-  hoistRoute _ = hoistRoute (Proxy :: Proxy sublayout)
-
-instance ( HasRouter sublayout, KnownSymbol sym, FromHttpApiData a
+instance ( HasRouter sublayout r, KnownSymbol sym, FromHttpApiData a
          , SBoolI (FoldRequired mods), SBoolI (FoldLenient mods)
-         ) => HasRouter (QueryParam' mods sym a :> sublayout) where
+         ) => HasRouter (QueryParam' mods sym a :> sublayout) r where
 
-  type RouteT (QueryParam' mods sym a :> sublayout) m = RequestArgument mods a -> RouteT sublayout m
+  type RouteT (QueryParam' mods sym a :> sublayout) r = RequestArgument mods a -> RouteT sublayout r
 
-  route _ subserver =
+  route _ pr subserver =
     let querytext q = parseQueryText . cs $ Request.queryPath q
         paramname = cs $ symbolVal (Proxy :: Proxy sym)
         parseParam :: Monad m => Request.Query -> DelayedM m (RequestArgument mods a)
@@ -81,28 +72,24 @@ instance ( HasRouter sublayout, KnownSymbol sym, FromHttpApiData a
             errReq = delayedFail $ InvalidQuery ("Query parameter " <> cs paramname <> " is required.")
             errSt e = delayedFail $ InvalidQuery ("Error parsing query param " <> cs paramname <> " " <> cs e <> ".")
         delayed = addParameter subserver $ withQuery parseParam
-    in route (Proxy :: Proxy sublayout) delayed
+    in route (Proxy :: Proxy sublayout) pr delayed
 
-  hoistRoute _ phi f = hoistRoute (Proxy :: Proxy sublayout) phi . f
+instance (Queryable a, KnownSymbol (Name a)) => HasRouter (Leaf a) r where
 
-instance (Queryable a, KnownSymbol (Name a)) => HasRouter (Leaf a) where
-
-   type RouteT (Leaf a) m = ExceptT QueryError m (QueryResult a)
-   route _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter
+   type RouteT (Leaf a) r = Sem r (QueryResult a)
+   route _ _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter
      where proxyPath = Proxy :: Proxy (Name a)
-   hoistRoute _ = hoist
 
 
-instance (FromQueryData a, HasRouter layout)
-      => HasRouter (QA a :> layout) where
+instance (FromQueryData a, HasRouter sublayout r)
+      => HasRouter (QA a :> sublayout) r where
 
-  type RouteT (QA a :> layout) m = QueryArgs a -> RouteT layout m
+  type RouteT (QA a :> sublayout) r = QueryArgs a -> RouteT sublayout r
 
-  route _ d =
+  route _ pr d =
     RQueryArgs $
-      route (Proxy :: Proxy layout)
+      route (Proxy :: Proxy sublayout) pr
           (addQueryArgs d $ \ qa -> case fromQueryData $ queryArgsData qa of
-             Left e  -> delayedFail $ InvalidQuery e
+             Left e  -> delayedFail $ InvalidQuery (cs e)
              Right v -> return qa {queryArgsData = v}
           )
-  hoistRoute _ phi f = hoistRoute (Proxy :: Proxy layout) phi . f

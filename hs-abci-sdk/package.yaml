@@ -64,7 +64,6 @@ library:
     - katip
     - lens
     - memory
-    - mmorph
     - mtl
     - polysemy
     - polysemy-plugin
@@ -169,5 +168,6 @@ tests:
       - polysemy-zoo
       - prometheus
       - secp256k1-haskell
+      - servant
       - string-conversions
       - text
