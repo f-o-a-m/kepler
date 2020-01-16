@@ -40,10 +40,15 @@ jobs:
     # When branch is `master` we run `haskell-stylish` and fail if git working directory becomes dirty
     if: branch = master
     script:
+    - echo "test formatting"
     - travis_wait 120 stack --skip-ghc-check install hlint-2.1.26 stylish-haskell-0.9.4.3 weeder-1.0.8
     - make stylish && git diff-index --quiet HEAD
     - make hlint
     - make weeder
+
+    - echo "test tutorial"
+    - travis_wait 120 stack --skip-ghc-check install markdown-unlit-0.5.0
+    - make test-tutorial
 
   - stage: Core Tests
     name: "Test Core and Client Libraries"
@@ -52,37 +57,25 @@ jobs:
     - make test-libraries
     - echo "Test Libraries with Nix"
     - echo "This stage is currently disabled as Nix doesn't seem to play well with libsecp256k1"
-    #- curl https://nixos.org/nix/install | sh
-    #- source $HOME/.nix-profile/etc/profile.d/nix.sh && stack --nix test hs-abci-types hs-abci-server hs-abci-sdk
 
     - echo "Test IAVL Client"
     - docker run -p 8090:8090 -p 8091:8091 -d foamspace/iavl:latest /iavlserver  -db-name "test" -datadir "."  -grpc-endpoint "0.0.0.0:8090"  -gateway-endpoint "0.0.0.0:8091"
     - make test-iavl-client
-    #- sudo docker rm foamspace/iavl:latest
 
     - echo "Test Tendermint Client"
     - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client up -d
     - make test-kv-store
     - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client down -v --rmi local
 
-  - stage: Run E2E Tests for simple-storage
-    name: "Test SimpleStorage Example E2E"
-    script:
+    - echo "Test simple-storage"
     - make docker-test-prebake
     - docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e up -d
     - make test-simple-storage
     - docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e down -v --rmi local
 
-  - stage: Run E2E Tests for nameservice
-    name: "Test Nameservice Example E2E"
-    script:
+    - echo "Test nameservice"
     - make docker-test-prebake
     - docker-compose -f hs-abci-examples/nameservice/docker-compose-test.yaml -p test-hs-abci-examples-nameservice-e2e up -d
     - make test-nameservice
     - docker-compose -f hs-abci-examples/nameservice/docker-compose-test.yaml -p test-hs-abci-examples-nameservice-e2e down -v --rmi local
 
-  - stage: Check Tutorial
-    name: "Test Nameservice Tutorial"
-    script:
-    - travis_wait 120 stack --skip-ghc-check install markdown-unlit-0.5.0
-    - make test-tutorial
