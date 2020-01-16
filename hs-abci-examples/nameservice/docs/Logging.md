@@ -82,4 +82,4 @@ This log corresponds to an event emitted by the `Nameservice` module during tran
 
 In this way the log index serves as a rudimentary event indexer for transaction events as well.
 
-## [Next: Metrics](./docs/Metrics.md)
+## [Next: Metrics](./Metrics.md)
