@@ -23,8 +23,8 @@ router (PreRoutedTx Tx{txMsg}) =
        TFaucetAccount faucet ->
          faucetAccount faucet
        TTransfer Transfer{..} ->
-         let coin = Auth.Coin transferDenomination transferAmount
+         let coin = Auth.Coin transferCoinId transferAmount
          in transfer transferFrom coin transferTo
        TBurn Burn{..} ->
-         let coin = Auth.Coin burnDenomonination burnAmount
+         let coin = Auth.Coin burnCoinId burnAmount
          in burn burnAddress coin

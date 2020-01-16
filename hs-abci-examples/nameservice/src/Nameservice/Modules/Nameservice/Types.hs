@@ -17,7 +17,8 @@ import qualified Proto3.Wire.Decode           as Decode
 import qualified Proto3.Wire.Encode           as Encode
 import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
-import           Tendermint.SDK.Modules.Bank  (Amount (..))
+import           Tendermint.SDK.Modules.Auth  (Amount (..))
+import           Tendermint.SDK.Modules.Bank  ()
 import           Tendermint.SDK.Types.Address (Address)
 
 --------------------------------------------------------------------------------

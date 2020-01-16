@@ -43,6 +43,7 @@ data Module (name :: Symbol) msg val (api :: *) (s :: EffectRow) (r :: EffectRow
   , moduleTxChecker   :: PreRoutedTx msg -> Sem (T.TxEffs :& r) val
   , moduleQueryServer :: Q.RouteT api (Sem r)
   , moduleEval :: forall deps. Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
+  -- @TODO: this type is too restrictive; keepers aren't allowed to call other module effects
   }
 
 voidModuleMessages :: Module name msg val api s r -> Module name Void Void api s r

@@ -5,7 +5,6 @@ module Tendermint.SDK.Modules.Bank.Types where
 import           Data.Aeson                   as A
 import qualified Data.ByteArray.HexString     as Hex
 import           Data.Text                    (Text)
-import           Data.Word                    (Word64)
 import           GHC.Generics                 (Generic)
 import           Proto3.Suite                 (HasDefault (..), MessageField,
                                                Primitive (..))
@@ -56,9 +55,9 @@ instance BaseApp.IsAppError BankError where
 --------------------------------------------------------------------------------
 
 data Faucetted = Faucetted
-  { faucettedAccount      :: Address
-  , faucettedDenomination :: Text
-  , faucettedAmount       :: Word64
+  { faucettedAccount :: Address
+  , faucettedCoinId  :: Auth.CoinId
+  , faucettedAmount  :: Auth.Amount
   } deriving (Eq, Show, Generic)
 
 faucettedAesonOptions :: A.Options
@@ -73,10 +72,10 @@ instance BaseApp.ToEvent Faucetted where
 instance BaseApp.Select Faucetted
 
 data TransferEvent = TransferEvent
-  { transferEventDenomination :: Text
-  , transferEventAmount       :: Word64
-  , transferEventTo           :: Address
-  , transferEventFrom         :: Address
+  { transferEventCoinId :: Auth.CoinId
+  , transferEventAmount :: Auth.Amount
+  , transferEventTo     :: Address
+  , transferEventFrom   :: Address
   } deriving (Eq, Show, Generic)
 
 transferEventAesonOptions :: A.Options

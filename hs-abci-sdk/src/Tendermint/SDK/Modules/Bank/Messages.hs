@@ -2,15 +2,14 @@ module Tendermint.SDK.Modules.Bank.Messages where
 
 import           Data.Bifunctor                      (first)
 import           Data.String.Conversions             (cs)
-import           Data.Text                           (Text)
 import           Data.Validation                     (Validation (..))
-import           Data.Word                           (Word64)
 import           GHC.Generics                        (Generic)
 import           Proto3.Suite                        (Message, Named,
                                                       fromByteString,
                                                       toLazyByteString)
 import           Tendermint.SDK.Codec                (HasCodec (..))
-import           Tendermint.SDK.Modules.Bank.Types()
+import           Tendermint.SDK.Modules.Auth         (Amount, CoinId)
+import           Tendermint.SDK.Modules.Bank.Types   ()
 import           Tendermint.SDK.Modules.TypedMessage (TypedMessage (..))
 import           Tendermint.SDK.Types.Address        (Address)
 import           Tendermint.SDK.Types.Message        (Msg (..),
@@ -25,9 +24,9 @@ data BankMessage =
   deriving (Eq, Show, Generic)
 
 data FaucetAccount = FaucetAccount
-  { faucetAccountTo           :: Address
-  , faucetAccountDenomination :: Text
-  , faucetAccountAmount       :: Word64
+  { faucetAccountTo     :: Address
+  , faucetAccountCoinId :: CoinId
+  , faucetAccountAmount :: Amount
   } deriving (Eq, Show, Generic)
 
 instance Message FaucetAccount
@@ -38,10 +37,10 @@ instance HasCodec FaucetAccount where
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
 data Transfer = Transfer
-  { transferTo           :: Address
-  , transferFrom         :: Address
-  , transferDenomination :: Text
-  , transferAmount       :: Word64
+  { transferTo     :: Address
+  , transferFrom   :: Address
+  , transferCoinId :: CoinId
+  , transferAmount :: Amount
   } deriving (Eq, Show, Generic)
 
 instance Message Transfer
@@ -52,9 +51,9 @@ instance HasCodec Transfer where
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
 data Burn = Burn
-  { burnAddress        :: Address
-  , burnDenomonination :: Text
-  , burnAmount         :: Word64
+  { burnAddress :: Address
+  , burnCoinId  :: CoinId
+  , burnAmount  :: Amount
   } deriving (Eq, Show, Generic)
 
 instance Message Burn

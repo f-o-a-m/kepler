@@ -51,7 +51,8 @@ import qualified Tendermint.SDK.BaseApp as BA
 import Tendermint.SDK.Codec (HasCodec(..))
 import Tendermint.SDK.Types.Address (Address)
 import Tendermint.SDK.Types.Message (coerceProto3Error, formatMessageParseError)
-import Tendermint.SDK.Modules.Bank (Amount)
+import Tendermint.SDK.Modules.Auth (Amount)
+import Tendermint.SDK.Modules.Bank ()
 ~~~
 
 ### Storage types

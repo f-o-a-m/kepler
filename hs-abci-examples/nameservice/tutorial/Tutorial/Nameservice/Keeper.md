@@ -19,6 +19,7 @@ import Polysemy.Output (Output)
 import Nameservice.Modules.Nameservice.Messages (DeleteName(..))
 import Nameservice.Modules.Nameservice.Types (Whois(..), Name, NameDeleted(..), NameserviceModuleName, NameserviceError(..))
 import qualified Tendermint.SDK.BaseApp as BA
+import Tendermint.SDK.Modules.Auth (Coin(..))
 import Tendermint.SDK.Modules.Bank (Bank, mint)
 ~~~
 
@@ -60,7 +61,7 @@ deleteName DeleteName{..} = do
       if whoisOwner /= deleteNameOwner
         then throw $ InvalidDelete "Deleter must be the owner."
         else do
-          mint deleteNameOwner whoisPrice
+          mint deleteNameOwner (Coin "nameservice" whoisPrice)
           deleteWhois deleteNameName
           BA.emit NameDeleted
             { nameDeletedName = deleteNameName

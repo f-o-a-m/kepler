@@ -13,6 +13,7 @@ import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
 import qualified Tendermint.SDK.BaseApp                   as BaseApp
+import           Tendermint.SDK.Modules.Auth              (Coin (..))
 import           Tendermint.SDK.Modules.Bank              (Bank, BankEffs, burn,
                                                            mint, transfer)
 
@@ -84,7 +85,7 @@ deleteName DeleteName{..} = do
       if whoisOwner /= deleteNameOwner
         then throw $ InvalidDelete "Deleter must be the owner."
         else do
-          mint deleteNameOwner whoisPrice
+          mint deleteNameOwner (Coin "nameservice" whoisPrice)
           deleteWhois deleteNameName
           let event = NameDeleted
                 { nameDeletedName = deleteNameName
@@ -117,7 +118,7 @@ buyName msg = do
         => BuyName
         -> Sem r ()
       buyUnclaimedName BuyName{..} = do
-        burn buyNameBuyer buyNameBid
+        burn buyNameBuyer (Coin "nameservice" buyNameBid)
         let whois = Whois
               { whoisOwner = buyNameBuyer
               , whoisValue = buyNameValue
@@ -144,7 +145,7 @@ buyName msg = do
         let Whois{ whoisPrice = forsalePrice, whoisOwner = previousOwner } = currentWhois
         in if buyNameBid > forsalePrice
              then do
-               transfer buyNameBuyer buyNameBid previousOwner
+               transfer buyNameBuyer (Coin "nameservice" buyNameBid) previousOwner
                -- update new owner, price and value based on BuyName
                putWhois buyNameName currentWhois { whoisOwner = buyNameBuyer
                                                  , whoisPrice = buyNameBid

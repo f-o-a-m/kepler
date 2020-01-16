@@ -4,7 +4,9 @@ module Tendermint.SDK.Modules.Auth
 
   , AuthEffs
   , Account(..)
+  , Amount(..)
   , Coin(..)
+  , CoinId(..)
   , Accounts(..)
   , getAccount
   , putAccount

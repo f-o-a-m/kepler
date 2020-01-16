@@ -9,13 +9,20 @@ import           Data.Aeson                   as JSON
 import           Data.Bifunctor               (bimap)
 import qualified Data.ProtoLens               as P
 import           Data.Proxy                   (Proxy (..))
+import           Data.String                  (IsString (..))
 import           Data.String.Conversions      (cs)
-import           Data.Text                    (Text)
+import           Data.Text                    (Text, pack)
+import qualified Data.Text.Lazy               as TL
 import           Data.Word
 import           GHC.Generics                 (Generic)
 import           GHC.TypeLits                 (symbolVal)
 import qualified Proto.Modules.Auth           as A
 import qualified Proto.Modules.Auth_Fields    as A
+import           Proto3.Suite                 (HasDefault (..), MessageField,
+                                               Primitive (..), fieldNumber)
+import qualified Proto3.Suite.DotProto        as DotProto
+import qualified Proto3.Wire.Decode           as Decode
+import qualified Proto3.Wire.Encode           as Encode
 import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..),
                                                IsKey (..), Queryable (..))
 import           Tendermint.SDK.Codec         (HasCodec (..),
@@ -24,9 +31,49 @@ import           Tendermint.SDK.Types.Address (Address)
 
 type AuthModule = "auth"
 
+newtype CoinId = CoinId { unCoinId :: Text } deriving (Eq, Show, Generic)
+
+instance IsString CoinId where
+  fromString = CoinId . pack
+instance Primitive CoinId where
+  encodePrimitive n = Encode.text n . TL.fromStrict . unCoinId
+  decodePrimitive = CoinId . TL.toStrict <$> Decode.text
+  primType _ = DotProto.String
+instance HasDefault CoinId
+instance MessageField CoinId
+instance JSON.ToJSON CoinId where
+  toJSON = JSON.genericToJSON JSON.defaultOptions
+instance JSON.FromJSON CoinId where
+  parseJSON = JSON.genericParseJSON JSON.defaultOptions
+
+newtype Amount = Amount { unAmount :: Word64 }
+  deriving (Eq, Show, Num, Generic, Ord, JSON.ToJSON, JSON.FromJSON)
+
+instance Primitive Amount where
+  encodePrimitive n (Amount amt) = Encode.uint64 n amt
+  decodePrimitive = Amount <$> Decode.uint64
+  primType _ = DotProto.UInt64
+instance HasDefault Amount
+instance MessageField Amount
+
+-- instance Queryable Amount where
+--   type Name Amount = "balance"
+
+-- @NOTE: hacks
+instance HasCodec Amount where
+  encode (Amount b) =
+    -- proto3-wire only exports encoders for message types
+    let dummyMsgEncoder = Encode.uint64 (fieldNumber 1)
+    in cs . Encode.toLazyByteString . dummyMsgEncoder $ b
+  decode = bimap (cs . show) Amount . Decode.parse dummyMsgParser
+    where
+      -- field is always present; 0 is an arbitrary value
+      fieldParser = Decode.one Decode.uint64 0
+      dummyMsgParser = Decode.at fieldParser (fieldNumber 1)
+
 data Coin = Coin
-  { coinDenomination :: Text
-  , coinAmount       :: Word64
+  { coinId     :: CoinId
+  , coinAmount :: Amount
   } deriving (Eq, Show, Generic)
 
 instance Wrapped Coin where
@@ -36,11 +83,11 @@ instance Wrapped Coin where
    where
     t Coin {..} =
       P.defMessage
-        & A.denomination .~ coinDenomination
-        & A.amount .~ coinAmount
+        & A.id .~ unCoinId coinId
+        & A.amount .~ unAmount coinAmount
     f message = Coin
-      { coinDenomination = message ^. A.denomination
-      , coinAmount = message ^. A.amount
+      { coinId = CoinId $ message ^. A.id
+      , coinAmount = Amount $ message ^. A.amount
       }
 
 instance HasCodec Coin where
@@ -49,6 +96,10 @@ instance HasCodec Coin where
 
 coinAesonOptions :: JSON.Options
 coinAesonOptions = defaultSDKAesonOptions "coin"
+
+instance Queryable Coin where
+  type Name Coin = "balance"
+
 
 -- instance JSON.ToJSON Coin where
 --   toJSON = JSON.genericToJSON coinAesonOptions
