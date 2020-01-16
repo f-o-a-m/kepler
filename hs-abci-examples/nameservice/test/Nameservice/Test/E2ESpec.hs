@@ -1,6 +1,7 @@
 module Nameservice.Test.E2ESpec (spec) where
 
 import           Control.Lens                         ((^.))
+import           Control.Monad                        (void)
 import           Data.Default.Class                   (def)
 import           Data.Proxy
 import           Nameservice.Modules.Nameservice      (BuyName (..),
@@ -41,11 +42,10 @@ spec :: Spec
 spec = do
   let satoshi = Name "satoshi"
       addr1 = userAddress user1
-      privateKey1 = userPrivKey user1
       addr2 = userAddress user2
-      privateKey2 = userPrivKey user2
+      faucetAmount = 1000
 
-  beforeAll (do faucetAccount user1; faucetAccount user2) $
+  beforeAll (do faucetAccount user1 faucetAmount; faucetAccount user2 faucetAmount) $
     describe "Nameservice Spec" $ do
       it "Can query /health to make sure the node is alive" $ do
         resp <- runRPC RPC.health
@@ -53,15 +53,13 @@ spec = do
 
       it "Can query account balances" $ do
         let queryReq = defaultQueryWithData addr1
-        foundAmount <- getQueryResponseSuccess $ getBalance queryReq
-        foundAmount `shouldBe` Amount 1000
+        void $ getQueryResponseSuccess $ getBalance queryReq
 
       it "Can create a name (success 0)" $ do
         let val = "hello world"
             msg = TypedMessage "BuyName" (encode $ BuyName 0 satoshi val addr1)
             claimedLog = NameClaimed addr1 satoshi val 0
-            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        deliverResp <- getDeliverTxResponse rawTx
+        deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user1 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameClaimed" claimedLog
 
@@ -84,8 +82,7 @@ spec = do
             newVal = "goodbye to a world"
             msg = TypedMessage "SetName" (encode $ SetName satoshi addr1 newVal)
             remappedLog = NameRemapped satoshi oldVal newVal
-            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        deliverResp <- getDeliverTxResponse rawTx
+        deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user1 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameRemapped" remappedLog
         -- check for changes
@@ -96,28 +93,30 @@ spec = do
       it "Can fail to set a name (failure 2)" $ do
         -- try to set a name without being the owner
         let msg = TypedMessage "SetName" (encode $ SetName satoshi addr2 "goodbye to a world")
-            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        ensureCheckAndDeliverResponseCodes (0,2) rawTx
+        ensureCheckAndDeliverResponseCodes (0,2) =<< mkSignedRawTransactionWithRoute "nameservice" user2 msg
 
       it "Can buy an existing name (success 0)" $ do
-        let newVal = "hello (again) world"
-            msg = TypedMessage "BuyName" (encode $ BuyName 300 satoshi newVal addr2)
-            claimedLog = NameClaimed addr2 satoshi newVal 300
-            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        deliverResp <- getDeliverTxResponse rawTx
+        balance1 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
+        balance2 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr2
+        Whois{whoisPrice} <- getQueryResponseSuccess $ getWhois $ defaultQueryWithData satoshi
+        let purchaseAmount = whoisPrice + 1
+            newVal = "hello (again) world"
+            msg = TypedMessage "BuyName" (encode $ BuyName purchaseAmount satoshi newVal addr2)
+            claimedLog = NameClaimed addr2 satoshi newVal purchaseAmount
+        deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user2 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check for updated balances - seller: addr1, buyer: addr2
         let sellerQueryReq = defaultQueryWithData addr1
         sellerFoundAmount <- getQueryResponseSuccess $ getBalance sellerQueryReq
-        sellerFoundAmount `shouldBe` Amount 1300
+        sellerFoundAmount `shouldBe` (balance1 + purchaseAmount)
         let buyerQueryReq = defaultQueryWithData addr2
         buyerFoundAmount <- getQueryResponseSuccess $ getBalance buyerQueryReq
-        buyerFoundAmount `shouldBe` Amount 700
+        buyerFoundAmount `shouldBe` (balance2 - purchaseAmount)
         -- check for ownership changes
         let queryReq = defaultQueryWithData satoshi
         foundWhois <- getQueryResponseSuccess $ getWhois queryReq
-        foundWhois `shouldBe` Whois "hello (again) world" addr2 300
+        foundWhois `shouldBe` Whois "hello (again) world" addr2 purchaseAmount
 
       -- @NOTE: this is possibly a problem with the go application too
       -- https://cosmos.network/docs/tutorial/buy-name.html#msg
@@ -129,8 +128,7 @@ spec = do
         let val = "hello (again) world"
             msg = TypedMessage "BuyName" (encode $ BuyName 500 satoshi val addr2)
             claimedLog = NameClaimed addr2 satoshi val 500
-            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        deliverResp <- getDeliverTxResponse rawTx
+        deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user2 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check balance after
@@ -141,14 +139,12 @@ spec = do
       it "Can fail to buy a name (failure 1)" $ do
         -- try to buy at a lower price
         let msg = TypedMessage "BuyName" (encode $ BuyName 100 satoshi "hello (again) world" addr1)
-            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey1 msg
-        ensureCheckAndDeliverResponseCodes (0,1) rawTx
+        mkSignedRawTransactionWithRoute "nameservice" user1 msg >>= ensureCheckAndDeliverResponseCodes (0,1)
 
       it "Can delete names (success 0)" $ do
         let msg = TypedMessage "DeleteName" (encode $ DeleteName addr2 satoshi)
             deletedLog = NameDeleted satoshi
-            rawTx = mkSignedRawTransactionWithRoute "nameservice" privateKey2 msg
-        deliverResp <- getDeliverTxResponse rawTx
+        deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user2 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameDeleted" deletedLog
         -- name shouldn't exist
@@ -164,8 +160,7 @@ spec = do
         addr2Balance <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
         let tooMuchToTransfer = addr2Balance + 1
             msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 tooMuchToTransfer)
-            rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
-        ensureCheckAndDeliverResponseCodes (0,1) rawTx
+        ensureCheckAndDeliverResponseCodes (0,1) =<< mkSignedRawTransactionWithRoute "token" user2 msg
 
       it "Can transfer (success 0)" $ do
         balance1 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
@@ -182,8 +177,7 @@ spec = do
               , transferEventTo = addr2
               , transferEventFrom = addr1
               }
-            rawTx = mkSignedRawTransactionWithRoute "token" privateKey1 msg
-        deliverResp <- getDeliverTxResponse rawTx
+        deliverResp <- mkSignedRawTransactionWithRoute "token" user1 msg >>= getDeliverTxResponse
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "TransferEvent" transferEvent
         -- check balances
@@ -193,6 +187,7 @@ spec = do
         balance2' `shouldBe` balance2 + transferAmount
 
 --------------------------------------------------------------------------------
+
 user1 :: User
 user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"
 
@@ -201,12 +196,11 @@ user2 = makeUser "f65242094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e03
 
 --------------------------------------------------------------------------------
 
-faucetAccount :: User -> IO ()
-faucetAccount User{userAddress, userPrivKey} = do
-  let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress 1000)
-      faucetEvent = Faucetted userAddress 1000
-      rawTx = mkSignedRawTransactionWithRoute "token" userPrivKey msg
-  deliverResp <- getDeliverTxResponse rawTx
+faucetAccount :: User -> Amount -> IO ()
+faucetAccount user@User{userAddress} amount = do
+  let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress amount)
+      faucetEvent = Faucetted userAddress amount
+  deliverResp <- mkSignedRawTransactionWithRoute "token" user msg >>= getDeliverTxResponse
   ensureDeliverResponseCode deliverResp 0
   ensureEventLogged deliverResp "Faucetted" faucetEvent
 

@@ -21,7 +21,7 @@ import qualified Tendermint.SDK.BaseApp.Events    as E
 import qualified Tendermint.SDK.BaseApp.Gas       as G
 import           Tendermint.SDK.Codec             (HasCodec (encode))
 import           Tendermint.SDK.Types.Effects     ((:&))
-import           Tendermint.SDK.Types.Transaction (RoutedTx (..), Tx (..))
+import           Tendermint.SDK.Types.Transaction (PreRoutedTx (..), Tx (..))
 import           Tendermint.SDK.Types.TxResult    (TxResult, txResultData,
                                                    txResultEvents,
                                                    txResultGasUsed,
@@ -38,9 +38,9 @@ data TransactionContext = TransactionContext
   }
 
 newTransactionContext
-  :: RoutedTx msg
+  :: PreRoutedTx msg
   -> IO TransactionContext
-newTransactionContext (RoutedTx Tx{txGas}) = do
+newTransactionContext (PreRoutedTx Tx{txGas}) = do
   initialGas <- newIORef $ G.GasAmount txGas
   pure TransactionContext
     { gas = initialGas
