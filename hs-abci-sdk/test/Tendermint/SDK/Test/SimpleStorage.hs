@@ -123,7 +123,7 @@ router (PreRoutedTx Tx{txMsg}) =
 type CountStoreContents = '[(CountKey, Count)]
 
 type GetMultipliedCount =
-     "multiply"
+     "multiplied"
   :> QueryParam' '[Required, Strict] "factor" Integer
   :> BaseApp.Leaf Count
 
