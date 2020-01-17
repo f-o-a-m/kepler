@@ -54,23 +54,6 @@ instance BaseApp.IsAppError BankError where
 -- Events
 --------------------------------------------------------------------------------
 
--- data Faucetted = Faucetted
---   { faucettedAccount :: Address
---   , faucettedCoinId  :: Auth.CoinId
---   , faucettedAmount  :: Auth.Amount
---   } deriving (Eq, Show, Generic)
-
--- faucettedAesonOptions :: A.Options
--- faucettedAesonOptions = defaultSDKAesonOptions "faucetted"
-
--- instance ToJSON Faucetted where
---   toJSON = A.genericToJSON faucettedAesonOptions
--- instance FromJSON Faucetted where
---   parseJSON = A.genericParseJSON faucettedAesonOptions
--- instance BaseApp.ToEvent Faucetted where
---   makeEventType _ = "Faucetted"
--- instance BaseApp.Select Faucetted
-
 data TransferEvent = TransferEvent
   { transferEventCoinId :: Auth.CoinId
   , transferEventAmount :: Auth.Amount

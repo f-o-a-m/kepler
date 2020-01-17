@@ -19,10 +19,13 @@ module Nameservice.Modules.Nameservice
 
   -- * effects
   , NameserviceEffs
+  , Faucetted(..)
+  , FaucetAccount(..)
   , getWhois
   , buyName
   , setName
   , deleteName
+  , faucetAccount
 
   -- * interpreter
   , eval

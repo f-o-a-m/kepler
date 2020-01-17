@@ -12,11 +12,8 @@ module Tendermint.SDK.Modules.Bank
   -- * effects
   , Bank
   , BankEffs
-  -- , Faucetted(..)
   , TransferEvent(..)
-  -- , FaucetAccount(..)
   , getBalance
-  -- , faucetAccount
   , transfer
   , mint
   , burn

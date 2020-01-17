@@ -10,9 +10,7 @@ import           Polysemy.Output                      (Output)
 import qualified Tendermint.SDK.BaseApp               as BaseApp
 import qualified Tendermint.SDK.Modules.Auth          as Auth
 import qualified Tendermint.SDK.Modules.Auth.Keeper   as Auth
--- import           Tendermint.SDK.Modules.Bank.Messages (FaucetAccount (..))
 import           Tendermint.SDK.Modules.Bank.Types    (BankError (..),
-                                                       -- Faucetted (..),
                                                        TransferEvent (..))
 import           Tendermint.SDK.Types.Address         (Address)
 
@@ -80,22 +78,6 @@ createAccount addr = do
             }
       BaseApp.put Auth.storeKey addr emptyAccount
       pure emptyAccount
-
--- faucetAccount
---   :: Members [BaseApp.Logger, Output BaseApp.Event] r
---   => Members BankEffs r
---   => FaucetAccount
---   -> Sem r ()
--- faucetAccount FaucetAccount{..} = do
---   let coin = Auth.Coin faucetAccountCoinId faucetAccountAmount
---   mint faucetAccountTo coin
---   let event = Faucetted
---         { faucettedAccount = faucetAccountTo
---         , faucettedCoinId = faucetAccountCoinId
---         , faucettedAmount = faucetAccountAmount
---         }
---   BaseApp.emit event
---   BaseApp.logEvent event
 
 getBalance
   :: Member Bank r
