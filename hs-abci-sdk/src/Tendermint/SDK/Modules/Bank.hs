@@ -12,11 +12,11 @@ module Tendermint.SDK.Modules.Bank
   -- * effects
   , Bank
   , BankEffs
-  , Faucetted(..)
+  -- , Faucetted(..)
   , TransferEvent(..)
-  , FaucetAccount(..)
+  -- , FaucetAccount(..)
   , getBalance
-  , faucetAccount
+  -- , faucetAccount
   , transfer
   , mint
   , burn

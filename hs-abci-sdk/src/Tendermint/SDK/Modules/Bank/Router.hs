@@ -4,7 +4,8 @@ import           Polysemy                             (Members, Sem)
 import           Tendermint.SDK.BaseApp               (BaseAppEffs, TxEffs)
 import qualified Tendermint.SDK.Modules.Auth          as Auth
 import           Tendermint.SDK.Modules.Bank.Keeper   (BankEffs, burn,
-                                                       faucetAccount, transfer)
+                                                       -- faucetAccount,
+                                                       transfer)
 import           Tendermint.SDK.Modules.Bank.Messages (BankMessage (..),
                                                        Burn (..), Transfer (..))
 import           Tendermint.SDK.Types.Message         (Msg (..))
@@ -20,8 +21,8 @@ router
 router (PreRoutedTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
   in case msgData of
-       TFaucetAccount faucet ->
-         faucetAccount faucet
+       -- TFaucetAccount faucet ->
+       --   faucetAccount faucet
        TTransfer Transfer{..} ->
          let coin = Auth.Coin transferCoinId transferAmount
          in transfer transferFrom coin transferTo
