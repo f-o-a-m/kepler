@@ -67,6 +67,7 @@ library:
     - proto3-wire
     - string-conversions
     - text
+    - validation
   ghc-options:
   - -fplugin=Polysemy.Plugin
   - -Werror

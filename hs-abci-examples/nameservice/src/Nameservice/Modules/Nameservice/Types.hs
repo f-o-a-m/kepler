@@ -17,7 +17,7 @@ import qualified Proto3.Wire.Decode           as Decode
 import qualified Proto3.Wire.Encode           as Encode
 import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
-import           Tendermint.SDK.Modules.Auth  (Amount (..))
+import           Tendermint.SDK.Modules.Auth  (Amount (..), CoinId(..))
 import           Tendermint.SDK.Modules.Bank  ()
 import           Tendermint.SDK.Types.Address (Address)
 
@@ -90,6 +90,23 @@ instance BaseApp.IsAppError NameserviceError where
 --------------------------------------------------------------------------------
 -- Events
 --------------------------------------------------------------------------------
+
+data Faucetted = Faucetted
+  { faucettedAccount :: Address
+  , faucettedCoinId  :: CoinId
+  , faucettedAmount  :: Amount
+  } deriving (Eq, Show, Generic)
+
+faucettedAesonOptions :: A.Options
+faucettedAesonOptions = defaultNameserviceOptions "faucetted"
+
+instance ToJSON Faucetted where
+  toJSON = A.genericToJSON faucettedAesonOptions
+instance FromJSON Faucetted where
+  parseJSON = A.genericParseJSON faucettedAesonOptions
+instance BaseApp.ToEvent Faucetted where
+  makeEventType _ = "Faucetted"
+instance BaseApp.Select Faucetted
 
 data NameClaimed = NameClaimed
   { nameClaimedOwner :: Address

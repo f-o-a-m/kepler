@@ -50,6 +50,22 @@ eval = mapError BaseApp.makeAppError . evalNameservice
 
 --------------------------------------------------------------------------------
 
+faucetAccount
+  :: Members [BaseApp.Logger, Output BaseApp.Event] r
+  => Members BankEffs r
+  => FaucetAccount
+  -> Sem r ()
+faucetAccount FaucetAccount{..} = do
+  let coin = Coin faucetAccountCoinId faucetAccountAmount
+  mint faucetAccountTo coin
+  let event = Faucetted
+        { faucettedAccount = faucetAccountTo
+        , faucettedCoinId = faucetAccountCoinId
+        , faucettedAmount = faucetAccountAmount
+        }
+  BaseApp.emit event
+  BaseApp.logEvent event
+
 setName
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
   => Members NameserviceEffs r

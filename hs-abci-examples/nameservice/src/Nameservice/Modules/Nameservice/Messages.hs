@@ -10,7 +10,7 @@ import           Proto3.Suite                          (Message, Named,
                                                         fromByteString,
                                                         toLazyByteString)
 import           Tendermint.SDK.Codec                  (HasCodec (..))
-import           Tendermint.SDK.Modules.Auth           (Amount (..))
+import           Tendermint.SDK.Modules.Auth           (Amount (..), CoinId(..))
 import           Tendermint.SDK.Modules.Bank           ()
 import           Tendermint.SDK.Modules.TypedMessage   (TypedMessage (..))
 import           Tendermint.SDK.Types.Address          (Address (..))
@@ -20,15 +20,30 @@ import           Tendermint.SDK.Types.Message          (Msg (..),
                                                         formatMessageParseError,
                                                         isAuthorCheck,
                                                         nonEmptyCheck)
+import           Data.Validation                     (Validation (..))
 
 data NameserviceMessage =
     NSetName SetName
   | NBuyName BuyName
   | NDeleteName DeleteName
+  | NFaucetAccount FaucetAccount
   deriving (Eq, Show, Generic)
 
 -- @NOTE: .proto genration will use these type names as is
 -- only field names stripped of prefixes during generation
+data FaucetAccount = FaucetAccount
+  { faucetAccountTo     :: Address
+  , faucetAccountCoinId :: CoinId
+  , faucetAccountAmount :: Amount
+  } deriving (Eq, Show, Generic)
+
+instance Message FaucetAccount
+instance Named FaucetAccount
+
+instance HasCodec FaucetAccount where
+  encode = cs . toLazyByteString
+  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+
 data SetName = SetName
   { setNameName  :: Name
   , setNameOwner :: Address
@@ -75,17 +90,20 @@ instance HasCodec NameserviceMessage where
       "SetName" -> NSetName <$> decode typedMessageContents
       "DeleteName" -> NDeleteName <$> decode typedMessageContents
       "BuyName" -> NBuyName <$> decode typedMessageContents
+      "FaucetAccount" -> NFaucetAccount <$> decode typedMessageContents
       _ -> Left . cs $ "Unknown Nameservice message type " ++ cs typedMessageType
   encode = \case
     NSetName msg -> encode msg
     NBuyName msg -> encode msg
     NDeleteName msg -> encode msg
+    NFaucetAccount msg -> encode msg
 
 instance ValidateMessage NameserviceMessage where
   validateMessage m@Msg{msgData} = case msgData of
     NBuyName msg    -> validateMessage m {msgData = msg}
     NSetName msg    -> validateMessage m {msgData = msg}
     NDeleteName msg -> validateMessage m {msgData = msg}
+    NFaucetAccount msg -> validateMessage m {msgData = msg}
 
 -- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg
 instance ValidateMessage SetName where
@@ -116,3 +134,6 @@ instance ValidateMessage BuyName where
         , nonEmptyCheck "Value" buyNameValue
         , isAuthorCheck "Owner" msg buyNameBuyer
         ]
+
+instance ValidateMessage FaucetAccount where
+  validateMessage _ = Success ()

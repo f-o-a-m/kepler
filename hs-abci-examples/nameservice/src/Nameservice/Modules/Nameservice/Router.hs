@@ -2,7 +2,7 @@ module Nameservice.Modules.Nameservice.Router where
 
 import           Nameservice.Modules.Nameservice.Keeper   (NameserviceEffs,
                                                            buyName, deleteName,
-                                                           setName)
+                                                           setName, faucetAccount)
 import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (..))
 import           Polysemy                                 (Members, Sem)
 import           Tendermint.SDK.BaseApp                   (BaseAppEffs, TxEffs,
@@ -22,6 +22,8 @@ router
 router (PreRoutedTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
   in case msgData of
+       NFaucetAccount faucet ->
+         faucetAccount faucet
        NSetName msg    -> do
          incCount "set_total"
          withTimer "set_duration_seconds" $ setName msg
