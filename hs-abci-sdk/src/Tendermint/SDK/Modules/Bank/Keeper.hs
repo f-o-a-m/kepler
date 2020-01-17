@@ -2,17 +2,17 @@
 
 module Tendermint.SDK.Modules.Bank.Keeper where
 
-import           Data.List                            (find)
-import           Data.Maybe                           (fromMaybe)
+import           Data.List                          (find)
+import           Data.Maybe                         (fromMaybe)
 import           Polysemy
-import           Polysemy.Error                       (Error, mapError, throw)
-import           Polysemy.Output                      (Output)
-import qualified Tendermint.SDK.BaseApp               as BaseApp
-import qualified Tendermint.SDK.Modules.Auth          as Auth
-import qualified Tendermint.SDK.Modules.Auth.Keeper   as Auth
-import           Tendermint.SDK.Modules.Bank.Types    (BankError (..),
-                                                       TransferEvent (..))
-import           Tendermint.SDK.Types.Address         (Address)
+import           Polysemy.Error                     (Error, mapError, throw)
+import           Polysemy.Output                    (Output)
+import qualified Tendermint.SDK.BaseApp             as BaseApp
+import qualified Tendermint.SDK.Modules.Auth        as Auth
+import qualified Tendermint.SDK.Modules.Auth.Keeper as Auth
+import           Tendermint.SDK.Modules.Bank.Types  (BankError (..),
+                                                     TransferEvent (..))
+import           Tendermint.SDK.Types.Address       (Address)
 
 data Bank m a where
   PutBalance :: Address -> Auth.Coin -> Bank m ()

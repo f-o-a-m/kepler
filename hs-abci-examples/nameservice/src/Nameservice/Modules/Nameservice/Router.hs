@@ -2,7 +2,8 @@ module Nameservice.Modules.Nameservice.Router where
 
 import           Nameservice.Modules.Nameservice.Keeper   (NameserviceEffs,
                                                            buyName, deleteName,
-                                                           setName, faucetAccount)
+                                                           faucetAccount,
+                                                           setName)
 import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (..))
 import           Polysemy                                 (Members, Sem)
 import           Tendermint.SDK.BaseApp                   (BaseAppEffs, TxEffs,

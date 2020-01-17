@@ -3,8 +3,7 @@ module Tendermint.SDK.Modules.Bank.Router where
 import           Polysemy                             (Members, Sem)
 import           Tendermint.SDK.BaseApp               (BaseAppEffs, TxEffs)
 import qualified Tendermint.SDK.Modules.Auth          as Auth
-import           Tendermint.SDK.Modules.Bank.Keeper   (BankEffs, burn,
-                                                       transfer)
+import           Tendermint.SDK.Modules.Bank.Keeper   (BankEffs, burn, transfer)
 import           Tendermint.SDK.Modules.Bank.Messages (BankMessage (..),
                                                        Burn (..), Transfer (..))
 import           Tendermint.SDK.Types.Message         (Msg (..))

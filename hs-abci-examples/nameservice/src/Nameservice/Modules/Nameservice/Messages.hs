@@ -4,13 +4,15 @@ import           Data.Bifunctor                        (first)
 import           Data.Foldable                         (sequenceA_)
 import           Data.String.Conversions               (cs)
 import           Data.Text                             (Text)
+import           Data.Validation                       (Validation (..))
 import           GHC.Generics                          (Generic)
 import           Nameservice.Modules.Nameservice.Types (Name (..))
 import           Proto3.Suite                          (Message, Named,
                                                         fromByteString,
                                                         toLazyByteString)
 import           Tendermint.SDK.Codec                  (HasCodec (..))
-import           Tendermint.SDK.Modules.Auth           (Amount (..), CoinId(..))
+import           Tendermint.SDK.Modules.Auth           (Amount (..),
+                                                        CoinId (..))
 import           Tendermint.SDK.Modules.Bank           ()
 import           Tendermint.SDK.Modules.TypedMessage   (TypedMessage (..))
 import           Tendermint.SDK.Types.Address          (Address (..))
@@ -20,7 +22,6 @@ import           Tendermint.SDK.Types.Message          (Msg (..),
                                                         formatMessageParseError,
                                                         isAuthorCheck,
                                                         nonEmptyCheck)
-import           Data.Validation                     (Validation (..))
 
 data NameserviceMessage =
     NSetName SetName
@@ -100,9 +101,9 @@ instance HasCodec NameserviceMessage where
 
 instance ValidateMessage NameserviceMessage where
   validateMessage m@Msg{msgData} = case msgData of
-    NBuyName msg    -> validateMessage m {msgData = msg}
-    NSetName msg    -> validateMessage m {msgData = msg}
-    NDeleteName msg -> validateMessage m {msgData = msg}
+    NBuyName msg       -> validateMessage m {msgData = msg}
+    NSetName msg       -> validateMessage m {msgData = msg}
+    NDeleteName msg    -> validateMessage m {msgData = msg}
     NFaucetAccount msg -> validateMessage m {msgData = msg}
 
 -- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg

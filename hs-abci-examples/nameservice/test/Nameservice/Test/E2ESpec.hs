@@ -6,6 +6,8 @@ import           Data.Default.Class                   (def)
 import           Data.Proxy
 import           Nameservice.Modules.Nameservice      (BuyName (..),
                                                        DeleteName (..),
+                                                       FaucetAccount (..),
+                                                       Faucetted (..),
                                                        Name (..),
                                                        NameClaimed (..),
                                                        NameDeleted (..),
@@ -20,9 +22,7 @@ import           Tendermint.SDK.BaseApp.Query         (QueryArgs (..),
                                                        defaultQueryWithData)
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Modules.Auth          (Amount (..), Coin (..))
-import           Tendermint.SDK.Modules.Bank          (FaucetAccount (..),
-                                                       Faucetted (..),
-                                                       Transfer (..),
+import           Tendermint.SDK.Modules.Bank          (Transfer (..),
                                                        TransferEvent (..))
 import qualified Tendermint.SDK.Modules.Bank          as Bank (Api)
 import           Tendermint.SDK.Modules.TypedMessage  (TypedMessage (..))

@@ -62,8 +62,8 @@ instance HasCodec BankMessage where
 
 instance ValidateMessage BankMessage where
   validateMessage m@Msg{msgData} = case msgData of
-    TTransfer msg      -> validateMessage m {msgData = msg}
-    TBurn msg          -> validateMessage m {msgData = msg}
+    TTransfer msg -> validateMessage m {msgData = msg}
+    TBurn msg     -> validateMessage m {msgData = msg}
 
 instance ValidateMessage Transfer where
   validateMessage _ = Success ()
