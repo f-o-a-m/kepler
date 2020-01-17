@@ -74,7 +74,7 @@ spec = do
         ClientResponse{ clientResponseData, clientResponseRaw } <- runRPC $ getWhois queryReq
         let queryRespCode = clientResponseRaw ^. Response._queryCode
         -- storage failure
-        queryRespCode `shouldBe` 1
+        queryRespCode `shouldBe` 2
         clientResponseData `shouldBe` Nothing
 
       it "Can set a name value (success 0)" $ do
@@ -152,7 +152,7 @@ spec = do
         ClientResponse{ clientResponseData, clientResponseRaw } <- runRPC $ getWhois queryReq
         let queryRespCode = clientResponseRaw ^. Response._queryCode
         -- storage failure
-        queryRespCode `shouldBe` 1
+        queryRespCode `shouldBe` 2
         clientResponseData `shouldBe` Nothing
 
       it "Can fail a transfer (failure 1)" $ do

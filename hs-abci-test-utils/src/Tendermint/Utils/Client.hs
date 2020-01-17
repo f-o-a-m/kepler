@@ -101,7 +101,7 @@ addQueryParamsToPath qs path =
   let qParams = intercalate "&" $ map (\(n,v) -> n <> "=" <> v) qs
   in case qs of
        [] -> path
-       _ -> path <> "?" <> qParams
+       _  -> path <> "?" <> qParams
 
 instance (RunClient m, Queryable a, name ~  Name a, KnownSymbol name ) => HasClient m (Leaf a) where
     type ClientT m (Leaf a) = m (ClientResponse a)

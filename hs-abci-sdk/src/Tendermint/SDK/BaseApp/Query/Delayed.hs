@@ -3,9 +3,6 @@ module Tendermint.SDK.BaseApp.Query.Delayed where
 import           Control.Monad.Reader                 (MonadReader, ReaderT,
                                                        ask, runReaderT)
 import           Control.Monad.Trans                  (MonadTrans (..))
-import qualified Data.ByteArray.Base64String          as Base64
-import           Data.Default.Class                   (def)
-import           Data.String.Conversions              (cs)
 import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Polysemy                             (Sem)
@@ -70,18 +67,6 @@ runAction action env query k = do
 -- | Fail with the option to recover.
 delayedFail :: Monad m => QueryError -> DelayedM m a
 delayedFail err = liftRouteResult $ Fail err
-
-responseQueryError :: Request.Query -> QueryError -> Response.Query
-responseQueryError Request.Query{..} e =
-  let msg = case e of
-        PathNotFound     -> "Path Not Found"
-        ResourceNotFound -> "Resource Not Found: queryData=" <> cs (Base64.format queryData)
-        InvalidQuery m   -> "Invalid Query: " <> m
-        InternalError _  -> "Internal Error"
-  in def { Response.queryCode = 1
-         , Response.queryLog = cs msg
-         , Response.queryCodespace = queryPath
-        }
 
 addQueryArgs
   :: Monad m
