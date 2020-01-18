@@ -18,15 +18,15 @@ import           Data.Text                                  (Text)
 import qualified Katip                                      as K
 import           Polysemy                                   (Embed, Members,
                                                              Sem, runM)
-import           Polysemy.Error                        (Error, runError)
+import           Polysemy.Error                             (Error, runError)
 import           Polysemy.Reader                            (Reader, asks,
                                                              local, runReader)
+import           Tendermint.SDK.BaseApp.Errors              (AppError)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip        as KL
 import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus  as P
 import           Tendermint.SDK.BaseApp.Store               (MergeScopes,
                                                              ResolveScope (..))
 import qualified Tendermint.SDK.BaseApp.Store.AuthTreeStore as AT
-import           Tendermint.SDK.BaseApp.Errors         (AppError)
 
 -- | CoreEffs is one level below BaseAppEffs, and provides one possible
 -- | interpretation for its effects to IO.

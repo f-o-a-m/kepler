@@ -10,7 +10,7 @@ module Tendermint.SDK.BaseApp.Store.Scope
   , Version(..)
   ) where
 
-import Numeric.Natural (Natural)
+import           Numeric.Natural                       (Natural)
 import           Polysemy                              (EffectRow, Sem, makeSem,
                                                         rewrite)
 import           Polysemy.Tagged                       (Tagged (..))

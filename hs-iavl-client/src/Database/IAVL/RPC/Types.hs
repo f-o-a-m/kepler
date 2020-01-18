@@ -1,11 +1,11 @@
 module Database.IAVL.RPC.Types where
 
-import           Control.Exception                    (Exception, throwIO)
+import           Control.Exception           (Exception, throwIO)
+import           Data.Text                   (Text, pack)
 import           Network.GRPC.Client         (uncompressed)
 import           Network.GRPC.Client.Helpers (GrpcClient, GrpcClientConfig (..),
                                               grpcClientConfigSimple,
                                               setupGrpcClient)
-import Data.Text (Text, pack)
 import           Network.HTTP2.Client        (runClientIO)
 
 

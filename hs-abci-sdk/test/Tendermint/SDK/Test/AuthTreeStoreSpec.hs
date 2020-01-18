@@ -23,9 +23,8 @@ import           Tendermint.SDK.BaseApp.Store               (ConnectionScope (..
                                                              StoreKey (..),
                                                              applyScope,
                                                              commitBlock,
-                                                             mergeScopes,
                                                              delete, get,
-                                                              put,
+                                                             mergeScopes, put,
                                                              withSandbox,
                                                              withTransaction)
 import           Tendermint.SDK.BaseApp.Store.AuthTreeStore (AuthTreeGetter (..),

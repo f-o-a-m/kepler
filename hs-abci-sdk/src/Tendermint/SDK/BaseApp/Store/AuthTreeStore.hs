@@ -6,9 +6,6 @@ module Tendermint.SDK.BaseApp.Store.AuthTreeStore
   , evalTagged
   ) where
 
-import           Data.IORef                            (IORef, newIORef,
-                                                        readIORef, writeIORef)
-import Data.Maybe (fromMaybe)
 import           Control.Monad                         (forM_)
 import           Control.Monad.IO.Class
 import qualified Crypto.Data.Auth.Tree                 as AT
@@ -17,10 +14,13 @@ import qualified Crypto.Data.Auth.Tree.Cryptonite      as Cryptonite
 import qualified Crypto.Hash                           as Cryptonite
 import           Data.ByteArray                        (convert)
 import           Data.ByteString                       (ByteString)
-import Data.Map (Map)
-import qualified Data.Map as Map
+import           Data.IORef                            (IORef, newIORef,
+                                                        readIORef, writeIORef)
+import           Data.Map                              (Map)
+import qualified Data.Map                              as Map
+import           Data.Maybe                            (fromMaybe)
 import           Data.Proxy
-import Numeric.Natural (Natural)
+import           Numeric.Natural                       (Natural)
 import           Polysemy                              (Embed, Members, Sem,
                                                         interpret)
 import           Polysemy.Error                        (Error)
@@ -31,7 +31,8 @@ import           Tendermint.SDK.BaseApp.Errors         (AppError, SDKError (..),
 import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore (..),
                                                         makeRawKey)
 import           Tendermint.SDK.BaseApp.Store.Scope    (ConnectionScope (..),
-                                                        MergeScopes (..), Version(..))
+                                                        MergeScopes (..),
+                                                        Version (..))
 
 -- At the moment, the 'AuthTreeStore' is our only interpreter for the 'RawStore' effect.
 -- It is an in memory merklized key value store. You can find the repository here
@@ -129,7 +130,7 @@ evalTagged m = do
         case version of
           Latest -> do
             let mOldTree = case Map.toDescList  treeMap of
-                             [] -> Nothing
+                             []               -> Nothing
                              (_, oldTree) : _ -> Just oldTree
             liftIO $ writeIORef treesVar (fromMaybe AT.empty mOldTree, treeMap)
           _ -> throwSDKError $ RawStoreInvalidOperation "Rollback"
@@ -139,7 +140,7 @@ evalTagged m = do
         case version of
           Latest ->
             let newVerion = case Map.toDescList treeMap of
-                              [] -> 1
+                              []         -> 1
                               (k, _) : _ -> k + 1
                 updatedTreeMap = Map.insert newVerion headTree treeMap
             in liftIO $ writeIORef treesVar (headTree, updatedTreeMap)
@@ -160,7 +161,7 @@ evalMergeScopes =
             AuthTree {treesVar} = consensus
         (_, treeMap) <- liftIO $ readIORef treesVar
         let latestVersion = case Map.toDescList treeMap of
-                              [] -> Genesis
+                              []         -> Genesis
                               (k, _) : _ -> Version k
         forM_ [qVersionVar, memVersionVar] $ \ior -> liftIO $ writeIORef ior latestVersion
     )

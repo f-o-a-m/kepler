@@ -18,6 +18,7 @@ import           Data.ProtoLens.Message                (defMessage)
 import           Data.Proxy
 import           Data.Text                             (pack)
 import qualified Database.IAVL.RPC                     as IAVL
+import           Database.IAVL.RPC.Types               (initGrpcClient)
 import           Network.GRPC.Client                   (RawReply)
 import           Network.GRPC.Client.Helpers           (GrpcClient)
 import           Network.HTTP2.Client                  (ClientIO,
@@ -34,8 +35,8 @@ import           Tendermint.SDK.BaseApp.Errors         (AppError, SDKError (..),
 import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore (..),
                                                         makeRawKey)
 import           Tendermint.SDK.BaseApp.Store.Scope    (ConnectionScope (..),
-                                                        MergeScopes (..), Version(..))
-import Database.IAVL.RPC.Types (initGrpcClient)
+                                                        MergeScopes (..),
+                                                        Version (..))
 
 data IAVLVersion (c :: ConnectionScope) = IAVLVersion
   { iavlVersion :: IORef Version
