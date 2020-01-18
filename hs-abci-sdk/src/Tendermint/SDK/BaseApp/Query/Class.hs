@@ -25,8 +25,8 @@ import           Tendermint.SDK.BaseApp.Query.Types   (FromQueryData (..), Leaf,
                                                        QA, QueryArgs (..),
                                                        QueryError (..),
                                                        QueryRequest (..),
-                                                       QueryResult,
-                                                       Queryable (..))
+                                                       QueryResult)
+import           Tendermint.SDK.Codec                 (HasCodec)
 import           Web.Internal.HttpApiData             (FromHttpApiData (..))
 
 --------------------------------------------------------------------------------
@@ -76,12 +76,10 @@ instance ( HasRouter sublayout r, KnownSymbol sym, FromHttpApiData a
         delayed = addParameter subserver $ withQuery parseParam
     in route (Proxy :: Proxy sublayout) pr delayed
 
-instance (Queryable a, KnownSymbol (Name a)) => HasRouter (Leaf a) r where
+instance HasCodec a => HasRouter (Leaf a) r where
 
    type RouteT (Leaf a) r = Sem r (QueryResult a)
-   route _ _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter
-     where proxyPath = Proxy :: Proxy (Name a)
-
+   route _ _ = methodRouter
 
 instance (FromQueryData a, HasRouter sublayout r)
       => HasRouter (QA a :> sublayout) r where

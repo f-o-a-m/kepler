@@ -2,19 +2,30 @@
 
 module Tendermint.SDK.BaseApp.Query.Store where
 
-import           Control.Lens                       (to, (^.))
-import           Data.ByteArray.Base64String        (fromBytes)
+import           Control.Lens                        (to, (^.))
+import           Data.ByteArray.Base64String         (fromBytes)
 import           Data.Proxy
-import           GHC.TypeLits                       (Symbol)
-import           Polysemy                           (Members, Sem)
-import           Polysemy.Error                     (Error, throw)
-import           Servant.API                        ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp.Errors      (AppError, makeAppError)
+import           Data.String.Conversions             (cs)
+import           GHC.TypeLits                        (KnownSymbol, Symbol,
+                                                      symbolVal)
+import           Polysemy                            (Members, Sem)
+import           Polysemy.Error                      (Error, throw)
+import           Servant.API                         ((:<|>) (..), (:>))
+import           Tendermint.SDK.BaseApp.Errors       (AppError, makeAppError)
 import           Tendermint.SDK.BaseApp.Query.Class
+import           Tendermint.SDK.BaseApp.Query.Router (methodRouter, pathRouter)
 import           Tendermint.SDK.BaseApp.Query.Types
-import           Tendermint.SDK.BaseApp.Store       (IsKey (..), RawKey (..),
-                                                     RawStore, StoreKey, get)
-import           Tendermint.SDK.Codec               (HasCodec)
+import           Tendermint.SDK.BaseApp.Store        (IsKey (..), RawKey (..),
+                                                      RawStore, StoreKey, get)
+import           Tendermint.SDK.Codec                (HasCodec)
+
+data StoreLeaf a
+
+instance (Queryable a, KnownSymbol (Name a)) => HasRouter (StoreLeaf a) r where
+
+   type RouteT (StoreLeaf a) r = Sem r (QueryResult a)
+   route _ _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter
+     where proxyPath = Proxy :: Proxy (Name a)
 
 class StoreQueryHandler a (ns :: Symbol) h where
     storeQueryHandler :: Proxy a -> StoreKey ns -> h
@@ -50,7 +61,7 @@ instance
     , HasCodec a
     , Members [RawStore, Error AppError] r
     )  => StoreQueryHandlers '[(k,a)] ns r where
-      type QueryApi '[(k,a)] =  QA k :> Leaf a
+      type QueryApi '[(k,a)] =  QA k :> StoreLeaf a
       storeQueryHandlers _ storeKey _ = storeQueryHandler (Proxy :: Proxy a) storeKey
 
 instance

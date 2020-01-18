@@ -1,7 +1,7 @@
 module Tendermint.SDK.BaseApp.Query.Router where
 
 import           Control.Lens                         ((&), (.~))
-import           Data.ByteArray.Base64String          (Base64String)
+import           Data.ByteArray.Base64String          (Base64String, fromBytes)
 import           Data.Default.Class                   (def)
 import           Data.Map                             (Map)
 import qualified Data.Map                             as M
@@ -16,8 +16,8 @@ import           Tendermint.SDK.BaseApp.Query.Types   (QueryArgs (..),
                                                        QueryError (..),
                                                        QueryRequest (..),
                                                        QueryResult (..),
-                                                       Queryable (..),
                                                        RouteResult (..))
+import           Tendermint.SDK.Codec                 (HasCodec (..))
 
 -- NOTE: most of this was vendored and repurposed from servant
 
@@ -44,7 +44,7 @@ choice router1 router2 = RChoice router1 router2
 
 
 methodRouter
-  :: Queryable b
+  :: HasCodec b
   => Delayed (Sem r) env (Sem r (QueryResult b))
   -> Router env r
 methodRouter action = leafRouter route'
@@ -52,7 +52,7 @@ methodRouter action = leafRouter route'
     route' env query = runAction action env query $ \QueryResult{..} ->
        Route $ def & Response._queryIndex .~ queryResultIndex
                    & Response._queryKey .~ queryResultKey
-                   & Response._queryValue .~ encodeQueryResult queryResultData
+                   & Response._queryValue .~ fromBytes (encode queryResultData)
                    & Response._queryProof .~ queryResultProof
                    & Response._queryHeight .~ queryResultHeight
 
@@ -71,7 +71,7 @@ runRouter router env query =
         first : rest | Just router' <- M.lookup first table
           -> let query' = query { queryRequestPath = T.intercalate "/" rest }
              in  runRouter router' env query'
-        _ -> pure $ Fail PathNotFound
+        _ -> error $ "no match" <> show path -- pure $ Fail PathNotFound
     RQueryArgs r' ->
       let qa = QueryArgs
             { queryArgsData = queryRequestData query

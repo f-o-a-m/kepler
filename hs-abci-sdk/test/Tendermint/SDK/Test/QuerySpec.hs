@@ -1,6 +1,5 @@
 module Tendermint.SDK.Test.QuerySpec (spec) where
 
-import           Control.Lens                         ((^.))
 import qualified Data.ByteArray.Base64String          as Base64
 import           Data.Text                            (Text)
 import qualified Network.ABCI.Types.Messages.Request  as Req
@@ -43,13 +42,13 @@ spec = beforeAll (BA.makeContext (KL.InitialLogNamespace "test" "spec") Nothing)
         txContext <- T.newTransactionContext tx
         _ <- SS.evalToIO ctx . T.eval txContext $ handler tx
         let q = Req.Query
+              -- TODO -- this shouldn't require / count
               { queryPath = "/simple_storage/multiplied?factor=4"
-              , queryData = Base64.fromBytes $ SS.CountKey ^. BA.rawKey
+              , queryData = undefined
               , queryProve = False
               , queryHeight = 0
               }
-        r@Resp.Query{..} <- SS.evalToIO ctx $ ssServer q
-        print r
+        Resp.Query{..} <- SS.evalToIO ctx $ ssServer q
         queryCode `shouldBe` 0
         let resultCount = decode (Base64.toBytes queryValue) :: Either Text SS.Count
         resultCount `shouldBe` Right 4

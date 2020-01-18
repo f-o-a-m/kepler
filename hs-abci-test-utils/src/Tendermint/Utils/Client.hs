@@ -6,24 +6,28 @@ module Tendermint.Utils.Client
   , ClientResponse(..)
   ) where
 
-import           Control.Lens                         (to, (^.))
-import           Control.Monad.Reader                 (ReaderT)
-import qualified Data.ByteArray.Base64String          as Base64
-import qualified Data.ByteArray.HexString             as Hex
-import           Data.ByteString                      (ByteString)
+import           Control.Lens                           (to, (^.))
+import           Control.Monad.Reader                   (ReaderT)
+import qualified Data.ByteArray.Base64String            as Base64
+import qualified Data.ByteArray.HexString               as Hex
+import           Data.ByteString                        (ByteString)
 import           Data.Proxy
-import           Data.String.Conversions              (cs)
-import           Data.Text                            (Text, intercalate)
-import           GHC.TypeLits                         (KnownSymbol, symbolVal)
-import qualified Network.ABCI.Types.Messages.Request  as Req
-import qualified Network.ABCI.Types.Messages.Response as Resp
-import qualified Network.Tendermint.Client            as RPC
+import           Data.String.Conversions                (cs)
+import           Data.Text                              (Text, intercalate)
+import           GHC.TypeLits                           (KnownSymbol, symbolVal)
+import           Network.ABCI.Types.Messages.FieldTypes (WrappedVal (..))
+import qualified Network.ABCI.Types.Messages.Request    as Req
+import qualified Network.ABCI.Types.Messages.Response   as Resp
+import qualified Network.Tendermint.Client              as RPC
 import           Servant.API
 import           Servant.API.Modifiers
-import           Tendermint.SDK.BaseApp.Query.Types   (Leaf, QA, QueryArgs (..),
-                                                       Queryable (..))
-import           Tendermint.SDK.BaseApp.Store         (RawKey (..))
-import           Web.Internal.HttpApiData             (ToHttpApiData (..))
+import           Tendermint.SDK.BaseApp.Query.Store     (StoreLeaf)
+import           Tendermint.SDK.BaseApp.Query.Types     (Leaf, QA,
+                                                         QueryArgs (..),
+                                                         Queryable (..))
+import           Tendermint.SDK.BaseApp.Store           (RawKey (..))
+import           Tendermint.SDK.Codec                   (HasCodec (decode))
+import           Web.Internal.HttpApiData               (ToHttpApiData (..))
 
 class Monad m => RunClient m where
     -- | How to make a request.
@@ -83,9 +87,9 @@ instance (RawKey k, HasClient m a) => HasClient m (QA k :> a) where
     type ClientT m (QA k :> a) = QueryArgs k -> ClientT m a
     genClient pm _ (q,qs) QueryArgs{..} = genClient pm (Proxy @a)
       (q { Req.queryData = queryArgsData ^. rawKey . to Base64.fromBytes
-        , Req.queryHeight = queryArgsHeight
-        , Req.queryProve = queryArgsProve
-        }, qs)
+         , Req.queryHeight = WrappedVal queryArgsHeight
+         , Req.queryProve = queryArgsProve
+         }, qs)
 
 -- | Data is Nothing iff Raw includes a non-0 response value
 data ClientResponse a = ClientResponse
@@ -103,17 +107,29 @@ addQueryParamsToPath qs path =
        [] -> path
        _  -> path <> "?" <> qParams
 
-instance (RunClient m, Queryable a, name ~  Name a, KnownSymbol name ) => HasClient m (Leaf a) where
+instance (HasCodec a, RunClient m) => HasClient m (Leaf a) where
     type ClientT m (Leaf a) = m (ClientResponse a)
+    genClient _ _ = leafGenClient
+
+leafGenClient
+  :: HasCodec a
+  => RunClient m
+  => (Req.Query, QueryStringList)
+  -> m (ClientResponse a)
+leafGenClient (q,qs) = do
+  let reqPath = addQueryParamsToPath qs $ Req.queryPath q
+  r@Resp.Query{..} <- runQuery q { Req.queryPath = reqPath }
+  -- anything other than 0 code is a failure: https://tendermint.readthedocs.io/en/latest/abci-spec.html
+  -- and will result in queryValue decoding to a "empty/default" object
+  return $ case queryCode of
+    0 -> case decode $ Base64.toBytes queryValue of
+           Left err -> error $ "Impossible parse error: " <> cs err
+           Right a  -> ClientResponse (Just a) r
+    _ -> ClientResponse Nothing r
+
+instance (RunClient m, Queryable a, name ~  Name a, KnownSymbol name ) => HasClient m (StoreLeaf a) where
+    type ClientT m (StoreLeaf a) = m (ClientResponse a)
     genClient _ _ (q,qs) =
         let leaf = symbolVal (Proxy @(Name a))
-        in do
-          let reqPath = addQueryParamsToPath qs $ Req.queryPath q <> "/" <> cs leaf
-          r@Resp.Query{..} <- runQuery q { Req.queryPath = reqPath }
-          -- anything other than 0 code is a failure: https://tendermint.readthedocs.io/en/latest/abci-spec.html
-          -- and will result in queryValue decoding to a "empty/default" object
-          return $ case queryCode of
-            0 -> case decodeQueryResult queryValue of
-                   Left err -> error $ "Impossible parse error: " <> cs err
-                   Right a  -> ClientResponse (Just a) r
-            _ -> ClientResponse Nothing r
+            q' = q { Req.queryPath = Req.queryPath q <> "/" <> cs leaf }
+        in leafGenClient (q', qs)

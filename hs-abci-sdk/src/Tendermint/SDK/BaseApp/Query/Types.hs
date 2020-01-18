@@ -3,8 +3,7 @@ module Tendermint.SDK.BaseApp.Query.Types where
 import           Control.Lens                           (from, (^.))
 import           Control.Monad                          (ap)
 import           Control.Monad.Trans                    (MonadTrans (..))
-import           Data.ByteArray.Base64String            (Base64String,
-                                                         fromBytes, toBytes)
+import           Data.ByteArray.Base64String            (Base64String, toBytes)
 import           Data.Int                               (Int64)
 import           Data.Text                              (Text, breakOn, uncons)
 import           GHC.TypeLits                           (Symbol)
@@ -33,7 +32,7 @@ data QueryRequest = QueryRequest
   , queryRequestData        :: Base64String
   , queryRequestProve       :: Bool
   , queryRequestHeight      :: Int64
-  }
+  } deriving (Eq, Show)
 
 parseQueryRequest
   :: Request.Query
@@ -114,16 +113,8 @@ data QueryResult a = QueryResult
 -- | class representing objects which can be queried via the hs-abci query message.
 -- | Here the 'Name' is the leaf of the query url, e.g. if you can access a token
 -- | balance of type `Balance` at "token/balance", then 'Name Balance ~ "balance"'.
-class Queryable a where
+class HasCodec a => Queryable a where
   type Name a :: Symbol
-  encodeQueryResult :: a -> Base64String
-  decodeQueryResult :: Base64String -> Either Text a
-
-  default encodeQueryResult :: HasCodec a => a -> Base64String
-  encodeQueryResult = fromBytes . encode
-
-  default decodeQueryResult :: HasCodec a => Base64String -> Either Text a
-  decodeQueryResult = decode . toBytes
 
 -- | This class is used to parse the 'data' field of the query request message.
 -- | The default method assumes that the 'data' is simply the key for the
