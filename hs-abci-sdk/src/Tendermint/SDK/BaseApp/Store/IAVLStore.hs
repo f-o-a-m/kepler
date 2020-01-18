@@ -1,6 +1,7 @@
 module Tendermint.SDK.BaseApp.Store.IAVLStore
   ( ScopeVersions(..)
   , IAVLVersionGetter(..)
+  , initGrpcClient
   , initScopeVersions
   , evalMergeScopes
   , evalTagged
@@ -8,7 +9,7 @@ module Tendermint.SDK.BaseApp.Store.IAVLStore
 
 
 import           Control.Lens                          ((&), (.~), (^.))
-import           Control.Monad                         (void, forM_)
+import           Control.Monad                         (forM_, void)
 import           Control.Monad.IO.Class
 import           Data.IORef                            (IORef, newIORef,
                                                         readIORef, writeIORef)
@@ -18,8 +19,7 @@ import           Data.Proxy
 import           Data.Text                             (pack)
 import qualified Database.IAVL.RPC                     as IAVL
 import           Network.GRPC.Client                   (RawReply)
-import           Network.GRPC.Client.Helpers           (GrpcClient
-                                                        )
+import           Network.GRPC.Client.Helpers           (GrpcClient)
 import           Network.HTTP2.Client                  (ClientIO,
                                                         TooMuchConcurrency,
                                                         runClientIO)
@@ -34,7 +34,8 @@ import           Tendermint.SDK.BaseApp.Errors         (AppError, SDKError (..),
 import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore (..),
                                                         makeRawKey)
 import           Tendermint.SDK.BaseApp.Store.Scope    (ConnectionScope (..),
-                                                        MergeScopes (..))
+                                                        MergeScopes (..), Version(..))
+import Database.IAVL.RPC.Types (initGrpcClient)
 
 data IAVLVersion (c :: ConnectionScope) = IAVLVersion
   { iavlVersion :: IORef Version
@@ -42,10 +43,6 @@ data IAVLVersion (c :: ConnectionScope) = IAVLVersion
 
 initIAVLVersion :: Version -> IO (IAVLVersion c)
 initIAVLVersion v = IAVLVersion <$> newIORef v
-
-data Version = Latest
-             | Genesis
-             | Version Integer
 
 
 data ScopeVersions = ScopeVersions
@@ -55,7 +52,7 @@ data ScopeVersions = ScopeVersions
   }
 
 initScopeVersions :: IO ScopeVersions
-initScopeVersions = do
+initScopeVersions =
   ScopeVersions <$> initIAVLVersion Genesis <*> initIAVLVersion Genesis <*> initIAVLVersion Latest
 
 class IAVLVersionGetter (s :: ConnectionScope) where
@@ -95,21 +92,21 @@ evalTagged gc m = do
             let getReq = defMessage & Api.key .~ makeRawKey k
             res <- runGrpc' $ IAVL.get gc getReq
             case res ^. Api.value of
-              "" -> pure Nothing
-              val  -> pure $ Just val
+              ""  -> pure Nothing
+              val -> pure $ Just val
           Genesis -> do
             let getReq = defMessage & Api.key .~ makeRawKey k
             res <- runGrpc' $ IAVL.get gc getReq
             case res ^. Api.value of
-              "" -> pure Nothing
-              val  -> pure $ Just val
+              ""  -> pure Nothing
+              val -> pure $ Just val
           Version v -> do
             let getVerReq = defMessage & Api.key .~ makeRawKey k
-                                       & Api.version .~ fromInteger v
+                                       & Api.version .~ fromInteger (toInteger v)
             res <- runGrpc' $ IAVL.getVersioned gc getVerReq
             case res ^. Api.value of
-              "" -> pure Nothing
-              val  -> pure $ Just val
+              ""  -> pure Nothing
+              val -> pure $ Just val
       RawStoreProve _ -> pure Nothing
       RawStoreDelete k -> do
         version <- liftIO $ readIORef iavlVersion
@@ -157,7 +154,7 @@ evalMergeScopes gc =
         let IAVLVersion queryV = query
             IAVLVersion mempoolV = mempool
         res <- runGrpc' $ IAVL.version gc
-        let version = Version . toInteger $ res ^. Api.version
+        let version = Version . fromInteger . toInteger $ res ^. Api.version
         forM_ [queryV, mempoolV] $ \ior -> liftIO $ writeIORef ior version
     )
 

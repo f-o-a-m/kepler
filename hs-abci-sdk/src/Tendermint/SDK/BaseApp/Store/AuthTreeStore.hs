@@ -6,8 +6,9 @@ module Tendermint.SDK.BaseApp.Store.AuthTreeStore
   , evalTagged
   ) where
 
-import           Control.Concurrent.STM                (atomically)
-import           Control.Concurrent.STM.TVar
+import           Data.IORef                            (IORef, newIORef,
+                                                        readIORef, writeIORef)
+import Data.Maybe (fromMaybe)
 import           Control.Monad                         (forM_)
 import           Control.Monad.IO.Class
 import qualified Crypto.Data.Auth.Tree                 as AT
@@ -16,16 +17,21 @@ import qualified Crypto.Data.Auth.Tree.Cryptonite      as Cryptonite
 import qualified Crypto.Hash                           as Cryptonite
 import           Data.ByteArray                        (convert)
 import           Data.ByteString                       (ByteString)
-import qualified Data.List.NonEmpty                    as NE
+import Data.Map (Map)
+import qualified Data.Map as Map
 import           Data.Proxy
+import Numeric.Natural (Natural)
 import           Polysemy                              (Embed, Members, Sem,
                                                         interpret)
+import           Polysemy.Error                        (Error)
 import           Polysemy.Reader                       (Reader, ask, asks)
 import           Polysemy.Tagged                       (Tagged (..))
+import           Tendermint.SDK.BaseApp.Errors         (AppError, SDKError (..),
+                                                        throwSDKError)
 import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore (..),
                                                         makeRawKey)
 import           Tendermint.SDK.BaseApp.Store.Scope    (ConnectionScope (..),
-                                                        MergeScopes (..))
+                                                        MergeScopes (..), Version(..))
 
 -- At the moment, the 'AuthTreeStore' is our only interpreter for the 'RawStore' effect.
 -- It is an in memory merklized key value store. You can find the repository here
@@ -39,11 +45,12 @@ instance AT.MerkleHash AuthTreeHash where
     concatHashes (AuthTreeHash a) (AuthTreeHash b) = AuthTreeHash $ Cryptonite.concatHashes a b
 
 data AuthTree (c :: ConnectionScope) = AuthTree
-  { treeVar :: TVar (NE.NonEmpty (AT.Tree ByteString ByteString))
+  { treesVar :: IORef (AT.Tree ByteString ByteString, Map Natural (AT.Tree ByteString ByteString))
+  , versionVar :: IORef Version
   }
 
-initAuthTree :: IO (AuthTree c)
-initAuthTree = AuthTree <$> newTVarIO (pure AT.empty)
+initAuthTree :: IORef (AT.Tree ByteString ByteString, Map Natural (AT.Tree ByteString ByteString)) -> Version -> IO (AuthTree c)
+initAuthTree trees v = AuthTree trees <$> newIORef v
 
 data AuthTreeState = AuthTreeState
   { query     :: AuthTree 'Query
@@ -52,8 +59,9 @@ data AuthTreeState = AuthTreeState
   }
 
 initAuthTreeState :: IO AuthTreeState
-initAuthTreeState = AuthTreeState <$> initAuthTree <*> initAuthTree <*> initAuthTree
-
+initAuthTreeState = do
+  treeMap <- newIORef (AT.empty, mempty)
+  AuthTreeState <$> initAuthTree treeMap Genesis <*> initAuthTree treeMap Genesis  <*> initAuthTree treeMap Latest
 
 class AuthTreeGetter (s :: ConnectionScope) where
   getAuthTree :: Proxy s -> AuthTreeState -> AuthTree s
@@ -69,40 +77,73 @@ instance AuthTreeGetter 'Consensus where
 
 evalTagged
   :: forall (s :: ConnectionScope) r.
-     Members [Reader AuthTreeState, Embed IO] r
+     Members [Reader AuthTreeState, Error AppError, Embed IO] r
   => AuthTreeGetter s
   => forall a. Sem (Tagged s RawStore ': r) a -> Sem r a
 evalTagged m = do
-  AuthTree{treeVar} <- asks (getAuthTree (Proxy :: Proxy s))
+  AuthTree{treesVar, versionVar} <- asks (getAuthTree (Proxy :: Proxy s))
   interpret
     (\(Tagged action) -> case action of
-      RawStorePut k v -> liftIO . atomically $ do
-        tree NE.:| ts <- readTVar treeVar
-        writeTVar treeVar $ AT.insert (makeRawKey k) v tree NE.:| ts
-      RawStoreGet k -> liftIO . atomically $ do
-        tree NE.:| _ <- readTVar treeVar
-        pure $ AT.lookup (makeRawKey k) tree
+      RawStorePut k v -> do
+        (headTree, treeMap) <- liftIO $ readIORef treesVar
+        version <- liftIO $ readIORef versionVar
+        case version of
+          Latest ->
+            let newHead = AT.insert (makeRawKey k) v headTree
+            in liftIO $ writeIORef treesVar (newHead, treeMap)
+          _ -> throwSDKError $ RawStoreInvalidOperation "Put"
+      RawStoreGet k -> do
+        (headTree, treeMap) <- liftIO $ readIORef treesVar
+        version <- liftIO $ readIORef versionVar
+        case version of
+          Latest -> pure $ AT.lookup (makeRawKey k) headTree
+          Genesis -> pure $ AT.lookup (makeRawKey k) headTree
+          Version v -> pure $ do
+            tree <- treeMap Map.!? v
+            AT.lookup (makeRawKey k) tree
       RawStoreProve _ -> pure Nothing
-      RawStoreDelete k -> liftIO . atomically $ do
-        tree NE.:| ts <- readTVar treeVar
-        writeTVar treeVar $ AT.delete (makeRawKey k) tree NE.:| ts
-      RawStoreRoot -> liftIO . atomically $ do
-        tree NE.:| _ <- readTVar treeVar
-        let AuthTreeHash hash = AT.merkleHash tree
-        pure $ convert hash
-      RawStoreBeginTransaction -> liftIO . atomically $ do
-        tree NE.:| ts <- readTVar treeVar
-        writeTVar treeVar $ tree NE.:| tree : ts
-      RawStoreRollback -> liftIO . atomically $ do
-        trees <- readTVar treeVar
-        writeTVar treeVar $ case trees of
-          t NE.:| []      -> t NE.:| []
-          _ NE.:| t' : ts ->  t' NE.:| ts
-      RawStoreCommit -> liftIO . atomically $ do
-        trees <- readTVar treeVar
-        writeTVar treeVar $ case trees of
-          t NE.:| []     -> t NE.:| []
-          t NE.:| _ : ts ->  t NE.:| ts
+      RawStoreDelete k -> do
+        (headTree, treeMap) <- liftIO $ readIORef treesVar
+        version <- liftIO $ readIORef versionVar
+        case version of
+          Latest ->
+            let newHead = AT.delete (makeRawKey k) headTree
+            in liftIO $ writeIORef treesVar (newHead, treeMap)
+          _ -> throwSDKError $ RawStoreInvalidOperation "Delete"
+      RawStoreRoot -> do
+        (headTree, _) <- liftIO $ readIORef treesVar
+        version <- liftIO $ readIORef versionVar
+        case version of
+          Latest -> do
+            let AuthTreeHash hash = AT.merkleHash headTree
+            pure $ convert hash
+          Genesis -> do
+            let AuthTreeHash hash = AT.merkleHash headTree
+            pure $ convert hash
+          Version _ -> throwSDKError $ RawStoreInvalidOperation "Root"
+      -- TODO :: Can probably remove this
+      RawStoreBeginTransaction -> pure ()
+      RawStoreRollback -> do
+        (_, treeMap) <- liftIO $ readIORef treesVar
+        version <- liftIO $ readIORef versionVar
+        case version of
+          Latest -> do
+            let mOldTree = case Map.toDescList  treeMap of
+                             [] -> Nothing
+                             (_, oldTree) : _ -> Just oldTree
+            liftIO $ writeIORef treesVar (fromMaybe AT.empty mOldTree, treeMap)
+          _ -> throwSDKError $ RawStoreInvalidOperation "Rollback"
+      RawStoreCommit -> do
+        (headTree, treeMap) <- liftIO $ readIORef treesVar
+        version <- liftIO $ readIORef versionVar
+        case version of
+          Latest ->
+            let newVerion = case Map.toDescList treeMap of
+                              [] -> 1
+                              (k, _) : _ -> k + 1
+                updatedTreeMap = Map.insert newVerion headTree treeMap
+            in liftIO $ writeIORef treesVar (headTree, updatedTreeMap)
+          _ -> throwSDKError $ RawStoreInvalidOperation "Commit"
     ) m
 
 evalMergeScopes
@@ -114,12 +155,12 @@ evalMergeScopes =
     (\case
       MergeScopes -> do
         AuthTreeState{query, mempool, consensus} <- ask
-        liftIO . atomically $ do
-          let AuthTree queryV = query
-              AuthTree mempoolV = mempool
-              AuthTree consensusV = consensus
-          consensusTrees <- readTVar consensusV
-          let t = NE.last consensusTrees
-          forM_ [queryV, mempoolV, consensusV] $ \v ->
-            writeTVar v $ pure t
+        let AuthTree {versionVar=qVersionVar} = query
+            AuthTree {versionVar=memVersionVar} = mempool
+            AuthTree {treesVar} = consensus
+        (_, treeMap) <- liftIO $ readIORef treesVar
+        let latestVersion = case Map.toDescList treeMap of
+                              [] -> Genesis
+                              (k, _) : _ -> Version k
+        forM_ [qVersionVar, memVersionVar] $ \ior -> liftIO $ writeIORef ior latestVersion
     )

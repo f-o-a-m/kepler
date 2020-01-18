@@ -18,6 +18,7 @@ import           Data.Text                                  (Text)
 import qualified Katip                                      as K
 import           Polysemy                                   (Embed, Members,
                                                              Sem, runM)
+import           Polysemy.Error                        (Error, runError)
 import           Polysemy.Reader                            (Reader, asks,
                                                              local, runReader)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip        as KL
@@ -25,6 +26,7 @@ import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus  as P
 import           Tendermint.SDK.BaseApp.Store               (MergeScopes,
                                                              ResolveScope (..))
 import qualified Tendermint.SDK.BaseApp.Store.AuthTreeStore as AT
+import           Tendermint.SDK.BaseApp.Errors         (AppError)
 
 -- | CoreEffs is one level below BaseAppEffs, and provides one possible
 -- | interpretation for its effects to IO.
@@ -33,6 +35,7 @@ type CoreEffs =
    , Reader KL.LogConfig
    , Reader (Maybe P.PrometheusEnv)
    , Reader AT.AuthTreeState
+   , Error AppError
    , Embed IO
    ]
 
@@ -88,9 +91,10 @@ instance (Members CoreEffs r, AT.AuthTreeGetter s) => ResolveScope s r where
 -- | The standard interpeter for 'CoreEffs'.
 runCoreEffs
   :: Context
-  -> forall a. Sem CoreEffs a -> IO a
+  -> forall a. Sem CoreEffs a -> IO (Either AppError a)
 runCoreEffs Context{..} =
   runM .
+    runError .
     runReader _contextAuthTree .
     runReader _contextPrometheusEnv .
     runReader _contextLogConfig .

@@ -35,7 +35,7 @@ makeAndServeApplication AppConfig{..} = do
       Just registry -> Met.mkMetricsMiddleware Met.defaultBuckets registry
 
   let nat :: forall a. Sem CoreEffs a -> IO a
-      nat = runCoreEffs _baseAppContext
+      nat = catchError . runCoreEffs _baseAppContext
       application = makeApp handlersContext
       middleware :: Middleware (Sem CoreEffs)
       middleware = appEndo . fold $
@@ -43,3 +43,7 @@ makeAndServeApplication AppConfig{..} = do
           , Endo metricsMiddleware
           ]
   serveApp $ createIOApp nat (middleware application)
+ where
+  catchError f = f >>= \case
+    Left err -> error (show err)
+    Right a -> pure a

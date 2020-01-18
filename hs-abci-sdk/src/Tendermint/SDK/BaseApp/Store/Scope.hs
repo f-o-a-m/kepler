@@ -7,8 +7,10 @@ module Tendermint.SDK.BaseApp.Store.Scope
   , ResolveScope(..)
   , MergeScopes(..)
   , mergeScopes
+  , Version(..)
   ) where
 
+import Numeric.Natural (Natural)
 import           Polysemy                              (EffectRow, Sem, makeSem,
                                                         rewrite)
 import           Polysemy.Tagged                       (Tagged (..))
@@ -32,3 +34,7 @@ data MergeScopes m a where
   MergeScopes :: MergeScopes m ()
 
 makeSem ''MergeScopes
+
+data Version = Latest
+             | Genesis
+             | Version Natural

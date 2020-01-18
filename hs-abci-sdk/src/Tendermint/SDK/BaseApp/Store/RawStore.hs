@@ -158,7 +158,6 @@ withTransaction
 withTransaction m =
    let tryTx = m `catch` (\e -> rawStoreRollback *> throw e)
    in do
-      rawStoreBeginTransaction
       onException (tryTx <* rawStoreCommit) rawStoreRollback
 
 withSandbox
@@ -168,6 +167,4 @@ withSandbox
   -> Sem r a
 withSandbox m =
    let tryTx = m `catch` (\e -> rawStoreRollback *> throw e)
-   in do
-      rawStoreBeginTransaction
-      finally (tryTx <* rawStoreRollback) rawStoreRollback
+   in finally (tryTx <* rawStoreRollback) rawStoreRollback

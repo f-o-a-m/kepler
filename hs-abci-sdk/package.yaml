@@ -59,6 +59,7 @@ library:
     - errors
     - hs-abci-server
     - hs-abci-types
+    - hs-iavl-client
     - http-types
     - http2-client
     - http2-client-grpc
@@ -135,6 +136,7 @@ tests:
     main:                Spec.hs
     source-dirs:         test
     other-modules:
+    - Tendermint.SDK.Test.IAVLStoreSpec
     - Tendermint.SDK.Test.AuthTreeStoreSpec
     - Tendermint.SDK.Test.CryptoSpec
     - Tendermint.SDK.Test.GasSpec
@@ -159,6 +161,7 @@ tests:
       - hspec
       - hspec-core
       - hspec-discover
+      - http2-client-grpc
       - polysemy
       - polysemy-plugin
       - polysemy-zoo

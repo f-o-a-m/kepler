@@ -3,7 +3,6 @@ module Database.IAVL.RPCSpec (spec) where
 import           Control.Lens                ((&), (.~), (^.))
 import           Control.Monad               (void)
 import           Data.ProtoLens.Message      (defMessage)
-import           Database.IAVL.RPC
 import           Network.GRPC.Client         (RawReply, uncompressed)
 import           Network.GRPC.Client.Helpers (GrpcClient, GrpcClientConfig (..),
                                               grpcClientConfigSimple,
@@ -11,6 +10,8 @@ import           Network.GRPC.Client.Helpers (GrpcClient, GrpcClientConfig (..),
 import           Network.HTTP2.Client        (ClientIO, TooMuchConcurrency,
                                               runClientIO)
 import qualified Proto.Iavl.Api_Fields       as Api
+import           Database.IAVL.RPC
+import           Database.IAVL.RPC.Types
 import           Test.Hspec
 
 spec :: Spec
@@ -200,12 +201,19 @@ spec = beforeAll initGrpcClient $ do
       getRes' <- runGrpc $ get gc getReq
       getRes' ^. Api.value `shouldBe` ""
 
-initGrpcClient :: IO GrpcClient
-initGrpcClient =
-  let grpcClient = grpcClientConfigSimple "localhost" 8090 False
-  in  runClientIO (setupGrpcClient (grpcClient{_grpcClientConfigCompression=uncompressed})) >>= \case
-        Right gc -> pure gc
-        _        -> error "Error creating GrpcClient"
+    it "should call `has` RPC method on current working tree" $ \gc -> do
+      let key = "key-has"
+          value = "value-has"
+          setReq = defMessage & Api.key .~ key
+                              & Api.value .~ value
+      res <- runGrpc $ set gc setReq
+      res ^. Api.result `shouldBe` False
+
+      let hasReq = defMessage & Api.key .~ key
+                              & Api.version .~ 0
+      hasRes <- runGrpc $ has gc hasReq
+      hasRes ^. Api.result `shouldBe` True
+
 
 runGrpc :: ClientIO (Either TooMuchConcurrency (RawReply a)) -> IO a
 runGrpc f = runClientIO f >>= \case

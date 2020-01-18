@@ -13,30 +13,30 @@ module Tendermint.SDK.Application.Module
   , Eval(..)
   ) where
 
-import Control.Monad (forM_)
-import           Data.IORef                            ( readIORef, writeIORef)
+import           Control.Monad                         (forM_)
 import           Control.Monad.IO.Class                (liftIO)
 import           Crypto.Hash                           (Digest)
 import           Crypto.Hash.Algorithms                (SHA256)
 import           Data.ByteString                       (ByteString)
+import           Data.IORef                            (readIORef, writeIORef)
+import qualified Data.Map.Strict                       as Map
 import           Data.Proxy
 import           Data.String.Conversions               (cs)
 import qualified Data.Validation                       as V
 import           Data.Void
 import           GHC.TypeLits                          (KnownSymbol, Symbol,
                                                         symbolVal)
-import qualified Data.Map.Strict as Map
 import           Polysemy                              (EffectRow, Embed,
                                                         Member, Members, Sem)
 import           Polysemy.Error                        (Error)
-import Polysemy.Internal (send)
+import           Polysemy.Internal                     (send)
 import           Servant.API                           ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp                ((:&), AppError, BaseApp,
                                                         BaseAppEffs,
                                                         SDKError (..),
                                                         throwSDKError)
 import qualified Tendermint.SDK.BaseApp.Query          as Q
-import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore(..))
+import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore (..))
 import qualified Tendermint.SDK.BaseApp.Transaction    as T
 import           Tendermint.SDK.Codec                  (HasCodec (..))
 import           Tendermint.SDK.Crypto                 (RecoverableSignatureSchema,
@@ -141,12 +141,11 @@ instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, Member RawStore r, TxR
         let msg' = txMsg {msgData = msg}
             tx' = RoutedTx $ tx {txMsg = msg'}
         ctx <- liftIO $ T.newTransactionContext tx'
-        --
         case routeContext of
           CheckTxContext   -> T.eval ctx $ moduleTxChecker m tx'
           DeliverTxContext -> do
             res <- T.eval ctx $ moduleTxDeliverer m tx'
-            _ <- saveCache $ T.storeCache ctx
+            saveCache $ T.storeCache ctx
             pure res
     | otherwise = routeTx routeContext rest tx
    where
