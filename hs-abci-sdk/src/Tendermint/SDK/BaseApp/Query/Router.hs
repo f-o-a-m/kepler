@@ -1,6 +1,6 @@
 module Tendermint.SDK.BaseApp.Query.Router where
 
-import           Control.Lens                         (to, (&), (.~), (^.))
+import           Control.Lens                         ((&), (.~))
 import           Data.ByteArray.Base64String          (Base64String)
 import           Data.Default.Class                   (def)
 import           Data.Map                             (Map)
@@ -8,13 +8,13 @@ import qualified Data.Map                             as M
 import           Data.Text                            (Text)
 import qualified Data.Text                            as T
 import qualified Data.Text.Encoding                   as T
-import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Network.HTTP.Types                   (decodePathSegments)
 import           Polysemy                             (Sem)
 import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, runAction)
 import           Tendermint.SDK.BaseApp.Query.Types   (QueryArgs (..),
                                                        QueryError (..),
+                                                       QueryRequest (..),
                                                        QueryResult (..),
                                                        Queryable (..),
                                                        RouteResult (..))
@@ -26,7 +26,7 @@ data Router' env a =
   | RStatic (Map Text (Router' env a)) [env -> a]
   | RQueryArgs (Router' (QueryArgs Base64String, env) a)
 
-type RoutingApplication r = Request.Query -> Sem r (RouteResult Response.Query)
+type RoutingApplication r = QueryRequest -> Sem r (RouteResult Response.Query)
 
 type Router env r = Router' env (RoutingApplication r)
 
@@ -63,20 +63,20 @@ runRouter
 runRouter router env query =
   case router of
     RStatic table ls ->
-      let path = query ^. Request._queryPath . to (decodePathSegments . T.encodeUtf8)
+      let path = decodePathSegments . T.encodeUtf8 $ queryRequestPath query
       in case path of
         []   -> runChoice ls env query
         -- This case is to handle trailing slashes.
         [""] -> runChoice ls env query
         first : rest | Just router' <- M.lookup first table
-          -> let query' = query { Request.queryPath = T.intercalate "/" rest }
+          -> let query' = query { queryRequestPath = T.intercalate "/" rest }
              in  runRouter router' env query'
         _ -> pure $ Fail PathNotFound
     RQueryArgs r' ->
       let qa = QueryArgs
-            { queryArgsData = query ^. Request._queryData
-            , queryArgsHeight = query ^. Request._queryHeight
-            , queryArgsProve = query ^. Request._queryProve
+            { queryArgsData = queryRequestData query
+            , queryArgsHeight = queryRequestHeight query
+            , queryArgsProve = queryRequestProve query
             }
       in runRouter r' (qa, env) query
     RChoice r1 r2 ->

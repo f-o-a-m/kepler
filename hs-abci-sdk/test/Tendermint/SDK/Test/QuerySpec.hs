@@ -43,12 +43,13 @@ spec = beforeAll (BA.makeContext (KL.InitialLogNamespace "test" "spec") Nothing)
         txContext <- T.newTransactionContext tx
         _ <- SS.evalToIO ctx . T.eval txContext $ handler tx
         let q = Req.Query
-              { queryPath = "simple_storage/multiplied?factor=4"
+              { queryPath = "/simple_storage/multiplied?factor=4"
               , queryData = Base64.fromBytes $ SS.CountKey ^. BA.rawKey
               , queryProve = False
               , queryHeight = 0
               }
-        Resp.Query{..} <- SS.evalToIO ctx $ ssServer q
+        r@Resp.Query{..} <- SS.evalToIO ctx $ ssServer q
+        print r
         queryCode `shouldBe` 0
         let resultCount = decode (Base64.toBytes queryValue) :: Either Text SS.Count
         resultCount `shouldBe` Right 4

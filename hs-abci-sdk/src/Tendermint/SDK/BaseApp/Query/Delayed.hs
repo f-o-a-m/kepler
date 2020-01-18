@@ -3,10 +3,10 @@ module Tendermint.SDK.BaseApp.Query.Delayed where
 import           Control.Monad.Reader                 (MonadReader, ReaderT,
                                                        ask, runReaderT)
 import           Control.Monad.Trans                  (MonadTrans (..))
-import qualified Network.ABCI.Types.Messages.Request  as Request
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Polysemy                             (Sem)
 import           Tendermint.SDK.BaseApp.Query.Types   (QueryError (..),
+                                                       QueryRequest (..),
                                                        RouteResult (..),
                                                        RouteResultT (..))
 
@@ -15,13 +15,13 @@ import           Tendermint.SDK.BaseApp.Query.Types   (QueryError (..),
 
 
 newtype DelayedM m a =
-  DelayedM { runDelayedM' :: ReaderT Request.Query (RouteResultT m) a }
-    deriving (Functor, Applicative, Monad, MonadReader Request.Query)
+  DelayedM { runDelayedM' :: ReaderT QueryRequest (RouteResultT m) a }
+    deriving (Functor, Applicative, Monad, MonadReader QueryRequest)
 
 liftRouteResult :: Monad m => RouteResult a -> DelayedM m a
 liftRouteResult x = DelayedM $ lift $ RouteResultT . return $ x
 
-runDelayedM :: DelayedM m a -> Request.Query -> m (RouteResult a)
+runDelayedM :: DelayedM m a -> QueryRequest -> m (RouteResult a)
 runDelayedM m req = runRouteResultT $ runReaderT (runDelayedM' m) req
 
 --------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ runDelayedM m req = runRouteResultT $ runReaderT (runDelayedM' m) req
 data Delayed m env a where
   Delayed :: { delayedQueryArgs :: env -> DelayedM m qa
              , delayedParams :: DelayedM m params
-             , delayedHandler :: qa -> params -> Request.Query -> RouteResult a
+             , delayedHandler :: qa -> params -> QueryRequest -> RouteResult a
              } -> Delayed m env a
 
 instance Functor m => Functor (Delayed m env) where
@@ -42,7 +42,7 @@ runDelayed
   :: Monad m
   => Delayed m env a
   -> env
-  -> Request.Query
+  -> QueryRequest
   -> m (RouteResult a)
 runDelayed Delayed{..} env = runDelayedM (do
     q <- ask
@@ -54,7 +54,7 @@ runDelayed Delayed{..} env = runDelayedM (do
 runAction
   :: Delayed (Sem r) env (Sem r a)
   -> env
-  -> Request.Query
+  -> QueryRequest
   -> (a -> RouteResult Response.Query)
   -> Sem r (RouteResult Response.Query)
 runAction action env query k = do
@@ -100,7 +100,7 @@ emptyDelayed response =
 -- | Gain access to the incoming request.
 withQuery
   :: Monad m
-  => (Request.Query -> DelayedM m a)
+  => (QueryRequest -> DelayedM m a)
   -> DelayedM m a
 withQuery f = do
   req <- ask

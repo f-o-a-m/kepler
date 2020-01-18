@@ -38,7 +38,7 @@ serve pl pr server =
 toApplication
   :: RoutingApplication r -> QueryApplication (Sem r)
 toApplication ra query = do
-  res <- ra query
+  res <- ra $ parseQueryRequest query
   case res of
     Fail e      -> pure $ def & queryAppError .~ makeAppError e
     FailFatal e -> pure $ def & queryAppError .~ makeAppError e

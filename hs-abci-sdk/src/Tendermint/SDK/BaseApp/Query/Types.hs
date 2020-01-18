@@ -6,7 +6,7 @@ import           Control.Monad.Trans                    (MonadTrans (..))
 import           Data.ByteArray.Base64String            (Base64String,
                                                          fromBytes, toBytes)
 import           Data.Int                               (Int64)
-import           Data.Text                              (Text)
+import           Data.Text                              (Text, breakOn, uncons)
 import           GHC.TypeLits                           (Symbol)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof, WrappedVal (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
@@ -24,6 +24,33 @@ data QA (a :: *)
 --------------------------------------------------------------------------------
 
 type QueryApplication m = Request.Query -> m Response.Query
+
+--------------------------------------------------------------------------------
+
+data QueryRequest = QueryRequest
+  { queryRequestPath        :: Text
+  , queryRequestParamString :: Text
+  , queryRequestData        :: Base64String
+  , queryRequestProve       :: Bool
+  , queryRequestHeight      :: Int64
+  }
+
+parseQueryRequest
+  :: Request.Query
+  -> QueryRequest
+parseQueryRequest Request.Query{..} =
+  let (path, queryStrQ) = breakOn "?" queryPath
+      queryStr = case Data.Text.uncons queryStrQ of
+        Nothing -> ""
+        Just ('?', rest) -> rest
+        _ -> error "Impossible result parsing query string from path."
+  in QueryRequest
+       { queryRequestPath = path
+       , queryRequestParamString = queryStr
+       , queryRequestData = queryData
+       , queryRequestProve = queryProve
+       , queryRequestHeight = unWrappedVal queryHeight
+       }
 
 --------------------------------------------------------------------------------
 
@@ -63,7 +90,7 @@ instance IsAppError QueryError where
 data QueryArgs a = QueryArgs
   { queryArgsProve  :: Bool
   , queryArgsData   :: a
-  , queryArgsHeight :: WrappedVal Int64
+  , queryArgsHeight :: Int64
   } deriving Functor
 
 -- wrap data with default query fields

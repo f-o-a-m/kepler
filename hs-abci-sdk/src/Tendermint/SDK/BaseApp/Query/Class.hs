@@ -6,8 +6,8 @@ import           Data.Proxy
 import           Data.String.Conversions              (cs)
 import           Data.Text                            (Text)
 import           GHC.TypeLits                         (KnownSymbol, symbolVal)
-import qualified Network.ABCI.Types.Messages.Request  as Request
-import           Network.HTTP.Types.URI               (parseQueryText)
+import           Network.HTTP.Types.URI               (QueryText,
+                                                       parseQueryText)
 import           Polysemy                             (Sem)
 import           Servant.API
 import           Servant.API.Modifiers                (FoldLenient,
@@ -24,6 +24,7 @@ import           Tendermint.SDK.BaseApp.Query.Router  (Router, Router' (..),
 import           Tendermint.SDK.BaseApp.Query.Types   (FromQueryData (..), Leaf,
                                                        QA, QueryArgs (..),
                                                        QueryError (..),
+                                                       QueryRequest (..),
                                                        QueryResult,
                                                        Queryable (..))
 import           Web.Internal.HttpApiData             (FromHttpApiData (..))
@@ -62,9 +63,10 @@ instance ( HasRouter sublayout r, KnownSymbol sym, FromHttpApiData a
   type RouteT (QueryParam' mods sym a :> sublayout) r = RequestArgument mods a -> RouteT sublayout r
 
   route _ pr subserver =
-    let querytext q = parseQueryText . cs $ Request.queryPath q
+    let querytext :: QueryRequest -> Network.HTTP.Types.URI.QueryText
+        querytext q = parseQueryText . cs $ queryRequestParamString q
         paramname = cs $ symbolVal (Proxy :: Proxy sym)
-        parseParam :: Monad m => Request.Query -> DelayedM m (RequestArgument mods a)
+        parseParam :: Monad m => QueryRequest -> DelayedM m (RequestArgument mods a)
         parseParam q = unfoldRequestArgument (Proxy :: Proxy mods) errReq errSt mev
           where
             mev :: Maybe (Either Text a)
