@@ -5,10 +5,12 @@ import           Control.Monad.Reader                 (MonadReader, ReaderT,
 import           Control.Monad.Trans                  (MonadTrans (..))
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Polysemy                             (Sem)
-import           Tendermint.SDK.BaseApp.Query.Types   (QueryError (..),
+import           Tendermint.SDK.BaseApp.Query.Types   (QueryArgs (..),
+                                                       QueryError (..),
                                                        QueryRequest (..),
                                                        RouteResult (..),
-                                                       RouteResultT (..))
+                                                       RouteResultT (..),
+                                                       defaultQueryWithData)
 
 --------------------------------------------------------------------------------
 -- NOTE: most of this was vendored and repurposed from servant
@@ -27,7 +29,7 @@ runDelayedM m req = runRouteResultT $ runReaderT (runDelayedM' m) req
 --------------------------------------------------------------------------------
 
 data Delayed m env a where
-  Delayed :: { delayedQueryArgs :: env -> DelayedM m qa
+  Delayed :: { delayedQueryArgs :: DelayedM m qa
              , delayedParams :: DelayedM m params
              , delayedHandler :: qa -> params -> QueryRequest -> RouteResult a
              } -> Delayed m env a
@@ -44,9 +46,9 @@ runDelayed
   -> env
   -> QueryRequest
   -> m (RouteResult a)
-runDelayed Delayed{..} env = runDelayedM (do
+runDelayed Delayed{..} _ = runDelayedM (do
     q <- ask
-    qa <- delayedQueryArgs env
+    qa <- delayedQueryArgs
     params <- delayedParams
     liftRouteResult $ delayedHandler qa params q
   )
@@ -70,13 +72,13 @@ delayedFail err = liftRouteResult $ Fail err
 
 addQueryArgs
   :: Monad m
-  => Delayed m env (a -> b)
-  -> (qa -> DelayedM m a)
-  -> Delayed m (qa, env) b
+  => Delayed m env (QueryArgs a -> b)
+  -> DelayedM m (QueryArgs a)
+  -> Delayed m env b
 addQueryArgs Delayed{..} new =
   Delayed
-    { delayedQueryArgs = \ (qa, env) -> (,) <$> delayedQueryArgs env <*> new qa
-    , delayedHandler   = \ (x, v) params query -> ($ v) <$> delayedHandler x params query
+    { delayedQueryArgs = (,) <$> delayedQueryArgs <*> new
+    , delayedHandler = \(qa, qaNew) p query -> ($ qaNew) <$> delayedHandler qa p query
     , ..
     }
 
@@ -95,7 +97,8 @@ addParameter Delayed {..} new =
 emptyDelayed :: Monad m => RouteResult a -> Delayed m b a
 emptyDelayed response =
   let r = pure ()
-  in Delayed (const r) r $ \_ _ _ -> response
+      qa = pure $ defaultQueryWithData ()
+  in Delayed qa r $ \_ _ _ -> response
 
 -- | Gain access to the incoming request.
 withQuery

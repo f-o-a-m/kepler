@@ -1,7 +1,7 @@
 module Tendermint.SDK.BaseApp.Query.Router where
 
 import           Control.Lens                         ((&), (.~))
-import           Data.ByteArray.Base64String          (Base64String, fromBytes)
+import           Data.ByteArray.Base64String          (fromBytes)
 import           Data.Default.Class                   (def)
 import           Data.Map                             (Map)
 import qualified Data.Map                             as M
@@ -12,8 +12,7 @@ import qualified Network.ABCI.Types.Messages.Response as Response
 import           Network.HTTP.Types                   (decodePathSegments)
 import           Polysemy                             (Sem)
 import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, runAction)
-import           Tendermint.SDK.BaseApp.Query.Types   (QueryArgs (..),
-                                                       QueryError (..),
+import           Tendermint.SDK.BaseApp.Query.Types   (QueryError (..),
                                                        QueryRequest (..),
                                                        QueryResult (..),
                                                        RouteResult (..))
@@ -24,7 +23,7 @@ import           Tendermint.SDK.Codec                 (HasCodec (..))
 data Router' env a =
     RChoice (Router' env a) (Router' env a)
   | RStatic (Map Text (Router' env a)) [env -> a]
-  | RQueryArgs (Router' (QueryArgs Base64String, env) a)
+  -- | RQueryArgs (Router' (QueryArgs Base64String, env) a)
 
 type RoutingApplication r = QueryRequest -> Sem r (RouteResult Response.Query)
 
@@ -72,13 +71,13 @@ runRouter router env query =
           -> let query' = query { queryRequestPath = T.intercalate "/" rest }
              in  runRouter router' env query'
         _ -> error $ "no match" <> show path -- pure $ Fail PathNotFound
-    RQueryArgs r' ->
-      let qa = QueryArgs
-            { queryArgsData = queryRequestData query
-            , queryArgsHeight = queryRequestHeight query
-            , queryArgsProve = queryRequestProve query
-            }
-      in runRouter r' (qa, env) query
+    --RQueryArgs r' ->
+    --  let qa = QueryArgs
+    --        { queryArgsData = queryRequestData query
+    --        , queryArgsHeight = queryRequestHeight query
+    --        , queryArgsProve = queryRequestProve query
+    --        }
+    --  in runRouter r' (qa, env) query
     RChoice r1 r2 ->
       runChoice [runRouter r1, runRouter r2] env query
 

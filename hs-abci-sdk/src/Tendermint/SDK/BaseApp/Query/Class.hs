@@ -18,9 +18,8 @@ import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, DelayedM,
                                                        addParameter,
                                                        addQueryArgs,
                                                        delayedFail, withQuery)
-import           Tendermint.SDK.BaseApp.Query.Router  (Router, Router' (..),
-                                                       choice, methodRouter,
-                                                       pathRouter)
+import           Tendermint.SDK.BaseApp.Query.Router  (Router, choice,
+                                                       methodRouter, pathRouter)
 import           Tendermint.SDK.BaseApp.Query.Types   (FromQueryData (..), Leaf,
                                                        QA, QueryArgs (..),
                                                        QueryError (..),
@@ -86,10 +85,13 @@ instance (FromQueryData a, HasRouter sublayout r)
 
   type RouteT (QA a :> sublayout) r = QueryArgs a -> RouteT sublayout r
 
-  route _ pr d =
-    RQueryArgs $
-      route (Proxy :: Proxy sublayout) pr
-          (addQueryArgs d $ \ qa -> case fromQueryData $ queryArgsData qa of
-             Left e  -> delayedFail $ InvalidQuery (cs e)
-             Right v -> return qa {queryArgsData = v}
-          )
+  route _ pr subserver =
+    let parseQueryArgs QueryRequest{..} = case fromQueryData queryRequestData of
+          Left e -> delayedFail $ InvalidQuery ("Error parsing query data, " <> cs e <> ".")
+          Right a -> pure QueryArgs
+            { queryArgsData = a
+            , queryArgsHeight = queryRequestHeight
+            , queryArgsProve = queryRequestProve
+            }
+        delayed = addQueryArgs subserver $ withQuery parseQueryArgs
+    in route (Proxy :: Proxy sublayout) pr delayed
