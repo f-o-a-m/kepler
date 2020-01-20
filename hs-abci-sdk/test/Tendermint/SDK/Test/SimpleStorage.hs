@@ -122,19 +122,22 @@ router (PreRoutedTx Tx{txMsg}) =
 type CountStoreContents = '[(CountKey, Count)]
 
 type GetMultipliedCount =
-     "multiplied"
+     "manipulated"
+  :> Capture "subtract" Integer
   :> QueryParam' '[Required, Strict] "factor" Integer
   :> BaseApp.Leaf Count
 
 getMultipliedCount
   :: Member SimpleStorage r
   => Integer
+  -> Integer
   -> Sem r (BaseApp.QueryResult Count)
-getMultipliedCount multiplier = do
+getMultipliedCount subtractor multiplier = do
   let m = fromInteger multiplier
+      s = fromInteger subtractor
   c <- getCount
   pure $ BaseApp.QueryResult
-    { queryResultData = m * c
+    { queryResultData = m * c - s
     , queryResultIndex = 0
     , queryResultKey = Base64.fromBytes $ CountKey ^. BaseApp.rawKey
     , queryResultProof  = Nothing

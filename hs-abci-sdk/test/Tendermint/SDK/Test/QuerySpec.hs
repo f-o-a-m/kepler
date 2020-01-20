@@ -43,7 +43,7 @@ spec = beforeAll (BA.makeContext (KL.InitialLogNamespace "test" "spec") Nothing)
         _ <- SS.evalToIO ctx . T.eval txContext $ handler tx
         let q = Req.Query
               -- TODO -- this shouldn't require / count
-              { queryPath = "/simple_storage/multiplied?factor=4"
+              { queryPath = "/simple_storage/manipulated/1?factor=4"
               , queryData = undefined
               , queryProve = False
               , queryHeight = 0
@@ -51,4 +51,4 @@ spec = beforeAll (BA.makeContext (KL.InitialLogNamespace "test" "spec") Nothing)
         Resp.Query{..} <- SS.evalToIO ctx $ ssServer q
         queryCode `shouldBe` 0
         let resultCount = decode (Base64.toBytes queryValue) :: Either Text SS.Count
-        resultCount `shouldBe` Right 4
+        resultCount `shouldBe` Right 3

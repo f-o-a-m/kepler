@@ -91,6 +91,15 @@ instance (RawKey k, HasClient m a) => HasClient m (QA k :> a) where
          , Req.queryProve = queryArgsProve
          }, qs)
 
+instance (ToHttpApiData a, HasClient m api) => HasClient m (Capture' mods capture a :> api) where
+
+  type ClientT m (Capture' mods capture a :> api) = a -> ClientT m api
+
+  genClient pm _ (q,qs) val =
+    let p = toUrlPiece val
+        q' = q { Req.queryPath = Req.queryPath q <> "/" <> p }
+    in genClient pm (Proxy :: Proxy api) (q', qs)
+
 -- | Data is Nothing iff Raw includes a non-0 response value
 data ClientResponse a = ClientResponse
   { clientResponseData :: Maybe a
