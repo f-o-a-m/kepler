@@ -22,9 +22,6 @@ makeSem ''Bank
 
 type BankEffs = '[Bank, Error BankError]
 
-storeKey :: BaseApp.StoreKey "bank"
-storeKey = BaseApp.StoreKey "bank"
-
 eval
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
   => forall a. Sem (Bank ': Error BankError ': r) a -> Sem r a

@@ -3,9 +3,10 @@
 module Tendermint.SDK.Modules.Bank.Types where
 
 import           Data.Aeson                   as A
+import           Data.Bifunctor               (bimap)
 import qualified Data.ByteArray.HexString     as Hex
+import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
-import           Data.Text.Encoding           (decodeUtf8, encodeUtf8)
 import           GHC.Generics                 (Generic)
 import           Proto3.Suite                 (HasDefault (..), MessageField,
                                                Primitive (..))
@@ -13,9 +14,11 @@ import qualified Proto3.Suite.DotProto        as DotProto
 import qualified Proto3.Wire.Decode           as Decode
 import qualified Proto3.Wire.Encode           as Encode
 import qualified Tendermint.SDK.BaseApp       as BaseApp
-import           Tendermint.SDK.Codec         (defaultSDKAesonOptions)
+import           Tendermint.SDK.Codec         (HasCodec (..),
+                                               defaultSDKAesonOptions)
+import qualified Tendermint.SDK.Codec         as HasCodec
 import qualified Tendermint.SDK.Modules.Auth  as Auth
-import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
+import           Tendermint.SDK.Types.Address (Address (..), addressFromBytes,
                                                addressToBytes)
 import           Web.HttpApiData              (FromHttpApiData (..),
                                                ToHttpApiData (..))
@@ -34,13 +37,13 @@ instance Primitive Address where
 instance HasDefault Hex.HexString
 instance HasDefault Address
 instance MessageField Address
+instance HasCodec Address where
+  decode = bimap cs Address . Hex.hexString
+  encode = addressToBytes
 instance ToHttpApiData Address where
-  toQueryParam = decodeUtf8 . addressToBytes
+  toQueryParam = cs . HasCodec.encode
 instance FromHttpApiData Address where
-  parseQueryParam = fmap (addressFromBytes . encodeUtf8) . parseQueryParam
-
-instance BaseApp.IsKey Address "bank" where
-  type Value Address "bank" = Auth.Coin
+  parseQueryParam = HasCodec.decode . cs
 
 --------------------------------------------------------------------------------
 -- Exceptions
