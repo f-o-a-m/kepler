@@ -13,9 +13,9 @@ import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
 import qualified Tendermint.SDK.BaseApp                   as BaseApp
-import           Tendermint.SDK.Modules.Auth              (Coin (..))
-import           Tendermint.SDK.Modules.Bank              (Bank, BankEffs, burn,
-                                                           mint, transfer)
+import           Tendermint.SDK.Modules.Auth              (AuthEffs, Coin (..))
+import           Tendermint.SDK.Modules.Bank              (BankEffs, burn, mint,
+                                                           transfer)
 
 data NameserviceKeeper m a where
   PutWhois :: Name -> Whois -> NameserviceKeeper m ()
@@ -52,7 +52,7 @@ eval = mapError BaseApp.makeAppError . evalNameservice
 
 faucetAccount
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
-  => Members BankEffs r
+  => Members AuthEffs r
   => FaucetAccount
   -> Sem r ()
 faucetAccount FaucetAccount{..} = do
@@ -89,7 +89,8 @@ setName SetName{..} = do
           BaseApp.logEvent event
 
 deleteName
-  :: Members [BaseApp.Logger, Bank, Output BaseApp.Event] r
+  :: Members [BaseApp.Logger, Output BaseApp.Event] r
+  => Members AuthEffs r
   => Members NameserviceEffs r
   => DeleteName
   -> Sem r ()
@@ -111,6 +112,7 @@ deleteName DeleteName{..} = do
 
 buyName
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
+  => Members AuthEffs r
   => Members BankEffs r
   => Members NameserviceEffs r
   => BuyName
@@ -129,6 +131,7 @@ buyName msg = do
     where
       buyUnclaimedName
         :: Members [BaseApp.Logger, Output BaseApp.Event] r
+        => Members AuthEffs r
         => Members BankEffs r
         => Members NameserviceEffs r
         => BuyName
@@ -152,6 +155,7 @@ buyName msg = do
 
       buyClaimedName
         :: Members NameserviceEffs r
+        => Members AuthEffs r
         => Members BankEffs r
         => Members [BaseApp.Logger, Output BaseApp.Event] r
         => BuyName

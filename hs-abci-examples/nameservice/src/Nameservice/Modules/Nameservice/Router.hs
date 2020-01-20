@@ -8,13 +8,15 @@ import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (.
 import           Polysemy                                 (Members, Sem)
 import           Tendermint.SDK.BaseApp                   (BaseAppEffs, TxEffs,
                                                            incCount, withTimer)
+import           Tendermint.SDK.Modules.Auth              (AuthEffs)
 import           Tendermint.SDK.Modules.Bank              (BankEffs)
 import           Tendermint.SDK.Types.Message             (Msg (..))
 import           Tendermint.SDK.Types.Transaction         (PreRoutedTx (..),
                                                            Tx (..))
 
 router
-  :: Members BankEffs r
+  :: Members AuthEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
   => Members BaseAppEffs r
   => Members TxEffs r

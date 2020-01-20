@@ -13,14 +13,14 @@ module Tutorial.Nameservice.Keeper where
 import Data.Proxy
 import Data.String.Conversions (cs)
 import GHC.TypeLits (symbolVal)
-import Polysemy (Sem, Members, makeSem, interpret)
+import Polysemy (Sem, Member, Members, makeSem, interpret)
 import Polysemy.Error (Error, throw, mapError)
 import Polysemy.Output (Output)
 import Nameservice.Modules.Nameservice.Messages (DeleteName(..))
 import Nameservice.Modules.Nameservice.Types (Whois(..), Name, NameDeleted(..), NameserviceModuleName, NameserviceError(..))
 import qualified Tendermint.SDK.BaseApp as BA
-import Tendermint.SDK.Modules.Auth (Coin(..))
-import Tendermint.SDK.Modules.Bank (Bank, mint)
+import Tendermint.SDK.Modules.Auth (AuthEffs, Coin(..))
+import Tendermint.SDK.Modules.Bank (mint)
 ~~~
 
 Generally a keeper is defined by a set of effects that the module introduces and depends on. In the case of Nameservice, we introduce the custom `Nameservice` effect:
@@ -49,7 +49,8 @@ We can then write the top level function for example for deleting a name:
 
 ~~~ haskell
 deleteName
-  :: Members [Bank, Output BA.Event] r
+  :: Member (Output BA.Event) r
+  => Members AuthEffs r
   => Members [NameserviceKeeper, Error NameserviceError] r
   => DeleteName
   -> Sem r ()
@@ -78,12 +79,12 @@ The control flow should be pretty clear:
 Taking a look at the class constraints, we see
 
 ~~~ haskell ignore
-(Members NameserviceEffs, Members [Bank, Output Event] r)
+(Members NameserviceEffs, Member (Output Event) r)
 ~~~
 
 - The `NameserviceKeeper` effect is required because the function may manipulate the modules database with `deleteName`.
 - The `Error NameserviceError` effect is required because the function may throw an error.
-- The `Bank` effect is required because the function will mint coins.
+- The `Auth` effect is required because the function will mint coins.
 - The `Output Event` effect is required because the function may emit a `NameDeleted` event.
 
 ### Evaluating Module Effects

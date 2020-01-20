@@ -1,91 +1,63 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module Tendermint.SDK.Modules.Bank.Keeper where
 
-import           Data.List                          (find)
-import           Data.Maybe                         (fromMaybe)
+import           Data.List                         (find)
+import           Data.Maybe                        (fromMaybe)
 import           Polysemy
-import           Polysemy.Error                     (Error, mapError, throw)
-import           Polysemy.Output                    (Output)
-import qualified Tendermint.SDK.BaseApp             as BaseApp
-import qualified Tendermint.SDK.Modules.Auth        as Auth
-import qualified Tendermint.SDK.Modules.Auth.Keeper as Auth
-import           Tendermint.SDK.Modules.Bank.Types  (BankError (..),
-                                                     TransferEvent (..))
-import           Tendermint.SDK.Types.Address       (Address)
+import           Polysemy.Error                    (Error, mapError, throw)
+import           Polysemy.Output                   (Output)
+import qualified Tendermint.SDK.BaseApp            as BaseApp
+import qualified Tendermint.SDK.Modules.Auth       as Auth
+import           Tendermint.SDK.Modules.Bank.Types (BankError (..),
+                                                    TransferEvent (..))
+import           Tendermint.SDK.Types.Address      (Address)
 
-data Bank m a where
-  PutBalance :: Address -> Auth.Coin -> Bank m ()
-  GetBalance' :: Address -> Auth.CoinId -> Bank m (Maybe Auth.Coin)
-
-makeSem ''Bank
-
-type BankEffs = '[Bank, Error BankError]
+type BankEffs = '[Error BankError]
 
 eval
-  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-  => forall a. Sem (Bank ': Error BankError ': r) a -> Sem r a
-eval = mapError BaseApp.makeAppError . evalBank
-  where
-    replaceCoinValue coin@(Auth.Coin cid _) =
-      map (\c1@(Auth.Coin cid1 _) ->
-             if cid1 == cid
-             then coin
-             else c1)
-
-    -- @TODO: use auth over RawStore summands
-    evalBank
-      :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-      => forall a. Sem (Bank ': r) a -> Sem r a
-    evalBank =
-      interpret
-        (\case
-          GetBalance' address cid -> do
-            mAcnt <- BaseApp.get Auth.storeKey address
-            case mAcnt of
-              Just (Auth.Account coins _) -> do
-                pure $ find (\(Auth.Coin cid1 _) -> cid == cid1) coins
-              _ -> pure Nothing
-          PutBalance address coin -> do
-            mAcnt <- BaseApp.get Auth.storeKey address
-            case mAcnt of
-              Nothing -> do
-                newAcnt <- createAccount address
-                BaseApp.put Auth.storeKey address $ newAcnt { Auth.accountCoins = [coin] }
-              Just acnt@(Auth.Account coins _) ->
-                BaseApp.put Auth.storeKey address $ acnt { Auth.accountCoins = replaceCoinValue coin coins }
-        )
+  :: Member (Error BaseApp.AppError) r
+  => forall a. Sem (Error BankError ': r) a -> Sem r a
+eval = mapError BaseApp.makeAppError
 
 --------------------------------------------------------------------------------
 
--- @TODO: once auth effs are allowed in `eval`, delete this.
-createAccount
-  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-  => Address
-  -> Sem r Auth.Account
-createAccount addr = do
-  mAcct <- BaseApp.get Auth.storeKey addr
-  case mAcct of
-    -- @TODO: can't throw error here
-    Just acnt -> pure acnt
-    Nothing -> do
-      let emptyAccount = Auth.Account
-            { Auth.accountCoins = []
-            , Auth.accountNonce = 0
-            }
-      BaseApp.put Auth.storeKey addr emptyAccount
-      pure emptyAccount
-
-getBalance
-  :: Member Bank r
+getCoinBalance
+  :: Members Auth.AuthEffs r
   => Address
   -> Auth.CoinId
   -> Sem r Auth.Coin
-getBalance address cid =
-  fromMaybe (Auth.Coin cid 0) <$> getBalance' address cid
+getCoinBalance address cid = do
+  mAcnt <- Auth.getAccount address
+  let noCoins = Auth.Coin cid 0
+  case mAcnt of
+    Nothing -> pure noCoins
+    Just (Auth.Account coins _) -> pure . fromMaybe noCoins $
+      find (\(Auth.Coin cid1 _) -> cid == cid1) coins
+
+putCoinBalance
+  :: Members Auth.AuthEffs r
+  => Address
+  -> Auth.Coin
+  -> Sem r ()
+putCoinBalance address coin = do
+  mAcnt <- Auth.getAccount address
+  case mAcnt of
+    Nothing -> do
+      (Auth.Account coins nonce) <- Auth.createAccount address
+      let updatedCoins = replaceCoinValue coin coins
+      Auth.putAccount address (Auth.Account updatedCoins nonce)
+    Just (Auth.Account coins nonce) -> do
+      let updatedCoins = replaceCoinValue coin coins
+      Auth.putAccount address (Auth.Account updatedCoins nonce)
+  where
+    replaceCoinValue c@(Auth.Coin cid _) =
+      map (\c1@(Auth.Coin cid1 _) ->
+             if cid1 == cid
+             then c
+             else c1)
 
 transfer
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
+  => Members Auth.AuthEffs r
   => Members BankEffs r
   => Address
   -> Auth.Coin
@@ -93,15 +65,15 @@ transfer
   -> Sem r ()
 transfer addr1 (Auth.Coin cid amount) addr2 = do
   -- check if addr1 has amt
-  (Auth.Coin _ addr1Bal) <- getBalance addr1 cid
+  (Auth.Coin _ addr1Bal) <- getCoinBalance addr1 cid
   if addr1Bal > amount
     then do
-      (Auth.Coin _ addr2Bal) <- getBalance addr2 cid
+      (Auth.Coin _ addr2Bal) <- getCoinBalance addr2 cid
       let newCoinBalance1 = Auth.Coin cid (addr1Bal - amount)
           newCoinBalance2 = Auth.Coin cid (addr2Bal + amount)
       -- update both balances
-      putBalance addr1 newCoinBalance1
-      putBalance addr2 newCoinBalance2
+      putCoinBalance addr1 newCoinBalance1
+      putCoinBalance addr2 newCoinBalance2
       let event = TransferEvent
             { transferEventAmount = amount
             , transferEventCoinId = cid
@@ -113,21 +85,22 @@ transfer addr1 (Auth.Coin cid amount) addr2 = do
     else throw (InsufficientFunds "Insufficient funds for transfer.")
 
 burn
-  :: Members BankEffs r
+  :: Members Auth.AuthEffs r
+  => Members BankEffs r
   => Address
   -> Auth.Coin
   -> Sem r ()
 burn addr (Auth.Coin cid amount) = do
-  (Auth.Coin _ bal) <- getBalance addr cid
+  (Auth.Coin _ bal) <- getCoinBalance addr cid
   if bal < amount
     then throw $ InsufficientFunds "Insuffient funds for burn."
-    else putBalance addr (Auth.Coin cid (bal - amount))
+    else putCoinBalance addr (Auth.Coin cid (bal - amount))
 
 mint
-  :: Member Bank r
+  :: Members Auth.AuthEffs r
   => Address
   -> Auth.Coin
   -> Sem r ()
 mint addr (Auth.Coin cid amount) = do
-  (Auth.Coin _ bal) <- getBalance addr cid
-  putBalance addr (Auth.Coin cid (bal + amount))
+  (Auth.Coin _ bal) <- getCoinBalance addr cid
+  putCoinBalance addr (Auth.Coin cid (bal + amount))

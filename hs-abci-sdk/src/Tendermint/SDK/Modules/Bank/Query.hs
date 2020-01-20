@@ -6,7 +6,7 @@ import           Polysemy
 import           Servant.API
 import qualified Tendermint.SDK.BaseApp             as BaseApp
 import qualified Tendermint.SDK.Modules.Auth        as Auth
-import           Tendermint.SDK.Modules.Bank.Keeper (BankEffs, getBalance)
+import           Tendermint.SDK.Modules.Bank.Keeper (getCoinBalance)
 import           Tendermint.SDK.Types.Address       (Address)
 
 --------------------------------------------------------------------------------
@@ -20,12 +20,12 @@ type GetAddressCoinBalance =
   :> BaseApp.Leaf Auth.Coin
 
 getAddressCoinBalance
-  :: Members BankEffs r
+  :: Members Auth.AuthEffs r
   => Address
   -> Auth.CoinId
   -> Sem r (BaseApp.QueryResult Auth.Coin)
 getAddressCoinBalance address cid = do
-  coin <- getBalance address cid
+  coin <- getCoinBalance address cid
   pure $ BaseApp.QueryResult
     { queryResultData = coin
     , queryResultIndex = 0
@@ -38,6 +38,6 @@ type Api = GetAddressCoinBalance
 
 server
   :: forall r.
-     Members BankEffs r
+     Members Auth.AuthEffs r
   => BaseApp.RouteT Api r
 server = getAddressCoinBalance

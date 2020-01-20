@@ -1,7 +1,6 @@
 module Nameservice.Test.E2ESpec (spec) where
 
 import           Control.Lens                         ((^.))
--- import           Control.Monad                        (void)
 import           Data.Default.Class                   (def)
 import           Data.Proxy
 import           Nameservice.Modules.Nameservice      (BuyName (..),
@@ -54,7 +53,6 @@ spec = do
         resp `shouldBe` RPC.ResultHealth
 
       it "Can query account balances" $ do
-        -- let queryReq = defaultQueryWithData addr1
         (Coin _ bal1) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
         bal1 `shouldBe` 1000
 
@@ -99,8 +97,8 @@ spec = do
         ensureCheckAndDeliverResponseCodes (0,2) =<< mkSignedRawTransactionWithRoute "nameservice" user2 msg
 
       it "Can buy an existing name (success 0)" $ do
-        (Coin _ balance1) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"-- $ defaultQueryWithData addr1
-        (Coin _ balance2) <- getQueryResponseSuccess $ getBalance addr2 "nameservice" -- $ defaultQueryWithData addr2
+        (Coin _ balance1) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
+        (Coin _ balance2) <- getQueryResponseSuccess $ getBalance addr2 "nameservice"
         Whois{whoisPrice} <- getQueryResponseSuccess $ getWhois $ defaultQueryWithData satoshi
         let purchaseAmount = whoisPrice + 1
             newVal = "hello (again) world"
@@ -111,10 +109,10 @@ spec = do
         ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check for updated balances - seller: addr1, buyer: addr2
         -- let sellerQueryReq = defaultQueryWithData addr1
-        (Coin _ sellerFoundAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice" --sellerQueryReq
+        (Coin _ sellerFoundAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
         sellerFoundAmount `shouldBe` (balance1 + purchaseAmount)
         -- let buyerQueryReq = defaultQueryWithData addr2
-        (Coin _ buyerFoundAmount) <- getQueryResponseSuccess $ getBalance addr2 "nameservice" --buyerQueryReq
+        (Coin _ buyerFoundAmount) <- getQueryResponseSuccess $ getBalance addr2 "nameservice"
         buyerFoundAmount `shouldBe` (balance2 - purchaseAmount)
         -- check for ownership changes
         let queryReq = defaultQueryWithData satoshi
@@ -126,7 +124,7 @@ spec = do
       it "Can buy self-owned names and make a profit (success 0)" $ do
         -- check balance before
         -- let queryReq = defaultQueryWithData addr2
-        (Coin _ beforeBuyAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice" -- queryReq
+        (Coin _ beforeBuyAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
         -- buy
         let val = "hello (again) world"
             msg = TypedMessage "BuyName" (encode $ BuyName 500 satoshi val addr2)
@@ -135,7 +133,7 @@ spec = do
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check balance after
-        (Coin _ afterBuyAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice" -- queryReq
+        (Coin _ afterBuyAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
         -- owner/buyer still profits
         afterBuyAmount `shouldSatisfy` (> beforeBuyAmount)
 
@@ -159,15 +157,14 @@ spec = do
         clientResponseData `shouldBe` Nothing
 
       it "Can fail a transfer (failure 1)" $ do
-        -- let senderBeforeQueryReq = defaultQueryWithData addr2
-        (Coin _ addr2Balance) <- getQueryResponseSuccess $ getBalance addr2 "nameservice" --senderBeforeQueryReq
+        (Coin _ addr2Balance) <- getQueryResponseSuccess $ getBalance addr2 "nameservice"
         let tooMuchToTransfer = addr2Balance + 1
             msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 "nameservice" tooMuchToTransfer)
         ensureCheckAndDeliverResponseCodes (0,1) =<< mkSignedRawTransactionWithRoute "bank" user2 msg
 
       it "Can transfer (success 0)" $ do
-        (Coin _ balance1) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"-- $ defaultQueryWithData addr1
-        (Coin _ balance2) <- getQueryResponseSuccess $ getBalance addr2 "nameservice"-- $ defaultQueryWithData addr2
+        (Coin _ balance1) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
+        (Coin _ balance2) <- getQueryResponseSuccess $ getBalance addr2 "nameservice"
         let transferAmount = 1
             msg = TypedMessage "Transfer" $ encode
               Transfer
@@ -186,9 +183,9 @@ spec = do
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "TransferEvent" transferEvent
         -- check balances
-        (Coin _ balance1') <- getQueryResponseSuccess $ getBalance addr1 "nameservice"-- $ defaultQueryWithData addr1
+        (Coin _ balance1') <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
         balance1' `shouldBe` balance1 - transferAmount
-        (Coin _ balance2') <- getQueryResponseSuccess $ getBalance addr2 "nameservice"-- $ defaultQueryWithData addr2
+        (Coin _ balance2') <- getQueryResponseSuccess $ getBalance addr2 "nameservice"
         balance2' `shouldBe` balance2 + transferAmount
 
 --------------------------------------------------------------------------------

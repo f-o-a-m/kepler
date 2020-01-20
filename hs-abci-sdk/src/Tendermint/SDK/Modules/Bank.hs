@@ -10,10 +10,9 @@ module Tendermint.SDK.Modules.Bank
   , Transfer(..)
 
   -- * effects
-  , Bank
   , BankEffs
   , TransferEvent(..)
-  , getBalance
+  , getCoinBalance
   , transfer
   , mint
   , burn
@@ -34,6 +33,7 @@ import           Polysemy                             (Members)
 import           Tendermint.SDK.Application           (Module (..),
                                                        defaultTxChecker)
 import           Tendermint.SDK.BaseApp               (BaseAppEffs)
+import qualified Tendermint.SDK.Modules.Auth          as Auth
 import           Tendermint.SDK.Modules.Bank.Keeper
 import           Tendermint.SDK.Modules.Bank.Messages
 import           Tendermint.SDK.Modules.Bank.Query
@@ -45,6 +45,7 @@ type BankM r = Module "bank" BankMessage () Api BankEffs r
 
 bankModule
   :: Members BaseAppEffs r
+  => Members Auth.AuthEffs r
   => Members BankEffs r
   => BankM r
 bankModule = Module

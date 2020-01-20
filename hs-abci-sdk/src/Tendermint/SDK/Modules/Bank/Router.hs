@@ -12,6 +12,7 @@ import           Tendermint.SDK.Types.Transaction     (PreRoutedTx (..),
 
 router
   :: Members BankEffs r
+  => Members Auth.AuthEffs r
   => Members BaseAppEffs r
   => Members TxEffs r
   => PreRoutedTx BankMessage
