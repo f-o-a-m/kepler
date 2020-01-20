@@ -41,7 +41,7 @@ import           Tendermint.SDK.Types.TxResult      (TxResult)
 data Module (name :: Symbol) msg val (api :: *) (s :: EffectRow) (r :: EffectRow) = Module
   { moduleTxDeliverer :: PreRoutedTx msg -> Sem (T.TxEffs :& r) val
   , moduleTxChecker   :: PreRoutedTx msg -> Sem (T.TxEffs :& r) val
-  , moduleQueryServer :: Q.RouteT api (Sem r)
+  , moduleQueryServer :: Q.RouteT api r
   , moduleEval :: forall deps. Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
   -- @TODO: this type is too restrictive; keepers aren't allowed to call other module effects
   }
@@ -73,14 +73,14 @@ infixr 5 :+
 
 queryRouter
   :: QueryRouter ms r
-  => Q.HasRouter (Api ms)
+  => Q.HasRouter (Api ms) r
   => Modules ms r
   -> Q.QueryApplication (Sem r)
-queryRouter (ms :: Modules ms r) = Q.serve (Proxy :: Proxy (Api ms)) (routeQuery ms)
+queryRouter (ms :: Modules ms r) = Q.serve (Proxy :: Proxy (Api ms)) (Proxy :: Proxy r) (routeQuery ms)
 
 class QueryRouter ms r where
     type Api ms :: *
-    routeQuery :: Modules ms r -> Q.RouteT (Api ms) (Sem r)
+    routeQuery :: Modules ms r -> Q.RouteT (Api ms) r
 
 instance QueryRouter '[Module name msg val api s r] r where
     type Api '[Module name msg val api s r] = name :> api

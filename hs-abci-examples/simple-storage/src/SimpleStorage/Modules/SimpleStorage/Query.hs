@@ -5,7 +5,7 @@ module SimpleStorage.Modules.SimpleStorage.Query
   ) where
 
 import           Data.Proxy
-import           Polysemy                                   (Members, Sem)
+import           Polysemy                                   (Members)
 import           Polysemy.Error                             (Error)
 import           SimpleStorage.Modules.SimpleStorage.Keeper (storeKey)
 import           SimpleStorage.Modules.SimpleStorage.Types  (Count, CountKey)
@@ -18,7 +18,7 @@ type Api = BaseApp.QueryApi CountStoreContents
 
 server
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-  => BaseApp.RouteT Api (Sem r)
+  => BaseApp.RouteT Api r
 server =
   BaseApp.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
-    storeKey (Proxy :: Proxy (Sem r))
+    storeKey (Proxy :: Proxy r)

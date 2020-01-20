@@ -91,7 +91,7 @@ makeHandlers
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r
   => M.QueryRouter ms r
-  => HasRouter (M.Api ms)
+  => HasRouter (M.Api ms) r
   => Members CoreEffs core
   => M.Eval ms core
   => M.Effs ms core ~ r
@@ -163,7 +163,7 @@ makeApp
   => Message alg ~ Digest SHA256
   => M.TxRouter ms r
   => M.QueryRouter ms r
-  => HasRouter (M.Api ms)
+  => HasRouter (M.Api ms) r
   => Members CoreEffs core
   => M.Eval ms core
   => M.Effs ms core ~ r

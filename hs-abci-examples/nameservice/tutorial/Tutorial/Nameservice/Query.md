@@ -8,7 +8,7 @@ module Tutorial.Nameservice.Query where
 import Data.Proxy
 import Nameservice.Modules.Nameservice.Keeper (storeKey)
 import Nameservice.Modules.Nameservice.Types (Whois, Name)
-import Polysemy (Sem, Members)
+import Polysemy (Members)
 import Polysemy.Error (Error)
 import Tendermint.SDK.BaseApp (RawStore, AppError, RouteT, QueryApi, storeQueryHandlers)
 ~~~
@@ -31,9 +31,9 @@ To serve all the data registered with the `IsKey` class, we can use the `storeQu
 ~~~ haskell
 server
   :: Members [RawStore, Error AppError] r
-  => RouteT Api (Sem r)
+  => RouteT Api r
 server =
-  storeQueryHandlers (Proxy @NameserviceContents) storeKey (Proxy :: Proxy (Sem r))
+  storeQueryHandlers (Proxy @NameserviceContents) storeKey (Proxy :: Proxy r)
 ~~~
 
 Here `RouteT` is a type family that can build a server from the `Api` type to handle incoming requests. It is similar to how `servant` works, and is largely copy-pasted from that codebase.
