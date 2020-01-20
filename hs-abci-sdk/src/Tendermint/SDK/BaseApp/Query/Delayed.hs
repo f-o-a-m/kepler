@@ -29,14 +29,15 @@ runDelayedM m req = runRouteResultT $ runReaderT (runDelayedM' m) req
 --------------------------------------------------------------------------------
 
 data Delayed m env a where
-  Delayed :: { delayedQueryArgs :: DelayedM m qa
+  Delayed :: { delayedCaptures :: env -> DelayedM m captures
+             , delayedQueryArgs :: DelayedM m qa
              , delayedParams :: DelayedM m params
-             , delayedHandler :: qa -> params -> QueryRequest -> RouteResult a
+             , delayedHandler :: captures -> qa -> params -> QueryRequest -> RouteResult a
              } -> Delayed m env a
 
 instance Functor m => Functor (Delayed m env) where
   fmap f Delayed{..} =
-    Delayed { delayedHandler = \qa params q -> f <$> delayedHandler qa params q
+    Delayed { delayedHandler = \captures qa params q -> f <$> delayedHandler captures qa params q
             , ..
             }
 
@@ -46,11 +47,12 @@ runDelayed
   -> env
   -> QueryRequest
   -> m (RouteResult a)
-runDelayed Delayed{..} _ = runDelayedM (do
+runDelayed Delayed{..} env = runDelayedM (do
     q <- ask
+    captures <- delayedCaptures env
     qa <- delayedQueryArgs
     params <- delayedParams
-    liftRouteResult $ delayedHandler qa params q
+    liftRouteResult $ delayedHandler captures qa params q
   )
 
 runAction
@@ -78,9 +80,21 @@ addQueryArgs
 addQueryArgs Delayed{..} new =
   Delayed
     { delayedQueryArgs = (,) <$> delayedQueryArgs <*> new
-    , delayedHandler = \(qa, qaNew) p query -> ($ qaNew) <$> delayedHandler qa p query
+    , delayedHandler = \caps (qa, qaNew) p query -> ($ qaNew) <$> delayedHandler caps qa p query
     , ..
     }
+
+addCapture
+  :: Monad m
+  => Delayed m env (a -> b)
+  -> (captured -> DelayedM m a)
+  -> Delayed m (captured, env) b
+addCapture Delayed{..} new =
+  Delayed
+    { delayedCaptures = \ (txt, env) -> (,) <$> delayedCaptures env <*> new txt
+    , delayedHandler   = \ (x, v) qa p query -> ($ v) <$> delayedHandler x qa p query
+    , ..
+    } -- Note [Existential Record Update]
 
 addParameter
   :: Monad m
@@ -90,7 +104,7 @@ addParameter
 addParameter Delayed {..} new =
   Delayed
     { delayedParams = (,) <$> delayedParams <*> new
-    , delayedHandler = \qa (p, pNew) query -> ($ pNew) <$> delayedHandler qa p query
+    , delayedHandler = \caps qa (p, pNew) query -> ($ pNew) <$> delayedHandler caps qa p query
     , ..
     }
 
@@ -98,7 +112,7 @@ emptyDelayed :: Monad m => RouteResult a -> Delayed m b a
 emptyDelayed response =
   let r = pure ()
       qa = pure $ defaultQueryWithData ()
-  in Delayed qa r $ \_ _ _ -> response
+  in Delayed (const r) qa r $ \_ _ _ _ -> response
 
 -- | Gain access to the incoming request.
 withQuery

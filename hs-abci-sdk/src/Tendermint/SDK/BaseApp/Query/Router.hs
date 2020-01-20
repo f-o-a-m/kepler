@@ -18,28 +18,32 @@ import           Tendermint.SDK.BaseApp.Query.Types   (QueryError (..),
                                                        RouteResult (..))
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 
+
 -- NOTE: most of this was vendored and repurposed from servant
 
 data Router' env a =
-    RChoice (Router' env a) (Router' env a)
-  | RStatic (Map Text (Router' env a)) [env -> a]
-  -- | RQueryArgs (Router' (QueryArgs Base64String, env) a)
+    StaticRouter (Map Text (Router' env a)) [env -> a]
+  | CaptureRouter (Router' (Text, env) a)
+  | Choice (Router' env a) (Router' env a)
+
 
 type RoutingApplication r = QueryRequest -> Sem r (RouteResult Response.Query)
 
 type Router env r = Router' env (RoutingApplication r)
 
 pathRouter :: Text -> Router' env a -> Router' env a
-pathRouter t r = RStatic (M.singleton t r) []
+pathRouter t r = StaticRouter (M.singleton t r) []
 
 leafRouter :: (env -> a) -> Router' env a
-leafRouter l = RStatic M.empty [l]
+leafRouter l = StaticRouter M.empty [l]
 
 choice :: Router' env a -> Router' env a -> Router' env a
-choice (RStatic table1 ls1) (RStatic table2 ls2) =
-  RStatic (M.unionWith choice table1 table2) (ls1 ++ ls2)
-choice router1 (RChoice router2 router3) = RChoice (choice router1 router2) router3
-choice router1 router2 = RChoice router1 router2
+choice (StaticRouter table1 ls1) (StaticRouter table2 ls2) =
+  StaticRouter (M.unionWith choice table1 table2) (ls1 ++ ls2)
+choice (CaptureRouter router1) (CaptureRouter router2) =
+  CaptureRouter (choice router1 router2)
+choice router1 (Choice router2 router3) = Choice (choice router1 router2) router3
+choice router1 router2 = Choice router1 router2
 
 
 methodRouter
@@ -61,7 +65,7 @@ runRouter
   -> RoutingApplication r
 runRouter router env query =
   case router of
-    RStatic table ls ->
+    StaticRouter table ls ->
       let path = decodePathSegments . T.encodeUtf8 $ queryRequestPath query
       in case path of
         []   -> runChoice ls env query
@@ -70,15 +74,17 @@ runRouter router env query =
         first : rest | Just router' <- M.lookup first table
           -> let query' = query { queryRequestPath = T.intercalate "/" rest }
              in  runRouter router' env query'
-        _ -> error $ "no match" <> show path -- pure $ Fail PathNotFound
-    --RQueryArgs r' ->
-    --  let qa = QueryArgs
-    --        { queryArgsData = queryRequestData query
-    --        , queryArgsHeight = queryRequestHeight query
-    --        , queryArgsProve = queryRequestProve query
-    --        }
-    --  in runRouter r' (qa, env) query
-    RChoice r1 r2 ->
+        _ -> pure $ Fail PathNotFound
+    CaptureRouter router' ->
+      let path = decodePathSegments . T.encodeUtf8 $ queryRequestPath query
+      in case path of
+          []   -> pure $ Fail PathNotFound
+          -- This case is to handle trailing slashes.
+          [""] -> pure $ Fail PathNotFound
+          first : rest
+            -> let query' = query { queryRequestPath = T.intercalate "/" rest }
+               in  runRouter router' (first, env) query'
+    Choice r1 r2 ->
       runChoice [runRouter r1, runRouter r2] env query
 
 runChoice :: [env -> RoutingApplication r] -> env -> RoutingApplication r

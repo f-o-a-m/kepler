@@ -15,18 +15,21 @@ import           Servant.API.Modifiers                (FoldLenient,
                                                        RequestArgument,
                                                        unfoldRequestArgument)
 import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, DelayedM,
-                                                       addParameter,
+                                                       addCapture, addParameter,
                                                        addQueryArgs,
                                                        delayedFail, withQuery)
-import           Tendermint.SDK.BaseApp.Query.Router  (Router, choice,
-                                                       methodRouter, pathRouter)
+import           Tendermint.SDK.BaseApp.Query.Router  (Router,
+                                                       Router' (CaptureRouter),
+                                                       choice, methodRouter,
+                                                       pathRouter)
 import           Tendermint.SDK.BaseApp.Query.Types   (FromQueryData (..), Leaf,
                                                        QA, QueryArgs (..),
                                                        QueryError (..),
                                                        QueryRequest (..),
                                                        QueryResult)
 import           Tendermint.SDK.Codec                 (HasCodec)
-import           Web.Internal.HttpApiData             (FromHttpApiData (..))
+import           Web.HttpApiData                      (FromHttpApiData (..),
+                                                       parseUrlPieceMaybe)
 
 --------------------------------------------------------------------------------
 
@@ -74,6 +77,19 @@ instance ( HasRouter sublayout r, KnownSymbol sym, FromHttpApiData a
             errSt e = delayedFail $ InvalidQuery ("Error parsing query param " <> cs paramname <> " " <> cs e <> ".")
         delayed = addParameter subserver $ withQuery parseParam
     in route (Proxy :: Proxy sublayout) pr delayed
+
+instance (FromHttpApiData a, HasRouter sublayout r) => HasRouter (Capture' mods capture a :> sublayout) r where
+
+  type RouteT (Capture' mods capture a :> sublayout) r = a -> RouteT sublayout r
+
+  route _ pr subserver =
+    CaptureRouter $
+        route (Proxy :: Proxy sublayout)
+              pr
+              (addCapture subserver $ \ txt -> case parseUrlPieceMaybe txt of
+                 Nothing -> delayedFail PathNotFound
+                 Just v  -> return v
+              )
 
 instance HasCodec a => HasRouter (Leaf a) r where
 
