@@ -43,11 +43,11 @@ eval = mapError BaseApp.makeAppError . evalBank
     evalBank =
       interpret
         (\case
-          GetBalance' address d -> do
+          GetBalance' address cid -> do
             mAcnt <- BaseApp.get Auth.storeKey address
             case mAcnt of
               Just (Auth.Account coins _) -> do
-                pure $ find (\(Auth.Coin d1 _) -> d == d1) coins
+                pure $ find (\(Auth.Coin cid1 _) -> cid == cid1) coins
               _ -> pure Nothing
           PutBalance address coin -> do
             mAcnt <- BaseApp.get Auth.storeKey address

@@ -1,34 +1,40 @@
 module Tendermint.SDK.Modules.Bank.Query where
 
-import           Data.Proxy
 import           Polysemy
-import           Polysemy.Error                     (Error)
+import           Servant.API
 import qualified Tendermint.SDK.BaseApp             as BaseApp
 import qualified Tendermint.SDK.Modules.Auth        as Auth
-import           Tendermint.SDK.Modules.Bank.Keeper (storeKey)
+import           Tendermint.SDK.Modules.Bank.Keeper (BankEffs, getBalance)
 import           Tendermint.SDK.Types.Address       (Address)
-
 --------------------------------------------------------------------------------
 -- | Query Api
 --------------------------------------------------------------------------------
 
+type GetAddressCoinBalance =
+     "balance"
+  :> QueryParam' '[Required, Strict] "address" Address
+  :> QueryParam' '[Required, Strict] "coin_id" Auth.CoinId
+  :> BaseApp.Leaf Auth.Coin
 
-type BankContents = '[(Address, Auth.Coin)]
+getAddressCoinBalance
+  :: Members BankEffs r
+  => Address
+  -> Auth.CoinId
+  -> Sem r (BaseApp.QueryResult Auth.Coin)
+getAddressCoinBalance address cid = do
+  coin <- getBalance address cid
+  pure $ BaseApp.QueryResult
+    { queryResultData = coin
+    , queryResultIndex = 0
+    , queryResultKey = undefined
+    , queryResultProof  = Nothing
+    , queryResultHeight = 0
+    }
 
-type Api = BaseApp.QueryApi BankContents
+type Api = GetAddressCoinBalance
 
 server
-  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-  => BaseApp.RouteT Api (Sem r)
-server =
-  BaseApp.storeQueryHandlers (Proxy :: Proxy BankContents) storeKey (Proxy :: Proxy (Sem r))
-
--- type Api = "balance" :> QueryArgs (Address, Text) :> Leaf Auth.Coin
-
--- server
---   :: --  Members Auth.AuthEffs r
---   -- => Member (Error BaseApp.AppError) r
---   -- =>
---   BaseApp.RouteT Api (Sem r)
--- server = undefined
-
+  :: forall r.
+     Members BankEffs r
+  => BaseApp.RouteT Api r
+server = getAddressCoinBalance

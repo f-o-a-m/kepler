@@ -28,6 +28,7 @@ import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..),
 import           Tendermint.SDK.Codec         (HasCodec (..),
                                                defaultSDKAesonOptions)
 import           Tendermint.SDK.Types.Address (Address)
+import           Web.HttpApiData              (FromHttpApiData (..))
 
 type AuthModule = "auth"
 
@@ -45,6 +46,8 @@ instance JSON.ToJSON CoinId where
   toJSON = JSON.genericToJSON JSON.defaultOptions
 instance JSON.FromJSON CoinId where
   parseJSON = JSON.genericParseJSON JSON.defaultOptions
+instance FromHttpApiData CoinId where
+  parseQueryParam = fmap CoinId . parseQueryParam
 
 newtype Amount = Amount { unAmount :: Word64 }
   deriving (Eq, Show, Num, Generic, Ord, JSON.ToJSON, JSON.FromJSON)
