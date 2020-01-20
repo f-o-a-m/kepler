@@ -8,7 +8,6 @@ module Tendermint.SDK.Test.SimpleStorage
   , simpleStorageModule
   , evalToIO
   , Count(..)
-  , CountKey(..)
   ) where
 
 import           Control.Lens                     (iso, (^.))
