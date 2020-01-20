@@ -27,6 +27,7 @@ import           Tendermint.SDK.Types.Transaction (RawTransaction (..),
 import           Tendermint.Utils.Client          (ClientResponse (..),
                                                    HasClient (..))
 import           Tendermint.Utils.Request         (runRPC)
+-- import Tendermint.SDK.Modules.Bank.Types ()
 
 data User = User
   { userPrivKey :: SecKey

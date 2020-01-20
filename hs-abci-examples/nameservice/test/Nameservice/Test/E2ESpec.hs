@@ -1,7 +1,7 @@
 module Nameservice.Test.E2ESpec (spec) where
 
 import           Control.Lens                         ((^.))
-import           Control.Monad                        (void)
+-- import           Control.Monad                        (void)
 import           Data.Default.Class                   (def)
 import           Data.Proxy
 import           Nameservice.Modules.Nameservice      (BuyName (..),
@@ -55,7 +55,8 @@ spec = do
 
       it "Can query account balances" $ do
         -- let queryReq = defaultQueryWithData addr1
-        void $ getQueryResponseSuccess $ getBalance addr1 "nameservice"
+        (Coin _ bal1) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
+        bal1 `shouldBe` 1000
 
       it "Can create a name (success 0)" $ do
         let val = "hello world"

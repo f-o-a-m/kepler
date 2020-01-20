@@ -3,7 +3,7 @@
 module Tendermint.SDK.Modules.Bank.Types where
 
 import           Data.Aeson                   as A
-import           Data.Bifunctor               (bimap)
+-- import           Data.Bifunctor               (bimap)
 import qualified Data.ByteArray.HexString     as Hex
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
@@ -38,7 +38,8 @@ instance HasDefault Hex.HexString
 instance HasDefault Address
 instance MessageField Address
 instance HasCodec Address where
-  decode = bimap cs Address . Hex.hexString
+  -- there's no way to fail here
+  decode = Right . addressFromBytes
   encode = addressToBytes
 instance ToHttpApiData Address where
   toQueryParam = cs . HasCodec.encode

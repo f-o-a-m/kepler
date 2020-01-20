@@ -1,11 +1,14 @@
 module Tendermint.SDK.Modules.Bank.Query where
 
+import           Control.Lens                       ((^.))
+import qualified Data.ByteArray.Base64String        as Base64
 import           Polysemy
 import           Servant.API
 import qualified Tendermint.SDK.BaseApp             as BaseApp
 import qualified Tendermint.SDK.Modules.Auth        as Auth
 import           Tendermint.SDK.Modules.Bank.Keeper (BankEffs, getBalance)
 import           Tendermint.SDK.Types.Address       (Address)
+
 --------------------------------------------------------------------------------
 -- | Query Api
 --------------------------------------------------------------------------------
@@ -26,7 +29,7 @@ getAddressCoinBalance address cid = do
   pure $ BaseApp.QueryResult
     { queryResultData = coin
     , queryResultIndex = 0
-    , queryResultKey = undefined
+    , queryResultKey = Base64.fromBytes $ address ^. BaseApp.rawKey
     , queryResultProof  = Nothing
     , queryResultHeight = 0
     }
