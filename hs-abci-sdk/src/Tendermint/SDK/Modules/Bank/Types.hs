@@ -5,7 +5,7 @@ module Tendermint.SDK.Modules.Bank.Types where
 import           Data.Aeson                   as A
 import qualified Data.ByteArray.HexString     as Hex
 import           Data.Text                    (Text)
-import           Data.Text.Encoding           (encodeUtf8)
+import           Data.Text.Encoding           (decodeUtf8, encodeUtf8)
 import           GHC.Generics                 (Generic)
 import           Proto3.Suite                 (HasDefault (..), MessageField,
                                                Primitive (..))
@@ -17,7 +17,8 @@ import           Tendermint.SDK.Codec         (defaultSDKAesonOptions)
 import qualified Tendermint.SDK.Modules.Auth  as Auth
 import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
                                                addressToBytes)
-import           Web.HttpApiData              (FromHttpApiData (..))
+import           Web.HttpApiData              (FromHttpApiData (..),
+                                               ToHttpApiData (..))
 
 --------------------------------------------------------------------------------
 
@@ -33,6 +34,8 @@ instance Primitive Address where
 instance HasDefault Hex.HexString
 instance HasDefault Address
 instance MessageField Address
+instance ToHttpApiData Address where
+  toQueryParam = decodeUtf8 . addressToBytes
 instance FromHttpApiData Address where
   parseQueryParam = fmap (addressFromBytes . encodeUtf8) . parseQueryParam
 

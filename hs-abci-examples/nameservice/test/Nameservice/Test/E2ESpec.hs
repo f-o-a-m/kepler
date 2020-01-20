@@ -18,10 +18,12 @@ import           Nameservice.Test.EventOrphans        ()
 import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Network.Tendermint.Client            as RPC
 import           Servant.API                          ((:<|>) (..), (:>))
+import           Servant.API.Modifiers
 import           Tendermint.SDK.BaseApp.Query         (QueryArgs (..),
                                                        defaultQueryWithData)
 import           Tendermint.SDK.Codec                 (HasCodec (..))
-import           Tendermint.SDK.Modules.Auth          (Amount (..), Coin (..))
+import           Tendermint.SDK.Modules.Auth          (Amount (..), Coin (..),
+                                                       CoinId (..))
 import           Tendermint.SDK.Modules.Bank          (Transfer (..),
                                                        TransferEvent (..))
 import qualified Tendermint.SDK.Modules.Bank          as Bank (Api)
@@ -52,8 +54,8 @@ spec = do
         resp `shouldBe` RPC.ResultHealth
 
       it "Can query account balances" $ do
-        let queryReq = defaultQueryWithData addr1
-        void $ getQueryResponseSuccess $ getBalance queryReq
+        -- let queryReq = defaultQueryWithData addr1
+        void $ getQueryResponseSuccess $ getBalance addr1 "nameservice"
 
       it "Can create a name (success 0)" $ do
         let val = "hello world"
@@ -96,8 +98,8 @@ spec = do
         ensureCheckAndDeliverResponseCodes (0,2) =<< mkSignedRawTransactionWithRoute "nameservice" user2 msg
 
       it "Can buy an existing name (success 0)" $ do
-        (Coin _ balance1) <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
-        (Coin _ balance2) <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr2
+        (Coin _ balance1) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"-- $ defaultQueryWithData addr1
+        (Coin _ balance2) <- getQueryResponseSuccess $ getBalance addr2 "nameservice" -- $ defaultQueryWithData addr2
         Whois{whoisPrice} <- getQueryResponseSuccess $ getWhois $ defaultQueryWithData satoshi
         let purchaseAmount = whoisPrice + 1
             newVal = "hello (again) world"
@@ -107,11 +109,11 @@ spec = do
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check for updated balances - seller: addr1, buyer: addr2
-        let sellerQueryReq = defaultQueryWithData addr1
-        (Coin _ sellerFoundAmount) <- getQueryResponseSuccess $ getBalance sellerQueryReq
+        -- let sellerQueryReq = defaultQueryWithData addr1
+        (Coin _ sellerFoundAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice" --sellerQueryReq
         sellerFoundAmount `shouldBe` (balance1 + purchaseAmount)
-        let buyerQueryReq = defaultQueryWithData addr2
-        (Coin _ buyerFoundAmount) <- getQueryResponseSuccess $ getBalance buyerQueryReq
+        -- let buyerQueryReq = defaultQueryWithData addr2
+        (Coin _ buyerFoundAmount) <- getQueryResponseSuccess $ getBalance addr2 "nameservice" --buyerQueryReq
         buyerFoundAmount `shouldBe` (balance2 - purchaseAmount)
         -- check for ownership changes
         let queryReq = defaultQueryWithData satoshi
@@ -122,8 +124,8 @@ spec = do
       -- https://cosmos.network/docs/tutorial/buy-name.html#msg
       it "Can buy self-owned names and make a profit (success 0)" $ do
         -- check balance before
-        let queryReq = defaultQueryWithData addr2
-        (Coin _ beforeBuyAmount) <- getQueryResponseSuccess $ getBalance queryReq
+        -- let queryReq = defaultQueryWithData addr2
+        (Coin _ beforeBuyAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice" -- queryReq
         -- buy
         let val = "hello (again) world"
             msg = TypedMessage "BuyName" (encode $ BuyName 500 satoshi val addr2)
@@ -132,7 +134,7 @@ spec = do
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check balance after
-        (Coin _ afterBuyAmount) <- getQueryResponseSuccess $ getBalance queryReq
+        (Coin _ afterBuyAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice" -- queryReq
         -- owner/buyer still profits
         afterBuyAmount `shouldSatisfy` (> beforeBuyAmount)
 
@@ -156,15 +158,15 @@ spec = do
         clientResponseData `shouldBe` Nothing
 
       it "Can fail a transfer (failure 1)" $ do
-        let senderBeforeQueryReq = defaultQueryWithData addr2
-        (Coin _ addr2Balance) <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
+        -- let senderBeforeQueryReq = defaultQueryWithData addr2
+        (Coin _ addr2Balance) <- getQueryResponseSuccess $ getBalance addr2 "nameservice" --senderBeforeQueryReq
         let tooMuchToTransfer = addr2Balance + 1
             msg = TypedMessage "Transfer" (encode $ Transfer addr2 addr1 "nameservice" tooMuchToTransfer)
         ensureCheckAndDeliverResponseCodes (0,1) =<< mkSignedRawTransactionWithRoute "bank" user2 msg
 
       it "Can transfer (success 0)" $ do
-        (Coin _ balance1) <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
-        (Coin _ balance2) <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr2
+        (Coin _ balance1) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"-- $ defaultQueryWithData addr1
+        (Coin _ balance2) <- getQueryResponseSuccess $ getBalance addr2 "nameservice"-- $ defaultQueryWithData addr2
         let transferAmount = 1
             msg = TypedMessage "Transfer" $ encode
               Transfer
@@ -183,9 +185,9 @@ spec = do
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "TransferEvent" transferEvent
         -- check balances
-        (Coin _ balance1') <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
+        (Coin _ balance1') <- getQueryResponseSuccess $ getBalance addr1 "nameservice"-- $ defaultQueryWithData addr1
         balance1' `shouldBe` balance1 - transferAmount
-        (Coin _ balance2') <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr2
+        (Coin _ balance2') <- getQueryResponseSuccess $ getBalance addr2 "nameservice"-- $ defaultQueryWithData addr2
         balance2' `shouldBe` balance2 + transferAmount
 
 --------------------------------------------------------------------------------
@@ -202,12 +204,15 @@ faucetAccount :: User -> Amount -> IO ()
 faucetAccount user@User{userAddress} amount = do
   let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress "nameservice" amount)
       faucetEvent = Faucetted userAddress "nameservice" amount
-  deliverResp <- mkSignedRawTransactionWithRoute "bank" user msg >>= getDeliverTxResponse
+  deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user msg >>= getDeliverTxResponse
   ensureDeliverResponseCode deliverResp 0
   ensureEventLogged deliverResp "Faucetted" faucetEvent
 
 getWhois :: QueryArgs Name -> RPC.TendermintM (ClientResponse Whois)
-getBalance :: QueryArgs Address -> RPC.TendermintM (ClientResponse Coin)
+getBalance
+  :: RequiredArgument '[Required, Strict] Address
+  -> RequiredArgument '[Required, Strict] CoinId
+  -> RPC.TendermintM (ClientResponse Coin)
 
 apiP :: Proxy ("bank" :> Bank.Api :<|> ("nameservice" :> N.Api))
 apiP = Proxy
