@@ -25,6 +25,14 @@ module Tendermint.SDK.BaseApp
   , get
   , delete
 
+  -- * Query Routes
+  , Leaf
+  , QA
+
+  -- * Scope
+  , ConnectionScope(..)
+  , applyScope
+
   -- * Errors
   , AppError(..)
   , IsAppError(..)
@@ -65,6 +73,7 @@ module Tendermint.SDK.BaseApp
   , FromQueryData(..)
   , QueryApi
   , RouteT
+  , QueryResult(..)
   , storeQueryHandlers
 
   ) where

@@ -1,78 +1,113 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.BaseApp.Query.Class where
 
-import           Control.Error
-import           Control.Monad.Morph                  (hoist)
+import           Control.Monad                        (join)
 import           Data.Proxy
 import           Data.String.Conversions              (cs)
+import           Data.Text                            (Text)
 import           GHC.TypeLits                         (KnownSymbol, symbolVal)
+import           Network.HTTP.Types.URI               (QueryText,
+                                                       parseQueryText)
+import           Polysemy                             (Sem)
 import           Servant.API
-import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, addQueryArgs,
-                                                       delayedFail)
-import           Tendermint.SDK.BaseApp.Query.Router  (Router, Router' (..),
+import           Servant.API.Modifiers                (FoldLenient,
+                                                       FoldRequired,
+                                                       RequestArgument,
+                                                       unfoldRequestArgument)
+import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, DelayedM,
+                                                       addCapture, addParameter,
+                                                       addQueryArgs,
+                                                       delayedFail, withQuery)
+import           Tendermint.SDK.BaseApp.Query.Router  (Router,
+                                                       Router' (CaptureRouter),
                                                        choice, methodRouter,
                                                        pathRouter)
 import           Tendermint.SDK.BaseApp.Query.Types   (FromQueryData (..), Leaf,
                                                        QA, QueryArgs (..),
                                                        QueryError (..),
-                                                       QueryResult,
-                                                       Queryable (..))
+                                                       QueryRequest (..),
+                                                       QueryResult)
+import           Tendermint.SDK.Codec                 (HasCodec)
+import           Web.HttpApiData                      (FromHttpApiData (..),
+                                                       parseUrlPieceMaybe)
 
 --------------------------------------------------------------------------------
 
 -- | This class is used to construct a router given a 'layout' type. The layout
 -- | is constructed using the combinators that appear in the instances here, no other
 -- | Servant combinators are recognized.
-class HasRouter layout where
+class HasRouter layout r where
   -- | A route handler.
-  type RouteT layout (m :: * -> *) :: *
+  type RouteT layout r :: *
   -- | Transform a route handler into a 'Router'.
-  route :: Monad m => Proxy layout -> Delayed m env (RouteT layout m) -> Router env m
-  hoistRoute :: (Monad m, Monad n) => Proxy layout -> (forall a. m a -> n a) -> RouteT layout m -> RouteT layout n
+  route :: Proxy layout -> Proxy r -> Delayed (Sem r) env (RouteT layout r) -> Router env r
 
+instance (HasRouter a r, HasRouter b r) => HasRouter (a :<|> b) r where
+  type RouteT (a :<|> b) r = RouteT a r :<|> RouteT b r
 
-instance (HasRouter a, HasRouter b) => HasRouter (a :<|> b) where
-  type RouteT (a :<|> b) m = RouteT a m :<|> RouteT b m
-
-  route _ server = choice (route pa ((\ (a :<|> _) -> a) <$> server))
-                          (route pb ((\ (_ :<|> b) -> b) <$> server))
+  route _ pr server = choice (route pa pr ((\ (a :<|> _) -> a) <$> server))
+                        (route pb pr ((\ (_ :<|> b) -> b) <$> server))
     where pa = Proxy :: Proxy a
           pb = Proxy :: Proxy b
 
-  hoistRoute _ phi (a :<|> b) =
-    hoistRoute (Proxy :: Proxy a) phi a :<|>
-    hoistRoute (Proxy :: Proxy b) phi b
+instance (HasRouter sublayout r, KnownSymbol path) => HasRouter (path :> sublayout) r where
 
-instance (HasRouter sublayout, KnownSymbol path) => HasRouter (path :> sublayout) where
+  type RouteT (path :> sublayout) r = RouteT sublayout r
 
-  type RouteT (path :> sublayout) m = RouteT sublayout m
-
-  route _ subserver =
-    pathRouter (cs (symbolVal proxyPath)) (route (Proxy :: Proxy sublayout) subserver)
+  route _ pr subserver =
+    pathRouter (cs (symbolVal proxyPath)) (route (Proxy :: Proxy sublayout) pr subserver)
     where proxyPath = Proxy :: Proxy path
 
-  hoistRoute _ = hoistRoute (Proxy :: Proxy sublayout)
+instance ( HasRouter sublayout r, KnownSymbol sym, FromHttpApiData a
+         , SBoolI (FoldRequired mods), SBoolI (FoldLenient mods)
+         ) => HasRouter (QueryParam' mods sym a :> sublayout) r where
 
+  type RouteT (QueryParam' mods sym a :> sublayout) r = RequestArgument mods a -> RouteT sublayout r
 
-instance (Queryable a, KnownSymbol (Name a)) => HasRouter (Leaf a) where
+  route _ pr subserver =
+    let querytext :: QueryRequest -> Network.HTTP.Types.URI.QueryText
+        querytext q = parseQueryText . cs $ queryRequestParamString q
+        paramname = cs $ symbolVal (Proxy :: Proxy sym)
+        parseParam :: Monad m => QueryRequest -> DelayedM m (RequestArgument mods a)
+        parseParam q = unfoldRequestArgument (Proxy :: Proxy mods) errReq errSt mev
+          where
+            mev :: Maybe (Either Text a)
+            mev = fmap parseQueryParam $ join $ lookup paramname $ querytext q
+            errReq = delayedFail $ InvalidQuery ("Query parameter " <> cs paramname <> " is required.")
+            errSt e = delayedFail $ InvalidQuery ("Error parsing query param " <> cs paramname <> " " <> cs e <> ".")
+        delayed = addParameter subserver $ withQuery parseParam
+    in route (Proxy :: Proxy sublayout) pr delayed
 
-   type RouteT (Leaf a) m = ExceptT QueryError m (QueryResult a)
-   route _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter
-     where proxyPath = Proxy :: Proxy (Name a)
-   hoistRoute _ = hoist
+instance (FromHttpApiData a, HasRouter sublayout r) => HasRouter (Capture' mods capture a :> sublayout) r where
 
+  type RouteT (Capture' mods capture a :> sublayout) r = a -> RouteT sublayout r
 
+  route _ pr subserver =
+    CaptureRouter $
+        route (Proxy :: Proxy sublayout)
+              pr
+              (addCapture subserver $ \ txt -> case parseUrlPieceMaybe txt of
+                 Nothing -> delayedFail PathNotFound
+                 Just v  -> return v
+              )
 
-instance (FromQueryData a, HasRouter layout)
-      => HasRouter (QA a :> layout) where
+instance HasCodec a => HasRouter (Leaf a) r where
 
-  type RouteT (QA a :> layout) m = QueryArgs a -> RouteT layout m
+   type RouteT (Leaf a) r = Sem r (QueryResult a)
+   route _ _ = methodRouter
 
-  route _ d =
-    RQueryArgs $
-      route (Proxy :: Proxy layout)
-          (addQueryArgs d $ \ qa -> case fromQueryData $ queryArgsData qa of
-             Left e  -> delayedFail $ InvalidQuery e
-             Right v -> return qa {queryArgsData = v}
-          )
-  hoistRoute _ phi f = hoistRoute (Proxy :: Proxy layout) phi . f
+instance (FromQueryData a, HasRouter sublayout r)
+      => HasRouter (QA a :> sublayout) r where
+
+  type RouteT (QA a :> sublayout) r = QueryArgs a -> RouteT sublayout r
+
+  route _ pr subserver =
+    let parseQueryArgs QueryRequest{..} = case fromQueryData queryRequestData of
+          Left e -> delayedFail $ InvalidQuery ("Error parsing query data, " <> cs e <> ".")
+          Right a -> pure QueryArgs
+            { queryArgsData = a
+            , queryArgsHeight = queryRequestHeight
+            , queryArgsProve = queryRequestProve
+            }
+        delayed = addQueryArgs subserver $ withQuery parseQueryArgs
+    in route (Proxy :: Proxy sublayout) pr delayed
