@@ -18,20 +18,11 @@ import           Servant.API.Modifiers                (FoldLenient,
                                                        FoldRequired,
                                                        RequestArgument,
                                                        unfoldRequestArgument)
-import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, addBody,
-                                                       addCapture, addParameter,
-                                                       delayedFail, runAction,
-                                                       withRequest)
-import           Tendermint.SDK.BaseApp.Query.Router  (Router,
-                                                       Router' (CaptureRouter),
-                                                       choice, leafRouter,
-                                                       pathRouter)
 import           Tendermint.SDK.BaseApp.Query.Types   (FromQueryData (..), Leaf,
                                                        QA, QueryArgs (..),
-                                                       QueryError (..),
                                                        QueryRequest (..),
-                                                       QueryResult (..),
-                                                       RouteResult (..))
+                                                       QueryResult (..))
+import qualified Tendermint.SDK.BaseApp.Router        as R
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Web.HttpApiData                      (FromHttpApiData (..),
                                                        parseUrlPieceMaybe)
@@ -46,13 +37,13 @@ class HasRouter layout r where
   -- | A route handler.
   type RouteT layout r :: *
   -- | Transform a route handler into a 'Router'.
-  route :: Proxy layout -> Proxy r -> Delayed (Sem r) env QueryRequest (RouteT layout r)
-        -> Router env r QueryRequest Response.Query
+  route :: Proxy layout -> Proxy r -> R.Delayed (Sem r) env QueryRequest (RouteT layout r)
+        -> R.Router env r QueryRequest Response.Query
 
 instance (HasRouter a r, HasRouter b r) => HasRouter (a :<|> b) r where
   type RouteT (a :<|> b) r = RouteT a r :<|> RouteT b r
 
-  route _ pr server = choice (route pa pr ((\ (a :<|> _) -> a) <$> server))
+  route _ pr server = R.choice (route pa pr ((\ (a :<|> _) -> a) <$> server))
                         (route pb pr ((\ (_ :<|> b) -> b) <$> server))
     where pa = Proxy :: Proxy a
           pb = Proxy :: Proxy b
@@ -62,7 +53,7 @@ instance (HasRouter sublayout r, KnownSymbol path) => HasRouter (path :> sublayo
   type RouteT (path :> sublayout) r = RouteT sublayout r
 
   route _ pr subserver =
-    pathRouter (cs (symbolVal proxyPath)) (route (Proxy :: Proxy sublayout) pr subserver)
+    R.pathRouter (cs (symbolVal proxyPath)) (route (Proxy :: Proxy sublayout) pr subserver)
     where proxyPath = Proxy :: Proxy path
 
 instance ( HasRouter sublayout r, KnownSymbol sym, FromHttpApiData a
@@ -75,14 +66,13 @@ instance ( HasRouter sublayout r, KnownSymbol sym, FromHttpApiData a
     let querytext :: QueryRequest -> Network.HTTP.Types.URI.QueryText
         querytext q = parseQueryText . cs $ queryRequestParamString q
         paramname = cs $ symbolVal (Proxy :: Proxy sym)
- --       parseParam :: Monad m => QueryRequest -> DelayedM m (RequestArgument mods a)
         parseParam q = unfoldRequestArgument (Proxy :: Proxy mods) errReq errSt mev
           where
             mev :: Maybe (Either Text a)
             mev = fmap parseQueryParam $ join $ lookup paramname $ querytext q
-            errReq = delayedFail $ InvalidQuery ("Query parameter " <> cs paramname <> " is required.")
-            errSt e = delayedFail $ InvalidQuery ("Error parsing query param " <> cs paramname <> " " <> cs e <> ".")
-        delayed = addParameter subserver $ withRequest parseParam
+            errReq = R.delayedFail $ R.InvalidRequest ("Query parameter " <> cs paramname <> " is required.")
+            errSt e = R.delayedFail $ R.InvalidRequest ("Error parsing query param " <> cs paramname <> " " <> cs e <> ".")
+        delayed = R.addParameter subserver $ R.withRequest parseParam
     in route (Proxy :: Proxy sublayout) pr delayed
 
 instance (FromHttpApiData a, HasRouter sublayout r) => HasRouter (Capture' mods capture a :> sublayout) r where
@@ -90,11 +80,11 @@ instance (FromHttpApiData a, HasRouter sublayout r) => HasRouter (Capture' mods 
   type RouteT (Capture' mods capture a :> sublayout) r = a -> RouteT sublayout r
 
   route _ pr subserver =
-    CaptureRouter $
+    R.CaptureRouter $
         route (Proxy :: Proxy sublayout)
               pr
-              (addCapture subserver $ \ txt -> case parseUrlPieceMaybe txt of
-                 Nothing -> delayedFail PathNotFound
+              (R.addCapture subserver $ \ txt -> case parseUrlPieceMaybe txt of
+                 Nothing -> R.delayedFail R.PathNotFound
                  Just v  -> return v
               )
 
@@ -110,25 +100,25 @@ instance (FromQueryData a, HasRouter sublayout r)
 
   route _ pr subserver =
     let parseQueryArgs QueryRequest{..} = case fromQueryData queryRequestData of
-          Left e -> delayedFail $ InvalidQuery ("Error parsing query data, " <> cs e <> ".")
+          Left e -> R.delayedFail $ R.InvalidRequest ("Error parsing query data, " <> cs e <> ".")
           Right a -> pure QueryArgs
             { queryArgsData = a
             , queryArgsHeight = queryRequestHeight
             , queryArgsProve = queryRequestProve
             }
-        delayed = addBody subserver $ withRequest parseQueryArgs
+        delayed = R.addBody subserver $ R.withRequest parseQueryArgs
     in route (Proxy :: Proxy sublayout) pr delayed
 
 --------------------------------------------------------------------------------
 
 methodRouter
   :: HasCodec b
-  => Delayed (Sem r) env req (Sem r (QueryResult b))
-  -> Router env r req Response.Query
-methodRouter action = leafRouter route'
+  => R.Delayed (Sem r) env req (Sem r (QueryResult b))
+  -> R.Router env r req Response.Query
+methodRouter action = R.leafRouter route'
   where
-    route' env query = runAction action env query $ \QueryResult{..} ->
-       Route $ def & Response._queryIndex .~ queryResultIndex
+    route' env query = R.runAction action env query $ \QueryResult{..} ->
+       R.Route $ def & Response._queryIndex .~ queryResultIndex
                    & Response._queryKey .~ queryResultKey
                    & Response._queryValue .~ fromBytes (encode queryResultData)
                    & Response._queryProof .~ queryResultProof

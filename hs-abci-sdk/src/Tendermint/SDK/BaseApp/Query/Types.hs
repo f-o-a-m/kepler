@@ -1,9 +1,6 @@
 module Tendermint.SDK.BaseApp.Query.Types where
 
-import           Control.Lens                           (Lens', from, lens,
-                                                         (^.))
-import           Control.Monad                          (ap)
-import           Control.Monad.Trans                    (MonadTrans (..))
+import           Control.Lens                           (from, lens, (^.))
 import           Data.ByteArray.Base64String            (Base64String, toBytes)
 import           Data.Int                               (Int64)
 import           Data.Text                              (Text, breakOn, uncons)
@@ -11,8 +8,7 @@ import           GHC.TypeLits                           (Symbol)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof, WrappedVal (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
-import           Tendermint.SDK.BaseApp.Errors          (AppError (..),
-                                                         IsAppError (..))
+import           Tendermint.SDK.BaseApp.Router.Types    (HasPath (..))
 import           Tendermint.SDK.BaseApp.Store           (RawKey (..))
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 import           Tendermint.SDK.Types.Address           (Address)
@@ -52,40 +48,10 @@ parseQueryRequest Request.Query{..} =
        , queryRequestHeight = unWrappedVal queryHeight
        }
 
+instance HasPath QueryRequest where
+  path = lens queryRequestPath (\q p -> q {queryRequestPath = p})
+
 --------------------------------------------------------------------------------
-
-data QueryError =
-    PathNotFound
-  | ResourceNotFound
-  | InvalidQuery Text
-  | InternalError Text
-  deriving (Show)
-
-instance IsAppError QueryError where
-  makeAppError PathNotFound =
-    AppError
-      { appErrorCode = 1
-      , appErrorCodespace = "query"
-      , appErrorMessage = "Path not found."
-      }
-  makeAppError ResourceNotFound =
-    AppError
-      { appErrorCode = 2
-      , appErrorCodespace = "query"
-      , appErrorMessage = "Resource not found."
-      }
-  makeAppError (InvalidQuery msg) =
-    AppError
-      { appErrorCode = 3
-      , appErrorCodespace = "query"
-      , appErrorMessage = "Invalid query: " <> msg
-      }
-  makeAppError (InternalError _) =
-    AppError
-      { appErrorCode = 4
-      , appErrorCodespace = "query"
-      , appErrorMessage = "Internal error."
-      }
 
 data QueryArgs a = QueryArgs
   { queryArgsProve  :: Bool
@@ -127,48 +93,3 @@ class FromQueryData a where
   fromQueryData bs = Right (toBytes bs ^. from rawKey)
 
 instance FromQueryData Address
-
---------------------------------------------------------------------------------
--- NOTE: most of this was vendored and repurposed from servant.
-
-data RouteResult a =
-    Fail QueryError
-  | FailFatal QueryError
-  | Route a
-  deriving (Functor)
-
-instance Applicative RouteResult where
-  pure  = return
-  (<*>) = ap
-
-instance Monad RouteResult where
-  return = Route
-  (>>=) m f = case m of
-    Route     a -> f a
-    Fail      e -> Fail e
-    FailFatal e -> FailFatal e
-
-data RouteResultT m a = RouteResultT { runRouteResultT :: m (RouteResult a) }
-  deriving (Functor)
-
-instance MonadTrans RouteResultT where
-  lift m = RouteResultT $ fmap Route m
-
-instance Monad m => Applicative (RouteResultT m) where
-  pure  = return
-  (<*>) = ap
-
-instance Monad m => Monad (RouteResultT m) where
-  return = RouteResultT . return . Route
-  (>>=) m f = RouteResultT $ do
-    a <- runRouteResultT m
-    case a of
-      Route     a' -> runRouteResultT $ f a'
-      Fail      e  -> return $ Fail e
-      FailFatal e  -> return $ FailFatal e
-
-class HasPath t where
-  path :: Lens' t Text
-
-instance HasPath QueryRequest where
-  path = lens queryRequestPath (\q p -> q {queryRequestPath = p})

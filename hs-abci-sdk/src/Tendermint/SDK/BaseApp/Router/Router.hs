@@ -1,16 +1,23 @@
-module Tendermint.SDK.BaseApp.Query.Router where
+module Tendermint.SDK.BaseApp.Router.Router
+  ( Router
+  , Router'(..)
+  , runRouter
+  , pathRouter
+  , leafRouter
+  , choice
+  ) where
 
-import           Control.Lens                       ((&), (.~), (^.))
-import           Data.Map                           (Map)
-import qualified Data.Map                           as M
-import           Data.Text                          (Text)
-import qualified Data.Text                          as T
-import qualified Data.Text.Encoding                 as T
-import           Network.HTTP.Types                 (decodePathSegments)
-import           Polysemy                           (Sem)
-import           Tendermint.SDK.BaseApp.Query.Types (HasPath (..),
-                                                     QueryError (..),
-                                                     RouteResult (..))
+import           Control.Lens                        ((&), (.~), (^.))
+import           Data.Map                            (Map)
+import qualified Data.Map                            as M
+import           Data.Text                           (Text)
+import qualified Data.Text                           as T
+import qualified Data.Text.Encoding                  as T
+import           Network.HTTP.Types                  (decodePathSegments)
+import           Polysemy                            (Sem)
+import           Tendermint.SDK.BaseApp.Router.Types (Application, HasPath (..),
+                                                      RouteResult (..),
+                                                      RouterError (..))
 
 
 -- NOTE: most of this was vendored and repurposed from servant
@@ -21,17 +28,23 @@ data Router' env a =
   | Choice (Router' env a) (Router' env a)
 
 
-type RoutingApplication r req res = req -> Sem r (RouteResult res)
+type Router env r req res = Router' env (Application (Sem r) req res)
 
-type Router env r req res = Router' env (RoutingApplication r req res)
-
-pathRouter :: Text -> Router' env a -> Router' env a
+pathRouter
+  :: Text
+  -> Router' env a
+  -> Router' env a
 pathRouter t r = StaticRouter (M.singleton t r) []
 
-leafRouter :: (env -> a) -> Router' env a
+leafRouter
+  :: (env -> a)
+  -> Router' env a
 leafRouter l = StaticRouter M.empty [l]
 
-choice :: Router' env a -> Router' env a -> Router' env a
+choice
+  :: Router' env a
+  -> Router' env a
+  -> Router' env a
 choice (StaticRouter table1 ls1) (StaticRouter table2 ls2) =
   StaticRouter (M.unionWith choice table1 table2) (ls1 ++ ls2)
 choice (CaptureRouter router1) (CaptureRouter router2) =
@@ -39,13 +52,11 @@ choice (CaptureRouter router1) (CaptureRouter router2) =
 choice router1 (Choice router2 router3) = Choice (choice router1 router2) router3
 choice router1 router2 = Choice router1 router2
 
-
-
 runRouter
   :: HasPath req
   => Router env r req res
   -> env
-  -> RoutingApplication r req res
+  -> Application (Sem r) req res
 runRouter router env req =
   case router of
     StaticRouter table ls ->
@@ -68,7 +79,10 @@ runRouter router env req =
     Choice r1 r2 ->
       runChoice [runRouter r1, runRouter r2] env req
 
-runChoice :: [env -> RoutingApplication r req res] -> env -> RoutingApplication r req res
+runChoice
+  :: [env -> Application (Sem r) req res]
+  -> env
+  -> Application (Sem r) req res
 runChoice ls =
   case ls of
     []       -> \ _ _ -> pure $ Fail PathNotFound

@@ -1,13 +1,21 @@
-module Tendermint.SDK.BaseApp.Query.Delayed where
+module Tendermint.SDK.BaseApp.Router.Delayed
+  ( Delayed
+  , runAction
+  , delayedFail
+  , addBody
+  , addCapture
+  , addParameter
+  , emptyDelayed
+  , withRequest
+  ) where
 
-import           Control.Monad.Reader               (MonadReader, ReaderT, ask,
-                                                     runReaderT)
-import           Control.Monad.Trans                (MonadTrans (..))
-import           Polysemy                           (Sem)
-import           Tendermint.SDK.BaseApp.Query.Types (QueryError (..),
-                                                     RouteResult (..),
-                                                     RouteResultT (..),
-                                                     defaultQueryWithData)
+import           Control.Monad.Reader                (MonadReader, ReaderT, ask,
+                                                      runReaderT)
+import           Control.Monad.Trans                 (MonadTrans (..))
+import           Polysemy                            (Sem)
+import           Tendermint.SDK.BaseApp.Router.Types (RouteResult (..),
+                                                      RouteResultT (..),
+                                                      RouterError (..))
 
 --------------------------------------------------------------------------------
 -- NOTE: most of this was vendored and repurposed from servant
@@ -66,7 +74,7 @@ runAction action env req k = do
       FailFatal e -> pure $ FailFatal e
 
 -- | Fail with the option to recover.
-delayedFail :: Monad m => QueryError -> DelayedM m req a
+delayedFail :: Monad m => RouterError -> DelayedM m req a
 delayedFail err = liftRouteResult $ Fail err
 
 addBody
@@ -108,8 +116,7 @@ addParameter Delayed {..} new =
 emptyDelayed :: Monad m => RouteResult a -> Delayed m b req a
 emptyDelayed response =
   let r = pure ()
-      qa = pure $ defaultQueryWithData ()
-  in Delayed (const r) qa r $ \_ _ _ _ -> response
+  in Delayed (const r) r r $ \_ _ _ _ -> response
 
 -- | Gain access to the incoming request.
 withRequest
