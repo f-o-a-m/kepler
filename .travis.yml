@@ -59,8 +59,9 @@ jobs:
     - echo "This stage is currently disabled as Nix doesn't seem to play well with libsecp256k1"
 
     - echo "Test IAVL Client"
-    - docker run -p 8090:8090 -p 8091:8091 -d foamspace/iavl:latest /iavlserver  -db-name "test" -datadir "."  -grpc-endpoint "0.0.0.0:8090"  -gateway-endpoint "0.0.0.0:8091"
+    - docker run --name iavl -p 8090:8090 -p 8091:8091 -d foamspace/iavl:latest /iavlserver  -db-name "test" -datadir "."  -grpc-endpoint "0.0.0.0:8090"  -gateway-endpoint "0.0.0.0:8091"
     - make test-iavl-client
+    - docker rm -f iavl
 
     - echo "Test Tendermint Client"
     - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client up -d
