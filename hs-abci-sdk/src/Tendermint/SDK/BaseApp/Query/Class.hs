@@ -1,11 +1,15 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.BaseApp.Query.Class where
 
+import           Control.Lens                         ((&), (.~))
 import           Control.Monad                        (join)
+import           Data.ByteArray.Base64String          (fromBytes)
+import           Data.Default.Class                   (def)
 import           Data.Proxy
 import           Data.String.Conversions              (cs)
 import           Data.Text                            (Text)
 import           GHC.TypeLits                         (KnownSymbol, symbolVal)
+import           Network.ABCI.Types.Messages.Response as Response
 import           Network.HTTP.Types.URI               (QueryText,
                                                        parseQueryText)
 import           Polysemy                             (Sem)
@@ -14,22 +18,24 @@ import           Servant.API.Modifiers                (FoldLenient,
                                                        FoldRequired,
                                                        RequestArgument,
                                                        unfoldRequestArgument)
-import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, DelayedM,
+import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, addBody,
                                                        addCapture, addParameter,
-                                                       addQueryArgs,
-                                                       delayedFail, withQuery)
+                                                       delayedFail, runAction,
+                                                       withRequest)
 import           Tendermint.SDK.BaseApp.Query.Router  (Router,
                                                        Router' (CaptureRouter),
-                                                       choice, methodRouter,
+                                                       choice, leafRouter,
                                                        pathRouter)
 import           Tendermint.SDK.BaseApp.Query.Types   (FromQueryData (..), Leaf,
                                                        QA, QueryArgs (..),
                                                        QueryError (..),
                                                        QueryRequest (..),
-                                                       QueryResult)
-import           Tendermint.SDK.Codec                 (HasCodec)
+                                                       QueryResult (..),
+                                                       RouteResult (..))
+import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Web.HttpApiData                      (FromHttpApiData (..),
                                                        parseUrlPieceMaybe)
+
 
 --------------------------------------------------------------------------------
 
@@ -40,7 +46,8 @@ class HasRouter layout r where
   -- | A route handler.
   type RouteT layout r :: *
   -- | Transform a route handler into a 'Router'.
-  route :: Proxy layout -> Proxy r -> Delayed (Sem r) env (RouteT layout r) -> Router env r
+  route :: Proxy layout -> Proxy r -> Delayed (Sem r) env QueryRequest (RouteT layout r)
+        -> Router env r QueryRequest Response.Query
 
 instance (HasRouter a r, HasRouter b r) => HasRouter (a :<|> b) r where
   type RouteT (a :<|> b) r = RouteT a r :<|> RouteT b r
@@ -68,14 +75,14 @@ instance ( HasRouter sublayout r, KnownSymbol sym, FromHttpApiData a
     let querytext :: QueryRequest -> Network.HTTP.Types.URI.QueryText
         querytext q = parseQueryText . cs $ queryRequestParamString q
         paramname = cs $ symbolVal (Proxy :: Proxy sym)
-        parseParam :: Monad m => QueryRequest -> DelayedM m (RequestArgument mods a)
+ --       parseParam :: Monad m => QueryRequest -> DelayedM m (RequestArgument mods a)
         parseParam q = unfoldRequestArgument (Proxy :: Proxy mods) errReq errSt mev
           where
             mev :: Maybe (Either Text a)
             mev = fmap parseQueryParam $ join $ lookup paramname $ querytext q
             errReq = delayedFail $ InvalidQuery ("Query parameter " <> cs paramname <> " is required.")
             errSt e = delayedFail $ InvalidQuery ("Error parsing query param " <> cs paramname <> " " <> cs e <> ".")
-        delayed = addParameter subserver $ withQuery parseParam
+        delayed = addParameter subserver $ withRequest parseParam
     in route (Proxy :: Proxy sublayout) pr delayed
 
 instance (FromHttpApiData a, HasRouter sublayout r) => HasRouter (Capture' mods capture a :> sublayout) r where
@@ -109,5 +116,20 @@ instance (FromQueryData a, HasRouter sublayout r)
             , queryArgsHeight = queryRequestHeight
             , queryArgsProve = queryRequestProve
             }
-        delayed = addQueryArgs subserver $ withQuery parseQueryArgs
+        delayed = addBody subserver $ withRequest parseQueryArgs
     in route (Proxy :: Proxy sublayout) pr delayed
+
+--------------------------------------------------------------------------------
+
+methodRouter
+  :: HasCodec b
+  => Delayed (Sem r) env req (Sem r (QueryResult b))
+  -> Router env r req Response.Query
+methodRouter action = leafRouter route'
+  where
+    route' env query = runAction action env query $ \QueryResult{..} ->
+       Route $ def & Response._queryIndex .~ queryResultIndex
+                   & Response._queryKey .~ queryResultKey
+                   & Response._queryValue .~ fromBytes (encode queryResultData)
+                   & Response._queryProof .~ queryResultProof
+                   & Response._queryHeight .~ queryResultHeight

@@ -1,6 +1,7 @@
 module Tendermint.SDK.BaseApp.Query.Types where
 
-import           Control.Lens                           (from, (^.))
+import           Control.Lens                           (Lens', from, lens,
+                                                         (^.))
 import           Control.Monad                          (ap)
 import           Control.Monad.Trans                    (MonadTrans (..))
 import           Data.ByteArray.Base64String            (Base64String, toBytes)
@@ -38,13 +39,13 @@ parseQueryRequest
   :: Request.Query
   -> QueryRequest
 parseQueryRequest Request.Query{..} =
-  let (path, queryStrQ) = breakOn "?" queryPath
+  let (p, queryStrQ) = breakOn "?" queryPath
       queryStr = case Data.Text.uncons queryStrQ of
         Nothing -> ""
         Just ('?', rest) -> rest
         _ -> error "Impossible result parsing query string from path."
   in QueryRequest
-       { queryRequestPath = path
+       { queryRequestPath = p
        , queryRequestParamString = queryStr
        , queryRequestData = queryData
        , queryRequestProve = queryProve
@@ -165,3 +166,9 @@ instance Monad m => Monad (RouteResultT m) where
       Route     a' -> runRouteResultT $ f a'
       Fail      e  -> return $ Fail e
       FailFatal e  -> return $ FailFatal e
+
+class HasPath t where
+  path :: Lens' t Text
+
+instance HasPath QueryRequest where
+  path = lens queryRequestPath (\q p -> q {queryRequestPath = p})

@@ -1,124 +1,121 @@
 module Tendermint.SDK.BaseApp.Query.Delayed where
 
-import           Control.Monad.Reader                 (MonadReader, ReaderT,
-                                                       ask, runReaderT)
-import           Control.Monad.Trans                  (MonadTrans (..))
-import qualified Network.ABCI.Types.Messages.Response as Response
-import           Polysemy                             (Sem)
-import           Tendermint.SDK.BaseApp.Query.Types   (QueryArgs (..),
-                                                       QueryError (..),
-                                                       QueryRequest (..),
-                                                       RouteResult (..),
-                                                       RouteResultT (..),
-                                                       defaultQueryWithData)
+import           Control.Monad.Reader               (MonadReader, ReaderT, ask,
+                                                     runReaderT)
+import           Control.Monad.Trans                (MonadTrans (..))
+import           Polysemy                           (Sem)
+import           Tendermint.SDK.BaseApp.Query.Types (QueryError (..),
+                                                     RouteResult (..),
+                                                     RouteResultT (..),
+                                                     defaultQueryWithData)
 
 --------------------------------------------------------------------------------
 -- NOTE: most of this was vendored and repurposed from servant
 
 
-newtype DelayedM m a =
-  DelayedM { runDelayedM' :: ReaderT QueryRequest (RouteResultT m) a }
-    deriving (Functor, Applicative, Monad, MonadReader QueryRequest)
+newtype DelayedM m req a =
+  DelayedM { runDelayedM' :: ReaderT req (RouteResultT m) a }
+    deriving (Functor, Applicative, Monad, MonadReader req)
 
-liftRouteResult :: Monad m => RouteResult a -> DelayedM m a
+liftRouteResult :: Monad m => RouteResult a -> DelayedM m req a
 liftRouteResult x = DelayedM $ lift $ RouteResultT . return $ x
 
-runDelayedM :: DelayedM m a -> QueryRequest -> m (RouteResult a)
+runDelayedM :: DelayedM m req a -> req -> m (RouteResult a)
 runDelayedM m req = runRouteResultT $ runReaderT (runDelayedM' m) req
 
 --------------------------------------------------------------------------------
 
-data Delayed m env a where
-  Delayed :: { delayedCaptures :: env -> DelayedM m captures
-             , delayedQueryArgs :: DelayedM m qa
-             , delayedParams :: DelayedM m params
-             , delayedHandler :: captures -> qa -> params -> QueryRequest -> RouteResult a
-             } -> Delayed m env a
+data Delayed m env req a where
+  Delayed :: { delayedCaptures :: env -> DelayedM m req captures
+             , delayedBody :: DelayedM m req body
+             , delayedParams :: DelayedM m req params
+             , delayedHandler :: captures -> body -> params -> req -> RouteResult a
+             } -> Delayed m env req a
 
-instance Functor m => Functor (Delayed m env) where
+instance Functor m => Functor (Delayed m env req) where
   fmap f Delayed{..} =
-    Delayed { delayedHandler = \captures qa params q -> f <$> delayedHandler captures qa params q
+    Delayed { delayedHandler = \captures body params req -> f <$> delayedHandler captures body params req
             , ..
             }
 
 runDelayed
   :: Monad m
-  => Delayed m env a
+  => Delayed m env req a
   -> env
-  -> QueryRequest
+  -> req
   -> m (RouteResult a)
 runDelayed Delayed{..} env = runDelayedM (do
-    q <- ask
+    req <- ask
     captures <- delayedCaptures env
-    qa <- delayedQueryArgs
+    body <- delayedBody
     params <- delayedParams
-    liftRouteResult $ delayedHandler captures qa params q
+    liftRouteResult $ delayedHandler captures body params req
   )
 
 runAction
-  :: Delayed (Sem r) env (Sem r a)
+  :: Delayed (Sem r) env req (Sem r a)
   -> env
-  -> QueryRequest
-  -> (a -> RouteResult Response.Query)
-  -> Sem r (RouteResult Response.Query)
-runAction action env query k = do
-    res <- runDelayed action env query
+  -> req
+  -> (a -> RouteResult b)
+  -> Sem r (RouteResult b)
+runAction action env req k = do
+    res <- runDelayed action env req
     case res of
       Route a     -> k <$> a
       Fail e      -> pure $ Fail e
       FailFatal e -> pure $ FailFatal e
 
 -- | Fail with the option to recover.
-delayedFail :: Monad m => QueryError -> DelayedM m a
+delayedFail :: Monad m => QueryError -> DelayedM m req a
 delayedFail err = liftRouteResult $ Fail err
 
-addQueryArgs
+addBody
   :: Monad m
-  => Delayed m env (QueryArgs a -> b)
-  -> DelayedM m (QueryArgs a)
-  -> Delayed m env b
-addQueryArgs Delayed{..} new =
+  => Delayed m env req (a -> b)
+  -> DelayedM m req a
+  -> Delayed m env req b
+addBody Delayed{..} newBody =
   Delayed
-    { delayedQueryArgs = (,) <$> delayedQueryArgs <*> new
-    , delayedHandler = \caps (qa, qaNew) p query -> ($ qaNew) <$> delayedHandler caps qa p query
+    { delayedBody = (,) <$> delayedBody <*> newBody
+    , delayedHandler = \caps (body, bodyNew) p req -> ($ bodyNew) <$> delayedHandler caps body p req
     , ..
     }
 
 addCapture
   :: Monad m
-  => Delayed m env (a -> b)
-  -> (captured -> DelayedM m a)
-  -> Delayed m (captured, env) b
+  => Delayed m env req (a -> b)
+  -> (captured -> DelayedM m req a)
+  -> Delayed m (captured, env) req b
 addCapture Delayed{..} new =
   Delayed
     { delayedCaptures = \ (txt, env) -> (,) <$> delayedCaptures env <*> new txt
-    , delayedHandler   = \ (x, v) qa p query -> ($ v) <$> delayedHandler x qa p query
+    , delayedHandler   = \ (x, v) body p query -> ($ v) <$> delayedHandler x body p query
     , ..
     } -- Note [Existential Record Update]
 
 addParameter
   :: Monad m
-  => Delayed m env (a -> b)
-  -> DelayedM m a
-  -> Delayed m env b
+  => Delayed m env req (a -> b)
+  -> DelayedM m req a
+  -> Delayed m env req b
 addParameter Delayed {..} new =
   Delayed
     { delayedParams = (,) <$> delayedParams <*> new
-    , delayedHandler = \caps qa (p, pNew) query -> ($ pNew) <$> delayedHandler caps qa p query
+    , delayedHandler = \caps body (p, pNew) query -> ($ pNew) <$> delayedHandler caps body p query
     , ..
     }
 
-emptyDelayed :: Monad m => RouteResult a -> Delayed m b a
+emptyDelayed :: Monad m => RouteResult a -> Delayed m b req a
 emptyDelayed response =
   let r = pure ()
       qa = pure $ defaultQueryWithData ()
   in Delayed (const r) qa r $ \_ _ _ _ -> response
 
 -- | Gain access to the incoming request.
-withQuery
+withRequest
   :: Monad m
-  => (QueryRequest -> DelayedM m a)
-  -> DelayedM m a
-withQuery f = do
+  => (req -> DelayedM m req a)
+  -> DelayedM m req a
+withRequest f = do
   req <- ask
   f req

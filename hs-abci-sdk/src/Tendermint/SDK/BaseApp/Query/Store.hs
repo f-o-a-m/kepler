@@ -13,7 +13,7 @@ import           Polysemy.Error                      (Error, throw)
 import           Servant.API                         ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp.Errors       (AppError, makeAppError)
 import           Tendermint.SDK.BaseApp.Query.Class
-import           Tendermint.SDK.BaseApp.Query.Router (methodRouter, pathRouter)
+import           Tendermint.SDK.BaseApp.Query.Router (pathRouter)
 import           Tendermint.SDK.BaseApp.Query.Types
 import           Tendermint.SDK.BaseApp.Store        (IsKey (..), RawKey (..),
                                                       RawStore, StoreKey, get)
