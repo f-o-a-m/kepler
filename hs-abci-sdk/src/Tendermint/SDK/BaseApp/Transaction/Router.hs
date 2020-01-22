@@ -1,22 +1,32 @@
 {-# LANGUAGE UndecidableInstances #-}
-module Tendermint.SDK.BaseApp.Transaction.Router where
+module Tendermint.SDK.BaseApp.Transaction.Router
+  ( (:~>)
+  , TypedMessage
+  , HasRouter(..)
+  ) where
 
-import           Control.Monad.IO.Class             (liftIO)
-import qualified Data.ByteArray.Base64String        as Base64
+import           Control.Monad.IO.Class                    (liftIO)
+import qualified Data.ByteArray.Base64String               as Base64
 import           Data.Proxy
-import           Data.String.Conversions            (cs)
-import           GHC.TypeLits                       (KnownSymbol, Symbol,
-                                                     symbolVal)
-import           Polysemy                           (Embed, Member, Sem)
+import           Data.String.Conversions                   (cs)
+import           GHC.TypeLits                              (KnownSymbol, Symbol,
+                                                            symbolVal)
+import           Polysemy                                  (Embed, Member, Sem)
 import           Servant.API
-import qualified Tendermint.SDK.BaseApp.Router      as R
-import           Tendermint.SDK.BaseApp.Transaction (TxEffs, eval,
-                                                     newTransactionContext)
-import           Tendermint.SDK.Codec               (HasCodec (..))
-import           Tendermint.SDK.Types.Effects       ((:&))
-import           Tendermint.SDK.Types.Message       (Msg (..))
-import           Tendermint.SDK.Types.Transaction   (PreRoutedTx (..), Tx (..))
-import           Tendermint.SDK.Types.TxResult      (TxResult)
+import qualified Tendermint.SDK.BaseApp.Router             as R
+import           Tendermint.SDK.BaseApp.Transaction.Effect (TxEffs, eval, newTransactionContext)
+import           Tendermint.SDK.Codec                      (HasCodec (..))
+import           Tendermint.SDK.Types.Effects              ((:&))
+import           Tendermint.SDK.Types.Message              (Msg (..))
+import           Tendermint.SDK.Types.Transaction          (PreRoutedTx (..),
+                                                            Tx (..))
+import           Tendermint.SDK.Types.TxResult             (TxResult)
+
+data msg :~> a
+
+data TypedMessage (t :: Symbol) msg
+
+--------------------------------------------------------------------------------
 
 class HasRouter layout r where
   type RouteT layout r :: *
@@ -41,32 +51,6 @@ instance (HasRouter sublayout r, KnownSymbol path) => HasRouter (path :> sublayo
     R.pathRouter (cs (symbolVal proxyPath)) (route (Proxy :: Proxy sublayout) pr subserver)
     where proxyPath = Proxy :: Proxy path
 
-data TypedMessage (t :: Symbol) a
-
-instance (HasRouter sublayout r, KnownSymbol t, HasCodec msg) => HasRouter (TypedMessage t msg :> sublayout) r where
-
-  type RouteT (TypedMessage t msg :> sublayout) r = PreRoutedTx msg -> RouteT sublayout r
-
-  route _ pr subserver =
-    let f (PreRoutedTx tx@Tx{txMsg}) =
-          if msgType txMsg == messageType
-            then case decode . Base64.toBytes $ msgData txMsg of
-              Left e -> R.delayedFail $
-                R.InvalidRequest ("Failed to parse message of type " <> messageType <> ": " <> e <> ".")
-              Right a -> pure . PreRoutedTx $ tx {txMsg = txMsg {msgData = a}}
-            else R.delayedFail R.PathNotFound
-    in route (Proxy :: Proxy sublayout) pr $
-         R.addBody subserver $ R.withRequest f
-      where messageType = cs $ symbolVal (Proxy :: Proxy t)
-
-data Result a
-
-instance (Member (Embed IO) r, HasCodec a) => HasRouter (Result a) r where
-
-  type RouteT (Result a) r = Sem (TxEffs :& r) a
-
-  route _ _ = methodRouter
-
 methodRouter
   :: HasCodec a
   => Member (Embed IO) r
@@ -78,3 +62,19 @@ methodRouter action = R.leafRouter route'
       ctx <- liftIO $ newTransactionContext tx
       let action' = eval ctx <$> action
       R.runAction action' env tx R.Route
+
+instance ( KnownSymbol t, HasCodec msg, HasCodec a, Member (Embed IO) r) => HasRouter (TypedMessage t msg :~> a) r where
+
+  type RouteT (TypedMessage t msg :~> a) r = PreRoutedTx msg -> Sem (TxEffs :& r) a
+
+  route _ _ subserver =
+    let f (PreRoutedTx tx@Tx{txMsg}) =
+          if msgType txMsg == messageType
+            then case decode . Base64.toBytes $ msgData txMsg of
+              Left e -> R.delayedFail $
+                R.InvalidRequest ("Failed to parse message of type " <> messageType <> ": " <> e <> ".")
+              Right a -> pure . PreRoutedTx $ tx {txMsg = txMsg {msgData = a}}
+            else R.delayedFail R.PathNotFound
+    in methodRouter $
+         R.addBody subserver $ R.withRequest f
+      where messageType = cs $ symbolVal (Proxy :: Proxy t)
