@@ -20,7 +20,7 @@ import           Tendermint.SDK.Codec           (HasCodec (..))
 import           Tendermint.SDK.Crypto          (MakeDigest (..),
                                                  RecoverableSignatureSchema (..),
                                                  SignatureSchema (..))
-import           Tendermint.SDK.Types.Message   (Msg (..), TypedMessage(..))
+import           Tendermint.SDK.Types.Message   (Msg (..), TypedMessage (..))
 
 -- Our standard transaction type parameterized by the signature schema 'alg'
 -- and an underlying message type 'msg'.

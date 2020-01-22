@@ -1,17 +1,18 @@
 module Tendermint.SDK.Types.Message where
 
-import           Control.Lens                 ((#), (&), (.~), (^.), Wrapped(..), iso, view, from)
-import Data.ByteString (ByteString)
-import           Data.String.Conversions      (cs)
-import           Data.Text                    (Text)
-import qualified Data.Validation              as V
-import qualified Proto3.Wire.Decode           as Wire
-import           Tendermint.SDK.Types.Address (Address)
-import Data.Bifunctor (bimap)
+import           Control.Lens                   (Wrapped (..), from, iso, view,
+                                                 ( # ), (&), (.~), (^.))
+import           Data.Bifunctor                 (bimap)
+import           Data.ByteString                (ByteString)
+import qualified Data.ProtoLens                 as P
+import           Data.String.Conversions        (cs)
+import           Data.Text                      (Text)
+import qualified Data.Validation                as V
 import qualified Proto.Types.Transaction        as T
 import qualified Proto.Types.Transaction_Fields as T
-import Tendermint.SDK.Codec (HasCodec(..))
-import qualified Data.ProtoLens                 as P
+import qualified Proto3.Wire.Decode             as Wire
+import           Tendermint.SDK.Codec           (HasCodec (..))
+import           Tendermint.SDK.Types.Address   (Address)
 
 -- | The basic message format embedded in any transaction.
 data Msg msg = Msg
