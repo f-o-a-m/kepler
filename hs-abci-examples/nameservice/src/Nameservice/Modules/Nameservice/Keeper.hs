@@ -53,14 +53,15 @@ eval = mapError BaseApp.makeAppError . evalNameservice
 faucetAccount
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
   => Members AuthEffs r
+  => Members BankEffs r
   => FaucetAccount
   -> Sem r ()
 faucetAccount FaucetAccount{..} = do
-  let coin = Coin faucetAccountCoinId faucetAccountAmount
+  let coin = Coin "nameservice" faucetAccountAmount
   mint faucetAccountTo coin
   let event = Faucetted
         { faucettedAccount = faucetAccountTo
-        , faucettedCoinId = faucetAccountCoinId
+        , faucettedCoinId = "nameservice"
         , faucettedAmount = faucetAccountAmount
         }
   BaseApp.emit event
@@ -91,6 +92,7 @@ setName SetName{..} = do
 deleteName
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
   => Members AuthEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
   => DeleteName
   -> Sem r ()
