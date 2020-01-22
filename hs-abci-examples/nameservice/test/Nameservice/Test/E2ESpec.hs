@@ -17,12 +17,12 @@ import           Nameservice.Test.EventOrphans        ()
 import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Network.Tendermint.Client            as RPC
 import           Servant.API                          ((:<|>) (..), (:>))
-import           Servant.API.Modifiers
 import           Tendermint.SDK.BaseApp.Query         (QueryArgs (..),
                                                        defaultQueryWithData)
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Modules.Auth          (Amount (..), Coin (..),
                                                        CoinId (..))
+import qualified Tendermint.SDK.Modules.Auth          as Auth
 import           Tendermint.SDK.Modules.Bank          (Transfer (..),
                                                        TransferEvent (..))
 import qualified Tendermint.SDK.Modules.Bank          as Bank (Api)
@@ -46,15 +46,12 @@ spec = do
       addr2 = userAddress user2
       faucetAmount = 1000
 
-  beforeAll (do faucetAccount user1 faucetAmount; faucetAccount user2 faucetAmount) $
+  beforeAll (do faucetAccountAndCheckBalance user1 faucetAmount;
+                faucetAccountAndCheckBalance user2 faucetAmount) $
     describe "Nameservice Spec" $ do
       it "Can query /health to make sure the node is alive" $ do
         resp <- runRPC RPC.health
         resp `shouldBe` RPC.ResultHealth
-
-      it "Can query account balances" $ do
-        (Coin _ bal1) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
-        bal1 `shouldBe` 1000
 
       it "Can create a name (success 0)" $ do
         let val = "hello world"
@@ -198,22 +195,25 @@ user2 = makeUser "f65242094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e03
 
 --------------------------------------------------------------------------------
 
-faucetAccount :: User -> Amount -> IO ()
-faucetAccount user@User{userAddress} amount = do
+faucetAccountAndCheckBalance :: User -> Amount -> IO ()
+faucetAccountAndCheckBalance user@User{userAddress} amount = do
   let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress "nameservice" amount)
       faucetEvent = Faucetted userAddress "nameservice" amount
   deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user msg >>= getDeliverTxResponse
   ensureDeliverResponseCode deliverResp 0
   ensureEventLogged deliverResp "Faucetted" faucetEvent
+  putStrLn $ "Attempting to look for: " <> show userAddress
+  (Coin _ bal) <- getQueryResponseSuccess $ getBalance userAddress "nameservice"
+  (Auth.Account coins nonce) <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData userAddress
+  putStrLn $ "FOUND ACCOUNT @ " <> show userAddress <> " w/ " <> "Coins "<> show coins <> " Nonce " <> show nonce
+  bal `shouldBe` amount
 
 getWhois :: QueryArgs Name -> RPC.TendermintM (ClientResponse Whois)
-getBalance
-  :: RequiredArgument '[Required, Strict] Address
-  -> RequiredArgument '[Required, Strict] CoinId
-  -> RPC.TendermintM (ClientResponse Coin)
+getAccount :: QueryArgs Address -> RPC.TendermintM (ClientResponse Auth.Account)
+getBalance :: Address -> CoinId -> RPC.TendermintM (ClientResponse Coin)
 
-apiP :: Proxy ("bank" :> Bank.Api :<|> ("nameservice" :> N.Api))
+apiP :: Proxy ("bank" :> Bank.Api :<|> ("nameservice" :> N.Api :<|> ("auth" :> Auth.Api)))
 apiP = Proxy
 
-(getBalance :<|> getWhois) =
+(getBalance :<|> getWhois :<|> getAccount) =
   genClient (Proxy :: Proxy RPC.TendermintM) apiP def
