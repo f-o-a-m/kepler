@@ -2,6 +2,7 @@ module Tendermint.SDK.Modules.Bank.Keeper where
 
 import           Data.List                         (find)
 import           Data.Maybe                        (fromMaybe)
+import qualified Data.Text                         as T
 import           Polysemy
 import           Polysemy.Error                    (Error, mapError, throw)
 import           Polysemy.Output                   (Output)
@@ -22,16 +23,16 @@ eval = mapError BaseApp.makeAppError
 
 getCoinBalance
   :: Members Auth.AuthEffs r
+  => Members BankEffs r
   => Address
   -> Auth.CoinId
   -> Sem r Auth.Coin
 getCoinBalance address cid = do
   mAcnt <- Auth.getAccount address
-  let noCoins = Auth.Coin cid 0
   case mAcnt of
-    Nothing -> pure noCoins
-    Just (Auth.Account coins _) -> pure . fromMaybe noCoins $
-      find (\(Auth.Coin cid1 _) -> cid == cid1) coins
+    Nothing -> throw . AccountDoesNotExist . T.pack . show $ address
+    Just (Auth.Account coins _) -> pure $
+      fromMaybe (Auth.Coin cid 0) $ find (\(Auth.Coin cid1 _) -> cid == cid1) coins
 
 putCoinBalance
   :: Members Auth.AuthEffs r
@@ -42,18 +43,16 @@ putCoinBalance address coin = do
   mAcnt <- Auth.getAccount address
   case mAcnt of
     Nothing -> do
-      (Auth.Account coins nonce) <- Auth.createAccount address
-      let updatedCoins = replaceCoinValue coin coins
-      Auth.putAccount address (Auth.Account updatedCoins nonce)
+      Auth.putAccount address (Auth.Account [coin] 0)
     Just (Auth.Account coins nonce) -> do
       let updatedCoins = replaceCoinValue coin coins
       Auth.putAccount address (Auth.Account updatedCoins nonce)
   where
-    replaceCoinValue c@(Auth.Coin cid _) =
-      map (\c1@(Auth.Coin cid1 _) ->
-             if cid1 == cid
-             then c
-             else c1)
+    replaceCoinValue c [] = [c]
+    replaceCoinValue c@(Auth.Coin cid _) (c1@(Auth.Coin cid1 _):rest) =
+      if cid1 == cid
+      then c : rest
+      else c1 : (replaceCoinValue c rest)
 
 transfer
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
@@ -98,6 +97,7 @@ burn addr (Auth.Coin cid amount) = do
 
 mint
   :: Members Auth.AuthEffs r
+  => Members BankEffs r
   => Address
   -> Auth.Coin
   -> Sem r ()
