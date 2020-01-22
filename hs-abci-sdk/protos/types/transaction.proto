@@ -8,3 +8,8 @@ message RawTransaction {
   string route = 4;
   uint64 nonce = 5; 
 }
+
+message TypedMessage {
+  string type = 1;
+  bytes data = 2;
+}

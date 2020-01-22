@@ -20,7 +20,8 @@ import           Tendermint.SDK.Codec           (HasCodec (..))
 import           Tendermint.SDK.Crypto          (MakeDigest (..),
                                                  RecoverableSignatureSchema (..),
                                                  SignatureSchema (..))
-import           Tendermint.SDK.Types.Message   (Msg (..))
+import           Tendermint.SDK.Types.Message   (Msg (..), TypedMessage(..))
+
 -- Our standard transaction type parameterized by the signature schema 'alg'
 -- and an underlying message type 'msg'.
 data Tx alg msg = Tx
@@ -61,7 +62,7 @@ instance Wrapped RawTransaction where
       P.defMessage
         & T.data' .~ rawTransactionData
         & T.gas .~ rawTransactionGas
-        & T.route .~ cs rawTransactionRoute
+        & T.route .~ rawTransactionRoute
         & T.signature .~ rawTransactionSignature
         & T.nonce .~ rawTransactionNonce
     f message = RawTransaction
@@ -107,10 +108,12 @@ parseTx p bs = do
   let txForSigning = rawTx {rawTransactionSignature = ""}
       signBytes = makeDigest txForSigning
   signerPubKey <- note "Signature recovery failed." $ recover p recSig signBytes
+  TypedMessage{..} <- decode rawTransactionData
   return $ Tx
     { txMsg = Msg
-              { msgData = rawTransactionData
+              { msgData = typedMsgData
               , msgAuthor = addressFromPubKey p signerPubKey
+              , msgType = typedMsgType
               }
     , txRoute = cs rawTransactionRoute
     , txGas = rawTransactionGas
