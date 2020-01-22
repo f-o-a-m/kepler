@@ -3,10 +3,9 @@
 module Tendermint.SDK.Modules.Bank.Types where
 
 import           Data.Aeson                   as A
--- import           Data.Bifunctor               (bimap)
 import qualified Data.ByteArray.HexString     as Hex
-import           Data.String.Conversions      (cs)
-import           Data.Text                    (Text)
+import           Data.String                  (fromString)
+import           Data.Text                    (Text, unpack)
 import           GHC.Generics                 (Generic)
 import           Proto3.Suite                 (HasDefault (..), MessageField,
                                                Primitive (..))
@@ -16,7 +15,6 @@ import qualified Proto3.Wire.Encode           as Encode
 import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..),
                                                defaultSDKAesonOptions)
-import qualified Tendermint.SDK.Codec         as HasCodec
 import qualified Tendermint.SDK.Modules.Auth  as Auth
 import           Tendermint.SDK.Types.Address (Address (..), addressFromBytes,
                                                addressToBytes)
@@ -38,20 +36,20 @@ instance HasDefault Hex.HexString
 instance HasDefault Address
 instance MessageField Address
 instance HasCodec Address where
-  -- there's no way to fail here
   decode = Right . addressFromBytes
   encode = addressToBytes
 instance ToHttpApiData Address where
-  toQueryParam = cs . HasCodec.encode
+  toQueryParam (Address aHex) = Hex.format aHex
 instance FromHttpApiData Address where
-  parseQueryParam = HasCodec.decode . cs
+  parseQueryParam = Right . Address . fromString . unpack
 
 --------------------------------------------------------------------------------
 -- Exceptions
 --------------------------------------------------------------------------------
 
 data BankError =
-    InsufficientFunds Text
+      InsufficientFunds Text
+    | AccountDoesNotExist Text
 
 instance BaseApp.IsAppError BankError where
     makeAppError (InsufficientFunds msg) =
@@ -59,6 +57,12 @@ instance BaseApp.IsAppError BankError where
         { appErrorCode = 1
         , appErrorCodespace = "bank"
         , appErrorMessage = msg
+        }
+    makeAppError (AccountDoesNotExist msg) =
+      BaseApp.AppError
+        { appErrorCode = 2
+        , appErrorCodespace = "bank"
+        , appErrorMessage = "Account does not exist: " <> msg
         }
 
 --------------------------------------------------------------------------------
