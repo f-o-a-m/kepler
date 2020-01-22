@@ -2,32 +2,33 @@
 
 module Tendermint.SDK.BaseApp.Query.Store where
 
-import           Control.Lens                       (to, (^.))
-import           Data.ByteArray.Base64String        (fromBytes)
+import           Control.Lens                        (to, (^.))
+import           Data.ByteArray.Base64String         (fromBytes)
 import           Data.Proxy
-import           Data.String.Conversions            (cs)
-import           GHC.TypeLits                       (KnownSymbol, Symbol,
-                                                     symbolVal)
-import           Polysemy                           (Members, Sem)
-import           Polysemy.Error                     (Error, throw)
-import           Servant.API                        ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp.Errors      (AppError, makeAppError)
-import           Tendermint.SDK.BaseApp.Query.Class
-import           Tendermint.SDK.BaseApp.Query.Types (Leaf, QA, QueryArgs (..),
-                                                     QueryResult (..),
-                                                     Queryable (..))
-import           Tendermint.SDK.BaseApp.Router      (RouterError (..),
-                                                     pathRouter)
-import           Tendermint.SDK.BaseApp.Store       (IsKey (..), RawKey (..),
-                                                     RawStore, StoreKey, get)
-import           Tendermint.SDK.Codec               (HasCodec)
+import           Data.String.Conversions             (cs)
+import           GHC.TypeLits                        (KnownSymbol, Symbol,
+                                                      symbolVal)
+import           Polysemy                            (Members, Sem)
+import           Polysemy.Error                      (Error, throw)
+import           Servant.API                         ((:<|>) (..), (:>))
+import           Tendermint.SDK.BaseApp.Errors       (AppError, makeAppError)
+import           Tendermint.SDK.BaseApp.Query.Router (HasQueryRouter (..),
+                                                      methodRouter)
+import           Tendermint.SDK.BaseApp.Query.Types  (Leaf, QA, QueryArgs (..),
+                                                      QueryResult (..),
+                                                      Queryable (..))
+import           Tendermint.SDK.BaseApp.Router       (RouterError (..),
+                                                      pathRouter)
+import           Tendermint.SDK.BaseApp.Store        (IsKey (..), RawKey (..),
+                                                      RawStore, StoreKey, get)
+import           Tendermint.SDK.Codec                (HasCodec)
 
 data StoreLeaf a
 
-instance (Queryable a, KnownSymbol (Name a)) => HasRouter (StoreLeaf a) r where
+instance (Queryable a, KnownSymbol (Name a)) => HasQueryRouter (StoreLeaf a) r where
 
-   type RouteT (StoreLeaf a) r = Sem r (QueryResult a)
-   route _ _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter
+   type RouteQ (StoreLeaf a) r = Sem r (QueryResult a)
+   routeQ _ _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter
      where proxyPath = Proxy :: Proxy (Name a)
 
 class StoreQueryHandler a (ns :: Symbol) h where
@@ -56,7 +57,7 @@ instance
 
 class StoreQueryHandlers (kvs :: [*]) (ns :: Symbol) r where
     type QueryApi kvs :: *
-    storeQueryHandlers :: Proxy kvs -> StoreKey ns -> Proxy r -> RouteT (QueryApi kvs) r
+    storeQueryHandlers :: Proxy kvs -> StoreKey ns -> Proxy r -> RouteQ (QueryApi kvs) r
 
 instance
     ( IsKey k ns

@@ -5,27 +5,31 @@ module Tendermint.SDK.BaseApp.Transaction.Effect
   , eval
   ) where
 
-import           Control.Lens                     ((&), (.~))
-import           Control.Monad.IO.Class           (liftIO)
-import qualified Data.ByteArray.Base64String      as Base64
-import           Data.Default.Class               (def)
-import           Data.IORef                       (IORef, newIORef, readIORef)
-import           Polysemy                         (Embed, Member, Sem,
-                                                   raiseUnder)
-import           Polysemy.Error                   (Error, runError)
-import           Polysemy.Output                  (Output,
-                                                   runOutputMonoidAssocR)
-import           Polysemy.State                   (State, runStateIORef)
-import           Tendermint.SDK.BaseApp.Errors    (AppError, txResultAppError)
-import qualified Tendermint.SDK.BaseApp.Events    as E
-import qualified Tendermint.SDK.BaseApp.Gas       as G
-import           Tendermint.SDK.Codec             (HasCodec (encode))
-import           Tendermint.SDK.Types.Effects     ((:&))
-import           Tendermint.SDK.Types.Transaction (PreRoutedTx (..), Tx (..))
-import           Tendermint.SDK.Types.TxResult    (TxResult, txResultData,
-                                                   txResultEvents,
-                                                   txResultGasUsed,
-                                                   txResultGasWanted)
+import           Control.Lens                             ((&), (.~))
+import           Control.Monad.IO.Class                   (liftIO)
+import qualified Data.ByteArray.Base64String              as Base64
+import           Data.Default.Class                       (def)
+import           Data.IORef                               (IORef, newIORef,
+                                                           readIORef)
+import           Polysemy                                 (Embed, Member, Sem,
+                                                           raiseUnder)
+import           Polysemy.Error                           (Error, runError)
+import           Polysemy.Output                          (Output,
+                                                           runOutputMonoidAssocR)
+import           Polysemy.State                           (State, runStateIORef)
+import           Tendermint.SDK.BaseApp.Errors            (AppError,
+                                                           txResultAppError)
+import qualified Tendermint.SDK.BaseApp.Events            as E
+import qualified Tendermint.SDK.BaseApp.Gas               as G
+import           Tendermint.SDK.BaseApp.Transaction.Types (PreRoutedTx (..),
+                                                           Tx (..))
+import           Tendermint.SDK.Codec                     (HasCodec (encode))
+import           Tendermint.SDK.Types.Effects             ((:&))
+import           Tendermint.SDK.Types.TxResult            (TxResult,
+                                                           txResultData,
+                                                           txResultEvents,
+                                                           txResultGasUsed,
+                                                           txResultGasWanted)
 
 type TxEffs =
     [ Output E.Event

@@ -122,9 +122,3 @@ parseTx p bs = do
     , txSigner = signerPubKey
     , txNonce = rawTransactionNonce
     }
-
-data PreRoutedTx msg where
-  PreRoutedTx :: Tx alg msg -> PreRoutedTx msg
-
-instance Functor PreRoutedTx where
-  fmap f (PreRoutedTx tx) = PreRoutedTx $ fmap f tx
