@@ -1,47 +1,25 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.Application.Module
   ( Module(..)
-  , voidModuleMessages
-  , defaultTxChecker
   , Modules(..)
-  , QueryRouter(Api)
-  , queryRouter
-  , RoutingContext(..)
-  , Router(..)
-  , TxRouter
-  , txRouter
-  , voidRouter
+  , AppQueryRouter(..)
+  , appQueryRouter
+  , AppTxRouter(..)
+  , appTxRouter
   , Eval(..)
   ) where
 
-import           Control.Monad.IO.Class             (liftIO)
-import           Data.ByteString                    (ByteString)
 import           Data.Proxy
-import           Data.String.Conversions            (cs)
-import qualified Data.Validation                    as V
-import           Data.Void
-import           GHC.TypeLits                       (KnownSymbol, Symbol,
-                                                     symbolVal)
-import           Polysemy                           (EffectRow, Embed, Member,
-                                                     Members, Sem)
-import           Polysemy.Error                     (Error)
+import           GHC.TypeLits                       (Symbol)
+import           Polysemy                           (EffectRow, Members, Sem)
 import           Servant.API                        ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp             ((:&), AppError, BaseApp,
-                                                     BaseAppEffs, SDKError (..),
-                                                     throwSDKError)
+import           Tendermint.SDK.BaseApp             ((:&), BaseApp, BaseAppEffs)
 import qualified Tendermint.SDK.BaseApp.Query       as Q
 import qualified Tendermint.SDK.BaseApp.Transaction as T
-import           Tendermint.SDK.Codec               (HasCodec (..))
-import           Tendermint.SDK.Types.Message       (Msg (..),
-                                                     ValidateMessage (..),
-                                                     formatMessageSemanticError)
-import           Tendermint.SDK.Types.Transaction   (PreRoutedTx (..), Tx (..))
-import           Tendermint.SDK.Types.TxResult      (TxResult)
 
-data Module (name :: Symbol) h q (s :: EffectRow) (r :: EffectRow) = Module
-  { moduleTxDeliverer :: T.RouteTx h r 'DeliverTx
-  , moduleTxChecker   :: T.RouteTx h r 'CheckTx
-  , moduleQueryServer :: Q.RouteQ api r
+data Module (name :: Symbol) (h :: *) (q :: *) (s :: EffectRow) (r :: EffectRow) = Module
+  { moduleTxServer :: forall c. Proxy (c :: T.RouteContext) -> T.RouteTx h r c
+  , moduleQueryServer :: Q.RouteQ q r
   , moduleEval :: forall deps. Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
   }
 
@@ -55,45 +33,46 @@ infixr 5 :+
 
 appQueryRouter
   :: AppQueryRouter ms r
-  => Q.HasRouter (Api ms) r
+  => Q.HasQueryRouter (QApi ms) r
   => Modules ms r
   -> Q.QueryApplication (Sem r)
 appQueryRouter (ms :: Modules ms r) =
-  Q.serve (Proxy :: Proxy (QApi ms)) (Proxy :: Proxy r) (routeAppQuery ms)
+  Q.serveQueryApplication (Proxy :: Proxy (QApi ms)) (Proxy :: Proxy r) (routeAppQuery ms)
 
 class AppQueryRouter ms r where
     type QApi ms :: *
-    routeAppQuery :: Modules ms r -> Q.RouteT (QApi ms) r
+    routeAppQuery :: Modules ms r -> Q.RouteQ (QApi ms) r
 
 instance AppQueryRouter '[Module name h q s r] r where
     type QApi '[Module name h q s r] = name :> q
     routeAppQuery (m :+ NilModules) = moduleQueryServer m
 
-instance AppQueryRouter (m' ': ms) r => QueryRouter (Module name h q s r ': m' ': ms) r where
+instance AppQueryRouter (m' ': ms) r => AppQueryRouter (Module name h q s r ': m' ': ms) r where
     type QApi (Module name h q s r ': m' ': ms) = (name :> q) :<|> QApi (m' ': ms)
     routeAppQuery (m :+ rest) = moduleQueryServer m :<|> routeAppQuery rest
 
 --------------------------------------------------------------------------------
 
-txRouter
-  :: AppTxRouter ms r
-  => T.HasTxRouter (Api ms) r
+appTxRouter
+  :: AppTxRouter ms r c
+  => T.HasTxRouter (TApi ms) r c
   => Modules ms r
-  -> Proxy ( c :: RouteContext)
-  -> Q.QueryApplication (Sem r)
-txRouter (ms :: Modules ms r) = Q.serve (Proxy :: Proxy (Api ms)) (Proxy :: Proxy r) (routeQuery ms)
+  -> Proxy ( c :: T.RouteContext)
+  -> T.TransactionApplication (Sem r)
+appTxRouter (ms :: Modules ms r) pc =
+  T.serveTxApplication (Proxy :: Proxy (TApi ms)) (Proxy :: Proxy r) pc (routeAppTx pc ms)
 
-class AppTxRouter ms r c where
-    type Api ms :: *
-    routeAppTx :: Modules ms r -> T.RouteTx (Api ms) r c
+class AppTxRouter ms r (c :: T.RouteContext) where
+    type TApi ms :: *
+    routeAppTx :: Proxy c -> Modules ms r -> T.RouteTx (TApi ms) r c
 
-instance QueryRouter '[Module name msg val api s r] r where
-    type Api '[Module name msg val api s r] = name :> api
-    routeQuery (m :+ NilModules) = moduleQueryServer m
+instance AppTxRouter '[Module name h q s r] r c where
+    type TApi '[Module name h q s r] = name :> h
+    routeAppTx pc (m :+ NilModules) = moduleTxServer m pc
 
-instance QueryRouter (m' ': ms) r => QueryRouter (Module name msg val api s r ': m' ': ms) r where
-    type Api (Module name msg val api s r ': m' ': ms) = (name :> api) :<|> Api (m' ': ms)
-    routeQuery (m :+ rest) = moduleQueryServer m :<|> routeQuery rest
+instance AppTxRouter (m' ': ms) r c => AppTxRouter (Module name h q s r ': m' ': ms) r c where
+    type TApi (Module name h q s r ': m' ': ms) = (name :> h) :<|> TApi (m' ': ms)
+    routeAppTx pc (m :+ rest) = moduleTxServer m pc :<|> routeAppTx pc rest
 
 --------------------------------------------------------------------------------
 
@@ -103,10 +82,10 @@ class Eval ms core where
        -> forall a. Sem (Effs ms core) a
        -> Sem (BaseApp core) a
 
-instance Eval '[Module name msg val api s r] core where
-  type Effs '[Module name msg val api s r] core = s :& BaseApp core
+instance Eval '[Module name h q s r] core where
+  type Effs '[Module name h q s r] core = s :& BaseApp core
   eval (m :+ NilModules) = moduleEval m
 
-instance (Members BaseAppEffs (Effs (m' ': ms) core),  Eval (m' ': ms) core) => Eval (Module name msg val api s r ': m' ': ms) core where
-  type Effs (Module name msg val api s r ': m' ': ms) core = s :& (Effs (m': ms)) core
+instance (Members BaseAppEffs (Effs (m' ': ms) core),  Eval (m' ': ms) core) => Eval (Module name h q s r ': m' ': ms) core where
+  type Effs (Module name h q s r ': m' ': ms) core = s :& (Effs (m': ms)) core
   eval (m :+ rest) = eval rest . moduleEval m

@@ -69,6 +69,8 @@ module Tendermint.SDK.BaseApp
   , TransactionApplication
   , PreRoutedTx(..)
   , TxEffs
+  , EmptyServer
+  , emptyServer
   , serveTxApplication
 
   -- * Query

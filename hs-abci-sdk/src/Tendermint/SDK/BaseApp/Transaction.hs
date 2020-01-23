@@ -1,12 +1,11 @@
 module Tendermint.SDK.BaseApp.Transaction
-  ( TransactionApplication
-  , serveTxApplication
+  ( serveTxApplication
   , serveDefaultTxChecker
     -- * Re-Exports
-  , PreRoutedTx(..)
+  , module Tendermint.SDK.BaseApp.Transaction.Types
   , HasTxRouter(..)
-  , (:~>)
-  , TypedMessage
+  , EmptyServer
+  , emptyServer
   , TxEffs
   ) where
 
@@ -17,7 +16,7 @@ import           Tendermint.SDK.BaseApp.Router              (RouteResult (..),
                                                              runRouter)
 import           Tendermint.SDK.BaseApp.Transaction.Checker (DefaultCheckTx (..))
 import           Tendermint.SDK.BaseApp.Transaction.Effect  (TxEffs)
-import           Tendermint.SDK.BaseApp.Transaction.Router  (HasTxRouter (..))
+import           Tendermint.SDK.BaseApp.Transaction.Router
 import           Tendermint.SDK.BaseApp.Transaction.Types
 
 
