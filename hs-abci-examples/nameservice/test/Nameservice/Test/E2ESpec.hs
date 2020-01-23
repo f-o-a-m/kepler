@@ -113,25 +113,6 @@ spec = do
         foundWhois <- getQueryResponseSuccess $ getWhois queryReq
         foundWhois `shouldBe` Whois "hello (again) world" addr2 purchaseAmount
 
-      -- @NOTE: this is possibly a problem with the go application too
-      -- https://cosmos.network/docs/tutorial/buy-name.html#msg
-      it "Can buy self-owned names and make a profit (success 0)" $ do
-        -- check balance before
-        (Coin _ beforeBuyAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
-        -- buy
-        let val = "hello (again) world"
-            msg = TypedMessage "BuyName" (encode $ BuyName 500 satoshi val addr2)
-            claimedLog = NameClaimed addr2 satoshi val 500
-        deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user2 msg >>= getDeliverTxResponse
-        ensureDeliverResponseCode deliverResp 0
-        ensureEventLogged deliverResp "NameClaimed" claimedLog
-        -- check balance after
-        (Coin _ afterBuyAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
-        -- owner/buyer still profits
-        putStrLn $ "AFTER BUY: " ++ show afterBuyAmount
-        putStrLn $ "BEFORE BUY: " ++ show beforeBuyAmount
-        afterBuyAmount `shouldSatisfy` (> beforeBuyAmount)
-
       it "Can fail to buy a name (failure 1)" $ do
         -- try to buy at a lower price
         let msg = TypedMessage "BuyName" (encode $ BuyName 0 satoshi "hello (again) world" addr1)
