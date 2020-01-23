@@ -34,7 +34,7 @@ spec = do
     --  foundCount `shouldBe` SS.Count 0
 
     it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
-      let txMsg = SS.UpdateCount $ SS.UpdateCountTx "irakli" 4
+      let txMsg = SS.UpdateCountTx "irakli" 4
       tx <- mkSignedRawTransactionWithRoute "simple_storage" user1 txMsg
       let txReq = RPC.RequestBroadcastTxCommit
                     { RPC.requestBroadcastTxCommitTx = Base64.fromBytes . encode $ tx
@@ -56,7 +56,7 @@ spec = do
 
 getCount :: QueryArgs SS.CountKey -> RPC.TendermintM (ClientResponse SS.Count)
 getCount =
-  let apiP = Proxy :: Proxy ("simple_storage" :> SS.Api)
+  let apiP = Proxy :: Proxy ("simple_storage" :> SS.QueryApi)
   in genClient (Proxy :: Proxy RPC.TendermintM) apiP def
 
 user1 :: User

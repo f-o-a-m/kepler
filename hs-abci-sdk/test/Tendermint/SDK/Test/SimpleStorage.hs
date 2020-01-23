@@ -1,9 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Tendermint.SDK.Test.SimpleStorage
-  ( SimpleStorageMessage(..)
-  , SimpleStorageM
+  ( SimpleStorageM
   , SimpleStorage
+  , QueryApi
+  , MessageApi
   , UpdateCountTx(..)
   , simpleStorageModule
   , evalToIO
@@ -23,6 +24,7 @@ import qualified Data.Serialize                   as Serialize
 import           Data.Serialize.Text              ()
 import qualified Data.Serialize.Text              ()
 import           Data.String.Conversions          (cs)
+import           Data.Validation                  (Validation (..))
 import           GHC.Generics                     (Generic)
 import           Polysemy
 import           Polysemy.Error                   (Error)
@@ -31,7 +33,8 @@ import           Tendermint.SDK.Application       (Module (..))
 import qualified Tendermint.SDK.BaseApp           as BaseApp
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Types.Message     (Msg (..))
-import           Tendermint.SDK.Types.Transaction (RoutingTx (..), Tx (..))
+import           Tendermint.SDK.Types.Message     (ValidateMessage (..))
+import           Tendermint.SDK.Types.Transaction (Tx (..))
 
 --------------------------------------------------------------------------------
 -- Types
@@ -63,12 +66,18 @@ instance BaseApp.Queryable Count where
 -- Message Types
 --------------------------------------------------------------------------------
 
-data SimpleStorageMessage =
-  UpdateCount UpdateCountTx
-
 data UpdateCountTx = UpdateCountTx
   { updateCountTxCount    :: Int32
   } deriving (Show, Eq, Generic)
+
+instance Serialize.Serialize UpdateCountTx
+
+instance HasCodec UpdateCountTx where
+  encode = Serialize.encode
+  decode = first cs . Serialize.decode
+
+instance ValidateMessage UpdateCountTx where
+  validateMessage _ = Success ()
 
 --------------------------------------------------------------------------------
 -- Keeper
@@ -104,16 +113,23 @@ eval = interpret (\case
 -- Router
 --------------------------------------------------------------------------------
 
-router
+type MessageApi =
+  BaseApp.TypedMessage "update_count" UpdateCountTx BaseApp.:~> BaseApp.Return ()
+
+messageHandlers
+  :: Member SimpleStorage r
+  => BaseApp.RouteTx MessageApi r 'BaseApp.DeliverTx
+messageHandlers = updateCountH
+
+updateCountH
   :: Member SimpleStorage r
   => Members BaseApp.TxEffs r
-  => RoutingTx SimpleStorageMessage
+  => BaseApp.RoutingTx UpdateCountTx
   -> Sem r ()
-router (RoutingTx Tx{txMsg}) =
+updateCountH (BaseApp.RoutingTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
-  in case msgData of
-       UpdateCount UpdateCountTx{updateCountTxCount} ->
-          updateCount (Count updateCountTxCount)
+      UpdateCountTx{updateCountTxCount} = msgData
+  in updateCount (Count updateCountTxCount)
 
 --------------------------------------------------------------------------------
 -- Server
@@ -144,12 +160,12 @@ getMultipliedCount subtractor multiplier = do
     , queryResultHeight = 0
     }
 
-type Api = GetMultipliedCount :<|> BaseApp.QueryApi CountStoreContents
+type QueryApi = GetMultipliedCount :<|> BaseApp.QueryApi CountStoreContents
 
 server
   :: forall r.
      Members [SimpleStorage, BaseApp.RawStore, Error BaseApp.AppError] r
-  => BaseApp.RouteT Api r
+  => BaseApp.RouteQ QueryApi r
 server =
   let storeHandlers = BaseApp.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
         storeKey (Proxy :: Proxy r)
@@ -160,15 +176,15 @@ server =
 --------------------------------------------------------------------------------
 
 type SimpleStorageM r =
-  Module "simple_storage" SimpleStorageMessage () Api SimpleStorageEffs r
+  Module "simple_storage" MessageApi QueryApi SimpleStorageEffs r
 
 simpleStorageModule
   :: Member SimpleStorage r
   => Members BaseApp.BaseAppEffs r
   => SimpleStorageM r
 simpleStorageModule = Module
-  { moduleTxDeliverer = router
-  , moduleTxChecker = router
+  { moduleTxDeliverer = messageHandlers
+  , moduleTxChecker = BaseApp.defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
   , moduleQueryServer = server
   , moduleEval = eval
   }

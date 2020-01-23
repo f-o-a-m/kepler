@@ -11,13 +11,13 @@ import           Nameservice.Modules.Nameservice      (BuyName (..),
                                                        NameDeleted (..),
                                                        NameRemapped (..),
                                                        SetName (..), Whois (..))
-import qualified Nameservice.Modules.Nameservice      as N (Api)
+import qualified Nameservice.Modules.Nameservice      as N (QueryApi)
 import           Nameservice.Modules.Token            (Amount (..),
                                                        FaucetAccount (..),
                                                        Faucetted (..),
                                                        Transfer (..),
                                                        TransferEvent (..))
-import qualified Nameservice.Modules.Token            as T (Api)
+import qualified Nameservice.Modules.Token            as T (QueryApi)
 import           Nameservice.Modules.TypedMessage     (TypedMessage (..))
 import           Nameservice.Test.EventOrphans        ()
 import qualified Network.ABCI.Types.Messages.Response as Response
@@ -207,7 +207,7 @@ faucetAccount user@User{userAddress} amount = do
 getWhois :: QueryArgs Name -> RPC.TendermintM (ClientResponse Whois)
 getBalance :: QueryArgs Address -> RPC.TendermintM (ClientResponse Amount)
 
-apiP :: Proxy ("token" :> T.Api :<|> ("nameservice" :> N.Api))
+apiP :: Proxy ("token" :> T.QueryApi :<|> ("nameservice" :> N.QueryApi))
 apiP = Proxy
 
 (getBalance :<|> getWhois) =
