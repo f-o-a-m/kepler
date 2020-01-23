@@ -18,9 +18,9 @@ import           Tendermint.SDK.Types.Message       (Msg (..))
 import           Tendermint.SDK.Types.Transaction   (Tx (..))
 
 type MessageApi =
-       TypedMessage "Burn" Burn :~> Return ()
-  :<|> TypedMessage "Transfer" Transfer :~> Return ()
-  :<|> TypedMessage "FaucetAccount" FaucetAccount :~> Return ()
+       TypedMessage Burn :~> Return ()
+  :<|> TypedMessage Transfer :~> Return ()
+  :<|> TypedMessage FaucetAccount :~> Return ()
 
 messageHandlers
   :: Members TokenEffs r

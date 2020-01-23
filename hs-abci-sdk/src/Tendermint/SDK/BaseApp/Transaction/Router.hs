@@ -19,7 +19,8 @@ import           Tendermint.SDK.BaseApp.Transaction.Modifier
 import           Tendermint.SDK.BaseApp.Transaction.Types
 import           Tendermint.SDK.Codec                        (HasCodec (..))
 import           Tendermint.SDK.Types.Effects                ((:&))
-import           Tendermint.SDK.Types.Message                (Msg (..))
+import           Tendermint.SDK.Types.Message                (HasMessageType (..),
+                                                              Msg (..))
 import           Tendermint.SDK.Types.TxResult               (TxResult)
 
 --------------------------------------------------------------------------------
@@ -62,21 +63,21 @@ methodRouter action = R.leafRouter route'
       let action' = eval ctx <$> action
       R.runAction action' env tx R.Route
 
-instance ( KnownSymbol t, HasCodec msg, HasCodec (OnCheckReturn c oc a), Member (Embed IO) r) => HasTxRouter (TypedMessage t msg :~> Return' oc a) r c where
+instance ( HasMessageType msg, HasCodec msg, HasCodec (OnCheckReturn c oc a), Member (Embed IO) r) => HasTxRouter (TypedMessage msg :~> Return' oc a) r c where
 
-  type RouteTx (TypedMessage t msg :~> Return' oc a) r c = RoutingTx msg -> Sem (TxEffs :& r) (OnCheckReturn c oc a)
+  type RouteTx (TypedMessage msg :~> Return' oc a) r c = RoutingTx msg -> Sem (TxEffs :& r) (OnCheckReturn c oc a)
 
   routeTx _ _ _ subserver =
     let f (RoutingTx tx@Tx{txMsg}) =
-          if msgType txMsg == messageType
+          if msgType txMsg == mt
             then case decode $ msgData txMsg of
               Left e -> R.delayedFail $
-                R.InvalidRequest ("Failed to parse message of type " <> messageType <> ": " <> e <> ".")
+                R.InvalidRequest ("Failed to parse message of type " <> mt <> ": " <> e <> ".")
               Right a -> pure . RoutingTx $ tx {txMsg = txMsg {msgData = a}}
             else R.delayedFail R.PathNotFound
     in methodRouter $
          R.addBody subserver $ R.withRequest f
-      where messageType = cs $ symbolVal (Proxy :: Proxy t)
+      where mt = messageType (Proxy :: Proxy msg)
 
 emptyServer :: RouteTx EmptyServer r c
 emptyServer = EmptyServer

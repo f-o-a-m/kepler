@@ -6,14 +6,13 @@ module Tendermint.SDK.BaseApp.Transaction.Types
 
 import           Control.Lens                     (lens)
 import           Data.ByteString                  (ByteString)
-import           GHC.TypeLits                     (Symbol)
 import           Tendermint.SDK.BaseApp.Router    (HasPath (..))
 import           Tendermint.SDK.Types.Transaction (Tx (..))
 import           Tendermint.SDK.Types.TxResult    (TxResult)
 
 data msg :~> a
 
-data TypedMessage (t :: Symbol) msg
+data TypedMessage msg
 
 data OnCheck = OnCheckEval | OnCheckUnit
 

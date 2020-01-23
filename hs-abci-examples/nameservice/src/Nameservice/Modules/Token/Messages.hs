@@ -14,7 +14,8 @@ import           Proto3.Suite                    (Message, Named,
                                                   toLazyByteString)
 import           Tendermint.SDK.Codec            (HasCodec (..))
 import           Tendermint.SDK.Types.Address    (Address)
-import           Tendermint.SDK.Types.Message    (ValidateMessage (..),
+import           Tendermint.SDK.Types.Message    (HasMessageType (..),
+                                                  ValidateMessage (..),
                                                   coerceProto3Error,
                                                   formatMessageParseError)
 
@@ -25,6 +26,9 @@ data FaucetAccount = FaucetAccount
 
 instance Message FaucetAccount
 instance Named FaucetAccount
+
+instance HasMessageType FaucetAccount where
+  messageType _ = "FaucetAccount"
 
 instance HasCodec FaucetAccount where
   encode = cs . toLazyByteString
@@ -44,6 +48,9 @@ data Transfer = Transfer
 instance Message Transfer
 instance Named Transfer
 
+instance HasMessageType Transfer where
+  messageType _ = "Transfer"
+
 instance HasCodec Transfer where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
@@ -60,6 +67,9 @@ data Burn = Burn
 
 instance Message Burn
 instance Named Burn
+
+instance HasMessageType Burn where
+  messageType _ = "Burn"
 
 instance HasCodec Burn where
   encode = cs . toLazyByteString

@@ -21,9 +21,9 @@ import           Tendermint.SDK.Types.Transaction         (Tx (..))
 
 
 type MessageApi =
-       TypedMessage "BuyName" BuyName :~> Return ()
-  :<|> TypedMessage "SetName" SetName :~> Return ()
-  :<|> TypedMessage "DeleteName" DeleteName :~> Return ()
+       TypedMessage BuyName :~> Return ()
+  :<|> TypedMessage SetName :~> Return ()
+  :<|> TypedMessage DeleteName :~> Return ()
 
 messageHandlers
   :: Members BaseAppEffs r

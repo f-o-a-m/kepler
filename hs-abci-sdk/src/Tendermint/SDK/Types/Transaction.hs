@@ -2,7 +2,7 @@ module Tendermint.SDK.Types.Transaction where
 
 import           Control.Error                  (note)
 import           Control.Lens                   (Wrapped (..), from, iso, view,
-                                                 (&), (.~), (^.))
+                                                 (&), (.~), (^.), _Unwrapped')
 import           Crypto.Hash                    (Digest, hashWith)
 import           Crypto.Hash.Algorithms         (SHA256 (..))
 import           Data.Bifunctor                 (bimap)
@@ -44,7 +44,7 @@ instance Functor (Tx alg) where
 
 -- | Raw transaction type coming in over the wire
 data RawTransaction = RawTransaction
-  { rawTransactionData      :: ByteString
+  { rawTransactionData      :: TypedMessage
   -- ^ the encoded message via protobuf encoding
   , rawTransactionGas       :: Int64
   , rawTransactionRoute     :: Text
@@ -60,13 +60,13 @@ instance Wrapped RawTransaction where
    where
     t RawTransaction {..} =
       P.defMessage
-        & T.data' .~ rawTransactionData
+        & T.data' .~ (rawTransactionData ^. _Wrapped')
         & T.gas .~ rawTransactionGas
         & T.route .~ rawTransactionRoute
         & T.signature .~ rawTransactionSignature
         & T.nonce .~ rawTransactionNonce
     f message = RawTransaction
-      { rawTransactionData      = message ^. T.data'
+      { rawTransactionData      = message ^. T.data' . _Unwrapped'
       , rawTransactionGas = message ^. T.gas
       , rawTransactionRoute = message ^. T.route
       , rawTransactionSignature = message ^. T.signature
@@ -108,12 +108,11 @@ parseTx p bs = do
   let txForSigning = rawTx {rawTransactionSignature = ""}
       signBytes = makeDigest txForSigning
   signerPubKey <- note "Signature recovery failed." $ recover p recSig signBytes
-  TypedMessage{..} <- decode rawTransactionData
   return $ Tx
     { txMsg = Msg
-              { msgData = typedMsgData
+              { msgData = typedMsgData rawTransactionData
               , msgAuthor = addressFromPubKey p signerPubKey
-              , msgType = typedMsgType
+              , msgType = typedMsgType rawTransactionData
               }
     , txRoute = cs rawTransactionRoute
     , txGas = rawTransactionGas

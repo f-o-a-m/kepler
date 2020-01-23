@@ -16,7 +16,8 @@ import           Proto3.Suite                          (Message, Named,
                                                         toLazyByteString)
 import           Tendermint.SDK.Codec                  (HasCodec (..))
 import           Tendermint.SDK.Types.Address          (Address (..))
-import           Tendermint.SDK.Types.Message          (Msg (..),
+import           Tendermint.SDK.Types.Message          (HasMessageType (..),
+                                                        Msg (..),
                                                         ValidateMessage (..),
                                                         coerceProto3Error,
                                                         formatMessageParseError,
@@ -33,6 +34,9 @@ data SetName = SetName
 
 instance Message SetName
 instance Named SetName
+
+instance HasMessageType SetName where
+  messageType _ = "SetName"
 
 instance HasCodec SetName where
   encode = cs . toLazyByteString
@@ -59,6 +63,9 @@ data DeleteName = DeleteName
 instance Message DeleteName
 instance Named DeleteName
 
+instance HasMessageType DeleteName where
+  messageType _ = "DeleteName"
+
 instance HasCodec DeleteName where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
@@ -83,6 +90,9 @@ data BuyName = BuyName
 
 instance Message BuyName
 instance Named BuyName
+
+instance HasMessageType BuyName where
+  messageType _ = "BuyName"
 
 instance HasCodec BuyName where
   encode = cs . toLazyByteString

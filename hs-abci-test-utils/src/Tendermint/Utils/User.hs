@@ -22,6 +22,8 @@ import           Tendermint.SDK.Crypto            (Secp256k1, addressFromPubKey)
 import           Tendermint.SDK.Modules.Auth      (Account (..))
 import qualified Tendermint.SDK.Modules.Auth      as Auth
 import           Tendermint.SDK.Types.Address     (Address (..))
+import           Tendermint.SDK.Types.Message     (HasMessageType (..),
+                                                   TypedMessage (..))
 import           Tendermint.SDK.Types.Transaction (RawTransaction (..),
                                                    signRawTransaction)
 import           Tendermint.Utils.Client          (ClientResponse (..),
@@ -58,10 +60,17 @@ getAccountNonce userAddress = do
     Just Account {accountNonce} -> return accountNonce
 
 -- sign a trx with a user's private key and add the user's account nonce
-mkSignedRawTransactionWithRoute :: HasCodec a => BS.ByteString -> User -> a -> IO RawTransaction
+mkSignedRawTransactionWithRoute
+  :: forall a.
+     HasMessageType a
+  => HasCodec a
+  => BS.ByteString
+  -> User
+  -> a
+  -> IO RawTransaction
 mkSignedRawTransactionWithRoute route User{userAddress, userPrivKey} msg = do
   nonce <- getAccountNonce userAddress
-  let unsigned = RawTransaction { rawTransactionData = encode msg
+  let unsigned = RawTransaction { rawTransactionData = TypedMessage (encode msg) (messageType $ Proxy @a)
                                 , rawTransactionRoute = cs route
                                 , rawTransactionSignature = ""
                                 , rawTransactionGas = 0

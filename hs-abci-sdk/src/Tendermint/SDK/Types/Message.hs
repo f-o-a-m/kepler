@@ -5,6 +5,7 @@ import           Control.Lens                   (Wrapped (..), from, iso, view,
 import           Data.Bifunctor                 (bimap)
 import           Data.ByteString                (ByteString)
 import qualified Data.ProtoLens                 as P
+import           Data.Proxy
 import           Data.String.Conversions        (cs)
 import           Data.Text                      (Text)
 import qualified Data.Validation                as V
@@ -23,6 +24,9 @@ data Msg msg = Msg
 
 instance Functor Msg where
   fmap f msg@Msg{msgData} = msg {msgData = f msgData}
+
+class HasMessageType msg where
+  messageType :: Proxy msg -> Text
 
 data TypedMessage = TypedMessage
   { typedMsgData :: ByteString

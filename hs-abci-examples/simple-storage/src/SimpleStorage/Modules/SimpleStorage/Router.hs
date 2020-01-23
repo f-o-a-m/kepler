@@ -20,7 +20,7 @@ import           Tendermint.SDK.Types.Transaction            (Tx (..))
 
 
 type MessageApi =
-  TypedMessage "update_count" UpdateCountTx :~> Return ()
+  TypedMessage UpdateCountTx :~> Return ()
 
 messageHandlers
   :: Member SimpleStorage r

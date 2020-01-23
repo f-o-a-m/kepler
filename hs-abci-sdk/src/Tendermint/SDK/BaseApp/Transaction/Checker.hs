@@ -40,8 +40,8 @@ instance DefaultCheckTx rest r => DefaultCheckTx (path :> rest) r where
 
     defaultCheckTx _ = defaultCheckTx (Proxy :: Proxy rest)
 
-instance (Member (Error AppError) r, ValidateMessage msg) =>  DefaultCheckTx (TypedMessage t msg :~> Return a) r where
-    type DefaultCheckTxT (TypedMessage t msg :~> Return a) r = RoutingTx msg -> Sem r ()
+instance (Member (Error AppError) r, ValidateMessage msg) =>  DefaultCheckTx (TypedMessage msg :~> Return a) r where
+    type DefaultCheckTxT (TypedMessage msg :~> Return a) r = RoutingTx msg -> Sem r ()
 
     defaultCheckTx _ _ = defaultCheckTxHandler
 

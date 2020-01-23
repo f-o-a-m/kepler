@@ -22,7 +22,6 @@ import           Data.Maybe                       (fromJust)
 import           Data.Proxy
 import qualified Data.Serialize                   as Serialize
 import           Data.Serialize.Text              ()
-import qualified Data.Serialize.Text              ()
 import           Data.String.Conversions          (cs)
 import           Data.Validation                  (Validation (..))
 import           GHC.Generics                     (Generic)
@@ -32,8 +31,9 @@ import           Servant.API
 import           Tendermint.SDK.Application       (Module (..))
 import qualified Tendermint.SDK.BaseApp           as BaseApp
 import           Tendermint.SDK.Codec             (HasCodec (..))
-import           Tendermint.SDK.Types.Message     (Msg (..))
-import           Tendermint.SDK.Types.Message     (ValidateMessage (..))
+import           Tendermint.SDK.Types.Message     (HasMessageType (..),
+                                                   Msg (..),
+                                                   ValidateMessage (..))
 import           Tendermint.SDK.Types.Transaction (Tx (..))
 
 --------------------------------------------------------------------------------
@@ -71,6 +71,9 @@ data UpdateCountTx = UpdateCountTx
   } deriving (Show, Eq, Generic)
 
 instance Serialize.Serialize UpdateCountTx
+
+instance HasMessageType UpdateCountTx where
+  messageType _ = "update_count"
 
 instance HasCodec UpdateCountTx where
   encode = Serialize.encode
@@ -114,7 +117,7 @@ eval = interpret (\case
 --------------------------------------------------------------------------------
 
 type MessageApi =
-  BaseApp.TypedMessage "update_count" UpdateCountTx BaseApp.:~> BaseApp.Return ()
+  BaseApp.TypedMessage UpdateCountTx BaseApp.:~> BaseApp.Return ()
 
 messageHandlers
   :: Member SimpleStorage r
