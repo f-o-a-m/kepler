@@ -14,10 +14,10 @@ import           Tendermint.SDK.Types.Address     (Address)
 
 type TokenContents = '[(Address, Amount)]
 
-type Api = BaseApp.QueryApi TokenContents
+type QueryApi = BaseApp.QueryApi TokenContents
 
 server
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-  => BaseApp.RouteT Api r
+  => BaseApp.RouteQ QueryApi r
 server =
   BaseApp.storeQueryHandlers (Proxy :: Proxy TokenContents) storeKey (Proxy :: Proxy r)
