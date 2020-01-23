@@ -22,7 +22,6 @@ import           Tendermint.SDK.BaseApp.Query         (QueryArgs (..),
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Modules.Auth          (Amount (..), Coin (..),
                                                        CoinId (..))
-import qualified Tendermint.SDK.Modules.Auth          as Auth
 import           Tendermint.SDK.Modules.Bank          (Transfer (..),
                                                        TransferEvent (..))
 import qualified Tendermint.SDK.Modules.Bank          as Bank (Api)
@@ -129,11 +128,13 @@ spec = do
         -- check balance after
         (Coin _ afterBuyAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
         -- owner/buyer still profits
+        putStrLn $ "AFTER BUY: " ++ show afterBuyAmount
+        putStrLn $ "BEFORE BUY: " ++ show beforeBuyAmount
         afterBuyAmount `shouldSatisfy` (> beforeBuyAmount)
 
       it "Can fail to buy a name (failure 1)" $ do
         -- try to buy at a lower price
-        let msg = TypedMessage "BuyName" (encode $ BuyName 100 satoshi "hello (again) world" addr1)
+        let msg = TypedMessage "BuyName" (encode $ BuyName 0 satoshi "hello (again) world" addr1)
         mkSignedRawTransactionWithRoute "nameservice" user1 msg >>= ensureCheckAndDeliverResponseCodes (0,1)
 
       it "Can delete names (success 0)" $ do
@@ -194,27 +195,20 @@ user2 = makeUser "f65242094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e03
 
 faucetAccountAndCheckBalance :: User -> Amount -> IO ()
 faucetAccountAndCheckBalance user@User{userAddress} amount = do
+  (Coin _ balBefore) <- getQueryResponseSuccess $ getBalance userAddress "nameservice"
   let msg = TypedMessage "FaucetAccount" (encode $ FaucetAccount userAddress "nameservice" amount)
       faucetEvent = Faucetted userAddress "nameservice" amount
   deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user msg >>= getDeliverTxResponse
   ensureDeliverResponseCode deliverResp 0
   ensureEventLogged deliverResp "Faucetted" faucetEvent
-
-  putStrLn $ "Attempting to look for: " <> show userAddress
-  (Coin _ bal) <- getQueryResponseSuccess $ getBalance userAddress "nameservice"
-  (Auth.Account coins nonce) <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData userAddress
-  putStrLn $ "ACCOUNT @ "
-    <> show userAddress
-    <> " Account " <> show coins <> " " <> show nonce
-
-  bal `shouldBe` amount
+  (Coin _ balAfter) <- getQueryResponseSuccess $ getBalance userAddress "nameservice"
+  (balAfter-balBefore) `shouldBe` amount
 
 getBalance :: Address -> CoinId -> RPC.TendermintM (ClientResponse Coin)
 getWhois :: QueryArgs Name -> RPC.TendermintM (ClientResponse Whois)
-getAccount :: QueryArgs Address -> RPC.TendermintM (ClientResponse Auth.Account)
 
-apiP :: Proxy ("bank" :> Bank.Api :<|> ("nameservice" :> N.Api :<|> ("auth" :> Auth.Api)))
+apiP :: Proxy ("bank" :> Bank.Api :<|> ("nameservice" :> N.Api))
 apiP = Proxy
 
-(getBalance :<|> getWhois :<|> getAccount) =
+(getBalance :<|> getWhois) =
   genClient (Proxy :: Proxy RPC.TendermintM) apiP def

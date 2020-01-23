@@ -39,7 +39,7 @@ replaceCoinValue c [] = [c]
 replaceCoinValue c@(Auth.Coin cid _) (c1@(Auth.Coin cid1 _):rest) =
   if cid1 == cid
   then c : rest
-  else c1 : (replaceCoinValue c rest)
+  else c1 : replaceCoinValue c rest
 
 putCoinBalance
   :: Members Auth.AuthEffs r

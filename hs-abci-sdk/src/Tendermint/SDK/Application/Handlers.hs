@@ -40,7 +40,6 @@ import           Tendermint.SDK.Types.Transaction       (PreRoutedTx (..),
 import           Tendermint.SDK.Types.TxResult          (checkTxTxResult,
                                                          deliverTxTxResult)
 
-
 type Handler mt r = Request mt -> Sem r (Response mt)
 
 data Handlers core = Handlers
