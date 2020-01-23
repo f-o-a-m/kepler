@@ -12,10 +12,9 @@ module Tendermint.SDK.BaseApp.Transaction.Types
   ) where
 
 import           Control.Lens                     (lens)
-import qualified Data.ByteArray.Base64String      as Base64
+import           Data.ByteString                  (ByteString)
 import           GHC.TypeLits                     (Symbol)
 import           Tendermint.SDK.BaseApp.Router    (HasPath (..))
-import           Tendermint.SDK.BaseApp.Router    (Application)
 import           Tendermint.SDK.Types.Transaction (Tx (..))
 import           Tendermint.SDK.Types.TxResult    (TxResult)
 
@@ -31,7 +30,7 @@ type Return = Return' 'OnCheckUnit
 
 data RouteContext = CheckTx | DeliverTx
 
-type TransactionApplication m = Application m (PreRoutedTx Base64.Base64String) TxResult
+type TransactionApplication m = PreRoutedTx ByteString -> m TxResult
 
 data PreRoutedTx msg where
   PreRoutedTx :: Tx alg msg -> PreRoutedTx msg

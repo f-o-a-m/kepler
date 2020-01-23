@@ -9,16 +9,23 @@ module Tendermint.SDK.BaseApp.Transaction
   , TxEffs
   ) where
 
+import           Control.Lens                               ((&), (.~))
 import           Data.Proxy
 import           Polysemy                                   (Sem)
-import           Tendermint.SDK.BaseApp.Router              (RouteResult (..),
+import           Tendermint.SDK.BaseApp.Errors              (makeAppError,
+                                                             txResultAppError)
+import           Tendermint.SDK.BaseApp.Router              (Application,
+                                                             RouteResult (..),
                                                              emptyDelayed,
                                                              runRouter)
 import           Tendermint.SDK.BaseApp.Transaction.Checker (DefaultCheckTx (..))
 import           Tendermint.SDK.BaseApp.Transaction.Effect  (TxEffs)
 import           Tendermint.SDK.BaseApp.Transaction.Router
 import           Tendermint.SDK.BaseApp.Transaction.Types
+import           Tendermint.SDK.Types.TxResult              (TxResult)
 
+import           Data.ByteString                            (ByteString)
+import           Data.Default.Class                         (def)
 
 serveTxApplication
   :: HasTxRouter layout r c
@@ -28,7 +35,18 @@ serveTxApplication
   -> RouteTx layout r c
   -> TransactionApplication (Sem r)
 serveTxApplication pl pr pc server =
-  runRouter (routeTx pl pr pc (emptyDelayed (Route server))) ()
+  toTxApplication (runRouter (routeTx pl pr pc (emptyDelayed (Route server))) ())
+
+toTxApplication
+  :: Application (Sem r) (PreRoutedTx ByteString) TxResult
+  -> TransactionApplication (Sem r)
+toTxApplication ra tx = do
+  res <- ra tx
+  case res of
+    Fail e      -> pure $ def & txResultAppError .~ makeAppError e
+    FailFatal e -> pure $ def & txResultAppError .~ makeAppError e
+    Route a     -> pure a
+
 
 serveDefaultTxChecker
   :: HasTxRouter layout r 'CheckTx

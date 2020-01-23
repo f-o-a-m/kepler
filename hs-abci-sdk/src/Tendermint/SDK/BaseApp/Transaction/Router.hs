@@ -6,7 +6,7 @@ module Tendermint.SDK.BaseApp.Transaction.Router
   ) where
 
 import           Control.Monad.IO.Class                      (liftIO)
-import qualified Data.ByteArray.Base64String                 as Base64
+import           Data.ByteString                             (ByteString)
 import           Data.Proxy
 import           Data.String.Conversions                     (cs)
 import           GHC.TypeLits                                (KnownSymbol,
@@ -31,8 +31,8 @@ class HasTxRouter layout r (c :: RouteContext) where
         :: Proxy layout
         -> Proxy r
         -> Proxy c
-        -> R.Delayed (Sem r) env (PreRoutedTx Base64.Base64String) (RouteTx layout r c)
-        -> R.Router env r (PreRoutedTx Base64.Base64String) TxResult
+        -> R.Delayed (Sem r) env (PreRoutedTx ByteString) (RouteTx layout r c)
+        -> R.Router env r (PreRoutedTx ByteString) TxResult
 
 instance (HasTxRouter a r c, HasTxRouter b r c) => HasTxRouter (a :<|> b) r c where
   type RouteTx (a :<|> b) r c = RouteTx a r c :<|> RouteTx b r c
@@ -70,7 +70,7 @@ instance ( KnownSymbol t, HasCodec msg, HasCodec (OnCheckReturn c oc a), Member 
   routeTx _ _ _ subserver =
     let f (PreRoutedTx tx@Tx{txMsg}) =
           if msgType txMsg == messageType
-            then case decode . Base64.toBytes $ msgData txMsg of
+            then case decode $ msgData txMsg of
               Left e -> R.delayedFail $
                 R.InvalidRequest ("Failed to parse message of type " <> messageType <> ": " <> e <> ".")
               Right a -> pure . PreRoutedTx $ tx {txMsg = txMsg {msgData = a}}

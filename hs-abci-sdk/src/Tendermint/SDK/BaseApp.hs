@@ -68,6 +68,7 @@ module Tendermint.SDK.BaseApp
   -- * Transaction
   , TransactionApplication
   , PreRoutedTx(..)
+  , RouteContext(..)
   , TxEffs
   , EmptyServer
   , emptyServer
