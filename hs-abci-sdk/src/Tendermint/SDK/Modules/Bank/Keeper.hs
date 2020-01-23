@@ -2,7 +2,6 @@ module Tendermint.SDK.Modules.Bank.Keeper where
 
 import           Data.List                         (find)
 import           Data.Maybe                        (fromMaybe)
-import qualified Data.Text                         as T
 import           Polysemy
 import           Polysemy.Error                    (Error, mapError, throw)
 import           Polysemy.Output                   (Output)
@@ -23,17 +22,17 @@ eval = mapError BaseApp.makeAppError
 
 getCoinBalance
   :: Members Auth.AuthEffs r
-  => Members BankEffs r
   => Address
   -> Auth.CoinId
   -> Sem r Auth.Coin
 getCoinBalance address cid = do
   mAcnt <- Auth.getAccount address
+  let zeroBalance = Auth.Coin cid 0
   case mAcnt of
-    Nothing -> throw . AccountDoesNotExist . T.pack . show $ address
+    Nothing -> pure zeroBalance
     Just (Auth.Account coins _) ->
       let mCoin = find (\(Auth.Coin cid1 _) -> cid == cid1) coins
-      in pure $ fromMaybe (Auth.Coin cid 0) mCoin
+      in pure $ fromMaybe zeroBalance mCoin
 
 replaceCoinValue :: Auth.Coin -> [Auth.Coin] -> [Auth.Coin]
 replaceCoinValue c [] = [c]
@@ -51,7 +50,7 @@ putCoinBalance address coin = do
   mAcnt <- Auth.getAccount address
   acnt <- case mAcnt of
             Nothing -> pure =<< Auth.createAccount address
-            Just a -> pure a
+            Just a  -> pure a
   let updatedCoins = replaceCoinValue coin (Auth.accountCoins acnt)
       updatedAcnt = acnt { Auth.accountCoins = updatedCoins }
   Auth.putAccount address updatedAcnt
@@ -99,7 +98,6 @@ burn addr (Auth.Coin cid amount) = do
 
 mint
   :: Members Auth.AuthEffs r
-  => Members BankEffs r
   => Address
   -> Auth.Coin
   -> Sem r ()

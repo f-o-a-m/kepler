@@ -49,7 +49,6 @@ instance FromHttpApiData Address where
 
 data BankError =
       InsufficientFunds Text
-    | AccountDoesNotExist Text
 
 instance BaseApp.IsAppError BankError where
     makeAppError (InsufficientFunds msg) =
@@ -57,12 +56,6 @@ instance BaseApp.IsAppError BankError where
         { appErrorCode = 1
         , appErrorCodespace = "bank"
         , appErrorMessage = msg
-        }
-    makeAppError (AccountDoesNotExist msg) =
-      BaseApp.AppError
-        { appErrorCode = 2
-        , appErrorCodespace = "bank"
-        , appErrorMessage = "Account does not exist: " <> msg
         }
 
 --------------------------------------------------------------------------------

@@ -106,7 +106,7 @@ instance Queryable Coin where
 data Account = Account
   { accountCoins :: [Coin]
   , accountNonce :: Word64
-  } deriving Generic
+  } deriving (Show, Generic)
 
 instance Wrapped Account where
   type Unwrapped Account = A.Account
