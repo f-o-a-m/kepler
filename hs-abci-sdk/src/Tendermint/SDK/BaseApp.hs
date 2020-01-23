@@ -69,10 +69,15 @@ module Tendermint.SDK.BaseApp
   , TransactionApplication
   , PreRoutedTx(..)
   , RouteContext(..)
+  , RouteTx
+  , Return
+  , (:~>)
+  , TypedMessage
   , TxEffs
   , EmptyServer
   , emptyServer
   , serveTxApplication
+  , DefaultCheckTx(..)
 
   -- * Query
   , Queryable(..)

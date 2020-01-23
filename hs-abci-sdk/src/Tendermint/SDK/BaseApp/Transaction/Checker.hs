@@ -27,20 +27,25 @@ defaultCheckTxHandler(PreRoutedTx Tx{txMsg}) =
 
 class DefaultCheckTx api (r :: EffectRow) where
     type DefaultCheckTxT api r :: *
-    defaultCheckTxServer :: Proxy api -> Proxy r -> DefaultCheckTxT api r
+    defaultCheckTx :: Proxy api -> Proxy r -> DefaultCheckTxT api r
 
 instance (DefaultCheckTx a r, DefaultCheckTx b r) => DefaultCheckTx (a :<|> b) r where
     type DefaultCheckTxT (a :<|> b) r = DefaultCheckTxT a r :<|> DefaultCheckTxT b r
 
-    defaultCheckTxServer _ pr =
-        defaultCheckTxServer (Proxy :: Proxy a) pr :<|> defaultCheckTxServer (Proxy :: Proxy b) pr
+    defaultCheckTx _ pr =
+        defaultCheckTx (Proxy :: Proxy a) pr :<|> defaultCheckTx (Proxy :: Proxy b) pr
 
 instance DefaultCheckTx rest r => DefaultCheckTx (path :> rest) r where
     type DefaultCheckTxT (path :> rest) r = DefaultCheckTxT rest r
 
-    defaultCheckTxServer _ = defaultCheckTxServer (Proxy :: Proxy rest)
+    defaultCheckTx _ = defaultCheckTx (Proxy :: Proxy rest)
 
 instance (Member (Error AppError) r, ValidateMessage msg) =>  DefaultCheckTx (TypedMessage t msg :~> Return a) r where
     type DefaultCheckTxT (TypedMessage t msg :~> Return a) r = PreRoutedTx msg -> Sem r ()
 
-    defaultCheckTxServer _ _ = defaultCheckTxHandler
+    defaultCheckTx _ _ = defaultCheckTxHandler
+
+instance DefaultCheckTx EmptyServer r where
+    type DefaultCheckTxT EmptyServer r = EmptyServer
+
+    defaultCheckTx _ _ = EmptyServer

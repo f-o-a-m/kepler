@@ -1,7 +1,6 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.BaseApp.Transaction.Router
   ( HasTxRouter(..)
-  , EmptyServer
   , emptyServer
   ) where
 
@@ -78,8 +77,6 @@ instance ( KnownSymbol t, HasCodec msg, HasCodec (OnCheckReturn c oc a), Member 
     in methodRouter $
          R.addBody subserver $ R.withRequest f
       where messageType = cs $ symbolVal (Proxy :: Proxy t)
-
-data EmptyServer = EmptyServer
 
 emptyServer :: RouteTx EmptyServer r c
 emptyServer = EmptyServer

@@ -109,13 +109,8 @@ makeHandlers HandlersContext{..} =
         Left err -> throwSDKError $ ParseError err
         Right tx -> pure $ T.PreRoutedTx tx
 
-      checkTxRouter bs = compileToBaseApp $ do
-        let router = applyAnteHandler anteHandler $ M.appTxRouter modules (Proxy @'T.CheckTx)
-        tx <- txParser bs
-        router tx
-
-      deliverTxRouter bs = compileToBaseApp $ do
-        let router = applyAnteHandler anteHandler $ M.appTxRouter modules (Proxy @'T.DeliverTx)
+      txRouter ctx bs = compileToBaseApp $ do
+        let router = applyAnteHandler anteHandler $ M.appTxRouter modules ctx
         tx <- txParser bs
         router tx
 
@@ -134,7 +129,7 @@ makeHandlers HandlersContext{..} =
       checkTx (RequestCheckTx _checkTx) = Store.applyScope $ do
         res <- catch
           ( let txBytes =  _checkTx ^. Req._checkTxTx . to Base64.toBytes
-            in  checkTxRouter txBytes
+            in  txRouter T.CheckTx txBytes
           )
           (\(err :: AppError) ->
             return $ def & txResultAppError .~ err
@@ -144,7 +139,7 @@ makeHandlers HandlersContext{..} =
       deliverTx (RequestDeliverTx _deliverTx) = Store.applyScope $ do
         res <- catch @AppError
           ( let txBytes = _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
-            in deliverTxRouter txBytes
+            in txRouter T.DeliverTx txBytes
           )
           (\(err :: AppError) ->
             return $ def & txResultAppError .~ err

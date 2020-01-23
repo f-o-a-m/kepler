@@ -30,7 +30,8 @@ authModule
   :: Members BaseAppEffs r
   => AuthM r
 authModule = Module
-  { moduleTxServer = const emptyServer
+  { moduleTxDeliverer = emptyServer
+  , moduleTxChecker = emptyServer
   , moduleQueryServer = server
   , moduleEval = eval
   }

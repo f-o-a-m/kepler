@@ -1,12 +1,5 @@
 module Tendermint.SDK.BaseApp.Transaction.Types
-  ( TransactionApplication
-  , PreRoutedTx(..)
-  , OnCheck(..)
-  , RouteContext(..)
-  , Return'
-  , Return
-  , (:~>)
-  , TypedMessage
+  ( module Tendermint.SDK.BaseApp.Transaction.Types
   -- * Re-Exports
   , Tx(..)
   ) where
@@ -31,6 +24,8 @@ type Return = Return' 'OnCheckUnit
 data RouteContext = CheckTx | DeliverTx
 
 type TransactionApplication m = PreRoutedTx ByteString -> m TxResult
+
+data EmptyServer = EmptyServer
 
 data PreRoutedTx msg where
   PreRoutedTx :: Tx alg msg -> PreRoutedTx msg

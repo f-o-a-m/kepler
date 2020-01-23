@@ -4,8 +4,8 @@ module Tendermint.SDK.BaseApp.Transaction
     -- * Re-Exports
   , module Tendermint.SDK.BaseApp.Transaction.Types
   , HasTxRouter(..)
-  , EmptyServer
   , emptyServer
+  , DefaultCheckTx(..)
   , TxEffs
   ) where
 
@@ -56,4 +56,4 @@ serveDefaultTxChecker
   -> Proxy r
   -> TransactionApplication (Sem r)
 serveDefaultTxChecker pl pr =
-  serveTxApplication pl pr (Proxy :: Proxy 'CheckTx) (defaultCheckTxServer pl pr)
+  serveTxApplication pl pr (Proxy :: Proxy 'CheckTx) (defaultCheckTx pl pr)

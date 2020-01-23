@@ -18,7 +18,8 @@ import qualified Tendermint.SDK.BaseApp.Query       as Q
 import qualified Tendermint.SDK.BaseApp.Transaction as T
 
 data Module (name :: Symbol) (h :: *) (q :: *) (s :: EffectRow) (r :: EffectRow) = Module
-  { moduleTxServer :: forall c. Proxy (c :: T.RouteContext) -> T.RouteTx h r c
+  { moduleTxDeliverer :: T.RouteTx h r 'T.DeliverTx
+  , moduleTxChecker :: T.RouteTx h r 'T.CheckTx
   , moduleQueryServer :: Q.RouteQ q r
   , moduleEval :: forall deps. Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
   }
@@ -54,25 +55,43 @@ instance AppQueryRouter (m' ': ms) r => AppQueryRouter (Module name h q s r ': m
 --------------------------------------------------------------------------------
 
 appTxRouter
-  :: AppTxRouter ms r c
-  => T.HasTxRouter (TApi ms) r c
+  :: AppTxRouter ms r 'T.DeliverTx
+  => AppTxRouter ms r 'T.CheckTx
+  => T.HasTxRouter (TApi ms) r 'T.DeliverTx
+  => T.HasTxRouter (TApi ms) r 'T.CheckTx
   => Modules ms r
-  -> Proxy ( c :: T.RouteContext)
+  -> T.RouteContext
   -> T.TransactionApplication (Sem r)
-appTxRouter (ms :: Modules ms r) pc =
-  T.serveTxApplication (Proxy :: Proxy (TApi ms)) (Proxy :: Proxy r) pc (routeAppTx pc ms)
+appTxRouter (ms :: Modules ms r) ctx =
+  case ctx of
+    T.CheckTx ->
+      let checkTxP = Proxy :: Proxy 'T.CheckTx
+      in T.serveTxApplication (Proxy :: Proxy (TApi ms)) (Proxy :: Proxy r)
+           checkTxP (routeAppTx checkTxP ms)
+    T.DeliverTx ->
+      let deliverTxP = Proxy :: Proxy 'T.DeliverTx
+      in T.serveTxApplication (Proxy :: Proxy (TApi ms)) (Proxy :: Proxy r)
+           deliverTxP (routeAppTx deliverTxP ms)
 
 class AppTxRouter ms r (c :: T.RouteContext) where
     type TApi ms :: *
     routeAppTx :: Proxy c -> Modules ms r -> T.RouteTx (TApi ms) r c
 
-instance AppTxRouter '[Module name h q s r] r c where
+instance AppTxRouter '[Module name h q s r] r 'T.CheckTx where
     type TApi '[Module name h q s r] = name :> h
-    routeAppTx pc (m :+ NilModules) = moduleTxServer m pc
+    routeAppTx _ (m :+ NilModules) = moduleTxChecker m
 
-instance AppTxRouter (m' ': ms) r c => AppTxRouter (Module name h q s r ': m' ': ms) r c where
+instance AppTxRouter (m' ': ms) r 'T.CheckTx => AppTxRouter (Module name h q s r ': m' ': ms) r 'T.CheckTx where
     type TApi (Module name h q s r ': m' ': ms) = (name :> h) :<|> TApi (m' ': ms)
-    routeAppTx pc (m :+ rest) = moduleTxServer m pc :<|> routeAppTx pc rest
+    routeAppTx pc (m :+ rest) = moduleTxChecker m :<|> routeAppTx pc rest
+
+instance AppTxRouter '[Module name h q s r] r 'T.DeliverTx where
+    type TApi '[Module name h q s r] = name :> h
+    routeAppTx _ (m :+ NilModules) = moduleTxDeliverer m
+
+instance AppTxRouter (m' ': ms) r 'T.DeliverTx => AppTxRouter (Module name h q s r ': m' ': ms) r 'T.DeliverTx where
+    type TApi (Module name h q s r ': m' ': ms) = (name :> h) :<|> TApi (m' ': ms)
+    routeAppTx pc (m :+ rest) = moduleTxDeliverer m :<|> routeAppTx pc rest
 
 --------------------------------------------------------------------------------
 

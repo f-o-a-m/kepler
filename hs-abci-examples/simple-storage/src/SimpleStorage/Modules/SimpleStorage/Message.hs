@@ -1,14 +1,13 @@
 module SimpleStorage.Modules.SimpleStorage.Message
-  ( SimpleStorageMessage(..)
-  , UpdateCountTx(..)
+  ( UpdateCountTx(..)
   )where
 
 import           Control.Lens                        (from, iso, view, (&),
-                                                      (.~), (^.))
-import           Control.Lens.Wrapped                (Wrapped (..), _Unwrapped')
-import           Data.Bifunctor                      (first)
+                                                      (.~), (^.), _Wrapped')
+import           Control.Lens.Wrapped                (Wrapped (..))
+import           Data.Bifunctor                      (bimap)
 import           Data.Int                            (Int32)
-import qualified Data.ProtoLens                      as PL
+import qualified Data.ProtoLens                      as P
 import           Data.ProtoLens.Message              (Message (..))
 import           Data.Serialize.Text                 ()
 import           Data.String.Conversions             (cs)
@@ -18,22 +17,8 @@ import           GHC.Generics                        (Generic)
 import           Proto.SimpleStorage.Messages        as M
 import           Proto.SimpleStorage.Messages_Fields as M
 import           Tendermint.SDK.Codec                (HasCodec (..))
-import           Tendermint.SDK.Types.Message        (Msg (..),
-                                                      ValidateMessage (..))
+import           Tendermint.SDK.Types.Message        (ValidateMessage (..))
 
-data SimpleStorageMessage =
-  UpdateCount UpdateCountTx
-
-instance ValidateMessage SimpleStorageMessage where
-  validateMessage m@Msg{msgData} = case msgData of
-    UpdateCount msg -> validateMessage m {msgData = msg}
-
-instance HasCodec SimpleStorageMessage where
-  decode = first cs . fmap (UpdateCount . view _Unwrapped') . PL.decodeMessage
-  encode = \case
-    UpdateCount a -> PL.encodeMessage  $ a ^. from _Unwrapped'
-
---------------------------------------------------------------------------------
 
 data UpdateCountTx = UpdateCountTx
   { updateCountTxUsername :: Text
@@ -56,3 +41,7 @@ instance Wrapped UpdateCountTx where
         UpdateCountTx { updateCountTxUsername = msg ^. M.username
                       , updateCountTxCount = msg ^. M.count
                       }
+
+instance HasCodec UpdateCountTx where
+  encode = P.encodeMessage . view _Wrapped'
+  decode = bimap cs (view $ from _Wrapped') . P.decodeMessage
