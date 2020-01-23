@@ -31,7 +31,7 @@ import           Tendermint.SDK.Application       (Module (..))
 import qualified Tendermint.SDK.BaseApp           as BaseApp
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Types.Message     (Msg (..))
-import           Tendermint.SDK.Types.Transaction (PreRoutedTx (..), Tx (..))
+import           Tendermint.SDK.Types.Transaction (RoutingTx (..), Tx (..))
 
 --------------------------------------------------------------------------------
 -- Types
@@ -107,9 +107,9 @@ eval = interpret (\case
 router
   :: Member SimpleStorage r
   => Members BaseApp.TxEffs r
-  => PreRoutedTx SimpleStorageMessage
+  => RoutingTx SimpleStorageMessage
   -> Sem r ()
-router (PreRoutedTx Tx{txMsg}) =
+router (RoutingTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
   in case msgData of
        UpdateCount UpdateCountTx{updateCountTxCount} ->

@@ -30,8 +30,8 @@ class HasTxRouter layout r (c :: RouteContext) where
         :: Proxy layout
         -> Proxy r
         -> Proxy c
-        -> R.Delayed (Sem r) env (PreRoutedTx ByteString) (RouteTx layout r c)
-        -> R.Router env r (PreRoutedTx ByteString) TxResult
+        -> R.Delayed (Sem r) env (RoutingTx ByteString) (RouteTx layout r c)
+        -> R.Router env r (RoutingTx ByteString) TxResult
 
 instance (HasTxRouter a r c, HasTxRouter b r c) => HasTxRouter (a :<|> b) r c where
   type RouteTx (a :<|> b) r c = RouteTx a r c :<|> RouteTx b r c
@@ -53,8 +53,8 @@ instance (HasTxRouter sublayout r c, KnownSymbol path) => HasTxRouter (path :> s
 methodRouter
   :: HasCodec a
   => Member (Embed IO) r
-  => R.Delayed (Sem r) env (PreRoutedTx msg) (Sem (TxEffs :& r) a)
-  -> R.Router env r (PreRoutedTx msg) TxResult
+  => R.Delayed (Sem r) env (RoutingTx msg) (Sem (TxEffs :& r) a)
+  -> R.Router env r (RoutingTx msg) TxResult
 methodRouter action = R.leafRouter route'
   where
     route' env tx = do
@@ -64,15 +64,15 @@ methodRouter action = R.leafRouter route'
 
 instance ( KnownSymbol t, HasCodec msg, HasCodec (OnCheckReturn c oc a), Member (Embed IO) r) => HasTxRouter (TypedMessage t msg :~> Return' oc a) r c where
 
-  type RouteTx (TypedMessage t msg :~> Return' oc a) r c = PreRoutedTx msg -> Sem (TxEffs :& r) (OnCheckReturn c oc a)
+  type RouteTx (TypedMessage t msg :~> Return' oc a) r c = RoutingTx msg -> Sem (TxEffs :& r) (OnCheckReturn c oc a)
 
   routeTx _ _ _ subserver =
-    let f (PreRoutedTx tx@Tx{txMsg}) =
+    let f (RoutingTx tx@Tx{txMsg}) =
           if msgType txMsg == messageType
             then case decode $ msgData txMsg of
               Left e -> R.delayedFail $
                 R.InvalidRequest ("Failed to parse message of type " <> messageType <> ": " <> e <> ".")
-              Right a -> pure . PreRoutedTx $ tx {txMsg = txMsg {msgData = a}}
+              Right a -> pure . RoutingTx $ tx {txMsg = txMsg {msgData = a}}
             else R.delayedFail R.PathNotFound
     in methodRouter $
          R.addBody subserver $ R.withRequest f

@@ -38,7 +38,7 @@ serveTxApplication pl pr pc server =
   toTxApplication (runRouter (routeTx pl pr pc (emptyDelayed (Route server))) ())
 
 toTxApplication
-  :: Application (Sem r) (PreRoutedTx ByteString) TxResult
+  :: Application (Sem r) (RoutingTx ByteString) TxResult
   -> TransactionApplication (Sem r)
 toTxApplication ra tx = do
   res <- ra tx

@@ -17,9 +17,9 @@ import           Tendermint.SDK.Types.Message             (ValidateMessage (..),
 defaultCheckTxHandler
   :: Member (Error AppError) r
   => ValidateMessage msg
-  => PreRoutedTx msg
+  => RoutingTx msg
   -> Sem r ()
-defaultCheckTxHandler(PreRoutedTx Tx{txMsg}) =
+defaultCheckTxHandler(RoutingTx Tx{txMsg}) =
   case validateMessage txMsg of
     V.Failure err ->
       throwSDKError . MessageValidation . map formatMessageSemanticError $ err
@@ -41,7 +41,7 @@ instance DefaultCheckTx rest r => DefaultCheckTx (path :> rest) r where
     defaultCheckTx _ = defaultCheckTx (Proxy :: Proxy rest)
 
 instance (Member (Error AppError) r, ValidateMessage msg) =>  DefaultCheckTx (TypedMessage t msg :~> Return a) r where
-    type DefaultCheckTxT (TypedMessage t msg :~> Return a) r = PreRoutedTx msg -> Sem r ()
+    type DefaultCheckTxT (TypedMessage t msg :~> Return a) r = RoutingTx msg -> Sem r ()
 
     defaultCheckTx _ _ = defaultCheckTxHandler
 

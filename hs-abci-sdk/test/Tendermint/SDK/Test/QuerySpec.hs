@@ -12,8 +12,7 @@ import qualified Tendermint.SDK.BaseApp.Transaction   as T
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import qualified Tendermint.SDK.Test.SimpleStorage    as SS
 import           Tendermint.SDK.Types.Message         (Msg (..))
-import           Tendermint.SDK.Types.Transaction     (PreRoutedTx (..),
-                                                       Tx (..))
+import           Tendermint.SDK.Types.Transaction     (RoutingTx (..), Tx (..))
 import           Test.Hspec
 
 type Effs = SS.SimpleStorage ': BA.BaseApp BA.CoreEffs
@@ -30,7 +29,7 @@ spec = beforeAll (BA.makeContext (KL.InitialLogNamespace "test" "spec") Nothing)
               { msgAuthor = undefined
               , msgData = SS.UpdateCount $ SS.UpdateCountTx 1
               }
-            tx = PreRoutedTx $ Tx
+            tx = RoutingTx $ Tx
               { txMsg = increaseCountMsg
               , txRoute = undefined
               , txGas = 0

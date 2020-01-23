@@ -67,7 +67,7 @@ module Tendermint.SDK.BaseApp
 
   -- * Transaction
   , TransactionApplication
-  , PreRoutedTx(..)
+  , RoutingTx(..)
   , RouteContext(..)
   , RouteTx
   , Return

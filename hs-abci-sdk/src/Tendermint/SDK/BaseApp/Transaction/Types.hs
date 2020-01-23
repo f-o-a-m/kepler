@@ -23,16 +23,16 @@ type Return = Return' 'OnCheckUnit
 
 data RouteContext = CheckTx | DeliverTx
 
-type TransactionApplication m = PreRoutedTx ByteString -> m TxResult
+type TransactionApplication m = RoutingTx ByteString -> m TxResult
 
 data EmptyServer = EmptyServer
 
-data PreRoutedTx msg where
-  PreRoutedTx :: Tx alg msg -> PreRoutedTx msg
+data RoutingTx msg where
+  RoutingTx :: Tx alg msg -> RoutingTx msg
 
-instance Functor PreRoutedTx where
-  fmap f (PreRoutedTx tx) = PreRoutedTx $ fmap f tx
+instance Functor RoutingTx where
+  fmap f (RoutingTx tx) = RoutingTx $ fmap f tx
 
-instance HasPath (PreRoutedTx msg) where
-  path = lens (\(PreRoutedTx tx) -> txRoute tx)
-    (\(PreRoutedTx tx) r -> PreRoutedTx tx {txRoute = r})
+instance HasPath (RoutingTx msg) where
+  path = lens (\(RoutingTx tx) -> txRoute tx)
+    (\(RoutingTx tx) r -> RoutingTx tx {txRoute = r})

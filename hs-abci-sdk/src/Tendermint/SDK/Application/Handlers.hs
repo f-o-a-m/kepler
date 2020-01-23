@@ -107,7 +107,7 @@ makeHandlers HandlersContext{..} =
 
       txParser bs = case parseTx signatureAlgP bs of
         Left err -> throwSDKError $ ParseError err
-        Right tx -> pure $ T.PreRoutedTx tx
+        Right tx -> pure $ T.RoutingTx tx
 
       txRouter ctx bs = compileToBaseApp $ do
         let router = applyAnteHandler anteHandler $ M.appTxRouter modules ctx

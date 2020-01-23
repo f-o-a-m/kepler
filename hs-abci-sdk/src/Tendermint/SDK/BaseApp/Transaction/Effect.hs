@@ -21,7 +21,7 @@ import           Tendermint.SDK.BaseApp.Errors            (AppError,
                                                            txResultAppError)
 import qualified Tendermint.SDK.BaseApp.Events            as E
 import qualified Tendermint.SDK.BaseApp.Gas               as G
-import           Tendermint.SDK.BaseApp.Transaction.Types (PreRoutedTx (..),
+import           Tendermint.SDK.BaseApp.Transaction.Types (RoutingTx (..),
                                                            Tx (..))
 import           Tendermint.SDK.Codec                     (HasCodec (encode))
 import           Tendermint.SDK.Types.Effects             ((:&))
@@ -42,9 +42,9 @@ data TransactionContext = TransactionContext
   }
 
 newTransactionContext
-  :: PreRoutedTx msg
+  :: RoutingTx msg
   -> IO TransactionContext
-newTransactionContext (PreRoutedTx Tx{txGas}) = do
+newTransactionContext (RoutingTx Tx{txGas}) = do
   initialGas <- newIORef $ G.GasAmount txGas
   pure TransactionContext
     { gas = initialGas

@@ -9,7 +9,7 @@ import           Polysemy
 import           Polysemy.Error                     (Error)
 import           Tendermint.SDK.BaseApp.Errors      (AppError, SDKError (..),
                                                      throwSDKError)
-import           Tendermint.SDK.BaseApp.Transaction (PreRoutedTx (..),
+import           Tendermint.SDK.BaseApp.Transaction (RoutingTx (..),
                                                      TransactionApplication)
 import qualified Tendermint.SDK.Modules.Auth        as A
 import           Tendermint.SDK.Types.Message       (Msg (..))
@@ -36,7 +36,7 @@ nonceAnteHandler
   => Member (Error AppError) r
   => AnteHandler r
 nonceAnteHandler = AnteHandler $
-  \txApplication tx@(PreRoutedTx Tx{..}) -> do
+  \txApplication tx@(RoutingTx Tx{..}) -> do
     let Msg{msgAuthor} = txMsg
     mAcnt <- A.getAccount msgAuthor
     account <- case mAcnt of
