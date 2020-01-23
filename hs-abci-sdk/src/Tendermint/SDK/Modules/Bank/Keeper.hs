@@ -31,8 +31,16 @@ getCoinBalance address cid = do
   mAcnt <- Auth.getAccount address
   case mAcnt of
     Nothing -> throw . AccountDoesNotExist . T.pack . show $ address
-    Just (Auth.Account coins _) -> pure $
-      fromMaybe (Auth.Coin cid 0) $ find (\(Auth.Coin cid1 _) -> cid == cid1) coins
+    Just (Auth.Account coins _) ->
+      let mCoin = find (\(Auth.Coin cid1 _) -> cid == cid1) coins
+      in pure $ fromMaybe (Auth.Coin cid 0) mCoin
+
+replaceCoinValue :: Auth.Coin -> [Auth.Coin] -> [Auth.Coin]
+replaceCoinValue c [] = [c]
+replaceCoinValue c@(Auth.Coin cid _) (c1@(Auth.Coin cid1 _):rest) =
+  if cid1 == cid
+  then c : rest
+  else c1 : (replaceCoinValue c rest)
 
 putCoinBalance
   :: Members Auth.AuthEffs r
@@ -41,18 +49,12 @@ putCoinBalance
   -> Sem r ()
 putCoinBalance address coin = do
   mAcnt <- Auth.getAccount address
-  case mAcnt of
-    Nothing -> do
-      Auth.putAccount address (Auth.Account [coin] 0)
-    Just (Auth.Account coins nonce) -> do
-      let updatedCoins = replaceCoinValue coin coins
-      Auth.putAccount address (Auth.Account updatedCoins nonce)
-  where
-    replaceCoinValue c [] = [c]
-    replaceCoinValue c@(Auth.Coin cid _) (c1@(Auth.Coin cid1 _):rest) =
-      if cid1 == cid
-      then c : rest
-      else c1 : (replaceCoinValue c rest)
+  acnt <- case mAcnt of
+            Nothing -> pure =<< Auth.createAccount address
+            Just a -> pure a
+  let updatedCoins = replaceCoinValue coin (Auth.accountCoins acnt)
+      updatedAcnt = acnt { Auth.accountCoins = updatedCoins }
+  Auth.putAccount address updatedAcnt
 
 transfer
   :: Members [BaseApp.Logger, Output BaseApp.Event] r

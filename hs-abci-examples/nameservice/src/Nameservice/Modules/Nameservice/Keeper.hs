@@ -57,11 +57,11 @@ faucetAccount
   => FaucetAccount
   -> Sem r ()
 faucetAccount FaucetAccount{..} = do
-  let coin = Coin "nameservice" faucetAccountAmount
+  let coin = Coin faucetAccountCoinId faucetAccountAmount
   mint faucetAccountTo coin
   let event = Faucetted
         { faucettedAccount = faucetAccountTo
-        , faucettedCoinId = "nameservice"
+        , faucettedCoinId = faucetAccountCoinId
         , faucettedAmount = faucetAccountAmount
         }
   BaseApp.emit event

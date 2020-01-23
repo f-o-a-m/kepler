@@ -13,6 +13,7 @@ module Tendermint.SDK.Modules.Bank
   , BankEffs
   , TransferEvent(..)
   , getCoinBalance
+  , putCoinBalance
   , transfer
   , mint
   , burn

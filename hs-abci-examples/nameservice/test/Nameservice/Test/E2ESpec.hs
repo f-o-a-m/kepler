@@ -105,10 +105,8 @@ spec = do
         ensureDeliverResponseCode deliverResp 0
         ensureEventLogged deliverResp "NameClaimed" claimedLog
         -- check for updated balances - seller: addr1, buyer: addr2
-        -- let sellerQueryReq = defaultQueryWithData addr1
         (Coin _ sellerFoundAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
         sellerFoundAmount `shouldBe` (balance1 + purchaseAmount)
-        -- let buyerQueryReq = defaultQueryWithData addr2
         (Coin _ buyerFoundAmount) <- getQueryResponseSuccess $ getBalance addr2 "nameservice"
         buyerFoundAmount `shouldBe` (balance2 - purchaseAmount)
         -- check for ownership changes
@@ -120,7 +118,6 @@ spec = do
       -- https://cosmos.network/docs/tutorial/buy-name.html#msg
       it "Can buy self-owned names and make a profit (success 0)" $ do
         -- check balance before
-        -- let queryReq = defaultQueryWithData addr2
         (Coin _ beforeBuyAmount) <- getQueryResponseSuccess $ getBalance addr1 "nameservice"
         -- buy
         let val = "hello (again) world"
@@ -202,15 +199,19 @@ faucetAccountAndCheckBalance user@User{userAddress} amount = do
   deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user msg >>= getDeliverTxResponse
   ensureDeliverResponseCode deliverResp 0
   ensureEventLogged deliverResp "Faucetted" faucetEvent
+
   putStrLn $ "Attempting to look for: " <> show userAddress
   (Coin _ bal) <- getQueryResponseSuccess $ getBalance userAddress "nameservice"
   (Auth.Account coins nonce) <- getQueryResponseSuccess $ getAccount $ defaultQueryWithData userAddress
-  putStrLn $ "FOUND ACCOUNT @ " <> show userAddress <> " w/ " <> "Coins "<> show coins <> " Nonce " <> show nonce
+  putStrLn $ "ACCOUNT @ "
+    <> show userAddress
+    <> " Account " <> show coins <> " " <> show nonce
+
   bal `shouldBe` amount
 
+getBalance :: Address -> CoinId -> RPC.TendermintM (ClientResponse Coin)
 getWhois :: QueryArgs Name -> RPC.TendermintM (ClientResponse Whois)
 getAccount :: QueryArgs Address -> RPC.TendermintM (ClientResponse Auth.Account)
-getBalance :: Address -> CoinId -> RPC.TendermintM (ClientResponse Coin)
 
 apiP :: Proxy ("bank" :> Bank.Api :<|> ("nameservice" :> N.Api :<|> ("auth" :> Auth.Api)))
 apiP = Proxy

@@ -62,9 +62,6 @@ instance Primitive Amount where
 instance HasDefault Amount
 instance MessageField Amount
 
--- instance Queryable Amount where
---   type Name Amount = "balance"
-
 -- @NOTE: hacks
 instance HasCodec Amount where
   encode (Amount b) =
@@ -105,21 +102,6 @@ coinAesonOptions = defaultSDKAesonOptions "coin"
 
 instance Queryable Coin where
   type Name Coin = "balance"
-
-
--- instance JSON.ToJSON Coin where
---   toJSON = JSON.genericToJSON coinAesonOptions
--- instance JSON.FromJSON Coin where
---   parseJSON = JSON.genericParseJSON coinAesonOptions
--- instance Primitive Coin where
---   encodePrimitive n = Encode.byteString n . Codec.encode
---   decodePrimitive =
---     let parser :: Decode.Parser Decode.RawPrimitive (Either Text Coin)
---         parser = Codec.decode <$> Decode.byteString
---     in either (error "@TODO: define left for coin primitive") id <$> parser
---   primType _ = DotProto.Bytes
--- instance HasDefault Coin
--- instance MessageField Coin
 
 data Account = Account
   { accountCoins :: [Coin]
