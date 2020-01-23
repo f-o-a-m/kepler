@@ -93,7 +93,7 @@ burn
 burn addr (Auth.Coin cid amount) = do
   (Auth.Coin _ bal) <- getCoinBalance addr cid
   if bal < amount
-    then throw $ InsufficientFunds "Insuffient funds for burn."
+    then throw $ InsufficientFunds "Insufficient funds for burn."
     else putCoinBalance addr (Auth.Coin cid (bal - amount))
 
 mint
