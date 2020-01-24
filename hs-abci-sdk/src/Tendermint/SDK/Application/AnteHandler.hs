@@ -13,6 +13,7 @@ import           Tendermint.SDK.BaseApp.Errors     (AppError, SDKError (..),
 import qualified Tendermint.SDK.Modules.Auth       as A
 import           Tendermint.SDK.Types.Message      (Msg (..))
 import           Tendermint.SDK.Types.Transaction  (PreRoutedTx (..), Tx (..))
+import Debug.Trace (traceShow)
 
 data AnteHandler r where
   AnteHandler :: (forall msg. M.Router r msg -> M.Router r msg) -> AnteHandler r
@@ -32,7 +33,7 @@ nonceAnteHandler
   => Member (Error AppError) r
   => AnteHandler r
 nonceAnteHandler = AnteHandler $ \(M.Router router) ->
-    M.Router $ \tx@(PreRoutedTx Tx{..}) -> do
+    M.Router $ \tx@(PreRoutedTx Tx{..}) -> traceShow ("ANTEHANDLER" :: String) $ do
       let Msg{msgAuthor} = txMsg
       preMAcnt <- A.getAccount msgAuthor
       case preMAcnt of

@@ -91,7 +91,7 @@ instance QueryRouter (m' ': ms) r => QueryRouter (Module name msg val api s r ':
 
 --------------------------------------------------------------------------------
 
-data RoutingContext = CheckTxContext | DeliverTxContext
+data RoutingContext = CheckTxContext | DeliverTxContext deriving Show
 
 data Router r msg = Router { runRouter :: PreRoutedTx msg -> Sem r TxResult }
 

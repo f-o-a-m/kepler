@@ -39,6 +39,7 @@ import           Tendermint.SDK.Types.Transaction       (PreRoutedTx (..),
                                                          parseTx)
 import           Tendermint.SDK.Types.TxResult          (checkTxTxResult,
                                                          deliverTxTxResult)
+import Debug.Trace
 
 type Handler mt r = Request mt -> Sem r (Response mt)
 
@@ -100,7 +101,7 @@ makeHandlers HandlersContext{..} =
   let
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
-      routerWithAH context = applyAnteHandler anteHandler $ M.txRouter context modules
+      routerWithAH context = trace ("Apply AH to context " ++ show context)$ applyAnteHandler anteHandler $ M.txRouter context modules
       txRouter context bs = case parseTx signatureAlgP bs of
         Left err -> throwSDKError $ ParseError err
         Right tx -> compileToBaseApp $ M.runRouter (routerWithAH context) (PreRoutedTx tx)
@@ -118,7 +119,7 @@ makeHandlers HandlersContext{..} =
 
       beginBlock _ = Store.applyScope (def <$ Store.beginBlock)
 
-      checkTx (RequestCheckTx _checkTx) = Store.applyScope $ do
+      checkTx (RequestCheckTx _checkTx) = Store.applyScope . Store.withSandbox $ do
         res <- catch
           ( let txBytes =  _checkTx ^. Req._checkTxTx . to Base64.toBytes
             in txRouter M.CheckTxContext txBytes
