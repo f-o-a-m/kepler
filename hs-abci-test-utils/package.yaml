@@ -31,6 +31,7 @@ default-extensions:
   - RecordWildCards
   - ScopedTypeVariables
   - TypeOperators
+  - FlexibleContexts
 
 library:
   source-dirs: src
@@ -46,6 +47,7 @@ library:
     - aeson-pretty
     - base >= 4.7 && < 5
     - bytestring
+    - cryptonite
     - data-default-class
     - errors
     - hspec
