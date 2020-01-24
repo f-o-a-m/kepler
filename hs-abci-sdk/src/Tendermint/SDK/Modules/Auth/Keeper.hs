@@ -45,7 +45,7 @@ createAccount
   :: Members [Accounts, Error AuthError] r
   => Address
   -> Sem r Account
-createAccount addr = do
+createAccount addr = trace ("Attempting to create account @ " ++ show addr) $ do
   mAcct <- getAccount addr
   case mAcct of
     Just _ -> throw $ AccountAlreadyExists addr
@@ -55,4 +55,4 @@ createAccount addr = do
             , accountNonce = 0
             }
       putAccount addr emptyAccount
-      pure emptyAccount
+      trace ("Created account successfully.") $ pure emptyAccount

@@ -16,6 +16,7 @@ import qualified Tendermint.SDK.BaseApp                   as BaseApp
 import           Tendermint.SDK.Modules.Auth              (AuthEffs, Coin (..))
 import           Tendermint.SDK.Modules.Bank              (BankEffs, burn, mint,
                                                            transfer)
+import Debug.Trace
 
 data NameserviceKeeper m a where
   PutWhois :: Name -> Whois -> NameserviceKeeper m ()
@@ -55,7 +56,7 @@ faucetAccount
   => Members AuthEffs r
   => FaucetAccount
   -> Sem r ()
-faucetAccount FaucetAccount{..} = do
+faucetAccount FaucetAccount{..} = traceShow ("FAUCETACCOUNT" :: String) $ do
   let coin = Coin faucetAccountCoinId faucetAccountAmount
   mint faucetAccountTo coin
   let event = Faucetted

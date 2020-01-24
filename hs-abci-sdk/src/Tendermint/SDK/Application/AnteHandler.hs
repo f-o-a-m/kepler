@@ -13,7 +13,7 @@ import           Tendermint.SDK.BaseApp.Errors     (AppError, SDKError (..),
 import qualified Tendermint.SDK.Modules.Auth       as A
 import           Tendermint.SDK.Types.Message      (Msg (..))
 import           Tendermint.SDK.Types.Transaction  (PreRoutedTx (..), Tx (..))
-import Debug.Trace (traceShow)
+import Debug.Trace (traceShow, trace)
 
 data AnteHandler r where
   AnteHandler :: (forall msg. M.Router r msg -> M.Router r msg) -> AnteHandler r
@@ -35,21 +35,22 @@ nonceAnteHandler
 nonceAnteHandler = AnteHandler $ \(M.Router router) ->
     M.Router $ \tx@(PreRoutedTx Tx{..}) -> traceShow ("ANTEHANDLER" :: String) $ do
       let Msg{msgAuthor} = txMsg
-      preMAcnt <- A.getAccount msgAuthor
+      preMAcnt <- trace ("Getting account to check nonce...") $ A.getAccount msgAuthor
       case preMAcnt of
-        Just A.Account{accountNonce} -> do
+        Just a@A.Account{accountNonce} -> trace ("Found " ++ show a) $ do
           unless (accountNonce <= txNonce) $
             throwSDKError (NonceException accountNonce txNonce)
-        Nothing -> do
+        Nothing -> trace ("No account found @ " ++ show msgAuthor) $ do
           unless (txNonce == 0) $
             throwSDKError (NonceException 0 txNonce)
       result <- router tx
-      postMAcnt <- A.getAccount msgAuthor
+      postMAcnt <- trace ("Getting account to update nonce...") $ A.getAccount msgAuthor
       case postMAcnt of
-        Just acnt@A.Account{accountNonce} -> do
+        Just acnt@A.Account{accountNonce} -> trace ("Found " ++ show acnt) $ do
           A.putAccount msgAuthor $
             acnt { A.accountNonce = accountNonce + 1}
-        Nothing -> throwSDKError (NonExistentAccountError msgAuthor)
+        -- @NOTE: no-op when no nonce is availble to update
+        Nothing -> pure ()
       pure result
 
 baseAppAnteHandler

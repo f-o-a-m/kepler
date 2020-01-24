@@ -10,6 +10,7 @@ import qualified Tendermint.SDK.Modules.Auth       as Auth
 import           Tendermint.SDK.Modules.Bank.Types (BankError (..),
                                                     TransferEvent (..))
 import           Tendermint.SDK.Types.Address      (Address)
+import Debug.Trace
 
 type BankEffs = '[Error BankError]
 
@@ -46,7 +47,7 @@ putCoinBalance
   => Address
   -> Auth.Coin
   -> Sem r ()
-putCoinBalance address coin = do
+putCoinBalance address coin = traceShow ("PUTBALANCE" :: String) $ do
   mAcnt <- Auth.getAccount address
   acnt <- case mAcnt of
             Nothing -> pure =<< Auth.createAccount address

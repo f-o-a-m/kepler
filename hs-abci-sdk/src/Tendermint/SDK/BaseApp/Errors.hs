@@ -15,7 +15,6 @@ import           Data.Word                            (Word32, Word64)
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Polysemy
 import           Polysemy.Error                       (Error, throw)
-import           Tendermint.SDK.Types.Address         (Address)
 import           Tendermint.SDK.Types.TxResult        (TxResult (..))
 
 -- | This type represents a common error response for the query, checkTx,
@@ -82,7 +81,6 @@ data SDKError =
   | MessageValidation [Text]
   | SignatureRecoveryError Text
   | NonceException Word64 Word64
-  | NonExistentAccountError Address
 
 -- | As of right now it's not expected that one can recover from an 'SDKError',
 -- | so we are throwing them as 'AppError's directly.
@@ -133,10 +131,4 @@ instance IsAppError SDKError where
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Incorrect Transaction Nonce: Expected " <> (cs . show $ toInteger expected) <>
          " but got " <> (cs . show $ toInteger found) <> "."
-    }
-
-  makeAppError (NonExistentAccountError address) = AppError
-    { appErrorCode = 8
-    , appErrorCodespace = "sdk"
-    , appErrorMessage = "Non-existent account at " <> (cs . show $ address)
     }

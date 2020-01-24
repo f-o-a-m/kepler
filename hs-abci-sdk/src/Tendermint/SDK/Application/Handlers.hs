@@ -101,7 +101,8 @@ makeHandlers HandlersContext{..} =
   let
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
-      routerWithAH context = trace ("Apply AH to context " ++ show context)$ applyAnteHandler anteHandler $ M.txRouter context modules
+      routerWithAH context =
+        trace ("Applying AH to context " ++ show context) $ applyAnteHandler anteHandler $ M.txRouter context modules
       txRouter context bs = case parseTx signatureAlgP bs of
         Left err -> throwSDKError $ ParseError err
         Right tx -> compileToBaseApp $ M.runRouter (routerWithAH context) (PreRoutedTx tx)
