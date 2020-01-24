@@ -79,9 +79,9 @@ instance RecoverableSignatureSchema Secp256k1 where
     recover _ sig dig = Secp256k1.recover sig (msgFromSHA256 dig)
     serializeRecoverableSignature _ sig =
       let csr = Secp256k1.exportCompactRecSig sig
-      in (Short.fromShort $ Secp256k1.getCompactRecSigR csr) <>
-           (Short.fromShort $ Secp256k1.getCompactRecSigS csr) <>
-           (B.pack [Secp256k1.getCompactRecSigV csr])
+      in Short.fromShort (Secp256k1.getCompactRecSigR csr) <>
+           Short.fromShort (Secp256k1.getCompactRecSigS csr) <>
+           B.pack [Secp256k1.getCompactRecSigV csr]
     makeRecoverableSignature _ bs =
       let (r,rest) = B.splitAt 32 bs
           (s,v) = B.splitAt 32 rest
