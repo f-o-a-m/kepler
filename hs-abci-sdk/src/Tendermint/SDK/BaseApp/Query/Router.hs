@@ -1,6 +1,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.BaseApp.Query.Router
   ( HasQueryRouter(..)
+  , emptyQueryServer
   , methodRouter
   ) where
 
@@ -21,7 +22,8 @@ import           Servant.API.Modifiers                (FoldLenient,
                                                        FoldRequired,
                                                        RequestArgument,
                                                        unfoldRequestArgument)
-import           Tendermint.SDK.BaseApp.Query.Types   (FromQueryData (..), Leaf,
+import           Tendermint.SDK.BaseApp.Query.Types   (EmptyQueryServer (..),
+                                                       FromQueryData (..), Leaf,
                                                        QA, QueryArgs (..),
                                                        QueryRequest (..),
                                                        QueryResult (..))
@@ -111,6 +113,13 @@ instance (FromQueryData a, HasQueryRouter sublayout r)
             }
         delayed = R.addBody subserver $ R.withRequest parseQueryArgs
     in routeQ (Proxy :: Proxy sublayout) pr delayed
+
+emptyQueryServer :: RouteQ EmptyQueryServer r
+emptyQueryServer = EmptyQueryServer
+
+instance HasQueryRouter EmptyQueryServer r where
+  type RouteQ EmptyQueryServer r = EmptyQueryServer
+  routeQ _ _ _ = R.StaticRouter mempty mempty
 
 --------------------------------------------------------------------------------
 

@@ -3,6 +3,7 @@ module Tendermint.SDK.BaseApp.Query
   , HasQueryRouter(..)
   , StoreQueryHandlers(..)
   , module Tendermint.SDK.BaseApp.Query.Types
+  , emptyQueryServer
   ) where
 
 import           Control.Lens                          ((&), (.~))
@@ -12,7 +13,8 @@ import qualified Network.ABCI.Types.Messages.Response  as Response
 import           Polysemy                              (Sem)
 import           Tendermint.SDK.BaseApp.Errors         (makeAppError,
                                                         queryAppError)
-import           Tendermint.SDK.BaseApp.Query.Router   (HasQueryRouter (..))
+import           Tendermint.SDK.BaseApp.Query.Router   (HasQueryRouter (..),
+                                                        emptyQueryServer)
 import           Tendermint.SDK.BaseApp.Query.Store    (StoreQueryHandlers (..))
 import           Tendermint.SDK.BaseApp.Query.Types
 import           Tendermint.SDK.BaseApp.Router.Delayed (emptyDelayed)

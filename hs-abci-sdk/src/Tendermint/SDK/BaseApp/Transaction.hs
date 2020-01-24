@@ -4,7 +4,7 @@ module Tendermint.SDK.BaseApp.Transaction
     -- * Re-Exports
   , module Tendermint.SDK.BaseApp.Transaction.Types
   , HasTxRouter(..)
-  , emptyServer
+  , emptyTxServer
   , DefaultCheckTx(..)
   , TxEffs
   ) where

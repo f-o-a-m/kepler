@@ -45,7 +45,7 @@ instance (Member (Error AppError) r, ValidateMessage msg) =>  DefaultCheckTx (Ty
 
     defaultCheckTx _ _ = defaultCheckTxHandler
 
-instance DefaultCheckTx EmptyServer r where
-    type DefaultCheckTxT EmptyServer r = EmptyServer
+instance DefaultCheckTx EmptyTxServer r where
+    type DefaultCheckTxT EmptyTxServer r = EmptyTxServer
 
-    defaultCheckTx _ _ = EmptyServer
+    defaultCheckTx _ _ = EmptyTxServer

@@ -93,3 +93,5 @@ class FromQueryData a where
   fromQueryData bs = Right (toBytes bs ^. from rawKey)
 
 instance FromQueryData Address
+
+data EmptyQueryServer = EmptyQueryServer

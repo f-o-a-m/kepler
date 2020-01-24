@@ -1,7 +1,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.BaseApp.Transaction.Router
   ( HasTxRouter(..)
-  , emptyServer
+  , emptyTxServer
   ) where
 
 import           Control.Monad.IO.Class                      (liftIO)
@@ -79,9 +79,9 @@ instance ( HasMessageType msg, HasCodec msg, HasCodec (OnCheckReturn c oc a), Me
          R.addBody subserver $ R.withRequest f
       where mt = messageType (Proxy :: Proxy msg)
 
-emptyServer :: RouteTx EmptyServer r c
-emptyServer = EmptyServer
+emptyTxServer :: RouteTx EmptyTxServer r c
+emptyTxServer = EmptyTxServer
 
-instance HasTxRouter EmptyServer r c where
-  type RouteTx EmptyServer r c = EmptyServer
+instance HasTxRouter EmptyTxServer r c where
+  type RouteTx EmptyTxServer r c = EmptyTxServer
   routeTx _ _ _ _ = R.StaticRouter mempty mempty

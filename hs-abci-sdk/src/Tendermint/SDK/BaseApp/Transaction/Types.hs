@@ -24,7 +24,7 @@ data RouteContext = CheckTx | DeliverTx
 
 type TransactionApplication m = RoutingTx ByteString -> m TxResult
 
-data EmptyServer = EmptyServer
+data EmptyTxServer = EmptyTxServer
 
 data RoutingTx msg where
   RoutingTx :: Tx alg msg -> RoutingTx msg
