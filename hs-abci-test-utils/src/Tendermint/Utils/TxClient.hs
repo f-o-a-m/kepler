@@ -3,6 +3,8 @@
 module Tendermint.Utils.TxClient where
 
 import           Control.Lens                                ((^.))
+import           Control.Monad.IO.Class                      (liftIO)
+import           Control.Monad.Reader                        (ReaderT, ask)
 import           Crypto.Hash                                 (Digest)
 import           Crypto.Hash.Algorithms                      (SHA256)
 import           Data.Bifunctor                              (first)
@@ -71,6 +73,18 @@ class Monad m => RunTxClient m where
     -- | How to make a request.
     runTx :: RawTransaction -> m RPC.ResultBroadcastTxCommit
     getSigner :: m Signer
+
+data ClientConfig = ClientConfig
+  { clientSigner :: Signer
+  , clientRPC    :: RPC.Config
+  }
+
+instance RunTxClient (ReaderT ClientConfig IO) where
+    getSigner = clientSigner <$> ask
+    runTx tx = do
+      let txReq = RPC.broadcastTxCommit . RPC.RequestBroadcastTxCommit . Base64.fromBytes . encode $ tx
+      rpc <- clientRPC <$> ask
+      liftIO . RPC.runTendermintM rpc $ txReq
 
 class HasClient m layout where
 
