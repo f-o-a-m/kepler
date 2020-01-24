@@ -39,6 +39,7 @@ class SignatureSchema alg where
 
     makePubKey :: Proxy alg -> B.ByteString -> Maybe (PubKey alg)
     makeSignature :: Proxy alg -> B.ByteString -> Maybe (Signature alg)
+    derivePubKey :: Proxy alg -> PrivateKey alg -> PubKey alg
     addressFromPubKey :: Proxy alg -> PubKey alg -> Address
 
 -- | Class allowing for signing and recovering signatures for messages.
@@ -69,6 +70,7 @@ instance SignatureSchema Secp256k1 where
     makePubKey _ = Secp256k1.importPubKey
     makeSignature _ = Secp256k1.importSig
     -- For lack of a better idea, we're just going to use the Ethereum style here
+    derivePubKey _ = Secp256k1.derivePubKey
     addressFromPubKey _ = addressFromBytes . B.drop 12 . convert .
       hashWith Keccak_256 . Secp256k1.exportPubKey False
 

@@ -19,6 +19,7 @@ import qualified Tendermint.SDK.BaseApp.Transaction.Modifier as T
 import           Tendermint.SDK.Codec                        (HasCodec (..))
 import           Tendermint.SDK.Crypto                       (RecoverableSignatureSchema (..),
                                                               SignatureSchema (..))
+import           Tendermint.SDK.Types.Address                (Address)
 import           Tendermint.SDK.Types.Message                (HasMessageType (..),
                                                               TypedMessage (..))
 import           Tendermint.SDK.Types.Transaction            (RawTransaction (..),
@@ -48,7 +49,7 @@ makeRawTxForSigning TxOpts{..} msg =
     , rawTransactionSignature = ""
     }
 
-data Signer = Signer (RawTransaction -> RawTransaction)
+data Signer = Signer Address (RawTransaction -> RawTransaction)
 
 makeSignerFromKey
   :: RecoverableSignatureSchema alg
@@ -56,7 +57,7 @@ makeSignerFromKey
   => Proxy alg
   -> PrivateKey alg
   -> Signer
-makeSignerFromKey pa privKey = Signer $ \r ->
+makeSignerFromKey pa privKey = Signer (addressFromPubKey pa . derivePubKey pa $ privKey) $ \r ->
   let sig = serializeRecoverableSignature pa $
          signRawTransaction pa privKey $ r {rawTransactionSignature = ""}
   in r {rawTransactionSignature = sig}
@@ -74,7 +75,7 @@ data SynchronousResponse c d = SynchronousResponse
   , deliverTxResponse :: TxResponse d
   }
 
-data ClientResponse c d =
+data TxClientResponse c d =
     RPCError Text
   | ParseError T.RouteContext Text
   | Response (SynchronousResponse c d)
@@ -85,7 +86,7 @@ parseRPCResponse
   => Proxy a
   -> Proxy (oc :: T.OnCheck)
   -> RPC.ResultBroadcastTxCommit
-  -> ClientResponse (T.OnCheckReturn 'T.CheckTx oc a) a
+  -> TxClientResponse (T.OnCheckReturn 'T.CheckTx oc a) a
 parseRPCResponse _ _ RPC.ResultBroadcastTxCommit{..} =
       let
           makeCheckResp r@Response.CheckTx{..} = case checkTxCode of
