@@ -13,7 +13,6 @@ import           Tendermint.SDK.BaseApp.Errors     (AppError, SDKError (..),
 import qualified Tendermint.SDK.Modules.Auth       as A
 import           Tendermint.SDK.Types.Message      (Msg (..))
 import           Tendermint.SDK.Types.Transaction  (PreRoutedTx (..), Tx (..))
-import Debug.Trace (traceShow, trace)
 
 data AnteHandler r where
   AnteHandler :: (forall msg. M.Router r msg -> M.Router r msg) -> AnteHandler r
@@ -33,25 +32,25 @@ nonceAnteHandler
   => Member (Error AppError) r
   => AnteHandler r
 nonceAnteHandler = AnteHandler $ \(M.Router router) ->
-    M.Router $ \tx@(PreRoutedTx Tx{..}) -> traceShow ("ANTEHANDLER" :: String) $ do
+    M.Router $ \tx@(PreRoutedTx Tx{..}) -> do
       let Msg{msgAuthor} = txMsg
-      preMAcnt <- trace ("Getting account to check nonce...") $ A.getAccount msgAuthor
+      preMAcnt <- A.getAccount msgAuthor
       case preMAcnt of
         Just A.Account{accountNonce} -> do
-          trace ("Found account. Comparing nonces: Account " ++ show accountNonce ++ " Tx " ++ show txNonce) $
-            unless (accountNonce == txNonce - 1) $ throwSDKError (NonceException (accountNonce + 1) txNonce)
-        -- @NOTE: unitialized account -> txNonce == 1  (i.e., this is the first transaction)
+          unless (accountNonce + 1 == txNonce) $
+            throwSDKError (NonceException (accountNonce + 1) txNonce)
+        -- @NOTE: unitialized account -> txNonce = 1
         Nothing -> do
-          trace ("No account found. Checking tx nonce is 1:  " ++ show txNonce) $ unless (txNonce == 1) $
+          unless (txNonce == 1) $
             throwSDKError (NonceException 1 txNonce)
       result <- router tx
-      postMAcnt <- trace ("Getting account to update nonce...") $ A.getAccount msgAuthor
+      postMAcnt <- A.getAccount msgAuthor
       case postMAcnt of
         Just acnt@A.Account{accountNonce} -> do
-          trace ("Found account. Updating nonce to " ++ show (accountNonce + 1)) $ A.putAccount msgAuthor $
+          A.putAccount msgAuthor $
             acnt { A.accountNonce = accountNonce + 1}
         -- @NOTE: no-op when no nonce is availble to update
-        Nothing -> trace ("No account found. No nonce updated...") $ pure ()
+        Nothing -> pure ()
       pure result
 
 baseAppAnteHandler

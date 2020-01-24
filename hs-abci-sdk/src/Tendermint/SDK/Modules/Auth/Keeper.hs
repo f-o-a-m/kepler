@@ -9,7 +9,6 @@ import           Tendermint.SDK.BaseApp            (AppError, RawStore,
                                                     makeAppError, put)
 import           Tendermint.SDK.Modules.Auth.Types
 import           Tendermint.SDK.Types.Address      (Address)
-import Debug.Trace
 
 data Accounts m a where
   PutAccount :: Address -> Account -> Accounts m ()
@@ -36,7 +35,7 @@ eval = mapError makeAppError . evalAuth
           GetAccount addr ->
             get storeKey addr
           PutAccount addr acnt ->
-            trace ("Putting account " ++ show acnt ++ " @ " ++ show addr) $ put storeKey addr acnt
+            put storeKey addr acnt
         )
 
 --------------------------------------------------------------------------------
@@ -45,7 +44,7 @@ createAccount
   :: Members [Accounts, Error AuthError] r
   => Address
   -> Sem r Account
-createAccount addr = trace ("Attempting to create account @ " ++ show addr) $ do
+createAccount addr = do
   mAcct <- getAccount addr
   case mAcct of
     Just _ -> throw $ AccountAlreadyExists addr
