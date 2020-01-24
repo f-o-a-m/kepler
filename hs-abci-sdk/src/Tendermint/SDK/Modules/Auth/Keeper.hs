@@ -55,4 +55,4 @@ createAccount addr = trace ("Attempting to create account @ " ++ show addr) $ do
             , accountNonce = 0
             }
       putAccount addr emptyAccount
-      trace ("Created account successfully.") $ pure emptyAccount
+      pure emptyAccount

@@ -53,9 +53,9 @@ getAccountNonce userAddress = do
   let query = getAccount $ defaultQueryWithData userAddress
   ClientResponse{clientResponseData} <- runRPC query
   case clientResponseData of
-    -- unitialized account = 0 nonce
-    Nothing                     -> return 0
-    Just Account {accountNonce} -> return accountNonce
+    -- @NOTE: unitialized account -> txNonce == 1  (i.e., this is the first transaction)
+    Nothing                     -> return 1
+    Just Account {accountNonce} -> return (accountNonce + 1)
 
 -- sign a trx with a user's private key and add the user's account nonce
 mkSignedRawTransactionWithRoute :: HasCodec a => BS.ByteString -> User -> a -> IO RawTransaction

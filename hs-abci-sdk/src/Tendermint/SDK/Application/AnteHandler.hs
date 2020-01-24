@@ -37,20 +37,21 @@ nonceAnteHandler = AnteHandler $ \(M.Router router) ->
       let Msg{msgAuthor} = txMsg
       preMAcnt <- trace ("Getting account to check nonce...") $ A.getAccount msgAuthor
       case preMAcnt of
-        Just a@A.Account{accountNonce} -> trace ("Found " ++ show a) $ do
-          unless (accountNonce <= txNonce) $
-            throwSDKError (NonceException accountNonce txNonce)
-        Nothing -> trace ("No account found @ " ++ show msgAuthor) $ do
-          unless (txNonce == 0) $
-            throwSDKError (NonceException 0 txNonce)
+        Just A.Account{accountNonce} -> do
+          trace ("Found account. Comparing nonces: Account " ++ show accountNonce ++ " Tx " ++ show txNonce) $
+            unless (accountNonce == txNonce - 1) $ throwSDKError (NonceException (accountNonce + 1) txNonce)
+        -- @NOTE: unitialized account -> txNonce == 1  (i.e., this is the first transaction)
+        Nothing -> do
+          trace ("No account found. Checking tx nonce is 1:  " ++ show txNonce) $ unless (txNonce == 1) $
+            throwSDKError (NonceException 1 txNonce)
       result <- router tx
       postMAcnt <- trace ("Getting account to update nonce...") $ A.getAccount msgAuthor
       case postMAcnt of
-        Just acnt@A.Account{accountNonce} -> trace ("Found " ++ show acnt) $ do
-          A.putAccount msgAuthor $
+        Just acnt@A.Account{accountNonce} -> do
+          trace ("Found account. Updating nonce to " ++ show (accountNonce + 1)) $ A.putAccount msgAuthor $
             acnt { A.accountNonce = accountNonce + 1}
         -- @NOTE: no-op when no nonce is availble to update
-        Nothing -> pure ()
+        Nothing -> trace ("No account found. No nonce updated...") $ pure ()
       pure result
 
 baseAppAnteHandler
