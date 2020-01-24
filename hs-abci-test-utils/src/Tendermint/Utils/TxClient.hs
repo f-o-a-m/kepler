@@ -32,25 +32,25 @@ import           Tendermint.SDK.Types.Transaction            (RawTransaction (..
 import           Tendermint.SDK.Types.TxResult               (checkTxTxResult,
                                                               deliverTxTxResult)
 
-data Tx msg = Tx
-  { txMsg   :: msg
-  , txRoute :: Text
-  , txGas   :: Int64
-  , txNonce :: Word64
+data TxOpts = TxOpts
+  { txOptsRoute :: Text
+  , txOptsGas   :: Int64
+  , txOptsNonce :: Word64
   }
 
-makeRawTransactionForSigning
+makeRawTxForSigning
   :: forall msg.
      HasMessageType msg
   => HasCodec msg
-  => Tx msg
+  => TxOpts
+  -> msg
   -> RawTransaction
-makeRawTransactionForSigning Tx{..} =
+makeRawTxForSigning TxOpts{..} msg =
   RawTransaction
-    { rawTransactionData = TypedMessage (encode txMsg) (messageType $ Proxy @msg)
-    , rawTransactionGas = txGas
-    , rawTransactionNonce = txNonce
-    , rawTransactionRoute = txRoute
+    { rawTransactionData = TypedMessage (encode msg) (messageType $ Proxy @msg)
+    , rawTransactionGas = txOptsGas
+    , rawTransactionNonce = txOptsNonce
+    , rawTransactionRoute = txOptsRoute
     , rawTransactionSignature = ""
     }
 
@@ -69,22 +69,22 @@ makeSignerFromKey pa privKey = Signer $ \r ->
 
 class Monad m => RunTxClient m where
     -- | How to make a request.
-    runQuery :: RawTransaction -> m RPC.ResultBroadcastTx
-
+    runTx :: RawTransaction -> m RPC.ResultBroadcastTxCommit
+    getSigner :: m Signer
 
 class HasClient m layout where
 
     type ClientT (m :: * -> *) layout :: *
-    genClient :: Proxy m -> Proxy layout -> RawTransaction -> ClientT m layout
+    genClient :: Proxy m -> Proxy layout -> TxOpts -> ClientT m layout
 
 instance (HasClient m a, HasClient m b) => HasClient m (a :<|> b) where
     type ClientT m (a :<|> b) = ClientT m a :<|> ClientT m b
-    genClient pm _ r = genClient pm (Proxy @a) r :<|> genClient pm (Proxy @b) r
+    genClient pm _ opts = genClient pm (Proxy @a) opts :<|> genClient pm (Proxy @b) opts
 
 instance (KnownSymbol path, HasClient m a) => HasClient m (path :> a) where
     type ClientT m (path :> a) = ClientT m a
-    genClient pm _ r = genClient pm (Proxy @a) $
-      r { rawTransactionRoute = cs $ symbolVal (Proxy @path) }
+    genClient pm _ opts = genClient pm (Proxy @a) $
+      opts { txOptsRoute = cs $ symbolVal (Proxy @path) }
 
 data TxResponse a =
     TxResponse
@@ -136,6 +136,15 @@ parseRPCResponse _ _ RPC.ResultBroadcastTxCommit{..} =
           Right (check, deliver) -> Response $ SynchronousResponse check deliver
 
 
---instance ( HasMessageType msg, HasCodec msg, HasCodec (T.OnCheckReturn c oc a)
---         ) => HasClient m (T.TypedMessage msg T.:~> T.Return' c a) where
---    type ClientT m (T.TypedMessage msg T.:~> T.Return' c a) = msg ->
+instance ( HasMessageType msg, HasCodec msg
+         , HasCodec a, HasCodec (T.OnCheckReturn 'T.CheckTx oc a)
+         , RunTxClient m
+         ) => HasClient m (T.TypedMessage msg T.:~> T.Return' oc a) where
+    type ClientT m (T.TypedMessage msg T.:~> T.Return' oc a) = msg -> m (ClientResponse (T.OnCheckReturn 'T.CheckTx oc a) a)
+
+    genClient _ _ opts msg = do
+      let rawTxForSigning = makeRawTxForSigning opts msg
+      Signer signer <- getSigner
+      let rawTxWithSig = signer rawTxForSigning
+      txRes <- runTx rawTxWithSig
+      pure $ parseRPCResponse (Proxy @a) (Proxy @oc) txRes
