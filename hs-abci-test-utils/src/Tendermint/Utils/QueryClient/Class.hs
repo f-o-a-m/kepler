@@ -16,6 +16,7 @@ import qualified Network.ABCI.Types.Messages.Response   as Resp
 import qualified Network.Tendermint.Client              as RPC
 import           Servant.API
 import           Servant.API.Modifiers
+import           Tendermint.SDK.BaseApp.Errors          (queryAppError)
 import           Tendermint.SDK.BaseApp.Query.Store     (StoreLeaf)
 import           Tendermint.SDK.BaseApp.Query.Types     (Leaf, QA,
                                                          QueryArgs (..),
@@ -123,8 +124,8 @@ leafGenClient (q,qs) = do
   return $ case queryCode of
     0 -> case decode $ Base64.toBytes queryValue of
            Left err -> error $ "Impossible parse error: " <> cs err
-           Right a  -> QueryClientResponse (Just a) r
-    _ -> QueryClientResponse Nothing r
+           Right a  -> QueryResponse a r
+    _ -> QueryError $ r ^. queryAppError
 
 instance (RunQueryClient m, Queryable a, name ~  Name a, KnownSymbol name ) => HasQueryClient m (StoreLeaf a) where
     type ClientQ m (StoreLeaf a) = m (QueryClientResponse a)

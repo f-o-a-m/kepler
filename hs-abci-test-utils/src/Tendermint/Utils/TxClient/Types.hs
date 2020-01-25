@@ -69,16 +69,18 @@ data TxResponse a =
       , txResponseEvents :: [Event]
       }
   | TxError AppError
+  deriving (Eq, Show)
 
 data SynchronousResponse c d = SynchronousResponse
   { checkTxResponse   :: TxResponse c
   , deliverTxResponse :: TxResponse d
-  }
+  } deriving (Eq, Show)
 
 data TxClientResponse c d =
     RPCError Text
   | ParseError T.RouteContext Text
   | Response (SynchronousResponse c d)
+  deriving (Eq, Show)
 
 parseRPCResponse
   :: HasCodec a

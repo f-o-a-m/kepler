@@ -20,7 +20,7 @@ data Return' (c :: OnCheck) a
 
 type Return = Return' 'OnCheckUnit
 
-data RouteContext = CheckTx | DeliverTx
+data RouteContext = CheckTx | DeliverTx deriving (Eq, Show)
 
 type TransactionApplication m = RoutingTx ByteString -> m TxResult
 
