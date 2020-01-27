@@ -1,7 +1,6 @@
 module Tendermint.SDK.Application
   ( Modules(..)
   , Module(..)
-  , defaultTxChecker
   , HandlersContext(..)
   , AnteHandler(..)
   , baseAppAnteHandler

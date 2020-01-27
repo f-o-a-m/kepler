@@ -60,20 +60,20 @@ data QueryArgs a = QueryArgs
   } deriving Functor
 
 -- wrap data with default query fields
-defaultQueryWithData :: a -> QueryArgs a
-defaultQueryWithData x = QueryArgs
-  { queryArgsData = x
-  , queryArgsHeight = 0
+defaultQueryArgs :: QueryArgs ()
+defaultQueryArgs = QueryArgs
+  { queryArgsData = ()
+  , queryArgsHeight = -1
   , queryArgsProve = False
   }
 
 data QueryResult a = QueryResult
   { queryResultData   :: a
-  , queryResultIndex  :: WrappedVal Int64
+  , queryResultIndex  :: Int64
   , queryResultKey    :: Base64String
   , queryResultProof  :: Maybe Proof
-  , queryResultHeight :: WrappedVal Int64
-  } deriving Functor
+  , queryResultHeight :: Int64
+  } deriving (Eq, Show, Functor)
 
 --------------------------------------------------------------------------------
 
@@ -93,3 +93,5 @@ class FromQueryData a where
   fromQueryData bs = Right (toBytes bs ^. from rawKey)
 
 instance FromQueryData Address
+
+data EmptyQueryServer = EmptyQueryServer

@@ -1,6 +1,6 @@
 module SimpleStorage.Modules.SimpleStorage.Query
   ( CountStoreContents
-  , Api
+  , QueryApi
   , server
   ) where
 
@@ -14,11 +14,11 @@ import qualified Tendermint.SDK.BaseApp                     as BaseApp
 
 type CountStoreContents = '[(CountKey, Count)]
 
-type Api = BaseApp.QueryApi CountStoreContents
+type QueryApi = BaseApp.QueryApi CountStoreContents
 
 server
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-  => BaseApp.RouteT Api r
+  => BaseApp.RouteQ QueryApi r
 server =
   BaseApp.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
     storeKey (Proxy :: Proxy r)

@@ -39,6 +39,7 @@ class SignatureSchema alg where
 
     makePubKey :: Proxy alg -> B.ByteString -> Maybe (PubKey alg)
     makeSignature :: Proxy alg -> B.ByteString -> Maybe (Signature alg)
+    derivePubKey :: Proxy alg -> PrivateKey alg -> PubKey alg
     addressFromPubKey :: Proxy alg -> PubKey alg -> Address
 
 -- | Class allowing for signing and recovering signatures for messages.
@@ -47,7 +48,7 @@ class SignatureSchema alg => RecoverableSignatureSchema alg where
 
     signRecoverableMessage :: Proxy alg -> PrivateKey alg -> Message alg -> RecoverableSignature alg
     recover :: Proxy alg -> RecoverableSignature alg -> Message alg -> Maybe (PubKey alg)
-
+    serializeRecoverableSignature :: Proxy alg -> RecoverableSignature alg -> B.ByteString
     makeRecoverableSignature :: Proxy alg -> B.ByteString -> Maybe (RecoverableSignature alg)
 
 data Secp256k1
@@ -69,6 +70,7 @@ instance SignatureSchema Secp256k1 where
     makePubKey _ = Secp256k1.importPubKey
     makeSignature _ = Secp256k1.importSig
     -- For lack of a better idea, we're just going to use the Ethereum style here
+    derivePubKey _ = Secp256k1.derivePubKey
     addressFromPubKey _ = addressFromBytes . B.drop 12 . convert .
       hashWith Keccak_256 . Secp256k1.exportPubKey False
 
@@ -77,6 +79,11 @@ instance RecoverableSignatureSchema Secp256k1 where
 
     signRecoverableMessage _ priv dig = Secp256k1.signRecMsg priv (msgFromSHA256 dig)
     recover _ sig dig = Secp256k1.recover sig (msgFromSHA256 dig)
+    serializeRecoverableSignature _ sig =
+      let csr = Secp256k1.exportCompactRecSig sig
+      in Short.fromShort (Secp256k1.getCompactRecSigR csr) <>
+           Short.fromShort (Secp256k1.getCompactRecSigS csr) <>
+           B.pack [Secp256k1.getCompactRecSigV csr]
     makeRecoverableSignature _ bs =
       let (r,rest) = B.splitAt 32 bs
           (s,v) = B.splitAt 32 rest

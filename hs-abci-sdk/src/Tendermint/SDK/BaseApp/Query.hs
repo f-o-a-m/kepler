@@ -1,8 +1,9 @@
 module Tendermint.SDK.BaseApp.Query
-  ( serve
-  , HasRouter(..)
+  ( serveQueryApplication
+  , HasQueryRouter(..)
   , StoreQueryHandlers(..)
   , module Tendermint.SDK.BaseApp.Query.Types
+  , emptyQueryServer
   ) where
 
 import           Control.Lens                          ((&), (.~))
@@ -12,7 +13,8 @@ import qualified Network.ABCI.Types.Messages.Response  as Response
 import           Polysemy                              (Sem)
 import           Tendermint.SDK.BaseApp.Errors         (makeAppError,
                                                         queryAppError)
-import           Tendermint.SDK.BaseApp.Query.Class    (HasRouter (..))
+import           Tendermint.SDK.BaseApp.Query.Router   (HasQueryRouter (..),
+                                                        emptyQueryServer)
 import           Tendermint.SDK.BaseApp.Query.Store    (StoreQueryHandlers (..))
 import           Tendermint.SDK.BaseApp.Query.Types
 import           Tendermint.SDK.BaseApp.Router.Delayed (emptyDelayed)
@@ -20,14 +22,14 @@ import           Tendermint.SDK.BaseApp.Router.Router  (runRouter)
 import           Tendermint.SDK.BaseApp.Router.Types   (Application,
                                                         RouteResult (..))
 
-serve
-  :: HasRouter layout r
+serveQueryApplication
+  :: HasQueryRouter layout r
   => Proxy layout
   -> Proxy r
-  -> RouteT layout r
+  -> RouteQ layout r
   -> QueryApplication (Sem r)
-serve pl pr server =
-  toQueryApplication (runRouter (route pl pr (emptyDelayed (Route server))) ())
+serveQueryApplication pl pr server =
+  toQueryApplication (runRouter (routeQ pl pr (emptyDelayed (Route server))) ())
 
 toQueryApplication
   :: Application (Sem r) QueryRequest Response.Query

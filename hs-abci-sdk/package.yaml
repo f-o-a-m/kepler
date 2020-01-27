@@ -104,7 +104,7 @@ library:
   - Tendermint.SDK.BaseApp.Metrics
   - Tendermint.SDK.BaseApp.Metrics.Prometheus
   - Tendermint.SDK.BaseApp.Query
-  - Tendermint.SDK.BaseApp.Query.Class
+  - Tendermint.SDK.BaseApp.Query.Router
   - Tendermint.SDK.BaseApp.Query.Store
   - Tendermint.SDK.BaseApp.Query.Types
   - Tendermint.SDK.BaseApp.Router.Delayed
@@ -115,6 +115,11 @@ library:
   - Tendermint.SDK.BaseApp.Store.RawStore
   - Tendermint.SDK.BaseApp.Store.Scope
   - Tendermint.SDK.BaseApp.Transaction
+  - Tendermint.SDK.BaseApp.Transaction.Checker
+  - Tendermint.SDK.BaseApp.Transaction.Effect
+  - Tendermint.SDK.BaseApp.Transaction.Modifier
+  - Tendermint.SDK.BaseApp.Transaction.Router
+  - Tendermint.SDK.BaseApp.Transaction.Types
   - Tendermint.SDK.Codec
   - Tendermint.SDK.Crypto
   - Tendermint.SDK.Modules.Auth
@@ -173,3 +178,4 @@ tests:
       - servant
       - string-conversions
       - text
+      - validation

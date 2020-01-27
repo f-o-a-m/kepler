@@ -8,14 +8,16 @@ module Nameservice.Modules.Token
   , Address
   , Amount(..)
   , TokenError(..)
+
   , Transfer(..)
+  , Burn(..)
+  , FaucetAccount(..)
 
   -- * effects
   , Token
   , TokenEffs
   , Faucetted(..)
   , TransferEvent(..)
-  , FaucetAccount(..)
   , getBalance
   , faucetAccount
   , transfer
@@ -25,35 +27,37 @@ module Nameservice.Modules.Token
   -- * interpreter
   , eval
 
-  -- * router
-  , router
+  -- * Transaction
+  , MessageApi
+  , messageHandlers
 
   -- * Query Api
-  , Api
+  , QueryApi
   , server
 
   ) where
 
+import           Data.Proxy
 import           Nameservice.Modules.Token.Keeper
 import           Nameservice.Modules.Token.Messages
 import           Nameservice.Modules.Token.Query
 import           Nameservice.Modules.Token.Router
 import           Nameservice.Modules.Token.Types
 import           Polysemy                           (Members)
-import           Tendermint.SDK.Application         (Module (..),
-                                                     defaultTxChecker)
-import           Tendermint.SDK.BaseApp             (BaseAppEffs)
+import           Tendermint.SDK.Application         (Module (..))
+import           Tendermint.SDK.BaseApp             (BaseAppEffs,
+                                                     DefaultCheckTx (..))
 import           Tendermint.SDK.Types.Address       (Address)
 
-type TokenM r = Module "token" TokenMessage () Api TokenEffs r
+type TokenM r = Module "token" MessageApi QueryApi TokenEffs r
 
 tokenModule
   :: Members BaseAppEffs r
   => Members TokenEffs r
   => TokenM r
 tokenModule = Module
-  { moduleTxDeliverer = router
-  , moduleTxChecker = defaultTxChecker
+  { moduleTxDeliverer = messageHandlers
+  , moduleTxChecker = defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
   , moduleQueryServer = server
   , moduleEval = eval
   }

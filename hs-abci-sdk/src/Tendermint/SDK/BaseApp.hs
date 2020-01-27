@@ -66,15 +66,29 @@ module Tendermint.SDK.BaseApp
   , HistogramName(..)
 
   -- * Transaction
+  , TransactionApplication
+  , RoutingTx(..)
+  , RouteContext(..)
+  , RouteTx
+  , Return
+  , (:~>)
+  , TypedMessage
   , TxEffs
+  , EmptyTxServer
+  , emptyTxServer
+  , serveTxApplication
+  , DefaultCheckTx(..)
 
   -- * Query
   , Queryable(..)
   , FromQueryData(..)
   , QueryApi
-  , RouteT
+  , RouteQ
   , QueryResult(..)
   , storeQueryHandlers
+  , serveQueryApplication
+  , EmptyQueryServer
+  , emptyQueryServer
 
   ) where
 

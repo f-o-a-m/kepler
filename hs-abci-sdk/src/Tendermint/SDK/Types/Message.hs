@@ -1,20 +1,55 @@
 module Tendermint.SDK.Types.Message where
 
-import           Control.Lens                 (( # ))
-import           Data.String.Conversions      (cs)
-import           Data.Text                    (Text)
-import qualified Data.Validation              as V
-import qualified Proto3.Wire.Decode           as Wire
-import           Tendermint.SDK.Types.Address (Address)
+import           Control.Lens                   (Wrapped (..), from, iso, view,
+                                                 ( # ), (&), (.~), (^.))
+import           Data.Bifunctor                 (bimap)
+import           Data.ByteString                (ByteString)
+import qualified Data.ProtoLens                 as P
+import           Data.Proxy
+import           Data.String.Conversions        (cs)
+import           Data.Text                      (Text)
+import qualified Data.Validation                as V
+import qualified Proto.Types.Transaction        as T
+import qualified Proto.Types.Transaction_Fields as T
+import qualified Proto3.Wire.Decode             as Wire
+import           Tendermint.SDK.Codec           (HasCodec (..))
+import           Tendermint.SDK.Types.Address   (Address)
 
 -- | The basic message format embedded in any transaction.
 data Msg msg = Msg
   { msgAuthor :: Address
   , msgData   :: msg
+  , msgType   :: Text
   }
 
 instance Functor Msg where
   fmap f msg@Msg{msgData} = msg {msgData = f msgData}
+
+class HasMessageType msg where
+  messageType :: Proxy msg -> Text
+
+data TypedMessage = TypedMessage
+  { typedMsgData :: ByteString
+  , typedMsgType :: Text
+  }
+
+instance Wrapped TypedMessage where
+  type Unwrapped TypedMessage = T.TypedMessage
+
+  _Wrapped' = iso t f
+   where
+    t TypedMessage {..} =
+      P.defMessage
+        & T.data' .~ typedMsgData
+        & T.type' .~ typedMsgType
+    f message = TypedMessage
+      { typedMsgData = message ^. T.data'
+      , typedMsgType = message ^. T.type'
+      }
+
+instance HasCodec TypedMessage where
+  encode = P.encodeMessage . view _Wrapped'
+  decode = bimap cs (view $ from _Wrapped') . P.decodeMessage
 
 -- | This is a general error type, primarily accomodating protobuf messages being parsed
 -- | by either the [proto3-wire](https://hackage.haskell.org/package/proto3-wire)

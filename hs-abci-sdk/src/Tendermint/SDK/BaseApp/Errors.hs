@@ -23,7 +23,7 @@ data AppError = AppError
   { appErrorCode      :: Word32
   , appErrorCodespace :: Text
   , appErrorMessage   :: Text
-  } deriving Show
+  } deriving (Eq, Show)
 
 instance Exception AppError
 
