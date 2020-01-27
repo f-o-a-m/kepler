@@ -176,5 +176,6 @@ tests:
     - hs-tendermint-client
     - hspec
     - lens
+    - mtl
     - nameservice
     - servant

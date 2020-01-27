@@ -8,14 +8,16 @@ module Nameservice.Modules.Token
   , Address
   , Amount(..)
   , TokenError(..)
+
   , Transfer(..)
+  , Burn(..)
+  , FaucetAccount(..)
 
   -- * effects
   , Token
   , TokenEffs
   , Faucetted(..)
   , TransferEvent(..)
-  , FaucetAccount(..)
   , getBalance
   , faucetAccount
   , transfer

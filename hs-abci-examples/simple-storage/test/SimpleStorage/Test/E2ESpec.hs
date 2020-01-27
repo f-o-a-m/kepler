@@ -9,8 +9,8 @@ import           SimpleStorage.Application
 import qualified SimpleStorage.Modules.SimpleStorage as SS
 import           Tendermint.SDK.Application.Module   (AppQueryRouter (QApi),
                                                       AppTxRouter (TApi))
-import           Tendermint.SDK.BaseApp.Query        (QueryArgs (..))
 import           Tendermint.SDK.BaseApp.Errors       (AppError (..))
+import           Tendermint.SDK.BaseApp.Query        (QueryArgs (..))
 import qualified Tendermint.SDK.Modules.Auth         as Auth
 import           Tendermint.SDK.Types.Address        (Address)
 import           Tendermint.Utils.Client             (ClientConfig (..),
@@ -96,7 +96,7 @@ txClientConfig =
             if appErrorCode e == 2
               then pure 0
               else error $ "Unknown nonce error: " <> show (appErrorMessage e)
-          QueryResponse {queryClientResponseData} -> 
+          QueryResponse {queryClientResponseData} ->
             pure $ Auth.accountNonce queryClientResponseData
 
   in ClientConfig

@@ -29,7 +29,10 @@ data TxOpts = TxOpts
   , txOptsSigner :: Signer
   }
 
-data Signer = Signer Address (RawTransaction -> RawTransaction)
+data Signer = Signer
+  { signerAddress :: Address
+  , signerSign    :: RawTransaction -> RawTransaction
+  }
 
 makeSignerFromKey
   :: RecoverableSignatureSchema alg
