@@ -29,7 +29,7 @@ services:
     restart: always
     depends_on:
       - elk
-    expose:
+    ports:
       - "26658"
       - "5555:5555"
   datadog:

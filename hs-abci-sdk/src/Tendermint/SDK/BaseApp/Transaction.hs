@@ -1,74 +1,59 @@
 module Tendermint.SDK.BaseApp.Transaction
-  ( TxEffs
-  , TransactionContext(..)
-  , newTransactionContext
-  , eval
+  ( serveTxApplication
+  , serveDefaultTxChecker
+    -- * Re-Exports
+  , module Tendermint.SDK.BaseApp.Transaction.Types
+  , HasTxRouter(..)
+  , emptyTxServer
+  , DefaultCheckTx(..)
+  , TxEffs
   ) where
 
-import           Control.Lens                     ((&), (.~))
-import           Control.Monad.IO.Class           (liftIO)
-import qualified Data.ByteArray.Base64String      as Base64
-import           Data.Default.Class               (def)
-import           Data.IORef                       (IORef, newIORef, readIORef)
-import           Polysemy                         (Embed, Member, Sem,
-                                                   raiseUnder)
-import           Polysemy.Error                   (Error, runError)
-import           Polysemy.Output                  (Output,
-                                                   runOutputMonoidAssocR)
-import           Polysemy.State                   (State, runStateIORef)
-import           Tendermint.SDK.BaseApp.Errors    (AppError, txResultAppError)
-import qualified Tendermint.SDK.BaseApp.Events    as E
-import qualified Tendermint.SDK.BaseApp.Gas       as G
-import           Tendermint.SDK.Codec             (HasCodec (encode))
-import           Tendermint.SDK.Types.Effects     ((:&))
-import           Tendermint.SDK.Types.Transaction (PreRoutedTx (..), Tx (..))
-import           Tendermint.SDK.Types.TxResult    (TxResult, txResultData,
-                                                   txResultEvents,
-                                                   txResultGasUsed,
-                                                   txResultGasWanted)
+import           Control.Lens                               ((&), (.~))
+import           Data.Proxy
+import           Polysemy                                   (Sem)
+import           Tendermint.SDK.BaseApp.Errors              (makeAppError,
+                                                             txResultAppError)
+import           Tendermint.SDK.BaseApp.Router              (Application,
+                                                             RouteResult (..),
+                                                             emptyDelayed,
+                                                             runRouter)
+import           Tendermint.SDK.BaseApp.Transaction.Checker (DefaultCheckTx (..))
+import           Tendermint.SDK.BaseApp.Transaction.Effect  (TxEffs)
+import           Tendermint.SDK.BaseApp.Transaction.Router
+import           Tendermint.SDK.BaseApp.Transaction.Types
+import           Tendermint.SDK.Types.TxResult              (TxResult)
 
-type TxEffs =
-    [ Output E.Event
-    , G.GasMeter
-    , Error AppError
-    ]
+import           Data.ByteString                            (ByteString)
+import           Data.Default.Class                         (def)
 
-data TransactionContext = TransactionContext
-  { gas :: IORef G.GasAmount
-  }
+serveTxApplication
+  :: HasTxRouter layout r c
+  => Proxy layout
+  -> Proxy r
+  -> Proxy (c :: RouteContext)
+  -> RouteTx layout r c
+  -> TransactionApplication (Sem r)
+serveTxApplication pl pr pc server =
+  toTxApplication (runRouter (routeTx pl pr pc (emptyDelayed (Route server))) ())
 
-newTransactionContext
-  :: PreRoutedTx msg
-  -> IO TransactionContext
-newTransactionContext (PreRoutedTx Tx{txGas}) = do
-  initialGas <- newIORef $ G.GasAmount txGas
-  pure TransactionContext
-    { gas = initialGas
-    }
+toTxApplication
+  :: Application (Sem r) (RoutingTx ByteString) TxResult
+  -> TransactionApplication (Sem r)
+toTxApplication ra tx = do
+  res <- ra tx
+  case res of
+    Fail e      -> pure $ def & txResultAppError .~ makeAppError e
+    FailFatal e -> pure $ def & txResultAppError .~ makeAppError e
+    Route a     -> pure a
 
-eval
-  :: forall r a.
-     HasCodec a
-  => Member (Embed IO) r
-  => TransactionContext
-  -> Sem (TxEffs :& r) a
-  -> Sem r TxResult
-eval TransactionContext{..} action = do
-  initialGas <- liftIO $ readIORef gas
-  eRes <-
-    runError .
-      runStateIORef gas .
-      G.eval .
-      raiseUnder @(State G.GasAmount) $
-      runOutputMonoidAssocR (pure @[]) action
-  gasRemaining <- liftIO $ readIORef gas
-  let gasUsed = initialGas - gasRemaining
-      baseResponse =
-        def & txResultGasWanted .~ G.unGasAmount initialGas
-            & txResultGasUsed .~ G.unGasAmount gasUsed
-  return $ case eRes of
-    Left e ->
-      baseResponse & txResultAppError .~ e
-    Right (events, a) ->
-      baseResponse & txResultEvents .~ events
-                   & txResultData .~ Base64.fromBytes (encode a)
+
+serveDefaultTxChecker
+  :: HasTxRouter layout r 'CheckTx
+  => DefaultCheckTx layout r
+  => RouteTx layout r 'CheckTx ~ DefaultCheckTxT layout r
+  => Proxy layout
+  -> Proxy r
+  -> TransactionApplication (Sem r)
+serveDefaultTxChecker pl pr =
+  serveTxApplication pl pr (Proxy :: Proxy 'CheckTx) (defaultCheckTx pl pr)

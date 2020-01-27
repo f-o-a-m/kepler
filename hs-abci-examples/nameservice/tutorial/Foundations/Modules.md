@@ -5,10 +5,10 @@
 A `Module` has a very specific meaning in the context of this SDK. A `Module` is something between a library and a small state machine. It is built on top of the `BaseApp` abstraction in the sense that all `Module`s must be explicitly interpeted in terms of `BaseApp` in order to compile the application. The full type definition is
 
 ~~~ haskell ignore
-data Module (name :: Symbol) msg (api :: *) (val :: *) (s :: EffectRow) (r :: EffectRow) = Module
-  { moduleTxDeliverer :: RoutedTx msg -> Sem r val
-  , moduleTxChecker   :: RoutedTx msg -> Sem r val
-  , moduleQueryServer :: RouteT api (Sem r)
+data Module (name :: Symbol) (h :: *) (q :: *) (s :: EffectRow) (r :: EffectRow) = Module
+  { moduleTxDeliverer :: T.RouteTx h r 'DeliverTx
+  , moduleTxChecker :: T.RouteTx h r 'CheckTx
+  , moduleQueryServer :: Q.RouteQ q r
   , moduleEval :: forall deps. Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
   }
 ~~~
@@ -16,9 +16,8 @@ data Module (name :: Symbol) msg (api :: *) (val :: *) (s :: EffectRow) (r :: Ef
 where the type parameters
 
 - `name` is the name of the module, e.g. `"bank"`.
-- `msg` is the type of the incoming messages the module must handle.
-- `val` is the type of the return value (must be common across all messages the module receives).
-- `api` is the query api for querying state in the url format (more on this later).  
+- `h` is the transaction router api type.
+- `q` is the query api type for querying state in the url format (more on this later).  
 - `s` is the set of effects introduced by this module.
 - `r` is the global set of effects that this module will run in when part of a larger application (more on this later).
 

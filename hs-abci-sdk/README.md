@@ -15,7 +15,7 @@ The SDK makes heavy use of an effects system to separate different components of
 
 ### BaseApp Effects
 
-`BaseApp` is the set of effects that the SDK is written in. Every other module developed during the course of application development must eventually be compiled to this set of effects. As of now, `BaseApp` effects allows for things like access to storage, error handling, event logging, console logging, etc. 
+`BaseApp` is the set of effects that the SDK is written in. Every other module developed during the course of application development must eventually be compiled to this set of effects. As of now, `BaseApp` effects allows for things like access to storage, error handling, metrics logging, console logging, etc. 
 
 ### Application Specific Effects
 

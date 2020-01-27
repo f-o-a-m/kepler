@@ -2,7 +2,7 @@
 
 ## Message Types
 
-The `Message` module is ultimately a small state machine used for processing messages. Each module must define what messages it accepts, if any. Like many other types found in the SDK, this message class must implement the `HasCodec` class. We recommend using a protobuf serialization format for messages using either the `proto3-suite` or `proto-lens` libraries, though in theory you could use anything (e.g. `JSON`).
+Each module is ultimately a small state machine used for processing messages. Each module must define what messages it accepts, if any. Like many other types found in the SDK, this message class must implement the `HasCodec` class. We recommend using a protobuf serialization format for messages using either the `proto3-suite` or `proto-lens` libraries, though in theory you could use anything (e.g. `JSON`).
 
 ### `proto3-suite`
 The advantages of using the `proto3-suite` library are that it has support for generics and that you can generate a `.proto` file from your haskell code for export to other applications. This is particularly useful when prototyping or when you have control over the message specification. 
@@ -26,10 +26,9 @@ import Data.Text (Text)
 import GHC.Generics (Generic)
 import Nameservice.Modules.Nameservice.Types (Name(..))
 import Nameservice.Modules.Token (Amount)
-import Nameservice.Modules.TypedMessage (TypedMessage(..))
 import Proto3.Suite (Named, Message, fromByteString, toLazyByteString)
 import Tendermint.SDK.Types.Address (Address)
-import Tendermint.SDK.Types.Message (Msg(..), ValidateMessage(..),
+import Tendermint.SDK.Types.Message (Msg(..), ValidateMessage(..), HasMessageType(..),
                                      isAuthorCheck, nonEmptyCheck,
                                      coerceProto3Error, formatMessageParseError)
 import Tendermint.SDK.Codec (HasCodec(..))
@@ -81,44 +80,27 @@ instance HasCodec BuyName where
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 ~~~
 
-We want a sum type that covers all possible messages the module can receive. As `protobuf` is a schemaless format, parsing is sometimes ambiguous if two types are the same up to field names, or one is a subset of the other. For this reason we defined a type called `TypedMessage`:
+As `protobuf` is a schemaless format, parsing is sometimes ambiguous if two types are the same up to field names, or one is a subset of the other. For this reason we use the type class `HasTypedMessage`
 
 ~~~ haskell ignore
-data TypedMessage = TypedMessage
-  { typedMessageType     :: Text
-  , typedMessageContents :: BS.ByteString
-  } deriving (Eq, Show, Generic)
-
-instance Message TypedMessage
-instance Named TypedMessage
-
-instance HasCodec TypedMessage where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+class HasMessageType msg where
+  messageType :: Proxy msg -> Text
 ~~~
 
-This allows us to disambiguated messages based on the `type` field, so that for example we can distinguish `DeleteName` from a submessage of `BuyName`. With that out of the way, we can define the module level (sum) message type:
+to associate each message to a tag to assist in parsing. So for example, we can implement this class for our message types as
 
 ~~~ haskell
-data NameserviceMessage =
-    NSetName SetName
-  | NBuyName BuyName
-  | NDeleteName DeleteName
-  deriving (Eq, Show, Generic)
 
-instance HasCodec NameserviceMessage where
-  decode bs = do
-    TypedMessage{..} <- decode bs
-    case typedMessageType of
-      "SetName" -> NSetName <$> decode typedMessageContents
-      "DeleteName" -> NDeleteName <$> decode typedMessageContents
-      "BuyName" -> NBuyName <$> decode typedMessageContents
-      _ -> Left . cs $ "Unknown Nameservice message type " ++ cs typedMessageType
-  encode = \case
-    NSetName msg -> encode msg
-    NBuyName msg -> encode msg
-    NDeleteName msg -> encode msg
+instance HasMessageType SetName where
+  messageType _ = "SetName"
+
+instance HasMessageType DeleteName where
+  messageType _ = "DeleteName"
+
+instance HasMessageType BuyName where
+  messageType _ = "BuyName"
 ~~~
+
 
 ## Message Validation
 
@@ -190,16 +172,6 @@ instance ValidateMessage BuyName where
         , nonEmptyCheck "Value" buyNameValue
         , isAuthorCheck "Owner" msg buyNameBuyer
         ]
-~~~
-
-Finally we can define a `ValidateMessage` instance for our top level message type by dispatching on the message type:
-
-~~~ haskell
-instance ValidateMessage NameserviceMessage where
-  validateMessage m@Msg{msgData} = case msgData of
-    NBuyName msg    -> validateMessage m {msgData = msg}
-    NSetName msg    -> validateMessage m {msgData = msg}
-    NDeleteName msg -> validateMessage m {msgData = msg}
 ~~~
 
 [Next: Keeper](Keeper.md)

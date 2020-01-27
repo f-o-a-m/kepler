@@ -7,7 +7,7 @@ This is the official repository for the Haskell implementation of the ABCI serve
 SDK for developing applications backed by the Tendermint replication engine. You can
 read more about Tendermint and the ABCI specs in their [documentation](https://tendermint.com/docs/spec/abci/).
 
-To understand how to build a simple application using this library, see the literate haskell [walkthrough](https://github.com/f-o-a-m/hs-abci/tree/walkthrough/hs-abci-examples/nameservice/tutorial).
+To understand how to build a simple application using this library, see the literate haskell [walkthrough](https://github.com/f-o-a-m/hs-abci/blob/master/hs-abci-examples/nameservice/README.md).
 
 ## Build
 

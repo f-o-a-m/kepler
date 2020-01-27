@@ -1,27 +1,56 @@
-module Nameservice.Modules.Token.Router where
+module Nameservice.Modules.Token.Router
+  ( MessageApi
+  , messageHandlers
+
+  ) where
 
 import           Nameservice.Modules.Token.Keeper   (TokenEffs, burn,
                                                      faucetAccount, transfer)
-import           Nameservice.Modules.Token.Messages (Burn (..),
-                                                     TokenMessage (..),
+import           Nameservice.Modules.Token.Messages (Burn (..), FaucetAccount,
                                                      Transfer (..))
 import           Polysemy                           (Members, Sem)
-import           Tendermint.SDK.BaseApp             (BaseAppEffs, TxEffs)
+import           Servant.API                        ((:<|>) (..))
+import           Tendermint.SDK.BaseApp             ((:~>), BaseAppEffs, Return,
+                                                     RouteContext (..), RouteTx,
+                                                     RoutingTx (..), TxEffs,
+                                                     TypedMessage)
 import           Tendermint.SDK.Types.Message       (Msg (..))
-import           Tendermint.SDK.Types.Transaction   (PreRoutedTx (..), Tx (..))
+import           Tendermint.SDK.Types.Transaction   (Tx (..))
 
-router
+type MessageApi =
+       TypedMessage Burn :~> Return ()
+  :<|> TypedMessage Transfer :~> Return ()
+  :<|> TypedMessage FaucetAccount :~> Return ()
+
+messageHandlers
   :: Members TokenEffs r
   => Members BaseAppEffs r
+  => RouteTx MessageApi r 'DeliverTx
+messageHandlers = burnH :<|> transferH :<|> faucetH
+
+transferH
+  :: Members TokenEffs r
   => Members TxEffs r
-  => PreRoutedTx TokenMessage
+  => Members BaseAppEffs r
+  => RoutingTx Transfer
   -> Sem r ()
-router (PreRoutedTx Tx{txMsg}) =
-  let Msg{msgData} = txMsg
-  in case msgData of
-       TFaucetAccount faucet ->
-         faucetAccount faucet
-       TTransfer Transfer{..} ->
-         transfer transferFrom transferAmount transferTo
-       TBurn Burn{..} ->
-         burn burnAddress burnAmount
+transferH (RoutingTx Tx{txMsg=Msg{msgData}}) =
+  let Transfer{..} = msgData
+  in transfer transferFrom transferAmount transferTo
+
+burnH
+  :: Members TokenEffs r
+  => RoutingTx Burn
+  -> Sem r ()
+burnH (RoutingTx Tx{txMsg=Msg{msgData}}) =
+  let Burn{..} = msgData
+  in burn burnAddress burnAmount
+
+faucetH
+  :: Members TokenEffs r
+  => Members TxEffs r
+  => Members BaseAppEffs r
+  => RoutingTx FaucetAccount
+  -> Sem r ()
+faucetH (RoutingTx Tx{txMsg=Msg{msgData}}) =
+  faucetAccount msgData

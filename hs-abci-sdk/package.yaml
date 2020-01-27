@@ -59,11 +59,11 @@ library:
     - errors
     - hs-abci-server
     - hs-abci-types
+    - http-api-data
     - http-types
     - katip
     - lens
     - memory
-    - mmorph
     - mtl
     - polysemy
     - polysemy-plugin
@@ -104,15 +104,22 @@ library:
   - Tendermint.SDK.BaseApp.Metrics
   - Tendermint.SDK.BaseApp.Metrics.Prometheus
   - Tendermint.SDK.BaseApp.Query
-  - Tendermint.SDK.BaseApp.Query.Class
-  - Tendermint.SDK.BaseApp.Query.Delayed
   - Tendermint.SDK.BaseApp.Query.Router
   - Tendermint.SDK.BaseApp.Query.Store
   - Tendermint.SDK.BaseApp.Query.Types
+  - Tendermint.SDK.BaseApp.Router.Delayed
+  - Tendermint.SDK.BaseApp.Router.Types
+  - Tendermint.SDK.BaseApp.Router.Router
   - Tendermint.SDK.BaseApp.Store
   - Tendermint.SDK.BaseApp.Store.AuthTreeStore
   - Tendermint.SDK.BaseApp.Store.RawStore
   - Tendermint.SDK.BaseApp.Store.Scope
+  - Tendermint.SDK.BaseApp.Transaction
+  - Tendermint.SDK.BaseApp.Transaction.Checker
+  - Tendermint.SDK.BaseApp.Transaction.Effect
+  - Tendermint.SDK.BaseApp.Transaction.Modifier
+  - Tendermint.SDK.BaseApp.Transaction.Router
+  - Tendermint.SDK.BaseApp.Transaction.Types
   - Tendermint.SDK.Codec
   - Tendermint.SDK.Crypto
   - Tendermint.SDK.Modules.Auth
@@ -137,6 +144,8 @@ tests:
     - Tendermint.SDK.Test.CryptoSpec
     - Tendermint.SDK.Test.GasSpec
     - Tendermint.SDK.Test.MetricsSpec
+    - Tendermint.SDK.Test.SimpleStorage
+    - Tendermint.SDK.Test.QuerySpec
 
     ghc-options:
     - -fplugin=Polysemy.Plugin
@@ -149,17 +158,24 @@ tests:
     dependencies:
       - base >= 4.7 && < 5
       - bytestring
+      - cereal
+      - cereal-text
       - containers
-      - lens
+      - cryptonite
       - cereal
       - hs-abci-sdk
       - hs-abci-types
       - hspec
       - hspec-core
       - hspec-discover
+      - lens
+      - memory
       - polysemy
       - polysemy-plugin
       - polysemy-zoo
       - prometheus
       - secp256k1-haskell
+      - servant
       - string-conversions
+      - text
+      - validation
