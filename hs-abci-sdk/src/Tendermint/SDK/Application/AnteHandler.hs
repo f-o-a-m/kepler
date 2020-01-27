@@ -4,7 +4,7 @@ module Tendermint.SDK.Application.AnteHandler
   , baseAppAnteHandler
   ) where
 
-import           Control.Monad                     (unless)
+import           Control.Monad                     (unless, void)
 import           Polysemy
 import           Polysemy.Error                    (Error)
 import qualified Tendermint.SDK.Application.Module as M
@@ -19,13 +19,25 @@ data AnteHandler r where
 
 instance Semigroup (AnteHandler r) where
   (<>) (AnteHandler h1) (AnteHandler h2) =
-      AnteHandler $ h1 . h2
+      AnteHandler $ h2 . h1
 
 instance Monoid (AnteHandler r) where
   mempty = AnteHandler id
 
 applyAnteHandler :: AnteHandler r -> M.Router r msg -> M.Router r msg
 applyAnteHandler (AnteHandler ah) = ($) ah
+
+createAccountAnteHandler
+  :: Members A.AuthEffs r
+  => AnteHandler r
+createAccountAnteHandler = AnteHandler $ \(M.Router router) ->
+  M.Router $ \tx@(PreRoutedTx Tx{..}) -> do
+    let Msg{msgAuthor} = txMsg
+    mAcnt <- A.getAccount msgAuthor
+    case mAcnt of
+      Nothing -> void $ A.createAccount msgAuthor
+      _ -> pure ()
+    router tx >>= pure
 
 nonceAnteHandler
   :: Members A.AuthEffs r
@@ -37,9 +49,9 @@ nonceAnteHandler = AnteHandler $ \(M.Router router) ->
       preMAcnt <- A.getAccount msgAuthor
       case preMAcnt of
         Just A.Account{accountNonce} -> do
-          unless (accountNonce + 1 == txNonce) $
-            throwSDKError (NonceException (accountNonce + 1) txNonce)
-        -- @NOTE: unitialized account -> txNonce = 1
+          let expectedNonce = accountNonce + 1
+          unless (txNonce == expectedNonce) $
+            throwSDKError (NonceException expectedNonce txNonce)
         Nothing -> do
           unless (txNonce == 1) $
             throwSDKError (NonceException 1 txNonce)
@@ -58,5 +70,6 @@ baseAppAnteHandler
   => Member (Error AppError) r
   => AnteHandler r
 baseAppAnteHandler = mconcat $
-  [ nonceAnteHandler
+  [ createAccountAnteHandler
+  , nonceAnteHandler
   ]

@@ -20,7 +20,7 @@ import Nameservice.Modules.Nameservice.Messages (DeleteName(..))
 import Nameservice.Modules.Nameservice.Types (Whois(..), Name, NameDeleted(..), NameserviceModuleName, NameserviceError(..))
 import qualified Tendermint.SDK.BaseApp as BA
 import Tendermint.SDK.Modules.Auth (AuthEffs, Coin(..))
-import Tendermint.SDK.Modules.Bank (mint)
+import Tendermint.SDK.Modules.Bank (BankEffs, mint)
 ~~~
 
 Generally a keeper is defined by a set of effects that the module introduces and depends on. In the case of Nameservice, we introduce the custom `Nameservice` effect:
@@ -51,6 +51,7 @@ We can then write the top level function for example for deleting a name:
 deleteName
   :: Member (Output BA.Event) r
   => Members AuthEffs r
+  => Members BankEffs r
   => Members [NameserviceKeeper, Error NameserviceError] r
   => DeleteName
   -> Sem r ()

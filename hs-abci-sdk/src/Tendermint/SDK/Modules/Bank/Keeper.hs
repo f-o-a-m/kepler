@@ -43,13 +43,14 @@ replaceCoinValue c@(Auth.Coin cid _) (c1@(Auth.Coin cid1 _):rest) =
 
 putCoinBalance
   :: Members Auth.AuthEffs r
+  => Members BankEffs r
   => Address
   -> Auth.Coin
   -> Sem r ()
 putCoinBalance address coin = do
   mAcnt <- Auth.getAccount address
   acnt <- case mAcnt of
-            Nothing -> pure =<< Auth.createAccount address
+            Nothing -> throw (PutOnNonExistentAccount address)
             Just a  -> pure a
   let updatedCoins = replaceCoinValue coin (Auth.accountCoins acnt)
       updatedAcnt = acnt { Auth.accountCoins = updatedCoins }
@@ -98,6 +99,7 @@ burn addr (Auth.Coin cid amount) = do
 
 mint
   :: Members Auth.AuthEffs r
+  => Members BankEffs r
   => Address
   -> Auth.Coin
   -> Sem r ()

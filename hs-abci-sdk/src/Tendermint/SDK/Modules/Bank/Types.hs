@@ -20,6 +20,7 @@ import           Tendermint.SDK.Types.Address (Address (..), addressFromBytes,
                                                addressToBytes)
 import           Web.HttpApiData              (FromHttpApiData (..),
                                                ToHttpApiData (..))
+import Data.String.Conversions (cs)
 
 --------------------------------------------------------------------------------
 
@@ -48,15 +49,22 @@ instance FromHttpApiData Address where
 --------------------------------------------------------------------------------
 
 data BankError =
-      InsufficientFunds Text
+    InsufficientFunds Text
+  | PutOnNonExistentAccount Address
 
 instance BaseApp.IsAppError BankError where
-    makeAppError (InsufficientFunds msg) =
-      BaseApp.AppError
-        { appErrorCode = 1
-        , appErrorCodespace = "bank"
-        , appErrorMessage = msg
-        }
+  makeAppError (InsufficientFunds msg) =
+    BaseApp.AppError
+    { appErrorCode = 1
+    , appErrorCodespace = "bank"
+    , appErrorMessage = msg
+    }
+  makeAppError (PutOnNonExistentAccount addr) =
+    BaseApp.AppError
+    { appErrorCode = 2
+    , appErrorCodespace = "bank"
+    , appErrorMessage = "Attempted to put balance on non-existent account: " <> (cs . show $ addr)
+    }
 
 --------------------------------------------------------------------------------
 -- Events

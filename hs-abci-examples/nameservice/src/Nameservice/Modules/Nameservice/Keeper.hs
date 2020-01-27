@@ -53,6 +53,7 @@ eval = mapError BaseApp.makeAppError . evalNameservice
 faucetAccount
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
   => Members AuthEffs r
+  => Members BankEffs r
   => FaucetAccount
   -> Sem r ()
 faucetAccount FaucetAccount{..} = do
@@ -91,6 +92,7 @@ setName SetName{..} = do
 deleteName
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
   => Members AuthEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
   => DeleteName
   -> Sem r ()
