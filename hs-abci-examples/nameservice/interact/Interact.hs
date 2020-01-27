@@ -1,23 +1,31 @@
 module Interact
-  ( -- actionBlock
-  -- , 
-    makeRandomUsers
+  ( actionBlock
+  , makeRandomUsers
   ) where
 
-import           Control.Monad                    (replicateM)
-
-import           Data.Char                        (isHexDigit)
-import           Data.String                      (fromString)
-import           Data.String.Conversions          (cs)
-import           Data.Text                        (Text)
-import qualified Faker.Lorem                      as Lorem
-import qualified Faker.Name                       as Name
-import qualified Faker.Utils                      as Utils
-import qualified Nameservice.Modules.Nameservice  as N
-import qualified Nameservice.Modules.Token        as T
-
-import           Test.RandomStrings               (onlyWith, randomASCII,
-                                                   randomString)
+import           Control.Monad                     (replicateM, void)
+import           Control.Monad.Reader              (ReaderT, runReaderT)
+import           Data.Char                         (isHexDigit)
+import           Data.Default.Class                (def)
+import           Data.Proxy
+import           Data.String                       (fromString)
+import           Data.String.Conversions           (cs)
+import           Data.Text                         (Text)
+import qualified Faker.Lorem                       as Lorem
+import qualified Faker.Name                        as Name
+import qualified Faker.Utils                       as Utils
+import           Nameservice.Application
+import qualified Nameservice.Modules.Nameservice   as N
+import qualified Nameservice.Modules.Token         as T
+import qualified Network.Tendermint.Client         as RPC
+import           Servant.API                       ((:<|>) (..))
+import           Tendermint.SDK.Application.Module (AppQueryRouter (QApi),
+                                                    AppTxRouter (TApi))
+import           Tendermint.SDK.BaseApp.Errors     (AppError (..))
+import           Tendermint.SDK.BaseApp.Query      (QueryArgs (..),
+                                                    QueryResult (..))
+import qualified Tendermint.SDK.Modules.Auth       as Auth
+import           Tendermint.SDK.Types.Address      (Address)
 import           Tendermint.Utils.Client           (ClientConfig (..),
                                                     EmptyTxClient (..),
                                                     HasQueryClient (..),
@@ -27,86 +35,54 @@ import           Tendermint.Utils.Client           (ClientConfig (..),
                                                     TxClientResponse (..),
                                                     TxOpts (..),
                                                     defaultClientTxOpts)
+import           Tendermint.Utils.ClientUtils      (assertTx, rpcConfig)
 import           Tendermint.Utils.User             (makeSignerFromUser,
                                                     makeUser)
-import           Tendermint.SDK.Application.Module (AppQueryRouter (QApi),
-                                                    AppTxRouter (TApi))
-import           Data.Proxy
-import           Servant.API                       ((:<|>) (..))
-import           Control.Monad.Reader              (ReaderT, runReaderT)
-import qualified Tendermint.SDK.Modules.Auth       as Auth
-import           Nameservice.Application
-import qualified Network.Tendermint.Client         as RPC
-import           Tendermint.SDK.BaseApp.Query      (QueryArgs (..),
-                                                    QueryResult (..))
-import           Tendermint.Utils.ClientUtils      (rpcConfig, assertTx)
-import           Tendermint.SDK.BaseApp.Errors     (AppError (..))
-import           Tendermint.SDK.Types.Address      (Address)
-import           Data.Default.Class                (def)
-import Control.Monad (void)
+import           Test.RandomStrings                (onlyWith, randomASCII,
+                                                    randomString)
+
 --------------------------------------------------------------------------------
 -- Actions
 --------------------------------------------------------------------------------
 
 faucetAccount :: Signer -> T.Amount -> IO ()
 faucetAccount s@(Signer addr _) amount =
-  void . assertTx . runTxClientM $
-    let msg = T.FaucetAccount addr amount
-        opts = TxOpts
-          { txOptsGas = 0
-          , txOptsSigner = s
-          }
-    in faucet opts msg
+  runAction_ s faucet $ T.FaucetAccount addr amount
 
 createName :: Signer -> N.Name -> Text -> IO ()
 createName s name val = buyName s name val 0
 
 buyName :: Signer -> N.Name -> Text -> T.Amount -> IO ()
 buyName s@(Signer addr _) name newVal amount =
-  void . assertTx . runTxClientM $
-    let msg = N.BuyName amount name newVal addr
-        opts = TxOpts
-          { txOptsGas = 0
-          , txOptsSigner = s
-          }
-    in buy opts msg
+  runAction_ s buy $ N.BuyName amount name newVal addr
 
 deleteName :: Signer -> N.Name -> IO ()
 deleteName s@(Signer addr _) name =
-  void . assertTx . runTxClientM $
-    let msg = N.DeleteName addr name
-        opts = TxOpts
-          { txOptsGas = 0
-          , txOptsSigner = s
-          }
-    in delete opts msg
+  runAction_ s delete $ N.DeleteName addr name
 
--- setName :: User -> Name -> Text -> IO ()
--- setName user@User{userAddress} name val =
---   runAction_ user "nameservice" "SetName" (SetName name userAddress val)
+setName :: Signer -> N.Name -> Text -> IO ()
+setName s@(Signer addr _) name val =
+  runAction_ s set $ N.SetName name addr val
 
--- runAction_
---   :: HasCodec a
---   => User
---   -> ByteString
---   -> Text
---   -> a
---   -> IO ()
--- runAction_ user bs t msg = runTransaction_ =<<
---   mkSignedRawTransactionWithRoute bs user (TypedMessage t (encode msg))
+runAction_
+  :: Signer
+  -> (TxOpts -> msg -> TxClientM (TxClientResponse () ()))
+  -> msg
+  -> IO ()
+runAction_ s f = void . assertTx . runTxClientM . f (TxOpts 0 s)
 
--- actionBlock :: (User, User) -> IO ()
--- actionBlock (user1, user2) = do
---   name <- genName
---   genCVal <- genWords
---   genBVal <- genWords
---   genBAmt <- genAmount
---   genSVal <- genWords
---   faucetAccount user2 genBAmt
---   createName user1 name genCVal
---   buyName user2 name genBVal genBAmt
---   setName user2 name genSVal
---   deleteName user2 name
+actionBlock :: (Signer, Signer) -> IO ()
+actionBlock (s1, s2) = do
+  name <- genName
+  genCVal <- genWords
+  genBVal <- genWords
+  genBAmt <- genAmount
+  genSVal <- genWords
+  faucetAccount s2 genBAmt
+  createName s1 name genCVal
+  buyName s2 name genBVal genBAmt
+  setName s2 name genSVal
+  deleteName s2 name
 
 --------------------------------------------------------------------------------
 -- Users
@@ -133,7 +109,7 @@ _ :<|> _ :<|> getAccount =
   where
     queryApiP :: Proxy (QApi NameserviceModules)
     queryApiP = Proxy
-  
+
  --------------------------------------------------------------------------------
 -- Tx Client
 --------------------------------------------------------------------------------

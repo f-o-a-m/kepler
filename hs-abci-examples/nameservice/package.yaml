@@ -140,12 +140,15 @@ executables:
     dependencies:
     - async
     - base
-    - bytestring
+    - data-default-class
     - faker
+    - mtl
     - nameservice
     - hs-abci-sdk
     - hs-abci-test-utils
+    - hs-tendermint-client
     - random-strings
+    - servant
     - string-conversions
     - text
 
