@@ -10,6 +10,7 @@ import qualified SimpleStorage.Modules.SimpleStorage as SS
 import           Tendermint.SDK.Application.Module   (AppQueryRouter (QApi),
                                                       AppTxRouter (TApi))
 import           Tendermint.SDK.BaseApp.Query        (QueryArgs (..))
+import           Tendermint.SDK.BaseApp.Errors       (AppError (..))
 import qualified Tendermint.SDK.Modules.Auth         as Auth
 import           Tendermint.SDK.Types.Address        (Address)
 import           Tendermint.Utils.Client             (ClientConfig (..),
@@ -83,13 +84,21 @@ getCount :<|> getAccount =
 
 txClientConfig :: ClientConfig
 txClientConfig =
-  let getNonce addr = fmap (Auth.accountNonce . fst) $
-        assertQuery $ RPC.runTendermintM rpcConfig $ getAccount $
+  let getNonce addr = do
+        resp <- RPC.runTendermintM rpcConfig $ getAccount $
           QueryArgs
             { queryArgsHeight = -1
             , queryArgsProve = False
             , queryArgsData = addr
             }
+        case resp of
+          QueryError e ->
+            if appErrorCode e == 2
+              then pure 0
+              else error $ "Unknown nonce error: " <> show (appErrorMessage e)
+          QueryResponse {queryClientResponseData} -> 
+            pure $ Auth.accountNonce queryClientResponseData
+
   in ClientConfig
        { clientGetNonce = getNonce
        , clientRPC = rpcConfig
