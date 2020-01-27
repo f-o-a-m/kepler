@@ -20,6 +20,7 @@ import           Tendermint.SDK.BaseApp.Errors          (queryAppError)
 import           Tendermint.SDK.BaseApp.Query.Store     (StoreLeaf)
 import           Tendermint.SDK.BaseApp.Query.Types     (Leaf, QA,
                                                          QueryArgs (..),
+                                                         QueryResult (..),
                                                          Queryable (..))
 import           Tendermint.SDK.BaseApp.Store           (RawKey (..))
 import           Tendermint.SDK.Codec                   (HasCodec (decode))
@@ -124,7 +125,13 @@ leafGenClient (q,qs) = do
   return $ case queryCode of
     0 -> case decode $ Base64.toBytes queryValue of
            Left err -> error $ "Impossible parse error: " <> cs err
-           Right a  -> QueryResponse a r
+           Right a  -> QueryResponse $ QueryResult
+             { queryResultData = a
+             , queryResultIndex = unWrappedVal queryIndex
+             , queryResultHeight =  unWrappedVal queryHeight
+             , queryResultProof = queryProof
+             , queryResultKey = queryKey
+             }
     _ -> QueryError $ r ^. queryAppError
 
 instance (RunQueryClient m, Queryable a, name ~  Name a, KnownSymbol name ) => HasQueryClient m (StoreLeaf a) where

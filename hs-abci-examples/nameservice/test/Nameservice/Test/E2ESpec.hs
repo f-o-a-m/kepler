@@ -13,7 +13,8 @@ import           Servant.API                       ((:<|>) (..))
 import           Tendermint.SDK.Application.Module (AppQueryRouter (QApi),
                                                     AppTxRouter (TApi))
 import           Tendermint.SDK.BaseApp.Errors     (AppError (..))
-import           Tendermint.SDK.BaseApp.Query      (QueryArgs (..))
+import           Tendermint.SDK.BaseApp.Query      (QueryArgs (..),
+                                                    defaultQueryArgs)
 import qualified Tendermint.SDK.Modules.Auth       as Auth
 import           Tendermint.SDK.Types.Address      (Address)
 import           Tendermint.Utils.Client           (ClientConfig (..),
@@ -47,13 +48,8 @@ spec = do
         resp `shouldBe` RPC.ResultHealth
 
       it "Can query account balances" $ do
-        let queryReq = QueryArgs
-              { queryArgsProve = False
-              , queryArgsData = signerAddress user1
-              , queryArgsHeight = -1
-              }
         void . assertQuery . RPC.runTendermintM rpcConfig $
-          getBalance queryReq
+          getBalance defaultQueryArgs { queryArgsData  = signerAddress user1 }
 
       it "Can create a name" $ do
         let val = "hello world"
@@ -80,28 +76,23 @@ spec = do
         filter ((==) claimedLog) es `shouldBe` [claimedLog]
 
       it "Can query for a name" $ do
-        let queryReq = QueryArgs
-              { queryArgsProve = False
-              , queryArgsHeight = -1
-              , queryArgsData = satoshi
-              }
-            expected = N.Whois
+        let expected = N.Whois
               { whoisValue = "hello world"
               , whoisOwner = signerAddress user1
               , whoisPrice = 0
               }
         foundWhois <- fmap fst . assertQuery . RPC.runTendermintM rpcConfig $
-          getWhois queryReq
+          getWhois defaultQueryArgs { queryArgsData = satoshi }
         foundWhois `shouldBe` expected
 
-  --    it "Can query for a name that doesn't exist" $ do
-  --      let nope = Name "nope"
-  --          queryReq = defaultQueryWithData nope
-  --      ClientResponse{ clientResponseData, clientResponseRaw } <- runRPC $ getWhois queryReq
-  --      let queryRespCode = clientResponseRaw ^. Response._queryCode
-  --      -- storage failure
-  --      queryRespCode `shouldBe` 2
-  --      clientResponseData `shouldBe` Nothing
+      it "Can query for a name that doesn't exist" $ do
+        let nope = Name "nope"
+            queryReq = defaultQueryWithData nope
+        ClientResponse{ clientResponseData, clientResponseRaw } <- runRPC $ getWhois queryReq
+        let queryRespCode = clientResponseRaw ^. Response._queryCode
+        -- storage failure
+        queryRespCode `shouldBe` 2
+        clientResponseData `shouldBe` Nothing
 
   --    it "Can set a name value (success 0)" $ do
   --      let oldVal = "hello world"

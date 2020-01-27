@@ -10,7 +10,9 @@ import qualified SimpleStorage.Modules.SimpleStorage as SS
 import           Tendermint.SDK.Application.Module   (AppQueryRouter (QApi),
                                                       AppTxRouter (TApi))
 import           Tendermint.SDK.BaseApp.Errors       (AppError (..))
-import           Tendermint.SDK.BaseApp.Query        (QueryArgs (..))
+import           Tendermint.SDK.BaseApp.Query        (QueryArgs (..),
+                                                      QueryResult (..),
+                                                      defaultQueryArgs)
 import qualified Tendermint.SDK.Modules.Auth         as Auth
 import           Tendermint.SDK.Types.Address        (Address)
 import           Tendermint.Utils.Client             (ClientConfig (..),
@@ -50,13 +52,9 @@ spec = do
       ensureResponseCodes (0,0) resp
 
     it "can make sure the synchronous tx transaction worked and the count is now 4" $ do
-      let queryReq = QueryArgs
-            { queryArgsData = SS.CountKey
-            , queryArgsHeight = 0
-            , queryArgsProve = False
-            }
-      foundCount <- fmap fst . assertQuery . RPC.runTendermintM rpcConfig $
-        getCount queryReq
+      resp <-  assertQuery . RPC.runTendermintM rpcConfig $
+        getCount defaultQueryArgs { queryArgsData = SS.CountKey }
+      let foundCount = queryResultData resp
       foundCount `shouldBe` SS.Count 4
 
 --------------------------------------------------------------------------------
@@ -86,18 +84,14 @@ txClientConfig :: ClientConfig
 txClientConfig =
   let getNonce addr = do
         resp <- RPC.runTendermintM rpcConfig $ getAccount $
-          QueryArgs
-            { queryArgsHeight = -1
-            , queryArgsProve = False
-            , queryArgsData = addr
-            }
+            defaultQueryArgs { queryArgsData = addr }
         case resp of
           QueryError e ->
             if appErrorCode e == 2
               then pure 0
               else error $ "Unknown nonce error: " <> show (appErrorMessage e)
-          QueryResponse {queryClientResponseData} ->
-            pure $ Auth.accountNonce queryClientResponseData
+          QueryResponse (QueryResult{queryResultData}) ->
+            pure $ Auth.accountNonce queryResultData
 
   in ClientConfig
        { clientGetNonce = getNonce

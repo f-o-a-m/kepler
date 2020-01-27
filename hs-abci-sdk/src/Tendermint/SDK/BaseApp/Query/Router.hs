@@ -5,32 +5,34 @@ module Tendermint.SDK.BaseApp.Query.Router
   , methodRouter
   ) where
 
-import           Control.Lens                         ((&), (.~))
-import           Control.Monad                        (join)
-import           Data.ByteArray.Base64String          (fromBytes)
-import           Data.Default.Class                   (def)
+import           Control.Lens                           ((&), (.~))
+import           Control.Monad                          (join)
+import           Data.ByteArray.Base64String            (fromBytes)
+import           Data.Default.Class                     (def)
 import           Data.Proxy
-import           Data.String.Conversions              (cs)
-import           Data.Text                            (Text)
-import           GHC.TypeLits                         (KnownSymbol, symbolVal)
-import           Network.ABCI.Types.Messages.Response as Response
-import           Network.HTTP.Types.URI               (QueryText,
-                                                       parseQueryText)
-import           Polysemy                             (Sem)
+import           Data.String.Conversions                (cs)
+import           Data.Text                              (Text)
+import           GHC.TypeLits                           (KnownSymbol, symbolVal)
+import           Network.ABCI.Types.Messages.FieldTypes (WrappedVal (..))
+import           Network.ABCI.Types.Messages.Response   as Response
+import           Network.HTTP.Types.URI                 (QueryText,
+                                                         parseQueryText)
+import           Polysemy                               (Sem)
 import           Servant.API
-import           Servant.API.Modifiers                (FoldLenient,
-                                                       FoldRequired,
-                                                       RequestArgument,
-                                                       unfoldRequestArgument)
-import           Tendermint.SDK.BaseApp.Query.Types   (EmptyQueryServer (..),
-                                                       FromQueryData (..), Leaf,
-                                                       QA, QueryArgs (..),
-                                                       QueryRequest (..),
-                                                       QueryResult (..))
-import qualified Tendermint.SDK.BaseApp.Router        as R
-import           Tendermint.SDK.Codec                 (HasCodec (..))
-import           Web.HttpApiData                      (FromHttpApiData (..),
-                                                       parseUrlPieceMaybe)
+import           Servant.API.Modifiers                  (FoldLenient,
+                                                         FoldRequired,
+                                                         RequestArgument,
+                                                         unfoldRequestArgument)
+import           Tendermint.SDK.BaseApp.Query.Types     (EmptyQueryServer (..),
+                                                         FromQueryData (..),
+                                                         Leaf, QA,
+                                                         QueryArgs (..),
+                                                         QueryRequest (..),
+                                                         QueryResult (..))
+import qualified Tendermint.SDK.BaseApp.Router          as R
+import           Tendermint.SDK.Codec                   (HasCodec (..))
+import           Web.HttpApiData                        (FromHttpApiData (..),
+                                                         parseUrlPieceMaybe)
 
 
 --------------------------------------------------------------------------------
@@ -130,8 +132,8 @@ methodRouter
 methodRouter action = R.leafRouter route'
   where
     route' env query = R.runAction action env query $ \QueryResult{..} ->
-       R.Route $ def & Response._queryIndex .~ queryResultIndex
+       R.Route $ def & Response._queryIndex .~ WrappedVal queryResultIndex
                    & Response._queryKey .~ queryResultKey
                    & Response._queryValue .~ fromBytes (encode queryResultData)
                    & Response._queryProof .~ queryResultProof
-                   & Response._queryHeight .~ queryResultHeight
+                   & Response._queryHeight .~ WrappedVal queryResultHeight
