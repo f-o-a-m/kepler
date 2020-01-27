@@ -71,9 +71,15 @@ buyName s@(Signer addr _) name newVal amount =
           }
     in buy opts msg
 
--- deleteName :: User -> Name -> IO ()
--- deleteName user@User{userAddress} name =
---   runAction_ user "nameservice" "DeleteName" (DeleteName userAddress name)
+deleteName :: Signer -> N.Name -> IO ()
+deleteName s@(Signer addr _) name =
+  void . assertTx . runTxClientM $
+    let msg = N.DeleteName addr name
+        opts = TxOpts
+          { txOptsGas = 0
+          , txOptsSigner = s
+          }
+    in delete opts msg
 
 -- setName :: User -> Name -> Text -> IO ()
 -- setName user@User{userAddress} name val =
