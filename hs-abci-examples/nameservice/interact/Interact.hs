@@ -61,8 +61,15 @@ faucetAccount s@(Signer addr _) amount =
 -- createName :: User -> Name -> Text -> IO ()
 -- createName user name val = buyName user name val 0
 
--- buyName :: User -> Name -> Text -> Amount -> IO ()
--- buyName user@User{userAddress} name newVal amount =
+buyName :: Signer -> N.Name -> Text -> T.Amount -> IO ()
+buyName s@(Signer addr _) name newVal amount =
+  void . assertTx . runTxClientM $
+    let msg = N.BuyName amount name newVal addr
+        opts = TxOpts
+          { txOptsGas = 0
+          , txOptsSigner = s
+          }
+    in buy opts msg
 --   runAction_ user "nameservice" "BuyName" (BuyName amount name newVal userAddress)
 
 -- deleteName :: User -> Name -> IO ()
@@ -154,17 +161,17 @@ runTxClientM :: TxClientM a -> IO a
 runTxClientM m = runReaderT m txClientConfig
 
 -- Nameservice Client
-buyName
+buy
   :: TxOpts
   -> N.BuyName
   -> TxClientM (TxClientResponse () ())
 
-setName
+set
   :: TxOpts
   -> N.SetName
   -> TxClientM (TxClientResponse () ())
 
-deleteName
+delete
   :: TxOpts
   -> N.DeleteName
   -> TxClientM (TxClientResponse () ())
@@ -175,7 +182,7 @@ faucet
   -> T.FaucetAccount
   -> TxClientM (TxClientResponse () ())
 
-(buyName :<|> setName :<|> deleteName) :<|>
+(buy :<|> set :<|> delete) :<|>
   (_ :<|> _ :<|> faucet) :<|>
   EmptyTxClient =
     genClientT (Proxy @TxClientM) txApiP defaultClientTxOpts
