@@ -408,10 +408,10 @@ deleteName
   -> TxClientM (TxClientResponse () ())
 
 -- Token Client
-burn
-  :: TxOpts
-  -> T.Burn
-  -> TxClientM (TxClientResponse () ())
+--burn
+--  :: TxOpts
+--  -> T.Burn
+--  -> TxClientM (TxClientResponse () ())
 
 transfer
   :: TxOpts
