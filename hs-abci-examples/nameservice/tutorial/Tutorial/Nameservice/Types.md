@@ -133,19 +133,11 @@ The [`cosmos-sdk`](https://github.com/cosmos/cosmos-sdk) assumes that you use `u
 In order to register the `Whois` type with the query service, you must implement the `Queryable` typeclass:
 
 ~~~ haskell ignore
-class Queryable a where
+class HasCodec a => Queryable a where
   type Name a :: Symbol
-  encodeQueryResult :: a -> Base64String
-  decodeQueryResult :: Base64String -> Either Text a
-
-  default encodeQueryResult :: HasCodec a => a -> Base64String
-  encodeQueryResult = fromBytes . encode
-
-  default decodeQueryResult :: HasCodec a => Base64String -> Either Text a
-  decodeQueryResult = decode . toByte
 ~~~
 
-What this means is that you need to supply codecs for the type to query, with the default using the `HasCodec` class. You also need to name the type, as this will match the leaf of the `url` used for querying. So for example, in the Nameservice app we have
+This means that any item which is queryable needs to have codecs via the `HasCodec` class. You also need to name the type, as this will match the leaf of the `url` used for querying. So for example, in the Nameservice app we have
 
 ~~~ haskell
 instance BA.Queryable Whois where
