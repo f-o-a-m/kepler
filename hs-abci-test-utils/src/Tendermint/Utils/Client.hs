@@ -2,13 +2,19 @@ module Tendermint.Utils.Client
   ( RunQueryClient(..)
   , HasQueryClient(..)
   , QueryClientResponse(..)
+  , EmptyQueryClient(..)
 
   , HasTxClient(..)
   , RunTxClient(..)
+  , EmptyTxClient(..)
   , TxClientResponse(..)
   , SynchronousResponse(..)
   , TxResponse(..)
+  , ClientConfig(..)
+  , defaultClientTxOpts
+
   , Signer(..)
+  , TxOpts(..)
   , makeSignerFromKey
 
   ) where

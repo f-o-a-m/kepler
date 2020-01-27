@@ -134,4 +134,5 @@ tests:
       - hs-tendermint-client
       - hspec
       - lens
+      - mtl
       - servant

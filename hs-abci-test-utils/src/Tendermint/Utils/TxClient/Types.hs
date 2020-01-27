@@ -8,7 +8,6 @@ import qualified Data.ByteArray.Base64String                 as Base64
 import           Data.Int                                    (Int64)
 import           Data.Proxy
 import           Data.Text                                   (Text)
-import           Data.Word                                   (Word64)
 import           Network.ABCI.Types.Messages.FieldTypes      (Event)
 import qualified Network.ABCI.Types.Messages.Response        as Response
 import qualified Network.Tendermint.Client                   as RPC
@@ -20,34 +19,15 @@ import           Tendermint.SDK.Codec                        (HasCodec (..))
 import           Tendermint.SDK.Crypto                       (RecoverableSignatureSchema (..),
                                                               SignatureSchema (..))
 import           Tendermint.SDK.Types.Address                (Address)
-import           Tendermint.SDK.Types.Message                (HasMessageType (..),
-                                                              TypedMessage (..))
 import           Tendermint.SDK.Types.Transaction            (RawTransaction (..),
                                                               signRawTransaction)
 import           Tendermint.SDK.Types.TxResult               (checkTxTxResult,
                                                               deliverTxTxResult)
 
 data TxOpts = TxOpts
-  { txOptsRoute :: Text
-  , txOptsGas   :: Int64
-  , txOptsNonce :: Word64
+  { txOptsGas    :: Int64
+  , txOptsSigner :: Signer
   }
-
-makeRawTxForSigning
-  :: forall msg.
-     HasMessageType msg
-  => HasCodec msg
-  => TxOpts
-  -> msg
-  -> RawTransaction
-makeRawTxForSigning TxOpts{..} msg =
-  RawTransaction
-    { rawTransactionData = TypedMessage (encode msg) (messageType $ Proxy @msg)
-    , rawTransactionGas = txOptsGas
-    , rawTransactionNonce = txOptsNonce
-    , rawTransactionRoute = txOptsRoute
-    , rawTransactionSignature = ""
-    }
 
 data Signer = Signer Address (RawTransaction -> RawTransaction)
 
@@ -61,7 +41,6 @@ makeSignerFromKey pa privKey = Signer (addressFromPubKey pa . derivePubKey pa $ 
   let sig = serializeRecoverableSignature pa $
          signRawTransaction pa privKey $ r {rawTransactionSignature = ""}
   in r {rawTransactionSignature = sig}
-
 
 data TxResponse a =
     TxResponse

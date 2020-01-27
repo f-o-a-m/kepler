@@ -133,3 +133,11 @@ instance (RunQueryClient m, Queryable a, name ~  Name a, KnownSymbol name ) => H
         let leaf = symbolVal (Proxy @(Name a))
             q' = q { Req.queryPath = Req.queryPath q <> "/" <> cs leaf }
         in leafGenClient (q', qs)
+
+-- | Singleton type representing a client for an empty API.
+data EmptyQueryClient = EmptyQueryClient deriving (Eq, Show, Bounded, Enum)
+
+instance HasQueryClient m EmptyQueryClient where
+  type ClientQ m EmptyQueryClient = EmptyQueryClient
+
+  genClientQ _ _ _ = EmptyQueryClient
