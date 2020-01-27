@@ -218,7 +218,7 @@ spec = do
         -- owner/buyer still profits
         afterBuyAmount `shouldSatisfy` (> beforeBuyAmount)
 
-      it "Can fail to buy a name (failure 1)" $ do
+      it "Can fail to buy a name" $ do
         -- try to buy at a lower price
         let msg = N.BuyName
               { buyNameBid = 100
@@ -232,7 +232,7 @@ spec = do
               }
 
         resp <- assertTx . runTxClientM $ buyName opts msg
-        ensureResponseCodes (0,2) resp
+        ensureResponseCodes (5,0) resp
 
       it "Can delete names" $ do
         let msg = N.DeleteName
