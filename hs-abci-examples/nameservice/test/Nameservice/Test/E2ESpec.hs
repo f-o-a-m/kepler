@@ -74,7 +74,7 @@ spec = do
         ensureResponseCodes (0,0) resp
         (errs, es) <- deliverTxEvents (Proxy @N.NameClaimed) resp
         errs `shouldBe` []
-        filter ((==) claimedLog) es `shouldBe` [claimedLog]
+        filter (claimedLog ==) es `shouldBe` [claimedLog]
 
       it "Can query for a name" $ do
         let expected = N.Whois
@@ -113,7 +113,7 @@ spec = do
         ensureResponseCodes (0,0) resp
         (errs, es) <- deliverTxEvents (Proxy @N.NameRemapped) resp
         errs `shouldBe` []
-        filter ((==) remappedLog) es `shouldBe` [remappedLog]
+        filter (remappedLog ==) es `shouldBe` [remappedLog]
 
         let expected = N.Whois
               { whoisValue = "goodbye to a world"
@@ -166,7 +166,7 @@ spec = do
         ensureResponseCodes (0,0) resp
         (errs, es) <- deliverTxEvents (Proxy @N.NameClaimed) resp
         errs `shouldBe` []
-        filter ((==) claimedLog) es `shouldBe` [claimedLog]
+        filter (claimedLog ==) es `shouldBe` [claimedLog]
 
         -- check for updated balances - seller: addr1, buyer: addr2
         sellerFoundAmount <- getUserBalance user1
@@ -211,7 +211,7 @@ spec = do
         ensureResponseCodes (0,0) resp
         (errs, es) <- deliverTxEvents (Proxy @N.NameClaimed) resp
         errs `shouldBe` []
-        filter ((==) claimedLog) es `shouldBe` [claimedLog]
+        filter (claimedLog ==) es `shouldBe` [claimedLog]
 
         -- check balance after
         afterBuyAmount <- getUserBalance user2
@@ -252,7 +252,7 @@ spec = do
         ensureResponseCodes (0,0) resp
         (errs, es) <- deliverTxEvents (Proxy @N.NameDeleted) resp
         errs `shouldBe` []
-        filter ((==) deletedLog) es `shouldBe` [deletedLog]
+        filter (deletedLog ==) es `shouldBe` [deletedLog]
 
         respQ <- RPC.runTendermintM rpcConfig $
           getWhois defaultQueryArgs { queryArgsData = satoshi }
@@ -299,7 +299,7 @@ spec = do
         ensureResponseCodes (0,0) resp
         (errs, es) <- deliverTxEvents (Proxy @T.TransferEvent) resp
         errs `shouldBe` []
-        filter ((==) transferLog) es `shouldBe` [transferLog]
+        filter (transferLog ==) es `shouldBe` [transferLog]
 
         -- check balances
         balance1' <- getUserBalance user1

@@ -90,7 +90,7 @@ txClientConfig =
             if appErrorCode e == 2
               then pure 0
               else error $ "Unknown nonce error: " <> show (appErrorMessage e)
-          QueryResponse (QueryResult{queryResultData}) ->
+          QueryResponse QueryResult{queryResultData} ->
             pure $ Auth.accountNonce queryResultData
 
   in ClientConfig
