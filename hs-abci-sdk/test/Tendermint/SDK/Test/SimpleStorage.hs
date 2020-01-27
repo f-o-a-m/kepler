@@ -3,8 +3,6 @@
 module Tendermint.SDK.Test.SimpleStorage
   ( SimpleStorageM
   , SimpleStorage
-  , QueryApi
-  , MessageApi
   , UpdateCountTx(..)
   , simpleStorageModule
   , evalToIO

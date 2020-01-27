@@ -26,10 +26,9 @@ import Data.Text (Text)
 import GHC.Generics (Generic)
 import Nameservice.Modules.Nameservice.Types (Name(..))
 import Nameservice.Modules.Token (Amount)
-import Nameservice.Modules.TypedMessage (TypedMessage(..))
 import Proto3.Suite (Named, Message, fromByteString, toLazyByteString)
 import Tendermint.SDK.Types.Address (Address)
-import Tendermint.SDK.Types.Message (Msg(..), ValidateMessage(..), HasTypedMessage(..),
+import Tendermint.SDK.Types.Message (Msg(..), ValidateMessage(..), HasMessageType(..),
                                      isAuthorCheck, nonEmptyCheck,
                                      coerceProto3Error, formatMessageParseError)
 import Tendermint.SDK.Codec (HasCodec(..))

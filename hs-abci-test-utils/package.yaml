@@ -48,9 +48,7 @@ library:
     - base >= 4.7 && < 5
     - bytestring
     - cryptonite
-    - data-default-class
     - errors
-    - hspec
     - http-api-data
     - lens
     - mtl
