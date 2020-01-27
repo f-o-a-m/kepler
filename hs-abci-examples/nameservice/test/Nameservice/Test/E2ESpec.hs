@@ -227,12 +227,12 @@ spec = do
               , buyNameBuyer = signerAddress user1
               }
             opts = TxOpts
-              { txOptsSigner = user2
+              { txOptsSigner = user1
               , txOptsGas = 0
               }
 
         resp <- assertTx . runTxClientM $ buyName opts msg
-        ensureResponseCodes (5,0) resp
+        ensureResponseCodes (0,1) resp
 
       it "Can delete names" $ do
         let msg = N.DeleteName
@@ -259,7 +259,7 @@ spec = do
         ensureQueryResponseCode 2 respQ
 
 
-      it "Can fail a transfer (failure 1)" $ do
+      it "Can fail a transfer" $ do
         addr2Balance <- getUserBalance user2
         let tooMuchToTransfer = addr2Balance + 1
             msg = T.Transfer
