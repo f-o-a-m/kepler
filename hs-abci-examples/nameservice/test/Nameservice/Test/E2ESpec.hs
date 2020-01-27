@@ -14,6 +14,7 @@ import           Tendermint.SDK.Application.Module (AppQueryRouter (QApi),
                                                     AppTxRouter (TApi))
 import           Tendermint.SDK.BaseApp.Errors     (AppError (..))
 import           Tendermint.SDK.BaseApp.Query      (QueryArgs (..),
+                                                    QueryResult (..),
                                                     defaultQueryArgs)
 import qualified Tendermint.SDK.Modules.Auth       as Auth
 import           Tendermint.SDK.Types.Address      (Address)
@@ -28,10 +29,10 @@ import           Tendermint.Utils.Client           (ClientConfig (..),
                                                     defaultClientTxOpts)
 import           Tendermint.Utils.ClientUtils      (assertQuery, assertTx,
                                                     deliverTxEvents,
+                                                    ensureQueryResponseCode,
                                                     ensureResponseCodes,
                                                     rpcConfig)
-import           Tendermint.Utils.User             (User (..),
-                                                    makeSignerFromUser,
+import           Tendermint.Utils.User             (makeSignerFromUser,
                                                     makeUser)
 import           Test.Hspec
 
@@ -81,127 +82,230 @@ spec = do
               , whoisOwner = signerAddress user1
               , whoisPrice = 0
               }
-        foundWhois <- fmap fst . assertQuery . RPC.runTendermintM rpcConfig $
+        foundWhois <- fmap queryResultData . assertQuery . RPC.runTendermintM rpcConfig $
           getWhois defaultQueryArgs { queryArgsData = satoshi }
         foundWhois `shouldBe` expected
 
       it "Can query for a name that doesn't exist" $ do
-        let nope = Name "nope"
-            queryReq = defaultQueryWithData nope
-        ClientResponse{ clientResponseData, clientResponseRaw } <- runRPC $ getWhois queryReq
-        let queryRespCode = clientResponseRaw ^. Response._queryCode
-        -- storage failure
-        queryRespCode `shouldBe` 2
-        clientResponseData `shouldBe` Nothing
+        let nope = N.Name "nope"
+        resp <- RPC.runTendermintM rpcConfig $
+          getWhois defaultQueryArgs { queryArgsData = nope }
+        ensureQueryResponseCode 2 resp
 
-  --    it "Can set a name value (success 0)" $ do
-  --      let oldVal = "hello world"
-  --          newVal = "goodbye to a world"
-  --          msg = SetName satoshi addr1 newVal
-  --          remappedLog = NameRemapped satoshi oldVal newVal
-  --      deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user1 msg >>= getDeliverTxResponse
-  --      ensureDeliverResponseCode deliverResp 0
-  --      ensureEventLogged deliverResp "NameRemapped" remappedLog
-  --      -- check for changes
-  --      let queryReq = defaultQueryWithData satoshi
-  --      foundWhois <- getQueryResponseSuccess $ getWhois queryReq
-  --      foundWhois `shouldBe` Whois "goodbye to a world" addr1 0
+      it "Can set a name value" $ do
+        let oldVal = "hello world"
+            newVal = "goodbye to a world"
+            msg = N.SetName
+              { setNameName = satoshi
+              , setNameOwner = signerAddress user1
+              , setNameValue = newVal
+              }
+            remappedLog = N.NameRemapped
+              { nameRemappedName = satoshi
+              , nameRemappedOldValue = oldVal
+              , nameRemappedNewValue = newVal
+              }
+            opts = TxOpts
+              { txOptsSigner = user1
+              , txOptsGas = 0
+              }
+        resp <- assertTx . runTxClientM $ setName opts msg
+        ensureResponseCodes (0,0) resp
+        (errs, es) <- deliverTxEvents (Proxy @N.NameRemapped) resp
+        errs `shouldBe` []
+        filter ((==) remappedLog) es `shouldBe` [remappedLog]
 
-  --    it "Can fail to set a name (failure 2)" $ do
-  --      -- try to set a name without being the owner
-  --      let msg =  SetName satoshi addr2 "goodbye to a world"
-  --      ensureCheckAndDeliverResponseCodes (0,2) =<< mkSignedRawTransactionWithRoute "nameservice" user2 msg
+        let expected = N.Whois
+              { whoisValue = "goodbye to a world"
+              , whoisOwner = signerAddress user1
+              , whoisPrice = 0
+              }
+        foundWhois <- fmap queryResultData . assertQuery . RPC.runTendermintM rpcConfig $
+          getWhois defaultQueryArgs { queryArgsData = satoshi }
+        foundWhois `shouldBe` expected
 
-  --    it "Can buy an existing name (success 0)" $ do
-  --      balance1 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
-  --      balance2 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr2
-  --      Whois{whoisPrice} <- getQueryResponseSuccess $ getWhois $ defaultQueryWithData satoshi
-  --      let purchaseAmount = whoisPrice + 1
-  --          newVal = "hello (again) world"
-  --          msg = BuyName purchaseAmount satoshi newVal addr2
-  --          claimedLog = NameClaimed addr2 satoshi newVal purchaseAmount
-  --      deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user2 msg >>= getDeliverTxResponse
-  --      ensureDeliverResponseCode deliverResp 0
-  --      ensureEventLogged deliverResp "NameClaimed" claimedLog
-  --      -- check for updated balances - seller: addr1, buyer: addr2
-  --      let sellerQueryReq = defaultQueryWithData addr1
-  --      sellerFoundAmount <- getQueryResponseSuccess $ getBalance sellerQueryReq
-  --      sellerFoundAmount `shouldBe` (balance1 + purchaseAmount)
-  --      let buyerQueryReq = defaultQueryWithData addr2
-  --      buyerFoundAmount <- getQueryResponseSuccess $ getBalance buyerQueryReq
-  --      buyerFoundAmount `shouldBe` (balance2 - purchaseAmount)
-  --      -- check for ownership changes
-  --      let queryReq = defaultQueryWithData satoshi
-  --      foundWhois <- getQueryResponseSuccess $ getWhois queryReq
-  --      foundWhois `shouldBe` Whois "hello (again) world" addr2 purchaseAmount
+      it "Can fail to set a name" $ do
+        -- try to set a name without being the owner
+        let msg = N.SetName
+              { setNameName = satoshi
+              , setNameOwner = signerAddress user2
+              , setNameValue = "goodbye to a world"
+              }
+            opts = TxOpts
+              { txOptsSigner = user2
+              , txOptsGas = 0
+              }
+        resp <- assertTx . runTxClientM $ setName opts msg
+        ensureResponseCodes (0,2) resp
 
-  --    -- @NOTE: this is possibly a problem with the go application too
-  --    -- https://cosmos.network/docs/tutorial/buy-name.html#msg
-  --    it "Can buy self-owned names and make a profit (success 0)" $ do
-  --      -- check balance before
-  --      let queryReq = defaultQueryWithData addr2
-  --      beforeBuyAmount <- getQueryResponseSuccess $ getBalance queryReq
-  --      -- buy
-  --      let val = "hello (again) world"
-  --          msg = BuyName 500 satoshi val addr2
-  --          claimedLog = NameClaimed addr2 satoshi val 500
-  --      deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user2 msg >>= getDeliverTxResponse
-  --      ensureDeliverResponseCode deliverResp 0
-  --      ensureEventLogged deliverResp "NameClaimed" claimedLog
-  --      -- check balance after
-  --      afterBuyAmount <- getQueryResponseSuccess $ getBalance queryReq
-  --      -- owner/buyer still profits
-  --      afterBuyAmount `shouldSatisfy` (> beforeBuyAmount)
+      it "Can buy an existing name" $ do
+        balance1 <- getUserBalance user1
+        balance2 <- getUserBalance user2
+        N.Whois{whoisPrice} <- fmap queryResultData . assertQuery . RPC.runTendermintM rpcConfig $
+          getWhois defaultQueryArgs { queryArgsData = satoshi }
+        let purchaseAmount = whoisPrice + 1
+            newVal = "hello (again) world"
+            msg = N.BuyName
+              { buyNameBid = purchaseAmount
+              , buyNameName = satoshi
+              , buyNameValue = newVal
+              , buyNameBuyer = signerAddress user2
+              }
+            claimedLog = N.NameClaimed
+              { nameClaimedOwner = signerAddress user2
+              , nameClaimedName = satoshi
+              , nameClaimedValue = newVal
+              , nameClaimedBid = purchaseAmount
+              }
+            opts = TxOpts
+              { txOptsSigner = user2
+              , txOptsGas = 0
+              }
 
-  --    it "Can fail to buy a name (failure 1)" $ do
-  --      -- try to buy at a lower price
-  --      let msg = BuyName 100 satoshi "hello (again) world" addr1
-  --      mkSignedRawTransactionWithRoute "nameservice" user1 msg >>= ensureCheckAndDeliverResponseCodes (0,1)
+        resp <- assertTx . runTxClientM $ buyName opts msg
+        ensureResponseCodes (0,0) resp
+        (errs, es) <- deliverTxEvents (Proxy @N.NameClaimed) resp
+        errs `shouldBe` []
+        filter ((==) claimedLog) es `shouldBe` [claimedLog]
 
-  --    it "Can delete names (success 0)" $ do
-  --      let msg = DeleteName addr2 satoshi
-  --          deletedLog = NameDeleted satoshi
-  --      deliverResp <- mkSignedRawTransactionWithRoute "nameservice" user2 msg >>= getDeliverTxResponse
-  --      ensureDeliverResponseCode deliverResp 0
-  --      ensureEventLogged deliverResp "NameDeleted" deletedLog
-  --      -- name shouldn't exist
-  --      let queryReq = defaultQueryWithData satoshi
-  --      ClientResponse{ clientResponseData, clientResponseRaw } <- runRPC $ getWhois queryReq
-  --      let queryRespCode = clientResponseRaw ^. Response._queryCode
-  --      -- storage failure
-  --      queryRespCode `shouldBe` 2
-  --      clientResponseData `shouldBe` Nothing
+        -- check for updated balances - seller: addr1, buyer: addr2
+        sellerFoundAmount <- getUserBalance user1
+        sellerFoundAmount `shouldBe` (balance1 + purchaseAmount)
+        buyerFoundAmount <- getUserBalance user2
+        buyerFoundAmount `shouldBe` (balance2 - purchaseAmount)
 
-  --    it "Can fail a transfer (failure 1)" $ do
-  --      let senderBeforeQueryReq = defaultQueryWithData addr2
-  --      addr2Balance <- getQueryResponseSuccess $ getBalance senderBeforeQueryReq
-  --      let tooMuchToTransfer = addr2Balance + 1
-  --          msg = Transfer addr2 addr1 tooMuchToTransfer
-  --      ensureCheckAndDeliverResponseCodes (0,1) =<< mkSignedRawTransactionWithRoute "token" user2 msg
+        let expected = N.Whois
+              { whoisValue = "hello (again) world"
+              , whoisOwner = signerAddress user2
+              , whoisPrice = purchaseAmount
+              }
+        foundWhois <- fmap queryResultData . assertQuery . RPC.runTendermintM rpcConfig $
+          getWhois defaultQueryArgs { queryArgsData = satoshi }
+        foundWhois `shouldBe` expected
 
-  --    it "Can transfer (success 0)" $ do
-  --      balance1 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
-  --      balance2 <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr2
-  --      let transferAmount = 1
-  --          msg =
-  --            Transfer
-  --              { transferFrom = addr1
-  --              , transferTo = addr2
-  --              , transferAmount = transferAmount
-  --              }
-  --          transferEvent = TransferEvent
-  --            { transferEventAmount = transferAmount
-  --            , transferEventTo = addr2
-  --            , transferEventFrom = addr1
-  --            }
-  --      deliverResp <- mkSignedRawTransactionWithRoute "token" user1 msg >>= getDeliverTxResponse
-  --      ensureDeliverResponseCode deliverResp 0
-  --      ensureEventLogged deliverResp "TransferEvent" transferEvent
-  --      -- check balances
-  --      balance1' <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr1
-  --      balance1' `shouldBe` balance1 - transferAmount
-  --      balance2' <- getQueryResponseSuccess $ getBalance $ defaultQueryWithData addr2
-  --      balance2' `shouldBe` balance2 + transferAmount
+      -- @NOTE: this is possibly a problem with the go application too
+      -- https://cosmos.network/docs/tutorial/buy-name.html#msg
+      it "Can buy self-owned names and make a profit " $ do
+        -- check balance before
+        beforeBuyAmount <- getUserBalance user2
+        -- buy
+        let val = "hello (again) world"
+            msg = N.BuyName
+              { buyNameBid = 500
+              , buyNameName = satoshi
+              , buyNameValue = val
+              , buyNameBuyer = signerAddress user2
+              }
+            claimedLog = N.NameClaimed
+              { nameClaimedOwner = signerAddress user2
+              , nameClaimedName = satoshi
+              , nameClaimedValue = val
+              , nameClaimedBid = 500
+              }
+            opts = TxOpts
+              { txOptsSigner = user2
+              , txOptsGas = 0
+              }
+
+        resp <- assertTx . runTxClientM $ buyName opts msg
+        ensureResponseCodes (0,0) resp
+        (errs, es) <- deliverTxEvents (Proxy @N.NameClaimed) resp
+        errs `shouldBe` []
+        filter ((==) claimedLog) es `shouldBe` [claimedLog]
+
+        -- check balance after
+        afterBuyAmount <- getUserBalance user2
+        -- owner/buyer still profits
+        afterBuyAmount `shouldSatisfy` (> beforeBuyAmount)
+
+      it "Can fail to buy a name (failure 1)" $ do
+        -- try to buy at a lower price
+        let msg = N.BuyName
+              { buyNameBid = 100
+              , buyNameName = satoshi
+              , buyNameValue = "hello (again) world"
+              , buyNameBuyer = signerAddress user1
+              }
+            opts = TxOpts
+              { txOptsSigner = user2
+              , txOptsGas = 0
+              }
+
+        resp <- assertTx . runTxClientM $ buyName opts msg
+        ensureResponseCodes (0,2) resp
+
+      it "Can delete names" $ do
+        let msg = N.DeleteName
+              { deleteNameOwner = signerAddress user2
+              , deleteNameName = satoshi
+              }
+            deletedLog = N.NameDeleted
+              { nameDeletedName = satoshi
+              }
+
+            opts = TxOpts
+              { txOptsSigner = user2
+              , txOptsGas = 0
+              }
+
+        resp <- assertTx . runTxClientM $ deleteName opts msg
+        ensureResponseCodes (0,0) resp
+        (errs, es) <- deliverTxEvents (Proxy @N.NameDeleted) resp
+        errs `shouldBe` []
+        filter ((==) deletedLog) es `shouldBe` [deletedLog]
+
+        respQ <- RPC.runTendermintM rpcConfig $
+          getWhois defaultQueryArgs { queryArgsData = satoshi }
+        ensureQueryResponseCode 2 respQ
+
+
+      it "Can fail a transfer (failure 1)" $ do
+        addr2Balance <- getUserBalance user2
+        let tooMuchToTransfer = addr2Balance + 1
+            msg = T.Transfer
+              { transferFrom = signerAddress user2
+              , transferTo = signerAddress user1
+              , transferAmount = tooMuchToTransfer
+              }
+            opts = TxOpts
+              { txOptsSigner = user2
+              , txOptsGas = 0
+              }
+
+        resp <- assertTx . runTxClientM $ transfer opts msg
+        ensureResponseCodes (0,1) resp
+
+      it "Can transfer" $ do
+        balance1 <- getUserBalance user1
+        balance2 <- getUserBalance user2
+        let transferAmount = 1
+            msg =
+              T.Transfer
+                { transferFrom = signerAddress user1
+                , transferTo = signerAddress user2
+                , transferAmount = transferAmount
+                }
+            transferLog = T.TransferEvent
+              { transferEventAmount = transferAmount
+              , transferEventTo = signerAddress user2
+              , transferEventFrom = signerAddress user1
+              }
+            opts = TxOpts
+              { txOptsSigner = user1
+              , txOptsGas = 0
+              }
+
+        resp <- assertTx . runTxClientM $ transfer opts msg
+        ensureResponseCodes (0,0) resp
+        (errs, es) <- deliverTxEvents (Proxy @T.TransferEvent) resp
+        errs `shouldBe` []
+        filter ((==) transferLog) es `shouldBe` [transferLog]
+
+        -- check balances
+        balance1' <- getUserBalance user1
+        balance1' `shouldBe` balance1 - transferAmount
+        balance2' <- getUserBalance user2
+        balance2' `shouldBe` balance2 + transferAmount
 
 faucetUser
   :: T.Amount
@@ -215,6 +319,12 @@ faucetUser amount s@(Signer addr _) =
           , txOptsSigner = s
           }
     in faucet opts msg
+
+getUserBalance
+  :: Signer
+  -> IO T.Amount
+getUserBalance usr = fmap queryResultData . assertQuery . RPC.runTendermintM rpcConfig $
+  getBalance defaultQueryArgs { queryArgsData = signerAddress usr }
 
 --------------------------------------------------------------------------------
 
@@ -267,8 +377,8 @@ txClientConfig =
             if appErrorCode e == 2
               then pure 0
               else error $ "Unknown nonce error: " <> show (appErrorMessage e)
-          QueryResponse {queryClientResponseData} ->
-            pure $ Auth.accountNonce queryClientResponseData
+          QueryResponse QueryResult {queryResultData} ->
+            pure $ Auth.accountNonce queryResultData
 
   in ClientConfig
        { clientGetNonce = getNonce
@@ -314,7 +424,7 @@ faucet
   -> TxClientM (TxClientResponse () ())
 
 (buyName :<|> setName :<|> deleteName) :<|>
-  (burn :<|> transfer :<|> faucet) :<|>
+  (_ :<|> transfer :<|> faucet) :<|>
   EmptyTxClient =
     genClientT (Proxy @TxClientM) txApiP defaultClientTxOpts
     where
