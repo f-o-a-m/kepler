@@ -58,8 +58,8 @@ faucetAccount s@(Signer addr _) amount =
           }
     in faucet opts msg
 
--- createName :: User -> Name -> Text -> IO ()
--- createName user name val = buyName user name val 0
+createName :: Signer -> N.Name -> Text -> IO ()
+createName s name val = buyName s name val 0
 
 buyName :: Signer -> N.Name -> Text -> T.Amount -> IO ()
 buyName s@(Signer addr _) name newVal amount =
@@ -70,7 +70,6 @@ buyName s@(Signer addr _) name newVal amount =
           , txOptsSigner = s
           }
     in buy opts msg
---   runAction_ user "nameservice" "BuyName" (BuyName amount name newVal userAddress)
 
 -- deleteName :: User -> Name -> IO ()
 -- deleteName user@User{userAddress} name =
