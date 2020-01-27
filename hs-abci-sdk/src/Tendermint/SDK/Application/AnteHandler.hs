@@ -36,7 +36,7 @@ createAccountAnteHandler = AnteHandler $ \(M.Router router) ->
     mAcnt <- A.getAccount msgAuthor
     case mAcnt of
       Nothing -> void $ A.createAccount msgAuthor
-      _ -> pure ()
+      _       -> pure ()
     router tx >>= pure
 
 nonceAnteHandler

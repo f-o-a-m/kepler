@@ -5,6 +5,7 @@ module Tendermint.SDK.Modules.Bank.Types where
 import           Data.Aeson                   as A
 import qualified Data.ByteArray.HexString     as Hex
 import           Data.String                  (fromString)
+import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text, unpack)
 import           GHC.Generics                 (Generic)
 import           Proto3.Suite                 (HasDefault (..), MessageField,
@@ -20,7 +21,6 @@ import           Tendermint.SDK.Types.Address (Address (..), addressFromBytes,
                                                addressToBytes)
 import           Web.HttpApiData              (FromHttpApiData (..),
                                                ToHttpApiData (..))
-import Data.String.Conversions (cs)
 
 --------------------------------------------------------------------------------
 
