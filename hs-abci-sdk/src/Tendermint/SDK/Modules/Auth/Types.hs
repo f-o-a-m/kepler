@@ -12,17 +12,11 @@ import           Data.Proxy                   (Proxy (..))
 import           Data.String                  (IsString (..))
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text, pack)
-import qualified Data.Text.Lazy               as TL
 import           Data.Word
 import           GHC.Generics                 (Generic)
 import           GHC.TypeLits                 (symbolVal)
 import qualified Proto.Modules.Auth           as A
 import qualified Proto.Modules.Auth_Fields    as A
-import           Proto3.Suite                 (HasDefault (..), MessageField,
-                                               Primitive (..), fieldNumber)
-import qualified Proto3.Suite.DotProto        as DotProto
-import qualified Proto3.Wire.Decode           as Decode
-import qualified Proto3.Wire.Encode           as Encode
 import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..),
                                                IsKey (..), Queryable (..))
 import           Tendermint.SDK.Codec         (HasCodec (..),
@@ -31,18 +25,53 @@ import           Tendermint.SDK.Types.Address (Address)
 import           Web.HttpApiData              (FromHttpApiData (..),
                                                ToHttpApiData (..))
 
+--------------------------------------------------------------------------------
+
 type AuthModule = "auth"
+
+instance IsKey Address AuthModule where
+  type Value Address AuthModule = Account
+
+instance Queryable Account where
+  type Name Account = "account"
+
+--------------------------------------------------------------------------------
+-- Exceptions
+--------------------------------------------------------------------------------
+
+data AuthError =
+  AccountAlreadyExists Address
+
+instance IsAppError AuthError where
+  makeAppError (AccountAlreadyExists addr) =
+    AppError
+      { appErrorCode = 1
+      , appErrorCodespace = cs (symbolVal $ Proxy @AuthModule)
+      , appErrorMessage = "Account Already Exists " <> (cs . show $ addr) <> "."
+      }
+
+--------------------------------------------------------------------------------
 
 newtype CoinId = CoinId { unCoinId :: Text } deriving (Eq, Show, Generic)
 
+instance Wrapped CoinId where
+  type Unwrapped CoinId = A.CoinId
+
+  _Wrapped' = iso t f
+   where
+    t CoinId {..} =
+      P.defMessage
+        & A.id .~ unCoinId
+    f message = CoinId
+      { unCoinId = message ^. A.id
+      }
+
+instance HasCodec CoinId where
+  encode = P.encodeMessage . view _Wrapped'
+  decode = bimap cs (view $ from _Wrapped') . P.decodeMessage
+
 instance IsString CoinId where
   fromString = CoinId . pack
-instance Primitive CoinId where
-  encodePrimitive n = Encode.text n . TL.fromStrict . unCoinId
-  decodePrimitive = CoinId . TL.toStrict <$> Decode.text
-  primType _ = DotProto.String
-instance HasDefault CoinId
-instance MessageField CoinId
 instance JSON.ToJSON CoinId where
   toJSON = JSON.genericToJSON JSON.defaultOptions
 instance JSON.FromJSON CoinId where
@@ -52,27 +81,28 @@ instance ToHttpApiData CoinId where
 instance FromHttpApiData CoinId where
   parseQueryParam = fmap CoinId . parseQueryParam
 
+--------------------------------------------------------------------------------
+
 newtype Amount = Amount { unAmount :: Word64 }
   deriving (Eq, Show, Num, Generic, Ord, JSON.ToJSON, JSON.FromJSON)
 
-instance Primitive Amount where
-  encodePrimitive n (Amount amt) = Encode.uint64 n amt
-  decodePrimitive = Amount <$> Decode.uint64
-  primType _ = DotProto.UInt64
-instance HasDefault Amount
-instance MessageField Amount
+instance Wrapped Amount where
+  type Unwrapped Amount = A.Amount
 
--- @NOTE: hacks
+  _Wrapped' = iso t f
+   where
+    t Amount {..} =
+      P.defMessage
+        & A.amount .~ unAmount
+    f message = Amount
+      { unAmount = message ^. A.amount
+      }
+
 instance HasCodec Amount where
-  encode (Amount b) =
-    -- proto3-wire only exports encoders for message types
-    let dummyMsgEncoder = Encode.uint64 (fieldNumber 1)
-    in cs . Encode.toLazyByteString . dummyMsgEncoder $ b
-  decode = bimap (cs . show) Amount . Decode.parse dummyMsgParser
-    where
-      -- field is always present; 0 is an arbitrary value
-      fieldParser = Decode.one Decode.uint64 0
-      dummyMsgParser = Decode.at fieldParser (fieldNumber 1)
+  encode = P.encodeMessage . view _Wrapped'
+  decode = bimap cs (view $ from _Wrapped') . P.decodeMessage
+
+--------------------------------------------------------------------------------
 
 data Coin = Coin
   { coinId     :: CoinId
@@ -86,11 +116,11 @@ instance Wrapped Coin where
    where
     t Coin {..} =
       P.defMessage
-        & A.id .~ unCoinId coinId
-        & A.amount .~ unAmount coinAmount
+        & A.id .~ coinId ^. _Wrapped'
+        & A.amount .~ coinAmount ^. _Wrapped'
     f message = Coin
-      { coinId = CoinId $ message ^. A.id
-      , coinAmount = Amount $ message ^. A.amount
+      { coinId = message ^. A.id . _Unwrapped'
+      , coinAmount = message ^. A.amount . _Unwrapped'
       }
 
 instance HasCodec Coin where
@@ -102,6 +132,8 @@ coinAesonOptions = defaultSDKAesonOptions "coin"
 
 instance Queryable Coin where
   type Name Coin = "balance"
+
+--------------------------------------------------------------------------------
 
 data Account = Account
   { accountCoins :: [Coin]
@@ -125,20 +157,3 @@ instance Wrapped Account where
 instance HasCodec Account where
   encode = P.encodeMessage . view _Wrapped'
   decode = bimap cs (view $ from _Wrapped') . P.decodeMessage
-
-instance IsKey Address AuthModule where
-    type Value Address AuthModule = Account
-
-instance Queryable Account where
-  type Name Account = "account"
-
-data AuthError =
-  AccountAlreadyExists Address
-
-instance IsAppError AuthError where
-  makeAppError (AccountAlreadyExists addr) =
-    AppError
-      { appErrorCode = 1
-      , appErrorCodespace = cs (symbolVal $ Proxy @AuthModule)
-      , appErrorMessage = "Account Already Exists " <> (cs . show $ addr) <> "."
-      }

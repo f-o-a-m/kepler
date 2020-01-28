@@ -1,12 +1,20 @@
 syntax = "proto3";
 package Auth;
 
-message Coin {
+message CoinId {
   string id = 1;
-  uint64 amount = 2;
+}
+
+message Amount {
+  uint64 amount = 1;
+}
+
+message Coin {
+  CoinId id = 1;
+  Amount amount = 2;
 }
 
 message Account {
-    repeated Coin coins = 1;
-    uint64 nonce = 2; 
+  repeated Coin coins = 1;
+  uint64 nonce = 2; 
 }
