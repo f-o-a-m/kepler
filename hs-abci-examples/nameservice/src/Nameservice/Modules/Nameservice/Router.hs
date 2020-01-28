@@ -5,6 +5,7 @@ import           Nameservice.Modules.Nameservice.Keeper   (NameserviceEffs,
                                                            faucetAccount,
                                                            setName)
 import           Nameservice.Modules.Nameservice.Messages (BuyName, DeleteName,
+                                                           FaucetAccount,
                                                            SetName)
 import           Polysemy                                 (Members, Sem)
 import           Servant.API                              ((:<|>) (..))
@@ -25,6 +26,7 @@ type MessageApi =
        TypedMessage BuyName :~> Return ()
   :<|> TypedMessage SetName :~> Return ()
   :<|> TypedMessage DeleteName :~> Return ()
+  :<|> TypedMessage FaucetAccount :~> Return ()
 
 messageHandlers
   :: Members BaseAppEffs r
@@ -64,3 +66,13 @@ deleteNameH
 deleteNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
   incCount "delete_total"
   withTimer "delete_duration_seconds" $ deleteName msgData
+
+faucetH
+  :: Members AuthEffs r
+  => Members BankEffs r
+  => Members TxEffs r
+  => Members BaseAppEffs r
+  => RoutingTx FaucetAccount
+  -> Sem r ()
+faucetH (RoutingTx Tx{txMsg=Msg{msgData}}) =
+  faucetAccount msgData

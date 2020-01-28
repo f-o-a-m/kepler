@@ -1,28 +1,49 @@
-module Tendermint.SDK.Modules.Bank.Router where
+module Nameservice.Modules.Bank.Router
+  ( MessageApi
+  , messageHandlers
+  ) where
 
-import           Polysemy                             (Members, Sem)
-import           Tendermint.SDK.BaseApp               (BaseAppEffs, TxEffs)
-import qualified Tendermint.SDK.Modules.Auth          as Auth
-import           Tendermint.SDK.Modules.Bank.Keeper   (BankEffs, burn, transfer)
-import           Tendermint.SDK.Modules.Bank.Messages (BankMessage (..),
-                                                       Burn (..), Transfer (..))
-import           Tendermint.SDK.Types.Message         (Msg (..))
-import           Tendermint.SDK.Types.Transaction     (PreRoutedTx (..),
-                                                       Tx (..))
+import           Nameservice.Modules.Bank.Keeper   (BankEffs, burn,
+                                                    faucetAccount, transfer)
+import           Nameservice.Modules.Bank.Messages (Burn (..), FaucetAccount,
+                                                    Transfer (..))
+import           Polysemy                          (Members, Sem)
+import           Servant.API                       ((:<|>) (..))
+import           Tendermint.SDK.BaseApp            ((:~>), BaseAppEffs, Return,
+                                                    RouteContext (..), RouteTx,
+                                                    RoutingTx (..), TxEffs,
+                                                    TypedMessage)
+import           Tendermint.SDK.Modules.Auth       (AuthEffs, Coin (..))
+import           Tendermint.SDK.Types.Message      (Msg (..))
+import           Tendermint.SDK.Types.Transaction  (Tx (..))
 
-router
-  :: Members BankEffs r
-  => Members Auth.AuthEffs r
+type MessageApi =
+       TypedMessage Burn :~> Return ()
+  :<|> TypedMessage Transfer :~> Return ()
+
+messageHandlers
+  :: Members AuthEffs r
+  => Members BankEffs r
   => Members BaseAppEffs r
+  => RouteTx MessageApi r 'DeliverTx
+messageHandlers = burnH :<|> transferH :<|> faucetH
+
+transferH
+  :: Members AuthEffs r
+  => Members BankEffs r
   => Members TxEffs r
-  => PreRoutedTx BankMessage
+  => Members BaseAppEffs r
+  => RoutingTx Transfer
   -> Sem r ()
-router (PreRoutedTx Tx{txMsg}) =
-  let Msg{msgData} = txMsg
-  in case msgData of
-       TTransfer Transfer{..} ->
-         let coin = Auth.Coin transferCoinId transferAmount
-         in transfer transferFrom coin transferTo
-       TBurn Burn{..} ->
-         let coin = Auth.Coin burnCoinId burnAmount
-         in burn burnAddress coin
+transferH (RoutingTx Tx{txMsg=Msg{msgData}}) =
+  let Transfer{..} = msgData
+  in transfer transferFrom transferAmount transferTo
+
+burnH
+  :: Members AuthEffs r
+  => Members BankEffs r
+  => RoutingTx Burn
+  -> Sem r ()
+burnH (RoutingTx Tx{txMsg=Msg{msgData}}) =
+  let Burn{..} = msgData
+  in burn burnAddress burnAmount

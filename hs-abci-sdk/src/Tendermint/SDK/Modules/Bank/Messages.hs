@@ -17,11 +17,6 @@ import           Tendermint.SDK.Types.Message        (Msg (..),
                                                       coerceProto3Error,
                                                       formatMessageParseError)
 
-data BankMessage =
-    TTransfer Transfer
-  | TBurn Burn
-  deriving (Eq, Show, Generic)
-
 data Transfer = Transfer
   { transferTo     :: Address
   , transferFrom   :: Address
@@ -36,6 +31,11 @@ instance HasCodec Transfer where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
+instance ValidateMessage Transfer where
+  validateMessage _ = Success ()
+
+--------------------------------------------------------------------------------
+
 data Burn = Burn
   { burnAddress :: Address
   , burnCoinId  :: CoinId
@@ -48,25 +48,6 @@ instance Named Burn
 instance HasCodec Burn where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
-
-instance HasCodec BankMessage where
-  decode bs = do
-    TypedMessage{..} <- decode bs
-    case typedMessageType of
-      "Transfer" -> TTransfer <$> decode typedMessageContents
-      "Burn" -> TBurn <$> decode typedMessageContents
-      _ -> Left . cs $ "Unknown Bank message type " ++ cs typedMessageType
-  encode = \case
-    TTransfer msg -> encode msg
-    TBurn msg -> encode msg
-
-instance ValidateMessage BankMessage where
-  validateMessage m@Msg{msgData} = case msgData of
-    TTransfer msg -> validateMessage m {msgData = msg}
-    TBurn msg     -> validateMessage m {msgData = msg}
-
-instance ValidateMessage Transfer where
-  validateMessage _ = Success ()
 
 instance ValidateMessage Burn where
   validateMessage _ = Success ()

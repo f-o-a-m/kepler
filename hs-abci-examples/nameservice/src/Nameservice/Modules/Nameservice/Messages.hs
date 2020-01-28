@@ -43,6 +43,11 @@ instance HasCodec FaucetAccount where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
+instance ValidateMessage FaucetAccount where
+  validateMessage _ = Success ()
+
+--------------------------------------------------------------------------------
+
 data SetName = SetName
   { setNameName  :: Name
   , setNameOwner :: Address
@@ -124,6 +129,3 @@ instance ValidateMessage BuyName where
         , nonEmptyCheck "Value" buyNameValue
         , isAuthorCheck "Owner" msg buyNameBuyer
         ]
-
-instance ValidateMessage FaucetAccount where
-  validateMessage _ = Success ()
