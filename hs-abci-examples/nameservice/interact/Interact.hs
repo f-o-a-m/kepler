@@ -122,13 +122,14 @@ txClientConfig =
             , queryArgsProve = False
             , queryArgsData = addr
             }
+        -- @NOTE: TxNonce should be +1 of accountNonce
         case resp of
           QueryError e ->
             if appErrorCode e == 2
-              then pure 0
+              then pure 1
               else error $ "Unknown nonce error: " <> show (appErrorMessage e)
           QueryResponse QueryResult {queryResultData} ->
-            pure $ Auth.accountNonce queryResultData
+            pure $ 1 + Auth.accountNonce queryResultData
 
   in ClientConfig
        { clientGetNonce = getNonce
