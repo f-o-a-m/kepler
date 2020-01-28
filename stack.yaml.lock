@@ -5,6 +5,34 @@
 
 packages:
 - completed:
+    hackage: async-2.2.2@sha256:ed46f0f5be36cf8a3e3aebc6827d015e1f3bf9615c245e057b9e9bd35faddd21,2895
+    pantry-tree:
+      size: 501
+      sha256: dab5a4c2126fbce3f4a7c15ccf66e60de61d3eccae071f4bfbad036087399f32
+  original:
+    hackage: async-2.2.2
+- completed:
+    hackage: faker-0.0.0.2@sha256:e181a9dba8022098d2cca9822b6a616a28d3013ee978076b7c7cd18b6e15c8eb,980
+    pantry-tree:
+      size: 792
+      sha256: d1fd5fcf4175f259b84f9036ab8d53d23457eb1ab9eab163dce83e8a8d7fca65
+  original:
+    hackage: faker-0.0.0.2
+- completed:
+    hackage: gimlh-0.1.3.0@sha256:0cb3513ec36b7f935956b68875de40a05e934cf75499918e1db533b7d32dfc46,747
+    pantry-tree:
+      size: 201
+      sha256: 106e63ee076f0339ae5e15c599f5eb15d1e663f1f2303417000f26c9514f24c6
+  original:
+    hackage: gimlh-0.1.3.0
+- completed:
+    hackage: random-strings-0.1.1.0@sha256:935a7a23dab45411960df77636a29b44ce42b89eeb15f2b1e809d771491fa677,2517
+    pantry-tree:
+      size: 663
+      sha256: 5a382966fdd8d5220b5791f3bff6db00d2ea29235e2716dadd52461b8a8beb97
+  original:
+    hackage: random-strings-0.1.1.0
+- completed:
     hackage: proto-lens-runtime-0.5.0.0@sha256:cb39cf13ce4f7dac5414f94a7afe0adc9b831312e6b60588a23bd816accc385f,3132
     pantry-tree:
       size: 168
