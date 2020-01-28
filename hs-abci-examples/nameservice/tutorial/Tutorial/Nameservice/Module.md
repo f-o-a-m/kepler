@@ -8,20 +8,20 @@ At this point we can collect the relevant pieces to form the Nameservice module:
 module Tutorial.Nameservice.Module where
 
 import Nameservice.Modules.Nameservice.Keeper (NameserviceEffs, eval)
-import Nameservice.Modules.Nameservice.Messages (NameserviceMessage)
-import Nameservice.Modules.Nameservice.Query (Api, server)
-import Nameservice.Modules.Nameservice.Router (router)
+import Nameservice.Modules.Nameservice.Query (QueryApi, server)
+import Nameservice.Modules.Nameservice.Router (MessageApi, messageHandlers)
 import Nameservice.Modules.Nameservice.Types (NameserviceModuleName)
 import Polysemy                                 (Members)
-import Tendermint.SDK.Application               (Module (..),
-                                                 defaultTxChecker)
-import Tendermint.SDK.BaseApp                   (BaseAppEffs)
+import Tendermint.SDK.Application               (Module (..))
+import Tendermint.SDK.BaseApp                   (BaseAppEffs
+                                                 DefaultCheckTx (..))
 import Tendermint.SDK.Modules.Bank                (BankEffs)
 import Tendermint.SDK.Modules.Auth                (AuthEffs)
+import Data.Proxy
 
 -- a convenient type alias
 type NameserviceM r =
-  Module NameserviceModuleName NameserviceMessage () Api NameserviceEffs r
+  Module NameserviceModuleName MessageApi QueryApi NameserviceEffs r
 
 nameserviceModule
   :: Members BaseAppEffs r
@@ -30,31 +30,38 @@ nameserviceModule
   => Members NameserviceEffs r
   => NameserviceM r
 nameserviceModule = Module
-  { moduleTxDeliverer = router
-  , moduleTxChecker = defaultTxChecker
+  { moduleTxDeliverer = messageHandlers
+  , moduleTxChecker = defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
   , moduleQueryServer = server
   , moduleEval = eval
   }
+
 ~~~
 
-We are using `defaultTxChecker` as our transaction checker, which is a static message validator defined as 
+Here We are using `defaultCheckTx` as our transaction checker, which is a static message validator defined that respons to any message with the following handler:
 
 ~~~ haskell ignore
-defaultTxChecker
+
+defaultCheckTxHandler
   :: Member (Error AppError) r
   => ValidateMessage msg
-  => RoutedTx msg
+  => RoutingTx msg
   -> Sem r ()
-defaultTxChecker (RoutedTx Tx{txMsg}) =
+defaultCheckTxHandler(RoutingTx Tx{txMsg}) =
   case validateMessage txMsg of
     V.Failure err ->
       throwSDKError . MessageValidation . map formatMessageSemanticError $ err
     V.Success _ -> pure ()
+
 ~~~
 
-This means that we are only doing static validation, meaning that we're not interested in checking message validitity against the database. This is reflected in the return type for the checker `Sem r ()`. If you want to add custom checking, you may write a custom checker for your module. 
+Note that this checker can be used to implement any transaction for which
+1. The message accepted by the router has a `ValidateMessage` instance
+2. The return type is marked with `OnCheckUnit`, meaning that `()` is returned for any `checkTx` ABCI message.
 
-Note the constraints on the module's effects `r`:
+To generate a router for which every transaction has these properties, we used the `defaultCheckTx` type class method
+
+Note the constraints on `r`:
 
 ~~~ haskell ignore
 ...

@@ -4,18 +4,19 @@ module Tendermint.SDK.Application.AnteHandler
   , baseAppAnteHandler
   ) where
 
-import           Control.Monad                     (unless, void)
+import           Control.Monad                      (unless, void)
 import           Polysemy
-import           Polysemy.Error                    (Error)
-import qualified Tendermint.SDK.Application.Module as M
-import           Tendermint.SDK.BaseApp.Errors     (AppError, SDKError (..),
-                                                    throwSDKError)
-import qualified Tendermint.SDK.Modules.Auth       as A
-import           Tendermint.SDK.Types.Message      (Msg (..))
-import           Tendermint.SDK.Types.Transaction  (PreRoutedTx (..), Tx (..))
+import           Polysemy.Error                     (Error)
+import           Tendermint.SDK.BaseApp.Errors      (AppError, SDKError (..),
+                                                     throwSDKError)
+import           Tendermint.SDK.BaseApp.Transaction (RoutingTx (..),
+                                                     TransactionApplication)
+import qualified Tendermint.SDK.Modules.Auth        as A
+import           Tendermint.SDK.Types.Message       (Msg (..))
+import           Tendermint.SDK.Types.Transaction   (Tx (..))
 
-data AnteHandler r where
-  AnteHandler :: (forall msg. M.Router r msg -> M.Router r msg) -> AnteHandler r
+data AnteHandler r = AnteHandler
+  ( TransactionApplication (Sem r) -> TransactionApplication (Sem r))
 
 instance Semigroup (AnteHandler r) where
   (<>) (AnteHandler h1) (AnteHandler h2) =
@@ -24,7 +25,10 @@ instance Semigroup (AnteHandler r) where
 instance Monoid (AnteHandler r) where
   mempty = AnteHandler id
 
-applyAnteHandler :: AnteHandler r -> M.Router r msg -> M.Router r msg
+applyAnteHandler
+  :: AnteHandler r
+  -> TransactionApplication (Sem r)
+  -> TransactionApplication (Sem r)
 applyAnteHandler (AnteHandler ah) = ($) ah
 
 createAccountAnteHandler
@@ -43,8 +47,8 @@ nonceAnteHandler
   :: Members A.AuthEffs r
   => Member (Error AppError) r
   => AnteHandler r
-nonceAnteHandler = AnteHandler $ \(M.Router router) ->
-    M.Router $ \tx@(PreRoutedTx Tx{..}) -> do
+nonceAnteHandler = AnteHandler $
+  \txApplication tx@(RoutingTx Tx{..}) -> do
       let Msg{msgAuthor} = txMsg
       preMAcnt <- A.getAccount msgAuthor
       case preMAcnt of

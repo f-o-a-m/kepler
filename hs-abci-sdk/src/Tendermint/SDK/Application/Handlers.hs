@@ -29,14 +29,13 @@ import           Tendermint.SDK.BaseApp.Errors          (AppError,
                                                          queryAppError,
                                                          throwSDKError,
                                                          txResultAppError)
-import           Tendermint.SDK.BaseApp.Query           (HasRouter)
+import qualified Tendermint.SDK.BaseApp.Query           as Q
 import           Tendermint.SDK.BaseApp.Store           (ConnectionScope (..))
 import qualified Tendermint.SDK.BaseApp.Store           as Store
+import           Tendermint.SDK.BaseApp.Transaction     as T
 import           Tendermint.SDK.Crypto                  (RecoverableSignatureSchema,
                                                          SignatureSchema (..))
-import qualified Tendermint.SDK.Modules.Auth            as A
-import           Tendermint.SDK.Types.Transaction       (PreRoutedTx (..),
-                                                         parseTx)
+import           Tendermint.SDK.Types.Transaction       (parseTx)
 import           Tendermint.SDK.Types.TxResult          (checkTxTxResult,
                                                          deliverTxTxResult)
 
@@ -84,13 +83,15 @@ data HandlersContext alg ms r core = HandlersContext
 -- Common function between checkTx and deliverTx
 makeHandlers
   :: forall alg ms r core.
-     Members A.AuthEffs r
-  => Member (Error AppError) r
+     Member (Error AppError) r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
-  => M.TxRouter ms r
-  => M.QueryRouter ms r
-  => HasRouter (M.Api ms) r
+  => M.AppTxRouter ms r 'T.DeliverTx
+  => M.AppTxRouter ms r 'T.CheckTx
+  => M.AppQueryRouter ms r
+  => Q.HasQueryRouter (M.QApi ms) r
+  => T.HasTxRouter (M.TApi ms) r 'T.DeliverTx
+  => T.HasTxRouter (M.TApi ms) r 'T.CheckTx
   => Members CoreEffs core
   => M.Eval ms core
   => M.Effs ms core ~ r
@@ -100,11 +101,17 @@ makeHandlers HandlersContext{..} =
   let
       compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
       compileToBaseApp = M.eval modules
-      routerWithAH context = applyAnteHandler anteHandler $ M.txRouter context modules
-      txRouter context bs = case parseTx signatureAlgP bs of
+
+      queryRouter = compileToBaseApp . M.appQueryRouter modules
+
+      txParser bs = case parseTx signatureAlgP bs of
         Left err -> throwSDKError $ ParseError err
-        Right tx -> compileToBaseApp $ M.runRouter (routerWithAH context) (PreRoutedTx tx)
-      queryRouter = compileToBaseApp . M.queryRouter modules
+        Right tx -> pure $ T.RoutingTx tx
+
+      txRouter ctx bs = compileToBaseApp $ do
+        let router = applyAnteHandler anteHandler $ M.appTxRouter modules ctx
+        tx <- txParser bs
+        router tx
 
       query (RequestQuery q) = Store.applyScope $
         catch
@@ -121,7 +128,7 @@ makeHandlers HandlersContext{..} =
       checkTx (RequestCheckTx _checkTx) = Store.applyScope . Store.withSandbox $ do
         res <- catch
           ( let txBytes =  _checkTx ^. Req._checkTxTx . to Base64.toBytes
-            in txRouter M.CheckTxContext txBytes
+            in  txRouter T.CheckTx txBytes
           )
           (\(err :: AppError) ->
             return $ def & txResultAppError .~ err
@@ -131,7 +138,7 @@ makeHandlers HandlersContext{..} =
       deliverTx (RequestDeliverTx _deliverTx) = Store.applyScope $ do
         res <- catch @AppError
           ( let txBytes = _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
-            in txRouter M.DeliverTxContext txBytes
+            in txRouter T.DeliverTx txBytes
           )
           (\(err :: AppError) ->
             return $ def & txResultAppError .~ err
@@ -156,13 +163,15 @@ makeHandlers HandlersContext{..} =
 
 makeApp
   :: forall alg ms r core.
-     Members A.AuthEffs r
-  => Members [Error AppError, Embed IO] r
+     Members [Error AppError, Embed IO] r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
-  => M.TxRouter ms r
-  => M.QueryRouter ms r
-  => HasRouter (M.Api ms) r
+  => M.AppTxRouter ms r 'DeliverTx
+  => M.AppTxRouter ms r 'CheckTx
+  => M.AppQueryRouter ms r
+  => Q.HasQueryRouter (M.QApi ms) r
+  => T.HasTxRouter (M.TApi ms) r 'T.DeliverTx
+  => T.HasTxRouter (M.TApi ms) r 'T.CheckTx
   => Members CoreEffs core
   => M.Eval ms core
   => M.Effs ms core ~ r

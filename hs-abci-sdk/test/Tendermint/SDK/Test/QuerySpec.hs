@@ -8,12 +8,10 @@ import qualified Tendermint.SDK.Application           as App
 import qualified Tendermint.SDK.Application.Module    as M
 import qualified Tendermint.SDK.BaseApp               as BA
 import qualified Tendermint.SDK.BaseApp.Logger.Katip  as KL
-import qualified Tendermint.SDK.BaseApp.Transaction   as T
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import qualified Tendermint.SDK.Test.SimpleStorage    as SS
 import           Tendermint.SDK.Types.Message         (Msg (..))
-import           Tendermint.SDK.Types.Transaction     (PreRoutedTx (..),
-                                                       Tx (..))
+import           Tendermint.SDK.Types.Transaction     (Tx (..))
 import           Test.Hspec
 
 type Effs = SS.SimpleStorage ': BA.BaseApp BA.CoreEffs
@@ -23,24 +21,24 @@ spec = beforeAll (BA.makeContext (KL.InitialLogNamespace "test" "spec") Nothing)
   describe "Query tests" $ do
     let modules :: App.Modules '[SS.SimpleStorageM Effs] Effs
         modules = SS.simpleStorageModule App.:+ App.NilModules
-        ssServer = M.queryRouter modules
-        handler = App.moduleTxDeliverer SS.simpleStorageModule
+        ssServer = M.appQueryRouter modules
+        handler =  M.appTxRouter modules BA.DeliverTx
     it "Can make a new count and query it with a multiplier" $ \ctx -> do
         let increaseCountMsg = Msg
               { msgAuthor = undefined
-              , msgData = SS.UpdateCount $ SS.UpdateCountTx 1
+              , msgType = "update_count"
+              , msgData = encode $ SS.UpdateCountTx 1
               }
-            tx = PreRoutedTx $ Tx
+            tx = BA.RoutingTx $ Tx
               { txMsg = increaseCountMsg
-              , txRoute = undefined
+              , txRoute = "simple_storage"
               , txGas = 0
               , txSignature = undefined
               , txSignBytes = undefined
               , txSigner = undefined
               , txNonce = undefined
               }
-        txContext <- T.newTransactionContext tx
-        _ <- SS.evalToIO ctx . T.eval txContext $ handler tx
+        _ <- SS.evalToIO ctx $ handler tx
         let q = Req.Query
               -- TODO -- this shouldn't require / count
               { queryPath = "/simple_storage/manipulated/1?factor=4"

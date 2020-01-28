@@ -2,7 +2,7 @@ module Tendermint.SDK.Types.Transaction where
 
 import           Control.Error                  (note)
 import           Control.Lens                   (Wrapped (..), from, iso, view,
-                                                 (&), (.~), (^.))
+                                                 (&), (.~), (^.), _Unwrapped')
 import           Crypto.Hash                    (Digest, hashWith)
 import           Crypto.Hash.Algorithms         (SHA256 (..))
 import           Data.Bifunctor                 (bimap)
@@ -20,7 +20,8 @@ import           Tendermint.SDK.Codec           (HasCodec (..))
 import           Tendermint.SDK.Crypto          (MakeDigest (..),
                                                  RecoverableSignatureSchema (..),
                                                  SignatureSchema (..))
-import           Tendermint.SDK.Types.Message   (Msg (..))
+import           Tendermint.SDK.Types.Message   (Msg (..), TypedMessage (..))
+
 -- Our standard transaction type parameterized by the signature schema 'alg'
 -- and an underlying message type 'msg'.
 data Tx alg msg = Tx
@@ -43,7 +44,7 @@ instance Functor (Tx alg) where
 
 -- | Raw transaction type coming in over the wire
 data RawTransaction = RawTransaction
-  { rawTransactionData      :: ByteString
+  { rawTransactionData      :: TypedMessage
   -- ^ the encoded message via protobuf encoding
   , rawTransactionGas       :: Int64
   , rawTransactionRoute     :: Text
@@ -59,13 +60,13 @@ instance Wrapped RawTransaction where
    where
     t RawTransaction {..} =
       P.defMessage
-        & T.data' .~ rawTransactionData
+        & T.data' .~ (rawTransactionData ^. _Wrapped')
         & T.gas .~ rawTransactionGas
-        & T.route .~ cs rawTransactionRoute
+        & T.route .~ rawTransactionRoute
         & T.signature .~ rawTransactionSignature
         & T.nonce .~ rawTransactionNonce
     f message = RawTransaction
-      { rawTransactionData      = message ^. T.data'
+      { rawTransactionData      = message ^. T.data' . _Unwrapped'
       , rawTransactionGas = message ^. T.gas
       , rawTransactionRoute = message ^. T.route
       , rawTransactionSignature = message ^. T.signature
@@ -109,8 +110,9 @@ parseTx p bs = do
   signerPubKey <- note "Signature recovery failed." $ recover p recSig signBytes
   return $ Tx
     { txMsg = Msg
-              { msgData = rawTransactionData
+              { msgData = typedMsgData rawTransactionData
               , msgAuthor = addressFromPubKey p signerPubKey
+              , msgType = typedMsgType rawTransactionData
               }
     , txRoute = cs rawTransactionRoute
     , txGas = rawTransactionGas
@@ -119,9 +121,3 @@ parseTx p bs = do
     , txSigner = signerPubKey
     , txNonce = rawTransactionNonce
     }
-
-data PreRoutedTx msg where
-  PreRoutedTx :: Tx alg msg -> PreRoutedTx msg
-
-instance Functor PreRoutedTx where
-  fmap f (PreRoutedTx tx) = PreRoutedTx $ fmap f tx

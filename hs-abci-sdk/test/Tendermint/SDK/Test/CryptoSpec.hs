@@ -11,6 +11,7 @@ import           Data.Proxy
 import           Data.String                      (fromString)
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Crypto            (Secp256k1)
+import           Tendermint.SDK.Types.Message
 import           Tendermint.SDK.Types.Transaction
 import           Test.Hspec
 
@@ -18,7 +19,7 @@ spec :: Spec
 spec = describe "Crypto Tests" $ do
     it "Can sign a transaction and recover the signature" $ do
       let rawTxWithoutSig = RawTransaction
-            { rawTransactionData = "abcd"
+            { rawTransactionData = TypedMessage "abcd" "foo_msg"
             , rawTransactionSignature = ""
             , rawTransactionRoute= "dog"
             , rawTransactionGas = 10

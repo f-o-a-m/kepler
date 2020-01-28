@@ -9,7 +9,6 @@ module Nameservice.Modules.Nameservice
   , Name(..)
   , Whois (..)
   , NameserviceError(..)
-  , NameserviceMessage(..)
   , NameClaimed(..)
   , NameRemapped(..)
   , NameDeleted(..)
@@ -31,14 +30,16 @@ module Nameservice.Modules.Nameservice
   , eval
 
   -- * message router
-  , router
+  , MessageApi
+  , messageHandlers
 
   -- * query API
-  , Api
+  , QueryApi
   , server
 
   ) where
 
+import           Data.Proxy
 import           Nameservice.Modules.Nameservice.Keeper
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Query
@@ -52,7 +53,7 @@ import           Tendermint.SDK.Modules.Auth              (AuthEffs)
 import           Tendermint.SDK.Modules.Bank              (BankEffs)
 
 type NameserviceM r =
-  Module "nameservice" NameserviceMessage () Api NameserviceEffs r
+  Module "nameservice" MessageApi QueryApi NameserviceEffs r
 
 nameserviceModule
   :: Members BaseAppEffs r
@@ -61,8 +62,8 @@ nameserviceModule
   => Members NameserviceEffs r
   => NameserviceM r
 nameserviceModule = Module
-  { moduleTxDeliverer = router
-  , moduleTxChecker = defaultTxChecker
+  { moduleTxDeliverer = messageHandlers
+  , moduleTxChecker = defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
   , moduleQueryServer = server
   , moduleEval = eval
   }

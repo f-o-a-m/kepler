@@ -21,6 +21,6 @@ type Api = BaseApp.QueryApi AuthContents
 
 server
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-  => BaseApp.RouteT Api r
+  => BaseApp.RouteQ Api r
 server =
   BaseApp.storeQueryHandlers (Proxy :: Proxy AuthContents) storeKey (Proxy :: Proxy r)

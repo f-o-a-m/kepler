@@ -65,6 +65,7 @@ library:
     - polysemy-plugin
     - proto3-suite
     - proto3-wire
+    - servant
     - string-conversions
     - text
     - validation
@@ -121,6 +122,30 @@ executables:
     - proto3-suite
     - proto3-wire
 
+  interact:
+    main:                Main.hs
+    source-dirs:         interact
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Werror
+    - -Wall
+    dependencies:
+    - async
+    - base
+    - data-default-class
+    - faker
+    - mtl
+    - nameservice
+    - hs-abci-sdk
+    - hs-abci-test-utils
+    - hs-tendermint-client
+    - random-strings
+    - servant
+    - string-conversions
+    - text
+
 tests:
   tutorial:
     main:                README.lhs
@@ -162,10 +187,9 @@ tests:
     - base >= 4.7 && < 5
     - data-default-class
     - hs-abci-sdk
-    - hs-abci-types
     - hs-abci-test-utils
     - hs-tendermint-client
     - hspec
-    - lens
+    - mtl
     - nameservice
     - servant

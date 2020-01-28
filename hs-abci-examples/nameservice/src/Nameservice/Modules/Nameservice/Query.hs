@@ -13,10 +13,10 @@ import qualified Tendermint.SDK.BaseApp                 as BaseApp
 
 type NameserviceContents = '[(Name, Whois)]
 
-type Api = BaseApp.QueryApi NameserviceContents
+type QueryApi = BaseApp.QueryApi NameserviceContents
 
 server
   :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
-  => BaseApp.RouteT Api r
+  => BaseApp.RouteQ QueryApi r
 server =
   BaseApp.storeQueryHandlers (Proxy :: Proxy NameserviceContents) storeKey (Proxy :: Proxy r)
