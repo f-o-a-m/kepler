@@ -46,9 +46,9 @@ import           Nameservice.Modules.Nameservice.Query
 import           Nameservice.Modules.Nameservice.Router
 import           Nameservice.Modules.Nameservice.Types
 import           Polysemy                                 (Members)
-import           Tendermint.SDK.Application               (Module (..),
-                                                           defaultTxChecker)
-import           Tendermint.SDK.BaseApp                   (BaseAppEffs)
+import           Tendermint.SDK.Application               (Module (..))
+import           Tendermint.SDK.BaseApp                   (BaseAppEffs,
+                                                           DefaultCheckTx (..))
 import           Tendermint.SDK.Modules.Auth              (AuthEffs)
 import           Tendermint.SDK.Modules.Bank              (BankEffs)
 

@@ -21,15 +21,17 @@ module Tendermint.SDK.Modules.Bank
   -- * interpreter
   , eval
 
-  -- * router
-  , router
+  -- * transaction
+  , MessageApi
+  , messageHandlers
 
   -- * Query Api
-  , Api
+  , QueryApi
   , server
 
   ) where
 
+import           Data.Proxy
 import           Polysemy                             (Members)
 import           Tendermint.SDK.Application           (Module (..))
 import           Tendermint.SDK.BaseApp               (BaseAppEffs,
@@ -42,7 +44,7 @@ import           Tendermint.SDK.Modules.Bank.Router
 import           Tendermint.SDK.Modules.Bank.Types
 import           Tendermint.SDK.Types.Address         (Address)
 
-type BankM r = Module "bank" BankMessage () Api BankEffs r
+type BankM r = Module "bank" MessageApi QueryApi BankEffs r
 
 bankModule
   :: Members BaseAppEffs r

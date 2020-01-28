@@ -34,14 +34,14 @@ applyAnteHandler (AnteHandler ah) = ($) ah
 createAccountAnteHandler
   :: Members A.AuthEffs r
   => AnteHandler r
-createAccountAnteHandler = AnteHandler $ \(M.Router router) ->
-  M.Router $ \tx@(PreRoutedTx Tx{..}) -> do
+createAccountAnteHandler = AnteHandler $
+  \txApplication tx@(RoutingTx Tx{..}) -> do
     let Msg{msgAuthor} = txMsg
     mAcnt <- A.getAccount msgAuthor
     case mAcnt of
       Nothing -> void $ A.createAccount msgAuthor
       _       -> pure ()
-    router tx >>= pure
+    txApplication tx >>= pure
 
 nonceAnteHandler
   :: Members A.AuthEffs r
@@ -49,25 +49,25 @@ nonceAnteHandler
   => AnteHandler r
 nonceAnteHandler = AnteHandler $
   \txApplication tx@(RoutingTx Tx{..}) -> do
-      let Msg{msgAuthor} = txMsg
-      preMAcnt <- A.getAccount msgAuthor
-      case preMAcnt of
-        Just A.Account{accountNonce} -> do
-          let expectedNonce = accountNonce + 1
-          unless (txNonce == expectedNonce) $
-            throwSDKError (NonceException expectedNonce txNonce)
-        Nothing -> do
-          unless (txNonce == 1) $
-            throwSDKError (NonceException 1 txNonce)
-      result <- router tx
-      postMAcnt <- A.getAccount msgAuthor
-      case postMAcnt of
-        Just acnt@A.Account{accountNonce} -> do
-          A.putAccount msgAuthor $
-            acnt { A.accountNonce = accountNonce + 1}
-        -- @NOTE: no-op when no nonce is availble to update
-        Nothing -> pure ()
-      pure result
+    let Msg{msgAuthor} = txMsg
+    preMAcnt <- A.getAccount msgAuthor
+    case preMAcnt of
+      Just A.Account{accountNonce} -> do
+        let expectedNonce = accountNonce + 1
+        unless (txNonce == expectedNonce) $
+          throwSDKError (NonceException expectedNonce txNonce)
+      Nothing -> do
+        unless (txNonce == 1) $
+          throwSDKError (NonceException 1 txNonce)
+    result <- txApplication tx
+    postMAcnt <- A.getAccount msgAuthor
+    case postMAcnt of
+      Just acnt@A.Account{accountNonce} -> do
+        A.putAccount msgAuthor $
+          acnt { A.accountNonce = accountNonce + 1}
+      -- @NOTE: no-op when no nonce is availble to update
+      Nothing -> pure ()
+    pure result
 
 baseAppAnteHandler
   :: Members A.AuthEffs r

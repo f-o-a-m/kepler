@@ -2,6 +2,7 @@ module Nameservice.Modules.Nameservice.Messages
   ( SetName(..)
   , BuyName(..)
   , DeleteName(..)
+  , FaucetAccount(..)
   ) where
 
 import           Data.Bifunctor                        (first)
@@ -18,7 +19,6 @@ import           Tendermint.SDK.Codec                  (HasCodec (..))
 import           Tendermint.SDK.Modules.Auth           (Amount (..),
                                                         CoinId (..))
 import           Tendermint.SDK.Modules.Bank           ()
-import           Tendermint.SDK.Modules.TypedMessage   (TypedMessage (..))
 import           Tendermint.SDK.Types.Address          (Address (..))
 import           Tendermint.SDK.Types.Message          (HasMessageType (..),
                                                         Msg (..),
@@ -38,6 +38,9 @@ data FaucetAccount = FaucetAccount
 
 instance Message FaucetAccount
 instance Named FaucetAccount
+
+instance HasMessageType FaucetAccount where
+  messageType _ = "FaucetAccount"
 
 instance HasCodec FaucetAccount where
   encode = cs . toLazyByteString

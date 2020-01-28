@@ -16,7 +16,6 @@ import qualified Faker.Name                        as Name
 import qualified Faker.Utils                       as Utils
 import           Nameservice.Application
 import qualified Nameservice.Modules.Nameservice   as N
-import qualified Nameservice.Modules.Token         as T
 import qualified Network.Tendermint.Client         as RPC
 import           Servant.API                       ((:<|>) (..))
 import           Tendermint.SDK.Application.Module (AppQueryRouter (QApi),
@@ -45,14 +44,14 @@ import           Test.RandomStrings                (onlyWith, randomASCII,
 -- Actions
 --------------------------------------------------------------------------------
 
-faucetAccount :: Signer -> T.Amount -> IO ()
+faucetAccount :: Signer -> Auth.Amount -> IO ()
 faucetAccount s@(Signer addr _) amount =
-  runAction_ s faucet $ T.FaucetAccount addr amount
+  runAction_ s faucet $ N.FaucetAccount addr "nameservice" amount
 
 createName :: Signer -> N.Name -> Text -> IO ()
 createName s name val = buyName s name val 0
 
-buyName :: Signer -> N.Name -> Text -> T.Amount -> IO ()
+buyName :: Signer -> N.Name -> Text -> Auth.Amount -> IO ()
 buyName s@(Signer addr _) name newVal amount =
   runAction_ s buy $ N.BuyName amount name newVal addr
 
@@ -157,14 +156,13 @@ delete
   -> N.DeleteName
   -> TxClientM (TxClientResponse () ())
 
--- Token Client
 faucet
   :: TxOpts
-  -> T.FaucetAccount
+  -> N.FaucetAccount
   -> TxClientM (TxClientResponse () ())
 
-(buy :<|> set :<|> delete) :<|>
-  (_ :<|> _ :<|> faucet) :<|>
+(buy :<|> set :<|> delete :<|> faucet) :<|>
+  (_ :<|> _) :<|>
   EmptyTxClient =
     genClientT (Proxy @TxClientM) txApiP defaultClientTxOpts
     where
@@ -187,7 +185,7 @@ genName = do
   name <- Name.name
   return . fromString $ name
 
-genAmount :: IO T.Amount
+genAmount :: IO Auth.Amount
 genAmount = do
   genAmt <- Utils.randomNum (1, 1000)
   return . fromInteger . toInteger $ genAmt

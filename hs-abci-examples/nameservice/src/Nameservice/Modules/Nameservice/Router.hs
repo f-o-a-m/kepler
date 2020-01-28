@@ -30,14 +30,16 @@ type MessageApi =
 
 messageHandlers
   :: Members BaseAppEffs r
+  => Members AuthEffs r
   => Members BankEffs r
   => Members NameserviceEffs r
   => RouteTx MessageApi r 'DeliverTx
-messageHandlers = buyNameH :<|> setNameH :<|> deleteNameH
+messageHandlers = buyNameH :<|> setNameH :<|> deleteNameH :<|> faucetH
 
 buyNameH
   :: Members BaseAppEffs r
   => Members TxEffs r
+  => Members AuthEffs r
   => Members BankEffs r
   => Members NameserviceEffs r
   => RoutingTx BuyName
@@ -59,6 +61,7 @@ setNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
 deleteNameH
   :: Members BaseAppEffs r
   => Members TxEffs r
+  => Members AuthEffs r
   => Members BankEffs r
   => Members NameserviceEffs r
   => RoutingTx DeleteName

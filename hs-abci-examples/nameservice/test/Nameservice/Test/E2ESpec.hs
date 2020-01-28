@@ -6,7 +6,6 @@ import           Data.Default.Class                (def)
 import           Data.Proxy
 import           Nameservice.Application
 import qualified Nameservice.Modules.Nameservice   as N
-import qualified Nameservice.Modules.Token         as T
 import           Nameservice.Test.EventOrphans     ()
 import qualified Network.Tendermint.Client         as RPC
 import           Servant.API                       ((:<|>) (..))
@@ -17,6 +16,7 @@ import           Tendermint.SDK.BaseApp.Query      (QueryArgs (..),
                                                     QueryResult (..),
                                                     defaultQueryArgs)
 import qualified Tendermint.SDK.Modules.Auth       as Auth
+import qualified Tendermint.SDK.Modules.Bank       as B
 import           Tendermint.SDK.Types.Address      (Address)
 import           Tendermint.Utils.Client           (ClientConfig (..),
                                                     EmptyTxClient (..),
@@ -262,7 +262,7 @@ spec = do
       it "Can fail a transfer" $ do
         addr2Balance <- getUserBalance user2
         let tooMuchToTransfer = addr2Balance + 1
-            msg = T.Transfer
+            msg = B.Transfer
               { transferFrom = signerAddress user2
               , transferTo = signerAddress user1
               , transferAmount = tooMuchToTransfer
@@ -280,12 +280,12 @@ spec = do
         balance2 <- getUserBalance user2
         let transferAmount = 1
             msg =
-              T.Transfer
+              B.Transfer
                 { transferFrom = signerAddress user1
                 , transferTo = signerAddress user2
                 , transferAmount = transferAmount
                 }
-            transferLog = T.TransferEvent
+            transferLog = B.TransferEvent
               { transferEventAmount = transferAmount
               , transferEventTo = signerAddress user2
               , transferEventFrom = signerAddress user1
@@ -297,7 +297,7 @@ spec = do
 
         resp <- assertTx . runTxClientM $ transfer opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @T.TransferEvent) resp
+        (errs, es) <- deliverTxEvents (Proxy @B.TransferEvent) resp
         errs `shouldBe` []
         filter (transferLog ==) es `shouldBe` [transferLog]
 
@@ -308,12 +308,12 @@ spec = do
         balance2' `shouldBe` balance2 + transferAmount
 
 faucetUser
-  :: T.Amount
+  :: Auth.Amount
   -> Signer
   -> IO ()
 faucetUser amount s@(Signer addr _) =
   void . assertTx .runTxClientM $
-    let msg = T.FaucetAccount addr amount
+    let msg = N.FaucetAccount addr "nameservice" amount
         opts = TxOpts
           { txOptsGas = 0
           , txOptsSigner = s
@@ -322,7 +322,7 @@ faucetUser amount s@(Signer addr _) =
 
 getUserBalance
   :: Signer
-  -> IO T.Amount
+  -> IO Auth.Amount
 getUserBalance usr = fmap queryResultData . assertQuery . RPC.runTendermintM rpcConfig $
   getBalance defaultQueryArgs { queryArgsData = signerAddress usr }
 
@@ -350,7 +350,7 @@ getWhois
 
 getBalance
   :: QueryArgs Address
-  -> RPC.TendermintM (QueryClientResponse T.Amount)
+  -> RPC.TendermintM (QueryClientResponse Auth.Coin)
 
 getWhois :<|> getBalance :<|> getAccount =
   genClientQ (Proxy :: Proxy m) queryApiP def
@@ -407,24 +407,19 @@ deleteName
   -> N.DeleteName
   -> TxClientM (TxClientResponse () ())
 
--- Token Client
---burn
---  :: TxOpts
---  -> T.Burn
---  -> TxClientM (TxClientResponse () ())
-
+-- Bank Client
 transfer
   :: TxOpts
-  -> T.Transfer
+  -> B.Transfer
   -> TxClientM (TxClientResponse () ())
 
 faucet
   :: TxOpts
-  -> T.FaucetAccount
+  -> N.FaucetAccount
   -> TxClientM (TxClientResponse () ())
 
-(buyName :<|> setName :<|> deleteName) :<|>
-  (_ :<|> transfer :<|> faucet) :<|>
+(buyName :<|> setName :<|> deleteName :<|> faucet) :<|>
+  (_ :<|> transfer) :<|>
   EmptyTxClient =
     genClientT (Proxy @TxClientM) txApiP defaultClientTxOpts
     where

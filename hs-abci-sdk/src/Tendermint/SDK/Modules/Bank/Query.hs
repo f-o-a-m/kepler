@@ -34,10 +34,10 @@ getAddressCoinBalance address cid = do
     , queryResultHeight = 0
     }
 
-type Api = GetAddressCoinBalance
+type QueryApi = GetAddressCoinBalance
 
 server
   :: forall r.
      Members Auth.AuthEffs r
-  => BaseApp.RouteT Api r
+  => BaseApp.RouteQ QueryApi r
 server = getAddressCoinBalance
