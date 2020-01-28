@@ -13,7 +13,7 @@ import Nameservice.Modules.Nameservice.Router (MessageApi, messageHandlers)
 import Nameservice.Modules.Nameservice.Types (NameserviceModuleName)
 import Polysemy                                 (Members)
 import Tendermint.SDK.Application               (Module (..))
-import Tendermint.SDK.BaseApp                   (BaseAppEffs
+import Tendermint.SDK.BaseApp                   (BaseAppEffs,
                                                  DefaultCheckTx (..))
 import Tendermint.SDK.Modules.Bank                (BankEffs)
 import Tendermint.SDK.Modules.Auth                (AuthEffs)

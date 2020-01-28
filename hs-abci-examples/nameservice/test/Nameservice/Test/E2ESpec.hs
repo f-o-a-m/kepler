@@ -50,7 +50,7 @@ spec = do
 
       it "Can query account balances" $ do
         void . assertQuery . RPC.runTendermintM rpcConfig $
-          getBalance defaultQueryArgs { queryArgsData  = signerAddress user1 }
+          getBalance (signerAddress user1) "nameservice"
 
       it "Can create a name" $ do
         let val = "hello world"
@@ -265,6 +265,7 @@ spec = do
             msg = B.Transfer
               { transferFrom = signerAddress user2
               , transferTo = signerAddress user1
+              , transferCoinId = "nameservice"
               , transferAmount = tooMuchToTransfer
               }
             opts = TxOpts
@@ -283,10 +284,12 @@ spec = do
               B.Transfer
                 { transferFrom = signerAddress user1
                 , transferTo = signerAddress user2
+                , transferCoinId = "nameservice"
                 , transferAmount = transferAmount
                 }
             transferLog = B.TransferEvent
               { transferEventAmount = transferAmount
+              , transferEventCoinId = "nameservice"
               , transferEventTo = signerAddress user2
               , transferEventFrom = signerAddress user1
               }
@@ -323,8 +326,8 @@ faucetUser amount s@(Signer addr _) =
 getUserBalance
   :: Signer
   -> IO Auth.Amount
-getUserBalance usr = fmap queryResultData . assertQuery . RPC.runTendermintM rpcConfig $
-  getBalance defaultQueryArgs { queryArgsData = signerAddress usr }
+getUserBalance usr = fmap (Auth.coinAmount . queryResultData) . assertQuery . RPC.runTendermintM rpcConfig $
+  getBalance (signerAddress usr) "nameservice"
 
 --------------------------------------------------------------------------------
 
@@ -349,7 +352,8 @@ getWhois
   -> RPC.TendermintM (QueryClientResponse N.Whois)
 
 getBalance
-  :: QueryArgs Address
+  :: Address
+  -> Auth.CoinId
   -> RPC.TendermintM (QueryClientResponse Auth.Coin)
 
 getWhois :<|> getBalance :<|> getAccount =
