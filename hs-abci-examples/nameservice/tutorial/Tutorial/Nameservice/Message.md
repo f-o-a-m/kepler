@@ -32,7 +32,6 @@ import Tendermint.SDK.Types.Message (Msg(..), ValidateMessage(..), HasMessageTyp
                                      coerceProto3Error, formatMessageParseError)
 import Tendermint.SDK.Modules.Auth (Amount)
 import Tendermint.SDK.Modules.Bank ()
-import Tendermint.SDK.Modules.TypedMessage (TypedMessage(..))
 import Tendermint.SDK.Codec (HasCodec(..))
 ~~~
 

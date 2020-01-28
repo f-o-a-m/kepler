@@ -1,20 +1,18 @@
 module Tendermint.SDK.Modules.Bank.Messages where
 
-import           Data.Bifunctor                    (first)
-import           Data.String.Conversions           (cs)
-import           Data.Validation                   (Validation (..))
-import           GHC.Generics                      (Generic)
-import           Proto3.Suite                      (Message, Named,
-                                                    fromByteString,
-                                                    toLazyByteString)
-import           Tendermint.SDK.Codec              (HasCodec (..))
-import           Tendermint.SDK.Modules.Auth       (Amount, CoinId)
-import           Tendermint.SDK.Modules.Bank.Types ()
-import           Tendermint.SDK.Types.Address      (Address)
-import           Tendermint.SDK.Types.Message      (HasMessageType (..),
-                                                    ValidateMessage (..),
-                                                    coerceProto3Error,
-                                                    formatMessageParseError)
+import           Data.Bifunctor               (first)
+import           Data.String.Conversions      (cs)
+import           Data.Validation              (Validation (..))
+import           GHC.Generics                 (Generic)
+import           Proto3.Suite                 (Message, Named, fromByteString,
+                                               toLazyByteString)
+import           Tendermint.SDK.Codec         (HasCodec (..))
+import           Tendermint.SDK.Modules.Auth  (Amount, CoinId)
+import           Tendermint.SDK.Types.Address (Address)
+import           Tendermint.SDK.Types.Message (HasMessageType (..),
+                                               ValidateMessage (..),
+                                               coerceProto3Error,
+                                               formatMessageParseError)
 
 data Transfer = Transfer
   { transferTo     :: Address

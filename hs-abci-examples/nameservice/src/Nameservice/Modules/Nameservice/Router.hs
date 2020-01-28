@@ -62,7 +62,6 @@ deleteNameH
   :: Members BaseAppEffs r
   => Members TxEffs r
   => Members AuthEffs r
-  => Members BankEffs r
   => Members NameserviceEffs r
   => RoutingTx DeleteName
   -> Sem r ()
@@ -72,7 +71,6 @@ deleteNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
 
 faucetH
   :: Members AuthEffs r
-  => Members BankEffs r
   => Members TxEffs r
   => Members BaseAppEffs r
   => RoutingTx FaucetAccount

@@ -5,6 +5,7 @@ import qualified Data.ByteArray.Base64String        as Base64
 import           Polysemy
 import           Servant.API
 import qualified Tendermint.SDK.BaseApp             as BaseApp
+import           Tendermint.SDK.BaseApp.Query       (QueryArgs (..))
 import qualified Tendermint.SDK.Modules.Auth        as Auth
 import           Tendermint.SDK.Modules.Bank.Keeper (getCoinBalance)
 import           Tendermint.SDK.Types.Address       (Address)
@@ -15,16 +16,16 @@ import           Tendermint.SDK.Types.Address       (Address)
 
 type GetAddressCoinBalance =
      "balance"
-  :> QueryParam' '[Required, Strict] "address" Address
+  :> BaseApp.QA Address
   :> QueryParam' '[Required, Strict] "coin_id" Auth.CoinId
   :> BaseApp.Leaf Auth.Coin
 
 getAddressCoinBalance
   :: Members Auth.AuthEffs r
-  => Address
+  => QueryArgs Address
   -> Auth.CoinId
   -> Sem r (BaseApp.QueryResult Auth.Coin)
-getAddressCoinBalance address cid = do
+getAddressCoinBalance (QueryArgs _ address _) cid = do
   coin <- getCoinBalance address cid
   pure $ BaseApp.QueryResult
     { queryResultData = coin

@@ -1,48 +1,16 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
 module Tendermint.SDK.Modules.Bank.Types where
 
 import           Data.Aeson                   as A
-import qualified Data.ByteArray.HexString     as Hex
-import           Data.String                  (fromString)
-import           Data.String.Conversions      (cs)
-import           Data.Text                    (Text, unpack)
+import           Data.Text                    (Text)
 import           GHC.Generics                 (Generic)
-import           Proto3.Suite                 (HasDefault (..), MessageField,
-                                               Primitive (..))
-import qualified Proto3.Suite.DotProto        as DotProto
-import qualified Proto3.Wire.Decode           as Decode
-import qualified Proto3.Wire.Encode           as Encode
 import qualified Tendermint.SDK.BaseApp       as BaseApp
-import           Tendermint.SDK.Codec         (HasCodec (..),
-                                               defaultSDKAesonOptions)
+import           Tendermint.SDK.Codec         (defaultSDKAesonOptions)
 import qualified Tendermint.SDK.Modules.Auth  as Auth
-import           Tendermint.SDK.Types.Address (Address (..), addressFromBytes,
-                                               addressToBytes)
-import           Web.HttpApiData              (FromHttpApiData (..),
-                                               ToHttpApiData (..))
+import           Tendermint.SDK.Types.Address (Address (..))
 
 --------------------------------------------------------------------------------
 
 type BankModule = "bank"
-
---------------------------------------------------------------------------------
-
--- Address orphans
-instance Primitive Address where
-  encodePrimitive n a = Encode.byteString n $ addressToBytes a
-  decodePrimitive = addressFromBytes <$> Decode.byteString
-  primType _ = DotProto.Bytes
-instance HasDefault Hex.HexString
-instance HasDefault Address
-instance MessageField Address
-instance HasCodec Address where
-  decode = Right . addressFromBytes
-  encode = addressToBytes
-instance ToHttpApiData Address where
-  toQueryParam (Address aHex) = Hex.format aHex
-instance FromHttpApiData Address where
-  parseQueryParam = Right . Address . fromString . unpack
 
 --------------------------------------------------------------------------------
 -- Exceptions
@@ -50,7 +18,6 @@ instance FromHttpApiData Address where
 
 data BankError =
     InsufficientFunds Text
-  | PutOnNonExistentAccount Address
 
 instance BaseApp.IsAppError BankError where
   makeAppError (InsufficientFunds msg) =
@@ -58,12 +25,6 @@ instance BaseApp.IsAppError BankError where
     { appErrorCode = 1
     , appErrorCodespace = "bank"
     , appErrorMessage = msg
-    }
-  makeAppError (PutOnNonExistentAccount addr) =
-    BaseApp.AppError
-    { appErrorCode = 2
-    , appErrorCodespace = "bank"
-    , appErrorMessage = "Attempted to put balance on non-existent account: " <> (cs . show $ addr)
     }
 
 --------------------------------------------------------------------------------

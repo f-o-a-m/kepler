@@ -37,6 +37,9 @@ module Nameservice.Modules.Nameservice
   , QueryApi
   , server
 
+  -- * coin
+  , nameserviceCoinId
+
   ) where
 
 import           Data.Proxy

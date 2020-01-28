@@ -74,6 +74,8 @@ baseAppAnteHandler
   => Member (Error AppError) r
   => AnteHandler r
 baseAppAnteHandler = mconcat $
+  -- @NOTE: antehandlers in this list are applied top to bottom
+  -- as per the Semigroup instance definition
   [ createAccountAnteHandler
   , nonceAnteHandler
   ]

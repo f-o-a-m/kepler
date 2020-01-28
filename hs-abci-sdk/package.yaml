@@ -130,7 +130,6 @@ library:
   - Tendermint.SDK.Modules.Bank.Keeper
   - Tendermint.SDK.Modules.Bank.Query
   - Tendermint.SDK.Modules.Bank.Router
-  - Tendermint.SDK.Modules.TypedMessage
   - Tendermint.SDK.Types.Address
   - Tendermint.SDK.Types.Effects
   - Tendermint.SDK.Types.Message

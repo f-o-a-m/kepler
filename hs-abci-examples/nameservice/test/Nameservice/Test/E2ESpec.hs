@@ -50,7 +50,8 @@ spec = do
 
       it "Can query account balances" $ do
         void . assertQuery . RPC.runTendermintM rpcConfig $
-          getBalance (signerAddress user1) "nameservice"
+          let queryArgs = defaultQueryArgs { queryArgsData = signerAddress user1 }
+          in getBalance queryArgs N.nameserviceCoinId
 
       it "Can create a name" $ do
         let val = "hello world"
@@ -265,7 +266,7 @@ spec = do
             msg = B.Transfer
               { transferFrom = signerAddress user2
               , transferTo = signerAddress user1
-              , transferCoinId = "nameservice"
+              , transferCoinId = N.nameserviceCoinId
               , transferAmount = tooMuchToTransfer
               }
             opts = TxOpts
@@ -284,12 +285,12 @@ spec = do
               B.Transfer
                 { transferFrom = signerAddress user1
                 , transferTo = signerAddress user2
-                , transferCoinId = "nameservice"
+                , transferCoinId = N.nameserviceCoinId
                 , transferAmount = transferAmount
                 }
             transferLog = B.TransferEvent
               { transferEventAmount = transferAmount
-              , transferEventCoinId = "nameservice"
+              , transferEventCoinId = N.nameserviceCoinId
               , transferEventTo = signerAddress user2
               , transferEventFrom = signerAddress user1
               }
@@ -316,7 +317,7 @@ faucetUser
   -> IO ()
 faucetUser amount s@(Signer addr _) =
   void . assertTx .runTxClientM $
-    let msg = N.FaucetAccount addr "nameservice" amount
+    let msg = N.FaucetAccount addr N.nameserviceCoinId amount
         opts = TxOpts
           { txOptsGas = 0
           , txOptsSigner = s
@@ -327,7 +328,8 @@ getUserBalance
   :: Signer
   -> IO Auth.Amount
 getUserBalance usr = fmap (Auth.coinAmount . queryResultData) . assertQuery . RPC.runTendermintM rpcConfig $
-  getBalance (signerAddress usr) "nameservice"
+  let queryArgs = defaultQueryArgs { queryArgsData = signerAddress usr }
+  in getBalance queryArgs N.nameserviceCoinId
 
 --------------------------------------------------------------------------------
 
@@ -352,7 +354,7 @@ getWhois
   -> RPC.TendermintM (QueryClientResponse N.Whois)
 
 getBalance
-  :: Address
+  :: QueryArgs Address
   -> Auth.CoinId
   -> RPC.TendermintM (QueryClientResponse Auth.Coin)
 

@@ -36,21 +36,20 @@ getCoinBalance address cid = do
 
 replaceCoinValue :: Auth.Coin -> [Auth.Coin] -> [Auth.Coin]
 replaceCoinValue c [] = [c]
-replaceCoinValue c@(Auth.Coin cid _) (c1@(Auth.Coin cid1 _):rest) =
-  if cid1 == cid
+replaceCoinValue c@(Auth.Coin cid _) (c1@(Auth.Coin cid' _):rest) =
+  if cid' == cid
   then c : rest
   else c1 : replaceCoinValue c rest
 
 putCoinBalance
   :: Members Auth.AuthEffs r
-  => Members BankEffs r
   => Address
   -> Auth.Coin
   -> Sem r ()
 putCoinBalance address coin = do
   mAcnt <- Auth.getAccount address
   acnt <- case mAcnt of
-            Nothing -> throw (PutOnNonExistentAccount address)
+            Nothing -> Auth.createAccount address >>= pure
             Just a  -> pure a
   let updatedCoins = replaceCoinValue coin (Auth.accountCoins acnt)
       updatedAcnt = acnt { Auth.accountCoins = updatedCoins }
@@ -67,7 +66,7 @@ transfer
 transfer addr1 (Auth.Coin cid amount) addr2 = do
   -- check if addr1 has amt
   (Auth.Coin _ addr1Bal) <- getCoinBalance addr1 cid
-  if addr1Bal > amount
+  if addr1Bal >= amount
     then do
       (Auth.Coin _ addr2Bal) <- getCoinBalance addr2 cid
       let newCoinBalance1 = Auth.Coin cid (addr1Bal - amount)
@@ -99,7 +98,6 @@ burn addr (Auth.Coin cid amount) = do
 
 mint
   :: Members Auth.AuthEffs r
-  => Members BankEffs r
   => Address
   -> Auth.Coin
   -> Sem r ()
