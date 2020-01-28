@@ -1,19 +1,34 @@
 module SimpleStorage.Test.E2ESpec (spec) where
 
-import           Control.Lens                         ((^.))
-import qualified Data.ByteArray.Base64String          as Base64
-import           Data.Default.Class                   (def)
+import           Control.Monad.Reader                (ReaderT, runReaderT)
+import           Data.Default.Class                  (def)
 import           Data.Proxy
-import qualified Network.ABCI.Types.Messages.Response as Resp
-import qualified Network.Tendermint.Client            as RPC
-import           Servant.API                          ((:>))
-import qualified SimpleStorage.Modules.SimpleStorage  as SS
-import           Tendermint.SDK.BaseApp.Query         (QueryArgs (..))
-import           Tendermint.SDK.Codec                 (HasCodec (..))
-import           Tendermint.Utils.Client              (ClientResponse (..),
-                                                       HasClient (..))
-import           Tendermint.Utils.Request             (runRPC)
-import           Tendermint.Utils.User                (User (..), makeUser, mkSignedRawTransactionWithRoute)
+import qualified Network.Tendermint.Client           as RPC
+import           Servant.API                         ((:<|>) (..))
+import           SimpleStorage.Application
+import qualified SimpleStorage.Modules.SimpleStorage as SS
+import           Tendermint.SDK.Application.Module   (AppQueryRouter (QApi),
+                                                      AppTxRouter (TApi))
+import           Tendermint.SDK.BaseApp.Errors       (AppError (..))
+import           Tendermint.SDK.BaseApp.Query        (QueryArgs (..),
+                                                      QueryResult (..),
+                                                      defaultQueryArgs)
+import qualified Tendermint.SDK.Modules.Auth         as Auth
+import           Tendermint.SDK.Types.Address        (Address)
+import           Tendermint.Utils.Client             (ClientConfig (..),
+                                                      EmptyTxClient (..),
+                                                      HasQueryClient (..),
+                                                      HasTxClient (..),
+                                                      QueryClientResponse (..),
+                                                      TxClientResponse (..),
+                                                      TxOpts (..),
+                                                      defaultClientTxOpts)
+import           Tendermint.Utils.ClientUtils        (assertQuery, assertTx,
+                                                      ensureResponseCodes,
+                                                      rpcConfig)
+import           Tendermint.Utils.User               (User (..),
+                                                      makeSignerFromUser,
+                                                      makeUser)
 import           Test.Hspec
 
 spec :: Spec
@@ -21,43 +36,86 @@ spec = do
   describe "SimpleStorage E2E - via hs-tendermint-client" $ do
 
     it "Can query /health to make sure the node is alive" $ do
-      resp <- runRPC RPC.health
+      resp <- RPC.runTendermintM rpcConfig RPC.health
       resp `shouldBe` RPC.ResultHealth
 
-    --it "Can query the count and make sure its initialized to 0" $ do
-    --  let queryReq = QueryArgs
-    --        { queryArgsData = SS.CountKey
-    --        , queryArgsHeight = 0
-    --        , queryArgsProve = False
-    --        }
-    --  ClientResponse{clientResponseData = Just foundCount} <- runQueryRunner $ getCount queryReq
-    --  foundCount `shouldBe` SS.Count 0
-
     it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
-      let txMsg = SS.UpdateCount $ SS.UpdateCountTx "irakli" 4
-          tx = mkSignedRawTransactionWithRoute "simple_storage" (userPrivKey user1) txMsg
-          txReq = RPC.RequestBroadcastTxCommit
-                    { RPC.requestBroadcastTxCommitTx = Base64.fromBytes . encode $ tx
-                    }
-      deliverResp <- fmap RPC.resultBroadcastTxCommitDeliverTx . runRPC $ RPC.broadcastTxCommit txReq
-      let deliverRespCode = deliverResp ^. Resp._deliverTxCode
-      deliverRespCode `shouldBe` 0
+      let txOpts = TxOpts
+            { txOptsGas = 0
+            , txOptsSigner = makeSignerFromUser user1
+            }
+          tx = SS.UpdateCountTx
+                 { SS.updateCountTxUsername = "charles"
+                 , SS.updateCountTxCount = 4
+                 }
+      resp <- assertTx . runTxClientM $ updateCount txOpts tx
+      ensureResponseCodes (0,0) resp
 
     it "can make sure the synchronous tx transaction worked and the count is now 4" $ do
-      let queryReq = QueryArgs
-            { queryArgsData = SS.CountKey
-            , queryArgsHeight = 0
-            , queryArgsProve = False
-            }
-      ClientResponse{clientResponseData = Just foundCount} <- runRPC $ getCount queryReq
+      resp <-  assertQuery . RPC.runTendermintM rpcConfig $
+        getCount defaultQueryArgs { queryArgsData = SS.CountKey }
+      let foundCount = queryResultData resp
       foundCount `shouldBe` SS.Count 4
 
 --------------------------------------------------------------------------------
+-- Query Client
+--------------------------------------------------------------------------------
 
-getCount :: QueryArgs SS.CountKey -> RPC.TendermintM (ClientResponse SS.Count)
-getCount =
-  let apiP = Proxy :: Proxy ("simple_storage" :> SS.Api)
-  in genClient (Proxy :: Proxy RPC.TendermintM) apiP def
+getCount
+  :: QueryArgs SS.CountKey
+  -> RPC.TendermintM (QueryClientResponse SS.Count)
+
+getAccount
+  :: QueryArgs Address
+  -> RPC.TendermintM (QueryClientResponse Auth.Account)
+
+getCount :<|> getAccount =
+  genClientQ (Proxy :: Proxy m) queryApiP def
+  where
+    queryApiP :: Proxy (QApi SimpleStorageModules)
+    queryApiP = Proxy
+
+
+--------------------------------------------------------------------------------
+-- Tx Client
+--------------------------------------------------------------------------------
+
+txClientConfig :: ClientConfig
+txClientConfig =
+  let getNonce addr = do
+        resp <- RPC.runTendermintM rpcConfig $ getAccount $
+            defaultQueryArgs { queryArgsData = addr }
+        case resp of
+          QueryError e ->
+            if appErrorCode e == 2
+              then pure 0
+              else error $ "Unknown nonce error: " <> show (appErrorMessage e)
+          QueryResponse QueryResult{queryResultData} ->
+            pure $ Auth.accountNonce queryResultData
+
+  in ClientConfig
+       { clientGetNonce = getNonce
+       , clientRPC = rpcConfig
+       }
+
+type TxClientM = ReaderT ClientConfig IO
+
+runTxClientM :: TxClientM a -> IO a
+runTxClientM m = runReaderT m txClientConfig
+
+updateCount
+  :: TxOpts
+  -> SS.UpdateCountTx
+  -> TxClientM (TxClientResponse () ())
+
+updateCount :<|> EmptyTxClient =
+  genClientT (Proxy @TxClientM) txApiP defaultClientTxOpts
+  where
+    txApiP :: Proxy (TApi SimpleStorageModules)
+    txApiP = Proxy
+
+
+--------------------------------------------------------------------------------
 
 user1 :: User
 user1 = makeUser "f65255094d7773ed8dd417badc9fc045c1f80fdc5b2d25172b031ce6933e039a"

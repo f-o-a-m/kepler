@@ -1,16 +1,14 @@
 module Tendermint.SDK.BaseApp.Query.Types where
 
-import           Control.Lens                           (from, (^.))
-import           Control.Monad                          (ap)
-import           Control.Monad.Trans                    (MonadTrans (..))
-import           Data.ByteArray.Base64String            (Base64String,
-                                                         fromBytes, toBytes)
+import           Control.Lens                           (from, lens, (^.))
+import           Data.ByteArray.Base64String            (Base64String, toBytes)
 import           Data.Int                               (Int64)
-import           Data.Text                              (Text)
+import           Data.Text                              (Text, breakOn, uncons)
 import           GHC.TypeLits                           (Symbol)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof, WrappedVal (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
+import           Tendermint.SDK.BaseApp.Router.Types    (HasPath (..))
 import           Tendermint.SDK.BaseApp.Store           (RawKey (..))
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 import           Tendermint.SDK.Types.Address           (Address)
@@ -25,50 +23,65 @@ type QueryApplication m = Request.Query -> m Response.Query
 
 --------------------------------------------------------------------------------
 
-data QueryError =
-    PathNotFound
-  | ResourceNotFound
-  | InvalidQuery String
-  | InternalError String
-  deriving (Show)
+data QueryRequest = QueryRequest
+  { queryRequestPath        :: Text
+  , queryRequestParamString :: Text
+  , queryRequestData        :: Base64String
+  , queryRequestProve       :: Bool
+  , queryRequestHeight      :: Int64
+  } deriving (Eq, Show)
+
+parseQueryRequest
+  :: Request.Query
+  -> QueryRequest
+parseQueryRequest Request.Query{..} =
+  let (p, queryStrQ) = breakOn "?" queryPath
+      queryStr = case Data.Text.uncons queryStrQ of
+        Nothing -> ""
+        Just ('?', rest) -> rest
+        _ -> error "Impossible result parsing query string from path."
+  in QueryRequest
+       { queryRequestPath = p
+       , queryRequestParamString = queryStr
+       , queryRequestData = queryData
+       , queryRequestProve = queryProve
+       , queryRequestHeight = unWrappedVal queryHeight
+       }
+
+instance HasPath QueryRequest where
+  path = lens queryRequestPath (\q p -> q {queryRequestPath = p})
+
+--------------------------------------------------------------------------------
 
 data QueryArgs a = QueryArgs
   { queryArgsProve  :: Bool
   , queryArgsData   :: a
-  , queryArgsHeight :: WrappedVal Int64
+  , queryArgsHeight :: Int64
   } deriving Functor
 
 -- wrap data with default query fields
-defaultQueryWithData :: a -> QueryArgs a
-defaultQueryWithData x = QueryArgs
-  { queryArgsData = x
-  , queryArgsHeight = 0
+defaultQueryArgs :: QueryArgs ()
+defaultQueryArgs = QueryArgs
+  { queryArgsData = ()
+  , queryArgsHeight = -1
   , queryArgsProve = False
   }
 
 data QueryResult a = QueryResult
   { queryResultData   :: a
-  , queryResultIndex  :: WrappedVal Int64
+  , queryResultIndex  :: Int64
   , queryResultKey    :: Base64String
   , queryResultProof  :: Maybe Proof
-  , queryResultHeight :: WrappedVal Int64
-  } deriving Functor
+  , queryResultHeight :: Int64
+  } deriving (Eq, Show, Functor)
 
 --------------------------------------------------------------------------------
 
 -- | class representing objects which can be queried via the hs-abci query message.
 -- | Here the 'Name' is the leaf of the query url, e.g. if you can access a token
 -- | balance of type `Balance` at "token/balance", then 'Name Balance ~ "balance"'.
-class Queryable a where
+class HasCodec a => Queryable a where
   type Name a :: Symbol
-  encodeQueryResult :: a -> Base64String
-  decodeQueryResult :: Base64String -> Either Text a
-
-  default encodeQueryResult :: HasCodec a => a -> Base64String
-  encodeQueryResult = fromBytes . encode
-
-  default decodeQueryResult :: HasCodec a => Base64String -> Either Text a
-  decodeQueryResult = decode . toBytes
 
 -- | This class is used to parse the 'data' field of the query request message.
 -- | The default method assumes that the 'data' is simply the key for the
@@ -81,41 +94,4 @@ class FromQueryData a where
 
 instance FromQueryData Address
 
---------------------------------------------------------------------------------
--- NOTE: most of this was vendored and repurposed from servant.
-
-data RouteResult a =
-    Fail QueryError
-  | FailFatal QueryError
-  | Route a
-  deriving (Functor)
-
-instance Applicative RouteResult where
-  pure  = return
-  (<*>) = ap
-
-instance Monad RouteResult where
-  return = Route
-  (>>=) m f = case m of
-    Route     a -> f a
-    Fail      e -> Fail e
-    FailFatal e -> FailFatal e
-
-data RouteResultT m a = RouteResultT { runRouteResultT :: m (RouteResult a) }
-  deriving (Functor)
-
-instance MonadTrans RouteResultT where
-  lift m = RouteResultT $ fmap Route m
-
-instance Monad m => Applicative (RouteResultT m) where
-  pure  = return
-  (<*>) = ap
-
-instance Monad m => Monad (RouteResultT m) where
-  return = RouteResultT . return . Route
-  (>>=) m f = RouteResultT $ do
-    a <- runRouteResultT m
-    case a of
-      Route     a' -> runRouteResultT $ f a'
-      Fail      e  -> return $ Fail e
-      FailFatal e  -> return $ FailFatal e
+data EmptyQueryServer = EmptyQueryServer

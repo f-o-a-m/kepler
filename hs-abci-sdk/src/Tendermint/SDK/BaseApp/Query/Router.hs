@@ -1,99 +1,139 @@
-module Tendermint.SDK.BaseApp.Query.Router where
+{-# LANGUAGE UndecidableInstances #-}
+module Tendermint.SDK.BaseApp.Query.Router
+  ( HasQueryRouter(..)
+  , emptyQueryServer
+  , methodRouter
+  ) where
 
-import           Control.Error
-import           Control.Lens                         (to, (&), (.~), (^.))
-import           Data.ByteArray.Base64String          (Base64String)
-import           Data.Default.Class                   (def)
-import           Data.Map                             (Map)
-import qualified Data.Map                             as M
-import           Data.Text                            (Text)
-import qualified Data.Text                            as T
-import qualified Data.Text.Encoding                   as T
-import qualified Network.ABCI.Types.Messages.Request  as Request
-import qualified Network.ABCI.Types.Messages.Response as Response
-import           Network.HTTP.Types                   (decodePathSegments)
-import           Tendermint.SDK.BaseApp.Query.Delayed (Delayed, runAction)
-import           Tendermint.SDK.BaseApp.Query.Types   (QueryArgs (..),
-                                                       QueryError (..),
-                                                       QueryResult (..),
-                                                       Queryable (..),
-                                                       RouteResult (..))
+import           Control.Lens                           ((&), (.~))
+import           Control.Monad                          (join)
+import           Data.ByteArray.Base64String            (fromBytes)
+import           Data.Default.Class                     (def)
+import           Data.Proxy
+import           Data.String.Conversions                (cs)
+import           Data.Text                              (Text)
+import           GHC.TypeLits                           (KnownSymbol, symbolVal)
+import           Network.ABCI.Types.Messages.FieldTypes (WrappedVal (..))
+import           Network.ABCI.Types.Messages.Response   as Response
+import           Network.HTTP.Types.URI                 (QueryText,
+                                                         parseQueryText)
+import           Polysemy                               (Sem)
+import           Servant.API
+import           Servant.API.Modifiers                  (FoldLenient,
+                                                         FoldRequired,
+                                                         RequestArgument,
+                                                         unfoldRequestArgument)
+import           Tendermint.SDK.BaseApp.Query.Types     (EmptyQueryServer (..),
+                                                         FromQueryData (..),
+                                                         Leaf, QA,
+                                                         QueryArgs (..),
+                                                         QueryRequest (..),
+                                                         QueryResult (..))
+import qualified Tendermint.SDK.BaseApp.Router          as R
+import           Tendermint.SDK.Codec                   (HasCodec (..))
+import           Web.HttpApiData                        (FromHttpApiData (..),
+                                                         parseUrlPieceMaybe)
 
 
--- NOTE: most of this was vendored and repurposed from servant
+--------------------------------------------------------------------------------
 
-data Router' env a =
-    RChoice (Router' env a) (Router' env a)
-  | RStatic (Map Text (Router' env a)) [env -> a]
-  | RQueryArgs (Router' (QueryArgs Base64String, env) a)
+-- | This class is used to construct a router given a 'layout' type. The layout
+-- | is constructed using the combinators that appear in the instances here, no other
+-- | Servant combinators are recognized.
+class HasQueryRouter layout r where
+  -- | A routeQ handler.
+  type RouteQ layout r :: *
+  -- | Transform a routeQ handler into a 'Router'.
+  routeQ :: Proxy layout -> Proxy r -> R.Delayed (Sem r) env QueryRequest (RouteQ layout r)
+        -> R.Router env r QueryRequest Response.Query
 
-type RoutingApplication m = Request.Query -> m (RouteResult Response.Query)
+instance (HasQueryRouter a r, HasQueryRouter b r) => HasQueryRouter (a :<|> b) r where
+  type RouteQ (a :<|> b) r = RouteQ a r :<|> RouteQ b r
 
-type Router env m = Router' env (RoutingApplication m)
+  routeQ _ pr server = R.choice (routeQ pa pr ((\ (a :<|> _) -> a) <$> server))
+                        (routeQ pb pr ((\ (_ :<|> b) -> b) <$> server))
+    where pa = Proxy :: Proxy a
+          pb = Proxy :: Proxy b
 
-pathRouter :: Text -> Router' env a -> Router' env a
-pathRouter t r = RStatic (M.singleton t r) []
+instance (HasQueryRouter sublayout r, KnownSymbol path) => HasQueryRouter (path :> sublayout) r where
 
-leafRouter :: (env -> a) -> Router' env a
-leafRouter l = RStatic M.empty [l]
+  type RouteQ (path :> sublayout) r = RouteQ sublayout r
 
-choice :: Router' env a -> Router' env a -> Router' env a
-choice (RStatic table1 ls1) (RStatic table2 ls2) =
-  RStatic (M.unionWith choice table1 table2) (ls1 ++ ls2)
-choice router1 (RChoice router2 router3) = RChoice (choice router1 router2) router3
-choice router1 router2 = RChoice router1 router2
+  routeQ _ pr subserver =
+    R.pathRouter (cs (symbolVal proxyPath)) (routeQ (Proxy :: Proxy sublayout) pr subserver)
+    where proxyPath = Proxy :: Proxy path
 
+instance ( HasQueryRouter sublayout r, KnownSymbol sym, FromHttpApiData a
+         , SBoolI (FoldRequired mods), SBoolI (FoldLenient mods)
+         ) => HasQueryRouter (QueryParam' mods sym a :> sublayout) r where
+
+  type RouteQ (QueryParam' mods sym a :> sublayout) r = RequestArgument mods a -> RouteQ sublayout r
+
+  routeQ _ pr subserver =
+    let querytext :: QueryRequest -> Network.HTTP.Types.URI.QueryText
+        querytext q = parseQueryText . cs $ queryRequestParamString q
+        paramname = cs $ symbolVal (Proxy :: Proxy sym)
+        parseParam q = unfoldRequestArgument (Proxy :: Proxy mods) errReq errSt mev
+          where
+            mev :: Maybe (Either Text a)
+            mev = fmap parseQueryParam $ join $ lookup paramname $ querytext q
+            errReq = R.delayedFail $ R.InvalidRequest ("Query parameter " <> cs paramname <> " is required.")
+            errSt e = R.delayedFail $ R.InvalidRequest ("Error parsing query param " <> cs paramname <> " " <> cs e <> ".")
+        delayed = R.addParameter subserver $ R.withRequest parseParam
+    in routeQ (Proxy :: Proxy sublayout) pr delayed
+
+instance (FromHttpApiData a, HasQueryRouter sublayout r) => HasQueryRouter (Capture' mods capture a :> sublayout) r where
+
+  type RouteQ (Capture' mods capture a :> sublayout) r = a -> RouteQ sublayout r
+
+  routeQ _ pr subserver =
+    R.CaptureRouter $
+        routeQ (Proxy :: Proxy sublayout)
+              pr
+              (R.addCapture subserver $ \ txt -> case parseUrlPieceMaybe txt of
+                 Nothing -> R.delayedFail R.PathNotFound
+                 Just v  -> return v
+              )
+
+instance HasCodec a => HasQueryRouter (Leaf a) r where
+
+   type RouteQ (Leaf a) r = Sem r (QueryResult a)
+   routeQ _ _ = methodRouter
+
+instance (FromQueryData a, HasQueryRouter sublayout r)
+      => HasQueryRouter (QA a :> sublayout) r where
+
+  type RouteQ (QA a :> sublayout) r = QueryArgs a -> RouteQ sublayout r
+
+  routeQ _ pr subserver =
+    let parseQueryArgs QueryRequest{..} = case fromQueryData queryRequestData of
+          Left e -> R.delayedFail $ R.InvalidRequest ("Error parsing query data, " <> cs e <> ".")
+          Right a -> pure QueryArgs
+            { queryArgsData = a
+            , queryArgsHeight = queryRequestHeight
+            , queryArgsProve = queryRequestProve
+            }
+        delayed = R.addBody subserver $ R.withRequest parseQueryArgs
+    in routeQ (Proxy :: Proxy sublayout) pr delayed
+
+emptyQueryServer :: RouteQ EmptyQueryServer r
+emptyQueryServer = EmptyQueryServer
+
+instance HasQueryRouter EmptyQueryServer r where
+  type RouteQ EmptyQueryServer r = EmptyQueryServer
+  routeQ _ _ _ = R.StaticRouter mempty mempty
+
+--------------------------------------------------------------------------------
 
 methodRouter
-  :: Monad m
-  => Queryable b
-  => Delayed m env (ExceptT QueryError m (QueryResult b))
-  -> Router env m
-methodRouter action = leafRouter route'
+  :: HasCodec b
+  => R.Delayed (Sem r) env req (Sem r (QueryResult b))
+  -> R.Router env r req Response.Query
+methodRouter action = R.leafRouter route'
   where
-    route' env query = runAction action env query $ \QueryResult{..} ->
-       Route $ def & Response._queryIndex .~ queryResultIndex
+    route' env query = R.runAction action env query $ \QueryResult{..} ->
+       R.Route $ def & Response._queryIndex .~ WrappedVal queryResultIndex
                    & Response._queryKey .~ queryResultKey
-                   & Response._queryValue .~ encodeQueryResult queryResultData
+                   & Response._queryValue .~ fromBytes (encode queryResultData)
                    & Response._queryProof .~ queryResultProof
-                   & Response._queryHeight .~ queryResultHeight
-
-runRouter
-  :: Monad m
-  => Router env m
-  -> env
-  -> RoutingApplication m
-runRouter router env query =
-  case router of
-    RStatic table ls ->
-      let path = query ^. Request._queryPath . to (decodePathSegments . T.encodeUtf8)
-      in case path of
-        []   -> runChoice ls env query
-        -- This case is to handle trailing slashes.
-        [""] -> runChoice ls env query
-        first : rest | Just router' <- M.lookup first table
-          -> let query' = query { Request.queryPath = T.intercalate "/" rest }
-             in  runRouter router' env query'
-        _ -> pure $ Fail PathNotFound
-    RQueryArgs r' ->
-      let qa = QueryArgs
-            { queryArgsData = query ^. Request._queryData
-            , queryArgsHeight = query ^. Request._queryHeight
-            , queryArgsProve = query ^. Request._queryProve
-            }
-      in runRouter r' (qa, env) query
-    RChoice r1 r2 ->
-      runChoice [runRouter r1, runRouter r2] env query
-
-runChoice :: Monad m => [env -> RoutingApplication m] -> env -> RoutingApplication m
-runChoice ls =
-  case ls of
-    []       -> \ _ _ -> pure $ Fail PathNotFound
-    [r]      -> r
-    (r : rs) ->
-      \ env query -> do
-        response1 <- r env query
-        case response1 of
-          Fail _ -> runChoice rs env query
-          _      ->  pure response1
-
+                   & Response._queryHeight .~ WrappedVal queryResultHeight

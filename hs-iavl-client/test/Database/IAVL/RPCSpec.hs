@@ -5,10 +5,7 @@ import           Control.Monad               (void)
 import           Data.ProtoLens.Message      (defMessage)
 import           Database.IAVL.RPC
 import           Database.IAVL.RPC.Types
-import           Network.GRPC.Client         (RawReply, uncompressed)
-import           Network.GRPC.Client.Helpers (GrpcClient, GrpcClientConfig (..),
-                                              grpcClientConfigSimple,
-                                              setupGrpcClient)
+import           Network.GRPC.Client         (RawReply)
 import           Network.HTTP2.Client        (ClientIO, TooMuchConcurrency,
                                               runClientIO)
 import qualified Proto.Iavl.Api_Fields       as Api

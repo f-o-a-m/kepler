@@ -1,168 +1,97 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.Application.Module
   ( Module(..)
-  , voidModuleMessages
-  , defaultTxChecker
   , Modules(..)
-  , QueryRouter(Api)
-  , queryRouter
-  , RoutingContext(..)
-  , TxRouter
-  , txRouter
-  , voidRouter
+  , AppQueryRouter(..)
+  , appQueryRouter
+  , AppTxRouter(..)
+  , appTxRouter
   , Eval(..)
   ) where
 
-import           Control.Monad                         (forM_)
-import           Control.Monad.IO.Class                (liftIO)
-import           Crypto.Hash                           (Digest)
-import           Crypto.Hash.Algorithms                (SHA256)
-import           Data.ByteString                       (ByteString)
-import           Data.IORef                            (readIORef, writeIORef)
-import qualified Data.Map.Strict                       as Map
 import           Data.Proxy
-import           Data.String.Conversions               (cs)
-import qualified Data.Validation                       as V
-import           Data.Void
-import           GHC.TypeLits                          (KnownSymbol, Symbol,
-                                                        symbolVal)
-import           Polysemy                              (EffectRow, Embed,
-                                                        Member, Members, Sem)
-import           Polysemy.Error                        (Error)
-import           Polysemy.Internal                     (send)
-import           Servant.API                           ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp                ((:&), AppError, BaseApp,
-                                                        BaseAppEffs,
-                                                        SDKError (..),
-                                                        throwSDKError)
-import qualified Tendermint.SDK.BaseApp.Query          as Q
-import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore (..))
-import qualified Tendermint.SDK.BaseApp.Transaction    as T
-import           Tendermint.SDK.Codec                  (HasCodec (..))
-import           Tendermint.SDK.Crypto                 (RecoverableSignatureSchema,
-                                                        SignatureSchema (..))
-import           Tendermint.SDK.Types.Message          (Msg (..),
-                                                        ValidateMessage (..),
-                                                        formatMessageSemanticError)
-import           Tendermint.SDK.Types.Transaction      (RoutedTx (..), Tx (..),
-                                                        parseTx)
-import           Tendermint.SDK.Types.TxResult         (TxResult)
+import           GHC.TypeLits                       (Symbol)
+import           Polysemy                           (EffectRow, Members, Sem)
+import           Servant.API                        ((:<|>) (..), (:>))
+import           Tendermint.SDK.BaseApp             ((:&), BaseApp, BaseAppEffs)
+import qualified Tendermint.SDK.BaseApp.Query       as Q
+import qualified Tendermint.SDK.BaseApp.Transaction as T
 
-data Module (name :: Symbol) msg val (api :: *) (s :: EffectRow) (r :: EffectRow) = Module
-  { moduleTxDeliverer :: RoutedTx msg -> Sem (T.TxEffs :& r) val
-  , moduleTxChecker   :: RoutedTx msg -> Sem (T.TxEffs :& r) val
-  , moduleQueryServer :: Q.RouteT api (Sem r)
+data Module (name :: Symbol) (h :: *) (q :: *) (s :: EffectRow) (r :: EffectRow) = Module
+  { moduleTxDeliverer :: T.RouteTx h r 'T.DeliverTx
+  , moduleTxChecker :: T.RouteTx h r 'T.CheckTx
+  , moduleQueryServer :: Q.RouteQ q r
   , moduleEval :: forall deps. Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
   }
 
-voidModuleMessages :: Module name msg val api s r -> Module name Void Void api s r
-voidModuleMessages m =
-  m { moduleTxDeliverer = voidRouter
-    , moduleTxChecker = voidRouter
-    }
-
-defaultTxChecker
-  :: Member (Error AppError) r
-  => ValidateMessage msg
-  => RoutedTx msg
-  -> Sem r ()
-defaultTxChecker (RoutedTx Tx{txMsg}) =
-  case validateMessage txMsg of
-    V.Failure err ->
-      throwSDKError . MessageValidation . map formatMessageSemanticError $ err
-    V.Success _ -> pure ()
-
 data Modules (ms :: [*]) r where
     NilModules :: Modules '[] r
-    (:+) :: Module name msg val api s r -> Modules ms r -> Modules (Module name msg val api s r  ': ms) r
+    (:+) :: Module name h q s r -> Modules ms r -> Modules (Module name h q s r  ': ms) r
 
 infixr 5 :+
 
 --------------------------------------------------------------------------------
 
-queryRouter
-  :: QueryRouter ms r
-  => Q.HasRouter (Api ms)
+appQueryRouter
+  :: AppQueryRouter ms r
+  => Q.HasQueryRouter (QApi ms) r
   => Modules ms r
   -> Q.QueryApplication (Sem r)
-queryRouter (ms :: Modules ms r) = Q.serve (Proxy :: Proxy (Api ms)) (routeQuery ms)
+appQueryRouter (ms :: Modules ms r) =
+  Q.serveQueryApplication (Proxy :: Proxy (QApi ms)) (Proxy :: Proxy r) (routeAppQuery ms)
 
-class QueryRouter ms r where
-    type Api ms :: *
-    routeQuery :: Modules ms r -> Q.RouteT (Api ms) (Sem r)
+class AppQueryRouter ms r where
+    type QApi ms :: *
+    routeAppQuery :: Modules ms r -> Q.RouteQ (QApi ms) r
 
-instance QueryRouter '[Module name msg val api s r] r where
-    type Api '[Module name msg val api s r] = name :> api
-    routeQuery (m :+ NilModules) = moduleQueryServer m
+instance AppQueryRouter '[Module name h q s r] r where
+    type QApi '[Module name h q s r] = name :> q
+    routeAppQuery (m :+ NilModules) = moduleQueryServer m
 
-instance QueryRouter (m' ': ms) r => QueryRouter (Module name msg val api s r ': m' ': ms) r where
-    type Api (Module name msg val api s r ': m' ': ms) = (name :> api) :<|> Api (m' ': ms)
-    routeQuery (m :+ rest) = moduleQueryServer m :<|> routeQuery rest
+instance AppQueryRouter (m' ': ms) r => AppQueryRouter (Module name h q s r ': m' ': ms) r where
+    type QApi (Module name h q s r ': m' ': ms) = (name :> q) :<|> QApi (m' ': ms)
+    routeAppQuery (m :+ rest) = moduleQueryServer m :<|> routeAppQuery rest
 
 --------------------------------------------------------------------------------
 
-data RoutingContext = CheckTxContext | DeliverTxContext
+appTxRouter
+  :: AppTxRouter ms r 'T.DeliverTx
+  => AppTxRouter ms r 'T.CheckTx
+  => T.HasTxRouter (TApi ms) r 'T.DeliverTx
+  => T.HasTxRouter (TApi ms) r 'T.CheckTx
+  => Modules ms r
+  -> T.RouteContext
+  -> T.TransactionApplication (Sem r)
+appTxRouter (ms :: Modules ms r) ctx =
+  case ctx of
+    T.CheckTx ->
+      let checkTxP = Proxy :: Proxy 'T.CheckTx
+      in T.serveTxApplication (Proxy :: Proxy (TApi ms)) (Proxy :: Proxy r)
+           checkTxP (routeAppTx checkTxP ms)
+    T.DeliverTx ->
+      let deliverTxP = Proxy :: Proxy 'T.DeliverTx
+      in T.serveTxApplication (Proxy :: Proxy (TApi ms)) (Proxy :: Proxy r)
+           deliverTxP (routeAppTx deliverTxP ms)
 
-txRouter
-  :: forall alg ms r .
-     RecoverableSignatureSchema alg
-  => Member (Error AppError) r
-  => Message alg ~ Digest SHA256
-  => TxRouter ms r
-  => Proxy alg
-  -> RoutingContext
-  -> Modules ms r
-  -> ByteString
-  -> Sem r TxResult
-txRouter (p  :: Proxy alg) routeContext ms bs =
-  let etx = decode bs >>= parseTx p
-  in case etx of
-       Left errMsg -> throwSDKError $ ParseError ("Transaction ParseError: " <> errMsg)
-       Right tx    -> routeTx routeContext ms tx
+class AppTxRouter ms r (c :: T.RouteContext) where
+    type TApi ms :: *
+    routeAppTx :: Proxy c -> Modules ms r -> T.RouteTx (TApi ms) r c
 
-class TxRouter ms r where
-  routeTx :: forall alg. RoutingContext -> Modules ms r -> Tx alg ByteString -> Sem r TxResult
+instance AppTxRouter '[Module name h q s r] r 'T.CheckTx where
+    type TApi '[Module name h q s r] = name :> h
+    routeAppTx _ (m :+ NilModules) = moduleTxChecker m
 
-instance (Member (Error AppError) r) => TxRouter '[] r where
-  routeTx _ NilModules Tx{txRoute}  =
-    throwSDKError $ UnmatchedRoute txRoute
+instance AppTxRouter (m' ': ms) r 'T.CheckTx => AppTxRouter (Module name h q s r ': m' ': ms) r 'T.CheckTx where
+    type TApi (Module name h q s r ': m' ': ms) = (name :> h) :<|> TApi (m' ': ms)
+    routeAppTx pc (m :+ rest) = moduleTxChecker m :<|> routeAppTx pc rest
 
-instance {-# OVERLAPPING #-} (Member (Error AppError) r, TxRouter ms r,  KnownSymbol name) => TxRouter (Module name Void val api s r ': ms) r where
-  routeTx routeContext (_ :+ rest) tx@Tx{txRoute}
-    | symbolVal (Proxy :: Proxy name) == cs txRoute = throwSDKError $ UnmatchedRoute txRoute
-    | otherwise = routeTx routeContext rest tx
+instance AppTxRouter '[Module name h q s r] r 'T.DeliverTx where
+    type TApi '[Module name h q s r] = name :> h
+    routeAppTx _ (m :+ NilModules) = moduleTxDeliverer m
 
-instance {-# OVERLAPPABLE #-} (Member (Error AppError) r, Member RawStore r, TxRouter ms r, HasCodec msg, HasCodec val, Member (Embed IO) r, KnownSymbol name) => TxRouter (Module name msg val api s r ': ms) r where
-  routeTx routeContext (m :+ rest) tx@Tx{..}
-    | symbolVal (Proxy :: Proxy name) == cs txRoute = do
-        msg <- case decode $ msgData txMsg of
-          Left err           -> throwSDKError $ ParseError err
-          Right (msg :: msg) -> return msg
-        let msg' = txMsg {msgData = msg}
-            tx' = RoutedTx $ tx {txMsg = msg'}
-        ctx <- liftIO $ T.newTransactionContext tx'
-        case routeContext of
-          CheckTxContext   -> T.eval ctx $ moduleTxChecker m tx'
-          DeliverTxContext -> do
-            res <- T.eval ctx $ moduleTxDeliverer m tx'
-            saveCache $ T.storeCache ctx
-            pure res
-    | otherwise = routeTx routeContext rest tx
-   where
-    saveCache cache = do
-      c <- liftIO $ readIORef cache
-      forM_ (Map.toList c) $ \(k, v) -> send (RawStorePut k v)
-      liftIO $ writeIORef cache mempty
-
-
-voidRouter
-  :: forall a r.
-     RoutedTx Void
-  -> Sem r a
-voidRouter (RoutedTx tx) =
-  let Tx{txMsg} = tx
-      Msg{msgData} = txMsg
-  in pure $ absurd msgData
+instance AppTxRouter (m' ': ms) r 'T.DeliverTx => AppTxRouter (Module name h q s r ': m' ': ms) r 'T.DeliverTx where
+    type TApi (Module name h q s r ': m' ': ms) = (name :> h) :<|> TApi (m' ': ms)
+    routeAppTx pc (m :+ rest) = moduleTxDeliverer m :<|> routeAppTx pc rest
 
 --------------------------------------------------------------------------------
 
@@ -172,10 +101,10 @@ class Eval ms core where
        -> forall a. Sem (Effs ms core) a
        -> Sem (BaseApp core) a
 
-instance Eval '[Module name msg val api s r] core where
-  type Effs '[Module name msg val api s r] core = s :& BaseApp core
+instance Eval '[Module name h q s r] core where
+  type Effs '[Module name h q s r] core = s :& BaseApp core
   eval (m :+ NilModules) = moduleEval m
 
-instance (Members BaseAppEffs (Effs (m' ': ms) core),  Eval (m' ': ms) core) => Eval (Module name msg val api s r ': m' ': ms) core where
-  type Effs (Module name msg val api s r ': m' ': ms) core = s :& (Effs (m': ms)) core
+instance (Members BaseAppEffs (Effs (m' ': ms) core),  Eval (m' ': ms) core) => Eval (Module name h q s r ': m' ': ms) core where
+  type Effs (Module name h q s r ': m' ': ms) core = s :& (Effs (m': ms)) core
   eval (m :+ rest) = eval rest . moduleEval m

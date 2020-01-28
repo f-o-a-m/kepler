@@ -58,20 +58,16 @@ library:
   dependencies:
     - aeson
     - base >= 4.7 && < 5
-    - bloodhound
     - bytestring
     - cereal
     - cereal-text
     - cryptonite
-    - errors
     - hs-abci-extra
     - hs-abci-server
     - hs-abci-types
     - hs-abci-extra
     - hs-abci-sdk
-    - http-client
     - katip
-    - katip-elasticsearch
     - lens
     - memory
     - polysemy
@@ -133,9 +129,8 @@ tests:
       - data-default-class
       - hs-abci-sdk
       - simple-storage
-      - hs-abci-types
       - hs-abci-test-utils
       - hs-tendermint-client
       - hspec
-      - lens
+      - mtl
       - servant

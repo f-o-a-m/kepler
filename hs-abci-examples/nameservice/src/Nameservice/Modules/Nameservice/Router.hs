@@ -3,31 +3,63 @@ module Nameservice.Modules.Nameservice.Router where
 import           Nameservice.Modules.Nameservice.Keeper   (NameserviceEffs,
                                                            buyName, deleteName,
                                                            setName)
-import           Nameservice.Modules.Nameservice.Messages (NameserviceMessage (..))
+import           Nameservice.Modules.Nameservice.Messages (BuyName, DeleteName,
+                                                           SetName)
 import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members, Sem)
-import           Tendermint.SDK.BaseApp                   (BaseAppEffs, TxEffs,
+import           Servant.API                              ((:<|>) (..))
+import           Tendermint.SDK.BaseApp                   ((:~>), BaseAppEffs,
+                                                           Return,
+                                                           RouteContext (..),
+                                                           RouteTx,
+                                                           RoutingTx (..),
+                                                           TxEffs, TypedMessage,
                                                            incCount, withTimer)
 import           Tendermint.SDK.Types.Message             (Msg (..))
-import           Tendermint.SDK.Types.Transaction         (RoutedTx (..),
-                                                           Tx (..))
+import           Tendermint.SDK.Types.Transaction         (Tx (..))
 
-router
-  :: Members TokenEffs r
+
+
+type MessageApi =
+       TypedMessage BuyName :~> Return ()
+  :<|> TypedMessage SetName :~> Return ()
+  :<|> TypedMessage DeleteName :~> Return ()
+
+messageHandlers
+  :: Members BaseAppEffs r
+  => Members TokenEffs r
   => Members NameserviceEffs r
-  => Members BaseAppEffs r
+  => RouteTx MessageApi r 'DeliverTx
+messageHandlers = buyNameH :<|> setNameH :<|> deleteNameH
+
+buyNameH
+  :: Members BaseAppEffs r
   => Members TxEffs r
-  => RoutedTx NameserviceMessage
+  => Members TokenEffs r
+  => Members NameserviceEffs r
+  => RoutingTx BuyName
   -> Sem r ()
-router (RoutedTx Tx{txMsg}) =
-  let Msg{msgData} = txMsg
-  in case msgData of
-       NSetName msg    -> do
-         incCount "count_set"
-         withTimer "histogram_set" $ setName msg
-       NBuyName msg    -> do
-         incCount "count_buy"
-         withTimer "histogram_buy" $ buyName msg
-       NDeleteName msg -> do
-         incCount "count_delete"
-         withTimer "histogram_delete" $ deleteName msg
+buyNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
+  incCount "buy_total"
+  withTimer "buy_duration_seconds" $ buyName msgData
+
+setNameH
+  :: Members BaseAppEffs r
+  => Members TxEffs r
+  => Members NameserviceEffs r
+  => RoutingTx SetName
+  -> Sem r ()
+setNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
+  incCount "set_total"
+  withTimer "set_duration_seconds" $ setName msgData
+
+deleteNameH
+  :: Members BaseAppEffs r
+  => Members TxEffs r
+  => Members TokenEffs r
+  => Members NameserviceEffs r
+  => RoutingTx DeleteName
+  -> Sem r ()
+deleteNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
+  incCount "delete_total"
+  withTimer "delete_duration_seconds" $ deleteName msgData

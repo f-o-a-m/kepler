@@ -7,7 +7,8 @@ module SimpleStorage.Application
 import           Data.Proxy
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
 import           Tendermint.SDK.Application          (HandlersContext (..),
-                                                      Modules (..))
+                                                      Modules (..),
+                                                      baseAppAnteHandler)
 import           Tendermint.SDK.BaseApp              ((:&))
 import qualified Tendermint.SDK.BaseApp              as BaseApp
 import           Tendermint.SDK.Crypto               (Secp256k1)
@@ -30,6 +31,7 @@ handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = simpleStorageModules
   , compileToCore  = BaseApp.compileScopedEff
+  , anteHandler = baseAppAnteHandler
   }
   where
   simpleStorageModules :: Modules SimpleStorageModules EffR

@@ -52,7 +52,6 @@ library:
     - aeson-casing
     - base >= 4.7 && < 5
     - bloodhound
-    - bytestring
     - errors
     - hs-abci-extra
     - hs-abci-server
@@ -66,6 +65,7 @@ library:
     - polysemy-plugin
     - proto3-suite
     - proto3-wire
+    - servant
     - string-conversions
     - text
     - validation
@@ -83,14 +83,13 @@ library:
   - Nameservice.Config
   - Nameservice.Aeson
   - Nameservice.Server
-  - Nameservice.Modules.TypedMessage
-  - Nameservice.Modules.Nameservice
   - Nameservice.Modules.Token
   - Nameservice.Modules.Token.Messages
   - Nameservice.Modules.Token.Types
   - Nameservice.Modules.Token.Keeper
   - Nameservice.Modules.Token.Query
   - Nameservice.Modules.Token.Router
+  - Nameservice.Modules.Nameservice
   - Nameservice.Modules.Nameservice.Messages
   - Nameservice.Modules.Nameservice.Types
   - Nameservice.Modules.Nameservice.Keeper
@@ -170,10 +169,9 @@ tests:
     - base >= 4.7 && < 5
     - data-default-class
     - hs-abci-sdk
-    - hs-abci-types
     - hs-abci-test-utils
     - hs-tendermint-client
     - hspec
-    - lens
+    - mtl
     - nameservice
     - servant

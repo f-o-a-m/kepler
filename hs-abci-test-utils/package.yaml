@@ -19,6 +19,7 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/githubuser/hs-abci-test-utils#readme>
 
 default-extensions:
+  - DataKinds
   - DefaultSignatures
   - DeriveGeneric
   - FlexibleInstances
@@ -30,6 +31,7 @@ default-extensions:
   - RecordWildCards
   - ScopedTypeVariables
   - TypeOperators
+  - FlexibleContexts
 
 library:
   source-dirs: src
@@ -45,8 +47,9 @@ library:
     - aeson-pretty
     - base >= 4.7 && < 5
     - bytestring
+    - cryptonite
     - errors
-    - hspec
+    - http-api-data
     - lens
     - mtl
     - secp256k1-haskell

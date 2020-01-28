@@ -1,21 +1,13 @@
 module Tendermint.Utils.User where
 
-import           Crypto.Secp256k1                 (CompactRecSig (..), SecKey,
-                                                   derivePubKey,
-                                                   exportCompactRecSig, secKey)
-import qualified Data.ByteArray.HexString         as Hex
-import           Data.ByteString                  (ByteString, snoc)
-import qualified Data.ByteString                  as BS
-import           Data.ByteString.Short            (fromShort)
-import           Data.Maybe                       (fromJust)
+import           Crypto.Secp256k1                (SecKey, derivePubKey, secKey)
+import qualified Data.ByteArray.HexString        as Hex
+import           Data.Maybe                      (fromJust)
 import           Data.Proxy
-import           Data.String                      (fromString)
-import           Data.String.Conversions          (cs)
-import           Tendermint.SDK.Codec             (HasCodec (..))
-import           Tendermint.SDK.Crypto            (Secp256k1, addressFromPubKey)
-import           Tendermint.SDK.Types.Address     (Address (..))
-import           Tendermint.SDK.Types.Transaction (RawTransaction (..),
-                                                   signRawTransaction)
+import           Data.String                     (fromString)
+import           Tendermint.SDK.Crypto           (Secp256k1, addressFromPubKey)
+import           Tendermint.SDK.Types.Address    (Address (..))
+import           Tendermint.Utils.TxClient.Types (Signer, makeSignerFromKey)
 
 data User = User
   { userPrivKey :: SecKey
@@ -29,19 +21,8 @@ makeUser privKeyStr =
       address = addressFromPubKey (Proxy @Secp256k1) pubKey
   in User privateKey address
 
-algProxy :: Proxy Secp256k1
-algProxy = Proxy
-
--- sign a trx with a user's private key
-mkSignedRawTransactionWithRoute :: HasCodec a => BS.ByteString -> SecKey -> a -> RawTransaction
-mkSignedRawTransactionWithRoute route privateKey msg = sign unsigned
-  where unsigned = RawTransaction { rawTransactionData = encode msg
-                                  , rawTransactionRoute = cs route
-                                  , rawTransactionSignature = ""
-                                  , rawTransactionGas = 0
-                                  }
-        sig = signRawTransaction algProxy privateKey unsigned
-        sign rt = rt { rawTransactionSignature = encodeCompactRecSig $ exportCompactRecSig sig }
-
-encodeCompactRecSig :: CompactRecSig -> ByteString
-encodeCompactRecSig (CompactRecSig r s v) = snoc (fromShort r <> fromShort s) v
+makeSignerFromUser
+  :: User
+  -> Signer
+makeSignerFromUser User{userPrivKey} =
+  makeSignerFromKey (Proxy @Secp256k1) userPrivKey

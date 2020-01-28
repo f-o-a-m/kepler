@@ -9,8 +9,9 @@ module Tendermint.SDK.BaseApp.Errors
 
 import           Control.Exception                    (Exception)
 import           Control.Lens                         (Lens', lens)
+import           Data.String.Conversions              (cs)
 import           Data.Text                            (Text, intercalate)
-import           Data.Word                            (Word32)
+import           Data.Word                            (Word32, Word64)
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Polysemy
 import           Polysemy.Error                       (Error, throw)
@@ -22,7 +23,7 @@ data AppError = AppError
   { appErrorCode      :: Word32
   , appErrorCodespace :: Text
   , appErrorMessage   :: Text
-  } deriving Show
+  } deriving (Eq, Show)
 
 instance Exception AppError
 
@@ -79,6 +80,7 @@ data SDKError =
   | OutOfGasException
   | MessageValidation [Text]
   | SignatureRecoveryError Text
+  | NonceException Word64 Word64
   | RawStoreInvalidOperation Text
   | GrpcError Text
 
@@ -120,18 +122,28 @@ instance IsAppError SDKError where
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Message failed validation: " <> intercalate "\n" errors
     }
+
   makeAppError (SignatureRecoveryError msg) = AppError
     { appErrorCode = 6
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Signature Recovery Error: " <> msg
     }
-  makeAppError (RawStoreInvalidOperation operation) = AppError
+
+  makeAppError (NonceException expected found) = AppError
     { appErrorCode = 7
+    , appErrorCodespace = "sdk"
+    , appErrorMessage = "Incorrect Transaction Nonce: Expected " <> (cs . show $ toInteger expected) <>
+         " but got " <> (cs . show $ toInteger found) <> "."
+    }
+
+  makeAppError (RawStoreInvalidOperation operation) = AppError
+    { appErrorCode = 8
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Unsupported RawStore operation: `" <> operation <> "`"
     }
+
   makeAppError (GrpcError msg) = AppError
-    { appErrorCode = 8
+    { appErrorCode = 9
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Grpc error: \n" <> msg
     }

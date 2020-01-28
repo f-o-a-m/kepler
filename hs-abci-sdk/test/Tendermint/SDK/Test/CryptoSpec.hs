@@ -9,7 +9,9 @@ import           Data.ByteString.Short            (fromShort)
 import           Data.Maybe                       (fromJust)
 import           Data.Proxy
 import           Data.String                      (fromString)
+import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Crypto            (Secp256k1)
+import           Tendermint.SDK.Types.Message
 import           Tendermint.SDK.Types.Transaction
 import           Test.Hspec
 
@@ -17,16 +19,18 @@ spec :: Spec
 spec = describe "Crypto Tests" $ do
     it "Can sign a transaction and recover the signature" $ do
       let rawTxWithoutSig = RawTransaction
-            { rawTransactionData = "abcd"
+            { rawTransactionData = TypedMessage "abcd" "foo_msg"
             , rawTransactionSignature = ""
             , rawTransactionRoute= "dog"
             , rawTransactionGas = 10
+            , rawTransactionNonce = 0
             }
           signature = signRawTransaction algProxy privateKey rawTxWithoutSig
           rawTxWithSig = rawTxWithoutSig {rawTransactionSignature =
                            encodeCompactSig $ exportCompactRecSig signature}
-          eTx = parseTx algProxy rawTxWithSig
-          Tx{..} = case eTx of
+          -- @NOTE: this is kinda dumb bc parseTx decodes a bs into a rawTx
+          eTx = parseTx algProxy . encode $ rawTxWithSig
+          Tx {..} = case eTx of
             Left errMsg -> error $ show errMsg
             Right a     -> a
       txSigner `shouldBe` derivePubKey privateKey

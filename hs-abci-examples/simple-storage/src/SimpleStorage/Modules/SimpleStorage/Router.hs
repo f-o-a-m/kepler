@@ -1,5 +1,6 @@
 module SimpleStorage.Modules.SimpleStorage.Router
-  ( router
+  ( MessageApi
+  , messageHandlers
   ) where
 
 import           Polysemy                                    (Member, Members,
@@ -8,19 +9,30 @@ import           SimpleStorage.Modules.SimpleStorage.Keeper  (SimpleStorage,
                                                               updateCount)
 import           SimpleStorage.Modules.SimpleStorage.Message
 import           SimpleStorage.Modules.SimpleStorage.Types   (Count (..))
-import           Tendermint.SDK.BaseApp                      (TxEffs)
+import           Tendermint.SDK.BaseApp                      ((:~>), Return,
+                                                              RouteContext (..),
+                                                              RouteTx,
+                                                              RoutingTx (..),
+                                                              TxEffs,
+                                                              TypedMessage)
 import           Tendermint.SDK.Types.Message                (Msg (..))
-import           Tendermint.SDK.Types.Transaction            (RoutedTx (..),
-                                                              Tx (..))
+import           Tendermint.SDK.Types.Transaction            (Tx (..))
 
 
-router
+type MessageApi =
+  TypedMessage UpdateCountTx :~> Return ()
+
+messageHandlers
+  :: Member SimpleStorage r
+  => RouteTx MessageApi r 'DeliverTx
+messageHandlers = updateCountH
+
+updateCountH
   :: Member SimpleStorage r
   => Members TxEffs r
-  => RoutedTx SimpleStorageMessage
+  => RoutingTx UpdateCountTx
   -> Sem r ()
-router (RoutedTx Tx{txMsg}) =
+updateCountH (RoutingTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
-  in case msgData of
-       UpdateCount UpdateCountTx{updateCountTxCount} ->
-          updateCount (Count updateCountTxCount)
+      UpdateCountTx{updateCountTxCount} = msgData
+  in updateCount (Count updateCountTxCount)

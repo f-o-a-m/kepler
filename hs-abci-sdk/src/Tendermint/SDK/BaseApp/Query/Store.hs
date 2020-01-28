@@ -2,21 +2,34 @@
 
 module Tendermint.SDK.BaseApp.Query.Store where
 
-import           Control.Error                      (ExceptT, throwE)
-import           Control.Lens                       (to, (^.))
-import           Control.Monad.Trans                (lift)
-import           Data.ByteArray.Base64String        (fromBytes)
+import           Control.Lens                        (to, (^.))
+import           Data.ByteArray.Base64String         (fromBytes)
 import           Data.Proxy
-import           GHC.TypeLits                       (Symbol)
-import           Polysemy                           (Members, Sem)
-import           Polysemy.Error                     (Error)
-import           Servant.API                        ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp.Errors      (AppError)
-import           Tendermint.SDK.BaseApp.Query.Class
-import           Tendermint.SDK.BaseApp.Query.Types
-import           Tendermint.SDK.BaseApp.Store       (IsKey (..), RawKey (..),
-                                                     RawStore, StoreKey, get)
-import           Tendermint.SDK.Codec               (HasCodec)
+import           Data.String.Conversions             (cs)
+import           GHC.TypeLits                        (KnownSymbol, Symbol,
+                                                      symbolVal)
+import           Polysemy                            (Members, Sem)
+import           Polysemy.Error                      (Error, throw)
+import           Servant.API                         ((:<|>) (..), (:>))
+import           Tendermint.SDK.BaseApp.Errors       (AppError, makeAppError)
+import           Tendermint.SDK.BaseApp.Query.Router (HasQueryRouter (..),
+                                                      methodRouter)
+import           Tendermint.SDK.BaseApp.Query.Types  (Leaf, QA, QueryArgs (..),
+                                                      QueryResult (..),
+                                                      Queryable (..))
+import           Tendermint.SDK.BaseApp.Router       (RouterError (..),
+                                                      pathRouter)
+import           Tendermint.SDK.BaseApp.Store        (IsKey (..), RawKey (..),
+                                                      RawStore, StoreKey, get)
+import           Tendermint.SDK.Codec                (HasCodec)
+
+data StoreLeaf a
+
+instance (Queryable a, KnownSymbol (Name a)) => HasQueryRouter (StoreLeaf a) r where
+
+   type RouteQ (StoreLeaf a) r = Sem r (QueryResult a)
+   routeQ _ _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter
+     where proxyPath = Proxy :: Proxy (Name a)
 
 class StoreQueryHandler a (ns :: Symbol) h where
     storeQueryHandler :: Proxy a -> StoreKey ns -> h
@@ -27,12 +40,12 @@ instance
   , HasCodec a
   , Members [RawStore, Error AppError] r
   )
-   => StoreQueryHandler a ns (QueryArgs k -> ExceptT QueryError (Sem r) (QueryResult a)) where
+   => StoreQueryHandler a ns (QueryArgs k -> (Sem r) (QueryResult a)) where
   storeQueryHandler _ storeKey QueryArgs{..} = do
     let key = queryArgsData
-    mRes <- lift $ get storeKey key
+    mRes <- get storeKey key
     case mRes of
-      Nothing -> throwE ResourceNotFound
+      Nothing -> throw . makeAppError $ ResourceNotFound
       Just (res :: a) -> pure $ QueryResult
         -- TODO: actually handle proofs
         { queryResultData = res
@@ -42,36 +55,27 @@ instance
         , queryResultHeight = 0
         }
 
-class StoreQueryHandlers (kvs :: [*]) (ns :: Symbol) m where
+class StoreQueryHandlers (kvs :: [*]) (ns :: Symbol) r where
     type QueryApi kvs :: *
-    storeQueryHandlers :: Proxy kvs -> StoreKey ns -> Proxy m -> RouteT (QueryApi kvs) m
+    storeQueryHandlers :: Proxy kvs -> StoreKey ns -> Proxy r -> RouteQ (QueryApi kvs) r
 
 instance
     ( IsKey k ns
     , a ~ Value k ns
     , HasCodec a
     , Members [RawStore, Error AppError] r
-    )  => StoreQueryHandlers '[(k,a)] ns (Sem r) where
-      type QueryApi '[(k,a)] =  QA k :> Leaf a
+    )  => StoreQueryHandlers '[(k,a)] ns r where
+      type QueryApi '[(k,a)] =  QA k :> StoreLeaf a
       storeQueryHandlers _ storeKey _ = storeQueryHandler (Proxy :: Proxy a) storeKey
 
 instance
     ( IsKey k ns
     , a ~ Value k ns
     , HasCodec a
-    , StoreQueryHandlers ((k', a') ': as) ns (Sem r)
+    , StoreQueryHandlers ((k', a') ': as) ns r
     , Members [RawStore, Error AppError] r
-    ) => StoreQueryHandlers ((k,a) ': (k', a') : as) ns (Sem r) where
+    ) => StoreQueryHandlers ((k,a) ': (k', a') : as) ns r where
         type (QueryApi ((k, a) ': (k', a') : as)) = (QA k :> Leaf a) :<|> QueryApi ((k', a') ': as)
-        storeQueryHandlers _ storeKey pm =
+        storeQueryHandlers _ storeKey pr =
           storeQueryHandler  (Proxy :: Proxy a) storeKey :<|>
-          storeQueryHandlers (Proxy :: Proxy ((k', a') ': as)) storeKey pm
-
-allStoreHandlers
-  :: forall (contents :: [*]) ns r.
-     StoreQueryHandlers contents ns (Sem r)
-  => Proxy contents
-  -> StoreKey ns
-  -> Proxy r
-  -> RouteT (QueryApi contents) (Sem r)
-allStoreHandlers pcs storeKey _ = storeQueryHandlers pcs storeKey (Proxy :: Proxy (Sem r))
+          storeQueryHandlers (Proxy :: Proxy ((k', a') ': as)) storeKey pr

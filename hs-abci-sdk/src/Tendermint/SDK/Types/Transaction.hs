@@ -2,7 +2,7 @@ module Tendermint.SDK.Types.Transaction where
 
 import           Control.Error                  (note)
 import           Control.Lens                   (Wrapped (..), from, iso, view,
-                                                 (&), (.~), (^.))
+                                                 (&), (.~), (^.), _Unwrapped')
 import           Crypto.Hash                    (Digest, hashWith)
 import           Crypto.Hash.Algorithms         (SHA256 (..))
 import           Data.Bifunctor                 (bimap)
@@ -12,6 +12,7 @@ import qualified Data.ProtoLens                 as P
 import           Data.Proxy
 import           Data.String.Conversions        (cs)
 import           Data.Text                      (Text)
+import           Data.Word                      (Word64)
 import           GHC.Generics                   (Generic)
 import qualified Proto.Types.Transaction        as T
 import qualified Proto.Types.Transaction_Fields as T
@@ -19,7 +20,7 @@ import           Tendermint.SDK.Codec           (HasCodec (..))
 import           Tendermint.SDK.Crypto          (MakeDigest (..),
                                                  RecoverableSignatureSchema (..),
                                                  SignatureSchema (..))
-import           Tendermint.SDK.Types.Message   (Msg (..))
+import           Tendermint.SDK.Types.Message   (Msg (..), TypedMessage (..))
 
 -- Our standard transaction type parameterized by the signature schema 'alg'
 -- and an underlying message type 'msg'.
@@ -30,6 +31,7 @@ data Tx alg msg = Tx
   , txSignature :: RecoverableSignature alg
   , txSignBytes :: Message alg
   , txSigner    :: PubKey alg
+  , txNonce     :: Word64
   }
 
 instance Functor (Tx alg) where
@@ -42,12 +44,13 @@ instance Functor (Tx alg) where
 
 -- | Raw transaction type coming in over the wire
 data RawTransaction = RawTransaction
-  { rawTransactionData      :: ByteString
+  { rawTransactionData      :: TypedMessage
   -- ^ the encoded message via protobuf encoding
   , rawTransactionGas       :: Int64
   , rawTransactionRoute     :: Text
   -- ^ module name
   , rawTransactionSignature :: ByteString
+  , rawTransactionNonce     :: Word64
   } deriving Generic
 
 instance Wrapped RawTransaction where
@@ -57,15 +60,17 @@ instance Wrapped RawTransaction where
    where
     t RawTransaction {..} =
       P.defMessage
-        & T.data' .~ rawTransactionData
+        & T.data' .~ (rawTransactionData ^. _Wrapped')
         & T.gas .~ rawTransactionGas
-        & T.route .~ cs rawTransactionRoute
+        & T.route .~ rawTransactionRoute
         & T.signature .~ rawTransactionSignature
+        & T.nonce .~ rawTransactionNonce
     f message = RawTransaction
-      { rawTransactionData      = message ^. T.data'
+      { rawTransactionData      = message ^. T.data' . _Unwrapped'
       , rawTransactionGas = message ^. T.gas
       , rawTransactionRoute = message ^. T.route
       , rawTransactionSignature = message ^. T.signature
+      , rawTransactionNonce = message ^. T.nonce
       }
 
 instance HasCodec RawTransaction where
@@ -85,8 +90,8 @@ signRawTransaction
   -> RecoverableSignature alg
 signRawTransaction p priv tx = signRecoverableMessage p priv (makeDigest tx)
 
--- | Attempt to parse a 'RawTransaction' as a 'Tx' without attempting
--- | to parse the underlying message. This is done as a preprocessing
+-- | Attempt to parse a Bytestring into a 'RawTransaction' then as a 'Tx' without
+-- | attempting to parse the underlying message. This is done as a preprocessing
 -- | step to the router, allowing for failure before the router is ever
 -- | reached.
 parseTx
@@ -94,28 +99,25 @@ parseTx
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => Proxy alg
-  -> RawTransaction
+  -> ByteString
   -> Either Text (Tx alg ByteString)
-parseTx p rawTx@RawTransaction{..} = do
+parseTx p bs = do
+  rawTx@RawTransaction{..} <- decode bs
   recSig <- note "Unable to parse transaction signature as a recovery signature." $
-       makeRecoverableSignature p rawTransactionSignature
+    makeRecoverableSignature p rawTransactionSignature
   let txForSigning = rawTx {rawTransactionSignature = ""}
       signBytes = makeDigest txForSigning
   signerPubKey <- note "Signature recovery failed." $ recover p recSig signBytes
-  return Tx
+  return $ Tx
     { txMsg = Msg
-      { msgData = rawTransactionData
-      , msgAuthor = addressFromPubKey p signerPubKey
-      }
+              { msgData = typedMsgData rawTransactionData
+              , msgAuthor = addressFromPubKey p signerPubKey
+              , msgType = typedMsgType rawTransactionData
+              }
     , txRoute = cs rawTransactionRoute
     , txGas = rawTransactionGas
     , txSignature = recSig
     , txSignBytes = signBytes
     , txSigner = signerPubKey
+    , txNonce = rawTransactionNonce
     }
-
-data RoutedTx msg where
-  RoutedTx :: Tx alg msg -> RoutedTx msg
-
-instance Functor RoutedTx where
-  fmap f (RoutedTx tx) = RoutedTx $ fmap f tx

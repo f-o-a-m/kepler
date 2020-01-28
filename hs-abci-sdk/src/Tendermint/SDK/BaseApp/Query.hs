@@ -1,41 +1,42 @@
 module Tendermint.SDK.BaseApp.Query
-  ( serve
-  , serveRouter
-  , module Tendermint.SDK.BaseApp.Query.Class
-  , module Tendermint.SDK.BaseApp.Query.Router
+  ( serveQueryApplication
+  , HasQueryRouter(..)
+  , StoreQueryHandlers(..)
   , module Tendermint.SDK.BaseApp.Query.Types
-  , module Tendermint.SDK.BaseApp.Query.Delayed
-  , module Tendermint.SDK.BaseApp.Query.Store
+  , emptyQueryServer
   ) where
 
+import           Control.Lens                          ((&), (.~))
+import           Data.Default.Class                    (def)
 import           Data.Proxy
-import           Tendermint.SDK.BaseApp.Query.Class
-import           Tendermint.SDK.BaseApp.Query.Delayed
-import           Tendermint.SDK.BaseApp.Query.Router
-import           Tendermint.SDK.BaseApp.Query.Store
+import qualified Network.ABCI.Types.Messages.Response  as Response
+import           Polysemy                              (Sem)
+import           Tendermint.SDK.BaseApp.Errors         (makeAppError,
+                                                        queryAppError)
+import           Tendermint.SDK.BaseApp.Query.Router   (HasQueryRouter (..),
+                                                        emptyQueryServer)
+import           Tendermint.SDK.BaseApp.Query.Store    (StoreQueryHandlers (..))
 import           Tendermint.SDK.BaseApp.Query.Types
+import           Tendermint.SDK.BaseApp.Router.Delayed (emptyDelayed)
+import           Tendermint.SDK.BaseApp.Router.Router  (runRouter)
+import           Tendermint.SDK.BaseApp.Router.Types   (Application,
+                                                        RouteResult (..))
 
-serveRouter
-  :: Monad m
-  => Router () m
-  -> QueryApplication m
-serveRouter r = toApplication $ runRouter r ()
-
-serve
-  :: HasRouter layout
-  => Monad m
+serveQueryApplication
+  :: HasQueryRouter layout r
   => Proxy layout
-  -> RouteT layout m
-  -> QueryApplication m
-serve p server =
-  toApplication (runRouter (route p (emptyDelayed (Route server))) ())
+  -> Proxy r
+  -> RouteQ layout r
+  -> QueryApplication (Sem r)
+serveQueryApplication pl pr server =
+  toQueryApplication (runRouter (routeQ pl pr (emptyDelayed (Route server))) ())
 
-toApplication
-  :: Monad m
-  => RoutingApplication m -> QueryApplication m
-toApplication ra query = do
-  res <- ra query
+toQueryApplication
+  :: Application (Sem r) QueryRequest Response.Query
+  -> QueryApplication (Sem r)
+toQueryApplication ra query = do
+  res <- ra $ parseQueryRequest query
   case res of
-    Fail e      -> pure $ responseQueryError query e
-    FailFatal e -> pure $ responseQueryError query e
+    Fail e      -> pure $ def & queryAppError .~ makeAppError e
+    FailFatal e -> pure $ def & queryAppError .~ makeAppError e
     Route a     -> pure a
