@@ -1,10 +1,12 @@
 module Tendermint.SDK.Application.AnteHandler
-  ( AnteHandler(..)
+  ( AnteHandler
   , applyAnteHandler
   , baseAppAnteHandler
   ) where
 
 import           Control.Monad                      (unless, void)
+import           Data.Foldable                      (fold)
+import           Data.Monoid                        (Endo (..))
 import           Polysemy
 import           Polysemy.Error                     (Error)
 import           Tendermint.SDK.BaseApp.Errors      (AppError, SDKError (..),
@@ -15,26 +17,18 @@ import qualified Tendermint.SDK.Modules.Auth        as A
 import           Tendermint.SDK.Types.Message       (Msg (..))
 import           Tendermint.SDK.Types.Transaction   (Tx (..))
 
-data AnteHandler r = AnteHandler
-  ( TransactionApplication (Sem r) -> TransactionApplication (Sem r))
-
-instance Semigroup (AnteHandler r) where
-  (<>) (AnteHandler h1) (AnteHandler h2) =
-      AnteHandler $ h2 . h1
-
-instance Monoid (AnteHandler r) where
-  mempty = AnteHandler id
+type AnteHandler r = Endo (TransactionApplication (Sem r))
 
 applyAnteHandler
   :: AnteHandler r
   -> TransactionApplication (Sem r)
   -> TransactionApplication (Sem r)
-applyAnteHandler (AnteHandler ah) = ($) ah
+applyAnteHandler = appEndo
 
 createAccountAnteHandler
   :: Members A.AuthEffs r
   => AnteHandler r
-createAccountAnteHandler = AnteHandler $
+createAccountAnteHandler = Endo $
   \txApplication tx@(RoutingTx Tx{..}) -> do
     let Msg{msgAuthor} = txMsg
     mAcnt <- A.getAccount msgAuthor
@@ -47,7 +41,7 @@ nonceAnteHandler
   :: Members A.AuthEffs r
   => Member (Error AppError) r
   => AnteHandler r
-nonceAnteHandler = AnteHandler $
+nonceAnteHandler = Endo $
   \txApplication tx@(RoutingTx Tx{..}) -> do
     let Msg{msgAuthor} = txMsg
     preMAcnt <- A.getAccount msgAuthor
@@ -56,9 +50,7 @@ nonceAnteHandler = AnteHandler $
         let expectedNonce = accountNonce + 1
         unless (txNonce == expectedNonce) $
           throwSDKError (NonceException expectedNonce txNonce)
-      Nothing -> do
-        unless (txNonce == 1) $
-          throwSDKError (NonceException 1 txNonce)
+      Nothing -> throwSDKError (NonceException 420 txNonce)
     result <- txApplication tx
     postMAcnt <- A.getAccount msgAuthor
     case postMAcnt of
@@ -73,9 +65,8 @@ baseAppAnteHandler
   :: Members A.AuthEffs r
   => Member (Error AppError) r
   => AnteHandler r
-baseAppAnteHandler = mconcat $
+baseAppAnteHandler = fold $
   -- @NOTE: antehandlers in this list are applied top to bottom
-  -- as per the Semigroup instance definition
   [ createAccountAnteHandler
   , nonceAnteHandler
   ]

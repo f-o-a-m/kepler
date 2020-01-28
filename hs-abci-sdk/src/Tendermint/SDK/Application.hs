@@ -2,7 +2,7 @@ module Tendermint.SDK.Application
   ( Modules(..)
   , Module(..)
   , HandlersContext(..)
-  , AnteHandler(..)
+  , AnteHandler
   , baseAppAnteHandler
   , createIOApp
   , makeApp
