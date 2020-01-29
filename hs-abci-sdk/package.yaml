@@ -139,6 +139,8 @@ library:
   generated-exposed-modules:
   - Proto.Modules.Auth
   - Proto.Modules.Auth_Fields
+  - Proto.Modules.Bank
+  - Proto.Modules.Bank_Fields
   - Proto.Types.Transaction
   - Proto.Types.Transaction_Fields
 
