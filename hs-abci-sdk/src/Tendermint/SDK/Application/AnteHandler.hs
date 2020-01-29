@@ -50,7 +50,7 @@ nonceAnteHandler = Endo $
         let expectedNonce = accountNonce + 1
         unless (txNonce == expectedNonce) $
           throwSDKError (NonceException expectedNonce txNonce)
-      Nothing -> throwSDKError (NonceException 420 txNonce)
+      Nothing -> throwSDKError (UnknownAccountError msgAuthor)
     result <- txApplication tx
     postMAcnt <- A.getAccount msgAuthor
     case postMAcnt of
