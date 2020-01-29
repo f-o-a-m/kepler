@@ -5,11 +5,12 @@ module Nameservice.Modules.Nameservice.Messages
   , FaucetAccount(..)
   ) where
 
-import           Data.Bifunctor                        (first)
+import           Data.Bifunctor                        (bimap, first)
 import           Data.Foldable                         (sequenceA_)
 import           Data.String.Conversions               (cs)
 import           Data.Text                             (Text)
 import           Data.Validation                       (Validation (..))
+import           Data.Word                             (Word64)
 import           GHC.Generics                          (Generic)
 import           Nameservice.Modules.Nameservice.Types (Name (..))
 import           Proto3.Suite                          (Message, Named,
@@ -34,17 +35,35 @@ data FaucetAccount = FaucetAccount
   { faucetAccountTo     :: Address
   , faucetAccountCoinId :: CoinId
   , faucetAccountAmount :: Amount
-  } deriving (Eq, Show, Generic)
+  } deriving (Eq, Show)
 
-instance Message FaucetAccount
-instance Named FaucetAccount
+data FaucetAccountMessage = FaucetAccountMessage
+  { faucetAccountMessageTo     :: Address
+  , faucetAccountMessageCoinId :: Text
+  , faucetAccountMessageAmount :: Word64
+  } deriving (Eq, Show, Generic)
+instance Message FaucetAccountMessage
+instance Named FaucetAccountMessage
 
 instance HasMessageType FaucetAccount where
   messageType _ = "FaucetAccount"
 
 instance HasCodec FaucetAccount where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+  encode FaucetAccount {..} =
+    let faucetAccountMessaage = FaucetAccountMessage
+          { faucetAccountMessageTo = faucetAccountTo
+          , faucetAccountMessageCoinId = unCoinId faucetAccountCoinId
+          , faucetAccountMessageAmount = unAmount faucetAccountAmount
+          }
+    in cs . toLazyByteString $ faucetAccountMessaage
+  decode =
+    let toFaucetAccount FaucetAccountMessage {..} = FaucetAccount
+          { faucetAccountTo = faucetAccountMessageTo
+          , faucetAccountCoinId = CoinId faucetAccountMessageCoinId
+          , faucetAccountAmount = Amount faucetAccountMessageAmount
+          }
+    in bimap (formatMessageParseError . coerceProto3Error) toFaucetAccount
+       . fromByteString @FaucetAccountMessage
 
 instance ValidateMessage FaucetAccount where
   validateMessage _ = Success ()
@@ -111,17 +130,38 @@ data BuyName = BuyName
   , buyNameName  :: Name
   , buyNameValue :: Text
   , buyNameBuyer :: Address
-  } deriving (Eq, Show, Generic)
+  } deriving (Eq, Show)
 
-instance Message BuyName
-instance Named BuyName
+data BuyNameMessage = BuyNameMessage
+  { buyNameMessageBid   :: Word64
+  , buyNameMessageName  :: Name
+  , buyNameMessageValue :: Text
+  , buyNameMessageBuyer :: Address
+  } deriving (Eq, Show, Generic)
+instance Message BuyNameMessage
+instance Named BuyNameMessage
 
 instance HasMessageType BuyName where
   messageType _ = "BuyName"
 
 instance HasCodec BuyName where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+  encode BuyName {..} =
+    let buyNameMessage = BuyNameMessage
+          { buyNameMessageBid = unAmount buyNameBid
+          , buyNameMessageName = buyNameName
+          , buyNameMessageValue = buyNameValue
+          , buyNameMessageBuyer = buyNameBuyer
+          }
+    in cs . toLazyByteString $ buyNameMessage
+  decode =
+    let toBuyName BuyNameMessage {..} = BuyName
+          { buyNameBid = Amount buyNameMessageBid
+          , buyNameName = buyNameMessageName
+          , buyNameValue = buyNameMessageValue
+          , buyNameBuyer = buyNameMessageBuyer
+          }
+    in bimap (formatMessageParseError . coerceProto3Error) toBuyName
+       . fromByteString @BuyNameMessage
 
 instance ValidateMessage BuyName where
   validateMessage msg@Msg{..} =

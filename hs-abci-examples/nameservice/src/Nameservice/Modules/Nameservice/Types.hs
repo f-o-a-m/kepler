@@ -1,12 +1,15 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module Nameservice.Modules.Nameservice.Types where
 
 import           Control.Lens                 (iso)
 import           Data.Aeson                   as A
-import           Data.Bifunctor               (first)
+import           Data.Bifunctor               (bimap)
 import           Data.String                  (IsString (..))
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
 import qualified Data.Text.Lazy               as TL
+import           Data.Word                    (Word64)
 import           GHC.Generics                 (Generic)
 import           Nameservice.Aeson            (defaultNameserviceOptions)
 import           Proto3.Suite                 (HasDefault, Message,
@@ -44,13 +47,31 @@ data Whois = Whois
   { whoisValue :: Text
   , whoisOwner :: Address
   , whoisPrice :: Amount
+  } deriving (Eq, Show)
+
+data WhoisMessage = WhoisMessage
+  { whoisMessageValue :: Text
+  , whoisMessageOwner :: Address
+  , whoisMessagePrice :: Word64
   } deriving (Eq, Show, Generic)
-instance Message Whois
-instance Named Whois
+instance Message WhoisMessage
+instance Named WhoisMessage
 
 instance HasCodec Whois where
-  encode = cs . toLazyByteString
-  decode = first (cs . show) . fromByteString
+  encode Whois {..} =
+    let whoisMessage = WhoisMessage
+          { whoisMessageValue = whoisValue
+          , whoisMessageOwner = whoisOwner
+          , whoisMessagePrice = unAmount whoisPrice
+          }
+    in cs . toLazyByteString $ whoisMessage
+  decode =
+    let toWhois WhoisMessage {..} = Whois
+          { whoisValue = whoisMessageValue
+          , whoisOwner = whoisMessageOwner
+          , whoisPrice = Amount whoisMessagePrice
+          }
+    in bimap (cs . show) toWhois . fromByteString @WhoisMessage
 
 instance BaseApp.RawKey Name where
     rawKey = iso (\(Name n) -> cs n) (Name . cs)

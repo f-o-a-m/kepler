@@ -10,7 +10,7 @@ import           GHC.Generics                 (Generic)
 import qualified Proto.Modules.Bank           as B
 import qualified Proto.Modules.Bank_Fields    as B
 import           Tendermint.SDK.Codec         (HasCodec (..))
-import           Tendermint.SDK.Modules.Auth  (Amount(..), CoinId(..))
+import           Tendermint.SDK.Modules.Auth  (Amount (..), CoinId (..))
 import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
                                                addressToBytes)
 import           Tendermint.SDK.Types.Message (HasMessageType (..),
