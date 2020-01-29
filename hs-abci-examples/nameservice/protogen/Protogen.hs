@@ -8,11 +8,11 @@ module Protogen (messagesProtoFile, whoisProtoFile) where
 import           Data.Aeson.Casing                        (snakeCase)
 import qualified Data.ByteString.Lazy                     as BL
 import           GHC.Exts                                 (Proxy#, proxy#)
-import           Nameservice.Modules.Nameservice.Messages (BuyName (..),
+import           Nameservice.Modules.Nameservice.Messages (BuyNameMessage (..),
                                                            DeleteName (..),
                                                            SetName (..))
 import           Nameservice.Modules.Nameservice.Types    (Name (..),
-                                                           Whois (..))
+                                                           WhoisMessage (..))
 import           Proto3.Suite                             (DotProtoDefinition,
                                                            Message,
                                                            fromByteString,
@@ -45,10 +45,10 @@ msgStripPrefixOptions = defRenderingOptions { roSelectorName = stripPrefixName }
 messagesProtoFile :: String
 messagesProtoFile = toProtoFile msgStripPrefixOptions $ packageFromDefs "nameservice"
   ([ message (proxy# :: Proxy# SetName)
-   , message (proxy# :: Proxy# BuyName)
+   , message (proxy# :: Proxy# BuyNameMessage)
    , message (proxy# :: Proxy# DeleteName)
    ] :: [DotProtoDefinition])
 
 whoisProtoFile :: String
 whoisProtoFile = toProtoFile msgStripPrefixOptions $ packageFromDefs "nameservice"
-  ([ message (proxy# :: Proxy# Whois) ] :: [DotProtoDefinition])
+  ([ message (proxy# :: Proxy# WhoisMessage) ] :: [DotProtoDefinition])

@@ -1,6 +1,7 @@
 module Nameservice.Modules.Nameservice.Messages
   ( SetName(..)
   , BuyName(..)
+  , BuyNameMessage(..)
   , DeleteName(..)
   , FaucetAccount(..)
   ) where
