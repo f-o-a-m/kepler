@@ -20,7 +20,7 @@ import           Tendermint.SDK.BaseApp.Query.Types  (Leaf, QA, QueryArgs (..),
 import           Tendermint.SDK.BaseApp.Router       (RouterError (..),
                                                       pathRouter)
 import           Tendermint.SDK.BaseApp.Store        (IsKey (..), RawKey (..),
-                                                      RawStore, StoreKey, get)
+                                                      ReadStore, StoreKey, get)
 import           Tendermint.SDK.Codec                (HasCodec)
 
 data StoreLeaf a
@@ -38,7 +38,7 @@ instance
   ( IsKey k ns
   , a ~ Value k ns
   , HasCodec a
-  , Members [RawStore, Error AppError] r
+  , Members [ReadStore, Error AppError] r
   )
    => StoreQueryHandler a ns (QueryArgs k -> (Sem r) (QueryResult a)) where
   storeQueryHandler _ storeKey QueryArgs{..} = do
@@ -63,7 +63,7 @@ instance
     ( IsKey k ns
     , a ~ Value k ns
     , HasCodec a
-    , Members [RawStore, Error AppError] r
+    , Members [ReadStore, Error AppError] r
     )  => StoreQueryHandlers '[(k,a)] ns r where
       type QueryApi '[(k,a)] =  QA k :> StoreLeaf a
       storeQueryHandlers _ storeKey _ = storeQueryHandler (Proxy :: Proxy a) storeKey
@@ -73,7 +73,7 @@ instance
     , a ~ Value k ns
     , HasCodec a
     , StoreQueryHandlers ((k', a') ': as) ns r
-    , Members [RawStore, Error AppError] r
+    , Members [ReadStore, Error AppError] r
     ) => StoreQueryHandlers ((k,a) ': (k', a') : as) ns r where
         type (QueryApi ((k, a) ': (k', a') : as)) = (QA k :> Leaf a) :<|> QueryApi ((k', a') ': as)
         storeQueryHandlers _ storeKey pr =

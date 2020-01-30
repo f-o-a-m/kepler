@@ -77,6 +77,7 @@ library:
     - proto3-wire
     - secp256k1-haskell
     - servant
+    - singletons
     - stm
     - string-conversions
     - text
@@ -114,11 +115,11 @@ library:
   - Tendermint.SDK.BaseApp.Router.Types
   - Tendermint.SDK.BaseApp.Router.Router
   - Tendermint.SDK.BaseApp.Store
-  - Tendermint.SDK.BaseApp.Store.AuthTreeStore
   - Tendermint.SDK.BaseApp.Store.IAVLStore
   - Tendermint.SDK.BaseApp.Store.RawStore
   - Tendermint.SDK.BaseApp.Store.Scope
   - Tendermint.SDK.BaseApp.Transaction
+  - Tendermint.SDK.BaseApp.Transaction.Cache
   - Tendermint.SDK.BaseApp.Transaction.Checker
   - Tendermint.SDK.BaseApp.Transaction.Effect
   - Tendermint.SDK.BaseApp.Transaction.Modifier

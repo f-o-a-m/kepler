@@ -1,3 +1,5 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Tendermint.SDK.BaseApp.Transaction.Types
   ( module Tendermint.SDK.BaseApp.Transaction.Types
   -- * Re-Exports
@@ -9,6 +11,7 @@ import           Data.ByteString                  (ByteString)
 import           Tendermint.SDK.BaseApp.Router    (HasPath (..))
 import           Tendermint.SDK.Types.Transaction (Tx (..))
 import           Tendermint.SDK.Types.TxResult    (TxResult)
+import Data.Singletons.TH (genSingletons)
 
 data msg :~> a
 
@@ -21,6 +24,9 @@ data Return' (c :: OnCheck) a
 type Return = Return' 'OnCheckUnit
 
 data RouteContext = CheckTx | DeliverTx deriving (Eq, Show)
+
+$(genSingletons [''RouteContext])
+
 
 type TransactionApplication m = RoutingTx ByteString -> m TxResult
 

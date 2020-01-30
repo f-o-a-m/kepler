@@ -83,6 +83,7 @@ data SDKError =
   | NonceException Word64 Word64
   | RawStoreInvalidOperation Text
   | GrpcError Text
+  deriving (Show)
 
 -- | As of right now it's not expected that one can recover from an 'SDKError',
 -- | so we are throwing them as 'AppError's directly.

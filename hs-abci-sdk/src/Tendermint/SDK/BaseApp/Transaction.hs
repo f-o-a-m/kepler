@@ -26,16 +26,17 @@ import           Tendermint.SDK.Types.TxResult              (TxResult)
 
 import           Data.ByteString                            (ByteString)
 import           Data.Default.Class                         (def)
+import Data.Singletons (Sing, sing)
 
 serveTxApplication
   :: HasTxRouter layout r c
   => Proxy layout
   -> Proxy r
-  -> Proxy (c :: RouteContext)
+  -> Sing (c :: RouteContext)
   -> RouteTx layout r c
   -> TransactionApplication (Sem r)
-serveTxApplication pl pr pc server =
-  toTxApplication (runRouter (routeTx pl pr pc (emptyDelayed (Route server))) ())
+serveTxApplication pl pr sc server =
+  toTxApplication (runRouter (routeTx pl pr sc (emptyDelayed (Route server))) ())
 
 toTxApplication
   :: Application (Sem r) (RoutingTx ByteString) TxResult
@@ -56,4 +57,4 @@ serveDefaultTxChecker
   -> Proxy r
   -> TransactionApplication (Sem r)
 serveDefaultTxChecker pl pr =
-  serveTxApplication pl pr (Proxy :: Proxy 'CheckTx) (defaultCheckTx pl pr)
+  serveTxApplication pl pr (sing :: Sing 'CheckTx) (defaultCheckTx pl pr)

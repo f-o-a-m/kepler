@@ -1,40 +1,27 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module Tendermint.SDK.BaseApp.Store.Scope
   ( ConnectionScope(..)
   , ApplyScope
   , applyScope
-  , ResolveScope(..)
-  , MergeScopes(..)
-  , mergeScopes
   , Version(..)
   ) where
 
 import           Numeric.Natural                       (Natural)
-import           Polysemy                              (EffectRow, Sem, makeSem,
+import           Polysemy                              (Effect, EffectRow, Sem,
                                                         rewrite)
-import           Polysemy.Tagged                       (Tagged (..))
-import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore)
+import           Polysemy.Tagged                       (Tagged(..))
 
 data ConnectionScope = Query | Mempool | Consensus
 
-type family ApplyScope (s :: ConnectionScope) (es :: EffectRow) :: EffectRow where
-  ApplyScope s (RawStore ': as) = Tagged s RawStore ': as
-  ApplyScope s (a ': as) = a ': ApplyScope s as
+type family ApplyScope (s :: ConnectionScope) (e :: Effect) (es :: EffectRow) :: EffectRow where
+  ApplyScope s e (e ': as) = Tagged s e ': as
+  ApplyScope s e (a ': as) = a ': ApplyScope s e as
 
 applyScope
-  :: forall s r.
-     forall a. Sem (RawStore ': r) a -> Sem (Tagged s RawStore ': r) a
+  :: forall (s :: ConnectionScope) e r.
+     forall a. Sem (e ': r) a -> Sem (Tagged s e ': r) a
 applyScope = rewrite (Tagged @s)
 
-class ResolveScope s r where
-  resolveScope :: Sem (Tagged s RawStore ': r) a -> Sem r a
-
-data MergeScopes m a where
-  MergeScopes :: MergeScopes m ()
-
-makeSem ''MergeScopes
-
-data Version = Latest
-             | Genesis
-             | Version Natural
+data Version = 
+    Genesis
+  | Version Natural
+  | Latest

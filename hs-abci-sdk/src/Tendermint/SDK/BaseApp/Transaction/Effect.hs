@@ -1,114 +1,136 @@
-module Tendermint.SDK.BaseApp.Transaction.Effect where
+module Tendermint.SDK.BaseApp.Transaction.Effect 
+  ( TxEffs
+  , newTransactionContext
+  , runTx
+  ) where
 
+import Control.Monad (when)
 import           Control.Lens                          ((&), (.~))
 import           Control.Monad.IO.Class                (liftIO)
 import qualified Data.ByteArray.Base64String           as Base64
-import           Data.ByteString                       (ByteString)
 import           Data.Default.Class                    (def)
-import           Data.IORef                            (IORef, newIORef,
-                                                        readIORef, writeIORef)
-import           Data.Map.Strict                       (Map)
-import qualified Data.Map.Strict                       as Map
-import           Polysemy                              (Embed, Member, Sem,
+import           Data.IORef                            (IORef, newIORef, writeIORef,
+                                                        readIORef)
+import           Polysemy                              (Embed, Members, Member, Sem, rewrite,
                                                         interpret, raiseUnder)
 import           Polysemy.Error                        (Error, runError)
 import           Polysemy.Internal                     (send)
 import           Polysemy.Output                       (Output,
                                                         runOutputMonoidAssocR)
-import           Polysemy.State                        (State, runStateIORef)
+import qualified Polysemy.State as State
 import           Polysemy.Tagged                       (Tagged (..))
-import           Tendermint.SDK.BaseApp.Errors         (AppError, SDKError (..),
-                                                        throwSDKError,
+import           Tendermint.SDK.BaseApp.Errors         (AppError,
                                                         txResultAppError)
 import qualified Tendermint.SDK.BaseApp.Events         as E
 import qualified Tendermint.SDK.BaseApp.Gas            as G
-import           Tendermint.SDK.BaseApp.Store.RawStore (RawStore (..),
-                                                        RawStoreKey (..))
+import           Tendermint.SDK.BaseApp.Store.RawStore (ReadStore(..), WriteStore(..))
 import           Tendermint.SDK.Codec                  (HasCodec (encode))
 import           Tendermint.SDK.Types.Effects          ((:&))
 import           Tendermint.SDK.Types.Transaction      (Tx (..))
-import           Tendermint.SDK.BaseApp.Transaction.Types      (RoutingTx(..))
+import           Tendermint.SDK.BaseApp.Transaction.Types      (RoutingTx(..), RouteContext(..))
+import qualified Tendermint.SDK.BaseApp.Transaction.Cache as Cache
 import           Tendermint.SDK.Types.TxResult         (TxResult, txResultData,
                                                         txResultEvents,
                                                         txResultGasUsed,
                                                         txResultGasWanted)
-data Cache
 
 type TxEffs =
     [ Output E.Event
     , G.GasMeter
-    , Tagged Cache RawStore
+    , WriteStore
+    , ReadStore
     , Error AppError
     ]
 
 data TransactionContext = TransactionContext
   { gas        :: IORef G.GasAmount
-  , storeCache :: IORef (Map RawStoreKey ByteString)
+  , storeCache :: IORef Cache.Cache
+  , routeContext :: RouteContext
   }
 
 newTransactionContext
-  :: RoutingTx msg
+  :: RouteContext
+  -> RoutingTx msg
   -> IO TransactionContext
-newTransactionContext (RoutingTx Tx{txGas}) = do
+newTransactionContext ctx (RoutingTx Tx{txGas}) = do
   initialGas <- newIORef $ G.GasAmount txGas
-  initialCache <- newIORef $ mempty
+  initialCache <- newIORef $ Cache.emptyCache
   pure TransactionContext
     { gas = initialGas
     , storeCache = initialCache
+    , routeContext = ctx
     }
 
-eval
+runTx 
   :: forall r a.
      HasCodec a
-  => Member (Embed IO) r
-  => Member RawStore r
+  => Members [Embed IO, ReadStore, WriteStore] r
   => TransactionContext
   -> Sem (TxEffs :& r) a
-  -> Sem r TxResult
-eval TransactionContext{..} action = do
+  -> Sem r TxResult 
+runTx ctx@TransactionContext {..} tx = do
   initialGas <- liftIO $ readIORef gas
-  eRes <-
-    runError .
-      evalCachedStore storeCache .
-      runStateIORef gas .
-      G.eval .
-      raiseUnder @(State G.GasAmount) $ runOutputMonoidAssocR (pure @[])  action
+  eRes <- eval ctx tx
   gasRemaining <- liftIO $ readIORef gas
   let gasUsed = initialGas - gasRemaining
       baseResponse =
         def & txResultGasWanted .~ G.unGasAmount initialGas
             & txResultGasUsed .~ G.unGasAmount gasUsed
-  return $ case eRes of
+  case eRes of
     Left e ->
-      baseResponse & txResultAppError .~ e
-    Right (events, a) ->
-      baseResponse & txResultEvents .~ events
-                   & txResultData .~ Base64.fromBytes (encode a)
+      return $ baseResponse & txResultAppError .~ e
+    Right (events, a) -> do
+      when (routeContext == DeliverTx) $ do
+        cache <- liftIO $ readIORef storeCache
+        Cache.writeCache cache
+      return $ baseResponse & txResultEvents .~ events
+                            & txResultData .~ Base64.fromBytes (encode a)
 
-evalCachedStore
-  :: Member RawStore r
-  => Member (Embed IO) r
-  => Member (Error AppError) r
-  => IORef (Map RawStoreKey ByteString)
-  -> Sem (Tagged Cache RawStore ': r) a
+
+eval
+  :: forall r a.
+     Members [Embed IO, ReadStore] r
+  => TransactionContext
+  -> Sem (TxEffs :& r) a
+  -> Sem r (Either AppError ([E.Event], a))
+eval TransactionContext{gas, storeCache} =
+  runError .
+    evalCachedReadStore storeCache .
+    rewrite (Tagged @Cache.Cache) .
+    evalCachedWriteStore storeCache .
+    rewrite (Tagged @Cache.Cache ) .
+    State.runStateIORef gas .
+    G.eval .
+    raiseUnder @(State.State G.GasAmount) .
+    runOutputMonoidAssocR (pure @[])
+
+evalCachedReadStore
+  :: Members [Embed IO, ReadStore] r
+  => IORef Cache.Cache
+  -> Sem (Tagged Cache.Cache ReadStore ': r) a
   -> Sem r a
-evalCachedStore cache m = do
+evalCachedReadStore c m = do
+  cache <- liftIO $ readIORef c
   interpret
     (\(Tagged action) -> case action of
-      RawStorePut k v -> liftIO $ do
-        cm <-  readIORef cache
-        cache `writeIORef` Map.insert k v cm
-      RawStoreGet k -> do
-        mv <- Map.lookup k <$> liftIO (readIORef cache)
-        case mv of
-          Just v  -> pure (Just v)
-          Nothing -> send (RawStoreGet k)
-      RawStoreProve _ -> pure Nothing
-      RawStoreDelete k -> liftIO $ do
-        cm <-  readIORef cache
-        cache `writeIORef` Map.delete k cm
-      RawStoreRoot -> throwSDKError $ RawStoreInvalidOperation "Root"
-      RawStoreBeginTransaction -> throwSDKError $ RawStoreInvalidOperation "BeginTransaction"
-      RawStoreRollback -> liftIO $ cache `writeIORef`  mempty
-      RawStoreCommit -> throwSDKError $ RawStoreInvalidOperation "BeginTransaction"
+      StoreGet k ->
+        case Cache.get k cache of
+          Left Cache.Deleted -> pure Nothing
+          Right (Just v)  -> pure (Just v)
+          Right Nothing -> send (StoreGet k)
+      StoreProve _ -> pure Nothing
+      StoreRoot _ -> pure ""
+    ) m
+
+evalCachedWriteStore
+  :: Member (Embed IO) r
+  => IORef Cache.Cache
+  -> Sem (Tagged Cache.Cache WriteStore ': r) a
+  -> Sem r a
+evalCachedWriteStore c m = do
+  cache <- liftIO $ readIORef c
+  interpret
+    (\(Tagged action) -> liftIO $ case action of
+      StorePut k v -> writeIORef c $ Cache.put k v cache
+      StoreDelete k -> writeIORef c $ Cache.delete k cache
     ) m
