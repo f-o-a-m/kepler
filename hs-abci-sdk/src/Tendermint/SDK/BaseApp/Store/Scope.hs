@@ -5,10 +5,9 @@ module Tendermint.SDK.BaseApp.Store.Scope
   , Version(..)
   ) where
 
-import           Numeric.Natural                       (Natural)
-import           Polysemy                              (Effect, EffectRow, Sem,
-                                                        rewrite)
-import           Polysemy.Tagged                       (Tagged(..))
+import           Numeric.Natural (Natural)
+import           Polysemy        (Effect, EffectRow, Sem, rewrite)
+import           Polysemy.Tagged (Tagged (..))
 
 data ConnectionScope = Query | Mempool | Consensus
 
@@ -21,7 +20,7 @@ applyScope
      forall a. Sem (e ': r) a -> Sem (Tagged s e ': r) a
 applyScope = rewrite (Tagged @s)
 
-data Version = 
+data Version =
     Genesis
   | Version Natural
   | Latest

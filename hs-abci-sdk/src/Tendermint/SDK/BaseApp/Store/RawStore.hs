@@ -22,19 +22,22 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   , withTransaction
   ) where
 
-import           Control.Lens                  (Iso', iso, (^.))
-import qualified Data.ByteString               as BS
+import           Control.Lens                       (Iso', iso, (^.))
+import qualified Data.ByteString                    as BS
 import           Data.Proxy
-import           Data.String.Conversions       (cs)
-import           Polysemy                      (Member, Members, Sem, makeSem)
-import           Polysemy.Error                (Error, catch, throw)
-import           Polysemy.Resource             (Resource, finally, onException)
-import           Tendermint.SDK.BaseApp.Errors (AppError, SDKError (ParseError),
-                                                throwSDKError)
-import           Tendermint.SDK.Codec          (HasCodec (..))
+import           Data.String.Conversions            (cs)
+import           Polysemy                           (Member, Members, Sem,
+                                                     makeSem)
+import           Polysemy.Error                     (Error, catch, throw)
+import           Polysemy.Resource                  (Resource, finally,
+                                                     onException)
+import           Tendermint.SDK.BaseApp.Errors      (AppError,
+                                                     SDKError (ParseError),
+                                                     throwSDKError)
 import           Tendermint.SDK.BaseApp.Store.Scope (Version)
-import           Tendermint.SDK.Types.Address  (Address, addressFromBytes,
-                                                addressToBytes)
+import           Tendermint.SDK.Codec               (HasCodec (..))
+import           Tendermint.SDK.Types.Address       (Address, addressFromBytes,
+                                                     addressToBytes)
 
 data RawStoreKey = RawStoreKey
   { rsStoreKey :: BS.ByteString

@@ -26,7 +26,7 @@ import           Tendermint.SDK.Types.TxResult              (TxResult)
 
 import           Data.ByteString                            (ByteString)
 import           Data.Default.Class                         (def)
-import Data.Singletons (Sing, sing)
+import           Data.Singletons                            (Sing, sing)
 
 serveTxApplication
   :: HasTxRouter layout r c

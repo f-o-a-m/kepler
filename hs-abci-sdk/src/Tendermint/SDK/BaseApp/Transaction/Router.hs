@@ -7,6 +7,7 @@ module Tendermint.SDK.BaseApp.Transaction.Router
 import           Control.Monad.IO.Class                      (liftIO)
 import           Data.ByteString                             (ByteString)
 import           Data.Proxy
+import           Data.Singletons                             (Sing, fromSing)
 import           Data.String.Conversions                     (cs)
 import           GHC.TypeLits                                (KnownSymbol,
                                                               symbolVal)
@@ -14,16 +15,17 @@ import           Polysemy                                    (Embed, Members,
                                                               Sem)
 import           Servant.API
 import qualified Tendermint.SDK.BaseApp.Router               as R
-import           Tendermint.SDK.BaseApp.Transaction.Effect   (TxEffs, runTx, newTransactionContext)
+import           Tendermint.SDK.BaseApp.Store                (ReadStore,
+                                                              WriteStore)
+import           Tendermint.SDK.BaseApp.Transaction.Effect   (TxEffs, newTransactionContext,
+                                                              runTx)
 import           Tendermint.SDK.BaseApp.Transaction.Modifier
 import           Tendermint.SDK.BaseApp.Transaction.Types
 import           Tendermint.SDK.Codec                        (HasCodec (..))
 import           Tendermint.SDK.Types.Effects                ((:&))
-import           Tendermint.SDK.BaseApp.Store (ReadStore, WriteStore)
 import           Tendermint.SDK.Types.Message                (HasMessageType (..),
                                                               Msg (..))
 import           Tendermint.SDK.Types.TxResult               (TxResult)
-import Data.Singletons (Sing, fromSing)
 
 --------------------------------------------------------------------------------
 
@@ -59,7 +61,7 @@ methodRouter
   => Sing (c :: RouteContext)
   -> R.Delayed (Sem r) env (RoutingTx msg) (Sem (TxEffs :& r) a)
   -> R.Router env r (RoutingTx msg) TxResult
-methodRouter sc action = 
+methodRouter sc action =
   let route' env tx = do
         ctx <- liftIO $ newTransactionContext (fromSing sc) tx
         let action' = runTx ctx <$> action

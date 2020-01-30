@@ -1,5 +1,6 @@
 module Tendermint.SDK.BaseApp.Store.IAVLStore
-  ( initGrpcClient
+  ( IAVLVersion
+  , initGrpcClient
   --, initScopeVersions
   --, evalMergeScopes
   , evalTransaction
@@ -11,8 +12,7 @@ module Tendermint.SDK.BaseApp.Store.IAVLStore
 import           Control.Lens                          ((&), (.~), (^.))
 import           Control.Monad                         (void)
 import           Control.Monad.IO.Class
-import           Data.IORef                            (IORef, 
-                                                        readIORef)
+import           Data.IORef                            (IORef, readIORef)
 import           Data.ProtoLens.Message                (defMessage)
 import           Data.Text                             (pack)
 import qualified Database.IAVL.RPC                     as IAVL
@@ -22,15 +22,16 @@ import           Network.GRPC.Client.Helpers           (GrpcClient)
 import           Network.HTTP2.Client                  (ClientIO,
                                                         TooMuchConcurrency,
                                                         runClientIO)
-import           Polysemy                              (Embed, Member, Members, Sem,
-                                                        interpret)
+import           Polysemy                              (Embed, Member, Members,
+                                                        Sem, interpret)
 import           Polysemy.Error                        (Error)
 import qualified Proto.Iavl.Api_Fields                 as Api
 import           Tendermint.SDK.BaseApp.Errors         (AppError, SDKError (..))
-import           Tendermint.SDK.BaseApp.Store.RawStore (ReadStore (..), WriteStore(..), Transaction(..),
+import           Tendermint.SDK.BaseApp.Store.RawStore (ReadStore (..),
+                                                        Transaction (..),
+                                                        WriteStore (..),
                                                         makeRawKey)
-import           Tendermint.SDK.BaseApp.Store.Scope    (
-                                                        Version (..))
+import           Tendermint.SDK.BaseApp.Store.Scope    (Version (..))
 
 data IAVLVersion = IAVLVersion
   { iavlVersion :: IORef Version
@@ -50,7 +51,7 @@ evalWrite gc m =
         let setReq = defMessage & Api.key .~ makeRawKey k
                                 & Api.value .~ v
         in void . liftIO . runGrpc $ IAVL.set gc setReq
-      StoreDelete k -> 
+      StoreDelete k ->
         let remReq = defMessage & Api.key .~ makeRawKey k
         in void . liftIO . runGrpc $ IAVL.remove gc remReq
     ) m
@@ -120,7 +121,7 @@ evalTransaction gc m = do
 --        forM_ [queryV, mempoolV] $ \ior -> liftIO $ writeIORef ior version
 --    )
 
-runGrpc 
+runGrpc
   :: ClientIO (Either TooMuchConcurrency (RawReply a))
   -> IO a
 runGrpc f = runClientIO f >>= \case

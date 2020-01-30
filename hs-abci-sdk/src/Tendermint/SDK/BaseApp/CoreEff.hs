@@ -7,33 +7,31 @@ module Tendermint.SDK.BaseApp.CoreEff
   , Context(..)
   , contextLogConfig
   , contextPrometheusEnv
-  , contextAuthTree
+  , contextVersion
   , makeContext
   , runCoreEffs
   ) where
 
-import           Control.Lens                               (makeLenses, over,
-                                                             view)
-import           Data.Text                                  (Text)
-import qualified Katip                                      as K
-import           Polysemy                                   (Embed, Members,
-                                                             Sem, runM)
-import           Polysemy.Error                             (Error, runError)
-import           Polysemy.Reader                            (Reader, asks,
-                                                             local, runReader)
-import           Tendermint.SDK.BaseApp.Errors              (AppError)
-import qualified Tendermint.SDK.BaseApp.Logger.Katip        as KL
-import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus  as P
-import           Tendermint.SDK.BaseApp.Store               (
-                                                             ResolveScope (..))
-import qualified Tendermint.SDK.BaseApp.Store.AuthTreeStore as AT
+import           Control.Lens                              (makeLenses, over,
+                                                            view)
+import           Data.Text                                 (Text)
+import qualified Katip                                     as K
+import           Polysemy                                  (Embed, Members, Sem,
+                                                            runM)
+import           Polysemy.Error                            (Error, runError)
+import           Polysemy.Reader                           (Reader, asks, local,
+                                                            runReader)
+import           Tendermint.SDK.BaseApp.Errors             (AppError)
+import qualified Tendermint.SDK.BaseApp.Logger.Katip       as KL
+import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus as P
+import qualified Tendermint.SDK.BaseApp.Store.IAVLStore    as IAVL
 
 -- | CoreEffs is one level below BaseAppEffs, and provides one possible
 -- | interpretation for its effects to IO.
 type CoreEffs =
   '[ Reader KL.LogConfig
    , Reader (Maybe P.PrometheusEnv)
-   , Reader AT.AuthTreeState
+   , Reader IAVL.IAVLVersion
    , Error AppError
    , Embed IO
    ]
@@ -52,7 +50,7 @@ instance (Members CoreEffs r) => K.KatipContext (Sem r) where
 data Context = Context
   { _contextLogConfig     :: KL.LogConfig
   , _contextPrometheusEnv :: Maybe P.PrometheusEnv
-  , _contextAuthTree      :: AT.AuthTreeState
+  , _contextVersion       :: IAVL.IAVLVersion
   }
 
 makeLenses ''Context
@@ -60,18 +58,18 @@ makeLenses ''Context
 makeContext
   :: KL.InitialLogNamespace
   -> Maybe P.MetricsScrapingConfig
+  -> IAVL.IAVLVersion
   -> IO Context
-makeContext KL.InitialLogNamespace{..} scrapingCfg = do
+makeContext KL.InitialLogNamespace{..} scrapingCfg version = do
   metCfg <- case scrapingCfg of
         Nothing -> pure Nothing
         Just scfg -> P.emptyState >>= \es ->
           pure . Just $ P.PrometheusEnv es scfg
-  authTreeState <- AT.initAuthTreeState
   logCfg <- mkLogConfig _initialLogEnvironment _initialLogProcessName
   pure $ Context
     { _contextLogConfig = logCfg
     , _contextPrometheusEnv = metCfg
-    , _contextAuthTree = authTreeState
+    , _contextVersion = version
     }
     where
       mkLogConfig :: Text -> Text -> IO KL.LogConfig
@@ -84,9 +82,6 @@ makeContext KL.InitialLogNamespace{..} scrapingCfg = do
           , _logEnv = le
           }
 
-instance (Members CoreEffs r, AT.AuthTreeGetter s) => ResolveScope s r where
-  resolveScope = AT.evalTagged
-
 -- | The standard interpeter for 'CoreEffs'.
 runCoreEffs
   :: Context
@@ -94,6 +89,6 @@ runCoreEffs
 runCoreEffs Context{..} =
   runM .
     runError .
-    runReader _contextAuthTree .
+    runReader _contextVersion .
     runReader _contextPrometheusEnv .
     runReader _contextLogConfig

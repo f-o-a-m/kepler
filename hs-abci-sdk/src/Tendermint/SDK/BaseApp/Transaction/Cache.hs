@@ -1,5 +1,5 @@
-module Tendermint.SDK.BaseApp.Transaction.Cache 
-  ( Cache 
+module Tendermint.SDK.BaseApp.Transaction.Cache
+  ( Cache
   , emptyCache
   , writeCache
   , Deleted(..)
@@ -8,17 +8,18 @@ module Tendermint.SDK.BaseApp.Transaction.Cache
   , delete
   ) where
 
-import Data.ByteString (ByteString)
+import           Data.ByteString                       (ByteString)
 import           Data.Map.Strict                       (Map)
 import qualified Data.Map.Strict                       as Map
-import qualified Data.Set as Set
-import Data.Set (Set)
-import Polysemy (Member, Sem)
-import           Tendermint.SDK.BaseApp.Store.RawStore (RawStoreKey, storePut, storeDelete, WriteStore)
+import           Data.Set                              (Set)
+import qualified Data.Set                              as Set
+import           Polysemy                              (Member, Sem)
+import           Tendermint.SDK.BaseApp.Store.RawStore (RawStoreKey, WriteStore,
+                                                        storeDelete, storePut)
 
-data Cache = Cache 
+data Cache = Cache
   { keysToDelete :: Set RawStoreKey
-  , stateCache :: Map RawStoreKey ByteString
+  , stateCache   :: Map RawStoreKey ByteString
   }
 
 emptyCache :: Cache
@@ -29,7 +30,7 @@ put
   -> ByteString
   -> Cache
   -> Cache
-put k v Cache{..} = 
+put k v Cache{..} =
   let keysToDelete' = Set.delete k keysToDelete
       stateCache' = Map.insert k v stateCache
   in Cache keysToDelete' stateCache'
@@ -40,7 +41,7 @@ get
   :: RawStoreKey
   -> Cache
   -> Either Deleted (Maybe ByteString)
-get k Cache{..} = 
+get k Cache{..} =
   if k `Set.member` keysToDelete
     then Left Deleted
     else Right $ Map.lookup k stateCache
@@ -49,11 +50,11 @@ delete
   :: RawStoreKey
   -> Cache
   -> Cache
-delete k Cache{..} = 
+delete k Cache{..} =
   let keysToDelete' = Set.insert k keysToDelete
       stateCache' = Map.delete k stateCache
   in Cache keysToDelete' stateCache'
-              
+
 writeCache
   :: Member WriteStore r
   => Cache

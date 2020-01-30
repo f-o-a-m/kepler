@@ -1,38 +1,44 @@
-module Tendermint.SDK.BaseApp.Transaction.Effect 
+module Tendermint.SDK.BaseApp.Transaction.Effect
   ( TxEffs
   , newTransactionContext
   , runTx
   ) where
 
-import Control.Monad (when)
-import           Control.Lens                          ((&), (.~))
-import           Control.Monad.IO.Class                (liftIO)
-import qualified Data.ByteArray.Base64String           as Base64
-import           Data.Default.Class                    (def)
-import           Data.IORef                            (IORef, newIORef, writeIORef,
-                                                        readIORef)
-import           Polysemy                              (Embed, Members, Member, Sem, rewrite,
-                                                        interpret, raiseUnder)
-import           Polysemy.Error                        (Error, runError)
-import           Polysemy.Internal                     (send)
-import           Polysemy.Output                       (Output,
-                                                        runOutputMonoidAssocR)
-import qualified Polysemy.State as State
-import           Polysemy.Tagged                       (Tagged (..))
-import           Tendermint.SDK.BaseApp.Errors         (AppError,
-                                                        txResultAppError)
-import qualified Tendermint.SDK.BaseApp.Events         as E
-import qualified Tendermint.SDK.BaseApp.Gas            as G
-import           Tendermint.SDK.BaseApp.Store.RawStore (ReadStore(..), WriteStore(..))
-import           Tendermint.SDK.Codec                  (HasCodec (encode))
-import           Tendermint.SDK.Types.Effects          ((:&))
-import           Tendermint.SDK.Types.Transaction      (Tx (..))
-import           Tendermint.SDK.BaseApp.Transaction.Types      (RoutingTx(..), RouteContext(..))
+import           Control.Lens                             ((&), (.~))
+import           Control.Monad                            (when)
+import           Control.Monad.IO.Class                   (liftIO)
+import qualified Data.ByteArray.Base64String              as Base64
+import           Data.Default.Class                       (def)
+import           Data.IORef                               (IORef, newIORef,
+                                                           readIORef,
+                                                           writeIORef)
+import           Polysemy                                 (Embed, Member,
+                                                           Members, Sem,
+                                                           interpret,
+                                                           raiseUnder, rewrite)
+import           Polysemy.Error                           (Error, runError)
+import           Polysemy.Internal                        (send)
+import           Polysemy.Output                          (Output,
+                                                           runOutputMonoidAssocR)
+import qualified Polysemy.State                           as State
+import           Polysemy.Tagged                          (Tagged (..))
+import           Tendermint.SDK.BaseApp.Errors            (AppError,
+                                                           txResultAppError)
+import qualified Tendermint.SDK.BaseApp.Events            as E
+import qualified Tendermint.SDK.BaseApp.Gas               as G
+import           Tendermint.SDK.BaseApp.Store.RawStore    (ReadStore (..),
+                                                           WriteStore (..))
 import qualified Tendermint.SDK.BaseApp.Transaction.Cache as Cache
-import           Tendermint.SDK.Types.TxResult         (TxResult, txResultData,
-                                                        txResultEvents,
-                                                        txResultGasUsed,
-                                                        txResultGasWanted)
+import           Tendermint.SDK.BaseApp.Transaction.Types (RouteContext (..),
+                                                           RoutingTx (..))
+import           Tendermint.SDK.Codec                     (HasCodec (encode))
+import           Tendermint.SDK.Types.Effects             ((:&))
+import           Tendermint.SDK.Types.Transaction         (Tx (..))
+import           Tendermint.SDK.Types.TxResult            (TxResult,
+                                                           txResultData,
+                                                           txResultEvents,
+                                                           txResultGasUsed,
+                                                           txResultGasWanted)
 
 type TxEffs =
     [ Output E.Event
@@ -43,8 +49,8 @@ type TxEffs =
     ]
 
 data TransactionContext = TransactionContext
-  { gas        :: IORef G.GasAmount
-  , storeCache :: IORef Cache.Cache
+  { gas          :: IORef G.GasAmount
+  , storeCache   :: IORef Cache.Cache
   , routeContext :: RouteContext
   }
 
@@ -61,13 +67,13 @@ newTransactionContext ctx (RoutingTx Tx{txGas}) = do
     , routeContext = ctx
     }
 
-runTx 
+runTx
   :: forall r a.
      HasCodec a
   => Members [Embed IO, ReadStore, WriteStore] r
   => TransactionContext
   -> Sem (TxEffs :& r) a
-  -> Sem r TxResult 
+  -> Sem r TxResult
 runTx ctx@TransactionContext {..} tx = do
   initialGas <- liftIO $ readIORef gas
   eRes <- eval ctx tx
@@ -116,8 +122,8 @@ evalCachedReadStore c m = do
       StoreGet k ->
         case Cache.get k cache of
           Left Cache.Deleted -> pure Nothing
-          Right (Just v)  -> pure (Just v)
-          Right Nothing -> send (StoreGet k)
+          Right (Just v)     -> pure (Just v)
+          Right Nothing      -> send (StoreGet k)
       StoreProve _ -> pure Nothing
       StoreRoot _ -> pure ""
     ) m
@@ -131,6 +137,6 @@ evalCachedWriteStore c m = do
   cache <- liftIO $ readIORef c
   interpret
     (\(Tagged action) -> liftIO $ case action of
-      StorePut k v -> writeIORef c $ Cache.put k v cache
+      StorePut k v  -> writeIORef c $ Cache.put k v cache
       StoreDelete k -> writeIORef c $ Cache.delete k cache
     ) m

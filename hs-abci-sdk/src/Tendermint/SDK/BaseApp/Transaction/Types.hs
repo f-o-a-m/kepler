@@ -8,10 +8,10 @@ module Tendermint.SDK.BaseApp.Transaction.Types
 
 import           Control.Lens                     (lens)
 import           Data.ByteString                  (ByteString)
+import           Data.Singletons.TH               (genSingletons)
 import           Tendermint.SDK.BaseApp.Router    (HasPath (..))
 import           Tendermint.SDK.Types.Transaction (Tx (..))
 import           Tendermint.SDK.Types.TxResult    (TxResult)
-import Data.Singletons.TH (genSingletons)
 
 data msg :~> a
 
