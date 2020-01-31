@@ -1,3 +1,7 @@
+---
+title: Application
+---
+
 # Application
 
 ## From Modules to App

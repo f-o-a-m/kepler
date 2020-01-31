@@ -1,3 +1,7 @@
+---
+title: Types
+---
+
 # Types
 
 The `Types` module is used to define the basic types that the module will make use of. This includes things like custom error types, event types, database types, etc. 

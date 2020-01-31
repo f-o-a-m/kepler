@@ -8,8 +8,8 @@ ifeq ($(UNAME_S),Darwin)
 endif
 
 pre-process:
-	find ./doc/ -type f -name "*.md" -exec $(SED) -e 's/~~~ haskell.*/```haskell/g' {} + && \
-	find ./doc/ -type f -name "*.md" -exec $(SED) -e 's/~~~/```/g' {} +
+	find ./doc/ -type f,l -name "*.md" -exec $(SED) -e 's/~~~ haskell.*/```haskell/g' {} + && \
+	find ./doc/ -type f,l -name "*.md" -exec $(SED) -e 's/~~~/```/g' {} +
 
 tintin:
 	tintin run

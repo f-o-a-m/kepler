@@ -1,3 +1,7 @@
+---
+title: Query
+---
+
 # Query
 
 ## Tutorial.Nameservice.Query

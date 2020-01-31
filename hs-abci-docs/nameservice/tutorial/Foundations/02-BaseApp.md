@@ -1,3 +1,7 @@
+---
+title: BaseApp
+---
+
 # BaseApp
 
 `BaseApp` is the set of effects that the SDK operates with and are freely available

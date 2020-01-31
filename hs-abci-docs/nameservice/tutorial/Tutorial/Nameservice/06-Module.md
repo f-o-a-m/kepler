@@ -1,3 +1,7 @@
+---
+title: Module
+---
+
 # Module
 
 ## Tutorial.Nameservice.Module
