@@ -80,3 +80,19 @@ jobs:
     - make test-nameservice
     - docker-compose -f hs-abci-examples/nameservice/docker-compose-test.yaml -p test-hs-abci-examples-nameservice-e2e down -v --rmi local
 
+  - stage: publish website
+    script:
+      - echo "building website"
+      - travis_wait 120 stack --skip-ghc-check install tintin
+      - cd hs-abci-docs
+      - make pre-process tintin
+    deploy:
+      provider: pages
+      local-dir: ./hs-abci-docs/.stack-work/tintin/rendered
+      email: deploy@travis-ci.org
+      name: Deployment Bot
+      skip-cleanup: true
+      github-token: $GITHUB_TOKEN
+      keep-history: true
+      on:
+        branch: master
