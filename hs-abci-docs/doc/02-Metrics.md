@@ -1,3 +1,7 @@
+---
+title: Metrics
+---
+
 # Metrics
 
 The SDK has some built in support for metrics via [prometheus](https://prometheus.io/), but ultimately you may choose a different runtime interpretation for the metrics, or even choose to ignore it entirely.

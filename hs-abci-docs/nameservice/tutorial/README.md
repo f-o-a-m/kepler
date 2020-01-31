@@ -1,3 +1,7 @@
+---
+title: Nameservice
+---
+
 ## Introduction
 
 We're going to build an example application that mirrors the `golang` [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) example application called [Nameservice](https://github.com/cosmos/sdk-tutorials/tree/master/nameservice). There is also a tutorial for that application which you can find [here](https://tutorials.cosmos.network/nameservice/tutorial/00-intro.html) for comparison.

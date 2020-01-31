@@ -1,3 +1,7 @@
+---
+title: Logging
+---
+
 # Logging
 
 The SDK has built in support for structured logging via the [katip](https://hackage.haskell.org/package/katip) logging library. Even still, the SDK is agnostic to where you want your logs to go. Katip logs are managed by *scribes* whos job is precisely this, so the output depends on which scribes you use. The two most common scribes are the [console scribe](https://hackage.haskell.org/package/katip-0.8.3.0/docs/Katip-Scribes-Handle.html#v:mkHandleScribe) and the [Elasticsearch scribe](https://hackage.haskell.org/package/katip-elasticsearch).
