@@ -22,8 +22,8 @@ hlint: ## Run hlint on all haskell projects
 	hs-abci-extra \
 	hs-abci-sdk \
 	hs-abci-test-utils \
-	hs-abci-examples/simple-storage \
-	hs-abci-examples/nameservice \
+	hs-abci-docs/simple-storage \
+	hs-abci-docs/nameservice \
 	hs-iavl-client
 
 stylish: ## Run stylish-haskell over all haskell projects

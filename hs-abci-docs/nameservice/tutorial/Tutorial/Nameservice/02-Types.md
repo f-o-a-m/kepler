@@ -1,5 +1,5 @@
 ---
-title: Types
+title: Nameservice: Types
 ---
 
 # Types

@@ -1,5 +1,5 @@
 ---
-title: Module
+title: Foundations: Module
 ---
 
 # Modules

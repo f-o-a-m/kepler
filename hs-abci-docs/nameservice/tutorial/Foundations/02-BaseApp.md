@@ -1,5 +1,5 @@
 ---
-title: BaseApp
+title: Foundations: BaseApp
 ---
 
 # BaseApp

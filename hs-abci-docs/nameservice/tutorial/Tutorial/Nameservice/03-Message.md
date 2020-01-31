@@ -1,5 +1,5 @@
 ---
-title: Message
+title: Nameservice: Message
 ---
 
 # Message
