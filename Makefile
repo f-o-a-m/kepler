@@ -9,6 +9,15 @@ SIMPLE_STORAGE_BINARY := $(shell stack exec -- which simple-storage)
 help: ## Ask for help!
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+# Thank you Apple
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+        SED=sed -i''
+endif
+ifeq ($(UNAME_S),Darwin)
+        SED=sed -i ''
+endif
+
 #####################
 # Linting and Styling
 #####################
@@ -41,8 +50,16 @@ stylish: ## Run stylish-haskell over all haskell projects
 # DOCS
 ###################
 
-build-docs-local: ## Build the haddocks documentation for just this project (no dependencies)
+build-docs-local: ## Build the haddocks documentation for just this project (no dependencies)	
+	find ./doc/ -type f,l -name "*.md" -exec $(SED) -e 's/- -fplugin=Polysemy.Plugin/- -fdefer-type-errors/g' {} + \
+	find ./doc/ -type f,l -name "*.md" -exec $(SED) -e 's/- -Wall/- -fno-warn-deferred-type-errors/g' {} + \
 	stack haddock --no-haddock-deps
+
+build-site: ## Build the tintin site
+	cd hs-abci-docs \
+	find ./doc/ -type f,l -name "*.md" -exec $(SED) -e 's/~~~ haskell.*/```haskell/g' {} + && \
+	find ./doc/ -type f,l -name "*.md" -exec $(SED) -e 's/~~~/```/g' {} + \
+	tintin run
 
 #####################
 # Core Libraries

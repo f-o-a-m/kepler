@@ -3,7 +3,7 @@ synopsis: Haskell Cosmos SDK
 github: f-o-a-m/kepler
 author: Martin Allen
 authorWebsite: https://foam.space
-color: grey
+color: #5E5184
 #logo: https://pbs.twimg.com/profile_images/791467713956839424/pBRQn1wt_400x400.jpg
 titleFont: Poiret One
 titleFontWeight: 400
