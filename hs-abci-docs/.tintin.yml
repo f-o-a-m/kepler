@@ -1,1 +1,10 @@
-color: blue
+name: Kepler
+synopsis: Haskell cosmos SDK
+github: f-o-a-m/kepler
+author: Martin Allen
+authorWebsite: https://foam.space
+color: lightOrange
+logo: https://pbs.twimg.com/profile_images/791467713956839424/pBRQn1wt_400x400.jpg
+titleFont: Poiret One
+titleFontWeight: 400
+bodyFont: PT Sans
