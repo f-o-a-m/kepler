@@ -179,9 +179,9 @@ evalMetrics
   -> Sem (Metrics ': r) a
   -> Sem r a
 evalMetrics state@MetricsState{..} = do
+  -- | Increments existing count; if it doesn't exist, creates a new
+  -- | counter and increments it.
   interpretH (\case
-    -- | Increments existing count; if it doesn't exist, creates a new
-    -- | counter and increments it.
     IncCount ctrName -> do
       let c@MetricIdentifier{..} = countToIdentifier ctrName
           cid = metricIdStorable c
