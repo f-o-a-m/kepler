@@ -1,0 +1,523 @@
+<!DOCTYPE HTML><html><head><title>kepler - Logging</title><meta charset="utf-8"><meta content="summary" name="twitter:card"><meta content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png" name="twitter:site"><meta content="kepler - Logging" name="twitter:title"><meta content="Haskell Cosmos SDK" name="twitter:description"><meta content="Martin Allen" name="twitter:creator"><meta content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png" name="twitter:image"><meta itemprop="og:type" content="website"><meta itemprop="og:site_name" content="theam"><meta itemprop="og:title" content="kepler - Logging"><meta itemprop="og:url" content="f-o-a-m/kepler"><meta itemprop="og:image" content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png"><meta itemprop="og:description" content="Haskell Cosmos SDK"><link href="https://fonts.googleapis.com/css?family=PT Sans|Poiret One:400" rel="stylesheet"><link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow-night.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet"><link href="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/favicon-custom.ico" rel="shortcut icon"><link href="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.css" rel="stylesheet"><style>
+html
+{
+  height     : 100%;
+  min-height : 100%;
+}
+
+body
+{
+  height      : 100%;
+  min-height  : 100%;
+  font-family : "PT Sans", sans-serif;
+  font-size   : 1em;
+  overflow-x  : hidden;
+}
+
+h1
+{
+  font-family : "Poiret One", sans-serif;
+  font-weight : 400;
+  font-size   : 1em;
+}
+
+h2
+{
+  font-family : "Poiret One", sans-serif;
+  font-weight : 400;
+  font-size   : 2.44099em;
+}
+
+h3
+{
+  font-family : "Poiret One", sans-serif;
+  font-weight : 400;
+  font-size   : 5.95848em;
+}
+
+h1
+{
+  font-size : 2.44099em;
+}
+
+h2
+{
+  font-size : 1.953em;
+}
+
+h3
+{
+  font-size : 1.56299em;
+}
+
+blockquote
+{
+  border-left  : solid 4px #dddddd;
+  padding-left : 1rem;
+  color        : #777777;
+}
+
+.next-prev
+{
+  margin-top    : 5%;
+  margin-bottom : 5%;
+}
+
+#header-container
+{
+  margin-top    : 5rem;
+  margin-bottom : 5rem;
+}
+
+.cover-heading
+{
+  font-size     : 800%;
+  max-height    : 6rem;
+  margin-bottom : 1.56299rem;
+}
+
+.cover-container
+{
+  background-color : rgba(255,255,255,0.0);
+}
+
+.watermark
+{
+  position    : absolute;
+  top         : 0px;
+  left        : 0px;
+  max-height  : 1.25039rem;
+  margin-top  : 1.25039rem;
+  margin-left : 1.25039rem;
+}
+
+.cover-heading-subtitle
+{
+  margin-top : 3rem;
+  font-size  : 1.953rem;
+}
+
+.vertical-auto
+{
+  margin-top    : auto;
+  margin-bottom : auto;
+}
+
+.content
+{
+  margin-top    : 5%;
+  margin-bottom : 5%;
+}
+
+#wrapper
+{
+  padding-left       : 0px;
+  -webkit-transition : all 0.5s ease 0.0s;
+  -moz-transition    : all 0.5s ease 0.0s;
+  -ms-transition     : all 0.5s ease 0.0s;
+  -o-transition      : all 0.5s ease 0.0s;
+  transition         : all 0.5s ease 0.0s;
+}
+
+#wrapper.toggled
+{
+  padding-left : 250px;
+}
+
+#wrapper.toggled #sidebar-wrapper
+{
+  width : 250px;
+}
+
+#page-content-wrapper#wrapper.toggled
+{
+  position     : absolute;
+  margin-right : -250px;
+}
+
+#page-content-wrapper
+{
+  width      : 100%;
+  position   : absolute;
+  margin-top : 3rem;
+  padding    : 15px 15px 15px 15px;
+}
+
+#page-content-wrapper img
+{
+  max-width : 100%;
+}
+
+#sidebar-wrapper
+{
+  z-index            : 1000;
+  position           : fixed;
+  left               : 250px;
+  width              : 0px;
+  margin-left        : -250px;
+  overflow-y         : hidden;
+  overflow-x         : hidden;
+  -webkit-transition : all 0.5s ease 0.0s;
+  -moz-transition    : all 0.5s ease 0.0s;
+  -ms-transition     : all 0.5s ease 0.0s;
+  -o-transition      : all 0.5s ease 0.0s;
+  transition         : all 0.5s ease 0.0s;
+}
+
+.sidebar-nav
+{
+  position        : absolute;
+  top             : 0px;
+  width           : 250px;
+  margin          : 0px 0px 0px 0px;
+  padding         : 0px 0px 0px 0px;
+  list-style-type : none;
+}
+
+.sidebar-nav li
+{
+  text-indent : 20px;
+  line-height : 40px;
+}
+
+.sidebar-nav li a
+{
+  display         : block;
+  text-decoration : none;
+  font-weight     : bold;
+}
+
+
+.sidebar-nav li .tintin-fg-disabled:hover
+{
+  mix-blend-mode  : normal;
+  -webkit-filter  : invert(0%);
+  -moz-filter     : invert(0%);
+  -ms-filter      : invert(0%);
+  -o-filter       : invert(0%);
+  filter          : invert(0%);
+  text-decoration : none;
+  color           : #000000;
+}
+
+
+.sidebar-nav li .tintin-fg-active:hover
+{
+  mix-blend-mode  : normal;
+  -webkit-filter  : invert(0%);
+  -moz-filter     : invert(0%);
+  -ms-filter      : invert(0%);
+  -o-filter       : invert(0%);
+  filter          : invert(0%);
+  text-decoration : none;
+  color           : #ffffff;
+}
+
+#menu-toggle
+{
+  position : absolute;
+}
+
+#menu-toggle img
+{
+  position : absolute;
+  left     : 0px;
+}
+
+#menu-toggle .rotateIn
+{
+  z-index : 999;
+}
+
+.tintin-doc-topbar
+{
+  height : 3rem;
+}
+
+.tintin-doc-topbar a
+{
+  margin-left : 1rem;
+  margin-top  : 0rem;
+  width       : 1.5rem;
+}
+
+.tintin-doc-topbar a img
+{
+  -webkit-filter : invert(70%);
+  -moz-filter    : invert(70%);
+  -ms-filter     : invert(70%);
+  -o-filter      : invert(70%);
+  filter         : invert(70%);
+}
+
+.filter-gray
+{
+  position       : relative;
+  bottom         : 3px;
+  margin-left    : 0.25rem;
+  margin-right   : 1rem;
+  height         : 1rem;
+  -webkit-filter : brightness(0.75);
+  -moz-filter    : brightness(0.75);
+  -ms-filter     : brightness(0.75);
+  -o-filter      : brightness(0.75);
+  filter         : brightness(0.75);
+}
+
+.footer-theam
+{
+  position       : relative;
+  bottom         : 1px;
+  margin-left    : -0.25rem;
+  height         : 1.75rem;
+  -webkit-filter : invert(75%);
+  -moz-filter    : invert(75%);
+  -ms-filter     : invert(75%);
+  -o-filter      : invert(75%);
+  filter         : invert(75%);
+}
+
+.tintin-doc-footer
+{
+  bottom : 0px;
+  height : -15rem;
+  width  : 100%;
+  color  : rgba(0,0,0,0.3);
+}
+
+.main-container
+{
+  min-height : 100%;
+  position   : relative;
+}
+
+#content
+{
+  min-height : 95%;
+}
+
+.sidebar-nav > .sidebar-brand
+{
+  height         : 3rem;
+  font-size      : 2rem;
+  font-family    : "Poiret One", sans-serif;
+  font-weight    : 400;
+  padding-top    : 2.5rem;
+  padding-bottom : 2.5rem;
+  margin-bottom  : 1.5rem;
+}
+
+.sidebar-nav > .sidebar-brand img
+{
+  height : 1.5rem;
+}
+
+.tintin-navbar
+{
+  font-weight      : bold;
+  background-color : rgba(255,255,255,0.15);
+}
+
+.tintin-navbar .left-part
+{
+  padding-left : 0px !important;
+}
+
+.tintin-navbar ul
+{
+  margin-top      : 1rem;
+  list-style-type : none;
+}
+
+.tintin-navbar ul li
+{
+  margin-right : 1rem;
+  display      : inline;
+}
+
+.tintin-navbar ul li a
+{
+  color          : #000000;
+  -webkit-filter : invert(35%);
+  -moz-filter    : invert(35%);
+  -ms-filter     : invert(35%);
+  -o-filter      : invert(35%);
+  filter         : invert(35%);
+  mix-blend-mode : difference;
+}
+
+.tintin-navbar ul li a:hover
+{
+  mix-blend-mode  : normal;
+  -webkit-filter  : invert(0%);
+  -moz-filter     : invert(0%);
+  -ms-filter      : invert(0%);
+  -o-filter       : invert(0%);
+  filter          : invert(0%);
+  text-decoration : none;
+  color           : #000000;
+}
+
+
+.tintin-navbar .tintin-navbar-active a
+{
+  mix-blend-mode : normal;
+  -webkit-filter : invert(0%);
+  -moz-filter    : invert(0%);
+  -ms-filter     : invert(0%);
+  -o-filter      : invert(0%);
+  filter         : invert(0%);
+  color          : #ffffff;
+}
+
+.tintin-navbar .tintin-navbar-active a:hover
+{
+  mix-blend-mode  : normal;
+  -webkit-filter  : invert(0%);
+  -moz-filter     : invert(0%);
+  -ms-filter      : invert(0%);
+  -o-filter       : invert(0%);
+  filter          : invert(0%);
+  text-decoration : none;
+  color           : #ffffff;
+}
+
+.tintin-bg-70
+{
+  background-color : rgba(255,255,255,0.15);
+}
+
+.tintin-bg-custom
+{
+  background-color : #5e5184;
+}
+
+.tintin-fg-custom
+{
+  color : #5e5184;
+}
+
+.tintin-fg-active
+{
+  color : #ffffff;
+}
+
+.tintin-fg-disabled
+{
+  color          : #000000;
+  -webkit-filter : invert(35%);
+  -moz-filter    : invert(35%);
+  -ms-filter     : invert(35%);
+  -o-filter      : invert(35%);
+  filter         : invert(35%);
+  mix-blend-mode : difference;
+}
+
+footer
+{
+  position       : relative;
+  bottom         : 0px;
+  left           : 0px;
+  width          : 100%;
+  padding-top    : 30px;
+  padding-bottom : 30px;
+}
+
+.container
+{
+  max-width : 50rem;
+}
+
+@media screen and (min-width: 768px)
+{
+
+#wrapper
+{
+  padding-left : 0px;
+}
+
+#wrapper .toggled
+{
+  padding-left : 250px;
+}
+
+#wrapper .toggled #sidebar-wrapper
+{
+  width : 250px;
+}
+
+#wrapper .toggled #page-content-wrapper
+{
+  position     : relative;
+  margin-right : 0px;
+}
+
+#sidebar-wrapper
+{
+  width : 0px;
+}
+
+#page-content-wrapper
+{
+  padding  : 20px 20px 20px 20px;
+  position : relative;
+}
+
+}
+
+/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0100-Tutorial.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-disabled">Foundations - BaseApp</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-disabled">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-active">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>Logging</h1>
+<p>The SDK has built in support for structured logging via the <a href="https://hackage.haskell.org/package/katip">katip</a> logging library. Even still, the SDK is agnostic to where you want your logs to go. Katip logs are managed by <em>scribes</em> whos job is precisely this, so the output depends on which scribes you use. The two most common scribes are the <a href="https://hackage.haskell.org/package/katip-0.8.3.0/docs/Katip-Scribes-Handle.html#v:mkHandleScribe">console scribe</a> and the <a href="https://hackage.haskell.org/package/katip-elasticsearch">Elasticsearch scribe</a>.</p>
+<p>The <code>Nameservice</code> application has support for either scribe -- it will use Elasticsearch if you provide the <code>ES_HOST</code> and <code>ES_PORT</code> environment variables or otherwise will default to console logging. The docker deployment is configured to use Elasticsearch.</p>
+<h2>Logging to Elasticsearch</h2>
+<p>The docker network includes an <code>elk</code> image (Elasticsearch, Logstash, Kibana) for persisting and querying logs. You can read more about this stack <a href="https://www.elastic.co/what-is/elk-stack">here</a>. In summary <code>elk</code> is a powerful solution for hosting searchable structured logs.</p>
+<p>When logging to Elasticsearch, you can use the Kibana dashboard for creating queries and visualizations. We will cover the basics here. If you have already launched the docker network, you can view the Kibana dashboard by going to <a href="http://localhost:5601/app/kibana">http://localhost:5601/app/kibana</a>. You should see something like</p>
+<p><img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/kibana_welcome_screen.png" width="50%"/></p>
+<p>To create an index (a searchable pattern), click on the <em>Management</em> tab, click <em>Create Index</em>, and enter <code>nameservice</code> as the pattern. You should see something like this:</p>
+<p><img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/kibana_management.png" width="50%"/></p>
+<p>You can ignore the advanced options, e.g. time filter, for now:</p>
+<p><img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/kibana_management_2.png" width="50%"/></p>
+<p>To view and search the logs, you can click the <code>Discover</code> tab. You should see all of the logs in the resulting search, from both server and application:</p>
+<p><img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/kibana_discover.png" width="50%"/></p>
+<h2>Searching a Log Index</h2>
+<h3>Log Structure</h3>
+<p>The log structure is effectively a JSON object (with nesting). There are a few fields that are worth pointing out:</p>
+<ul>
+<li><code>message_type</code>: the abci message type for the message that caused the logs, e.g. <code>beginBlock</code>, <code>deliverTx</code>, etc.</li>
+<li><code>message_hash</code>: the SHA256 of the protobuf encoded bytes for the abci message that caused the logs.</li>
+<li><code>ns</code> (namespace): a list of increasingly specific scopes for where the log originated. In this case, <code>nameservice</code> is the root namespace, <code>server</code> or <code>application</code> is the next scope.</li>
+</ul>
+<p>Remember that the basic lifescycle of an <code>ABCI</code> message is that it first comes to the ABCI-server from tendermint, is then handed off to your application for processing, and finally the response is sent from the ABCI-server back to tendermint. In order to better track this lifecycle, we highly recommend you use the <a href="https://github.com/f-o-a-m/hs-abci/blob/master/hs-abci-extra/src/Network/ABCI/Server/Middleware/Logger.hs">logging middleware</a>. This middleware will attach the <code>message_type</code> and <code>message_hash</code> to the context for every single log that is produced, meaning that you can get a trace for a given message by simply searching its hash.</p>
+<h3>Querying the Logs</h3>
+<p>You can create custom search filters in the <em>Discover</em> tab, just click the <em>Add a filter</em> button near the search bar. For example, we can filter all of the logs for those that correspond to a <em>deliverTx</em> message:</p>
+<p><img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/kibana_discover_filter.png" width="50%"/></p>
+<p>(<strong>NOTE</strong>: If you run the e2e tests against the docker network, you should see search results corresponding to the transactions created by the test suite. )</p>
+<p>Similarly, you can compose multiple filters to obtain only those logs emitted by the application itself during a <em>deliverTx</em> context, i.e. by filtering for <code>application</code> on the <code>ns</code> namespace field:</p>
+<p><img src="https://raw.githubusercontent.com/f-o-a-m/hs-abci/master/hs-abci-examples/nameservice/images/kibana_discover_filter_advanced.png" width="50%"/></p>
+<h3>Indexing Transaction Events</h3>
+<p>If you view the results from the filter <code>message_type=deliverTx, ns=application</code>, you might see results from the e2e test suite like</p>
+<pre class="json"><code>...
+  &quot;data&quot;: {
+      &quot;message_type&quot;: &quot;deliverTx&quot;,
+      &quot;event&quot;: {
+        &quot;old_value&quot;: &quot;hello world&quot;,
+        &quot;name&quot;: &quot;satoshi&quot;,
+        &quot;new_value&quot;: &quot;goodbye to a world&quot;
+      },
+      &quot;event_type&quot;: &quot;NameRemapped&quot;,
+      &quot;message_hash&quot;: &quot;e9190e5b24e066eb3b967fb39ba9e8ec250393d5c61400b3ed2a9528d967d5e1&quot;
+    },
+  &quot;msg&quot;: &quot;NameRemapped&quot;,
+...
+</code></pre>
+<p>This log corresponds to an event emitted by the <code>Nameservice</code> module during transaction execution, namely the <code>NameRemapped</code> event that happens when the owner of a name changes the corresponding value. This is because of the following <code>BaseApp.logEvent</code> statement in the <code>setName</code> handler:</p>
+<pre class="haskell"><code>  let event = NameRemapped
+        { nameRemappedName = setNameName
+        , nameRemappedNewValue = setNameValue
+        , nameRemappedOldValue = whoisValue
+        }
+  BaseApp.emit event
+  BaseApp.logEvent event
+</code></pre>
+<p>In this way the log index serves as a rudimentary event indexer for transaction events as well.</p>
+<h2><a href="./Metrics.md">Next: Metrics</a></h2>
+</div></div></div></div></div></section><div class="tintin-doc-footer clear-fix"><div class="row next-prev"><div class="col-md-4 offset-md-4"><a href="0470-Application.html">&lt; Previous: Nameservice - Application</a></div><div class="col-md-4 ml-auto"><a href="99-Metrics.html">Next: Metrics &gt;</a></div></div><div class="float-right"><div style="float: left" class="d-inline"><p class>Site generated with </p></div><a style="float: left" href="https://theam.github.io/tintin"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/logo.svg" class="filter-gray"></a><div class="clear-fix float-right"><span style="float:left">&mdash; &copy; 2018 </span><a href="http://theam.io" class="float:left"><img src="http://theam.io/logo_theam.png" class="footer-theam"></a></div></div></div></div><script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/haskell.min.js"></script><script src="https://cdn.rawgit.com/icons8/bower-webicon/v0.10.7/jquery-webicon.min.js"></script><script>hljs.initHighlightingOnLoad()</script><script>$(function () {$("#menu-toggle").click(function(e) {e.preventDefault();$("#wrapper").toggleClass("toggled");$("#menu-toggle img").toggleClass("rotateIn rotateOut");})});</script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/contrib/auto-render.min.js"></script><script>renderMathInElement(document.body);</script></body></html>

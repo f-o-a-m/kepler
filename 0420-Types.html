@@ -1,0 +1,652 @@
+<!DOCTYPE HTML><html><head><title>kepler - Nameservice - Types</title><meta charset="utf-8"><meta content="summary" name="twitter:card"><meta content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png" name="twitter:site"><meta content="kepler - Nameservice - Types" name="twitter:title"><meta content="Haskell Cosmos SDK" name="twitter:description"><meta content="Martin Allen" name="twitter:creator"><meta content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png" name="twitter:image"><meta itemprop="og:type" content="website"><meta itemprop="og:site_name" content="theam"><meta itemprop="og:title" content="kepler - Nameservice - Types"><meta itemprop="og:url" content="f-o-a-m/kepler"><meta itemprop="og:image" content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png"><meta itemprop="og:description" content="Haskell Cosmos SDK"><link href="https://fonts.googleapis.com/css?family=PT Sans|Poiret One:400" rel="stylesheet"><link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow-night.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet"><link href="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/favicon-custom.ico" rel="shortcut icon"><link href="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.css" rel="stylesheet"><style>
+html
+{
+  height     : 100%;
+  min-height : 100%;
+}
+
+body
+{
+  height      : 100%;
+  min-height  : 100%;
+  font-family : "PT Sans", sans-serif;
+  font-size   : 1em;
+  overflow-x  : hidden;
+}
+
+h1
+{
+  font-family : "Poiret One", sans-serif;
+  font-weight : 400;
+  font-size   : 1em;
+}
+
+h2
+{
+  font-family : "Poiret One", sans-serif;
+  font-weight : 400;
+  font-size   : 2.44099em;
+}
+
+h3
+{
+  font-family : "Poiret One", sans-serif;
+  font-weight : 400;
+  font-size   : 5.95848em;
+}
+
+h1
+{
+  font-size : 2.44099em;
+}
+
+h2
+{
+  font-size : 1.953em;
+}
+
+h3
+{
+  font-size : 1.56299em;
+}
+
+blockquote
+{
+  border-left  : solid 4px #dddddd;
+  padding-left : 1rem;
+  color        : #777777;
+}
+
+.next-prev
+{
+  margin-top    : 5%;
+  margin-bottom : 5%;
+}
+
+#header-container
+{
+  margin-top    : 5rem;
+  margin-bottom : 5rem;
+}
+
+.cover-heading
+{
+  font-size     : 800%;
+  max-height    : 6rem;
+  margin-bottom : 1.56299rem;
+}
+
+.cover-container
+{
+  background-color : rgba(255,255,255,0.0);
+}
+
+.watermark
+{
+  position    : absolute;
+  top         : 0px;
+  left        : 0px;
+  max-height  : 1.25039rem;
+  margin-top  : 1.25039rem;
+  margin-left : 1.25039rem;
+}
+
+.cover-heading-subtitle
+{
+  margin-top : 3rem;
+  font-size  : 1.953rem;
+}
+
+.vertical-auto
+{
+  margin-top    : auto;
+  margin-bottom : auto;
+}
+
+.content
+{
+  margin-top    : 5%;
+  margin-bottom : 5%;
+}
+
+#wrapper
+{
+  padding-left       : 0px;
+  -webkit-transition : all 0.5s ease 0.0s;
+  -moz-transition    : all 0.5s ease 0.0s;
+  -ms-transition     : all 0.5s ease 0.0s;
+  -o-transition      : all 0.5s ease 0.0s;
+  transition         : all 0.5s ease 0.0s;
+}
+
+#wrapper.toggled
+{
+  padding-left : 250px;
+}
+
+#wrapper.toggled #sidebar-wrapper
+{
+  width : 250px;
+}
+
+#page-content-wrapper#wrapper.toggled
+{
+  position     : absolute;
+  margin-right : -250px;
+}
+
+#page-content-wrapper
+{
+  width      : 100%;
+  position   : absolute;
+  margin-top : 3rem;
+  padding    : 15px 15px 15px 15px;
+}
+
+#page-content-wrapper img
+{
+  max-width : 100%;
+}
+
+#sidebar-wrapper
+{
+  z-index            : 1000;
+  position           : fixed;
+  left               : 250px;
+  width              : 0px;
+  margin-left        : -250px;
+  overflow-y         : hidden;
+  overflow-x         : hidden;
+  -webkit-transition : all 0.5s ease 0.0s;
+  -moz-transition    : all 0.5s ease 0.0s;
+  -ms-transition     : all 0.5s ease 0.0s;
+  -o-transition      : all 0.5s ease 0.0s;
+  transition         : all 0.5s ease 0.0s;
+}
+
+.sidebar-nav
+{
+  position        : absolute;
+  top             : 0px;
+  width           : 250px;
+  margin          : 0px 0px 0px 0px;
+  padding         : 0px 0px 0px 0px;
+  list-style-type : none;
+}
+
+.sidebar-nav li
+{
+  text-indent : 20px;
+  line-height : 40px;
+}
+
+.sidebar-nav li a
+{
+  display         : block;
+  text-decoration : none;
+  font-weight     : bold;
+}
+
+
+.sidebar-nav li .tintin-fg-disabled:hover
+{
+  mix-blend-mode  : normal;
+  -webkit-filter  : invert(0%);
+  -moz-filter     : invert(0%);
+  -ms-filter      : invert(0%);
+  -o-filter       : invert(0%);
+  filter          : invert(0%);
+  text-decoration : none;
+  color           : #000000;
+}
+
+
+.sidebar-nav li .tintin-fg-active:hover
+{
+  mix-blend-mode  : normal;
+  -webkit-filter  : invert(0%);
+  -moz-filter     : invert(0%);
+  -ms-filter      : invert(0%);
+  -o-filter       : invert(0%);
+  filter          : invert(0%);
+  text-decoration : none;
+  color           : #ffffff;
+}
+
+#menu-toggle
+{
+  position : absolute;
+}
+
+#menu-toggle img
+{
+  position : absolute;
+  left     : 0px;
+}
+
+#menu-toggle .rotateIn
+{
+  z-index : 999;
+}
+
+.tintin-doc-topbar
+{
+  height : 3rem;
+}
+
+.tintin-doc-topbar a
+{
+  margin-left : 1rem;
+  margin-top  : 0rem;
+  width       : 1.5rem;
+}
+
+.tintin-doc-topbar a img
+{
+  -webkit-filter : invert(70%);
+  -moz-filter    : invert(70%);
+  -ms-filter     : invert(70%);
+  -o-filter      : invert(70%);
+  filter         : invert(70%);
+}
+
+.filter-gray
+{
+  position       : relative;
+  bottom         : 3px;
+  margin-left    : 0.25rem;
+  margin-right   : 1rem;
+  height         : 1rem;
+  -webkit-filter : brightness(0.75);
+  -moz-filter    : brightness(0.75);
+  -ms-filter     : brightness(0.75);
+  -o-filter      : brightness(0.75);
+  filter         : brightness(0.75);
+}
+
+.footer-theam
+{
+  position       : relative;
+  bottom         : 1px;
+  margin-left    : -0.25rem;
+  height         : 1.75rem;
+  -webkit-filter : invert(75%);
+  -moz-filter    : invert(75%);
+  -ms-filter     : invert(75%);
+  -o-filter      : invert(75%);
+  filter         : invert(75%);
+}
+
+.tintin-doc-footer
+{
+  bottom : 0px;
+  height : -15rem;
+  width  : 100%;
+  color  : rgba(0,0,0,0.3);
+}
+
+.main-container
+{
+  min-height : 100%;
+  position   : relative;
+}
+
+#content
+{
+  min-height : 95%;
+}
+
+.sidebar-nav > .sidebar-brand
+{
+  height         : 3rem;
+  font-size      : 2rem;
+  font-family    : "Poiret One", sans-serif;
+  font-weight    : 400;
+  padding-top    : 2.5rem;
+  padding-bottom : 2.5rem;
+  margin-bottom  : 1.5rem;
+}
+
+.sidebar-nav > .sidebar-brand img
+{
+  height : 1.5rem;
+}
+
+.tintin-navbar
+{
+  font-weight      : bold;
+  background-color : rgba(255,255,255,0.15);
+}
+
+.tintin-navbar .left-part
+{
+  padding-left : 0px !important;
+}
+
+.tintin-navbar ul
+{
+  margin-top      : 1rem;
+  list-style-type : none;
+}
+
+.tintin-navbar ul li
+{
+  margin-right : 1rem;
+  display      : inline;
+}
+
+.tintin-navbar ul li a
+{
+  color          : #000000;
+  -webkit-filter : invert(35%);
+  -moz-filter    : invert(35%);
+  -ms-filter     : invert(35%);
+  -o-filter      : invert(35%);
+  filter         : invert(35%);
+  mix-blend-mode : difference;
+}
+
+.tintin-navbar ul li a:hover
+{
+  mix-blend-mode  : normal;
+  -webkit-filter  : invert(0%);
+  -moz-filter     : invert(0%);
+  -ms-filter      : invert(0%);
+  -o-filter       : invert(0%);
+  filter          : invert(0%);
+  text-decoration : none;
+  color           : #000000;
+}
+
+
+.tintin-navbar .tintin-navbar-active a
+{
+  mix-blend-mode : normal;
+  -webkit-filter : invert(0%);
+  -moz-filter    : invert(0%);
+  -ms-filter     : invert(0%);
+  -o-filter      : invert(0%);
+  filter         : invert(0%);
+  color          : #ffffff;
+}
+
+.tintin-navbar .tintin-navbar-active a:hover
+{
+  mix-blend-mode  : normal;
+  -webkit-filter  : invert(0%);
+  -moz-filter     : invert(0%);
+  -ms-filter      : invert(0%);
+  -o-filter       : invert(0%);
+  filter          : invert(0%);
+  text-decoration : none;
+  color           : #ffffff;
+}
+
+.tintin-bg-70
+{
+  background-color : rgba(255,255,255,0.15);
+}
+
+.tintin-bg-custom
+{
+  background-color : #5e5184;
+}
+
+.tintin-fg-custom
+{
+  color : #5e5184;
+}
+
+.tintin-fg-active
+{
+  color : #ffffff;
+}
+
+.tintin-fg-disabled
+{
+  color          : #000000;
+  -webkit-filter : invert(35%);
+  -moz-filter    : invert(35%);
+  -ms-filter     : invert(35%);
+  -o-filter      : invert(35%);
+  filter         : invert(35%);
+  mix-blend-mode : difference;
+}
+
+footer
+{
+  position       : relative;
+  bottom         : 0px;
+  left           : 0px;
+  width          : 100%;
+  padding-top    : 30px;
+  padding-bottom : 30px;
+}
+
+.container
+{
+  max-width : 50rem;
+}
+
+@media screen and (min-width: 768px)
+{
+
+#wrapper
+{
+  padding-left : 0px;
+}
+
+#wrapper .toggled
+{
+  padding-left : 250px;
+}
+
+#wrapper .toggled #sidebar-wrapper
+{
+  width : 250px;
+}
+
+#wrapper .toggled #page-content-wrapper
+{
+  position     : relative;
+  margin-right : 0px;
+}
+
+#sidebar-wrapper
+{
+  width : 0px;
+}
+
+#page-content-wrapper
+{
+  padding  : 20px 20px 20px 20px;
+  position : relative;
+}
+
+}
+
+/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0100-Tutorial.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-disabled">Foundations - BaseApp</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-active">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-disabled">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>Types</h1>
+<p>The <code>Types</code> module is used to define the basic types that the module will make use of. This includes things like custom error types, event types, database types, etc.</p>
+<h2>Using A Typed Key Value Store</h2>
+<p>It is important to note that the database modeled by the <code>RawStore</code> effect (in the <code>BaseApp</code> type) is just a key value store for raw <code>ByteString</code>s. This means you can <em>think</em> of <code>RawStore</code> as</p>
+<pre class="haskell"><code>type RawStore = Map ByteString ByteString
+</code></pre>
+<p>although the definition of <code>RawStore</code> is different than the above.</p>
+<p>The interface we give is actually a typed key value store. This means that within the scope of a module <code>m</code>, for any key type <code>k</code>, there is only one possible value type <code>v</code> associated with <code>k</code>.</p>
+<p>For example, a user&#39;s balance in the <code>Token</code> module, might be modeled by a mapping</p>
+<pre class="haskell"><code>balance :: Tendermint.SDK.Types.Address -&gt; Integer
+</code></pre>
+<p>(We&#39;ll properly introduce the module <code>Token</code> later in the walkthrough.)</p>
+<p>This means that in the scope of the <code>Token</code> module, the database utlity <code>get</code> function applied to a value of type <code>Address</code> will result in a value of type <code>Integer</code>. If the <code>Token</code> module would like to store another mapping whose keys have type <code>Tendermint.SDK.Types.Address</code>, you must use a newtype instead. Otherwise you will get a compiler error.</p>
+<p>At the same time, you are free to define another mapping from <code>k -&gt; v&#39;</code> in the scope of a different module. For example, you can have both the <code>balance</code> mapping described above, as well a mapping</p>
+<pre class="haskell"><code>owner :: Tendermint.SDK.Types.Address -&gt; Account
+</code></pre>
+<p>in the <code>Auth</code> module.</p>
+<h2>Tutorial.Nameservice.Types</h2>
+<p>Let&#39;s look at the example in <code>Nameservice.Types</code>.</p>
+<pre class="haskell"><code>module Tutorial.Nameservice.Types where
+
+import Control.Lens (iso)
+import qualified Data.Aeson as A
+import Data.Bifunctor (first)
+import Data.Proxy
+import Data.String.Conversions (cs)
+import Data.Text (Text)
+import GHC.Generics (Generic)
+import GHC.TypeLits (symbolVal)
+import Nameservice.Aeson (defaultNameserviceOptions)
+import Nameservice.Modules.Token (Amount)
+import Proto3.Suite (Message, fromByteString, toLazyByteString)
+import qualified Tendermint.SDK.BaseApp as BA
+import Tendermint.SDK.Codec (HasCodec(..))
+import Tendermint.SDK.Types.Address (Address)
+import Tendermint.SDK.Types.Message (coerceProto3Error, formatMessageParseError)
+</code></pre>
+<h3>Storage types</h3>
+<p>Remember the <code>Nameservice</code> module is responsible for maintaining a marketplace around a mapping <code>Name -&gt; Whois</code>. Let us define the types for the marketplace mapping as</p>
+<pre class="haskell"><code>newtype Name = Name Text deriving (Eq, Show, Generic, A.ToJSON, A.FromJSON)
+
+data Whois = Whois
+  { whoisValue :: Text
+  , whoisOwner :: Address
+  , whoisPrice :: Amount
+  } deriving (Eq, Show, Generic)
+</code></pre>
+<p>The way that we register <code>Name</code> as a key in the store is by using the <code>RawKey</code> typeclass</p>
+<pre class="haskell"><code>class RawKey k where
+  rawKey :: Iso&#39; k ByteString
+</code></pre>
+<p>This class gives us a way to convert back and forth from a key to its encoding as a <code>ByteString</code>. In our case we implement</p>
+<pre class="haskell"><code>-- here cs resolves to Data.Text.Encoding.encodeUtf8, Data.Text.Encoding.decodeUtf8 respectively
+instance BA.RawKey Name where
+    rawKey = iso (\(Name n) -&gt; cs n) (Name . cs)
+</code></pre>
+<p>In order to register <code>Whois</code> as a storage type, we must implement the <code>HasCodec</code> typeclass</p>
+<pre class="haskell"><code>class HasCodec a where
+    encode :: a -&gt; ByteString
+    decode :: ByteString -&gt; Either Text a
+</code></pre>
+<p>This class is used everywhere in the SDK as the binary codec class for things like storage items, messages, transaction formats etc. It&#39;s agnostic to the actual serialization format, you can use <code>JSON</code>, <code>CBOR</code>, <code>Protobuf</code>, etc. Throughout the SDK we typically use <code>protobuf</code> as it is powerful in addition to the fact that there&#39;s decent support for this in Haskell either through the <code>proto3-suite</code> package or the <code>proto-lens</code> package.</p>
+<p>So we can implement a <code>HasCodec</code> instance for <code>Whois</code></p>
+<pre class="haskell"><code>-- Message is a class from proto3-suite that defines protobuf codecs generically.
+instance Message Whois
+
+instance HasCodec Whois where
+  encode = cs . toLazyByteString
+  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+</code></pre>
+<p>Finally we can register <code>(Name, Whois)</code> with the module&#39;s store with the <code>IsKey</code> class, which tells how to associate a key type with a value type within the scope of given module, where the scope is represented by the modules name as a type level string. There is an optional prefixing function for the key in this context in order to avoid collisions in the database. This would be useful for example if you were using multiple newtyped <code>Address</code> types as keys in the same module.</p>
+<pre class="haskell"><code>class RawKey k =&gt; IsKey k ns where
+  type Value k ns = a | a -&gt; ns k
+  prefixWith :: Proxy k -&gt; Proxy ns -&gt; BS.ByteString
+
+  default prefixWith :: Proxy k -&gt; Proxy ns -&gt; BS.ByteString
+  prefixWith _ _ = &quot;&quot;
+</code></pre>
+<p>For the case of the <code>Name -&gt; Whois</code> mapping, the <code>IsKey</code> instance looked like looks like this:</p>
+<pre class="haskell"><code>type NameserviceModuleName = &quot;nameservice&quot;
+
+instance BA.IsKey Name NameserviceModuleName where
+  type Value Name NameserviceModuleName = Whois
+</code></pre>
+<p>At is point, you can use the database operations exported by <code>Tendermint.SDK.BaseApp.Store</code> such as <code>put</code>/<code>set</code>/<code>delete</code> for key value pairs of type <code>(Name, Whois)</code>.</p>
+<h3>Query Types</h3>
+<p>The <a href="https://github.com/cosmos/cosmos-sdk"><code>cosmos-sdk</code></a> assumes that you use <code>url</code> formatted queries with some possible query params. For example, to query a <code>Whois</code> value based on a <code>Name</code>, you might submit a <code>query</code> message with the route <code>nameservice/whois</code> and supply a value of type <code>Name</code> to specify as the <code>data</code> field. Our SDK makes the same assumption for compatability reasons.</p>
+<p>In order to register the <code>Whois</code> type with the query service, you must implement the <code>Queryable</code> typeclass:</p>
+<pre class="haskell"><code>class HasCodec a =&gt; Queryable a where
+  type Name a :: Symbol
+</code></pre>
+<p>This means that any item which is queryable needs to have codecs via the <code>HasCodec</code> class. You also need to name the type, as this will match the leaf of the <code>url</code> used for querying. So for example, in the Nameservice app we have</p>
+<pre class="haskell"><code>instance BA.Queryable Whois where
+  type Name Whois = &quot;whois&quot;
+</code></pre>
+<p>since <code>Whois</code> already implements the <code>HasCodec</code> class.</p>
+<h3>Error Types</h3>
+<p>You might want to define a module specific error type that has a <code>throw</code>/<code>catch</code> interface. This error type should be accessible by any other dependent modules, and any uncaught error should eventually be converted into some kind of generic application error understandable by Tendermint.</p>
+<p>There is a simple way to do this using the <code>IsAppError</code> typeclass</p>
+<pre class="haskell"><code>data AppError = AppError
+  { appErrorCode      :: Word32
+  , appErrorCodespace :: Text
+  , appErrorMessage   :: Text
+  } deriving Show
+
+class IsAppError e where
+  makeAppError :: e -&gt; AppError
+</code></pre>
+<p>The fields for <code>AppError</code> correspond to tendermint message fields for messages that support error return types, such as <code>checkTx</code>, <code>deliverTx</code>, and <code>query</code>. Typically we use the module name as the codespace, like in the definition of <code>NamespaceError</code>:</p>
+<pre class="haskell"><code>data NameserviceError =
+    InsufficientBid Text
+  | UnauthorizedSet Text
+  | InvalidDelete Text
+
+instance BA.IsAppError NameserviceError where
+ -- remember &#39;symbolVal (Proxy @NameserviceModuleName)&#39; resolves to &quot;nameservice&quot;
+  makeAppError (InsufficientBid msg) =
+    BA.AppError
+      { appErrorCode = 1
+      , appErrorCodespace = cs $ symbolVal (Proxy @NameserviceModuleName)
+      , appErrorMessage = msg
+      }
+  makeAppError (UnauthorizedSet msg) =
+    BA.AppError
+      { appErrorCode = 2
+      , appErrorCodespace = cs $ symbolVal (Proxy @NameserviceModuleName)
+      , appErrorMessage = msg
+      }
+  makeAppError (InvalidDelete msg) =
+    BA.AppError
+      { appErrorCode = 3
+      , appErrorCodespace = cs $ symbolVal (Proxy @NameserviceModuleName)
+      , appErrorMessage = msg
+      }
+</code></pre>
+<h3>Event Types</h3>
+<p>Tendermint has the capability to report event logs for transactions in the responses for both <code>checkTx</code> and <code>deliverTx</code> messages. The basic event type can be found in <code>Network.ABCI.Types.MessageFields</code>, it is simply a named key value mapping between <code>Bytestring</code>s:</p>
+<pre class="haskell"><code>data Event = Event
+  { eventType       :: Text
+  -- ^ Type of Event
+  , eventAttributes :: [KVPair]
+  -- ^ Event attributes
+  }
+
+data KVPair = KVPair
+  { kVPairKey   :: Base64String
+  -- ^ key
+  , kVPairValue :: Base64String
+  -- ^ value
+  }
+</code></pre>
+<p>Similar to the custom error messages, you can define custom events at the module level as long as they implement the <code>ToEvent</code> class to translate them to this standard type:</p>
+<pre class="haskell"><code>class ToEvent e where
+  makeEventType :: Proxy e -&gt; String
+  makeEventData :: e -&gt; [(BS.ByteString, BS.ByteString)]
+
+  default makeEventData :: A.ToJSON e =&gt; e -&gt; [(BS.ByteString, BS.ByteString)]
+  makeEventData e = case A.toJSON e of
+    A.Object obj -&gt; bimap cs (cs . A.encode) &lt;$&gt; toList obj
+    _            -&gt; mempty
+</code></pre>
+<p>As you can see, there is a default instance for those types which have a <code>JSON</code> representation as an <code>Object</code>. The reason that we chose a <code>JSON</code> default instance is simply because of support for generics, but this isn&#39;t set in stone.</p>
+<p>In the case of <code>Nameservice</code>, here is an example of a custom event:</p>
+<pre class="haskell"><code>data NameClaimed = NameClaimed
+  { nameClaimedOwner :: Address
+  , nameClaimedName  :: Name
+  , nameClaimedValue :: Text
+  , nameClaimedBid   :: Amount
+  } deriving (Eq, Show, Generic)
+
+-- &#39;defaultNameserviceOptions&#39; is used to remove the record accessor prefix.
+nameClaimedAesonOptions :: A.Options
+nameClaimedAesonOptions = defaultNameserviceOptions &quot;nameClaimed&quot;
+
+instance A.ToJSON NameClaimed where
+  toJSON = A.genericToJSON nameClaimedAesonOptions
+
+instance A.FromJSON NameClaimed where
+  parseJSON = A.genericParseJSON nameClaimedAesonOptions
+
+instance BA.ToEvent NameClaimed where
+  makeEventType _ = &quot;NameClaimed&quot;
+</code></pre>
+<p><a href="Message.md">Next: Message</a></p>
+</div></div></div></div></div></section><div class="tintin-doc-footer clear-fix"><div class="row next-prev"><div class="col-md-4 offset-md-4"><a href="0410-Overview.html">&lt; Previous: Nameservice - Overview</a></div><div class="col-md-4 ml-auto"><a href="0430-Message.html">Next: Nameservice - Message &gt;</a></div></div><div class="float-right"><div style="float: left" class="d-inline"><p class>Site generated with </p></div><a style="float: left" href="https://theam.github.io/tintin"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/logo.svg" class="filter-gray"></a><div class="clear-fix float-right"><span style="float:left">&mdash; &copy; 2018 </span><a href="http://theam.io" class="float:left"><img src="http://theam.io/logo_theam.png" class="footer-theam"></a></div></div></div></div><script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/haskell.min.js"></script><script src="https://cdn.rawgit.com/icons8/bower-webicon/v0.10.7/jquery-webicon.min.js"></script><script>hljs.initHighlightingOnLoad()</script><script>$(function () {$("#menu-toggle").click(function(e) {e.preventDefault();$("#wrapper").toggleClass("toggled");$("#menu-toggle img").toggleClass("rotateIn rotateOut");})});</script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/contrib/auto-render.min.js"></script><script>renderMathInElement(document.body);</script></body></html>

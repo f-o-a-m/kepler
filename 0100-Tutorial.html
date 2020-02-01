@@ -1,0 +1,563 @@
+<!DOCTYPE HTML><html><head><title>kepler - Overview</title><meta charset="utf-8"><meta content="summary" name="twitter:card"><meta content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png" name="twitter:site"><meta content="kepler - Overview" name="twitter:title"><meta content="Haskell Cosmos SDK" name="twitter:description"><meta content="Martin Allen" name="twitter:creator"><meta content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png" name="twitter:image"><meta itemprop="og:type" content="website"><meta itemprop="og:site_name" content="theam"><meta itemprop="og:title" content="kepler - Overview"><meta itemprop="og:url" content="f-o-a-m/kepler"><meta itemprop="og:image" content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png"><meta itemprop="og:description" content="Haskell Cosmos SDK"><link href="https://fonts.googleapis.com/css?family=PT Sans|Poiret One:400" rel="stylesheet"><link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow-night.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet"><link href="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/favicon-custom.ico" rel="shortcut icon"><link href="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.css" rel="stylesheet"><style>
+html
+{
+  height     : 100%;
+  min-height : 100%;
+}
+
+body
+{
+  height      : 100%;
+  min-height  : 100%;
+  font-family : "PT Sans", sans-serif;
+  font-size   : 1em;
+  overflow-x  : hidden;
+}
+
+h1
+{
+  font-family : "Poiret One", sans-serif;
+  font-weight : 400;
+  font-size   : 1em;
+}
+
+h2
+{
+  font-family : "Poiret One", sans-serif;
+  font-weight : 400;
+  font-size   : 2.44099em;
+}
+
+h3
+{
+  font-family : "Poiret One", sans-serif;
+  font-weight : 400;
+  font-size   : 5.95848em;
+}
+
+h1
+{
+  font-size : 2.44099em;
+}
+
+h2
+{
+  font-size : 1.953em;
+}
+
+h3
+{
+  font-size : 1.56299em;
+}
+
+blockquote
+{
+  border-left  : solid 4px #dddddd;
+  padding-left : 1rem;
+  color        : #777777;
+}
+
+.next-prev
+{
+  margin-top    : 5%;
+  margin-bottom : 5%;
+}
+
+#header-container
+{
+  margin-top    : 5rem;
+  margin-bottom : 5rem;
+}
+
+.cover-heading
+{
+  font-size     : 800%;
+  max-height    : 6rem;
+  margin-bottom : 1.56299rem;
+}
+
+.cover-container
+{
+  background-color : rgba(255,255,255,0.0);
+}
+
+.watermark
+{
+  position    : absolute;
+  top         : 0px;
+  left        : 0px;
+  max-height  : 1.25039rem;
+  margin-top  : 1.25039rem;
+  margin-left : 1.25039rem;
+}
+
+.cover-heading-subtitle
+{
+  margin-top : 3rem;
+  font-size  : 1.953rem;
+}
+
+.vertical-auto
+{
+  margin-top    : auto;
+  margin-bottom : auto;
+}
+
+.content
+{
+  margin-top    : 5%;
+  margin-bottom : 5%;
+}
+
+#wrapper
+{
+  padding-left       : 0px;
+  -webkit-transition : all 0.5s ease 0.0s;
+  -moz-transition    : all 0.5s ease 0.0s;
+  -ms-transition     : all 0.5s ease 0.0s;
+  -o-transition      : all 0.5s ease 0.0s;
+  transition         : all 0.5s ease 0.0s;
+}
+
+#wrapper.toggled
+{
+  padding-left : 250px;
+}
+
+#wrapper.toggled #sidebar-wrapper
+{
+  width : 250px;
+}
+
+#page-content-wrapper#wrapper.toggled
+{
+  position     : absolute;
+  margin-right : -250px;
+}
+
+#page-content-wrapper
+{
+  width      : 100%;
+  position   : absolute;
+  margin-top : 3rem;
+  padding    : 15px 15px 15px 15px;
+}
+
+#page-content-wrapper img
+{
+  max-width : 100%;
+}
+
+#sidebar-wrapper
+{
+  z-index            : 1000;
+  position           : fixed;
+  left               : 250px;
+  width              : 0px;
+  margin-left        : -250px;
+  overflow-y         : hidden;
+  overflow-x         : hidden;
+  -webkit-transition : all 0.5s ease 0.0s;
+  -moz-transition    : all 0.5s ease 0.0s;
+  -ms-transition     : all 0.5s ease 0.0s;
+  -o-transition      : all 0.5s ease 0.0s;
+  transition         : all 0.5s ease 0.0s;
+}
+
+.sidebar-nav
+{
+  position        : absolute;
+  top             : 0px;
+  width           : 250px;
+  margin          : 0px 0px 0px 0px;
+  padding         : 0px 0px 0px 0px;
+  list-style-type : none;
+}
+
+.sidebar-nav li
+{
+  text-indent : 20px;
+  line-height : 40px;
+}
+
+.sidebar-nav li a
+{
+  display         : block;
+  text-decoration : none;
+  font-weight     : bold;
+}
+
+
+.sidebar-nav li .tintin-fg-disabled:hover
+{
+  mix-blend-mode  : normal;
+  -webkit-filter  : invert(0%);
+  -moz-filter     : invert(0%);
+  -ms-filter      : invert(0%);
+  -o-filter       : invert(0%);
+  filter          : invert(0%);
+  text-decoration : none;
+  color           : #000000;
+}
+
+
+.sidebar-nav li .tintin-fg-active:hover
+{
+  mix-blend-mode  : normal;
+  -webkit-filter  : invert(0%);
+  -moz-filter     : invert(0%);
+  -ms-filter      : invert(0%);
+  -o-filter       : invert(0%);
+  filter          : invert(0%);
+  text-decoration : none;
+  color           : #ffffff;
+}
+
+#menu-toggle
+{
+  position : absolute;
+}
+
+#menu-toggle img
+{
+  position : absolute;
+  left     : 0px;
+}
+
+#menu-toggle .rotateIn
+{
+  z-index : 999;
+}
+
+.tintin-doc-topbar
+{
+  height : 3rem;
+}
+
+.tintin-doc-topbar a
+{
+  margin-left : 1rem;
+  margin-top  : 0rem;
+  width       : 1.5rem;
+}
+
+.tintin-doc-topbar a img
+{
+  -webkit-filter : invert(70%);
+  -moz-filter    : invert(70%);
+  -ms-filter     : invert(70%);
+  -o-filter      : invert(70%);
+  filter         : invert(70%);
+}
+
+.filter-gray
+{
+  position       : relative;
+  bottom         : 3px;
+  margin-left    : 0.25rem;
+  margin-right   : 1rem;
+  height         : 1rem;
+  -webkit-filter : brightness(0.75);
+  -moz-filter    : brightness(0.75);
+  -ms-filter     : brightness(0.75);
+  -o-filter      : brightness(0.75);
+  filter         : brightness(0.75);
+}
+
+.footer-theam
+{
+  position       : relative;
+  bottom         : 1px;
+  margin-left    : -0.25rem;
+  height         : 1.75rem;
+  -webkit-filter : invert(75%);
+  -moz-filter    : invert(75%);
+  -ms-filter     : invert(75%);
+  -o-filter      : invert(75%);
+  filter         : invert(75%);
+}
+
+.tintin-doc-footer
+{
+  bottom : 0px;
+  height : -15rem;
+  width  : 100%;
+  color  : rgba(0,0,0,0.3);
+}
+
+.main-container
+{
+  min-height : 100%;
+  position   : relative;
+}
+
+#content
+{
+  min-height : 95%;
+}
+
+.sidebar-nav > .sidebar-brand
+{
+  height         : 3rem;
+  font-size      : 2rem;
+  font-family    : "Poiret One", sans-serif;
+  font-weight    : 400;
+  padding-top    : 2.5rem;
+  padding-bottom : 2.5rem;
+  margin-bottom  : 1.5rem;
+}
+
+.sidebar-nav > .sidebar-brand img
+{
+  height : 1.5rem;
+}
+
+.tintin-navbar
+{
+  font-weight      : bold;
+  background-color : rgba(255,255,255,0.15);
+}
+
+.tintin-navbar .left-part
+{
+  padding-left : 0px !important;
+}
+
+.tintin-navbar ul
+{
+  margin-top      : 1rem;
+  list-style-type : none;
+}
+
+.tintin-navbar ul li
+{
+  margin-right : 1rem;
+  display      : inline;
+}
+
+.tintin-navbar ul li a
+{
+  color          : #000000;
+  -webkit-filter : invert(35%);
+  -moz-filter    : invert(35%);
+  -ms-filter     : invert(35%);
+  -o-filter      : invert(35%);
+  filter         : invert(35%);
+  mix-blend-mode : difference;
+}
+
+.tintin-navbar ul li a:hover
+{
+  mix-blend-mode  : normal;
+  -webkit-filter  : invert(0%);
+  -moz-filter     : invert(0%);
+  -ms-filter      : invert(0%);
+  -o-filter       : invert(0%);
+  filter          : invert(0%);
+  text-decoration : none;
+  color           : #000000;
+}
+
+
+.tintin-navbar .tintin-navbar-active a
+{
+  mix-blend-mode : normal;
+  -webkit-filter : invert(0%);
+  -moz-filter    : invert(0%);
+  -ms-filter     : invert(0%);
+  -o-filter      : invert(0%);
+  filter         : invert(0%);
+  color          : #ffffff;
+}
+
+.tintin-navbar .tintin-navbar-active a:hover
+{
+  mix-blend-mode  : normal;
+  -webkit-filter  : invert(0%);
+  -moz-filter     : invert(0%);
+  -ms-filter      : invert(0%);
+  -o-filter       : invert(0%);
+  filter          : invert(0%);
+  text-decoration : none;
+  color           : #ffffff;
+}
+
+.tintin-bg-70
+{
+  background-color : rgba(255,255,255,0.15);
+}
+
+.tintin-bg-custom
+{
+  background-color : #5e5184;
+}
+
+.tintin-fg-custom
+{
+  color : #5e5184;
+}
+
+.tintin-fg-active
+{
+  color : #ffffff;
+}
+
+.tintin-fg-disabled
+{
+  color          : #000000;
+  -webkit-filter : invert(35%);
+  -moz-filter    : invert(35%);
+  -ms-filter     : invert(35%);
+  -o-filter      : invert(35%);
+  filter         : invert(35%);
+  mix-blend-mode : difference;
+}
+
+footer
+{
+  position       : relative;
+  bottom         : 0px;
+  left           : 0px;
+  width          : 100%;
+  padding-top    : 30px;
+  padding-bottom : 30px;
+}
+
+.container
+{
+  max-width : 50rem;
+}
+
+@media screen and (min-width: 768px)
+{
+
+#wrapper
+{
+  padding-left : 0px;
+}
+
+#wrapper .toggled
+{
+  padding-left : 250px;
+}
+
+#wrapper .toggled #sidebar-wrapper
+{
+  width : 250px;
+}
+
+#wrapper .toggled #page-content-wrapper
+{
+  position     : relative;
+  margin-right : 0px;
+}
+
+#sidebar-wrapper
+{
+  width : 0px;
+}
+
+#page-content-wrapper
+{
+  padding  : 20px 20px 20px 20px;
+  position : relative;
+}
+
+}
+
+/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0100-Tutorial.html" class="tintin-fg-active">Overview</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-disabled">Foundations - BaseApp</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-disabled">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h2>Introduction</h2>
+<p>We&#39;re going to build an example application that mirrors the <code>golang</code> <a href="https://github.com/cosmos/cosmos-sdk">cosmos-sdk</a> example application called <a href="https://github.com/cosmos/sdk-tutorials/tree/master/nameservice">Nameservice</a>. There is also a tutorial for that application which you can find <a href="https://tutorials.cosmos.network/nameservice/tutorial/00-intro.html">here</a> for comparison.</p>
+<h2>Contents</h2>
+<ol>
+<li><a href="README.md">Introduction</a>
+<ul>
+<li><a href="README.md#application-specification">Application Specification</a></li>
+<li><a href="README.md#how-to-read-this-tutorial">How to Read this Tutorial</a></li>
+<li><a href="README.md#tutorial-goals">Tutorial Goals</a></li>
+</ul></li>
+<li>Foundations
+<ul>
+<li><a href="Foundations/Overview.md">Overview</a></li>
+<li><a href="Foundations/BaseApp.md">BaseApp</a></li>
+<li><a href="Foundations/Modules.md">Modules</a>
+<ol>
+<li><a href="Foundations/Modules.md#definition">Definition</a></li>
+<li><a href="Foundations/Modules.md#composition">Composition</a></li>
+</ol></li>
+</ul></li>
+<li>Nameservice
+<ul>
+<li><a href="Tutorial/Nameservice/Overview.md">Overview</a></li>
+<li><a href="Tutorial/Nameservice/Types.md">Types</a>
+<ol>
+<li><a href="Tutorial/Nameservice/Types.md#using-a-typed-key-value-store">Using A Typed Key Value Store</a></li>
+<li><a href="Tutorial/Nameservice/Types.md#tutorialnameservicetypes">Tutorial.Nameservice.Types</a></li>
+</ol></li>
+<li><a href="Tutorial/Nameservice/Message.md">Message</a>
+<ol>
+<li><a href="Tutorial/Nameservice/Message.md#message-types">Message Types</a></li>
+<li><a href="Tutorial/Nameservice/Message.md#tutorialnameservicemessage">Tutorial.Nameservice.Message</a></li>
+</ol></li>
+<li><a href="Tutorial/Nameservice/Keeper.md">Keeper</a>
+<ol>
+<li><a href="Tutorial/Nameservice/Keeper.md#definition">Definition</a></li>
+<li><a href="Tutorial/Nameservice/Keeper.md#tutorialnameservicekeeper">Tutorial.Nameservice.Keeper</a></li>
+</ol></li>
+<li><a href="Tutorial/Nameservice/Query.md">Query</a>
+<ol>
+<li><a href="Tutorial/Nameservice/Query.md#definition">Definition</a></li>
+<li><a href="Tutorial/Nameservice/Query.md#tutorialnameservicequery">Tutorial.Nameservice.Query</a></li>
+</ol></li>
+<li><a href="Tutorial/Nameservice/Module.md">Module</a>
+<ol>
+<li><a href="Tutorial/Nameservice/Module.md#tutorialnameservicemodule">Tutorial.Nameservice.Module</a></li>
+</ol></li>
+<li><a href="Tutorial/Nameservice/Application.md">Application</a>
+<ol>
+<li><a href="Tutorial/Nameservice/Application.md#from-modules-to-app">From Modules To App</a></li>
+<li><a href="Tutorial/Nameservice/Application.md#tutorialnameserviceapplication">Tutorial.Nameservice.Application</a></li>
+</ol></li>
+</ul></li>
+</ol>
+<h2>Application Specification</h2>
+<p>The Nameservice application is a simple marketplace for a name resolution service. Let us say that a <code>Name</code> resolves to type called <code>Whois</code> where</p>
+<pre class="haskell"><code>data Whois = Whois
+  { whoisValue :: Text
+  , whoisOwner :: Address
+  , whoisPrice :: Amount
+  }
+</code></pre>
+<p>This means that users can buy and sell entries in a shared mapping of type <code>Name -&gt; Whois</code> where:</p>
+<ol>
+<li>An unclaimed <code>Name</code> can be bought by a user and set to an arbitrary value.</li>
+<li>Existing <code>(Name, Whois)</code> pairs can be updated by their owner or sold to a new owner for the price.</li>
+<li>Existing <code>(Name, Whois)</code> pairs can be deleted by their owner and the owner receives a refund for the purchase price.</li>
+</ol>
+<p>The application consists of three modules:</p>
+<ol>
+<li><code>Auth</code> - Manages accounts for users, things like nonces and token balances.</li>
+<li><code>Token</code> - Allows users manage their tokens, things like transfering or burning.</li>
+<li><code>Nameservice</code> - Controls the shared <code>Name -&gt; Value</code> mapping described above.</li>
+</ol>
+<h2>How to Read this Tutorial</h2>
+<p>This tutorial is largely written as a literate haskell file to simulate developing the Nameservice app from scratch. The file structure is similar to the actual app. We will partially develop a haskell module corresponding to what you find in the app, but possibly not the whole thing. Thus whenever we depend on a haskell module in the tutorial, rather than importing from the tutorial itself we will import from the app.</p>
+<p>The benefit of this is that we don&#39;t have to develop the entire application in this tutorial. Any breaking changes in the app will (hopefully) break the tutorial and so if you can read this, the tutorial is correct.</p>
+<h2>Tutorial Goals</h2>
+<p>The goal of this tutorial is to explain how the Nameservice app is constructed using the <code>hs-abci-sdk</code> package. Nameservice is a relatively simple but still non-trivial application.
+If you would like to start with something simpler, you can view the tutorial for the <a href="https://github.com/f-o-a-m/hs-abci/tree/master/hs-abci-examples/simple-storage">simple-storage</a> example application.</p>
+<p>This tutorial should teach you:</p>
+<ol>
+<li>How to construct application specific modules.</li>
+<li>How to enable a module to receive application specific transactions.</li>
+<li>How to compose modules and wire up an application.</li>
+<li>How to add event logging, console logging, and other effects to module.</li>
+<li>How to use the type system to control the capabilities of a module.</li>
+</ol>
+<p>The SDK makes heavy use of the effects system brought to haskell by the <a href="https://hackage.haskell.org/package/polysemy-1.2.3.0">polysemy</a> library. We&#39;re not going to explain how this library works here, there are several existing tutorials that do this already. Suffice it to say that polysemy encourages the application developer to develop modules that have well defined roles and scopes, and to prohibit certain modules from interfering with the roles and scopes of other modules unless explicitly allowed by the type system.</p>
+<p>It is also allows the application developer to construct modules without much regard for how they will plug into the SDK, leaving that job to the SDK itself.</p>
+<p>(This tutorial is integrated as a literate haskell file, meaning that the following is necessary to ensure it compiles.)</p>
+<pre class="haskell"><code>main :: IO ()
+main = pure ()
+</code></pre>
+<p><a href="Foundations/Overview.md">Next: BaseApp</a></p>
+</div></div></div></div></div></section><div class="tintin-doc-footer clear-fix"><div class="row next-prev"><div class="col-md-4 offset-md-4"><a href="index.html">&lt; Previous: Home</a></div><div class="col-md-4 ml-auto"><a href="0310-Overview.html">Next: Foundations - Overview &gt;</a></div></div><div class="float-right"><div style="float: left" class="d-inline"><p class>Site generated with </p></div><a style="float: left" href="https://theam.github.io/tintin"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/logo.svg" class="filter-gray"></a><div class="clear-fix float-right"><span style="float:left">&mdash; &copy; 2018 </span><a href="http://theam.io" class="float:left"><img src="http://theam.io/logo_theam.png" class="footer-theam"></a></div></div></div></div><script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/haskell.min.js"></script><script src="https://cdn.rawgit.com/icons8/bower-webicon/v0.10.7/jquery-webicon.min.js"></script><script>hljs.initHighlightingOnLoad()</script><script>$(function () {$("#menu-toggle").click(function(e) {e.preventDefault();$("#wrapper").toggleClass("toggled");$("#menu-toggle img").toggleClass("rotateIn rotateOut");})});</script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/contrib/auto-render.min.js"></script><script>renderMathInElement(document.body);</script></body></html>
