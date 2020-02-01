@@ -9,6 +9,15 @@ SIMPLE_STORAGE_BINARY := $(shell stack exec -- which simple-storage)
 help: ## Ask for help!
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+# Thank you Apple
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+        SED=sed -i''
+endif
+ifeq ($(UNAME_S),Darwin)
+        SED=sed -i ''
+endif
+
 #####################
 # Linting and Styling
 #####################
@@ -22,8 +31,8 @@ hlint: ## Run hlint on all haskell projects
 	hs-abci-extra \
 	hs-abci-sdk \
 	hs-abci-test-utils \
-	hs-abci-examples/simple-storage \
-	hs-abci-examples/nameservice \
+	hs-abci-docs/simple-storage \
+	hs-abci-docs/nameservice \
 	hs-iavl-client
 
 stylish: ## Run stylish-haskell over all haskell projects
@@ -42,7 +51,15 @@ stylish: ## Run stylish-haskell over all haskell projects
 ###################
 
 build-docs-local: ## Build the haddocks documentation for just this project (no dependencies)
+	find . -type f -name "package.yaml" -exec $(SED) -e 's/- -fplugin=Polysemy.Plugin/- -fdefer-type-errors/g' {} + && \
+	find . -type f -name "package.yaml" -exec $(SED) -e 's/- -Wall/- -fno-warn-deferred-type-errors/g' {} + && \
 	stack haddock --no-haddock-deps
+
+build-site: ## Build the tintin site
+	find ./hs-abci-docs/ -type f -name "*.md" -exec $(SED) -e 's/~~~ haskell.*/```haskell/g' {} + && \
+	find ./hs-abci-docs/ -type f -name "*.md" -exec $(SED) -e 's/~~~/```/g' {} + && \
+	cd hs-abci-docs && \
+	tintin run
 
 #####################
 # Core Libraries

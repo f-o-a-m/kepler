@@ -1,0 +1,9 @@
+name:                kepler
+version:             1.0.0.0
+github:              "f-o-a-m/kepler"
+license:             BSD3
+author:              "f-o-a-m"
+maintainer:          "martin@foam.space"
+copyright:           "2020 FOAM"
+synopsis:            "Haskell cosmos sdk"
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler>

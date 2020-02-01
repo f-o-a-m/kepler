@@ -12,8 +12,8 @@ packages:
 - ./hs-abci-extra
 - ./hs-abci-sdk
 - ./hs-abci-test-utils
-- ./hs-abci-examples/simple-storage
-- ./hs-abci-examples/nameservice
+- ./hs-abci-docs/simple-storage
+- ./hs-abci-docs/nameservice
 - ./hs-iavl-client
 
 extra-deps:

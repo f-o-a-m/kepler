@@ -173,15 +173,15 @@ evalNothing = do
       raise $ evalNothing a
     )
 
+-- | Increments existing count, if it doesn't exist, creates a new
+-- | counter and increments it.
 evalMetrics
   :: Member (Embed IO) r
   => MetricsState
   -> Sem (Metrics ': r) a
   -> Sem r a
 evalMetrics state@MetricsState{..} = do
-  interpretH (\case
-    -- | Increments existing count; if it doesn't exist, creates a new
-    -- | counter and increments it.
+ interpretH (\case
     IncCount ctrName -> do
       let c@MetricIdentifier{..} = countToIdentifier ctrName
           cid = metricIdStorable c
@@ -199,8 +199,8 @@ evalMetrics state@MetricsState{..} = do
             pure counterMap
       pureT ()
 
-    -- | Updates a histogram with the time it takes to do an action
-    -- | If histogram doesn't exist, creates a new one and observes it.
+    -- Updates a histogram with the time it takes to do an action
+    -- If histogram doesn't exist, creates a new one and observes it.
     WithTimer histName action -> do
       start <- liftIO $ getCurrentTime
       a <- runT action
