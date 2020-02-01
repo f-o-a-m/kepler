@@ -80,19 +80,13 @@ library:
     - time
     - validation
   ghc-options:
-  # disable these two lines when building haddocks
-  #- -fplugin=Polysemy.Plugin
-  #- -Wall
-
+  - -fplugin=Polysemy.Plugin
+  - -Wall
   - -Werror
   - -Wcompat
   - -Widentities
   - -Wincomplete-uni-patterns
   - -Wredundant-constraints
-
-    # Enable these when building haddock 
-  - -fdefer-type-errors 
-  - -fno-warn-deferred-type-errors  
   exposed-modules:
   - Tendermint.SDK.Application
   - Tendermint.SDK.Application.AnteHandler
