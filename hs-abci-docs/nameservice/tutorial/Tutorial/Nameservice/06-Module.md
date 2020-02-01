@@ -1,5 +1,5 @@
 ---
-title: Nameservice: Module
+title: Nameservice - Module
 ---
 
 # Module

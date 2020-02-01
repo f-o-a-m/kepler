@@ -1,5 +1,5 @@
 ---
-title: Nameservice: Query
+title: Nameservice - Query
 ---
 
 # Query

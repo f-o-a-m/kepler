@@ -1,5 +1,5 @@
 ---
-title: Nameservice: Keeper
+title: Nameservice - Keeper
 ---
 
 # Keeper

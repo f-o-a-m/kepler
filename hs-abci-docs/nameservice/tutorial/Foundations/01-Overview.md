@@ -1,5 +1,5 @@
 ---
-title: Foundations: Overview
+title: Foundations - Overview
 ---
 
 # Overview

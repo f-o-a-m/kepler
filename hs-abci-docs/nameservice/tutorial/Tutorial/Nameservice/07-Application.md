@@ -1,5 +1,5 @@
 ---
-title: Nameservice: Application
+title: Nameservice - Application
 ---
 
 # Application

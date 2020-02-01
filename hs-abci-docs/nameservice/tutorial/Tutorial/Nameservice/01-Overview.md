@@ -1,5 +1,5 @@
 ---
-title: Nameservice: Overview
+title: Nameservice - Overview
 ---
 
 # Overview
