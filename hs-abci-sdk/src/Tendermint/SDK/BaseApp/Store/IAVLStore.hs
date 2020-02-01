@@ -1,5 +1,6 @@
 module Tendermint.SDK.BaseApp.Store.IAVLStore
   ( IAVLVersion
+  , GrpcClient
   , initGrpcClient
   --, initScopeVersions
   --, evalMergeScopes

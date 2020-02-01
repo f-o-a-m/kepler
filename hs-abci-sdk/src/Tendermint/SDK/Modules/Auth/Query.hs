@@ -20,7 +20,7 @@ type AuthContents = '[(Address, Account)]
 type Api = BaseApp.QueryApi AuthContents
 
 server
-  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+  :: Members [BaseApp.ReadStore, Error BaseApp.AppError] r
   => BaseApp.RouteQ Api r
 server =
   BaseApp.storeQueryHandlers (Proxy :: Proxy AuthContents) storeKey (Proxy :: Proxy r)

@@ -17,9 +17,11 @@ module Tendermint.SDK.Modules.Auth
   ) where
 
 import           Polysemy                           (Members)
+import           Polysemy.Error                     (Error)
 import           Tendermint.SDK.Application.Module  (Module (..))
-import           Tendermint.SDK.BaseApp             (BaseAppEffs, EmptyTxServer,
-                                                     emptyTxServer)
+import           Tendermint.SDK.BaseApp             (AppError, BaseAppEffs,
+                                                     EmptyTxServer, ReadStore,
+                                                     WriteStore, emptyTxServer)
 import           Tendermint.SDK.Modules.Auth.Keeper
 import           Tendermint.SDK.Modules.Auth.Query
 import           Tendermint.SDK.Modules.Auth.Types
@@ -28,6 +30,7 @@ type AuthM r = Module AuthModule EmptyTxServer Api AuthEffs r
 
 authModule
   :: Members BaseAppEffs r
+  => Members [ReadStore, WriteStore, Error AppError] r
   => AuthM r
 authModule = Module
   { moduleTxDeliverer = emptyTxServer

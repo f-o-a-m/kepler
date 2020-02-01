@@ -10,15 +10,18 @@ module Tendermint.SDK.Application.Module
   ) where
 
 import           Data.Proxy
+import           Data.Singletons                    (Sing)
 import           GHC.TypeLits                       (Symbol)
 import           Polysemy                           (EffectRow, Members, Sem)
 import           Servant.API                        ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp             ((:&), BaseApp, BaseAppEffs)
+import           Tendermint.SDK.BaseApp             ((:&), BaseAppEffs,
+                                                     WriteStore)
 import qualified Tendermint.SDK.BaseApp.Query       as Q
 import qualified Tendermint.SDK.BaseApp.Transaction as T
 
+
 data Module (name :: Symbol) (h :: *) (q :: *) (s :: EffectRow) (r :: EffectRow) = Module
-  { moduleTxDeliverer :: T.RouteTx h r 'T.DeliverTx
+  { moduleTxDeliverer :: T.RouteTx h (WriteStore ': r) 'T.DeliverTx
   , moduleTxChecker :: T.RouteTx h r 'T.CheckTx
   , moduleQueryServer :: Q.RouteQ q r
   , moduleEval :: forall deps. Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
@@ -57,25 +60,27 @@ instance AppQueryRouter (m' ': ms) r => AppQueryRouter (Module name h q s r ': m
 appTxRouter
   :: AppTxRouter ms r 'T.DeliverTx
   => AppTxRouter ms r 'T.CheckTx
-  => T.HasTxRouter (TApi ms) r 'T.DeliverTx
+  => T.HasTxRouter (TApi ms) (WriteStore ': r) 'T.DeliverTx
   => T.HasTxRouter (TApi ms) r 'T.CheckTx
   => Modules ms r
-  -> T.RouteContext
-  -> T.TransactionApplication (Sem r)
+  -> Sing (c :: T.RouteContext)
+  -> T.TransactionApplication (Sem (AddWriteStore c r))
 appTxRouter (ms :: Modules ms r) ctx =
   case ctx of
-    T.CheckTx ->
-      let checkTxP = Proxy :: Proxy 'T.CheckTx
-      in T.serveTxApplication (Proxy :: Proxy (TApi ms)) (Proxy :: Proxy r)
-           checkTxP (routeAppTx checkTxP ms)
-    T.DeliverTx ->
-      let deliverTxP = Proxy :: Proxy 'T.DeliverTx
-      in T.serveTxApplication (Proxy :: Proxy (TApi ms)) (Proxy :: Proxy r)
-           deliverTxP (routeAppTx deliverTxP ms)
+    T.SCheckTx ->
+      T.serveTxApplication (Proxy :: Proxy (TApi ms)) (Proxy :: Proxy r)
+           ctx (routeAppTx ctx ms)
+    T.SDeliverTx ->
+      T.serveTxApplication (Proxy :: Proxy (TApi ms)) (Proxy :: Proxy (WriteStore ': r))
+           ctx (routeAppTx ctx ms)
+
+type family AddWriteStore (c :: T.RouteContext) (r :: EffectRow) :: EffectRow where
+  AddWriteStore 'T.CheckTx r = r
+  AddWriteStore 'T.DeliverTx r = (WriteStore ': r)
 
 class AppTxRouter ms r (c :: T.RouteContext) where
     type TApi ms :: *
-    routeAppTx :: Proxy c -> Modules ms r -> T.RouteTx (TApi ms) r c
+    routeAppTx :: Sing c -> Modules ms r -> T.RouteTx (TApi ms) (AddWriteStore c r) c
 
 instance AppTxRouter '[Module name h q s r] r 'T.CheckTx where
     type TApi '[Module name h q s r] = name :> h
@@ -99,10 +104,10 @@ class Eval ms core where
   type Effs ms core :: EffectRow
   eval :: Modules ms r
        -> forall a. Sem (Effs ms core) a
-       -> Sem (BaseApp core) a
+       -> Sem (BaseAppEffs :& core) a
 
 instance Eval '[Module name h q s r] core where
-  type Effs '[Module name h q s r] core = s :& BaseApp core
+  type Effs '[Module name h q s r] core = s :& BaseAppEffs :& core
   eval (m :+ NilModules) = moduleEval m
 
 instance (Members BaseAppEffs (Effs (m' ': ms) core),  Eval (m' ': ms) core) => Eval (Module name h q s r ': m' ': ms) core where

@@ -5,7 +5,6 @@ module Tendermint.SDK.BaseApp.Transaction.Effect
   ) where
 
 import           Control.Lens                             ((&), (.~))
-import           Control.Monad                            (when)
 import           Control.Monad.IO.Class                   (liftIO)
 import qualified Data.ByteArray.Base64String              as Base64
 import           Data.Default.Class                       (def)
@@ -29,8 +28,8 @@ import qualified Tendermint.SDK.BaseApp.Gas               as G
 import           Tendermint.SDK.BaseApp.Store.RawStore    (ReadStore (..),
                                                            WriteStore (..))
 import qualified Tendermint.SDK.BaseApp.Transaction.Cache as Cache
-import           Tendermint.SDK.BaseApp.Transaction.Types (RouteContext (..),
-                                                           RoutingTx (..))
+import           Tendermint.SDK.BaseApp.Transaction.Types (RoutingTx (..), Sing (SCheckTx, SDeliverTx),
+                                                           StoreDeps)
 import           Tendermint.SDK.Codec                     (HasCodec (encode))
 import           Tendermint.SDK.Types.Effects             ((:&))
 import           Tendermint.SDK.Types.Transaction         (Tx (..))
@@ -39,6 +38,7 @@ import           Tendermint.SDK.Types.TxResult            (TxResult,
                                                            txResultEvents,
                                                            txResultGasUsed,
                                                            txResultGasWanted)
+
 
 type TxEffs =
     [ Output E.Event
@@ -49,32 +49,31 @@ type TxEffs =
     ]
 
 data TransactionContext = TransactionContext
-  { gas          :: IORef G.GasAmount
-  , storeCache   :: IORef Cache.Cache
-  , routeContext :: RouteContext
+  { gas        :: IORef G.GasAmount
+  , storeCache :: IORef Cache.Cache
   }
 
 newTransactionContext
-  :: RouteContext
-  -> RoutingTx msg
+  :: RoutingTx msg
   -> IO TransactionContext
-newTransactionContext ctx (RoutingTx Tx{txGas}) = do
+newTransactionContext (RoutingTx Tx{txGas}) = do
   initialGas <- newIORef $ G.GasAmount txGas
   initialCache <- newIORef $ Cache.emptyCache
   pure TransactionContext
     { gas = initialGas
     , storeCache = initialCache
-    , routeContext = ctx
     }
 
 runTx
-  :: forall r a.
+  :: forall c r a.
      HasCodec a
-  => Members [Embed IO, ReadStore, WriteStore] r
-  => TransactionContext
+  => Members [ReadStore, Embed IO] r
+  => StoreDeps c r
+  => Sing c
+  -> TransactionContext
   -> Sem (TxEffs :& r) a
   -> Sem r TxResult
-runTx ctx@TransactionContext {..} tx = do
+runTx routeContext ctx@TransactionContext {..} tx = do
   initialGas <- liftIO $ readIORef gas
   eRes <- eval ctx tx
   gasRemaining <- liftIO $ readIORef gas
@@ -86,9 +85,11 @@ runTx ctx@TransactionContext {..} tx = do
     Left e ->
       return $ baseResponse & txResultAppError .~ e
     Right (events, a) -> do
-      when (routeContext == DeliverTx) $ do
-        cache <- liftIO $ readIORef storeCache
-        Cache.writeCache cache
+      (case routeContext of
+        SCheckTx -> pure ()
+        SDeliverTx -> do
+          cache <- liftIO $ readIORef storeCache
+          Cache.writeCache cache) :: Sem r ()
       return $ baseResponse & txResultEvents .~ events
                             & txResultData .~ Base64.fromBytes (encode a)
 

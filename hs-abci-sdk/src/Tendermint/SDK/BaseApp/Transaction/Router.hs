@@ -7,7 +7,6 @@ module Tendermint.SDK.BaseApp.Transaction.Router
 import           Control.Monad.IO.Class                      (liftIO)
 import           Data.ByteString                             (ByteString)
 import           Data.Proxy
-import           Data.Singletons                             (Sing, fromSing)
 import           Data.String.Conversions                     (cs)
 import           GHC.TypeLits                                (KnownSymbol,
                                                               symbolVal)
@@ -15,8 +14,7 @@ import           Polysemy                                    (Embed, Members,
                                                               Sem)
 import           Servant.API
 import qualified Tendermint.SDK.BaseApp.Router               as R
-import           Tendermint.SDK.BaseApp.Store                (ReadStore,
-                                                              WriteStore)
+import           Tendermint.SDK.BaseApp.Store                (ReadStore)
 import           Tendermint.SDK.BaseApp.Transaction.Effect   (TxEffs, newTransactionContext,
                                                               runTx)
 import           Tendermint.SDK.BaseApp.Transaction.Modifier
@@ -57,18 +55,23 @@ instance (HasTxRouter sublayout r c, KnownSymbol path) => HasTxRouter (path :> s
 
 methodRouter
   :: HasCodec a
-  => Members [Embed IO, ReadStore, WriteStore] r
+  => Members [ReadStore, Embed IO] r
+  => StoreDeps c r
   => Sing (c :: RouteContext)
   -> R.Delayed (Sem r) env (RoutingTx msg) (Sem (TxEffs :& r) a)
   -> R.Router env r (RoutingTx msg) TxResult
 methodRouter sc action =
   let route' env tx = do
-        ctx <- liftIO $ newTransactionContext (fromSing sc) tx
-        let action' = runTx ctx <$> action
+        ctx <- liftIO $ newTransactionContext tx
+        let action' = runTx sc ctx <$> action
         R.runAction action' env tx R.Route
   in R.leafRouter route'
 
-instance ( HasMessageType msg, HasCodec msg, HasCodec (OnCheckReturn c oc a), Members [ReadStore, WriteStore, Embed IO] r) => HasTxRouter (TypedMessage msg :~> Return' oc a) r c where
+
+instance ( HasMessageType msg, HasCodec msg
+         , HasCodec (OnCheckReturn c oc a)
+         , Members [ReadStore, Embed IO] r, StoreDeps c r
+         ) => HasTxRouter (TypedMessage msg :~> Return' oc a) r c where
 
   type RouteTx (TypedMessage msg :~> Return' oc a) r c = RoutingTx msg -> Sem (TxEffs :& r) (OnCheckReturn c oc a)
 

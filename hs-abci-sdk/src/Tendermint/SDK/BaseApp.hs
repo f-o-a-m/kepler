@@ -2,22 +2,20 @@ module Tendermint.SDK.BaseApp
   ( -- * BaseApp
     BaseAppEffs
   , (:&)
-  , BaseApp
-  , ScopedBaseApp
   , compileToCoreEffs
-  , compileScopedEff
 
   -- * CoreEff
   , CoreEffs
   , Context(..)
   , contextLogConfig
   , contextPrometheusEnv
-  , contextAuthTree
+  , contextVersion
   , makeContext
   , runCoreEffs
 
   -- * Store
-  , RawStore
+  , ReadStore
+  , WriteStore
   , RawKey(..)
   , IsKey(..)
   , StoreKey(..)
