@@ -56,8 +56,8 @@ build-docs-local: ## Build the haddocks documentation for just this project (no 
 	stack haddock --no-haddock-deps
 
 build-site: ## Build the tintin site
-	find ./hs-abci-docs/doc/ -type f,l -name "*.md" -exec $(SED) -e 's/~~~ haskell.*/```haskell/g' {} + && \
-	find ./hs-abci-docs/doc/ -type f,l -name "*.md" -exec $(SED) -e 's/~~~/```/g' {} + && \
+	find ./hs-abci-docs/ -type f -name "*.md" -exec $(SED) -e 's/~~~ haskell.*/```haskell/g' {} + && \
+	find ./hs-abci-docs/ -type f -name "*.md" -exec $(SED) -e 's/~~~/```/g' {} + && \
 	cd hs-abci-docs && \
 	tintin run
 
