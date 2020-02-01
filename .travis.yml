@@ -84,8 +84,10 @@ jobs:
     script:
     - echo "building website"
     - travis_wait 120 stack --skip-ghc-check install tintin
-    - cd hs-abci-docs
-    - make pre-process tintin
+    - make build-site
+    - make build-docs-local
+    - mkdir -p ./hs-abci-docs/.stack-work/tintin/rendered/haddocks
+    - find ./ -type f,l -name "index.html" | grep -v tintin | sed 's/index.html//g' | xargs -I {} cp -r {} hs-abci-docs/.stack-work/tintin/rendered/haddocks/
     deploy:
       provider: pages
       local-dir: ./hs-abci-docs/.stack-work/tintin/rendered
