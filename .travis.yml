@@ -70,15 +70,15 @@ jobs:
 
     - echo "Test simple-storage"
     - make docker-test-prebake
-    - docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e up -d
+    - docker-compose -f hs-abci-docs/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e up -d
     - make test-simple-storage
-    - docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e down -v --rmi local
+    - docker-compose -f hs-abci-docs/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e down -v --rmi local
 
     - echo "Test nameservice"
     - make docker-test-prebake
-    - docker-compose -f hs-abci-examples/nameservice/docker-compose-test.yaml -p test-hs-abci-examples-nameservice-e2e up -d
+    - docker-compose -f hs-abci-docs/nameservice/docker-compose-test.yaml -p test-hs-abci-examples-nameservice-e2e up -d
     - make test-nameservice
-    - docker-compose -f hs-abci-examples/nameservice/docker-compose-test.yaml -p test-hs-abci-examples-nameservice-e2e down -v --rmi local
+    - docker-compose -f hs-abci-docs/nameservice/docker-compose-test.yaml -p test-hs-abci-examples-nameservice-e2e down -v --rmi local
 
   - stage: publish website
     script:
