@@ -51,15 +51,15 @@ stylish: ## Run stylish-haskell over all haskell projects
 ###################
 
 build-docs-local: ## Build the haddocks documentation for just this project (no dependencies)
-        find . -type f -name "package.yaml" -exec $(SED) -e 's/- -fplugin=Polysemy.Plugin/- -fdefer-type-errors/g' {} + && \
-        find . -type f -name "package.yaml" -exec $(SED) -e 's/- -Wall/- -fno-warn-deferred-type-errors/g' {} + && \
-        stack haddock --no-haddock-deps
+	find . -type f -name "package.yaml" -exec $(SED) -e 's/- -fplugin=Polysemy.Plugin/- -fdefer-type-errors/g' {} + && \
+	find . -type f -name "package.yaml" -exec $(SED) -e 's/- -Wall/- -fno-warn-deferred-type-errors/g' {} + && \
+	stack haddock --no-haddock-deps
 
 build-site: ## Build the tintin site
-        cd hs-abci-docs \
-        find ./doc/ -type f,l -name "*.md" -exec $(SED) -e 's/~~~ haskell.*/```haskell/g' {} + && \
-        find ./doc/ -type f,l -name "*.md" -exec $(SED) -e 's/~~~/```/g' {} + && \
-        tintin run
+	cd hs-abci-docs \
+	find ./doc/ -type f,l -name "*.md" -exec $(SED) -e 's/~~~ haskell.*/```haskell/g' {} + && \
+	find ./doc/ -type f,l -name "*.md" -exec $(SED) -e 's/~~~/```/g' {} + && \
+	tintin run
 
 #####################
 # Core Libraries
