@@ -81,8 +81,8 @@ library:
     - validation
   ghc-options:
   - -fplugin=Polysemy.Plugin
-  - -Werror
   - -Wall
+  - -Werror
   - -Wcompat
   - -Widentities
   - -Wincomplete-uni-patterns
