@@ -49,6 +49,9 @@ library:
     - mtl
     - random
     - text
+    - websockets
+    - wuss
+    - containers
   ghc-options:
   - -Werror
   - -Wall
