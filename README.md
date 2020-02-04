@@ -1,6 +1,6 @@
 # hs-abci
 
-![Travis Status](https://travis-ci.com/f-o-a-m/hs-abci.svg?branch=master)
+[![Build Status](https://travis-ci.com/f-o-a-m/hs-abci.svg?branch=master)](https://travis-ci.com/f-o-a-m/hs-abci)
 
 ## Introduction
 This is the official repository for the Haskell implementation of the ABCI server and
