@@ -1,7 +1,7 @@
 # hs-abci-server
 
 The `hs-abci-server` package defines the types and methods for serving an ABCI application. See
-the [example application](https://github.com/f-o-a-m/hs-abci/tree/master/hs-abci-example) as a guide for how you can use this package.
+the [example application](https://github.com/f-o-a-m/kepler/tree/master/hs-abci-example) as a guide for how you can use this package.
 
 ## Application types
 The application type `App m` is defined as a newtype
@@ -39,4 +39,4 @@ type Middleware m = App m -> App m
 ```
 
 This is useful for hooking in things like metrics, loggers, etc. You can find some out-of-the-box middleware solutions in
-the [hs-abci-extra](https://github.com/f-o-a-m/hs-abci/tree/master/hs-abci-extra) package.
+the [hs-abci-extra](https://github.com/f-o-a-m/kepler/tree/master/hs-abci-extra) package.

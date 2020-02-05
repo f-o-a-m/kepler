@@ -1,10 +1,10 @@
 name:                nameservice
 version:             0.1.0.0
-github:              "githubuser/nameservice"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2019 Author name here"
+github:              "f-o-a-m/kepler/hs-abci-docs/nameservice"
+license:             Apache
+author:              "Martin Allen"
+maintainer:          "martin@foam.space"
+copyright:           "2020 Martin Allen"
 
 
 # Metadata used when publishing your package

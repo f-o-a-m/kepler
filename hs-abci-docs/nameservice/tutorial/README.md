@@ -35,7 +35,7 @@ The benefit of this is that we don't have to develop the entire application in t
 
 ## Tutorial Goals
 The goal of this tutorial is to explain how the Nameservice app is constructed using the `hs-abci-sdk` package. Nameservice is a relatively simple but still non-trivial application.
-If you would like to start with something simpler, you can view the tutorial for the [simple-storage](https://github.com/f-o-a-m/hs-abci/tree/master/hs-abci-examples/simple-storage) example application.
+If you would like to start with something simpler, you can view the tutorial for the [simple-storage](https://github.com/f-o-a-m/kepler/tree/master/hs-abci-docs/simple-storage) example application.
 
 This tutorial should teach you:
 1. How to construct application specific modules.

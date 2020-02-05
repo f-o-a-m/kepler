@@ -1,10 +1,10 @@
 name:                hs-abci-extra
 version:             0.1.0.0
-github:              "https://github.com/f-o-a-m/hs-abci-server"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2019 Author name here"
+github:              "https://github.com/f-o-a-m/kepler/hs-abci-server"
+license:             Apache
+author:              "Martin Allen"
+maintainer:          "martin@foam.space"
+copyright:           "2020 Martin Allen"
 
 extra-source-files:
 - README.md
