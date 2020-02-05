@@ -2,8 +2,11 @@
 title: Home
 ---
 
-The home of Kepler.
-Link to [hackage](https://hackage.haskell.org/package/kepler)
+## Introduction
+
+This is the official repository for the Haskell implementation of the ABCI server and
+SDK for developing applications backed by the Tendermint replication engine. You can
+read more about Tendermint and the ABCI specs in their [documentation](https://tendermint.com/docs/spec/abci/).
 
 ## Documentation
 
