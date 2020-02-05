@@ -1,4 +1,4 @@
-# hs-abci
+# kepler
 
 [![Build Status](https://travis-ci.com/f-o-a-m/kepler.svg?branch=master)](https://travis-ci.com/f-o-a-m/kepler)
 
