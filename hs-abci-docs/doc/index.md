@@ -11,9 +11,9 @@ read more about Tendermint and the ABCI specs in their [documentation](https://t
 ## Documentation
 
 - [hs-abci-sdk](haddocks/hs-abci-sdk/)
-- [hs-abci-extra](haddocs/hs-abci-extra/)
-- [hs-abci-server](haddocs/hs-abci-server/)
-- [hs-abci-test-utils](haddocs/hs-test-utils/)
-- [hs-abci-types](haddocs/hs-abci-types/)
-- [hs-iavl-client](haddocs/hs-iavl-client/)
-- [hs-tendermint-client](haddocs/hs-tendermint-client/)
+- [hs-abci-extra](haddocks/hs-abci-extra/)
+- [hs-abci-server](haddocks/hs-abci-server/)
+- [hs-abci-test-utils](haddocks/hs-test-utils/)
+- [hs-abci-types](haddocks/hs-abci-types/)
+- [hs-iavl-client](haddocks/hs-iavl-client/)
+- [hs-tendermint-client](haddocks/hs-tendermint-client/)

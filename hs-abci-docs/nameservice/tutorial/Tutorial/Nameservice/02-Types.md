@@ -254,5 +254,3 @@ instance A.FromJSON NameClaimed where
 instance BA.ToEvent NameClaimed where
   makeEventType _ = "NameClaimed"
 ~~~
-
-[Next: Message](Message.md)

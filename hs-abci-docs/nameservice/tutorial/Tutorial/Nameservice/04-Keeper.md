@@ -120,5 +120,3 @@ eval = mapError BA.makeAppError . evalNameservice
           DeleteWhois name -> BA.delete storeKey name
         )
 ~~~
-
-[Next: Query](Query.md)
