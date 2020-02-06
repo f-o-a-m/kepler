@@ -9,7 +9,7 @@ copyright:           "2020 Martin Allen"
 extra-source-files:
 - protos/**/*.proto
 
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/hs-abci-types#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-abci-types/README.md>
 
 custom-setup:
   dependencies:

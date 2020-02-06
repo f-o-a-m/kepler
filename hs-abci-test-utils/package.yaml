@@ -9,14 +9,7 @@ copyright:           "2020 Martin Allen"
 extra-source-files:
 - README.md
 
-# Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
-
-# To avoid duplicated efforts in documentation and dealing with the
-# complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/hs-abci-test-utils#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-abci-test-utils/README.md>
 
 default-extensions:
   - DataKinds

@@ -6,14 +6,7 @@ author:              "Martin Allen"
 maintainer:          "martin@foam.spacem"
 copyright:           "2020 FOAM"
 
-# Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
-
-# To avoid duplicated efforts in documentation and dealing with the
-# complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler//hs-tendermint-client#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-tendermind-client/README.md>
 
 default-extensions:
 - NamedFieldPuns
