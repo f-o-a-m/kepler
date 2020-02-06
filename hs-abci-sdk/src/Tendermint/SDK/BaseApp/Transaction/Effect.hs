@@ -1,5 +1,6 @@
 module Tendermint.SDK.BaseApp.Transaction.Effect
   ( TxEffs
+  , TransactionContext(..)
   , newTransactionContext
   , eval
   ) where
@@ -15,7 +16,7 @@ import           Polysemy                                 (Embed, Member,
 import           Polysemy.Error                           (Error, runError)
 import           Polysemy.Internal                        (send)
 import           Polysemy.Output                          (Output,
-                                                           runOutputMonoidAssocR)
+                                                           runOutputMonoidIORef)
 import qualified Polysemy.State                           as State
 import           Polysemy.Tagged                          (Tagged (..))
 import           Tendermint.SDK.BaseApp.Errors            (AppError)
@@ -38,8 +39,9 @@ type TxEffs =
     ]
 
 data TransactionContext = TransactionContext
-  { gas        :: IORef G.GasAmount
-  , storeCache :: IORef Cache.Cache
+  { gasRemaining :: IORef G.GasAmount
+  , storeCache   :: IORef Cache.Cache
+  , events       :: IORef [E.Event]
   }
 
 newTransactionContext
@@ -47,10 +49,12 @@ newTransactionContext
   -> IO TransactionContext
 newTransactionContext (RoutingTx Tx{txGas}) = do
   initialGas <- newIORef $ G.GasAmount txGas
-  initialCache <- newIORef $ Cache.emptyCache
+  initialCache <- newIORef Cache.emptyCache
+  es <- newIORef []
   pure TransactionContext
-    { gas = initialGas
+    { gasRemaining = initialGas
     , storeCache = initialCache
+    , events = es
     }
 
 eval
@@ -58,15 +62,15 @@ eval
      Members [Embed IO, ReadStore] r
   => TransactionContext
   -> Sem (TxEffs :& r) a
-  -> Sem r (Either AppError ([E.Event], a))
-eval TransactionContext{gas, storeCache} = do
+  -> Sem r (Either AppError a)
+eval TransactionContext{..} = do
   runError .
     evalCachedReadStore storeCache .
     evalCachedWriteStore storeCache .
-    State.runStateIORef gas .
+    State.runStateIORef gasRemaining .
     G.eval .
     raiseUnder @(State.State G.GasAmount) .
-    runOutputMonoidAssocR (pure @[])
+    runOutputMonoidIORef events (pure @[])
 
 evalCachedReadStore
   :: Members [Embed IO, ReadStore] r
