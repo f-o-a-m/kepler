@@ -9,9 +9,10 @@ import           Data.String.Conversions             (cs)
 import           GHC.TypeLits                        (KnownSymbol, Symbol,
                                                       symbolVal)
 import           Polysemy                            (Members, Sem)
-import           Polysemy.Error                      (Error, throw)
+import           Polysemy.Error                      (throw)
 import           Servant.API                         ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp.Errors       (AppError, makeAppError)
+import           Tendermint.SDK.BaseApp.Errors       (makeAppError)
+import           Tendermint.SDK.BaseApp.Query.Effect (QueryEffs)
 import           Tendermint.SDK.BaseApp.Query.Router (HasQueryRouter (..),
                                                       methodRouter)
 import           Tendermint.SDK.BaseApp.Query.Types  (Leaf, QA, QueryArgs (..),
@@ -20,7 +21,7 @@ import           Tendermint.SDK.BaseApp.Query.Types  (Leaf, QA, QueryArgs (..),
 import           Tendermint.SDK.BaseApp.Router       (RouterError (..),
                                                       pathRouter)
 import           Tendermint.SDK.BaseApp.Store        (IsKey (..), RawKey (..),
-                                                      ReadStore, StoreKey, get)
+                                                      StoreKey, get)
 import           Tendermint.SDK.Codec                (HasCodec)
 
 data StoreLeaf a
@@ -38,9 +39,9 @@ instance
   ( IsKey k ns
   , a ~ Value k ns
   , HasCodec a
-  , Members [ReadStore, Error AppError] r
+  , Members QueryEffs r
   )
-   => StoreQueryHandler a ns (QueryArgs k -> (Sem r) (QueryResult a)) where
+   => StoreQueryHandler a ns (QueryArgs k -> Sem r (QueryResult a)) where
   storeQueryHandler _ storeKey QueryArgs{..} = do
     let key = queryArgsData
     mRes <- get storeKey key
@@ -63,7 +64,7 @@ instance
     ( IsKey k ns
     , a ~ Value k ns
     , HasCodec a
-    , Members [ReadStore, Error AppError] r
+    , Members QueryEffs r
     )  => StoreQueryHandlers '[(k,a)] ns r where
       type QueryApi '[(k,a)] =  QA k :> StoreLeaf a
       storeQueryHandlers _ storeKey _ = storeQueryHandler (Proxy :: Proxy a) storeKey
@@ -73,7 +74,7 @@ instance
     , a ~ Value k ns
     , HasCodec a
     , StoreQueryHandlers ((k', a') ': as) ns r
-    , Members [ReadStore, Error AppError] r
+    , Members QueryEffs r
     ) => StoreQueryHandlers ((k,a) ': (k', a') : as) ns r where
         type (QueryApi ((k, a) ': (k', a') : as)) = (QA k :> Leaf a) :<|> QueryApi ((k', a') ': as)
         storeQueryHandlers _ storeKey pr =

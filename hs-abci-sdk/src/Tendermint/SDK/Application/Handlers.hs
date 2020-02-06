@@ -11,6 +11,7 @@ import           Crypto.Hash.Algorithms                 (SHA256)
 import qualified Data.ByteArray.Base64String            as Base64
 import           Data.Default.Class                     (Default (..))
 import           Data.Proxy
+import           Data.Singletons
 import           Network.ABCI.Server.App                (App (..),
                                                          MessageType (..),
                                                          Request (..),
@@ -22,7 +23,7 @@ import           Polysemy.Error                         (Error, catch)
 import           Tendermint.SDK.Application.AnteHandler (AnteHandler,
                                                          applyAnteHandler)
 import qualified Tendermint.SDK.Application.Module      as M
-import qualified Tendermint.SDK.BaseApp.BaseApp         as BA
+import qualified Tendermint.SDK.BaseApp                 as BA
 import           Tendermint.SDK.BaseApp.CoreEff         (CoreEffs)
 import           Tendermint.SDK.BaseApp.Errors          (AppError,
                                                          SDKError (..),
@@ -32,6 +33,7 @@ import           Tendermint.SDK.BaseApp.Errors          (AppError,
 import qualified Tendermint.SDK.BaseApp.Query           as Q
 import           Tendermint.SDK.BaseApp.Store           (ConnectionScope (..))
 import qualified Tendermint.SDK.BaseApp.Store           as Store
+import qualified Tendermint.SDK.BaseApp.Store.IAVLStore as IAVL
 import           Tendermint.SDK.BaseApp.Transaction     as T
 import           Tendermint.SDK.Crypto                  (RecoverableSignatureSchema,
                                                          SignatureSchema (..))
@@ -43,15 +45,15 @@ import           Tendermint.SDK.Types.TxResult          (checkTxTxResult,
 type Handler mt r = Request mt -> Sem r (Response mt)
 
 data Handlers core = Handlers
-  { info       :: Handler 'MTInfo (BA.ScopedBaseApp 'Query core)
-  , setOption  :: Handler 'MTSetOption (BA.ScopedBaseApp 'Query core)
-  , initChain  :: Handler 'MTInitChain (BA.ScopedBaseApp 'Consensus core)
-  , query      :: Handler 'MTQuery (BA.ScopedBaseApp 'Query core)
-  , checkTx    :: Handler 'MTCheckTx (BA.ScopedBaseApp 'Mempool core)
-  , beginBlock :: Handler 'MTBeginBlock (BA.ScopedBaseApp 'Consensus core)
-  , deliverTx  :: Handler 'MTDeliverTx (BA.ScopedBaseApp 'Consensus core)
-  , endBlock   :: Handler 'MTEndBlock (BA.ScopedBaseApp 'Consensus core)
-  , commit     :: Handler 'MTCommit (BA.ScopedBaseApp 'Consensus core)
+  { info       :: Handler 'MTInfo (BA.BaseAppEffs BA.:& core)
+  , setOption  :: Handler 'MTSetOption (BA.BaseAppEffs BA.:& core)
+  , initChain  :: Handler 'MTInitChain (BA.BaseAppEffs BA.:& core)
+  , query      :: Handler 'MTQuery  (BA.BaseAppEffs BA.:& core)
+  , checkTx    :: Handler 'MTCheckTx (BA.BaseAppEffs BA.:& core)
+  , beginBlock :: Handler 'MTBeginBlock (BA.BaseAppEffs BA.:& core)
+  , deliverTx  :: Handler 'MTDeliverTx (BA.BaseAppEffs BA.:& core)
+  , endBlock   :: Handler 'MTEndBlock (BA.BaseAppEffs BA.:& core)
+  , commit     :: Handler 'MTCommit (BA.BaseAppEffs BA.:& core)
   }
 
 defaultHandlers :: forall core. Handlers core
@@ -77,7 +79,7 @@ defaultHandlers = Handlers
 data HandlersContext alg ms r core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.Modules ms r
-  , compileToCore :: forall a. BA.ScopedEff core a -> Sem core a
+  , compileToCore :: forall a. Sem (BA.BaseAppEffs BA.:& core) a -> Sem core a
   , anteHandler   :: AnteHandler r
   }
 
@@ -100,8 +102,8 @@ makeHandlers
   -> Handlers core
 makeHandlers HandlersContext{..} =
   let
-      compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseApp core) a
-      compileToBaseApp = M.eval modules
+      compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseAppEffs BA.:& core) a
+      compileToBaseApp = IAVL.evalWrite undefined  . M.eval modules
 
       queryRouter = compileToBaseApp . M.appQueryRouter modules
 
@@ -114,7 +116,8 @@ makeHandlers HandlersContext{..} =
         tx <- txParser bs
         router tx
 
-      query (RequestQuery q) = Store.applyScope $
+      query (RequestQuery q) =
+        --Store.applyScope $
         catch
           (do
             queryResp <- queryRouter q
@@ -124,42 +127,42 @@ makeHandlers HandlersContext{..} =
             return . ResponseQuery $ def & queryAppError .~ err
           )
 
-      beginBlock _ = Store.applyScope (def <$ Store.beginBlock)
+      --beginBlock _ = Store.applyScope (def <$ Store.beginBlock)
 
-      checkTx (RequestCheckTx _checkTx) = Store.applyScope $ do
+      checkTx (RequestCheckTx _checkTx) =  do
         res <- catch
           ( let txBytes =  _checkTx ^. Req._checkTxTx . to Base64.toBytes
-            in  txRouter T.CheckTx txBytes
+            in  txRouter (sing :: Sing 'T.CheckTx) txBytes
           )
           (\(err :: AppError) ->
             return $ def & txResultAppError .~ err
           )
         return . ResponseCheckTx $ res ^. from checkTxTxResult
 
-      deliverTx (RequestDeliverTx _deliverTx) = Store.applyScope $ do
+      deliverTx (RequestDeliverTx _deliverTx) = do
         res <- catch @AppError
           ( let txBytes = _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
-            in txRouter T.DeliverTx txBytes
+            in txRouter (sing :: Sing 'T.CheckTx) txBytes
           )
           (\(err :: AppError) ->
             return $ def & txResultAppError .~ err
           )
         return . ResponseDeliverTx $ res ^. from deliverTxTxResult
 
-      commit :: Handler 'MTCommit (BA.ScopedBaseApp 'Consensus core)
-      commit _ = Store.applyScope $ do
-        Store.commitBlock
-        Store.mergeScopes
-        rootHash <- Store.storeRoot
-        return . ResponseCommit $ def
-          & Resp._commitData .~ Base64.fromBytes rootHash
+      --commit :: Handler 'MTCommit (BA.BaseAppEffs BA.:& core)
+      --commit _ = Store.applyScope $ do
+      --  Store.commitBlock
+      --  Store.mergeScopes
+      --  rootHash <- Store.storeRoot
+      --  return . ResponseCommit $ def
+      --    & Resp._commitData .~ Base64.fromBytes rootHash
 
   in defaultHandlers
        { query = query
        , checkTx = checkTx
-       , beginBlock = beginBlock
+       --, beginBlock = beginBlock
        , deliverTx = deliverTx
-       , commit = commit
+       --, commit = commit
        }
 
 makeApp
@@ -185,12 +188,12 @@ makeApp handlersContext@HandlersContext{compileToCore} =
          pure . ResponseEcho $ def
            & Resp._echoMessage .~ echo ^. Req._echoMessage
        RequestFlush _ -> pure def
-       msg@(RequestInfo _) -> compileToCore . BA.QueryScoped $  info msg
-       msg@(RequestSetOption _) -> compileToCore . BA.QueryScoped $ setOption msg
-       msg@(RequestInitChain _) ->  compileToCore . BA.ConsensusScoped $ initChain msg
-       msg@(RequestQuery _) -> compileToCore . BA.QueryScoped $ query msg
-       msg@(RequestBeginBlock _) -> compileToCore . BA.ConsensusScoped $ beginBlock msg
-       msg@(RequestCheckTx _) -> compileToCore . BA.MempoolScoped $ checkTx msg
-       msg@(RequestDeliverTx _) -> compileToCore . BA.ConsensusScoped $ deliverTx msg
-       msg@(RequestEndBlock _) -> compileToCore . BA.ConsensusScoped $ endBlock msg
-       msg@(RequestCommit _) ->  compileToCore . BA.ConsensusScoped $ commit msg
+       msg@(RequestInfo _) -> compileToCore $  info msg
+       msg@(RequestSetOption _) -> compileToCore $ setOption msg
+       msg@(RequestInitChain _) ->  compileToCore $ initChain msg
+       msg@(RequestQuery _) -> compileToCore $ query msg
+       msg@(RequestBeginBlock _) -> compileToCore $ beginBlock msg
+       msg@(RequestCheckTx _) -> compileToCore $ checkTx msg
+       msg@(RequestDeliverTx _) -> compileToCore $ deliverTx msg
+       msg@(RequestEndBlock _) -> compileToCore $ endBlock msg
+       msg@(RequestCommit _) ->  compileToCore $ commit msg

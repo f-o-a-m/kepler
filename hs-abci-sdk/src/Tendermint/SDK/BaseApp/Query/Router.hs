@@ -5,34 +5,30 @@ module Tendermint.SDK.BaseApp.Query.Router
   , methodRouter
   ) where
 
-import           Control.Lens                           ((&), (.~))
-import           Control.Monad                          (join)
-import           Data.ByteArray.Base64String            (fromBytes)
-import           Data.Default.Class                     (def)
+import           Control.Monad                        (join)
 import           Data.Proxy
-import           Data.String.Conversions                (cs)
-import           Data.Text                              (Text)
-import           GHC.TypeLits                           (KnownSymbol, symbolVal)
-import           Network.ABCI.Types.Messages.FieldTypes (WrappedVal (..))
-import           Network.ABCI.Types.Messages.Response   as Response
-import           Network.HTTP.Types.URI                 (QueryText,
-                                                         parseQueryText)
-import           Polysemy                               (Sem)
+import           Data.String.Conversions              (cs)
+import           Data.Text                            (Text)
+import           GHC.TypeLits                         (KnownSymbol, symbolVal)
+import           Network.ABCI.Types.Messages.Response as Response
+import           Network.HTTP.Types.URI               (QueryText,
+                                                       parseQueryText)
+import           Polysemy                             (Members, Sem)
 import           Servant.API
-import           Servant.API.Modifiers                  (FoldLenient,
-                                                         FoldRequired,
-                                                         RequestArgument,
-                                                         unfoldRequestArgument)
-import           Tendermint.SDK.BaseApp.Query.Types     (EmptyQueryServer (..),
-                                                         FromQueryData (..),
-                                                         Leaf, QA,
-                                                         QueryArgs (..),
-                                                         QueryRequest (..),
-                                                         QueryResult (..))
-import qualified Tendermint.SDK.BaseApp.Router          as R
-import           Tendermint.SDK.Codec                   (HasCodec (..))
-import           Web.HttpApiData                        (FromHttpApiData (..),
-                                                         parseUrlPieceMaybe)
+import           Servant.API.Modifiers                (FoldLenient,
+                                                       FoldRequired,
+                                                       RequestArgument,
+                                                       unfoldRequestArgument)
+import           Tendermint.SDK.BaseApp.Query.Effect  (QueryEffs, runQuery)
+import           Tendermint.SDK.BaseApp.Query.Types   (EmptyQueryServer (..),
+                                                       FromQueryData (..), Leaf,
+                                                       QA, QueryArgs (..),
+                                                       QueryRequest (..),
+                                                       QueryResult (..))
+import qualified Tendermint.SDK.BaseApp.Router        as R
+import           Tendermint.SDK.Codec                 (HasCodec (..))
+import           Web.HttpApiData                      (FromHttpApiData (..),
+                                                       parseUrlPieceMaybe)
 
 
 --------------------------------------------------------------------------------
@@ -44,8 +40,11 @@ class HasQueryRouter layout r where
   -- | A routeQ handler.
   type RouteQ layout r :: *
   -- | Transform a routeQ handler into a 'Router'.
-  routeQ :: Proxy layout -> Proxy r -> R.Delayed (Sem r) env QueryRequest (RouteQ layout r)
-        -> R.Router env r QueryRequest Response.Query
+  routeQ
+    :: Proxy layout
+    -> Proxy r
+    -> R.Delayed (Sem r) env QueryRequest (RouteQ layout r)
+    -> R.Router env r QueryRequest Response.Query
 
 instance (HasQueryRouter a r, HasQueryRouter b r) => HasQueryRouter (a :<|> b) r where
   type RouteQ (a :<|> b) r = RouteQ a r :<|> RouteQ b r
@@ -95,11 +94,6 @@ instance (FromHttpApiData a, HasQueryRouter sublayout r) => HasQueryRouter (Capt
                  Just v  -> return v
               )
 
-instance HasCodec a => HasQueryRouter (Leaf a) r where
-
-   type RouteQ (Leaf a) r = Sem r (QueryResult a)
-   routeQ _ _ = methodRouter
-
 instance (FromQueryData a, HasQueryRouter sublayout r)
       => HasQueryRouter (QA a :> sublayout) r where
 
@@ -116,6 +110,11 @@ instance (FromQueryData a, HasQueryRouter sublayout r)
         delayed = R.addBody subserver $ R.withRequest parseQueryArgs
     in routeQ (Proxy :: Proxy sublayout) pr delayed
 
+instance (Members QueryEffs r, HasCodec a) => HasQueryRouter (Leaf a) r where
+
+   type RouteQ (Leaf a) r = Sem r (QueryResult a)
+   routeQ _ _ = methodRouter
+
 emptyQueryServer :: RouteQ EmptyQueryServer r
 emptyQueryServer = EmptyQueryServer
 
@@ -126,14 +125,9 @@ instance HasQueryRouter EmptyQueryServer r where
 --------------------------------------------------------------------------------
 
 methodRouter
-  :: HasCodec b
-  => R.Delayed (Sem r) env req (Sem r (QueryResult b))
+  :: HasCodec a
+  => R.Delayed (Sem r) env req (Sem r (QueryResult a))
   -> R.Router env r req Response.Query
-methodRouter action = R.leafRouter route'
-  where
-    route' env query = R.runAction action env query $ \QueryResult{..} ->
-       R.Route $ def & Response._queryIndex .~ WrappedVal queryResultIndex
-                   & Response._queryKey .~ queryResultKey
-                   & Response._queryValue .~ fromBytes (encode queryResultData)
-                   & Response._queryProof .~ queryResultProof
-                   & Response._queryHeight .~ WrappedVal queryResultHeight
+methodRouter action =
+  let route' env q = R.runAction (runQuery <$> action) env q R.Route
+  in R.leafRouter route'

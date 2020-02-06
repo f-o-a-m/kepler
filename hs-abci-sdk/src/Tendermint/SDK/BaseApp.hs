@@ -78,6 +78,7 @@ module Tendermint.SDK.BaseApp
   , DefaultCheckTx(..)
 
   -- * Query
+  , QueryEffs
   , Queryable(..)
   , FromQueryData(..)
   , QueryApi

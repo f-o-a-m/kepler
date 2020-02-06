@@ -12,7 +12,8 @@ module Tendermint.SDK.Application.Module
 import           Data.Proxy
 import           Data.Singletons                    (Sing)
 import           GHC.TypeLits                       (Symbol)
-import           Polysemy                           (EffectRow, Members, Sem)
+import           Polysemy                           (EffectRow, Member, Members,
+                                                     Sem)
 import           Servant.API                        ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp             ((:&), BaseAppEffs,
                                                      WriteStore)
@@ -24,7 +25,7 @@ data Module (name :: Symbol) (h :: *) (q :: *) (s :: EffectRow) (r :: EffectRow)
   { moduleTxDeliverer :: T.RouteTx h (WriteStore ': r) 'T.DeliverTx
   , moduleTxChecker :: T.RouteTx h r 'T.CheckTx
   , moduleQueryServer :: Q.RouteQ q r
-  , moduleEval :: forall deps. Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
+  , moduleEval :: forall deps. Member WriteStore deps => Members BaseAppEffs deps => forall a. Sem (s :& deps) a -> Sem deps a
   }
 
 data Modules (ms :: [*]) r where
@@ -104,12 +105,12 @@ class Eval ms core where
   type Effs ms core :: EffectRow
   eval :: Modules ms r
        -> forall a. Sem (Effs ms core) a
-       -> Sem (BaseAppEffs :& core) a
+       -> Sem (WriteStore ': BaseAppEffs :& core) a
 
 instance Eval '[Module name h q s r] core where
-  type Effs '[Module name h q s r] core = s :& BaseAppEffs :& core
+  type Effs '[Module name h q s r] core = s :& (WriteStore ': BaseAppEffs :& core)
   eval (m :+ NilModules) = moduleEval m
 
-instance (Members BaseAppEffs (Effs (m' ': ms) core),  Eval (m' ': ms) core) => Eval (Module name h q s r ': m' ': ms) core where
+instance (Member WriteStore (Effs (m' ': ms) core), Members BaseAppEffs (Effs (m' ': ms) core),  Eval (m' ': ms) core) => Eval (Module name h q s r ': m' ': ms) core where
   type Effs (Module name h q s r ': m' ': ms) core = s :& (Effs (m': ms)) core
   eval (m :+ rest) = eval rest . moduleEval m

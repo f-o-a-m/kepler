@@ -2,6 +2,7 @@ module Tendermint.SDK.BaseApp.Query
   ( serveQueryApplication
   , HasQueryRouter(..)
   , StoreQueryHandlers(..)
+  , QueryEffs
   , module Tendermint.SDK.BaseApp.Query.Types
   , emptyQueryServer
   ) where
@@ -13,6 +14,7 @@ import qualified Network.ABCI.Types.Messages.Response  as Response
 import           Polysemy                              (Sem)
 import           Tendermint.SDK.BaseApp.Errors         (makeAppError,
                                                         queryAppError)
+import           Tendermint.SDK.BaseApp.Query.Effect   (QueryEffs)
 import           Tendermint.SDK.BaseApp.Query.Router   (HasQueryRouter (..),
                                                         emptyQueryServer)
 import           Tendermint.SDK.BaseApp.Query.Store    (StoreQueryHandlers (..))

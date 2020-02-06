@@ -8,6 +8,7 @@ module Tendermint.SDK.BaseApp.CoreEff
   , contextLogConfig
   , contextPrometheusEnv
   , contextVersion
+  , contextGrpcClient
   , makeContext
   , runCoreEffs
   ) where
@@ -32,6 +33,7 @@ type CoreEffs =
   '[ Reader KL.LogConfig
    , Reader (Maybe P.PrometheusEnv)
    , Reader IAVL.IAVLVersion
+   , Reader IAVL.GrpcClient
    , Error AppError
    , Embed IO
    ]
@@ -50,6 +52,7 @@ instance (Members CoreEffs r) => K.KatipContext (Sem r) where
 data Context = Context
   { _contextLogConfig     :: KL.LogConfig
   , _contextPrometheusEnv :: Maybe P.PrometheusEnv
+  , _contextGrpcClient    :: IAVL.GrpcClient
   , _contextVersion       :: IAVL.IAVLVersion
   }
 
@@ -66,10 +69,12 @@ makeContext KL.InitialLogNamespace{..} scrapingCfg version = do
         Just scfg -> P.emptyState >>= \es ->
           pure . Just $ P.PrometheusEnv es scfg
   logCfg <- mkLogConfig _initialLogEnvironment _initialLogProcessName
+  grpc <- IAVL.initGrpcClient
   pure $ Context
     { _contextLogConfig = logCfg
     , _contextPrometheusEnv = metCfg
     , _contextVersion = version
+    , _contextGrpcClient = grpc
     }
     where
       mkLogConfig :: Text -> Text -> IO KL.LogConfig
@@ -89,6 +94,7 @@ runCoreEffs
 runCoreEffs Context{..} =
   runM .
     runError .
+    runReader _contextGrpcClient .
     runReader _contextVersion .
     runReader _contextPrometheusEnv .
     runReader _contextLogConfig
