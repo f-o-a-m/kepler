@@ -4,7 +4,7 @@ title: Logging
 
 # Logging
 
-The SDK has built in support for structured logging via the [katip](https://hackage.haskell.org/package/katip) logging library. Even still, the SDK is agnostic to where you want your logs to go. Katip logs are managed by *scribes* whos job is precisely this, so the output depends on which scribes you use. The two most common scribes are the [console scribe](https://hackage.haskell.org/package/katip-0.8.3.0/docs/Katip-Scribes-Handle.html#v:mkHandleScribe) and the [Elasticsearch scribe](https://hackage.haskell.org/package/katip-elasticsearch).
+The SDK has built in support for structured logging via the [katip](https://hackage.haskell.org/package/katip) logging library. Even still, the SDK is agnostic to where you want your logs to go. Katip logs are managed by *scribes* whose job is precisely this, so the output depends on which scribes you use. The two most common scribes are the [console scribe](https://hackage.haskell.org/package/katip-0.8.3.0/docs/Katip-Scribes-Handle.html#v:mkHandleScribe) and the [Elasticsearch scribe](https://hackage.haskell.org/package/katip-elasticsearch).
 
 The `Nameservice` application has support for either scribe -- it will use Elasticsearch if you provide the `ES_HOST` and `ES_PORT` environment variables or otherwise will default to console logging. The docker deployment is configured to use Elasticsearch.
 
@@ -85,5 +85,3 @@ This log corresponds to an event emitted by the `Nameservice` module during tran
 ```
 
 In this way the log index serves as a rudimentary event indexer for transaction events as well.
-
-## [Next: Metrics](./Metrics.md)

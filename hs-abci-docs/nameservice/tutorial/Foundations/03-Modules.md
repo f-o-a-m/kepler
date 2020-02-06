@@ -45,5 +45,3 @@ data Modules (ms :: [*]) r where
 ~~~
 
 When you are ready to create your application, you simply specify a value of type `Modules` and some other configuration data, and the SDK will create an `App` for you.
-
-[Next: Types](../Tutorial/Nameservice/Types.md)
