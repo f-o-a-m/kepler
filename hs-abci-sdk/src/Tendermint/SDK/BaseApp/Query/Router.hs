@@ -51,8 +51,9 @@ class HasQueryRouter layout r where
 instance (HasQueryRouter a r, HasQueryRouter b r) => HasQueryRouter (a :<|> b) r where
   type RouteQ (a :<|> b) r = RouteQ a r :<|> RouteQ b r
 
-  routeQ _ pr server = R.choice (routeQ (Proxy @a) pr ((\ (a :<|> _) -> a) <$> server))
-                        (routeQ (Proxy @b) pr ((\ (_ :<|> b) -> b) <$> server))
+  routeQ _ pr server =
+     R.choice (routeQ (Proxy @a) pr ((\ (a :<|> _) -> a) <$> server))
+              (routeQ (Proxy @b) pr ((\ (_ :<|> b) -> b) <$> server))
   hoistQueryRouter _ nat (a :<|> b) =
     hoistQueryRouter (Proxy @a) nat a :<|> hoistQueryRouter (Proxy @b) nat b
 
@@ -140,5 +141,5 @@ methodRouter
   => R.Delayed (Sem r) env req (Sem r (QueryResult a))
   -> R.Router env r req Response.Query
 methodRouter action =
-  let route' env q = R.runAction (runQuery <$> action) env q R.Route
+  let route' env q = R.runAction (runQuery <$> action) env q (pure . R.Route)
   in R.leafRouter route'

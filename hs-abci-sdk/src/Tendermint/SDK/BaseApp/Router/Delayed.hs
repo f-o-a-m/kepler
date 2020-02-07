@@ -64,12 +64,12 @@ runAction
   :: Delayed (Sem r) env req (Sem r a)
   -> env
   -> req
-  -> (a -> RouteResult b)
+  -> (a -> Sem r (RouteResult b))
   -> Sem r (RouteResult b)
 runAction action env req k = do
     res <- runDelayed action env req
     case res of
-      Route a     -> k <$> a
+      Route a     -> k =<< a
       Fail e      -> pure $ Fail e
       FailFatal e -> pure $ FailFatal e
 
