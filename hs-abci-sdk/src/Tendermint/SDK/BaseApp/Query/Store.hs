@@ -26,7 +26,7 @@ import           Tendermint.SDK.Codec                (HasCodec)
 
 data StoreLeaf a
 
-instance (Queryable a, KnownSymbol (Name a)) => HasQueryRouter (StoreLeaf a) r where
+instance (Queryable a, Members QueryEffs r, KnownSymbol (Name a)) => HasQueryRouter (StoreLeaf a) r where
 
    type RouteQ (StoreLeaf a) r = Sem r (QueryResult a)
    routeQ _ _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter

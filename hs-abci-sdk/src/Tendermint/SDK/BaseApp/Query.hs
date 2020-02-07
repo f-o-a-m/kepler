@@ -23,12 +23,13 @@ import           Tendermint.SDK.BaseApp.Router.Delayed (emptyDelayed)
 import           Tendermint.SDK.BaseApp.Router.Router  (runRouter)
 import           Tendermint.SDK.BaseApp.Router.Types   (Application,
                                                         RouteResult (..))
+import           Tendermint.SDK.Types.Effects          ((:&))
 
 serveQueryApplication
   :: HasQueryRouter layout r
   => Proxy layout
   -> Proxy r
-  -> RouteQ layout r
+  -> RouteQ layout (QueryEffs :& r)
   -> QueryApplication (Sem r)
 serveQueryApplication pl pr server =
   toQueryApplication (runRouter (routeQ pl pr (emptyDelayed (Route server))) ())

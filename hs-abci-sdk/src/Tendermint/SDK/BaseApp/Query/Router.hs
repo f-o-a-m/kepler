@@ -13,7 +13,7 @@ import           GHC.TypeLits                         (KnownSymbol, symbolVal)
 import           Network.ABCI.Types.Messages.Response as Response
 import           Network.HTTP.Types.URI               (QueryText,
                                                        parseQueryText)
-import           Polysemy                             (Members, Sem)
+import           Polysemy                             (Member, Sem)
 import           Servant.API
 import           Servant.API.Modifiers                (FoldLenient,
                                                        FoldRequired,
@@ -26,7 +26,9 @@ import           Tendermint.SDK.BaseApp.Query.Types   (EmptyQueryServer (..),
                                                        QueryRequest (..),
                                                        QueryResult (..))
 import qualified Tendermint.SDK.BaseApp.Router        as R
+import           Tendermint.SDK.BaseApp.Store         (ReadStore)
 import           Tendermint.SDK.Codec                 (HasCodec (..))
+import           Tendermint.SDK.Types.Effects         ((:&))
 import           Web.HttpApiData                      (FromHttpApiData (..),
                                                        parseUrlPieceMaybe)
 
@@ -43,7 +45,7 @@ class HasQueryRouter layout r where
   routeQ
     :: Proxy layout
     -> Proxy r
-    -> R.Delayed (Sem r) env QueryRequest (RouteQ layout r)
+    -> R.Delayed (Sem r) env QueryRequest (RouteQ layout (QueryEffs :& r))
     -> R.Router env r QueryRequest Response.Query
 
   hoistQueryRouter :: Proxy layout -> (forall a. Sem r a -> Sem r' a) -> RouteQ layout r -> RouteQ layout r'
@@ -102,8 +104,7 @@ instance (FromHttpApiData a, HasQueryRouter sublayout r) => HasQueryRouter (Capt
               )
   hoistQueryRouter _ nat f = hoistQueryRouter (Proxy @sublayout) nat . f
 
-instance (FromQueryData a, HasQueryRouter sublayout r)
-      => HasQueryRouter (QA a :> sublayout) r where
+instance (FromQueryData a, HasQueryRouter sublayout r) => HasQueryRouter (QA a :> sublayout) r where
 
   type RouteQ (QA a :> sublayout) r = QueryArgs a -> RouteQ sublayout r
 
@@ -120,7 +121,7 @@ instance (FromQueryData a, HasQueryRouter sublayout r)
 
   hoistQueryRouter _ nat f = hoistQueryRouter (Proxy @sublayout) nat . f
 
-instance (Members QueryEffs r, HasCodec a) => HasQueryRouter (Leaf a) r where
+instance (Member ReadStore r, HasCodec a) => HasQueryRouter (Leaf a) r where
 
    type RouteQ (Leaf a) r = Sem r (QueryResult a)
    routeQ _ _ = methodRouter
@@ -138,7 +139,8 @@ instance HasQueryRouter EmptyQueryServer r where
 
 methodRouter
   :: HasCodec a
-  => R.Delayed (Sem r) env req (Sem r (QueryResult a))
+  => Member ReadStore r
+  => R.Delayed (Sem r) env req (Sem (QueryEffs :& r) (QueryResult a))
   -> R.Router env r req Response.Query
 methodRouter action =
   let route' env q = R.runAction (runQuery <$> action) env q (pure . R.Route)
