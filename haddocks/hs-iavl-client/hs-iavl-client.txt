@@ -3,7 +3,7 @@
 
 
 -- | Please see the README on GitHub at
---   <a>https://github.com/f-o-a-m/hs-abci/hs-iavl-client#readme</a>
+--   <a>https://github.com/f-o-a-m/kepler/blob/master/hs-iavl-client/README.md</a>
 @package hs-iavl-client
 @version 0.1.0.0
 

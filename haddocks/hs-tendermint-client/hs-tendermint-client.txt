@@ -3,7 +3,7 @@
 
 
 -- | Please see the README on GitHub at
---   <a>https://github.com/f-o-a-m/hs-abci/hs-tendermint-client#readme</a>
+--   <a>https://github.com/f-o-a-m/kepler/blob/master/hs-tendermind-client/README.md</a>
 @package hs-tendermint-client
 @version 0.1.0.0
 

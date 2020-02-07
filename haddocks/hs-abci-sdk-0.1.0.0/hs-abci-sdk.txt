@@ -3,7 +3,7 @@
 
 
 -- | Please see the README on GitHub at
---   <a>https://github.com/f-o-a-m/hs-abci/hs-abci-sdk#readme</a>
+--   <a>https://github.com/f-o-a-m/kepler/blob/master/hs-abci-sdk/README.md</a>
 @package hs-abci-sdk
 @version 0.1.0.0
 

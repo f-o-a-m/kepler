@@ -3,7 +3,7 @@
 
 
 -- | Please see the README on GitHub at
---   <a>https://github.com/githubuser/hs-abci-test-utils#readme</a>
+--   <a>https://github.com/f-o-a-m/kepler/blob/master/hs-abci-test-utils/README.md</a>
 @package hs-abci-test-utils
 @version 0.1.0.0
 
