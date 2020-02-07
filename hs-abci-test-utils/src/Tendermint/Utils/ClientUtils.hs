@@ -125,7 +125,7 @@ ensureQueryResponseCode code resp = case resp of
 
 rpcConfig :: RPC.Config
 rpcConfig =
-  let RPC.Config baseReq _ _ = RPC.defaultConfig "localhost" 26657
+  let RPC.Config baseReq _ _ host port tls = RPC.defaultConfig "localhost" 26657 False
       prettyPrint :: forall b. ToJSON b => String -> b -> IO ()
       prettyPrint prefix a = putStrLn $ prefix <> "\n" <> (cs . encodePretty $ a)
-  in RPC.Config baseReq (prettyPrint "RPC Request") (prettyPrint "RPC Response")
+  in RPC.Config baseReq (prettyPrint "RPC Request") (prettyPrint "RPC Response") host port tls
