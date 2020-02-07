@@ -1,13 +1,13 @@
 module Tendermint.SDK.BaseApp.Transaction.Effect
   ( TxEffs
-  , TransactionContext(..)
-  , newTransactionContext
   , runTx
   ) where
 
+import           Control.Lens                             ((&), (.~))
 import           Control.Monad.IO.Class                   (liftIO)
-import           Data.IORef                               (IORef, newIORef,
-                                                           readIORef,
+import           Data.ByteArray.Base64String              (fromBytes)
+import           Data.Default.Class                       (def)
+import           Data.IORef                               (IORef, readIORef,
                                                            writeIORef)
 import           Polysemy                                 (Embed, Member,
                                                            Members, Sem,
@@ -20,24 +20,20 @@ import           Polysemy.Output                          (Output,
 import qualified Polysemy.State                           as State
 import           Polysemy.Tagged                          (Tagged (..))
 import           Tendermint.SDK.BaseApp.Errors            (AppError,
-                                                             txResultAppError)
+                                                           txResultAppError)
 import qualified Tendermint.SDK.BaseApp.Events            as E
 import qualified Tendermint.SDK.BaseApp.Gas               as G
 import           Tendermint.SDK.BaseApp.Store.RawStore    (ReadStore (..),
                                                            WriteStore (..))
 import qualified Tendermint.SDK.BaseApp.Transaction.Cache as Cache
-import           Tendermint.SDK.BaseApp.Transaction.Types (RoutingTx (..))
+import           Tendermint.SDK.BaseApp.Transaction.Types
+import           Tendermint.SDK.Codec                     (HasCodec (..))
 import           Tendermint.SDK.Types.Effects             ((:&))
-import           Tendermint.SDK.Codec (HasCodec(..))
-import           Tendermint.SDK.Types.Transaction         (Tx (..))
-import Data.Default.Class (def)
-import           Tendermint.SDK.Types.TxResult (TxResult,
-                                                             txResultData,
-                                                             txResultEvents,
-                                                             txResultGasUsed,
-                                                             txResultGasWanted)
-import Control.Lens ((&), (.~))
-import Data.ByteArray.Base64String (fromBytes)
+import           Tendermint.SDK.Types.TxResult            (TxResult,
+                                                           txResultData,
+                                                           txResultEvents,
+                                                           txResultGasUsed,
+                                                           txResultGasWanted)
 
 
 type TxEffs =
@@ -47,25 +43,6 @@ type TxEffs =
     , Tagged Cache.Cache ReadStore
     , Error AppError
     ]
-
-data TransactionContext = TransactionContext
-  { gasRemaining :: IORef G.GasAmount
-  , storeCache   :: IORef Cache.Cache
-  , events       :: IORef [E.Event]
-  }
-
-newTransactionContext
-  :: RoutingTx msg
-  -> IO TransactionContext
-newTransactionContext (RoutingTx Tx{txGas}) = do
-  initialGas <- newIORef $ G.GasAmount txGas
-  initialCache <- newIORef Cache.emptyCache
-  es <- newIORef []
-  pure TransactionContext
-    { gasRemaining = initialGas
-    , storeCache = initialCache
-    , events = es
-    }
 
 eval
   :: forall r a.
@@ -87,7 +64,7 @@ runTx
   => HasCodec a
   => TransactionContext
   -> Sem (TxEffs :& r) a
-  -> Sem r TxResult
+  -> Sem r (TxResult, Maybe Cache.Cache)
 runTx ctx@TransactionContext{..} tx = do
   initialGas <- liftIO $ readIORef gasRemaining
   eRes <- eval ctx tx
@@ -97,11 +74,14 @@ runTx ctx@TransactionContext{..} tx = do
         def & txResultGasWanted .~ G.unGasAmount initialGas
             & txResultGasUsed .~ G.unGasAmount gasUsed
   case eRes of
-    Left e -> return $ baseResponse & txResultAppError .~ e
+    Left e -> return (baseResponse & txResultAppError .~ e, Nothing)
     Right a -> do
         es <- liftIO $ readIORef events
-        return $ baseResponse & txResultEvents .~ es
+        c <- liftIO $ readIORef storeCache
+        return ( baseResponse & txResultEvents .~ es
                               & txResultData .~ fromBytes (encode a)
+               , Just c
+               )
 
 evalCachedReadStore
   :: Members [Embed IO, ReadStore] r

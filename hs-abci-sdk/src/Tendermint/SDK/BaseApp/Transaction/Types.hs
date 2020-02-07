@@ -7,14 +7,22 @@ module Tendermint.SDK.BaseApp.Transaction.Types
   , Tx(..)
   ) where
 
-import           Control.Lens                     (lens)
-import           Data.ByteString                  (ByteString)
-import           Data.Kind                        (Constraint)
-import           Polysemy                         (EffectRow, Member)
-import           Tendermint.SDK.BaseApp.Router    (HasPath (..))
-import           Tendermint.SDK.BaseApp.Store     (WriteStore)
-import           Tendermint.SDK.Types.Transaction (Tx (..))
-import           Tendermint.SDK.Types.TxResult    (TxResult)
+import           Control.Lens                             (lens)
+import           Data.ByteString                          (ByteString)
+import           Data.IORef                               (IORef, newIORef)
+import           Data.Kind                                (Constraint)
+import           Polysemy                                 (EffectRow, Member)
+import qualified Tendermint.SDK.BaseApp.Events            as E
+import qualified Tendermint.SDK.BaseApp.Gas               as G
+import           Tendermint.SDK.BaseApp.Router            (HasPath (..))
+import           Tendermint.SDK.BaseApp.Store             (WriteStore)
+import qualified Tendermint.SDK.BaseApp.Transaction.Cache as Cache
+import           Tendermint.SDK.Types.Transaction         (Tx (..))
+import           Tendermint.SDK.Types.TxResult            (TxResult)
+
+--------------------------------------------------------------------------------
+-- Router Types and Combinators
+--------------------------------------------------------------------------------
 
 data msg :~> a
 
@@ -26,6 +34,12 @@ data Return' (c :: OnCheck) a
 
 type Return = Return' 'OnCheckUnit
 
+data EmptyTxServer = EmptyTxServer
+
+--------------------------------------------------------------------------------
+-- RouteContext and Singletons
+--------------------------------------------------------------------------------
+
 data RouteContext = CheckTx | DeliverTx deriving (Eq, Show)
 
 data SRouteContext (c :: RouteContext) where
@@ -36,9 +50,9 @@ type family HasWriteInContext (c :: RouteContext) (r :: EffectRow) :: Constraint
   HasWriteInContext 'CheckTx _ = ()
   HasWriteInContext 'DeliverTx r = Member WriteStore r
 
-type TransactionApplication m = RoutingTx ByteString -> m TxResult
-
-data EmptyTxServer = EmptyTxServer
+--------------------------------------------------------------------------------
+-- Transaction Application types
+--------------------------------------------------------------------------------
 
 data RoutingTx msg where
   RoutingTx :: Tx alg msg -> RoutingTx msg
@@ -49,3 +63,26 @@ instance Functor RoutingTx where
 instance HasPath (RoutingTx msg) where
   path = lens (\(RoutingTx tx) -> txRoute tx)
     (\(RoutingTx tx) r -> RoutingTx tx {txRoute = r})
+
+data TransactionContext = TransactionContext
+  { gasRemaining :: IORef G.GasAmount
+  , storeCache   :: IORef Cache.Cache
+  , events       :: IORef [E.Event]
+  }
+
+newTransactionContext
+  :: RoutingTx msg
+  -> IO TransactionContext
+newTransactionContext (RoutingTx Tx{txGas}) = do
+  initialGas <- newIORef $ G.GasAmount txGas
+  initialCache <- newIORef Cache.emptyCache
+  es <- newIORef []
+  pure TransactionContext
+    { gasRemaining = initialGas
+    , storeCache = initialCache
+    , events = es
+    }
+
+type TransactionApplication m =
+  RoutingTx ByteString -> m (TxResult, Maybe Cache.Cache)
+
