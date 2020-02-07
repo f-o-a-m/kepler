@@ -43,5 +43,3 @@ server =
 Here `RouteT` is a type family that can build a server from the `Api` type to handle incoming requests. It is similar to how `servant` works, and is largely vendored from that codebase.
 
 Note that more advanced queries are possible other than just serving what is in storage. For example you might want to use joins to fulfill requests or use query parameters in the url. These are all possible, but we won't go into details here as they are not used in the app.
-
-[Next: Router](Router.md)

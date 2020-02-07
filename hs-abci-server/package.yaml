@@ -1,12 +1,12 @@
 name:                hs-abci-server
 version:             0.1.0.0
-github:              "f-o-a-m/hs-abci/hs-abci-server"
+github:              "f-o-a-m/kepler/hs-abci-server"
 license:             Apache
 author:              "Martin Allen"
 maintainer:          "martin@foam.space"
-copyright:           "2019 Martin Allen"
+copyright:           "2020 Martin Allen"
 
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-server#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-abci-server/README.md>
 
 default-extensions:
 - NamedFieldPuns

@@ -19,5 +19,5 @@ it will build an image for simple-storage and launch it in a docker network
 with a tendermint-core node.
 
 ## Application Messages
-The application uses a protobuf file to define its [transaction messages](https://github.com/f-o-a-m/hs-abci/blob/master/hs-abci-examples/simple-storage/protos/simple-storage/messages.proto). Thus if you would like to post transactions to this application via RPC, you will need to first consume
+The application uses a protobuf file to define its [transaction messages](https://github.com/f-o-a-m/kepler/blob/master/hs-abci-docs/simple-storage/protos/simple-storage/messages.proto). Thus if you would like to post transactions to this application via RPC, you will need to first consume
 this profobuf file. You can follow the pattern in the test suite using hs-tendermint-client.

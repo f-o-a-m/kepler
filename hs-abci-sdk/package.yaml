@@ -1,12 +1,12 @@
 name:                hs-abci-sdk
 version:             0.1.0.0
-github:              "f-o-a-m/hs-abci/hs-abci-sdk"
+github:              "f-o-a-m/kepler/hs-abci-sdk"
 license:             Apache
 author:              Martin Allen
 maintainer:          "martin@foam.space"
-copyright:           "2019 Martin Allen"
+copyright:           "2020 Martin Allen"
 
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-sdk#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-abci-sdk/README.md>
 
 extra-source-files:
 - protos/**/*.proto

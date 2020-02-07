@@ -30,5 +30,3 @@ These effects are:
 `BaseApp` acts as an intermediate effect system for specifying applications, it does not make any assumptions about how these effects will be interpreted at runtime. For example, `RawStore` could eventualy be interpeted by any persistent or in-memory storage capable of handling the commands `Put`, `Get` etc.
 
 Most of the work in writing modules involves plugging into `BaseApp` at various points. For example, your module can create custom errors to throw or catch, but you must tell the SDK how to translate this custom error into an `AppError`. Likewise your module can define custom events to log during transaction execution, but you must describe to the SDK how to translate these custom events types into the type `Event`.
-
-[Next: Modules](Modules.md)

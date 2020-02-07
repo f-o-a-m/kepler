@@ -1,42 +1,10 @@
 ---
-title: Overview
+title: Tutorial
 ---
 
 ## Introduction
 
 We're going to build an example application that mirrors the `golang` [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) example application called [Nameservice](https://github.com/cosmos/sdk-tutorials/tree/master/nameservice). There is also a tutorial for that application which you can find [here](https://tutorials.cosmos.network/nameservice/tutorial/00-intro.html) for comparison.
-
-## Contents
-1. [Introduction](README.md)
-    - [Application Specification](README.md#application-specification)
-    - [How to Read this Tutorial](README.md#how-to-read-this-tutorial)
-    - [Tutorial Goals](README.md#tutorial-goals)
-2. Foundations
-    - [Overview](Foundations/Overview.md)
-    - [BaseApp](Foundations/BaseApp.md)
-    - [Modules](Foundations/Modules.md)
-        1. [Definition](Foundations/Modules.md#definition)
-        2. [Composition](Foundations/Modules.md#composition)
-3. Nameservice
-    - [Overview](Tutorial/Nameservice/Overview.md)
-    - [Types](Tutorial/Nameservice/Types.md)
-        1. [Using A Typed Key Value Store](Tutorial/Nameservice/Types.md#using-a-typed-key-value-store)
-        2. [Tutorial.Nameservice.Types](Tutorial/Nameservice/Types.md#tutorialnameservicetypes)
-    - [Message](Tutorial/Nameservice/Message.md)
-        1. [Message Types](Tutorial/Nameservice/Message.md#message-types)
-        2. [Tutorial.Nameservice.Message](Tutorial/Nameservice/Message.md#tutorialnameservicemessage)
-    - [Keeper](Tutorial/Nameservice/Keeper.md)
-        1. [Definition](Tutorial/Nameservice/Keeper.md#definition)
-        2. [Tutorial.Nameservice.Keeper](Tutorial/Nameservice/Keeper.md#tutorialnameservicekeeper)
-    - [Query](Tutorial/Nameservice/Query.md)
-        1. [Definition](Tutorial/Nameservice/Query.md#definition)
-        2. [Tutorial.Nameservice.Query](Tutorial/Nameservice/Query.md#tutorialnameservicequery)
-    - [Module](Tutorial/Nameservice/Module.md)
-        1. [Tutorial.Nameservice.Module](Tutorial/Nameservice/Module.md#tutorialnameservicemodule)
-    - [Application](Tutorial/Nameservice/Application.md)
-        1. [From Modules To App](Tutorial/Nameservice/Application.md#from-modules-to-app)
-        2. [Tutorial.Nameservice.Application](Tutorial/Nameservice/Application.md#tutorialnameserviceapplication)
-
 
 ## Application Specification
 The Nameservice application is a simple marketplace for a name resolution service. Let us say that a `Name` resolves to type called `Whois` where 
@@ -67,7 +35,7 @@ The benefit of this is that we don't have to develop the entire application in t
 
 ## Tutorial Goals
 The goal of this tutorial is to explain how the Nameservice app is constructed using the `hs-abci-sdk` package. Nameservice is a relatively simple but still non-trivial application.
-If you would like to start with something simpler, you can view the tutorial for the [simple-storage](https://github.com/f-o-a-m/hs-abci/tree/master/hs-abci-examples/simple-storage) example application.
+If you would like to start with something simpler, you can view the tutorial for the [simple-storage](https://github.com/f-o-a-m/kepler/tree/master/hs-abci-docs/simple-storage) example application.
 
 This tutorial should teach you:
 1. How to construct application specific modules.
@@ -85,5 +53,3 @@ It is also allows the application developer to construct modules without much re
 main :: IO ()
 main = pure ()
 ~~~
-
-[Next: BaseApp](Foundations/Overview.md)

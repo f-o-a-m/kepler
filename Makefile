@@ -39,7 +39,7 @@ stylish: ## Run stylish-haskell over all haskell projects
 	find ./hs-abci-types \
 	./hs-abci-extra \
 	./hs-tendermint-client \
-	./hs-abci-examples \
+	./hs-abci-docs \
 	./hs-abci-sdk \
 	./hs-abci-test-utils \
 	./hs-abci-server \
@@ -80,13 +80,13 @@ test-iavl-client: ## test the iavl client library basic operation (requires grpc
 #####################
 
 deploy-simple-storage-docker: install ## run the simple storage docker network
-	docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml up --build
+	docker-compose -f hs-abci-docs/simple-storage/docker-compose.yaml up --build
 
 deploy-nameservice: install ## run the nameservice docker network with elk stack for logging
-	docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml up --build
+	docker-compose -f hs-abci-docs/nameservice/docker-compose.yaml up --build
 
 deploy-nameservice-test: install ## run the nameservice docker network for testing
-	docker-compose -f hs-abci-examples/nameservice/docker-compose-test.yaml up --build
+	docker-compose -f hs-abci-docs/nameservice/docker-compose-test.yaml up --build
 
 
 #####################

@@ -1,7 +1,7 @@
 name:                kepler
 version:             1.0.0.0
 github:              "f-o-a-m/kepler"
-license:             BSD3
+license:             Apache
 author:              "f-o-a-m"
 maintainer:          "martin@foam.space"
 copyright:           "2020 FOAM"
