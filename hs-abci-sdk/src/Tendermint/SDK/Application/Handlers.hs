@@ -11,7 +11,6 @@ import           Crypto.Hash.Algorithms                 (SHA256)
 import qualified Data.ByteArray.Base64String            as Base64
 import           Data.Default.Class                     (Default (..))
 import           Data.Proxy
-import           Data.Singletons
 import           Network.ABCI.Server.App                (App (..),
                                                          MessageType (..),
                                                          Request (..),
@@ -23,7 +22,7 @@ import           Polysemy.Error                         (Error, catch)
 import           Tendermint.SDK.Application.AnteHandler (AnteHandler,
                                                          applyAnteHandler)
 import qualified Tendermint.SDK.Application.Module      as M
-import qualified Tendermint.SDK.BaseApp                 as BA
+import qualified Tendermint.SDK.BaseApp         as BA
 import           Tendermint.SDK.BaseApp.CoreEff         (CoreEffs)
 import           Tendermint.SDK.BaseApp.Errors          (AppError,
                                                          SDKError (..),
@@ -33,13 +32,14 @@ import           Tendermint.SDK.BaseApp.Errors          (AppError,
 import qualified Tendermint.SDK.BaseApp.Query           as Q
 import           Tendermint.SDK.BaseApp.Store           (ConnectionScope (..))
 import qualified Tendermint.SDK.BaseApp.Store           as Store
-import qualified Tendermint.SDK.BaseApp.Store.IAVLStore as IAVL
 import           Tendermint.SDK.BaseApp.Transaction     as T
 import           Tendermint.SDK.Crypto                  (RecoverableSignatureSchema,
                                                          SignatureSchema (..))
 import           Tendermint.SDK.Types.Transaction       (parseTx)
 import           Tendermint.SDK.Types.TxResult          (checkTxTxResult,
                                                          deliverTxTxResult)
+import Data.Singletons
+import qualified Tendermint.SDK.BaseApp.Store.IAVLStore as IAVL
 
 
 type Handler mt r = Request mt -> Sem r (Response mt)
@@ -78,7 +78,7 @@ defaultHandlers = Handlers
 
 data HandlersContext alg ms r core = HandlersContext
   { signatureAlgP :: Proxy alg
-  , modules       :: M.Modules ms r
+  , modules       :: M.ModuleList ms r
   , compileToCore :: forall a. Sem (BA.BaseAppEffs BA.:& core) a -> Sem core a
   , anteHandler   :: AnteHandler r
   }
@@ -89,38 +89,48 @@ makeHandlers
      Member (Error AppError) r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
-  => M.AppTxRouter ms r 'T.DeliverTx
-  => M.AppTxRouter ms r 'T.CheckTx
-  => M.AppQueryRouter ms r
-  => Q.HasQueryRouter (M.QApi ms) r
-  => T.HasTxRouter (M.TApi ms) r 'T.DeliverTx
-  => T.HasTxRouter (M.TApi ms) r 'T.CheckTx
-  => Members CoreEffs core
+  => M.ToApplication ms (M.Effs ms core)
+  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms core)
+  => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs BA.:& core)
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms core)
+  => T.HasTxRouter (M.ApplicationD ms) (BA.BaseAppEffs BA.:& core)
+  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms core)
+  => Q.HasQueryRouter (M.ApplicationQ ms) (BA.BaseAppEffs BA.:& core)
   => M.Eval ms core
   => M.Effs ms core ~ r
+  => Members CoreEffs core
   => HandlersContext alg ms r core
   -> Handlers core
-makeHandlers HandlersContext{..} =
+makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
   let
-      compileToBaseApp :: forall a. Sem r a -> Sem (BA.BaseAppEffs BA.:& core) a
-      compileToBaseApp = IAVL.evalWrite undefined  . M.eval modules
 
-      queryRouter = compileToBaseApp . M.appQueryRouter modules
+      app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms) 
+               (T.TxEffs BA.:& BA.BaseAppEffs BA.:& core) (Q.QueryEffs BA.:& BA.BaseAppEffs BA.:& core)
+      app = M.makeApplication (Proxy :: Proxy core) modules
+
+      rProxy :: Proxy (BA.BaseAppEffs BA.:& core)
+      rProxy = Proxy
 
       txParser bs = case parseTx signatureAlgP bs of
         Left err -> throwSDKError $ ParseError err
         Right tx -> pure $ T.RoutingTx tx
 
-      txRouter ctx bs = compileToBaseApp $ do
-        let router = applyAnteHandler anteHandler $ M.appTxRouter modules ctx
-        tx <- txParser bs
-        router tx
+      checkServer :: T.TransactionApplication (Sem (BA.BaseAppEffs BA.:& core))
+      checkServer = -- applyAnteHandler anteHandler $
+        T.serveTxApplication (Proxy @(M.ApplicationC ms)) rProxy $ M.applicationTxChecker app
 
-      query (RequestQuery q) =
+      deliverServer :: T.TransactionApplication (Sem (BA.BaseAppEffs BA.:& core))
+      deliverServer = -- applyAnteHandler anteHandler $
+        T.serveTxApplication (Proxy @(M.ApplicationD ms)) rProxy $ M.applicationTxDeliverer app
+
+      queryServer :: Q.QueryApplication (Sem (BA.BaseAppEffs BA.:& core))
+      queryServer = Q.serveQueryApplication (Proxy @(M.ApplicationQ ms)) rProxy $ M.applicationQuerier app
+
+      query (RequestQuery q) = 
         --Store.applyScope $
         catch
           (do
-            queryResp <- queryRouter q
+            queryResp <- queryServer q
             pure $ ResponseQuery queryResp
           )
           (\(err :: AppError) ->
@@ -132,7 +142,9 @@ makeHandlers HandlersContext{..} =
       checkTx (RequestCheckTx _checkTx) =  do
         res <- catch
           ( let txBytes =  _checkTx ^. Req._checkTxTx . to Base64.toBytes
-            in  txRouter (sing :: Sing 'T.CheckTx) txBytes
+            in do
+               (res, _) <- txParser txBytes >>= checkServer
+               pure res
           )
           (\(err :: AppError) ->
             return $ def & txResultAppError .~ err
@@ -142,7 +154,9 @@ makeHandlers HandlersContext{..} =
       deliverTx (RequestDeliverTx _deliverTx) = do
         res <- catch @AppError
           ( let txBytes = _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
-            in txRouter (sing :: Sing 'T.CheckTx) txBytes
+            in do
+               (res, _) <- txParser txBytes >>= deliverServer
+               pure res
           )
           (\(err :: AppError) ->
             return $ def & txResultAppError .~ err
@@ -170,15 +184,20 @@ makeApp
      Members [Error AppError, Embed IO] r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
-  => M.AppTxRouter ms r 'DeliverTx
-  => M.AppTxRouter ms r 'CheckTx
-  => M.AppQueryRouter ms r
-  => Q.HasQueryRouter (M.QApi ms) r
-  => T.HasTxRouter (M.TApi ms) r 'T.DeliverTx
-  => T.HasTxRouter (M.TApi ms) r 'T.CheckTx
-  => Members CoreEffs core
+
+  => M.ToApplication ms (M.Effs ms core)
+  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms core)
+  => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs BA.:& core)
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms core)
+  => T.HasTxRouter (M.ApplicationD ms) (BA.BaseAppEffs BA.:& core)
+  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms core)
+  => Q.HasQueryRouter (M.ApplicationQ ms) (BA.BaseAppEffs BA.:& core)
+
   => M.Eval ms core
   => M.Effs ms core ~ r
+
+  => Members CoreEffs core
+
   => HandlersContext alg ms r core
   -> App (Sem core)
 makeApp handlersContext@HandlersContext{compileToCore} =

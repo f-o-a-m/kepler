@@ -1,13 +1,5 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.Application.Module where
- -- ( Module(..)
- -- , Modules(..)
- -- , AppQueryRouter(..)
- -- , appQueryRouter
- -- , AppTxRouter(..)
- -- , appTxRouter
- -- , Eval(..)
- -- ) where
 
 import           Data.Proxy
 import           GHC.TypeLits                       (Symbol)
@@ -113,72 +105,3 @@ makeApplication (Proxy :: Proxy core) (ms :: ModuleList ms (Effs ms core)) =
   in hoistApplication (eval @ms @core ms) (T.evalReadOnly . eval @ms @core ms) app
 
 
-
--- --------------------------------------------------------------------------------
---
--- appQueryRouter
---   :: AppQueryRouter ms r
---   => Q.HasQueryRouter (QApi ms) r
---   => Modules ms r
---   -> Q.QueryApplication (Sem r)
--- appQueryRouter (ms :: Modules ms r) =
---   Q.serveQueryApplication (Proxy :: Proxy (QApi ms)) (Proxy :: Proxy r) (routeAppQuery ms)
---
--- class AppQueryRouter ms r where
---     type QApi ms :: *
---     routeAppQuery :: Modules ms r -> Q.RouteQ (QApi ms) r
---
--- instance AppQueryRouter '[Module name h q s r] r where
---     type QApi '[Module name h q s r] = name :> q
---     routeAppQuery (m :+ NilModules) = moduleQueryServer m
---
--- instance AppQueryRouter (m' ': ms) r => AppQueryRouter (Module name h q s r ': m' ': ms) r where
---     type QApi (Module name h q s r ': m' ': ms) = (name :> q) :<|> QApi (m' ': ms)
---     routeAppQuery (m :+ rest) = moduleQueryServer m :<|> routeAppQuery rest
---
--- --------------------------------------------------------------------------------
---
--- appTxRouter
---   :: AppTxRouter ms r 'T.DeliverTx
---   => AppTxRouter ms r 'T.CheckTx
---   => T.HasTxRouter (TApi ms) (WriteStore ': r) 'T.DeliverTx
---   => T.HasTxRouter (TApi ms) r 'T.CheckTx
---   => Modules ms r
---   -> Sing (c :: T.RouteContext)
---   -> T.TransactionApplication (Sem (AddWriteStore c r))
--- appTxRouter (ms :: Modules ms r) ctx =
---   case ctx of
---     T.SCheckTx ->
---       T.serveTxApplication (Proxy :: Proxy (TApi ms)) (Proxy :: Proxy r)
---            ctx (routeAppTx ctx ms)
---     T.SDeliverTx ->
---       T.serveTxApplication (Proxy :: Proxy (TApi ms)) (Proxy :: Proxy (WriteStore ': r))
---            ctx (routeAppTx ctx ms)
---
--- type family AddWriteStore (c :: T.RouteContext) (r :: EffectRow) :: EffectRow where
---   AddWriteStore 'T.CheckTx r = r
---   AddWriteStore 'T.DeliverTx r = (WriteStore ': r)
---
--- class AppTxRouter ms r (c :: T.RouteContext) where
---     type TApi ms :: *
---     routeAppTx :: Sing c -> Modules ms r -> T.RouteTx (TApi ms) (AddWriteStore c r) c
---
--- instance AppTxRouter '[Module name h q s r] r 'T.CheckTx where
---     type TApi '[Module name h q s r] = name :> h
---     routeAppTx _ (m :+ NilModules) = moduleTxChecker m
---
--- instance AppTxRouter (m' ': ms) r 'T.CheckTx => AppTxRouter (Module name h q s r ': m' ': ms) r 'T.CheckTx where
---     type TApi (Module name h q s r ': m' ': ms) = (name :> h) :<|> TApi (m' ': ms)
---     routeAppTx pc (m :+ rest) = moduleTxChecker m :<|> routeAppTx pc rest
---
--- instance AppTxRouter '[Module name h q s r] r 'T.DeliverTx where
---     type TApi '[Module name h q s r] = name :> h
---     routeAppTx _ (m :+ NilModules) = moduleTxDeliverer m
---
--- instance AppTxRouter (m' ': ms) r 'T.DeliverTx => AppTxRouter (Module name h q s r ': m' ': ms) r 'T.DeliverTx where
---     type TApi (Module name h q s r ': m' ': ms) = (name :> h) :<|> TApi (m' ': ms)
---     routeAppTx pc (m :+ rest) = moduleTxDeliverer m :<|> routeAppTx pc rest
---
--- --------------------------------------------------------------------------------
---
--- -}

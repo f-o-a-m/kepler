@@ -34,6 +34,10 @@ class HasTxRouter layout (r :: EffectRow) where
         -> R.Delayed (Sem r) env (RoutingTx ByteString) (RouteTx layout (TxEffs :& r))
         -> R.Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
 
+--  applyAnteHandler
+--    :: Proxy layout
+--    => Proxy r
+--
   hoistTxRouter
     :: Proxy layout
     -> Proxy r
