@@ -88,6 +88,7 @@ jobs:
     - make build-docs-local
     - mkdir -p ./hs-abci-docs/.stack-work/tintin/rendered/haddocks
     - find ./ -type f -name "index.html" | grep -v tintin | sed 's/index.html//g' | xargs -I {} cp -r {} hs-abci-docs/.stack-work/tintin/rendered/haddocks/
+    - cat "kepler.dev" > ./hs-abci-docs/.stack-work/tintin/rendered/CNAME
     deploy:
       provider: pages
       local-dir: ./hs-abci-docs/.stack-work/tintin/rendered
