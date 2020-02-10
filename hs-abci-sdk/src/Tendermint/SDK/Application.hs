@@ -1,5 +1,5 @@
 module Tendermint.SDK.Application
-  ( Modules(..)
+  ( ModuleList(..)
   , Module(..)
   , HandlersContext(..)
   , AnteHandler(..)

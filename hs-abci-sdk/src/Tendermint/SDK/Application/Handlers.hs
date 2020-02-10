@@ -19,8 +19,8 @@ import qualified Network.ABCI.Types.Messages.Request    as Req
 import qualified Network.ABCI.Types.Messages.Response   as Resp
 import           Polysemy
 import           Polysemy.Error                         (Error, catch)
-import           Tendermint.SDK.Application.AnteHandler (AnteHandler,
-                                                         applyAnteHandler)
+import           Tendermint.SDK.Application.AnteHandler (AnteHandler)
+                       --                                  applyAnteHandler)
 import qualified Tendermint.SDK.Application.Module      as M
 import qualified Tendermint.SDK.BaseApp         as BA
 import           Tendermint.SDK.BaseApp.CoreEff         (CoreEffs)
@@ -30,16 +30,15 @@ import           Tendermint.SDK.BaseApp.Errors          (AppError,
                                                          throwSDKError,
                                                          txResultAppError)
 import qualified Tendermint.SDK.BaseApp.Query           as Q
-import           Tendermint.SDK.BaseApp.Store           (ConnectionScope (..))
-import qualified Tendermint.SDK.BaseApp.Store           as Store
+--import           Tendermint.SDK.BaseApp.Store           (ConnectionScope (..))
+--import qualified Tendermint.SDK.BaseApp.Store           as Store
 import           Tendermint.SDK.BaseApp.Transaction     as T
 import           Tendermint.SDK.Crypto                  (RecoverableSignatureSchema,
                                                          SignatureSchema (..))
 import           Tendermint.SDK.Types.Transaction       (parseTx)
 import           Tendermint.SDK.Types.TxResult          (checkTxTxResult,
                                                          deliverTxTxResult)
-import Data.Singletons
-import qualified Tendermint.SDK.BaseApp.Store.IAVLStore as IAVL
+--import qualified Tendermint.SDK.BaseApp.Store.IAVLStore as IAVL
 
 
 type Handler mt r = Request mt -> Sem r (Response mt)
