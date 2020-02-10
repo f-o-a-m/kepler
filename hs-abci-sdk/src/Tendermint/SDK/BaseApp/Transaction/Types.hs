@@ -28,11 +28,7 @@ data msg :~> a
 
 data TypedMessage msg
 
-data OnCheck = OnCheckEval | OnCheckUnit
-
-data Return' (c :: OnCheck) a
-
-type Return = Return' 'OnCheckUnit
+data Return a
 
 data EmptyTxServer = EmptyTxServer
 

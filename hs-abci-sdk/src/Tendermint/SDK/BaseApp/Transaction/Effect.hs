@@ -1,6 +1,8 @@
 module Tendermint.SDK.BaseApp.Transaction.Effect
   ( TxEffs
   , runTx
+  , eval
+  , evalReadOnly
   ) where
 
 import           Control.Lens                             ((&), (.~))
@@ -10,12 +12,12 @@ import           Data.Default.Class                       (def)
 import           Data.IORef                               (IORef, readIORef,
                                                            writeIORef)
 import           Polysemy                                 (Embed, Member,
-                                                           Members, Sem,
-                                                           interpret,
+                                                           Members, Sem, subsume,
+                                                           interpret, rewrite,
                                                            raiseUnder)
 import           Polysemy.Error                           (Error, runError)
 import           Polysemy.Internal                        (send)
-import           Polysemy.Output                          (Output,
+import           Polysemy.Output                          (Output, ignoreOutput,
                                                            runOutputMonoidIORef)
 import qualified Polysemy.State                           as State
 import           Polysemy.Tagged                          (Tagged (..))
@@ -39,8 +41,8 @@ import           Tendermint.SDK.Types.TxResult            (TxResult,
 type TxEffs =
     [ Output E.Event
     , G.GasMeter
-    , Tagged Cache.Cache WriteStore
-    , Tagged Cache.Cache ReadStore
+    , WriteStore
+    , ReadStore
     , Error AppError
     ]
 
@@ -53,11 +55,30 @@ eval
 eval TransactionContext{..} = do
   runError .
     evalCachedReadStore storeCache .
+    rewrite (Tagged @Cache.Cache) .
     evalCachedWriteStore storeCache .
+    rewrite (Tagged @Cache.Cache) .
     State.runStateIORef gasRemaining .
     G.eval .
     raiseUnder @(State.State G.GasAmount) .
     runOutputMonoidIORef events (pure @[])
+
+evalReadOnly
+  :: Members [ReadStore, Error AppError] r 
+  => forall a. 
+     Sem (TxEffs :& r) a
+  -> Sem r a
+evalReadOnly = 
+    subsume @(Error AppError).
+    subsume @ReadStore. 
+    writeNothing . 
+    G.doNothing . 
+    ignoreOutput
+  where
+    writeNothing = interpret (\case
+      StorePut _ _ -> pure ()
+      StoreDelete _ -> pure ()
+      )
 
 runTx
   :: Members [Embed IO, ReadStore] r

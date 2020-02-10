@@ -31,7 +31,7 @@ instance (Queryable a, Members QueryEffs r, KnownSymbol (Name a)) => HasQueryRou
    type RouteQ (StoreLeaf a) r = Sem r (QueryResult a)
    routeQ _ _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter
      where proxyPath = Proxy :: Proxy (Name a)
-   hoistQueryRouter _ = ($)
+   hoistQueryRouter _ _ = ($)
 
 class StoreQueryHandler a (ns :: Symbol) h where
     storeQueryHandler :: Proxy a -> StoreKey ns -> h

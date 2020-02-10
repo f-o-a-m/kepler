@@ -4,6 +4,7 @@ module Tendermint.SDK.BaseApp.Gas
   , GasAmount(..)
   , withGas
   , eval
+  , doNothing
   ) where
 
 import           Data.Int                      (Int64)
@@ -37,4 +38,15 @@ eval = interpretH (\case
         put balanceAfterAction
         a <- runT action
         raise $ eval a
+  )
+
+doNothing 
+  :: forall r.
+     forall a. 
+     Sem (GasMeter ': r) a
+  -> Sem r a
+doNothing = interpretH (\case 
+  WithGas _ action -> do
+    a <- runT action
+    raise $ doNothing a
   )

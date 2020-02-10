@@ -7,6 +7,7 @@ module Tendermint.SDK.BaseApp.Transaction
   , emptyTxServer
   , DefaultCheckTx(..)
   , TxEffs
+  , evalReadOnly
   ) where
 
 import           Control.Lens                               ((&), (.~))

@@ -1,7 +1,6 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.SDK.BaseApp.Query.Router
   ( HasQueryRouter(..)
-  , emptyQueryServer
   , methodRouter
   ) where
 
@@ -48,7 +47,7 @@ class HasQueryRouter layout r where
     -> R.Delayed (Sem r) env QueryRequest (RouteQ layout (QueryEffs :& r))
     -> R.Router env r QueryRequest Response.Query
 
-  hoistQueryRouter :: Proxy layout -> (forall a. Sem r a -> Sem r' a) -> RouteQ layout r -> RouteQ layout r'
+  hoistQueryRouter :: Proxy layout -> Proxy r -> (forall a. Sem s a -> Sem s' a) -> RouteQ layout s -> RouteQ layout s'
 
 instance (HasQueryRouter a r, HasQueryRouter b r) => HasQueryRouter (a :<|> b) r where
   type RouteQ (a :<|> b) r = RouteQ a r :<|> RouteQ b r
@@ -56,8 +55,8 @@ instance (HasQueryRouter a r, HasQueryRouter b r) => HasQueryRouter (a :<|> b) r
   routeQ _ pr server =
      R.choice (routeQ (Proxy @a) pr ((\ (a :<|> _) -> a) <$> server))
               (routeQ (Proxy @b) pr ((\ (_ :<|> b) -> b) <$> server))
-  hoistQueryRouter _ nat (a :<|> b) =
-    hoistQueryRouter (Proxy @a) nat a :<|> hoistQueryRouter (Proxy @b) nat b
+  hoistQueryRouter _ pr nat (a :<|> b) =
+    hoistQueryRouter (Proxy @a) pr nat a :<|> hoistQueryRouter (Proxy @b) pr nat b
 
 instance (HasQueryRouter sublayout r, KnownSymbol path) => HasQueryRouter (path :> sublayout) r where
 
@@ -67,7 +66,7 @@ instance (HasQueryRouter sublayout r, KnownSymbol path) => HasQueryRouter (path 
     R.pathRouter (cs (symbolVal proxyPath)) (routeQ (Proxy :: Proxy sublayout) pr subserver)
     where proxyPath = Proxy :: Proxy path
 
-  hoistQueryRouter _ nat = hoistQueryRouter (Proxy @sublayout) nat
+  hoistQueryRouter _ pr nat = hoistQueryRouter (Proxy @sublayout) pr nat
 
 instance ( HasQueryRouter sublayout r, KnownSymbol sym, FromHttpApiData a
          , SBoolI (FoldRequired mods), SBoolI (FoldLenient mods)
@@ -88,7 +87,7 @@ instance ( HasQueryRouter sublayout r, KnownSymbol sym, FromHttpApiData a
         delayed = R.addParameter subserver $ R.withRequest parseParam
     in routeQ (Proxy :: Proxy sublayout) pr delayed
 
-  hoistQueryRouter _ nat f = hoistQueryRouter (Proxy @sublayout) nat . f
+  hoistQueryRouter _ pr nat f = hoistQueryRouter (Proxy @sublayout) pr nat . f
 
 instance (FromHttpApiData a, HasQueryRouter sublayout r) => HasQueryRouter (Capture' mods capture a :> sublayout) r where
 
@@ -102,7 +101,7 @@ instance (FromHttpApiData a, HasQueryRouter sublayout r) => HasQueryRouter (Capt
                  Nothing -> R.delayedFail R.PathNotFound
                  Just v  -> return v
               )
-  hoistQueryRouter _ nat f = hoistQueryRouter (Proxy @sublayout) nat . f
+  hoistQueryRouter _ pr nat f = hoistQueryRouter (Proxy @sublayout) pr nat . f
 
 instance (FromQueryData a, HasQueryRouter sublayout r) => HasQueryRouter (QA a :> sublayout) r where
 
@@ -119,21 +118,18 @@ instance (FromQueryData a, HasQueryRouter sublayout r) => HasQueryRouter (QA a :
         delayed = R.addBody subserver $ R.withRequest parseQueryArgs
     in routeQ (Proxy :: Proxy sublayout) pr delayed
 
-  hoistQueryRouter _ nat f = hoistQueryRouter (Proxy @sublayout) nat . f
+  hoistQueryRouter _ pr nat f = hoistQueryRouter (Proxy @sublayout) pr nat . f
 
 instance (Member ReadStore r, HasCodec a) => HasQueryRouter (Leaf a) r where
 
    type RouteQ (Leaf a) r = Sem r (QueryResult a)
    routeQ _ _ = methodRouter
-   hoistQueryRouter _ = ($)
-
-emptyQueryServer :: RouteQ EmptyQueryServer r
-emptyQueryServer = EmptyQueryServer
+   hoistQueryRouter _ _ = ($)
 
 instance HasQueryRouter EmptyQueryServer r where
   type RouteQ EmptyQueryServer r = EmptyQueryServer
   routeQ _ _ _ = R.StaticRouter mempty mempty
-  hoistQueryRouter _ _ = id
+  hoistQueryRouter _ _ _ = id
 
 --------------------------------------------------------------------------------
 

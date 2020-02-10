@@ -72,8 +72,7 @@ module Tendermint.SDK.BaseApp
   , (:~>)
   , TypedMessage
   , TxEffs
-  , EmptyTxServer
-  , emptyTxServer
+  , EmptyTxServer(..)
   , serveTxApplication
   , DefaultCheckTx(..)
 
@@ -86,8 +85,7 @@ module Tendermint.SDK.BaseApp
   , QueryResult(..)
   , storeQueryHandlers
   , serveQueryApplication
-  , EmptyQueryServer
-  , emptyQueryServer
+  , EmptyQueryServer(..)
 
   ) where
 
