@@ -1,6 +1,6 @@
 module Tendermint.SDK.Modules.Auth.Query
   ( Api
-  , server
+  , querier
   ) where
 
 import           Data.Proxy
@@ -19,8 +19,8 @@ type AuthContents = '[(Address, Account)]
 
 type Api = BaseApp.QueryApi AuthContents
 
-server
+querier
   :: Members QueryEffs r
   => BaseApp.RouteQ Api r
-server =
+querier =
   BaseApp.storeQueryHandlers (Proxy :: Proxy AuthContents) storeKey (Proxy :: Proxy r)

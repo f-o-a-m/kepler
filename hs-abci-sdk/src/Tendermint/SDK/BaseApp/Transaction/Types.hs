@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell      #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Tendermint.SDK.BaseApp.Transaction.Types
