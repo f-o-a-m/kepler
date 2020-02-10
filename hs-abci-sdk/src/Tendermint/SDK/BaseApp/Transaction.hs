@@ -22,7 +22,7 @@ import           Tendermint.SDK.BaseApp.Router              (Application,
                                                              emptyDelayed,
                                                              runRouter)
 import           Tendermint.SDK.BaseApp.Transaction.Cache   (Cache)
-import           Tendermint.SDK.BaseApp.Transaction.Checker (DefaultCheckTx (..))
+import           Tendermint.SDK.BaseApp.Transaction.Checker
 import           Tendermint.SDK.BaseApp.Transaction.Effect
 import           Tendermint.SDK.BaseApp.Transaction.Router
 import           Tendermint.SDK.BaseApp.Transaction.Types
@@ -30,14 +30,13 @@ import           Tendermint.SDK.Types.Effects               ((:&))
 import           Tendermint.SDK.Types.TxResult              (TxResult)
 
 serveTxApplication
-  :: HasTxRouter layout r c
+  :: HasTxRouter layout r
   => Proxy layout
   -> Proxy r
-  -> Proxy (c :: RouteContext)
-  -> RouteTx layout (TxEffs :& r) c
+  -> RouteTx layout (TxEffs :& r)
   -> TransactionApplication (Sem r)
-serveTxApplication pl pr pc server =
-  toTxApplication (runRouter (routeTx pl pr pc (emptyDelayed (Route server))) ())
+serveTxApplication pl pr server =
+  toTxApplication (runRouter (routeTx pl pr (emptyDelayed (Route server))) ())
 
 toTxApplication
   :: Application (Sem r) (RoutingTx ByteString) (TxResult, Maybe Cache)
@@ -50,11 +49,11 @@ toTxApplication ra tx = do
     Route a     -> pure a
 
 serveDefaultTxChecker
-  :: HasTxRouter layout r 'CheckTx
+  :: HasTxRouter (VoidReturn layout) r
   => DefaultCheckTx layout (TxEffs :& r)
-  => RouteTx layout (TxEffs :& r) 'CheckTx ~ DefaultCheckTxT layout (TxEffs :& r)
+  => RouteTx (VoidReturn layout) (TxEffs :& r) ~ DefaultCheckTxT layout (TxEffs :& r)
   => Proxy layout
   -> Proxy r
   -> TransactionApplication (Sem r)
-serveDefaultTxChecker pl (pr :: Proxy r) =
-  serveTxApplication pl pr (Proxy @'CheckTx) (defaultCheckTx pl (Proxy :: Proxy (TxEffs :& r)))
+serveDefaultTxChecker (pl :: Proxy layout) (pr :: Proxy r) =
+  serveTxApplication (Proxy :: Proxy (VoidReturn layout)) pr (defaultCheckTx pl (Proxy :: Proxy (TxEffs :& r)))

@@ -122,7 +122,6 @@ library:
   - Tendermint.SDK.BaseApp.Transaction.Cache
   - Tendermint.SDK.BaseApp.Transaction.Checker
   - Tendermint.SDK.BaseApp.Transaction.Effect
-  - Tendermint.SDK.BaseApp.Transaction.Modifier
   - Tendermint.SDK.BaseApp.Transaction.Router
   - Tendermint.SDK.BaseApp.Transaction.Types
   - Tendermint.SDK.Codec

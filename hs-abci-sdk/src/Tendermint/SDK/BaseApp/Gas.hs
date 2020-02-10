@@ -40,12 +40,12 @@ eval = interpretH (\case
         raise $ eval a
   )
 
-doNothing 
+doNothing
   :: forall r.
-     forall a. 
+     forall a.
      Sem (GasMeter ': r) a
   -> Sem r a
-doNothing = interpretH (\case 
+doNothing = interpretH (\case
   WithGas _ action -> do
     a <- runT action
     raise $ doNothing a

@@ -1,5 +1,6 @@
 module Tendermint.SDK.BaseApp.Transaction.Checker
   ( DefaultCheckTx(..)
+  , VoidReturn
   ) where
 
 import           Data.Proxy
@@ -25,6 +26,11 @@ defaultCheckTxHandler(RoutingTx Tx{txMsg}) =
       throwSDKError . MessageValidation . map formatMessageSemanticError $ err
     V.Success _ -> pure ()
 
+type family VoidReturn (api :: *) :: * where
+  VoidReturn (a :<|> b) = VoidReturn a :<|> VoidReturn b
+  VoidReturn (path :> a) = path :> VoidReturn a
+  VoidReturn (TypedMessage msg :~> Return a) = TypedMessage msg :~> Return ()
+
 class DefaultCheckTx api (r :: EffectRow) where
     type DefaultCheckTxT api r :: *
     defaultCheckTx :: Proxy api -> Proxy r -> DefaultCheckTxT api r
@@ -36,12 +42,12 @@ instance (DefaultCheckTx a r, DefaultCheckTx b r) => DefaultCheckTx (a :<|> b) r
         defaultCheckTx (Proxy :: Proxy a) pr :<|> defaultCheckTx (Proxy :: Proxy b) pr
 
 instance DefaultCheckTx rest r => DefaultCheckTx (path :> rest) r where
-    type DefaultCheckTxT (path :> rest) r = path :> DefaultCheckTxT rest r
+    type DefaultCheckTxT (path :> rest) r = DefaultCheckTxT rest r
 
     defaultCheckTx _ = defaultCheckTx (Proxy :: Proxy rest)
 
 instance (Member (Error AppError) r, ValidateMessage msg) =>  DefaultCheckTx (TypedMessage msg :~> Return a) r where
-    type DefaultCheckTxT (TypedMessage msg :~> Return a) r = TypedMessage msg -> Return ()
+    type DefaultCheckTxT (TypedMessage msg :~> Return a) r = RoutingTx msg -> Sem r ()
 
     defaultCheckTx _ _ = defaultCheckTxHandler
 

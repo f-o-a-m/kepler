@@ -4,65 +4,62 @@ module Tendermint.SDK.BaseApp.Transaction.Router
   , emptyTxServer
   ) where
 
-import           Control.Monad.IO.Class                      (liftIO)
-import           Data.ByteString                             (ByteString)
+import           Control.Monad.IO.Class                    (liftIO)
+import           Data.ByteString                           (ByteString)
 import           Data.Proxy
-import           Data.String.Conversions                     (cs)
-import           GHC.TypeLits                                (KnownSymbol,
-                                                              symbolVal)
-import           Polysemy                                    (EffectRow, Embed,
-                                                              Members, Sem)
+import           Data.String.Conversions                   (cs)
+import           GHC.TypeLits                              (KnownSymbol,
+                                                            symbolVal)
+import           Polysemy                                  (EffectRow, Embed,
+                                                            Members, Sem)
 import           Servant.API
-import qualified Tendermint.SDK.BaseApp.Router               as R
-import           Tendermint.SDK.BaseApp.Store                (ReadStore)
-import           Tendermint.SDK.BaseApp.Transaction.Cache    (Cache)
-import           Tendermint.SDK.BaseApp.Transaction.Effect   (TxEffs, runTx)
-import           Tendermint.SDK.BaseApp.Transaction.Modifier
+import qualified Tendermint.SDK.BaseApp.Router             as R
+import           Tendermint.SDK.BaseApp.Store              (ReadStore)
+import           Tendermint.SDK.BaseApp.Transaction.Cache  (Cache)
+import           Tendermint.SDK.BaseApp.Transaction.Effect (TxEffs, runTx)
 import           Tendermint.SDK.BaseApp.Transaction.Types
-import           Tendermint.SDK.Codec                        (HasCodec (..))
-import           Tendermint.SDK.Types.Effects                ((:&))
-import           Tendermint.SDK.Types.Message                (HasMessageType (..),
-                                                              Msg (..))
-import           Tendermint.SDK.Types.TxResult               (TxResult)
+import           Tendermint.SDK.Codec                      (HasCodec (..))
+import           Tendermint.SDK.Types.Effects              ((:&))
+import           Tendermint.SDK.Types.Message              (HasMessageType (..),
+                                                            Msg (..))
+import           Tendermint.SDK.Types.TxResult             (TxResult)
 
 --------------------------------------------------------------------------------
 
-class HasTxRouter layout (r :: EffectRow) (c :: RouteContext) where
-  type RouteTx layout (s :: EffectRow) c :: *
+class HasTxRouter layout (r :: EffectRow) where
+  type RouteTx layout (s :: EffectRow) :: *
   routeTx
         :: Proxy layout
         -> Proxy r
-        -> Proxy c
-        -> R.Delayed (Sem r) env (RoutingTx ByteString) (RouteTx layout (TxEffs :& r) c)
+        -> R.Delayed (Sem r) env (RoutingTx ByteString) (RouteTx layout (TxEffs :& r))
         -> R.Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
 
   hoistTxRouter
     :: Proxy layout
     -> Proxy r
-    -> Proxy c
     -> (forall a. Sem s a -> Sem s' a)
-    -> RouteTx layout s c
-    -> RouteTx layout s' c
+    -> RouteTx layout s
+    -> RouteTx layout s'
 
-instance (HasTxRouter a r c, HasTxRouter b r c) => HasTxRouter (a :<|> b) r c where
-  type RouteTx (a :<|> b) s c = RouteTx a s c :<|> RouteTx b s c
+instance (HasTxRouter a r, HasTxRouter b r) => HasTxRouter (a :<|> b) r where
+  type RouteTx (a :<|> b) s = RouteTx a s :<|> RouteTx b s
 
-  routeTx _ pr pc server =
-    R.choice (routeTx (Proxy @a) pr pc ((\ (a :<|> _) -> a) <$> server))
-             (routeTx (Proxy @b) pr pc ((\ (_ :<|> b) -> b) <$> server))
+  routeTx _ pr server =
+    R.choice (routeTx (Proxy @a) pr ((\ (a :<|> _) -> a) <$> server))
+             (routeTx (Proxy @b) pr ((\ (_ :<|> b) -> b) <$> server))
 
-  hoistTxRouter _ pr pc nat (a :<|> b) =
-    hoistTxRouter (Proxy @a) pr pc nat a :<|> hoistTxRouter (Proxy @b) pr pc nat b
+  hoistTxRouter _ pr nat (a :<|> b) =
+    hoistTxRouter (Proxy @a) pr nat a :<|> hoistTxRouter (Proxy @b) pr nat b
 
-instance (HasTxRouter sublayout r c, KnownSymbol path) => HasTxRouter (path :> sublayout) r c where
+instance (HasTxRouter sublayout r, KnownSymbol path) => HasTxRouter (path :> sublayout) r where
 
-  type RouteTx (path :> sublayout) s c = RouteTx sublayout s c
+  type RouteTx (path :> sublayout) s = RouteTx sublayout s
 
-  routeTx _ pr pc subserver =
-    R.pathRouter (cs (symbolVal proxyPath)) (routeTx (Proxy @sublayout) pr pc subserver)
+  routeTx _ pr subserver =
+    R.pathRouter (cs (symbolVal proxyPath)) (routeTx (Proxy @sublayout) pr subserver)
     where proxyPath = Proxy @path
 
-  hoistTxRouter _ pr pc nat = hoistTxRouter (Proxy @sublayout) pr pc nat
+  hoistTxRouter _ pr nat = hoistTxRouter (Proxy @sublayout) pr nat
 
 methodRouter
   :: HasCodec a
@@ -78,12 +75,12 @@ methodRouter action =
 
 instance ( HasMessageType msg, HasCodec msg
          , Members [ReadStore, Embed IO] r
-         , HasCodec (OnCheckReturn c oc a)
-         ) => HasTxRouter (TypedMessage msg :~> Return' oc a) r c where
+         , HasCodec a
+         ) => HasTxRouter (TypedMessage msg :~> Return a) r where
 
-  type RouteTx (TypedMessage msg :~> Return' oc a) s c = RoutingTx msg -> Sem s (OnCheckReturn c oc a)
+  type RouteTx (TypedMessage msg :~> Return a) r = RoutingTx msg -> Sem r a
 
-  routeTx _ _ _ subserver =
+  routeTx _ _ subserver =
     let f (RoutingTx tx@Tx{txMsg}) =
           if msgType txMsg == mt
             then case decode $ msgData txMsg of
@@ -94,13 +91,13 @@ instance ( HasMessageType msg, HasCodec msg
     in methodRouter $ R.addBody subserver $ R.withRequest f
       where mt = messageType (Proxy :: Proxy msg)
 
-  hoistTxRouter _ _ _ nat = (.) nat
+  hoistTxRouter _ _ nat = (.) nat
 
-emptyTxServer :: RouteTx EmptyTxServer r c
+emptyTxServer :: RouteTx EmptyTxServer r
 emptyTxServer = EmptyTxServer
 
-instance HasTxRouter EmptyTxServer r c where
-  type RouteTx EmptyTxServer r c = EmptyTxServer
-  routeTx _ _ _ _ = R.StaticRouter mempty mempty
+instance HasTxRouter EmptyTxServer r where
+  type RouteTx EmptyTxServer r = EmptyTxServer
+  routeTx _ _ _ = R.StaticRouter mempty mempty
 
-  hoistTxRouter _ _ _ _ = id
+  hoistTxRouter _ _ _ = id

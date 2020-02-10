@@ -12,9 +12,10 @@ import           Data.Default.Class                       (def)
 import           Data.IORef                               (IORef, readIORef,
                                                            writeIORef)
 import           Polysemy                                 (Embed, Member,
-                                                           Members, Sem, subsume,
-                                                           interpret, rewrite,
-                                                           raiseUnder)
+                                                           Members, Sem,
+                                                           interpret,
+                                                           raiseUnder, rewrite,
+                                                           subsume)
 import           Polysemy.Error                           (Error, runError)
 import           Polysemy.Internal                        (send)
 import           Polysemy.Output                          (Output, ignoreOutput,
@@ -64,15 +65,15 @@ eval TransactionContext{..} = do
     runOutputMonoidIORef events (pure @[])
 
 evalReadOnly
-  :: Members [ReadStore, Error AppError] r 
-  => forall a. 
+  :: Members [ReadStore, Error AppError] r
+  => forall a.
      Sem (TxEffs :& r) a
   -> Sem r a
-evalReadOnly = 
+evalReadOnly =
     subsume @(Error AppError).
-    subsume @ReadStore. 
-    writeNothing . 
-    G.doNothing . 
+    subsume @ReadStore.
+    writeNothing .
+    G.doNothing .
     ignoreOutput
   where
     writeNothing = interpret (\case
