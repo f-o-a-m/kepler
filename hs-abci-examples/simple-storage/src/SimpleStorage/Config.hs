@@ -15,6 +15,7 @@ import           System.Environment
 import           System.IO                           (stdout)
 import qualified Tendermint.SDK.BaseApp              as BaseApp
 import           Tendermint.SDK.BaseApp.Logger.Katip as KL
+import Tendermint.SDK.BaseApp.Store.IAVLStore (initIAVLVersions)
 
 
 data AppConfig = AppConfig
@@ -24,7 +25,8 @@ makeLenses ''AppConfig
 
 makeAppConfig :: IO AppConfig
 makeAppConfig = do
-  c <- BaseApp.makeContext (KL.InitialLogNamespace "dev" "simple-storage") Nothing
+  versions <- initIAVLVersions 
+  c <- BaseApp.makeContext (KL.InitialLogNamespace "dev" "simple-storage") Nothing versions
   addScribesToLogEnv $
     AppConfig { _baseAppContext = c
               }

@@ -72,6 +72,7 @@ module Tendermint.SDK.BaseApp
   , EmptyTxServer(..)
   , serveTxApplication
   , DefaultCheckTx(..)
+  , VoidReturn
 
   -- * Query
   , QueryEffs

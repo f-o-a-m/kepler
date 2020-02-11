@@ -18,12 +18,11 @@ import           Network.ABCI.Server.App                (App (..),
 import qualified Network.ABCI.Types.Messages.Request    as Req
 import qualified Network.ABCI.Types.Messages.Response   as Resp
 import           Polysemy
-import           Polysemy.Error                         (Error, catch)
+import           Polysemy.Error                         (catch)
 import           Tendermint.SDK.Application.AnteHandler (AnteHandler)
                        --                                  applyAnteHandler)
 import qualified Tendermint.SDK.Application.Module      as M
 import qualified Tendermint.SDK.BaseApp         as BA
-import           Tendermint.SDK.BaseApp.CoreEff         (CoreEffs)
 import           Tendermint.SDK.BaseApp.Errors          (AppError,
                                                          SDKError (..),
                                                          queryAppError,
@@ -75,54 +74,51 @@ defaultHandlers = Handlers
       -> m a
     defaultHandler = const $ pure def
 
-data HandlersContext alg ms r core = HandlersContext
+data HandlersContext alg ms r = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.ModuleList ms r
-  , compileToCore :: forall a. Sem (BA.BaseAppEffs BA.:& core) a -> Sem core a
   , anteHandler   :: AnteHandler r
   }
 
 -- Common function between checkTx and deliverTx
 makeHandlers
-  :: forall alg ms r core.
-     Member (Error AppError) r
-  => RecoverableSignatureSchema alg
+  :: forall alg ms r s.
+     RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
-  => M.ToApplication ms (M.Effs ms (BA.BaseAppEffs BA.:& core))
-  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms (BA.BaseAppEffs BA.:& core))
-  => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs BA.:& core)
-  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms (BA.BaseAppEffs BA.:& core))
-  => T.HasTxRouter (M.ApplicationD ms) (BA.BaseAppEffs BA.:& core)
-  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms (BA.BaseAppEffs BA.:& core))
-  => Q.HasQueryRouter (M.ApplicationQ ms) (BA.BaseAppEffs BA.:& core)
-  => M.Eval ms (BA.BaseAppEffs BA.:& core)
-  => M.Effs ms (BA.BaseAppEffs BA.:& core) ~ r
-  => Members CoreEffs core
-  => HandlersContext alg ms r core
-  -> Handlers core
-makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
+  => Members BA.BaseAppEffs s
+  => M.ToApplication ms (M.Effs ms s)
+  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms s)
+  => T.HasTxRouter (M.ApplicationC ms) s
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms s)
+  => T.HasTxRouter (M.ApplicationD ms) s
+  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms s)
+  => Q.HasQueryRouter (M.ApplicationQ ms) s
+  => M.Eval ms s
+  => M.Effs ms s ~ r
+  => HandlersContext alg ms r
+  -> Handlers s
+makeHandlers (HandlersContext{..} :: HandlersContext alg ms r) =
   let
 
-      rProxy :: Proxy (BA.BaseAppEffs BA.:& core)
+      rProxy :: Proxy s
       rProxy = Proxy
 
-      app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms) 
-               (T.TxEffs BA.:& BA.BaseAppEffs BA.:& core) (Q.QueryEffs BA.:& BA.BaseAppEffs BA.:& core)
+      app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms) (T.TxEffs BA.:& s) (Q.QueryEffs BA.:& s)
       app = M.makeApplication rProxy modules
 
       txParser bs = case parseTx signatureAlgP bs of
         Left err -> throwSDKError $ ParseError err
         Right tx -> pure $ T.RoutingTx tx
 
-      checkServer :: T.TransactionApplication (Sem (BA.BaseAppEffs BA.:& core))
+      checkServer :: T.TransactionApplication (Sem s)
       checkServer = -- applyAnteHandler anteHandler $
         T.serveTxApplication (Proxy @(M.ApplicationC ms)) rProxy $ M.applicationTxChecker app
 
-      deliverServer :: T.TransactionApplication (Sem (BA.BaseAppEffs BA.:& core))
+      deliverServer :: T.TransactionApplication (Sem s)
       deliverServer = -- applyAnteHandler anteHandler $
         T.serveTxApplication (Proxy @(M.ApplicationD ms)) rProxy $ M.applicationTxDeliverer app
 
-      queryServer :: Q.QueryApplication (Sem (BA.BaseAppEffs BA.:& core))
+      queryServer :: Q.QueryApplication (Sem s)
       queryServer = Q.serveQueryApplication (Proxy @(M.ApplicationQ ms)) rProxy $ M.applicationQuerier app
 
       query (RequestQuery q) = 
@@ -179,39 +175,39 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
        }
 
 makeApp
-  :: forall alg ms r core.
-     Members [Error AppError, Embed IO] r
-  => RecoverableSignatureSchema alg
+  :: forall alg ms r s.
+    
+     RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
 
-  => M.ToApplication ms (M.Effs ms (BA.BaseAppEffs BA.:& core))
-  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms (BA.BaseAppEffs BA.:& core))
-  => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs BA.:& core)
-  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms (BA.BaseAppEffs BA.:& core))
-  => T.HasTxRouter (M.ApplicationD ms) (BA.BaseAppEffs BA.:& core)
-  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms (BA.BaseAppEffs BA.:& core))
-  => Q.HasQueryRouter (M.ApplicationQ ms) (BA.BaseAppEffs BA.:& core)
-  => M.Eval ms (BA.BaseAppEffs BA.:& core)
-  => M.Effs ms (BA.BaseAppEffs BA.:& core) ~ r
+  => Members BA.BaseAppEffs s
+
+  => M.ToApplication ms (M.Effs ms s)
+  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms s)
+  => T.HasTxRouter (M.ApplicationC ms) s
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms s)
+  => T.HasTxRouter (M.ApplicationD ms) s
+  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms s)
+  => Q.HasQueryRouter (M.ApplicationQ ms) s
+  => M.Eval ms s
+  => M.Effs ms s ~ r
 
 
-  => Members CoreEffs core
-
-  => HandlersContext alg ms r core
-  -> App (Sem core)
-makeApp handlersContext@HandlersContext{compileToCore} =
-  let Handlers{..} = makeHandlers handlersContext
+  => HandlersContext alg ms r
+  -> App (Sem s)
+makeApp handlersContext =
+  let Handlers{..} = makeHandlers handlersContext :: Handlers s
   in App $ \case
        RequestEcho echo ->
          pure . ResponseEcho $ def
            & Resp._echoMessage .~ echo ^. Req._echoMessage
        RequestFlush _ -> pure def
-       msg@(RequestInfo _) -> compileToCore $  info msg
-       msg@(RequestSetOption _) -> compileToCore $ setOption msg
-       msg@(RequestInitChain _) ->  compileToCore $ initChain msg
-       msg@(RequestQuery _) -> compileToCore $ query msg
-       msg@(RequestBeginBlock _) -> compileToCore $ beginBlock msg
-       msg@(RequestCheckTx _) -> compileToCore $ checkTx msg
-       msg@(RequestDeliverTx _) -> compileToCore $ deliverTx msg
-       msg@(RequestEndBlock _) -> compileToCore $ endBlock msg
-       msg@(RequestCommit _) ->  compileToCore $ commit msg
+       msg@(RequestInfo _) -> info msg
+       msg@(RequestSetOption _) -> setOption msg
+       msg@(RequestInitChain _) -> initChain msg
+       msg@(RequestQuery _) -> query msg
+       msg@(RequestBeginBlock _) -> beginBlock msg
+       msg@(RequestCheckTx _) ->  checkTx msg
+       msg@(RequestDeliverTx _) -> deliverTx msg
+       msg@(RequestEndBlock _) -> endBlock msg
+       msg@(RequestCommit _) -> commit msg

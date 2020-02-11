@@ -7,7 +7,7 @@ module SimpleStorage.Application
 import           Data.Proxy
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
 import           Tendermint.SDK.Application          (HandlersContext (..),
-                                                      Modules (..),
+                                                      ModuleList (..),
                                                       baseAppAnteHandler)
 import           Tendermint.SDK.BaseApp              ((:&))
 import qualified Tendermint.SDK.BaseApp              as BaseApp
@@ -19,7 +19,9 @@ import qualified Tendermint.SDK.Modules.Auth         as A
 type EffR =
   SimpleStorage.SimpleStorageEffs :&
   A.AuthEffs :&
-  BaseApp.BaseApp BaseApp.CoreEffs
+  BaseApp.TxEffs :&
+  BaseApp.BaseAppEffs :&
+  BaseApp.CoreEffs
 
 type SimpleStorageModules =
   '[ SimpleStorage.SimpleStorageM EffR
@@ -30,11 +32,11 @@ handlersContext :: HandlersContext Secp256k1 SimpleStorageModules EffR BaseApp.C
 handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = simpleStorageModules
-  , compileToCore  = BaseApp.compileScopedEff
+  , compileToCore  = BaseApp.compileToCoreEffs
   , anteHandler = baseAppAnteHandler
   }
   where
-  simpleStorageModules :: Modules SimpleStorageModules EffR
+  simpleStorageModules :: ModuleList SimpleStorageModules EffR
   simpleStorageModules =
        SimpleStorage.simpleStorageModule
     :+ A.authModule

@@ -8,6 +8,7 @@ module Tendermint.SDK.BaseApp.Store.IAVLStore
   , evalCommitBlock
   , evalRead
   , evalWrite
+  , evalStoreEffs
   ) where
 
 
@@ -30,9 +31,12 @@ import           Numeric.Natural                       (Natural)
 import           Polysemy                              (Embed, Member, Members,
                                                         Sem, interpret)
 import           Polysemy.Error                        (Error)
+import Polysemy.Reader (Reader, ask)
+import Polysemy.Tagged (untag)
 import qualified Proto.Iavl.Api_Fields                 as Api
+import           Tendermint.SDK.Types.Effects ((:&))
 import           Tendermint.SDK.BaseApp.Errors         (AppError, SDKError (..))
-import           Tendermint.SDK.BaseApp.Store.RawStore (CommitBlock (..),
+import           Tendermint.SDK.BaseApp.Store.RawStore (CommitBlock (..), StoreEffs,
                                                         CommitResponse (..),
                                                         ReadStore (..),
                                                         Transaction (..),
@@ -129,6 +133,22 @@ evalCommitBlock gc IAVLVersions{committed} = do
         hashResp <- liftIO . runGrpc $ IAVL.hash gc
         pure . fromBytes $ hashResp ^. Api.rootHash
     )
+
+evalStoreEffs 
+  :: Members [Embed IO, Reader IAVLVersions, Error AppError, Reader GrpcClient] r
+  => forall a.
+     Sem (StoreEffs :& r) a
+  -> Sem r a
+evalStoreEffs action = do
+  vs@IAVLVersions{..} <- ask
+  grpc <- ask
+  evalCommitBlock grpc vs .
+    evalTransaction grpc .
+    evalWrite grpc .
+    evalRead grpc committed .
+    untag .
+    evalRead grpc latest .
+    untag $ action
 
 runGrpc
   :: ClientIO (Either TooMuchConcurrency (RawReply a))

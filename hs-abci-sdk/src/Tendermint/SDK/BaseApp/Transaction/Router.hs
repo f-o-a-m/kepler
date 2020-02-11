@@ -26,7 +26,7 @@ import           Tendermint.SDK.Types.TxResult             (TxResult)
 
 --------------------------------------------------------------------------------
 
-class HasTxRouter layout (r :: EffectRow) where
+class HasTxRouter layout (r :: EffectRow) (scope :: Scope) where
   type RouteTx layout (s :: EffectRow) :: *
   routeTx
         :: Proxy layout

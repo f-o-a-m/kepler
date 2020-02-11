@@ -11,7 +11,6 @@ module SimpleStorage.Modules.SimpleStorage.Keeper
 import           Data.Maybe                                (fromJust)
 import           Polysemy                                  (Members, Sem,
                                                             interpret, makeSem)
-import           Polysemy.Error                            (Error)
 import           Polysemy.Output                           (Output)
 import           SimpleStorage.Modules.SimpleStorage.Types (Count,
                                                             CountKey (..),
@@ -39,7 +38,7 @@ updateCount count = do
 
 eval
   :: forall r.
-     Members '[BaseApp.RawStore, Error BaseApp.AppError] r
+     Members BaseApp.TxEffs r
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> BaseApp.put storeKey CountKey count
