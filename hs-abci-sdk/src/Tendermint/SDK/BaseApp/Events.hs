@@ -18,13 +18,28 @@ import           Data.Bifunctor                         (bimap)
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteString                        as BS
 import           Data.Proxy
-import           Data.String.Conversions                (cs)
+import           Data.String.Conversions                (cs, ConvertibleStrings(..))
+import           Data.Int                                    (Int64)
+import Data.Text (Text)
 import           GHC.Exts                               (toList)
+import GHC.Generics
+import qualified Data.Map.Strict as Map
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..),
                                                          KVPair (..))
 import           Polysemy                               (Member, Sem)
 import           Polysemy.Output                        (Output, output)
 import qualified Tendermint.SDK.BaseApp.Logger          as Log
+
+data EventValue = EVBytes BS.ByteString
+                | EVInt Int64
+                | EVString Text
+  deriving (Eq, Show)
+
+instance ConvertibleStrings EventValue BS.ByteString where
+  convertString (EVBytes bs) = cs bs
+  convertString (EVInt int) = cs $ show int
+  convertString (EVString t) = cs t
+
 
 {-
 TODO : These JSON instances are fragile but convenient. We
@@ -37,10 +52,41 @@ class ToEvent e where
   makeEventType :: Proxy e -> String
   makeEventData :: e -> [(BS.ByteString, BS.ByteString)]
 
-  default makeEventData :: A.ToJSON e => e -> [(BS.ByteString, BS.ByteString)]
-  makeEventData e = case A.toJSON e of
-    A.Object obj -> bimap cs (cs . A.encode) <$> toList obj
-    _            -> mempty
+
+  default makeEventData :: (Generic e, ToEvent1 (Rep e)) => e -> [(BS.ByteString, BS.ByteString)]
+  makeEventData = defaultMakeEventData
+
+  default makeEventType :: (Generic e, ToEvent1 (Rep e)) => Proxy e -> String
+  makeEventType  _ = defaultMakeEventType (undefined :: e)
+
+class ToEvent1 f where
+  makeEventType1 :: f p -> String
+  makeEventData1 :: f p -> [(BS.ByteString, BS.ByteString)]
+
+-- instance ToEvent1 (a :*: b) where
+--   makeEventType1 _ = "Jimmy"
+--   makeEventData1 _ =  [("kook", "kook")]
+
+instance ToEvent1 (a :*: b) where
+  makeEventType1 _ = undefined
+  makeEventData1 _ =  [("kook", "kook")]
+
+instance (ToEvent1 f, Datatype c) => ToEvent1 (M1 i c f) where
+  makeEventType1 m = datatypeName m
+  makeEventData1 (M1 x) =  makeEventData1 x
+
+
+defaultMakeEventData :: (Generic e, ToEvent1 (Rep e)) => e -> [(BS.ByteString, BS.ByteString)]
+defaultMakeEventData = makeEventData1 . from
+
+defaultMakeEventType :: (Generic e, ToEvent1 (Rep e)) => e -> String
+defaultMakeEventType = makeEventType1 . from
+
+data Test = Test
+  {a :: Int, b :: String}
+  deriving (Generic)
+
+instance ToEvent Test
 
 makeEvent
   :: ToEvent e
