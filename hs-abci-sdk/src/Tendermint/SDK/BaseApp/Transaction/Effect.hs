@@ -117,7 +117,6 @@ evalCachedReadStore c m = do
           Right (Just v)     -> pure (Just v)
           Right Nothing      -> send (StoreGet k)
       StoreProve _ -> pure Nothing
-      StoreRoot _ -> pure ""
     ) m
 
 evalCachedWriteStore

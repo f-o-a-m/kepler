@@ -22,7 +22,7 @@ import           Polysemy.Error                         (Error, catch)
 import           Tendermint.SDK.Application.AnteHandler (AnteHandler)
                        --                                  applyAnteHandler)
 import qualified Tendermint.SDK.Application.Module      as M
-import qualified Tendermint.SDK.BaseApp         as BA
+import qualified Tendermint.SDK.BaseApp                 as BA
 import           Tendermint.SDK.BaseApp.CoreEff         (CoreEffs)
 import           Tendermint.SDK.BaseApp.Errors          (AppError,
                                                          SDKError (..),
@@ -103,7 +103,7 @@ makeHandlers
 makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
   let
 
-      app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms) 
+      app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms)
                (T.TxEffs BA.:& BA.BaseAppEffs BA.:& core) (Q.QueryEffs BA.:& BA.BaseAppEffs BA.:& core)
       app = M.makeApplication (Proxy :: Proxy core) modules
 
@@ -125,7 +125,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
       queryServer :: Q.QueryApplication (Sem (BA.BaseAppEffs BA.:& core))
       queryServer = Q.serveQueryApplication (Proxy @(M.ApplicationQ ms)) rProxy $ M.applicationQuerier app
 
-      query (RequestQuery q) = 
+      query (RequestQuery q) =
         --Store.applyScope $
         catch
           (do

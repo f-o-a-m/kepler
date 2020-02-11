@@ -9,35 +9,35 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   , ReadStore(..)
   , get
   , prove
-  , storeRoot
   , WriteStore(..)
   , storePut
   , storeDelete
   , put
   , delete
+  , CommitBlock(..)
+  , commitBlock
   , Transaction(..)
+  , CommitResponse(..)
   , beginTransaction
   , commit
   , withSandbox
   , withTransaction
   ) where
 
-import           Control.Lens                       (Iso', iso, (^.))
-import qualified Data.ByteString                    as BS
+import           Control.Lens                  (Iso', iso, (^.))
+import           Data.ByteArray.Base64String   (Base64String)
+import qualified Data.ByteString               as BS
 import           Data.Proxy
-import           Data.String.Conversions            (cs)
-import           Polysemy                           (Member, Members, Sem,
-                                                     makeSem)
-import           Polysemy.Error                     (Error, catch, throw)
-import           Polysemy.Resource                  (Resource, finally,
-                                                     onException)
-import           Tendermint.SDK.BaseApp.Errors      (AppError,
-                                                     SDKError (ParseError),
-                                                     throwSDKError)
-import           Tendermint.SDK.BaseApp.Store.Scope (Version)
-import           Tendermint.SDK.Codec               (HasCodec (..))
-import           Tendermint.SDK.Types.Address       (Address, addressFromBytes,
-                                                     addressToBytes)
+import           Data.String.Conversions       (cs)
+import           Numeric.Natural               (Natural)
+import           Polysemy                      (Member, Members, Sem, makeSem)
+import           Polysemy.Error                (Error, catch, throw)
+import           Polysemy.Resource             (Resource, finally, onException)
+import           Tendermint.SDK.BaseApp.Errors (AppError, SDKError (ParseError),
+                                                throwSDKError)
+import           Tendermint.SDK.Codec          (HasCodec (..))
+import           Tendermint.SDK.Types.Address  (Address, addressFromBytes,
+                                                addressToBytes)
 
 data RawStoreKey = RawStoreKey
   { rsStoreKey :: BS.ByteString
@@ -50,7 +50,6 @@ makeRawKey RawStoreKey{..} = rsStoreKey <> rsKey
 data ReadStore m a where
   StoreGet   :: RawStoreKey -> ReadStore m (Maybe BS.ByteString)
   StoreProve :: RawStoreKey -> ReadStore m (Maybe BS.ByteString)
-  StoreRoot :: Version -> ReadStore m BS.ByteString
 
 makeSem ''ReadStore
 
@@ -74,6 +73,11 @@ class RawKey k => IsKey k ns where
   prefix _ _ = ""
 
 newtype StoreKey ns = StoreKey BS.ByteString
+
+data CommitBlock m a where
+  CommitBlock :: CommitBlock m Base64String
+
+makeSem ''CommitBlock
 
 put
   :: forall k r ns.
@@ -140,11 +144,17 @@ prove (StoreKey sk) k =
         }
   in storeProve key
 
+
+data CommitResponse = CommitResponse
+  { rootHash   :: Base64String
+  , newVersion :: Natural
+  }
+
 data Transaction m a where
   -- transact
   BeginTransaction :: Transaction m ()
   Rollback :: Transaction m ()
-  Commit :: Transaction m ()
+  Commit :: Transaction m CommitResponse
 
 makeSem ''Transaction
 
@@ -152,11 +162,15 @@ withTransaction
   :: forall r a.
      Members [Transaction, Resource, Error AppError] r
   => Sem r a
-  -> Sem r a
+  -> Sem r (a, CommitResponse)
 withTransaction m =
    let tryTx = m `catch` (\e -> rollback *> throw e)
+       actionWithCommit = do
+         res <- tryTx
+         c <- commit
+         pure (res, c)
    in do
-      onException (tryTx <* commit) rollback
+      onException actionWithCommit rollback
 
 withSandbox
   :: forall r a.

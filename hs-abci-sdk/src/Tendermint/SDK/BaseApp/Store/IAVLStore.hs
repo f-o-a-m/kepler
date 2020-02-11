@@ -1,10 +1,11 @@
 module Tendermint.SDK.BaseApp.Store.IAVLStore
-  ( IAVLVersion
+  ( IAVLVersion(..)
+  , IAVLVersions(..)
   , GrpcClient
   , initGrpcClient
-  --, initScopeVersions
-  --, evalMergeScopes
+  , initIAVLVersions
   , evalTransaction
+  , evalCommitBlock
   , evalRead
   , evalWrite
   ) where
@@ -13,7 +14,9 @@ module Tendermint.SDK.BaseApp.Store.IAVLStore
 import           Control.Lens                          ((&), (.~), (^.))
 import           Control.Monad                         (void)
 import           Control.Monad.IO.Class
-import           Data.IORef                            (IORef, readIORef)
+import           Data.ByteArray.Base64String           (fromBytes)
+import           Data.IORef                            (IORef, newIORef,
+                                                        readIORef, writeIORef)
 import           Data.ProtoLens.Message                (defMessage)
 import           Data.Text                             (pack)
 import qualified Database.IAVL.RPC                     as IAVL
@@ -23,23 +26,31 @@ import           Network.GRPC.Client.Helpers           (GrpcClient)
 import           Network.HTTP2.Client                  (ClientIO,
                                                         TooMuchConcurrency,
                                                         runClientIO)
+import           Numeric.Natural                       (Natural)
 import           Polysemy                              (Embed, Member, Members,
                                                         Sem, interpret)
 import           Polysemy.Error                        (Error)
 import qualified Proto.Iavl.Api_Fields                 as Api
 import           Tendermint.SDK.BaseApp.Errors         (AppError, SDKError (..))
-import           Tendermint.SDK.BaseApp.Store.RawStore (ReadStore (..),
+import           Tendermint.SDK.BaseApp.Store.RawStore (CommitBlock (..),
+                                                        CommitResponse (..),
+                                                        ReadStore (..),
                                                         Transaction (..),
                                                         WriteStore (..),
                                                         makeRawKey)
-import           Tendermint.SDK.BaseApp.Store.Scope    (Version (..))
 
-data IAVLVersion = IAVLVersion
-  { iavlVersion :: IORef Version
+data IAVLVersion =
+    Genesis
+  | Version Natural
+  | Latest
+
+data IAVLVersions = IAVLVersions
+  { latest    :: IORef IAVLVersion
+  , committed :: IORef IAVLVersion
   }
 
---initIAVLVersion :: Version -> IO IAVLVersion
---initIAVLVersion v = IAVLVersion <$> newIORef v
+initIAVLVersions :: IO IAVLVersions
+initIAVLVersions = IAVLVersions <$> newIORef Latest <*> newIORef Genesis
 
 evalWrite
   :: Member (Embed IO) r
@@ -60,9 +71,9 @@ evalWrite gc m =
 evalRead
   :: Member (Embed IO) r
   => GrpcClient
-  -> IAVLVersion
+  -> IORef IAVLVersion
   -> forall a. Sem (ReadStore ': r) a -> Sem r a
-evalRead gc IAVLVersion{iavlVersion} m = do
+evalRead gc iavlVersion m = do
   version <- liftIO $ readIORef iavlVersion
   interpret
     (\case
@@ -83,13 +94,6 @@ evalRead gc IAVLVersion{iavlVersion} m = do
               val -> pure $ Just val
           Genesis -> pure Nothing
       StoreProve _ -> pure Nothing
-      StoreRoot _ -> do
-        case version of
-          Latest -> do
-            res <- liftIO . runGrpc $ IAVL.hash gc
-            pure $ res ^. Api.rootHash
-          Genesis -> pure ""
-          Version _ -> error "Root not yet implemented for numbered version"
     ) m
 
 evalTransaction
@@ -102,25 +106,29 @@ evalTransaction gc m = do
       -- NOTICE :: Currently unnecessary with the DB commit/version implementation.
       BeginTransaction -> pure ()
       Rollback -> void . liftIO . runGrpc $ IAVL.rollback gc
-      Commit -> void . liftIO . runGrpc $ IAVL.saveVersion gc
+      Commit -> do
+        resp <- liftIO . runGrpc $ IAVL.saveVersion gc
+        pure $ CommitResponse
+          { rootHash = fromBytes (resp ^. Api.rootHash)
+          , newVersion = fromInteger . toInteger $ resp ^. Api.version
+          }
     ) m
 
---evalMergeScopes
---  :: Members [Reader ScopeVersions,  Embed IO, Error AppError] r
---  => GrpcClient
---  -> Sem (MergeScopes ': r) a
---  -> Sem r a
---evalMergeScopes gc =
---  interpret
---    (\case
---      MergeScopes -> do
---        ScopeVersions{query, mempool} <- ask
---        let IAVLVersion queryV = query
---            IAVLVersion mempoolV = mempool
---        res <- runGrpc' $ IAVL.version gc
---        let version = Version . fromInteger . toInteger $ res ^. Api.version
---        forM_ [queryV, mempoolV] $ \ior -> liftIO $ writeIORef ior version
---    )
+evalCommitBlock
+  :: Members [Embed IO, Error AppError] r
+  => GrpcClient
+  -> IAVLVersions
+  -> forall a. Sem (CommitBlock ': r) a -> Sem r a
+evalCommitBlock gc IAVLVersions{committed} = do
+  interpret
+    (\case
+      CommitBlock -> do
+        versionResp <- liftIO . runGrpc $ IAVL.version gc
+        let version = Version . fromInteger . toInteger $ versionResp ^. Api.version
+        liftIO $ writeIORef committed version
+        hashResp <- liftIO . runGrpc $ IAVL.hash gc
+        pure . fromBytes $ hashResp ^. Api.rootHash
+    )
 
 runGrpc
   :: ClientIO (Either TooMuchConcurrency (RawReply a))
