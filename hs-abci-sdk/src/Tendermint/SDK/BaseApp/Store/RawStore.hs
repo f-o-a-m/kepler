@@ -1,7 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Tendermint.SDK.BaseApp.Store.RawStore
-  ( RawKey(..)
+  ( StoreEffs
+  , RawKey(..)
   , IsKey(..)
   , RawStoreKey(..)
   , makeRawKey
@@ -180,3 +181,10 @@ withSandbox
 withSandbox m =
    let tryTx = m `catch` (\e -> rollback *> throw e)
    in finally (tryTx <* rollback) rollback
+
+type StoreEffs = 
+  [ ReadStore
+  , WriteStore
+  , Transaction
+  , CommitBlock
+  ]

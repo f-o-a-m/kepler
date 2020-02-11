@@ -22,7 +22,7 @@ import           Polysemy.Error                         (Error, catch)
 import           Tendermint.SDK.Application.AnteHandler (AnteHandler)
                        --                                  applyAnteHandler)
 import qualified Tendermint.SDK.Application.Module      as M
-import qualified Tendermint.SDK.BaseApp                 as BA
+import qualified Tendermint.SDK.BaseApp         as BA
 import           Tendermint.SDK.BaseApp.CoreEff         (CoreEffs)
 import           Tendermint.SDK.BaseApp.Errors          (AppError,
                                                          SDKError (..),
@@ -43,19 +43,19 @@ import           Tendermint.SDK.Types.TxResult          (checkTxTxResult,
 
 type Handler mt r = Request mt -> Sem r (Response mt)
 
-data Handlers core = Handlers
-  { info       :: Handler 'MTInfo (BA.BaseAppEffs BA.:& core)
-  , setOption  :: Handler 'MTSetOption (BA.BaseAppEffs BA.:& core)
-  , initChain  :: Handler 'MTInitChain (BA.BaseAppEffs BA.:& core)
-  , query      :: Handler 'MTQuery  (BA.BaseAppEffs BA.:& core)
-  , checkTx    :: Handler 'MTCheckTx (BA.BaseAppEffs BA.:& core)
-  , beginBlock :: Handler 'MTBeginBlock (BA.BaseAppEffs BA.:& core)
-  , deliverTx  :: Handler 'MTDeliverTx (BA.BaseAppEffs BA.:& core)
-  , endBlock   :: Handler 'MTEndBlock (BA.BaseAppEffs BA.:& core)
-  , commit     :: Handler 'MTCommit (BA.BaseAppEffs BA.:& core)
+data Handlers r = Handlers
+  { info       :: Handler 'MTInfo r
+  , setOption  :: Handler 'MTSetOption r
+  , initChain  :: Handler 'MTInitChain r
+  , query      :: Handler 'MTQuery r
+  , checkTx    :: Handler 'MTCheckTx r
+  , beginBlock :: Handler 'MTBeginBlock r
+  , deliverTx  :: Handler 'MTDeliverTx r
+  , endBlock   :: Handler 'MTEndBlock r
+  , commit     :: Handler 'MTCommit r
   }
 
-defaultHandlers :: forall core. Handlers core
+defaultHandlers :: forall r. Handlers r
 defaultHandlers = Handlers
   { info = defaultHandler
   , setOption = defaultHandler
@@ -88,27 +88,27 @@ makeHandlers
      Member (Error AppError) r
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
-  => M.ToApplication ms (M.Effs ms core)
-  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms core)
+  => M.ToApplication ms (M.Effs ms (BA.BaseAppEffs BA.:& core))
+  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms (BA.BaseAppEffs BA.:& core))
   => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs BA.:& core)
-  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms core)
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms (BA.BaseAppEffs BA.:& core))
   => T.HasTxRouter (M.ApplicationD ms) (BA.BaseAppEffs BA.:& core)
-  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms core)
+  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms (BA.BaseAppEffs BA.:& core))
   => Q.HasQueryRouter (M.ApplicationQ ms) (BA.BaseAppEffs BA.:& core)
-  => M.Eval ms core
-  => M.Effs ms core ~ r
+  => M.Eval ms (BA.BaseAppEffs BA.:& core)
+  => M.Effs ms (BA.BaseAppEffs BA.:& core) ~ r
   => Members CoreEffs core
   => HandlersContext alg ms r core
   -> Handlers core
 makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
   let
 
-      app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms)
-               (T.TxEffs BA.:& BA.BaseAppEffs BA.:& core) (Q.QueryEffs BA.:& BA.BaseAppEffs BA.:& core)
-      app = M.makeApplication (Proxy :: Proxy core) modules
-
       rProxy :: Proxy (BA.BaseAppEffs BA.:& core)
       rProxy = Proxy
+
+      app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms) 
+               (T.TxEffs BA.:& BA.BaseAppEffs BA.:& core) (Q.QueryEffs BA.:& BA.BaseAppEffs BA.:& core)
+      app = M.makeApplication rProxy modules
 
       txParser bs = case parseTx signatureAlgP bs of
         Left err -> throwSDKError $ ParseError err
@@ -125,7 +125,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
       queryServer :: Q.QueryApplication (Sem (BA.BaseAppEffs BA.:& core))
       queryServer = Q.serveQueryApplication (Proxy @(M.ApplicationQ ms)) rProxy $ M.applicationQuerier app
 
-      query (RequestQuery q) =
+      query (RequestQuery q) = 
         --Store.applyScope $
         catch
           (do
@@ -184,16 +184,16 @@ makeApp
   => RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
 
-  => M.ToApplication ms (M.Effs ms core)
-  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms core)
+  => M.ToApplication ms (M.Effs ms (BA.BaseAppEffs BA.:& core))
+  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms (BA.BaseAppEffs BA.:& core))
   => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs BA.:& core)
-  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms core)
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms (BA.BaseAppEffs BA.:& core))
   => T.HasTxRouter (M.ApplicationD ms) (BA.BaseAppEffs BA.:& core)
-  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms core)
+  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms (BA.BaseAppEffs BA.:& core))
   => Q.HasQueryRouter (M.ApplicationQ ms) (BA.BaseAppEffs BA.:& core)
+  => M.Eval ms (BA.BaseAppEffs BA.:& core)
+  => M.Effs ms (BA.BaseAppEffs BA.:& core) ~ r
 
-  => M.Eval ms core
-  => M.Effs ms core ~ r
 
   => Members CoreEffs core
 

@@ -26,8 +26,7 @@ import           Tendermint.SDK.Types.Effects              ((:&))
 -- | not exist an interpreter for an untagged 'RawStore', you must scope
 -- | these effects before they can be interpreted.
 type BaseAppEffs =
-  [ ReadStore
-  , Metrics
+  [ Metrics
   , Logger
   , Resource
   , Error AppError
@@ -42,16 +41,16 @@ compileToCoreEffs
      Sem (BaseAppEffs :& CoreEffs) a
   -> Sem CoreEffs a
 compileToCoreEffs scope action = do
-  grpc <- ask @IAVL.GrpcClient
-  version  <- do
-    IAVL.IAVLVersions{..} <- ask @IAVL.IAVLVersions
-    pure $ case scope of
-      Consensus       -> latest
-      QueryAndMempool -> committed
+  --grpc <- ask @IAVL.GrpcClient
+  --version  <- do
+  --  IAVL.IAVLVersions{..} <- ask @IAVL.IAVLVersions
+  --  pure $ case scope of
+  --    Consensus       -> latest
+  --    QueryAndMempool -> committed
   eRes <- runError .
     resourceToIO .
     KL.evalKatip .
-    Prometheus.evalWithMetrics .
-    IAVL.evalRead grpc version $
+    Prometheus.evalWithMetrics $
+   -- IAVL.evalRead grpc version $
     action
   either (liftIO . throwIO) return eRes

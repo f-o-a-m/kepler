@@ -75,33 +75,39 @@ hoistApplication natT natQ (app :: Application check deliver query r s) =
     , applicationQuerier = Q.hoistQueryRouter (Proxy @query) (Proxy @s) natQ $ applicationQuerier app
     }
 
-class Eval ms core where
-  type Effs ms core :: EffectRow
-  eval :: ModuleList ms r
-       -> (forall a. Sem (Effs ms core) a -> Sem (T.TxEffs :& BaseAppEffs :& core) a)
+class Eval ms deps where
+  type Effs ms deps :: EffectRow
+  eval
+    :: Members BaseAppEffs deps 
+    => ModuleList ms r
+    -> forall a.
+       Sem (Effs ms deps) a
+    -> Sem (T.TxEffs :& deps) a
 
-instance Eval '[Module name check deliver query es r] core where
-  type Effs '[Module name check deliver query es r] core = es :& T.TxEffs :& BaseAppEffs :& core
+instance Eval '[Module name check deliver query es r] deps where
+  type Effs '[Module name check deliver query es r] deps = es :& T.TxEffs :& deps
   eval (m :+ NilModules) = moduleEval m
 
-instance ( Members (T.TxEffs :& BaseAppEffs) (Effs (m' ': ms) core)
-         , Eval (m' ': ms) core
-         ) => Eval (Module name check deliver query es r ': m' ': ms) core where
-  type Effs (Module name check deliver query es r ': m' ': ms) core = es :& (Effs (m': ms)) core
+instance ( Members BaseAppEffs (Effs (m' ': ms) deps)
+         , Members T.TxEffs (Effs (m' ': ms) deps)
+         , Eval (m' ': ms) deps
+         ) => Eval (Module name check deliver query es r ': m' ': ms) deps where
+  type Effs (Module name check deliver query es r ': m' ': ms) deps = es :& (Effs (m': ms)) deps
   eval (m :+ rest) = eval rest . moduleEval m
 
 makeApplication
-  :: Eval ms core
-  => ToApplication ms (Effs ms core)
-  => T.HasTxRouter (ApplicationC ms) (Effs ms core)
-  => T.HasTxRouter (ApplicationD ms) (Effs ms core)
-  => Q.HasQueryRouter (ApplicationQ ms) (Effs ms core)
-  => Proxy core
-  -> ModuleList ms (Effs ms core)
-  -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (T.TxEffs :& BaseAppEffs :& core) (Q.QueryEffs :& BaseAppEffs :& core)
-makeApplication (Proxy :: Proxy core) (ms :: ModuleList ms (Effs ms core)) =
-  let app = toApplication ms :: Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (Effs ms core) (Effs ms core)
+  :: Eval ms deps
+  => ToApplication ms (Effs ms deps)
+  => T.HasTxRouter (ApplicationC ms) (Effs ms deps)
+  => T.HasTxRouter (ApplicationD ms) (Effs ms deps)
+  => Q.HasQueryRouter (ApplicationQ ms) (Effs ms deps)
+  => Members BaseAppEffs deps
+  => Proxy deps
+  -> ModuleList ms (Effs ms deps)
+  -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (T.TxEffs :& deps) (Q.QueryEffs :& deps)
+makeApplication (Proxy :: Proxy deps) (ms :: ModuleList ms (Effs ms deps)) =
+  let app = toApplication ms :: Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (Effs ms deps) (Effs ms deps)
       -- WEIRD: if you move the eval into a separate let binding then it doesn't typecheck...
-  in hoistApplication (eval @ms @core ms) (T.evalReadOnly . eval @ms @core ms) app
+  in hoistApplication (eval @ms @deps ms) (T.evalReadOnly . eval @ms @deps ms) app
 
 
