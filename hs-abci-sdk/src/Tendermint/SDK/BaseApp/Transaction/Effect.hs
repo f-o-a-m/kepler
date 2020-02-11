@@ -11,6 +11,7 @@ import           Data.ByteArray.Base64String              (fromBytes)
 import           Data.Default.Class                       (def)
 import           Data.IORef                               (IORef, readIORef,
                                                            writeIORef)
+import           Data.Proxy
 import           Polysemy                                 (Embed, Member,
                                                            Members, Sem,
                                                            interpret,
@@ -47,14 +48,15 @@ type TxEffs =
     ]
 
 eval
-  :: forall r a.
-     Members [Embed IO, ReadStore] r
-  => TransactionContext
+  :: forall r scope a.
+     Members [Embed IO, Tagged scope ReadStore] r
+  => Proxy scope
+  -> TransactionContext
   -> Sem (TxEffs :& r) a
   -> Sem r (Either AppError a)
-eval TransactionContext{..} = do
+eval ps TransactionContext{..} = do
   runError .
-    evalCachedReadStore storeCache .
+    evalCachedReadStore ps storeCache .
     rewrite (Tagged @Cache.Cache) .
     evalCachedWriteStore storeCache .
     rewrite (Tagged @Cache.Cache) .
@@ -79,14 +81,15 @@ evalReadOnly =
       )
 
 runTx
-  :: Members [Embed IO, ReadStore] r
+  :: Members [Embed IO, Tagged scope ReadStore] r
   => HasCodec a
-  => TransactionContext
+  => Proxy scope
+  -> TransactionContext
   -> Sem (TxEffs :& r) a
   -> Sem r (TxResult, Maybe Cache.Cache)
-runTx ctx@TransactionContext{..} tx = do
+runTx ps ctx@TransactionContext{..} tx = do
   initialGas <- liftIO $ readIORef gasRemaining
-  eRes <- eval ctx tx
+  eRes <- eval ps ctx tx
   finalGas <- liftIO $ readIORef gasRemaining
   let gasUsed = initialGas - finalGas
       baseResponse =
@@ -103,11 +106,12 @@ runTx ctx@TransactionContext{..} tx = do
                )
 
 evalCachedReadStore
-  :: Members [Embed IO, ReadStore] r
-  => IORef Cache.Cache
+  :: Members [Embed IO, Tagged scope ReadStore] r
+  => Proxy scope
+  -> IORef Cache.Cache
   -> Sem (Tagged Cache.Cache ReadStore ': r) a
   -> Sem r a
-evalCachedReadStore c m = do
+evalCachedReadStore (_ :: Proxy scope) c m = do
   cache <- liftIO $ readIORef c
   interpret
     (\(Tagged action) -> case action of
@@ -115,7 +119,7 @@ evalCachedReadStore c m = do
         case Cache.get k cache of
           Left Cache.Deleted -> pure Nothing
           Right (Just v)     -> pure (Just v)
-          Right Nothing      -> send (StoreGet k)
+          Right Nothing      -> send (Tagged @scope (StoreGet k))
       StoreProve _ -> pure Nothing
     ) m
 

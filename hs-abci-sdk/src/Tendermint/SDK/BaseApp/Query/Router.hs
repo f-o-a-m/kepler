@@ -13,6 +13,7 @@ import           Network.ABCI.Types.Messages.Response as Response
 import           Network.HTTP.Types.URI               (QueryText,
                                                        parseQueryText)
 import           Polysemy                             (Member, Sem)
+import           Polysemy.Tagged                      (Tagged)
 import           Servant.API
 import           Servant.API.Modifiers                (FoldLenient,
                                                        FoldRequired,
@@ -25,7 +26,7 @@ import           Tendermint.SDK.BaseApp.Query.Types   (EmptyQueryServer (..),
                                                        QueryRequest (..),
                                                        QueryResult (..))
 import qualified Tendermint.SDK.BaseApp.Router        as R
-import           Tendermint.SDK.BaseApp.Store         (ReadStore)
+import           Tendermint.SDK.BaseApp.Store         (ReadStore, Scope (..))
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Types.Effects         ((:&))
 import           Web.HttpApiData                      (FromHttpApiData (..),
@@ -120,7 +121,7 @@ instance (FromQueryData a, HasQueryRouter sublayout r) => HasQueryRouter (QA a :
 
   hoistQueryRouter _ pr nat f = hoistQueryRouter (Proxy @sublayout) pr nat . f
 
-instance (Member ReadStore r, HasCodec a) => HasQueryRouter (Leaf a) r where
+instance (Member (Tagged 'QueryAndMempool ReadStore) r, HasCodec a) => HasQueryRouter (Leaf a) r where
 
    type RouteQ (Leaf a) r = Sem r (QueryResult a)
    routeQ _ _ = methodRouter
@@ -135,7 +136,7 @@ instance HasQueryRouter EmptyQueryServer r where
 
 methodRouter
   :: HasCodec a
-  => Member ReadStore r
+  => Member (Tagged 'QueryAndMempool ReadStore) r
   => R.Delayed (Sem r) env req (Sem (QueryEffs :& r) (QueryResult a))
   -> R.Router env r req Response.Query
 methodRouter action =

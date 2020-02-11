@@ -16,10 +16,11 @@ module Tendermint.SDK.Modules.Auth
   , module Tendermint.SDK.Modules.Auth.Types
   ) where
 
-import           Polysemy                           (Members, Member)
+import           Polysemy                           (Member, Members)
 import           Tendermint.SDK.Application.Module  (Module (..))
-import           Tendermint.SDK.BaseApp             (BaseAppEffs, ReadStore,
-                                                     EmptyTxServer (..))
+import           Tendermint.SDK.BaseApp             (BaseAppEffs,
+                                                     EmptyTxServer (..),
+                                                     ReadStore)
 import           Tendermint.SDK.Modules.Auth.Keeper
 import           Tendermint.SDK.Modules.Auth.Query
 import           Tendermint.SDK.Modules.Auth.Types

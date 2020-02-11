@@ -34,15 +34,16 @@ import qualified Data.ByteString               as BS
 import           Data.Proxy
 import           Data.String.Conversions       (cs)
 import           Numeric.Natural               (Natural)
-import           Polysemy                      (Member, Members, Sem, EffectRow, makeSem)
+import           Polysemy                      (EffectRow, Member, Members, Sem,
+                                                makeSem)
 import           Polysemy.Error                (Error, catch, throw)
 import           Polysemy.Resource             (Resource, finally, onException)
+import           Polysemy.Tagged               (Tagged, tag)
 import           Tendermint.SDK.BaseApp.Errors (AppError, SDKError (ParseError),
                                                 throwSDKError)
 import           Tendermint.SDK.Codec          (HasCodec (..))
 import           Tendermint.SDK.Types.Address  (Address, addressFromBytes,
                                                 addressToBytes)
-import Polysemy.Tagged (Tagged, tag)
 
 data RawStoreKey = RawStoreKey
   { rsStoreKey :: BS.ByteString
@@ -186,14 +187,14 @@ withSandbox m =
    let tryTx = m `catch` (\e -> rollback *> throw e)
    in finally (tryTx <* rollback) rollback
 
-data Scope = Conensus | QueryAndMempool
+data Scope = Consensus | QueryAndMempool
 
 type family ApplyScope (s :: Scope) (es :: EffectRow) :: EffectRow where
   ApplyScope _ '[] = '[]
   ApplyScope s (ReadStore ': rest) = Tagged s ReadStore ': ApplyScope s rest
   ApplyScope s (e ': rest) = e ': ApplyScope s rest
 
-applyScope 
+applyScope
   :: forall (s :: Scope) r.
      Member (Tagged s ReadStore) r
   => forall a.
@@ -201,8 +202,8 @@ applyScope
   -> Sem r a
 applyScope = tag @s
 
-type StoreEffs = 
-  [ Tagged 'Conensus ReadStore
+type StoreEffs =
+  [ Tagged 'Consensus ReadStore
   , Tagged 'QueryAndMempool ReadStore
   , WriteStore
   , Transaction

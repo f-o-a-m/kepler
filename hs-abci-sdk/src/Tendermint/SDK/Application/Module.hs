@@ -7,6 +7,7 @@ import           Polysemy                           (EffectRow, Members, Sem)
 import           Servant.API                        ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp             ((:&))
 import qualified Tendermint.SDK.BaseApp.Query       as Q
+import           Tendermint.SDK.BaseApp.Store       (Scope (..))
 import qualified Tendermint.SDK.BaseApp.Transaction as T
 
 data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: EffectRow) (r :: EffectRow)  = Module
@@ -61,8 +62,8 @@ instance ToApplication (m' ': ms) r => ToApplication (Module name check deliver 
          }
 
 hoistApplication
-  :: T.HasTxRouter check r
-  => T.HasTxRouter deliver r
+  :: T.HasTxRouter check r 'QueryAndMempool
+  => T.HasTxRouter deliver r 'Consensus
   => Q.HasQueryRouter query s
   => (forall a. Sem r a -> Sem r' a)
   -> (forall a. Sem s a -> Sem s' a)
@@ -70,8 +71,8 @@ hoistApplication
   -> Application check deliver query r' s'
 hoistApplication natT natQ (app :: Application check deliver query r s) =
   Application
-    { applicationTxChecker = T.hoistTxRouter (Proxy @check) (Proxy @r) natT $ applicationTxChecker app
-    , applicationTxDeliverer = T.hoistTxRouter (Proxy @deliver) (Proxy @r) natT $ applicationTxDeliverer app
+    { applicationTxChecker = T.hoistTxRouter (Proxy @check) (Proxy @r) (Proxy @'QueryAndMempool) natT $ applicationTxChecker app
+    , applicationTxDeliverer = T.hoistTxRouter (Proxy @deliver) (Proxy @r) (Proxy @'Consensus) natT $ applicationTxDeliverer app
     , applicationQuerier = Q.hoistQueryRouter (Proxy @query) (Proxy @s) natQ $ applicationQuerier app
     }
 
@@ -96,8 +97,8 @@ instance ( Members T.TxEffs (Effs (m' ': ms) deps)
 makeApplication
   :: Eval ms deps
   => ToApplication ms (Effs ms deps)
-  => T.HasTxRouter (ApplicationC ms) (Effs ms deps)
-  => T.HasTxRouter (ApplicationD ms) (Effs ms deps)
+  => T.HasTxRouter (ApplicationC ms) (Effs ms deps) 'QueryAndMempool
+  => T.HasTxRouter (ApplicationD ms) (Effs ms deps) 'Consensus
   => Q.HasQueryRouter (ApplicationQ ms) (Effs ms deps)
   => Proxy deps
   -> ModuleList ms (Effs ms deps)

@@ -8,8 +8,9 @@ import           Data.Proxy
 import           Data.String.Conversions             (cs)
 import           GHC.TypeLits                        (KnownSymbol, Symbol,
                                                       symbolVal)
-import           Polysemy                            (Members, Sem)
+import           Polysemy                            (Member, Members, Sem)
 import           Polysemy.Error                      (throw)
+import           Polysemy.Tagged                     (Tagged)
 import           Servant.API                         ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp.Errors       (makeAppError)
 import           Tendermint.SDK.BaseApp.Query.Effect (QueryEffs)
@@ -21,12 +22,13 @@ import           Tendermint.SDK.BaseApp.Query.Types  (Leaf, QA, QueryArgs (..),
 import           Tendermint.SDK.BaseApp.Router       (RouterError (..),
                                                       pathRouter)
 import           Tendermint.SDK.BaseApp.Store        (IsKey (..), RawKey (..),
+                                                      ReadStore, Scope (..),
                                                       StoreKey, get)
 import           Tendermint.SDK.Codec                (HasCodec)
 
 data StoreLeaf a
 
-instance (Queryable a, Members QueryEffs r, KnownSymbol (Name a)) => HasQueryRouter (StoreLeaf a) r where
+instance (Queryable a,  Member (Tagged 'QueryAndMempool ReadStore) r, KnownSymbol (Name a)) => HasQueryRouter (StoreLeaf a) r where
 
    type RouteQ (StoreLeaf a) r = Sem r (QueryResult a)
    routeQ _ _ = pathRouter (cs (symbolVal proxyPath)) . methodRouter

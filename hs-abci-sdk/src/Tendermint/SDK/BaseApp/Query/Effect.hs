@@ -8,12 +8,13 @@ import           Data.ByteArray.Base64String            (fromBytes)
 import           Data.Default.Class                     (def)
 import           Network.ABCI.Types.Messages.FieldTypes (WrappedVal (..))
 import qualified Network.ABCI.Types.Messages.Response   as Response
-import           Polysemy                               (Member, Sem, subsume)
+import           Polysemy                               (Member, Sem)
 import           Polysemy.Error                         (Error, runError)
+import           Polysemy.Tagged                        (Tagged, tag)
 import           Tendermint.SDK.BaseApp.Errors          (AppError,
                                                          queryAppError)
 import           Tendermint.SDK.BaseApp.Query.Types
-import           Tendermint.SDK.BaseApp.Store           (ReadStore)
+import           Tendermint.SDK.BaseApp.Store           (ReadStore, Scope (..))
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 import           Tendermint.SDK.Types.Effects           ((:&))
 
@@ -24,7 +25,7 @@ type QueryEffs =
 
 runQuery
   :: HasCodec a
-  => Member ReadStore r
+  => Member (Tagged 'QueryAndMempool ReadStore) r
   => Sem (QueryEffs :& r) (QueryResult a)
   -> Sem r Response.Query
 runQuery query = do
@@ -40,7 +41,7 @@ runQuery query = do
         & Response._queryHeight .~ WrappedVal queryResultHeight
 
 eval
-  :: Member ReadStore r
+  :: Member (Tagged 'QueryAndMempool ReadStore) r
   => Sem (QueryEffs :& r) (QueryResult a)
   -> Sem r (Either AppError (QueryResult a))
-eval = runError . subsume
+eval = runError . tag

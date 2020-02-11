@@ -30,13 +30,14 @@ import           Tendermint.SDK.Types.Effects               ((:&))
 import           Tendermint.SDK.Types.TxResult              (TxResult)
 
 serveTxApplication
-  :: HasTxRouter layout r
+  :: HasTxRouter layout r scope
   => Proxy layout
   -> Proxy r
+  -> Proxy scope
   -> RouteTx layout (TxEffs :& r)
   -> TransactionApplication (Sem r)
-serveTxApplication pl pr server =
-  toTxApplication (runRouter (routeTx pl pr (emptyDelayed (Route server))) ())
+serveTxApplication pl pr ps server =
+  toTxApplication (runRouter (routeTx pl pr ps (emptyDelayed (Route server))) ())
 
 toTxApplication
   :: Application (Sem r) (RoutingTx ByteString) (TxResult, Maybe Cache)

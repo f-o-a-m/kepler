@@ -31,17 +31,18 @@ import           Numeric.Natural                       (Natural)
 import           Polysemy                              (Embed, Member, Members,
                                                         Sem, interpret)
 import           Polysemy.Error                        (Error)
-import Polysemy.Reader (Reader, ask)
-import Polysemy.Tagged (untag)
+import           Polysemy.Reader                       (Reader, ask)
+import           Polysemy.Tagged                       (untag)
 import qualified Proto.Iavl.Api_Fields                 as Api
-import           Tendermint.SDK.Types.Effects ((:&))
 import           Tendermint.SDK.BaseApp.Errors         (AppError, SDKError (..))
-import           Tendermint.SDK.BaseApp.Store.RawStore (CommitBlock (..), StoreEffs,
+import           Tendermint.SDK.BaseApp.Store.RawStore (CommitBlock (..),
                                                         CommitResponse (..),
                                                         ReadStore (..),
+                                                        StoreEffs,
                                                         Transaction (..),
                                                         WriteStore (..),
                                                         makeRawKey)
+import           Tendermint.SDK.Types.Effects          ((:&))
 
 data IAVLVersion =
     Genesis
@@ -134,7 +135,7 @@ evalCommitBlock gc IAVLVersions{committed} = do
         pure . fromBytes $ hashResp ^. Api.rootHash
     )
 
-evalStoreEffs 
+evalStoreEffs
   :: Members [Embed IO, Reader IAVLVersions, Error AppError, Reader GrpcClient] r
   => forall a.
      Sem (StoreEffs :& r) a

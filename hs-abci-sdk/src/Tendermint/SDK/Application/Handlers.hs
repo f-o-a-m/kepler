@@ -22,7 +22,7 @@ import           Polysemy.Error                         (catch)
 import           Tendermint.SDK.Application.AnteHandler (AnteHandler)
                        --                                  applyAnteHandler)
 import qualified Tendermint.SDK.Application.Module      as M
-import qualified Tendermint.SDK.BaseApp         as BA
+import qualified Tendermint.SDK.BaseApp                 as BA
 import           Tendermint.SDK.BaseApp.Errors          (AppError,
                                                          SDKError (..),
                                                          queryAppError,
@@ -30,7 +30,7 @@ import           Tendermint.SDK.BaseApp.Errors          (AppError,
                                                          txResultAppError)
 import qualified Tendermint.SDK.BaseApp.Query           as Q
 --import           Tendermint.SDK.BaseApp.Store           (ConnectionScope (..))
---import qualified Tendermint.SDK.BaseApp.Store           as Store
+import qualified Tendermint.SDK.BaseApp.Store           as Store
 import           Tendermint.SDK.BaseApp.Transaction     as T
 import           Tendermint.SDK.Crypto                  (RecoverableSignatureSchema,
                                                          SignatureSchema (..))
@@ -87,10 +87,10 @@ makeHandlers
   => Message alg ~ Digest SHA256
   => Members BA.BaseAppEffs s
   => M.ToApplication ms (M.Effs ms s)
-  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms s)
-  => T.HasTxRouter (M.ApplicationC ms) s
-  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms s)
-  => T.HasTxRouter (M.ApplicationD ms) s
+  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms s) 'Store.QueryAndMempool
+  => T.HasTxRouter (M.ApplicationC ms) s 'Store.QueryAndMempool
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms s) 'Store.Consensus
+  => T.HasTxRouter (M.ApplicationD ms) s 'Store.Consensus
   => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms s)
   => Q.HasQueryRouter (M.ApplicationQ ms) s
   => M.Eval ms s
@@ -112,16 +112,16 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r) =
 
       checkServer :: T.TransactionApplication (Sem s)
       checkServer = -- applyAnteHandler anteHandler $
-        T.serveTxApplication (Proxy @(M.ApplicationC ms)) rProxy $ M.applicationTxChecker app
+        T.serveTxApplication (Proxy @(M.ApplicationC ms)) rProxy (Proxy @'Store.QueryAndMempool) $ M.applicationTxChecker app
 
       deliverServer :: T.TransactionApplication (Sem s)
       deliverServer = -- applyAnteHandler anteHandler $
-        T.serveTxApplication (Proxy @(M.ApplicationD ms)) rProxy $ M.applicationTxDeliverer app
+        T.serveTxApplication (Proxy @(M.ApplicationD ms)) rProxy (Proxy @'Store.Consensus) $ M.applicationTxDeliverer app
 
       queryServer :: Q.QueryApplication (Sem s)
       queryServer = Q.serveQueryApplication (Proxy @(M.ApplicationQ ms)) rProxy $ M.applicationQuerier app
 
-      query (RequestQuery q) = 
+      query (RequestQuery q) =
         --Store.applyScope $
         catch
           (do
@@ -176,17 +176,17 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r) =
 
 makeApp
   :: forall alg ms r s.
-    
+
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
 
   => Members BA.BaseAppEffs s
 
   => M.ToApplication ms (M.Effs ms s)
-  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms s)
-  => T.HasTxRouter (M.ApplicationC ms) s
-  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms s)
-  => T.HasTxRouter (M.ApplicationD ms) s
+  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms s) 'Store.QueryAndMempool
+  => T.HasTxRouter (M.ApplicationC ms) s 'Store.QueryAndMempool
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms s)  'Store.Consensus
+  => T.HasTxRouter (M.ApplicationD ms) s 'Store.Consensus
   => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms s)
   => Q.HasQueryRouter (M.ApplicationQ ms) s
   => M.Eval ms s
