@@ -1,5 +1,6 @@
 module Tendermint.SDK.BaseApp.BaseApp
   ( BaseAppEffs
+  , Scope(..)
   , compileToCoreEffs
   ) where
 
@@ -32,14 +33,21 @@ type BaseAppEffs =
   , Error AppError
   ]
 
+data Scope = Consensus | QueryAndMempool
+
 -- | An intermediary interpeter, bringing 'BaseApp' down to 'CoreEff'.
 compileToCoreEffs
-  :: forall a.
+  :: Scope
+  -> forall a.
      Sem (BaseAppEffs :& CoreEffs) a
   -> Sem CoreEffs a
-compileToCoreEffs action = do
+compileToCoreEffs scope action = do
   grpc <- ask @IAVL.GrpcClient
-  version <- ask @IAVL.IAVLVersion
+  version  <- do
+    IAVL.IAVLVersions{..} <- ask @IAVL.IAVLVersions
+    pure $ case scope of
+      Consensus       -> latest
+      QueryAndMempool -> committed
   eRes <- runError .
     resourceToIO .
     KL.evalKatip .

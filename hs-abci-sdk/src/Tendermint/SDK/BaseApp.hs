@@ -1,6 +1,7 @@
 module Tendermint.SDK.BaseApp
   ( -- * BaseApp
     BaseAppEffs
+  , Scope(..)
   , (:&)
   , compileToCoreEffs
 
@@ -9,7 +10,7 @@ module Tendermint.SDK.BaseApp
   , Context(..)
   , contextLogConfig
   , contextPrometheusEnv
-  , contextVersion
+  , contextVersions
   , makeContext
   , runCoreEffs
 
@@ -26,10 +27,6 @@ module Tendermint.SDK.BaseApp
   -- * Query Routes
   , Leaf
   , QA
-
-  -- * Scope
-  , ConnectionScope(..)
-  , applyScope
 
   -- * Errors
   , AppError(..)

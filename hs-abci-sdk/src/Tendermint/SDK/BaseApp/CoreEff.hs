@@ -7,7 +7,7 @@ module Tendermint.SDK.BaseApp.CoreEff
   , Context(..)
   , contextLogConfig
   , contextPrometheusEnv
-  , contextVersion
+  , contextVersions
   , contextGrpcClient
   , makeContext
   , runCoreEffs
@@ -32,7 +32,7 @@ import qualified Tendermint.SDK.BaseApp.Store.IAVLStore    as IAVL
 type CoreEffs =
   '[ Reader KL.LogConfig
    , Reader (Maybe P.PrometheusEnv)
-   , Reader IAVL.IAVLVersion
+   , Reader IAVL.IAVLVersions
    , Reader IAVL.GrpcClient
    , Error AppError
    , Embed IO
@@ -53,7 +53,7 @@ data Context = Context
   { _contextLogConfig     :: KL.LogConfig
   , _contextPrometheusEnv :: Maybe P.PrometheusEnv
   , _contextGrpcClient    :: IAVL.GrpcClient
-  , _contextVersion       :: IAVL.IAVLVersion
+  , _contextVersions      :: IAVL.IAVLVersions
   }
 
 makeLenses ''Context
@@ -61,9 +61,9 @@ makeLenses ''Context
 makeContext
   :: KL.InitialLogNamespace
   -> Maybe P.MetricsScrapingConfig
-  -> IAVL.IAVLVersion
+  -> IAVL.IAVLVersions
   -> IO Context
-makeContext KL.InitialLogNamespace{..} scrapingCfg version = do
+makeContext KL.InitialLogNamespace{..} scrapingCfg versions = do
   metCfg <- case scrapingCfg of
         Nothing -> pure Nothing
         Just scfg -> P.emptyState >>= \es ->
@@ -73,7 +73,7 @@ makeContext KL.InitialLogNamespace{..} scrapingCfg version = do
   pure $ Context
     { _contextLogConfig = logCfg
     , _contextPrometheusEnv = metCfg
-    , _contextVersion = version
+    , _contextVersions = versions
     , _contextGrpcClient = grpc
     }
     where
@@ -95,6 +95,6 @@ runCoreEffs Context{..} =
   runM .
     runError .
     runReader _contextGrpcClient .
-    runReader _contextVersion .
+    runReader _contextVersions .
     runReader _contextPrometheusEnv .
     runReader _contextLogConfig
