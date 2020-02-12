@@ -1,7 +1,6 @@
 module Tendermint.SDK.BaseApp
   ( -- * BaseApp
-    BaseAppEffs
-  , Scope(..)
+    BaseEffs
   , (:&)
   , compileToCoreEffs
 
@@ -87,7 +86,7 @@ module Tendermint.SDK.BaseApp
 
   ) where
 
-import           Tendermint.SDK.BaseApp.BaseApp
+import           Tendermint.SDK.BaseApp.BaseEffs
 import           Tendermint.SDK.BaseApp.CoreEff
 import           Tendermint.SDK.BaseApp.Errors
 import           Tendermint.SDK.BaseApp.Events

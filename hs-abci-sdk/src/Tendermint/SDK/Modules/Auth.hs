@@ -18,7 +18,7 @@ module Tendermint.SDK.Modules.Auth
 
 import           Polysemy                           (Member, Members)
 import           Tendermint.SDK.Application.Module  (Module (..))
-import           Tendermint.SDK.BaseApp             (BaseAppEffs,
+import           Tendermint.SDK.BaseApp             (BaseEffs,
                                                      EmptyTxServer (..),
                                                      ReadStore)
 import           Tendermint.SDK.Modules.Auth.Keeper
@@ -28,7 +28,7 @@ import           Tendermint.SDK.Modules.Auth.Types
 type AuthM r = Module AuthModule EmptyTxServer EmptyTxServer Api AuthEffs r
 
 authModule
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
   => Member ReadStore r
   => AuthM r
 authModule = Module

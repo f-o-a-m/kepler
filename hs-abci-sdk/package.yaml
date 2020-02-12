@@ -98,7 +98,7 @@ library:
   - Tendermint.SDK.Application.Module
   - Tendermint.SDK.Application.Handlers
   - Tendermint.SDK.BaseApp
-  - Tendermint.SDK.BaseApp.BaseApp
+  - Tendermint.SDK.BaseApp.BaseEffs
   - Tendermint.SDK.BaseApp.CoreEff
   - Tendermint.SDK.BaseApp.Errors
   - Tendermint.SDK.BaseApp.Events

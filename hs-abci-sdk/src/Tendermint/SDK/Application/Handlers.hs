@@ -4,41 +4,40 @@ module Tendermint.SDK.Application.Handlers
   , makeApp
   ) where
 
-import           Control.Lens                           (from, to, (&), (.~),
-                                                         (^.))
-import           Crypto.Hash                            (Digest)
-import           Crypto.Hash.Algorithms                 (SHA256)
-import qualified Data.ByteArray.Base64String            as Base64
-import           Data.Default.Class                     (Default (..))
+import           Control.Lens                             (from, to, (&), (.~),
+                                                           (^.))
+import           Crypto.Hash                              (Digest)
+import           Crypto.Hash.Algorithms                   (SHA256)
+import qualified Data.ByteArray.Base64String              as Base64
+import           Data.Default.Class                       (Default (..))
 import           Data.Proxy
-import           Network.ABCI.Server.App                (App (..),
-                                                         MessageType (..),
-                                                         Request (..),
-                                                         Response (..))
-import qualified Network.ABCI.Types.Messages.Request    as Req
-import qualified Network.ABCI.Types.Messages.Response   as Resp
+import           Network.ABCI.Server.App                  (App (..),
+                                                           MessageType (..),
+                                                           Request (..),
+                                                           Response (..))
+import qualified Network.ABCI.Types.Messages.Request      as Req
+import qualified Network.ABCI.Types.Messages.Response     as Resp
 import           Polysemy
-import           Polysemy.Error                         (catch)
-import           Tendermint.SDK.Application.AnteHandler (AnteHandler)
+import           Polysemy.Error                           (catch)
+import           Tendermint.SDK.Application.AnteHandler   (AnteHandler)
                        --                                  applyAnteHandler)
-import qualified Tendermint.SDK.Application.Module      as M
-import qualified Tendermint.SDK.BaseApp                 as BA
-import           Tendermint.SDK.BaseApp.Errors          (AppError,
-                                                         SDKError (..),
-                                                         queryAppError,
-                                                         throwSDKError,
-                                                         txResultAppError)
-import qualified Tendermint.SDK.BaseApp.Query           as Q
---import           Tendermint.SDK.BaseApp.Store           (ConnectionScope (..))
-import qualified Tendermint.SDK.BaseApp.Store           as Store
-import           Tendermint.SDK.BaseApp.Transaction     as T
+import           Network.ABCI.Server.App                  (transformApp)
+import qualified Tendermint.SDK.Application.Module        as M
+import qualified Tendermint.SDK.BaseApp                   as BA
+import           Tendermint.SDK.BaseApp.Errors            (AppError,
+                                                           SDKError (..),
+                                                           queryAppError,
+                                                           throwSDKError,
+                                                           txResultAppError)
+import qualified Tendermint.SDK.BaseApp.Query             as Q
+import qualified Tendermint.SDK.BaseApp.Store             as Store
+import           Tendermint.SDK.BaseApp.Transaction       as T
 import           Tendermint.SDK.BaseApp.Transaction.Cache (writeCache)
-import           Tendermint.SDK.Crypto                  (RecoverableSignatureSchema,
-                                                         SignatureSchema (..))
-import           Tendermint.SDK.Types.Transaction       (parseTx)
-import           Tendermint.SDK.Types.TxResult          (checkTxTxResult,
-                                                         deliverTxTxResult)
---import qualified Tendermint.SDK.BaseApp.Store.IAVLStore as IAVL
+import           Tendermint.SDK.Crypto                    (RecoverableSignatureSchema,
+                                                           SignatureSchema (..))
+import           Tendermint.SDK.Types.Transaction         (parseTx)
+import           Tendermint.SDK.Types.TxResult            (checkTxTxResult,
+                                                           deliverTxTxResult)
 
 
 type Handler mt r = Request mt -> Sem r (Response mt)
@@ -75,52 +74,54 @@ defaultHandlers = Handlers
       -> m a
     defaultHandler = const $ pure def
 
-data HandlersContext alg ms r = HandlersContext
+type BaseApp core = Store.StoreEffs BA.:& BA.BaseEffs BA.:& core
+
+data HandlersContext alg ms r core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.ModuleList ms r
   , anteHandler   :: AnteHandler r
+  , compileToCore :: forall a. Sem (BaseApp core) a -> Sem core a
   }
 
 -- Common function between checkTx and deliverTx
 makeHandlers
-  :: forall alg ms r s.
+  :: forall alg ms r core.
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
-  => Members BA.BaseAppEffs s
-  => M.ToApplication ms (M.Effs ms s)
-  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms s) 'Store.QueryAndMempool
-  => T.HasTxRouter (M.ApplicationC ms) s 'Store.QueryAndMempool
-  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms s) 'Store.Consensus
-  => T.HasTxRouter (M.ApplicationD ms) s 'Store.Consensus
-  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms s)
-  => Q.HasQueryRouter (M.ApplicationQ ms) s
-  => M.Eval ms s
-  => M.Effs ms s ~ r
-  => Members Store.StoreEffs s
-  => HandlersContext alg ms r
-  -> Handlers s
-makeHandlers (HandlersContext{..} :: HandlersContext alg ms r) =
+  => M.ToApplication ms (M.Effs ms (BaseApp core))
+  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms (BaseApp core)) 'Store.QueryAndMempool
+  => T.HasTxRouter (M.ApplicationC ms) (BaseApp core) 'Store.QueryAndMempool
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms (BaseApp core)) 'Store.Consensus
+  => T.HasTxRouter (M.ApplicationD ms) (BaseApp core) 'Store.Consensus
+  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms (BaseApp core))
+  => Q.HasQueryRouter (M.ApplicationQ ms) (BaseApp core)
+  => M.Eval ms (BaseApp core)
+  => M.Effs ms (BaseApp core) ~ r
+  => HandlersContext alg ms r core
+  -> Handlers (BaseApp core)
+makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
   let
 
-      rProxy :: Proxy s
+      rProxy :: Proxy (BaseApp core)
       rProxy = Proxy
 
-      app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms) (T.TxEffs BA.:& s) (Q.QueryEffs BA.:& s)
+      app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms)
+               (T.TxEffs BA.:& (BaseApp core)) (Q.QueryEffs BA.:& (BaseApp core))
       app = M.makeApplication rProxy modules
 
       txParser bs = case parseTx signatureAlgP bs of
         Left err -> throwSDKError $ ParseError err
         Right tx -> pure $ T.RoutingTx tx
 
-      checkServer :: T.TransactionApplication (Sem s)
+      checkServer :: T.TransactionApplication (Sem (BaseApp core))
       checkServer = -- applyAnteHandler anteHandler $
         T.serveTxApplication (Proxy @(M.ApplicationC ms)) rProxy (Proxy @'Store.QueryAndMempool) $ M.applicationTxChecker app
 
-      deliverServer :: T.TransactionApplication (Sem s)
+      deliverServer :: T.TransactionApplication (Sem (BaseApp core))
       deliverServer = -- applyAnteHandler anteHandler $
         T.serveTxApplication (Proxy @(M.ApplicationD ms)) rProxy (Proxy @'Store.Consensus) $ M.applicationTxDeliverer app
 
-      queryServer :: Q.QueryApplication (Sem s)
+      queryServer :: Q.QueryApplication (Sem (BaseApp core))
       queryServer = Q.serveQueryApplication (Proxy @(M.ApplicationQ ms)) rProxy $ M.applicationQuerier app
 
       query (RequestQuery q) =
@@ -159,7 +160,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r) =
           )
         return . ResponseDeliverTx $ res ^. from deliverTxTxResult
 
-      commit :: Handler 'MTCommit s
+      commit :: Handler 'MTCommit (BaseApp core)
       commit _ = do
         _ <- Store.commit
         rootHash <- Store.commitBlock
@@ -174,29 +175,24 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r) =
        }
 
 makeApp
-  :: forall alg ms r s.
+  :: forall alg ms r core.
 
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
-
-  => Members BA.BaseAppEffs s
-
-  => M.ToApplication ms (M.Effs ms s)
-  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms s) 'Store.QueryAndMempool
-  => T.HasTxRouter (M.ApplicationC ms) s 'Store.QueryAndMempool
-  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms s) 'Store.Consensus
-  => T.HasTxRouter (M.ApplicationD ms) s 'Store.Consensus
-  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms s)
-  => Q.HasQueryRouter (M.ApplicationQ ms) s
-  => M.Eval ms s
-  => M.Effs ms s ~ r
-
-  => Members Store.StoreEffs s
-  => HandlersContext alg ms r
-  -> App (Sem s)
-makeApp handlersContext =
-  let Handlers{..} = makeHandlers handlersContext :: Handlers s
-  in App $ \case
+  => M.ToApplication ms (M.Effs ms (BaseApp core))
+  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms (BaseApp core)) 'Store.QueryAndMempool
+  => T.HasTxRouter (M.ApplicationC ms) (BaseApp core) 'Store.QueryAndMempool
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms (BaseApp core)) 'Store.Consensus
+  => T.HasTxRouter (M.ApplicationD ms) (BaseApp core) 'Store.Consensus
+  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms (BaseApp core))
+  => Q.HasQueryRouter (M.ApplicationQ ms) (BaseApp core)
+  => M.Eval ms (BaseApp core)
+  => M.Effs ms (BaseApp core) ~ r
+  => HandlersContext alg ms r core
+  -> App (Sem core)
+makeApp handlersContext@HandlersContext{compileToCore} =
+  let Handlers{..} = makeHandlers handlersContext :: Handlers (BaseApp core)
+  in transformApp compileToCore $ App $ \case
        RequestEcho echo ->
          pure . ResponseEcho $ def
            & Resp._echoMessage .~ echo ^. Req._echoMessage

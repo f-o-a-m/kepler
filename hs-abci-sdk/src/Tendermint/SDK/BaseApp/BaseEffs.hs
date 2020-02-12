@@ -1,5 +1,5 @@
-module Tendermint.SDK.BaseApp.BaseApp
-  ( BaseAppEffs
+module Tendermint.SDK.BaseApp.BaseEffs
+  ( BaseEffs
   , compileToCoreEffs
   ) where
 
@@ -24,7 +24,7 @@ import           Tendermint.SDK.Types.Effects              ((:&))
 -- | Concrete row of effects for the BaseApp. Note that because there does
 -- | not exist an interpreter for an untagged 'RawStore', you must scope
 -- | these effects before they can be interpreted.
-type BaseAppEffs =
+type BaseEffs =
   [ Metrics
   , Logger
   , Resource
@@ -34,7 +34,7 @@ type BaseAppEffs =
 -- | An intermediary interpeter, bringing 'BaseApp' down to 'CoreEff'.
 compileToCoreEffs
   :: forall a.
-     Sem (BaseAppEffs :& CoreEffs) a
+     Sem (BaseEffs :& CoreEffs) a
   -> Sem CoreEffs a
 compileToCoreEffs action = do
   --grpc <- ask @IAVL.GrpcClient
