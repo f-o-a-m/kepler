@@ -19,7 +19,9 @@ data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: Eff
 
 data ModuleList ms r where
   NilModules :: ModuleList '[] r
-  (:+) :: Module name check deliver query es r -> ModuleList ms r -> ModuleList (Module name check deliver query es r ': ms) r
+  (:+) :: Module name check deliver query es r
+       -> ModuleList ms r
+       -> ModuleList (Module name check deliver query es r ': ms) r
 
 infixr 5 :+
 
