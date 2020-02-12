@@ -25,10 +25,10 @@ import           Data.Validation                  (Validation (..))
 import           GHC.Generics                     (Generic)
 import           Polysemy
 import           Servant.API
-import           Tendermint.SDK.Application       (BaseApp, Module (..))
+import           Tendermint.SDK.Application       (BaseApp, Module (..),
+                                                   defaultCompileToCore)
 import qualified Tendermint.SDK.BaseApp           as BaseApp
 import           Tendermint.SDK.Codec             (HasCodec (..))
-import           Tendermint.SDK.Types.Effects     ((:&))
 import           Tendermint.SDK.Types.Message     (HasMessageType (..),
                                                    Msg (..),
                                                    ValidateMessage (..))
@@ -195,13 +195,11 @@ simpleStorageModule = Module
 
 evalToIO
   :: BaseApp.Context
-  -> Sem (SimpleStorage ': BaseApp.TxEffs :& BaseApp BaseApp.CoreEffs) a
+  -> Sem (BaseApp BaseApp.CoreEffs) a
   -> IO a
-evalToIO = undefined
-  --eRes <-
-  --  BaseApp.runCoreEffs context .
-  --  defaultCompileToCore .
-  --  BaseApp.compileToCoreEffs .
-  --
-  --          eval action
-  --either (error . show) pure eRes
+evalToIO context action = do
+  eRes <-
+     BaseApp.runCoreEffs context .
+       defaultCompileToCore $
+       action
+  either (error . show) pure eRes

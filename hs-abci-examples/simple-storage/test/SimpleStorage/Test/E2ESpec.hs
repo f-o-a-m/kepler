@@ -7,8 +7,7 @@ import qualified Network.Tendermint.Client           as RPC
 import           Servant.API                         ((:<|>) (..))
 import           SimpleStorage.Application
 import qualified SimpleStorage.Modules.SimpleStorage as SS
-import           Tendermint.SDK.Application.Module   (AppQueryRouter (QApi),
-                                                      AppTxRouter (TApi))
+import qualified Tendermint.SDK.Application.Module   as M
 import           Tendermint.SDK.BaseApp.Errors       (AppError (..))
 import           Tendermint.SDK.BaseApp.Query        (QueryArgs (..),
                                                       QueryResult (..),
@@ -72,7 +71,7 @@ getAccount
 getCount :<|> getAccount =
   genClientQ (Proxy :: Proxy m) queryApiP def
   where
-    queryApiP :: Proxy (QApi SimpleStorageModules)
+    queryApiP :: Proxy (M.ApplicationQ SimpleStorageModules)
     queryApiP = Proxy
 
 
@@ -109,10 +108,12 @@ updateCount
   -> TxClientM (TxClientResponse () ())
 
 updateCount :<|> EmptyTxClient =
-  genClientT (Proxy @TxClientM) txApiP defaultClientTxOpts
+  genClientT (Proxy @TxClientM) txApiCP txApiDP defaultClientTxOpts
   where
-    txApiP :: Proxy (TApi SimpleStorageModules)
-    txApiP = Proxy
+    txApiCP :: Proxy (M.ApplicationC SimpleStorageModules)
+    txApiCP = Proxy
+    txApiDP :: Proxy (M.ApplicationD SimpleStorageModules)
+    txApiDP = Proxy
 
 
 --------------------------------------------------------------------------------

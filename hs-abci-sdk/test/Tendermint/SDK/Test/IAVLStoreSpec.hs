@@ -91,10 +91,10 @@ spec = beforeAll beforeAction $
 
       void $ runIAVL driver $ do
         res <- tag @'QueryAndMempool $ get storeKey IntStoreKey
-        liftIO (res `shouldBe` (Just 0))
+        liftIO (res `shouldBe` Just 0)
       void $ runIAVL driver $ do
         res <- tag @'Consensus $ get storeKey IntStoreKey
-        liftIO (res `shouldBe` (Just 0))
+        liftIO (res `shouldBe` Just 0)
 
 
       -- Make another change on Consensus that does not commit
@@ -103,11 +103,11 @@ spec = beforeAll beforeAction $
 
       void $ runIAVL driver $ do
         res <- tag @'QueryAndMempool $ get storeKey IntStoreKey
-        liftIO (res `shouldBe` (Just 0))
+        liftIO (res `shouldBe` Just 0)
 
       void $ runIAVL driver $ do
         res <- tag @'Consensus $ get storeKey IntStoreKey
-        liftIO (res `shouldBe` (Just 1))
+        liftIO (res `shouldBe` Just 1)
 
       -- commit the changes
       void $ runIAVL driver $ commit
@@ -117,11 +117,11 @@ spec = beforeAll beforeAction $
 
       void $ runIAVL driver $ do
         res <- tag @'QueryAndMempool $ get storeKey IntStoreKey
-        liftIO (res `shouldBe` (Just 1))
+        liftIO (res `shouldBe` Just 1)
 
       void $ runIAVL driver $ do
         res <- tag @'Consensus $ get storeKey IntStoreKey
-        liftIO (res `shouldBe` (Just 1))
+        liftIO (res `shouldBe` Just 1)
 
 
 beforeAction :: IO (IAVLVersions, GrpcClient)
