@@ -32,6 +32,7 @@ import qualified Tendermint.SDK.BaseApp.Query           as Q
 --import           Tendermint.SDK.BaseApp.Store           (ConnectionScope (..))
 import qualified Tendermint.SDK.BaseApp.Store           as Store
 import           Tendermint.SDK.BaseApp.Transaction     as T
+import           Tendermint.SDK.BaseApp.Transaction.Cache (writeCache)
 import           Tendermint.SDK.Crypto                  (RecoverableSignatureSchema,
                                                          SignatureSchema (..))
 import           Tendermint.SDK.Types.Transaction       (parseTx)
@@ -95,6 +96,7 @@ makeHandlers
   => Q.HasQueryRouter (M.ApplicationQ ms) s
   => M.Eval ms s
   => M.Effs ms s ~ r
+  => Members Store.StoreEffs s
   => HandlersContext alg ms r
   -> Handlers s
 makeHandlers (HandlersContext{..} :: HandlersContext alg ms r) =
@@ -132,8 +134,6 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r) =
             return . ResponseQuery $ def & queryAppError .~ err
           )
 
-      --beginBlock _ = Store.applyScope (def <$ Store.beginBlock)
-
       checkTx (RequestCheckTx _checkTx) =  do
         res <- catch
           ( let txBytes =  _checkTx ^. Req._checkTxTx . to Base64.toBytes
@@ -150,7 +150,8 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r) =
         res <- catch @AppError
           ( let txBytes = _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
             in do
-               (res, _) <- txParser txBytes >>= deliverServer
+               (res, cache) <- txParser txBytes >>= deliverServer
+               maybe (pure ()) writeCache cache
                pure res
           )
           (\(err :: AppError) ->
@@ -158,20 +159,18 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r) =
           )
         return . ResponseDeliverTx $ res ^. from deliverTxTxResult
 
-      --commit :: Handler 'MTCommit (BA.BaseAppEffs BA.:& core)
-      --commit _ = Store.applyScope $ do
-      --  Store.commitBlock
-      --  Store.mergeScopes
-      --  rootHash <- Store.storeRoot
-      --  return . ResponseCommit $ def
-      --    & Resp._commitData .~ Base64.fromBytes rootHash
+      commit :: Handler 'MTCommit s
+      commit _ = do
+        _ <- Store.commit
+        rootHash <- Store.commitBlock
+        return . ResponseCommit $ def
+          & Resp._commitData .~ Base64.fromBytes rootHash
 
   in defaultHandlers
        { query = query
        , checkTx = checkTx
-       --, beginBlock = beginBlock
        , deliverTx = deliverTx
-       --, commit = commit
+       , commit = commit
        }
 
 makeApp
@@ -185,14 +184,14 @@ makeApp
   => M.ToApplication ms (M.Effs ms s)
   => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms s) 'Store.QueryAndMempool
   => T.HasTxRouter (M.ApplicationC ms) s 'Store.QueryAndMempool
-  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms s)  'Store.Consensus
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms s) 'Store.Consensus
   => T.HasTxRouter (M.ApplicationD ms) s 'Store.Consensus
   => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms s)
   => Q.HasQueryRouter (M.ApplicationQ ms) s
   => M.Eval ms s
   => M.Effs ms s ~ r
 
-
+  => Members Store.StoreEffs s
   => HandlersContext alg ms r
   -> App (Sem s)
 makeApp handlersContext =

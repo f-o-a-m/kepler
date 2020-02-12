@@ -146,6 +146,7 @@ evalStoreEffs action = do
   evalCommitBlock grpc vs .
     evalTransaction grpc .
     evalWrite grpc .
+    untag .
     evalRead grpc committed .
     untag .
     evalRead grpc latest .

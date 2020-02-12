@@ -14,8 +14,10 @@ import qualified Data.Map.Strict                       as Map
 import           Data.Set                              (Set)
 import qualified Data.Set                              as Set
 import           Polysemy                              (Member, Sem)
-import           Tendermint.SDK.BaseApp.Store.RawStore (RawStoreKey, WriteStore,
-                                                        storeDelete, storePut)
+import           Polysemy.Tagged                       (Tagged, tag)
+import           Tendermint.SDK.BaseApp.Store.RawStore (RawStoreKey, Scope (..),
+                                                        WriteStore, storeDelete,
+                                                        storePut)
 
 data Cache = Cache
   { keysToDelete :: Set RawStoreKey
@@ -56,9 +58,9 @@ delete k Cache{..} =
   in Cache keysToDelete' stateCache'
 
 writeCache
-  :: Member WriteStore r
+  :: Member (Tagged 'Consensus WriteStore) r
   => Cache
   -> Sem r ()
 writeCache Cache{..} = do
-  mapM_ (uncurry storePut) (Map.toList stateCache)
-  mapM_ storeDelete (Set.toList keysToDelete)
+  mapM_ (tag @'Consensus . uncurry storePut) (Map.toList stateCache)
+  mapM_ (tag @'Consensus . storeDelete) (Set.toList keysToDelete)

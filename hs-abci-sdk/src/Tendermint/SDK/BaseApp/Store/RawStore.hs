@@ -205,7 +205,7 @@ applyScope = tag @s
 type StoreEffs =
   [ Tagged 'Consensus ReadStore
   , Tagged 'QueryAndMempool ReadStore
-  , WriteStore
+  , Tagged 'Consensus WriteStore
   , Transaction
   , CommitBlock
   ]
