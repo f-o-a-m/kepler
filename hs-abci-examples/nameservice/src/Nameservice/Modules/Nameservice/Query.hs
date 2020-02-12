@@ -4,7 +4,6 @@ import           Data.Proxy
 import           Nameservice.Modules.Nameservice.Keeper (storeKey)
 import           Nameservice.Modules.Nameservice.Types  (Name, Whois)
 import           Polysemy                               (Members)
-import           Polysemy.Error                         (Error)
 import qualified Tendermint.SDK.BaseApp                 as BaseApp
 
 --------------------------------------------------------------------------------
@@ -15,8 +14,8 @@ type NameserviceContents = '[(Name, Whois)]
 
 type QueryApi = BaseApp.QueryApi NameserviceContents
 
-server
-  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+querier
+  :: Members BaseApp.QueryEffs r
   => BaseApp.RouteQ QueryApi r
-server =
+querier =
   BaseApp.storeQueryHandlers (Proxy :: Proxy NameserviceContents) storeKey (Proxy :: Proxy r)

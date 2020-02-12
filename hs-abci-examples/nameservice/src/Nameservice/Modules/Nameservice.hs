@@ -32,7 +32,7 @@ module Nameservice.Modules.Nameservice
 
   -- * query API
   , QueryApi
-  , server
+  , querier
 
   ) where
 
@@ -45,20 +45,21 @@ import           Nameservice.Modules.Nameservice.Types
 import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members)
 import           Tendermint.SDK.Application               (Module (..))
-import           Tendermint.SDK.BaseApp                   (BaseAppEffs,
+import           Tendermint.SDK.BaseApp                   (BaseEffs, TxEffs,
                                                            DefaultCheckTx (..))
 
 type NameserviceM r =
-  Module "nameservice" MessageApi QueryApi NameserviceEffs r
+  Module "nameservice" MessageApi MessageApi QueryApi NameserviceEffs r
 
 nameserviceModule
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
+  => Members TxEffs r
   => Members TokenEffs r
   => Members NameserviceEffs r
   => NameserviceM r
 nameserviceModule = Module
   { moduleTxDeliverer = messageHandlers
   , moduleTxChecker = defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
-  , moduleQueryServer = server
+  , moduleQuerier = querier
   , moduleEval = eval
   }

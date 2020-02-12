@@ -7,8 +7,8 @@ module Nameservice.Application
 import           Data.Proxy
 import qualified Nameservice.Modules.Nameservice as N
 import qualified Nameservice.Modules.Token       as T
-import           Tendermint.SDK.Application      (HandlersContext (..),
-                                                  Modules (..),
+import           Tendermint.SDK.Application      (HandlersContext (..), BaseApp,
+                                                  ModuleList (..), defaultCompileToCore,
                                                   baseAppAnteHandler)
 import           Tendermint.SDK.BaseApp          ((:&))
 import qualified Tendermint.SDK.BaseApp          as BaseApp
@@ -19,7 +19,8 @@ type EffR =
    N.NameserviceEffs :&
    T.TokenEffs :&
    A.AuthEffs :&
-   BaseApp.BaseApp BaseApp.CoreEffs
+   BaseApp.TxEffs :&
+   BaseApp BaseApp.CoreEffs
 
 type NameserviceModules =
    '[ N.NameserviceM EffR
@@ -31,11 +32,11 @@ handlersContext :: HandlersContext Secp256k1 NameserviceModules EffR BaseApp.Cor
 handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = nameserviceModules
-  , compileToCore  = BaseApp.compileScopedEff
+  , compileToCore  = defaultCompileToCore
   , anteHandler = baseAppAnteHandler
   }
   where
-  nameserviceModules :: Modules NameserviceModules EffR
+  nameserviceModules :: ModuleList NameserviceModules EffR
   nameserviceModules =
        N.nameserviceModule
     :+ T.tokenModule

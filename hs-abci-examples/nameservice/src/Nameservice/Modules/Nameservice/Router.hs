@@ -8,9 +8,8 @@ import           Nameservice.Modules.Nameservice.Messages (BuyName, DeleteName,
 import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members, Sem)
 import           Servant.API                              ((:<|>) (..))
-import           Tendermint.SDK.BaseApp                   ((:~>), BaseAppEffs,
+import           Tendermint.SDK.BaseApp                   ((:~>), BaseEffs,
                                                            Return,
-                                                           RouteContext (..),
                                                            RouteTx,
                                                            RoutingTx (..),
                                                            TxEffs, TypedMessage,
@@ -26,14 +25,15 @@ type MessageApi =
   :<|> TypedMessage DeleteName :~> Return ()
 
 messageHandlers
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
   => Members TokenEffs r
+  => Members TxEffs r
   => Members NameserviceEffs r
-  => RouteTx MessageApi r 'DeliverTx
+  => RouteTx MessageApi r
 messageHandlers = buyNameH :<|> setNameH :<|> deleteNameH
 
 buyNameH
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
   => Members TxEffs r
   => Members TokenEffs r
   => Members NameserviceEffs r
@@ -44,7 +44,7 @@ buyNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
   withTimer "buy_duration_seconds" $ buyName msgData
 
 setNameH
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
   => Members TxEffs r
   => Members NameserviceEffs r
   => RoutingTx SetName
@@ -54,7 +54,7 @@ setNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
   withTimer "set_duration_seconds" $ setName msgData
 
 deleteNameH
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
   => Members TxEffs r
   => Members TokenEffs r
   => Members NameserviceEffs r

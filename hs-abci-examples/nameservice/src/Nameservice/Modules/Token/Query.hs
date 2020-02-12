@@ -4,7 +4,6 @@ import           Data.Proxy
 import           Nameservice.Modules.Token.Keeper (storeKey)
 import           Nameservice.Modules.Token.Types  (Amount)
 import           Polysemy
-import           Polysemy.Error                   (Error)
 import qualified Tendermint.SDK.BaseApp           as BaseApp
 import           Tendermint.SDK.Types.Address     (Address)
 
@@ -16,8 +15,8 @@ type TokenContents = '[(Address, Amount)]
 
 type QueryApi = BaseApp.QueryApi TokenContents
 
-server
-  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+querier
+  :: Members BaseApp.QueryEffs r
   => BaseApp.RouteQ QueryApi r
-server =
+querier =
   BaseApp.storeQueryHandlers (Proxy :: Proxy TokenContents) storeKey (Proxy :: Proxy r)

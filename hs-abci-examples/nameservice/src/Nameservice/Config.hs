@@ -25,6 +25,7 @@ import qualified Tendermint.SDK.BaseApp                    as BaseApp
 import           Tendermint.SDK.BaseApp.Logger.Katip       as KL
 import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus as P
 import           Text.Read                                 (read)
+import           Tendermint.SDK.BaseApp.Store.IAVLStore (initIAVLVersions)
 
 
 data AppConfig = AppConfig
@@ -35,10 +36,11 @@ makeLenses ''AppConfig
 
 makeAppConfig :: IO AppConfig
 makeAppConfig = do
+  versions <- initIAVLVersions
   prometheusEnv <- runMaybeT $ do
     prometheusPort <- read <$> MaybeT (lookupEnv "STATS_PORT")
     pure $ P.MetricsScrapingConfig prometheusPort
-  c <- BaseApp.makeContext (KL.InitialLogNamespace "dev" "nameservice") prometheusEnv
+  c <- BaseApp.makeContext (KL.InitialLogNamespace "dev" "nameservice") prometheusEnv versions
   prometheusServer <- newIORef Nothing
   addScribesToLogEnv $
     AppConfig { _baseAppContext = c
