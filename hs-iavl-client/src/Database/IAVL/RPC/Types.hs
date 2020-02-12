@@ -21,10 +21,17 @@ instance Exception GRPCClientError
 --------------------------------------------------------------------------------
 -- | initGrpcClient
 --------------------------------------------------------------------------------
+
+data GrpcConfig = GrpcConfig
+  { grpcHost :: String
+  , grpcPort :: Integer
+  }
+
 -- | Initialize the GRPC Client
-initGrpcClient :: IO GrpcClient
-initGrpcClient =
-  let grpcClient = grpcClientConfigSimple "localhost" 8090 False
+initGrpcClient :: GrpcConfig -> IO GrpcClient
+initGrpcClient (GrpcConfig host port) =
+-- usually 0.0.0.0:8090
+  let grpcClient = grpcClientConfigSimple host (fromInteger port) False
   in  runClientIO (setupGrpcClient (grpcClient{_grpcClientConfigCompression=uncompressed})) >>= \case
         Right gc -> pure gc
         Left err -> throwIO . ClientSetupError . pack $ show err

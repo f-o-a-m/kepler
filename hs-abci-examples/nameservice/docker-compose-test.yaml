@@ -21,6 +21,8 @@ services:
       context: ../../.
       dockerfile: Dockerfile
     image: hs-abci:test
+    depends_on:
+      - iavl
     environment:
      - STATS_PORT=9200
     restart: always
@@ -28,5 +30,10 @@ services:
     expose:
       - "26658"
       - "9200"
+  iavl:
+    image: foamspace/iavl:latest
+    command: /iavlserver  -db-name "test" -datadir "."  -grpc-endpoint "0.0.0.0:8090"  -gateway-endpoint "0.0.0.0:8091"
+    ports: 
+     - "8090-8091:8091-8091"
 volumes:
   tendermint-storage:

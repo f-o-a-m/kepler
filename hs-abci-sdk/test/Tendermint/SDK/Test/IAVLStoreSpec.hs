@@ -23,7 +23,8 @@ import           Tendermint.SDK.BaseApp.Store           (IsKey (..),
                                                          commitBlock, delete,
                                                          get, put, withSandbox,
                                                          withTransaction)
-import           Tendermint.SDK.BaseApp.Store.IAVLStore (IAVLVersions,
+import           Tendermint.SDK.BaseApp.Store.IAVLStore (GrpcConfig (..),
+                                                         IAVLVersions,
                                                          evalStoreEffs,
                                                          initGrpcClient,
                                                          initIAVLVersions)
@@ -127,7 +128,7 @@ spec = beforeAll beforeAction $
 beforeAction :: IO (IAVLVersions, GrpcClient)
 beforeAction = do
   vs <- initIAVLVersions
-  gc  <- initGrpcClient
+  gc  <- initGrpcClient $ GrpcConfig "0.0.0.0" 8090
   pure (vs, gc)
 
 newtype IntStore = IntStore Int deriving (Eq, Show, Num, Serialize.Serialize)

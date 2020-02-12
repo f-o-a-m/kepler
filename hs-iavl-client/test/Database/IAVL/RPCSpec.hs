@@ -12,7 +12,7 @@ import qualified Proto.Iavl.Api_Fields   as Api
 import           Test.Hspec
 
 spec :: Spec
-spec = beforeAll initGrpcClient $ do
+spec = beforeAll (initGrpcClient $ GrpcConfig "0.0.0.0" 8090) $ do
   let testKey = "test-key"
       testValue = "test-value"
       testKey2 = "test-key-2"

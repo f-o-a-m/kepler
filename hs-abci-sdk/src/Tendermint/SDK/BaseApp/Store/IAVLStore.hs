@@ -2,6 +2,7 @@ module Tendermint.SDK.BaseApp.Store.IAVLStore
   ( IAVLVersion(..)
   , IAVLVersions(..)
   , GrpcClient
+  , GrpcConfig(..)
   , initGrpcClient
   , initIAVLVersions
   , evalTransaction
@@ -21,7 +22,8 @@ import           Data.IORef                            (IORef, newIORef,
 import           Data.ProtoLens.Message                (defMessage)
 import           Data.Text                             (pack)
 import qualified Database.IAVL.RPC                     as IAVL
-import           Database.IAVL.RPC.Types               (initGrpcClient)
+import           Database.IAVL.RPC.Types               (GrpcConfig (..),
+                                                        initGrpcClient)
 import           Network.GRPC.Client                   (RawReply)
 import           Network.GRPC.Client.Helpers           (GrpcClient)
 import           Network.HTTP2.Client                  (ClientIO,

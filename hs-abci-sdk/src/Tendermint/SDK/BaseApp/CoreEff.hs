@@ -62,14 +62,15 @@ makeContext
   :: KL.InitialLogNamespace
   -> Maybe P.MetricsScrapingConfig
   -> IAVL.IAVLVersions
+  -> IAVL.GrpcConfig
   -> IO Context
-makeContext KL.InitialLogNamespace{..} scrapingCfg versions = do
+makeContext KL.InitialLogNamespace{..} scrapingCfg versions rpcConf = do
   metCfg <- case scrapingCfg of
         Nothing -> pure Nothing
         Just scfg -> P.emptyState >>= \es ->
           pure . Just $ P.PrometheusEnv es scfg
   logCfg <- mkLogConfig _initialLogEnvironment _initialLogProcessName
-  grpc <- IAVL.initGrpcClient
+  grpc <- IAVL.initGrpcClient rpcConf
   pure $ Context
     { _contextLogConfig = logCfg
     , _contextPrometheusEnv = metCfg

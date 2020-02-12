@@ -22,7 +22,7 @@ type Effs = SS.SimpleStorage ': BA.TxEffs BA.:& App.BaseApp BA.CoreEffs
 type Ms = '[SS.SimpleStorageM Effs]
 
 spec :: Spec
-spec = beforeAll (IAVL.initIAVLVersions >>= BA.makeContext (KL.InitialLogNamespace "test" "spec") Nothing) $
+spec = beforeAll initContext $
   describe "Query tests" $ do
     let modules :: App.ModuleList Ms Effs
         modules = SS.simpleStorageModule App.:+ App.NilModules
@@ -57,3 +57,9 @@ spec = beforeAll (IAVL.initIAVLVersions >>= BA.makeContext (KL.InitialLogNamespa
         queryCode `shouldBe` 0
         let resultCount = decode (Base64.toBytes queryValue) :: Either Text SS.Count
         resultCount `shouldBe` Right 3
+
+initContext :: IO BA.Context
+initContext = do
+  versions <- IAVL.initIAVLVersions
+  let grpc = IAVL.GrpcConfig "0.0.0.0" 8090
+  BA.makeContext (KL.InitialLogNamespace "test" "spec") Nothing versions grpc
