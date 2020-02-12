@@ -1,22 +1,12 @@
-module Tendermint.SDK.Application.AnteHandler
+module Tendermint.SDK.BaseApp.Transaction.AnteHandler
   ( AnteHandler(..)
-  , applyAnteHandler
-  , baseAppAnteHandler
   ) where
 
-import           Control.Monad                      (unless)
-import           Polysemy
-import           Polysemy.Error                     (Error)
-import           Tendermint.SDK.BaseApp.Errors      (AppError, SDKError (..),
-                                                     throwSDKError)
-import           Tendermint.SDK.BaseApp.Transaction (RoutingTx (..),
-                                                     TransactionApplication)
-import qualified Tendermint.SDK.Modules.Auth        as A
-import           Tendermint.SDK.Types.Message       (Msg (..))
-import           Tendermint.SDK.Types.Transaction   (Tx (..))
+import           Polysemy (Sem)
+import           Tendermint.SDK.BaseApp.Transaction.Types (RoutingTx)
 
-data AnteHandler r = AnteHandler
-  ( TransactionApplication (Sem r) -> TransactionApplication (Sem r))
+newtype AnteHandler r = AnteHandler 
+  (forall msg a. (RoutingTx msg -> Sem r a) -> (RoutingTx msg -> Sem r a))
 
 instance Semigroup (AnteHandler r) where
   (<>) (AnteHandler h1) (AnteHandler h2) =
@@ -25,12 +15,7 @@ instance Semigroup (AnteHandler r) where
 instance Monoid (AnteHandler r) where
   mempty = AnteHandler id
 
-applyAnteHandler
-  :: AnteHandler r
-  -> TransactionApplication (Sem r)
-  -> TransactionApplication (Sem r)
-applyAnteHandler (AnteHandler ah) = ($) ah
-
+{-
 nonceAnteHandler
   :: Members A.AuthEffs r
   => Member (Error AppError) r
@@ -60,3 +45,4 @@ baseAppAnteHandler
 baseAppAnteHandler = mconcat $
   [ nonceAnteHandler
   ]
+-}

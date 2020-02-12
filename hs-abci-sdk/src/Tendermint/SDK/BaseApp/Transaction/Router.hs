@@ -24,6 +24,7 @@ import           Tendermint.SDK.Types.Effects              ((:&))
 import           Tendermint.SDK.Types.Message              (HasMessageType (..),
                                                             Msg (..))
 import           Tendermint.SDK.Types.TxResult             (TxResult)
+import Tendermint.SDK.BaseApp.Transaction.AnteHandler (AnteHandler(..))
 
 --------------------------------------------------------------------------------
 
@@ -36,10 +37,14 @@ class HasTxRouter layout (r :: EffectRow) (scope :: Scope) where
         -> R.Delayed (Sem r) env (RoutingTx ByteString) (RouteTx layout (TxEffs :& r))
         -> R.Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
 
---  applyAnteHandler
---    :: Proxy layout
---    => Proxy r
---
+  applyAnteHandler
+    :: Proxy layout
+    -> Proxy r
+    -> Proxy scope
+    -> AnteHandler r
+    -> RouteTx layout r
+    -> RouteTx layout r
+
   hoistTxRouter
     :: Proxy layout
     -> Proxy r
@@ -54,6 +59,10 @@ instance (HasTxRouter a r scope, HasTxRouter b r scope) => HasTxRouter (a :<|> b
   routeTx _ pr ps server =
     R.choice (routeTx (Proxy @a) pr ps ((\ (a :<|> _) -> a) <$> server))
              (routeTx (Proxy @b) pr ps ((\ (_ :<|> b) -> b) <$> server))
+  
+  applyAnteHandler _ pr ps ah (a :<|> b) = 
+    applyAnteHandler (Proxy @a) pr ps ah a :<|>
+    applyAnteHandler (Proxy @b) pr ps ah b
 
   hoistTxRouter _ pr nat ps (a :<|> b) =
     hoistTxRouter (Proxy @a) pr nat ps a :<|> hoistTxRouter (Proxy @b) pr nat ps b
@@ -65,6 +74,8 @@ instance (HasTxRouter sublayout r scope, KnownSymbol path) => HasTxRouter (path 
   routeTx _ pr ps subserver =
     R.pathRouter (cs (symbolVal proxyPath)) (routeTx (Proxy @sublayout) pr ps subserver)
     where proxyPath = Proxy @path
+
+  applyAnteHandler _ pr ps ah = applyAnteHandler (Proxy @sublayout) pr ps ah
 
   hoistTxRouter _ pr ps nat = hoistTxRouter (Proxy @sublayout) pr ps nat
 
@@ -99,6 +110,8 @@ instance ( HasMessageType msg, HasCodec msg
     in methodRouter ps $ R.addBody subserver $ R.withRequest f
       where mt = messageType (Proxy :: Proxy msg)
 
+  applyAnteHandler _ _ _ (AnteHandler ah) f = ah f
+
   hoistTxRouter _ _ _ nat = (.) nat
 
 emptyTxServer :: RouteTx EmptyTxServer r
@@ -107,5 +120,7 @@ emptyTxServer = EmptyTxServer
 instance HasTxRouter EmptyTxServer r scope where
   type RouteTx EmptyTxServer r = EmptyTxServer
   routeTx _ _ _ _ = R.StaticRouter mempty mempty
+
+  applyAnteHandler _ _ _ _ = id
 
   hoistTxRouter _ _ _ _ = id

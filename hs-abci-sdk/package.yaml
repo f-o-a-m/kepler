@@ -93,7 +93,6 @@ library:
   - -Wredundant-constraints
   exposed-modules:
   - Tendermint.SDK.Application
-  - Tendermint.SDK.Application.AnteHandler
   - Tendermint.SDK.Application.App
   - Tendermint.SDK.Application.Module
   - Tendermint.SDK.Application.Handlers
@@ -118,6 +117,7 @@ library:
   - Tendermint.SDK.BaseApp.Store.IAVLStore
   - Tendermint.SDK.BaseApp.Store.RawStore
   - Tendermint.SDK.BaseApp.Transaction
+  - Tendermint.SDK.BaseApp.Transaction.AnteHandler
   - Tendermint.SDK.BaseApp.Transaction.Cache
   - Tendermint.SDK.BaseApp.Transaction.Checker
   - Tendermint.SDK.BaseApp.Transaction.Effect

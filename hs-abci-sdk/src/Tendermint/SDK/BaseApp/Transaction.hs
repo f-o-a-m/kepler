@@ -8,6 +8,7 @@ module Tendermint.SDK.BaseApp.Transaction
   , VoidReturn
   , TxEffs
   , evalReadOnly
+  , AnteHandler(..)
   ) where
 
 import           Control.Lens                               ((&), (.~))
@@ -24,6 +25,7 @@ import           Tendermint.SDK.BaseApp.Router              (Application,
 import           Tendermint.SDK.BaseApp.Transaction.Cache   (Cache)
 import           Tendermint.SDK.BaseApp.Transaction.Checker
 import           Tendermint.SDK.BaseApp.Transaction.Effect
+import           Tendermint.SDK.BaseApp.Transaction.AnteHandler
 import           Tendermint.SDK.BaseApp.Transaction.Router
 import           Tendermint.SDK.BaseApp.Transaction.Types
 import           Tendermint.SDK.Types.Effects               ((:&))

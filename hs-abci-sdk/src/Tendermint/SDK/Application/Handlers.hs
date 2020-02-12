@@ -20,7 +20,6 @@ import qualified Network.ABCI.Types.Messages.Response     as Resp
 import           Polysemy
 import           Polysemy.Error                           (catch)
 import           Tendermint.SDK.Application.AnteHandler   (AnteHandler)
-                       --                                  applyAnteHandler)
 import           Network.ABCI.Server.App                  (transformApp)
 import qualified Tendermint.SDK.Application.Module        as M
 import qualified Tendermint.SDK.BaseApp                   as BA
