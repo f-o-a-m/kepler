@@ -1,6 +1,7 @@
 module Tendermint.SDK.Application.Handlers
   ( Handler
   , HandlersContext(..)
+  , BaseApp
   , makeApp
   ) where
 
@@ -14,13 +15,13 @@ import           Data.Proxy
 import           Network.ABCI.Server.App                  (App (..),
                                                            MessageType (..),
                                                            Request (..),
-                                                           Response (..))
+                                                           Response (..),
+                                                           transformApp)
 import qualified Network.ABCI.Types.Messages.Request      as Req
 import qualified Network.ABCI.Types.Messages.Response     as Resp
 import           Polysemy
 import           Polysemy.Error                           (catch)
 import           Tendermint.SDK.Application.AnteHandler   (AnteHandler)
-import           Network.ABCI.Server.App                  (transformApp)
 import qualified Tendermint.SDK.Application.Module        as M
 import qualified Tendermint.SDK.BaseApp                   as BA
 import           Tendermint.SDK.BaseApp.Errors            (AppError,
@@ -105,7 +106,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
       rProxy = Proxy
 
       app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms)
-               (T.TxEffs BA.:& (BaseApp core)) (Q.QueryEffs BA.:& (BaseApp core))
+               (T.TxEffs BA.:& BaseApp core) (Q.QueryEffs BA.:& BaseApp core)
       app = M.makeApplication rProxy modules
 
       txParser bs = case parseTx signatureAlgP bs of

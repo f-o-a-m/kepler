@@ -4,27 +4,29 @@ module Tendermint.SDK.BaseApp.Transaction.Router
   , emptyTxServer
   ) where
 
-import           Control.Monad.IO.Class                    (liftIO)
-import           Data.ByteString                           (ByteString)
+import           Control.Monad.IO.Class                         (liftIO)
+import           Data.ByteString                                (ByteString)
 import           Data.Proxy
-import           Data.String.Conversions                   (cs)
-import           GHC.TypeLits                              (KnownSymbol,
-                                                            symbolVal)
-import           Polysemy                                  (EffectRow, Embed,
-                                                            Members, Sem)
-import           Polysemy.Tagged                           (Tagged)
+import           Data.String.Conversions                        (cs)
+import           GHC.TypeLits                                   (KnownSymbol,
+                                                                 symbolVal)
+import           Polysemy                                       (EffectRow,
+                                                                 Embed, Members,
+                                                                 Sem)
+import           Polysemy.Tagged                                (Tagged)
 import           Servant.API
-import qualified Tendermint.SDK.BaseApp.Router             as R
-import           Tendermint.SDK.BaseApp.Store              (ReadStore, Scope)
-import           Tendermint.SDK.BaseApp.Transaction.Cache  (Cache)
-import           Tendermint.SDK.BaseApp.Transaction.Effect (TxEffs, runTx)
+import qualified Tendermint.SDK.BaseApp.Router                  as R
+import           Tendermint.SDK.BaseApp.Store                   (ReadStore,
+                                                                 Scope)
+import           Tendermint.SDK.BaseApp.Transaction.AnteHandler (AnteHandler (..))
+import           Tendermint.SDK.BaseApp.Transaction.Cache       (Cache)
+import           Tendermint.SDK.BaseApp.Transaction.Effect      (TxEffs, runTx)
 import           Tendermint.SDK.BaseApp.Transaction.Types
-import           Tendermint.SDK.Codec                      (HasCodec (..))
-import           Tendermint.SDK.Types.Effects              ((:&))
-import           Tendermint.SDK.Types.Message              (HasMessageType (..),
-                                                            Msg (..))
-import           Tendermint.SDK.Types.TxResult             (TxResult)
-import Tendermint.SDK.BaseApp.Transaction.AnteHandler (AnteHandler(..))
+import           Tendermint.SDK.Codec                           (HasCodec (..))
+import           Tendermint.SDK.Types.Effects                   ((:&))
+import           Tendermint.SDK.Types.Message                   (HasMessageType (..),
+                                                                 Msg (..))
+import           Tendermint.SDK.Types.TxResult                  (TxResult)
 
 --------------------------------------------------------------------------------
 
@@ -59,8 +61,8 @@ instance (HasTxRouter a r scope, HasTxRouter b r scope) => HasTxRouter (a :<|> b
   routeTx _ pr ps server =
     R.choice (routeTx (Proxy @a) pr ps ((\ (a :<|> _) -> a) <$> server))
              (routeTx (Proxy @b) pr ps ((\ (_ :<|> b) -> b) <$> server))
-  
-  applyAnteHandler _ pr ps ah (a :<|> b) = 
+
+  applyAnteHandler _ pr ps ah (a :<|> b) =
     applyAnteHandler (Proxy @a) pr ps ah a :<|>
     applyAnteHandler (Proxy @b) pr ps ah b
 

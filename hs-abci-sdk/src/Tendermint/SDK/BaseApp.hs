@@ -14,6 +14,7 @@ module Tendermint.SDK.BaseApp
   , runCoreEffs
 
   -- * Store
+  , StoreEffs
   , ReadStore
   , WriteStore
   , RawKey(..)

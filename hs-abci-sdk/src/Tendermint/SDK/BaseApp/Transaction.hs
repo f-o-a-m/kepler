@@ -11,25 +11,23 @@ module Tendermint.SDK.BaseApp.Transaction
   , AnteHandler(..)
   ) where
 
-import           Control.Lens                               ((&), (.~))
-import           Data.ByteString                            (ByteString)
-import           Data.Default.Class                         (def)
+import           Control.Lens                                   ((&), (.~))
+import           Data.ByteString                                (ByteString)
+import           Data.Default.Class                             (def)
 import           Data.Proxy
-import           Polysemy                                   (Sem)
-import           Tendermint.SDK.BaseApp.Errors              (makeAppError,
-                                                             txResultAppError)
-import           Tendermint.SDK.BaseApp.Router              (Application,
-                                                             RouteResult (..),
-                                                             emptyDelayed,
-                                                             runRouter)
-import           Tendermint.SDK.BaseApp.Transaction.Cache   (Cache)
+import           Polysemy                                       (Sem)
+import           Tendermint.SDK.BaseApp.Errors                  (makeAppError, txResultAppError)
+import           Tendermint.SDK.BaseApp.Router                  (Application, RouteResult (..),
+                                                                 emptyDelayed,
+                                                                 runRouter)
+import           Tendermint.SDK.BaseApp.Transaction.AnteHandler
+import           Tendermint.SDK.BaseApp.Transaction.Cache       (Cache)
 import           Tendermint.SDK.BaseApp.Transaction.Checker
 import           Tendermint.SDK.BaseApp.Transaction.Effect
-import           Tendermint.SDK.BaseApp.Transaction.AnteHandler
 import           Tendermint.SDK.BaseApp.Transaction.Router
 import           Tendermint.SDK.BaseApp.Transaction.Types
-import           Tendermint.SDK.Types.Effects               ((:&))
-import           Tendermint.SDK.Types.TxResult              (TxResult)
+import           Tendermint.SDK.Types.Effects                   ((:&))
+import           Tendermint.SDK.Types.TxResult                  (TxResult)
 
 serveTxApplication
   :: HasTxRouter layout r scope
