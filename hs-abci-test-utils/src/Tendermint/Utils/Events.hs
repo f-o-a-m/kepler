@@ -12,6 +12,8 @@ import           Network.ABCI.Types.Messages.FieldTypes (Event (..),
                                                          KVPair (..))
 import           Tendermint.SDK.BaseApp.Events          (ToEvent, makeEventType)
 
+-- Event ~ {eventType :: String, kvs :: [(ByteString, ByteString)]}
+
 -- | A class that can parse event log items in the deliverTx response. Primarily
 -- | useful for client applications and testing.
 class ToEvent e => FromEvent e where
