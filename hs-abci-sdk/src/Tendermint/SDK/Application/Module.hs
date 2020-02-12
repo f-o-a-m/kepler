@@ -101,11 +101,23 @@ makeApplication
   => T.HasTxRouter (ApplicationD ms) (Effs ms deps) 'Consensus
   => Q.HasQueryRouter (ApplicationQ ms) (Effs ms deps)
   => Proxy deps
+  -> T.AnteHandler (Effs ms deps)
   -> ModuleList ms (Effs ms deps)
   -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (T.TxEffs :& deps) (Q.QueryEffs :& deps)
-makeApplication (Proxy :: Proxy deps) (ms :: ModuleList ms (Effs ms deps)) =
-  let app = toApplication ms :: Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (Effs ms deps) (Effs ms deps)
+makeApplication (Proxy :: Proxy deps) ah (ms :: ModuleList ms (Effs ms deps)) =
+  let app = applyAnteHandler ah $ toApplication ms :: Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (Effs ms deps) (Effs ms deps)
       -- WEIRD: if you move the eval into a separate let binding then it doesn't typecheck...
   in hoistApplication (eval @ms @deps ms) (T.evalReadOnly . eval @ms @deps ms) app
 
-
+applyAnteHandler
+  :: T.HasTxRouter check r 'QueryAndMempool
+  => T.HasTxRouter deliver r 'Consensus
+  => T.AnteHandler r
+  -> Application check deliver query r s
+  -> Application check deliver query r s
+applyAnteHandler ah (app ::  Application check deliver query r s) =
+  app { applicationTxChecker = T.applyAnteHandler (Proxy @check) (Proxy @r) (Proxy @'QueryAndMempool) ah $
+          applicationTxChecker app
+      , applicationTxDeliverer = T.applyAnteHandler (Proxy @deliver) (Proxy @r) (Proxy @'Consensus) ah $
+          applicationTxDeliverer app
+      }

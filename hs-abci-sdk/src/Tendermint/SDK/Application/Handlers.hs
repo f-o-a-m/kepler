@@ -107,18 +107,18 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
 
       app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms)
                (T.TxEffs BA.:& BaseApp core) (Q.QueryEffs BA.:& BaseApp core)
-      app = M.makeApplication rProxy modules
+      app = M.makeApplication rProxy anteHandler modules
 
       txParser bs = case parseTx signatureAlgP bs of
         Left err -> throwSDKError $ ParseError err
         Right tx -> pure $ T.RoutingTx tx
 
       checkServer :: T.TransactionApplication (Sem (BaseApp core))
-      checkServer = -- applyAnteHandler anteHandler $
+      checkServer =
         T.serveTxApplication (Proxy @(M.ApplicationC ms)) rProxy (Proxy @'Store.QueryAndMempool) $ M.applicationTxChecker app
 
       deliverServer :: T.TransactionApplication (Sem (BaseApp core))
-      deliverServer = -- applyAnteHandler anteHandler $
+      deliverServer =
         T.serveTxApplication (Proxy @(M.ApplicationD ms)) rProxy (Proxy @'Store.Consensus) $ M.applicationTxDeliverer app
 
       queryServer :: Q.QueryApplication (Sem (BaseApp core))
