@@ -14,7 +14,6 @@ import qualified Network.Tendermint.Client                   as RPC
 import           Tendermint.SDK.BaseApp.Errors               (AppError,
                                                               txResultAppError)
 import qualified Tendermint.SDK.BaseApp.Transaction          as T
-import qualified Tendermint.SDK.BaseApp.Transaction.Modifier as T
 import           Tendermint.SDK.Codec                        (HasCodec (..))
 import           Tendermint.SDK.Crypto                       (RecoverableSignatureSchema (..),
                                                               SignatureSchema (..))
@@ -65,13 +64,12 @@ data TxClientResponse c d =
   deriving (Eq, Show)
 
 parseRPCResponse
-  :: HasCodec a
-  => HasCodec (T.OnCheckReturn 'T.CheckTx oc a)
-  => Proxy a
-  -> Proxy (oc :: T.OnCheck)
-  -> RPC.ResultBroadcastTxCommit
-  -> TxClientResponse (T.OnCheckReturn 'T.CheckTx oc a) a
-parseRPCResponse _ _ RPC.ResultBroadcastTxCommit{..} =
+  :: forall check deliver.
+     HasCodec check
+  => HasCodec deliver
+  => RPC.ResultBroadcastTxCommit
+  -> TxClientResponse check deliver
+parseRPCResponse RPC.ResultBroadcastTxCommit{..} =
       let
           makeCheckResp r@Response.CheckTx{..} = case checkTxCode of
               0 -> do
