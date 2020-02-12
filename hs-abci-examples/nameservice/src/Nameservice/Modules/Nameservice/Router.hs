@@ -9,8 +9,7 @@ import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members, Sem)
 import           Servant.API                              ((:<|>) (..))
 import           Tendermint.SDK.BaseApp                   ((:~>), BaseEffs,
-                                                           Return,
-                                                           RouteTx,
+                                                           Return, RouteTx,
                                                            RoutingTx (..),
                                                            TxEffs, TypedMessage,
                                                            incCount, withTimer)

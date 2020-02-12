@@ -145,7 +145,6 @@ tests:
     source-dirs:         test
     other-modules:
     - Tendermint.SDK.Test.IAVLStoreSpec
-    - Tendermint.SDK.Test.AuthTreeStoreSpec
     - Tendermint.SDK.Test.CryptoSpec
     - Tendermint.SDK.Test.GasSpec
     - Tendermint.SDK.Test.MetricsSpec

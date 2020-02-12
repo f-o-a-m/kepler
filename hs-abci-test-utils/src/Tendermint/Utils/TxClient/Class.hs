@@ -8,23 +8,22 @@ module Tendermint.Utils.TxClient.Class
   , defaultClientTxOpts
   ) where
 
-import           Control.Monad.IO.Class                      (liftIO)
-import           Control.Monad.Reader                        (ReaderT, ask)
-import qualified Data.ByteArray.Base64String                 as Base64
+import           Control.Monad.IO.Class             (liftIO)
+import           Control.Monad.Reader               (ReaderT, ask)
+import qualified Data.ByteArray.Base64String        as Base64
 import           Data.Proxy
-import           Data.String.Conversions                     (cs)
-import           Data.Text                                   (Text)
-import           Data.Word                                   (Word64)
-import           GHC.TypeLits                                (KnownSymbol,
-                                                              symbolVal)
-import qualified Network.Tendermint.Client                   as RPC
-import           Servant.API                                 ((:<|>) (..), (:>))
-import qualified Tendermint.SDK.BaseApp.Transaction          as T
-import           Tendermint.SDK.Codec                        (HasCodec (..))
-import           Tendermint.SDK.Types.Address                (Address)
-import           Tendermint.SDK.Types.Message                (HasMessageType (..),
-                                                              TypedMessage (..))
-import           Tendermint.SDK.Types.Transaction            (RawTransaction (..))
+import           Data.String.Conversions            (cs)
+import           Data.Text                          (Text)
+import           Data.Word                          (Word64)
+import           GHC.TypeLits                       (KnownSymbol, symbolVal)
+import qualified Network.Tendermint.Client          as RPC
+import           Servant.API                        ((:<|>) (..), (:>))
+import qualified Tendermint.SDK.BaseApp.Transaction as T
+import           Tendermint.SDK.Codec               (HasCodec (..))
+import           Tendermint.SDK.Types.Address       (Address)
+import           Tendermint.SDK.Types.Message       (HasMessageType (..),
+                                                     TypedMessage (..))
+import           Tendermint.SDK.Types.Transaction   (RawTransaction (..))
 import           Tendermint.Utils.TxClient.Types
 
 class Monad m => RunTxClient m where
@@ -62,7 +61,7 @@ class HasTxClient m layoutC layoutD where
 
 instance (HasTxClient m a c, HasTxClient m b d) => HasTxClient m (a :<|> b) (c :<|> d) where
     type ClientT m (a :<|> b) (c :<|> d) = ClientT m a c :<|> ClientT m b d
-    genClientT pm _ _ opts = genClientT pm (Proxy @a) (Proxy @c) opts :<|> 
+    genClientT pm _ _ opts = genClientT pm (Proxy @a) (Proxy @c) opts :<|>
                            genClientT pm (Proxy @b) (Proxy @d) opts
 
 instance (KnownSymbol path, HasTxClient m a b) => HasTxClient m (path :> a) (path :> b) where

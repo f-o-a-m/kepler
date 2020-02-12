@@ -7,9 +7,10 @@ module Nameservice.Application
 import           Data.Proxy
 import qualified Nameservice.Modules.Nameservice as N
 import qualified Nameservice.Modules.Token       as T
-import           Tendermint.SDK.Application      (HandlersContext (..), BaseApp,
-                                                  ModuleList (..), defaultCompileToCore,
-                                                  baseAppAnteHandler)
+import           Tendermint.SDK.Application      (BaseApp, HandlersContext (..),
+                                                  ModuleList (..),
+                                                  baseAppAnteHandler,
+                                                  defaultCompileToCore)
 import           Tendermint.SDK.BaseApp          ((:&))
 import qualified Tendermint.SDK.BaseApp          as BaseApp
 import           Tendermint.SDK.Crypto           (Secp256k1)

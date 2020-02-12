@@ -45,8 +45,9 @@ import           Nameservice.Modules.Token.Router
 import           Nameservice.Modules.Token.Types
 import           Polysemy                           (Members)
 import           Tendermint.SDK.Application         (Module (..))
-import           Tendermint.SDK.BaseApp             (BaseEffs, TxEffs,
-                                                     DefaultCheckTx (..))
+import           Tendermint.SDK.BaseApp             (BaseEffs,
+                                                     DefaultCheckTx (..),
+                                                     TxEffs)
 import           Tendermint.SDK.Types.Address       (Address)
 
 type TokenM r = Module "token" MessageApi MessageApi QueryApi TokenEffs r

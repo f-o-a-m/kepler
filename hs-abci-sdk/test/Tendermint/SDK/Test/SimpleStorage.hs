@@ -24,11 +24,11 @@ import           Data.String.Conversions          (cs)
 import           Data.Validation                  (Validation (..))
 import           GHC.Generics                     (Generic)
 import           Polysemy
-import           Polysemy.Error                   (Error)
 import           Servant.API
-import           Tendermint.SDK.Application       (Module (..))
+import           Tendermint.SDK.Application       (BaseApp, Module (..))
 import qualified Tendermint.SDK.BaseApp           as BaseApp
 import           Tendermint.SDK.Codec             (HasCodec (..))
+import           Tendermint.SDK.Types.Effects     ((:&))
 import           Tendermint.SDK.Types.Message     (HasMessageType (..),
                                                    Msg (..),
                                                    ValidateMessage (..))
@@ -103,7 +103,7 @@ updateCount count = putCount count
 
 eval
   :: forall r.
-     Members '[BaseApp.RawStore, Error BaseApp.AppError] r
+     Members BaseApp.TxEffs r
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> BaseApp.put storeKey CountKey count
@@ -119,7 +119,8 @@ type MessageApi =
 
 messageHandlers
   :: Member SimpleStorage r
-  => BaseApp.RouteTx MessageApi r 'BaseApp.DeliverTx
+  => Members BaseApp.TxEffs r
+  => BaseApp.RouteTx MessageApi r
 messageHandlers = updateCountH
 
 updateCountH
@@ -163,11 +164,12 @@ getMultipliedCount subtractor multiplier = do
 
 type QueryApi = GetMultipliedCount :<|> BaseApp.QueryApi CountStoreContents
 
-server
+querier
   :: forall r.
-     Members [SimpleStorage, BaseApp.RawStore, Error BaseApp.AppError] r
+     Members BaseApp.QueryEffs r
+  => Member SimpleStorage r
   => BaseApp.RouteQ QueryApi r
-server =
+querier =
   let storeHandlers = BaseApp.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
         storeKey (Proxy :: Proxy r)
   in getMultipliedCount :<|> storeHandlers
@@ -177,26 +179,29 @@ server =
 --------------------------------------------------------------------------------
 
 type SimpleStorageM r =
-  Module "simple_storage" MessageApi QueryApi SimpleStorageEffs r
+  Module "simple_storage" MessageApi MessageApi QueryApi SimpleStorageEffs r
 
 simpleStorageModule
   :: Member SimpleStorage r
-  => Members BaseApp.BaseAppEffs r
+  => Members BaseApp.TxEffs r
+  => Members BaseApp.BaseEffs r
   => SimpleStorageM r
 simpleStorageModule = Module
   { moduleTxDeliverer = messageHandlers
   , moduleTxChecker = BaseApp.defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
-  , moduleQueryServer = server
+  , moduleQuerier = querier
   , moduleEval = eval
   }
 
 evalToIO
   :: BaseApp.Context
-  -> Sem (SimpleStorage ': BaseApp.BaseApp BaseApp.CoreEffs) a
+  -> Sem (SimpleStorage ': BaseApp.TxEffs :& BaseApp BaseApp.CoreEffs) a
   -> IO a
-evalToIO context action = do
-  eRes <- BaseApp.runCoreEffs context .
-            BaseApp.compileToCoreEffs .
-            BaseApp.applyScope @'BaseApp.Consensus $
-            eval action
-  either (error . show) pure eRes
+evalToIO = undefined
+  --eRes <-
+  --  BaseApp.runCoreEffs context .
+  --  defaultCompileToCore .
+  --  BaseApp.compileToCoreEffs .
+  --
+  --          eval action
+  --either (error . show) pure eRes

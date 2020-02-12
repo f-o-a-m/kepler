@@ -24,8 +24,8 @@ import           System.IO                                 (stdout)
 import qualified Tendermint.SDK.BaseApp                    as BaseApp
 import           Tendermint.SDK.BaseApp.Logger.Katip       as KL
 import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus as P
+import           Tendermint.SDK.BaseApp.Store.IAVLStore    (initIAVLVersions)
 import           Text.Read                                 (read)
-import           Tendermint.SDK.BaseApp.Store.IAVLStore (initIAVLVersions)
 
 
 data AppConfig = AppConfig

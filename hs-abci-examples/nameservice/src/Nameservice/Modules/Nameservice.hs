@@ -45,8 +45,9 @@ import           Nameservice.Modules.Nameservice.Types
 import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members)
 import           Tendermint.SDK.Application               (Module (..))
-import           Tendermint.SDK.BaseApp                   (BaseEffs, TxEffs,
-                                                           DefaultCheckTx (..))
+import           Tendermint.SDK.BaseApp                   (BaseEffs,
+                                                           DefaultCheckTx (..),
+                                                           TxEffs)
 
 type NameserviceM r =
   Module "nameservice" MessageApi MessageApi QueryApi NameserviceEffs r

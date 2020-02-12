@@ -3,8 +3,6 @@
 module Tendermint.SDK.BaseApp.Store.RawStore
   ( StoreEffs
   , Scope(..)
-  , ApplyScope
-  , applyScope
   , RawKey(..)
   , IsKey(..)
   , RawStoreKey(..)
@@ -34,11 +32,10 @@ import qualified Data.ByteString               as BS
 import           Data.Proxy
 import           Data.String.Conversions       (cs)
 import           Numeric.Natural               (Natural)
-import           Polysemy                      (EffectRow, Member, Members, Sem,
-                                                makeSem)
+import           Polysemy                      (Member, Members, Sem, makeSem)
 import           Polysemy.Error                (Error, catch, throw)
 import           Polysemy.Resource             (Resource, finally, onException)
-import           Polysemy.Tagged               (Tagged, tag)
+import           Polysemy.Tagged               (Tagged)
 import           Tendermint.SDK.BaseApp.Errors (AppError, SDKError (ParseError),
                                                 throwSDKError)
 import           Tendermint.SDK.Codec          (HasCodec (..))
@@ -188,19 +185,6 @@ withSandbox m =
    in finally (tryTx <* rollback) rollback
 
 data Scope = Consensus | QueryAndMempool
-
-type family ApplyScope (s :: Scope) (es :: EffectRow) :: EffectRow where
-  ApplyScope _ '[] = '[]
-  ApplyScope s (ReadStore ': rest) = Tagged s ReadStore ': ApplyScope s rest
-  ApplyScope s (e ': rest) = e ': ApplyScope s rest
-
-applyScope
-  :: forall (s :: Scope) r.
-     Member (Tagged s ReadStore) r
-  => forall a.
-     Sem (ReadStore ': r) a
-  -> Sem r a
-applyScope = tag @s
 
 type StoreEffs =
   [ Tagged 'Consensus ReadStore
