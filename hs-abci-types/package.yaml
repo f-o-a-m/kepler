@@ -1,15 +1,15 @@
 name:                hs-abci-types
 version:             0.1.0.0
-github:              "f-o-a-m/hs-abci/hs-abci-types"
+github:              "f-o-a-m/kepler//hs-abci-types"
 license:             Apache
 author:              "Martin Allen"
 maintainer:          "martin@foam.space"
-copyright:           "2019 Martin Allen"
+copyright:           "2020 Martin Allen"
 
 extra-source-files:
 - protos/**/*.proto
 
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-types#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-abci-types/README.md>
 
 custom-setup:
   dependencies:

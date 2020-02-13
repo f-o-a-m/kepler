@@ -43,13 +43,15 @@ defaultConfig
   -- ^ Hostname or IP (e.g. "localhost", "127.0.0.1", "151.101.208.68")
   -> Int
   -- ^ Port
+  -> Bool
+  -- ^ TLS True/False
   -> RPC.Config
-defaultConfig host port =
+defaultConfig host port tls =
   let baseReq =
           HTTP.setRequestHost host
             $ HTTP.setRequestPort port
             $ HTTP.defaultRequest
-  in  RPC.Config baseReq mempty mempty
+  in  RPC.Config baseReq mempty mempty host port tls
 
 --------------------------------------------------------------------------------
 -- ABCI Query
@@ -235,6 +237,30 @@ data ResultABCIInfo = ResultABCIInfo
   } deriving (Eq, Show, Generic)
 instance FromJSON ResultABCIInfo where
   parseJSON = genericParseJSON $ defaultRPCOptions "resultABCIInfo"
+
+--------------------------------------------------------------------------------
+-- Subscribe
+--------------------------------------------------------------------------------
+
+-- | invokes [/subscribe](https://tendermint.com/rpc/#subscribe) rpc call
+-- https://github.com/tendermint/tendermint/blob/master/rpc/core/events.go#L17
+subscribe :: RequestSubscribe -> (Aeson.Value -> IO ()) -> TendermintM ResultSubscribe
+subscribe req handler = do
+  RPC.remoteWS (RPC.MethodName "subscribe") req handler
+  pure ResultSubscribe
+
+
+newtype RequestSubscribe = RequestSubscribe
+  { requestSubscribeQuery   :: Text
+  } deriving (Eq, Show, Generic)
+instance ToJSON RequestSubscribe where
+  toJSON = genericToJSON $ defaultRPCOptions "requestSubscribe"
+
+-- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L208
+data ResultSubscribe = ResultSubscribe deriving (Eq, Show)
+
+instance FromJSON ResultSubscribe where
+  parseJSON = Aeson.withObject "Expected emptyObject" $ \_ -> pure ResultSubscribe
 
 --------------------------------------------------------------------------------
 

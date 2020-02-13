@@ -12,11 +12,15 @@ packages:
 - ./hs-abci-extra
 - ./hs-abci-sdk
 - ./hs-abci-test-utils
-- ./hs-abci-examples/simple-storage
-- ./hs-abci-examples/nameservice
+- ./hs-abci-docs/simple-storage
+- ./hs-abci-docs/nameservice
 - ./hs-iavl-client
 
 extra-deps:
+  - async-2.2.2
+  - faker-0.0.0.2
+  - gimlh-0.1.3.0
+  - random-strings-0.1.1.0
   - proto-lens-runtime-0.5.0.0
   - proto-lens-setup-0.4.0.2
   - lens-labels-0.3.0.1

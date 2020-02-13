@@ -4,4 +4,4 @@ The goal here is to provide common features and example middleware implementatio
 
 ## Example using middleware
 
-There is a small example using the Logger middleware [here](https://github.com/f-o-a-m/hs-abci/tree/master/hs-abci-examples/simple-storage).
+There is a small example using the Logger middleware [here](https://github.com/f-o-a-m/kepler/tree/master/hs-abci-docs/simple-storage).

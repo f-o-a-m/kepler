@@ -1,4 +1,5 @@
 STATS_PORT ?= 9200
+INTERACT_THREAD_COUNT ?= 5
 
 export
 
@@ -7,6 +8,15 @@ SIMPLE_STORAGE_BINARY := $(shell stack exec -- which simple-storage)
 
 help: ## Ask for help!
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+# Thank you Apple
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+        SED=sed -i''
+endif
+ifeq ($(UNAME_S),Darwin)
+        SED=sed -i ''
+endif
 
 #####################
 # Linting and Styling
@@ -21,15 +31,15 @@ hlint: ## Run hlint on all haskell projects
 	hs-abci-extra \
 	hs-abci-sdk \
 	hs-abci-test-utils \
-	hs-abci-examples/simple-storage \
-	hs-abci-examples/nameservice \
+	hs-abci-docs/simple-storage \
+	hs-abci-docs/nameservice \
 	hs-iavl-client
 
 stylish: ## Run stylish-haskell over all haskell projects
 	find ./hs-abci-types \
 	./hs-abci-extra \
 	./hs-tendermint-client \
-	./hs-abci-examples \
+	./hs-abci-docs \
 	./hs-abci-sdk \
 	./hs-abci-test-utils \
 	./hs-abci-server \
@@ -41,7 +51,15 @@ stylish: ## Run stylish-haskell over all haskell projects
 ###################
 
 build-docs-local: ## Build the haddocks documentation for just this project (no dependencies)
+	find . -type f -name "package.yaml" -exec $(SED) -e 's/- -fplugin=Polysemy.Plugin/- -fdefer-type-errors/g' {} + && \
+	find . -type f -name "package.yaml" -exec $(SED) -e 's/- -Wall/- -fno-warn-deferred-type-errors/g' {} + && \
 	stack haddock --no-haddock-deps
+
+build-site: ## Build the tintin site
+	find ./hs-abci-docs/ -type f -name "*.md" -exec $(SED) -e 's/~~~ haskell.*/```haskell/g' {} + && \
+	find ./hs-abci-docs/ -type f -name "*.md" -exec $(SED) -e 's/~~~/```/g' {} + && \
+	cd hs-abci-docs && \
+	tintin run
 
 #####################
 # Core Libraries
@@ -62,13 +80,13 @@ test-iavl-client: ## test the iavl client library basic operation (requires grpc
 #####################
 
 deploy-simple-storage-docker: install ## run the simple storage docker network
-	docker-compose -f hs-abci-examples/simple-storage/docker-compose.yaml up --build
+	docker-compose -f hs-abci-docs/simple-storage/docker-compose.yaml up --build
 
 deploy-nameservice: install ## run the nameservice docker network with elk stack for logging
-	docker-compose -f hs-abci-examples/nameservice/docker-compose.yaml up --build
+	docker-compose -f hs-abci-docs/nameservice/docker-compose.yaml up --build
 
 deploy-nameservice-test: install ## run the nameservice docker network for testing
-	docker-compose -f hs-abci-examples/nameservice/docker-compose-test.yaml up --build
+	docker-compose -f hs-abci-docs/nameservice/docker-compose-test.yaml up --build
 
 
 #####################
@@ -83,6 +101,10 @@ test-simple-storage: install ## Run the test suite for the simple-storage exampl
 
 test-nameservice: install ## Run the test suite for the nameservice example application
 	stack test nameservice:nameservice-test
+
+interact-nameservice: install ## Run nameservice interaction script
+	INTERACT_THREAD_COUNT=$(INTERACT_THREAD_COUNT) \
+	stack exec interact
 
 test-tutorial: install ## Make sure the tutorial builds
 	stack test nameservice:tutorial
