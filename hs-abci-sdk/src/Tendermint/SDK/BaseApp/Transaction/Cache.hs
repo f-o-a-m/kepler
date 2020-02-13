@@ -22,7 +22,7 @@ import           Tendermint.SDK.BaseApp.Store.RawStore (RawStoreKey, Scope (..),
 data Cache = Cache
   { keysToDelete :: Set RawStoreKey
   , stateCache   :: Map RawStoreKey ByteString
-  }
+  } deriving (Eq, Show)
 
 emptyCache :: Cache
 emptyCache = Cache Set.empty Map.empty

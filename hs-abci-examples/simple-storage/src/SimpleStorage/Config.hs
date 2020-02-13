@@ -15,8 +15,7 @@ import           System.Environment
 import           System.IO                              (stdout)
 import qualified Tendermint.SDK.BaseApp                 as BaseApp
 import           Tendermint.SDK.BaseApp.Logger.Katip    as KL
-import           Tendermint.SDK.BaseApp.Store.IAVLStore (GrpcConfig (..),
-                                                         initIAVLVersions)
+import           Tendermint.SDK.BaseApp.Store.IAVLStore (initIAVLVersions, GrpcConfig(..))
 
 
 data AppConfig = AppConfig
@@ -27,7 +26,7 @@ makeLenses ''AppConfig
 makeAppConfig :: IO AppConfig
 makeAppConfig = do
   versions <- initIAVLVersions
-  let grpcConfig = GrpcConfig "iavl" 8090
+  let grpcConfig = GrpcConfig "localhost" 8090
   c <- BaseApp.makeContext (KL.InitialLogNamespace "dev" "simple-storage") Nothing versions grpcConfig
   addScribesToLogEnv $
     AppConfig { _baseAppContext = c

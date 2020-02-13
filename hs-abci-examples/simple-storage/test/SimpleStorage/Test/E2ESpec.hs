@@ -29,32 +29,35 @@ import           Tendermint.Utils.User               (User (..),
                                                       makeSignerFromUser,
                                                       makeUser)
 import           Test.Hspec
+import System.Random (randomIO)
+import Data.Int (Int32)
 
 spec :: Spec
 spec = do
-  describe "SimpleStorage E2E - via hs-tendermint-client" $ do
+  beforeAll (abs <$> randomIO :: IO Int32) $
+    describe "SimpleStorage E2E - via hs-tendermint-client" $ do
 
-    it "Can query /health to make sure the node is alive" $ do
-      resp <- RPC.runTendermintM rpcConfig RPC.health
-      resp `shouldBe` RPC.ResultHealth
+      it "Can query /health to make sure the node is alive" $ \_ -> do
+        resp <- RPC.runTendermintM rpcConfig RPC.health
+        resp `shouldBe` RPC.ResultHealth
 
-    it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ do
-      let txOpts = TxOpts
-            { txOptsGas = 0
-            , txOptsSigner = makeSignerFromUser user1
-            }
-          tx = SS.UpdateCountTx
-                 { SS.updateCountTxUsername = "charles"
-                 , SS.updateCountTxCount = 4
-                 }
-      resp <- assertTx . runTxClientM $ updateCount txOpts tx
-      ensureResponseCodes (0,0) resp
+      it "Can submit a tx synchronously and make sure that the response code is 0 (success)" $ \c -> do
+        let txOpts = TxOpts
+              { txOptsGas = 0
+              , txOptsSigner = makeSignerFromUser user1
+              }
+            tx = SS.UpdateCountTx
+                   { SS.updateCountTxUsername = "charles"
+                   , SS.updateCountTxCount = c
+                   }
+        resp <- assertTx . runTxClientM $ updateCount txOpts tx
+        ensureResponseCodes (0,0) resp
 
-    it "can make sure the synchronous tx transaction worked and the count is now 4" $ do
-      resp <-  assertQuery . RPC.runTendermintM rpcConfig $
-        getCount defaultQueryArgs { queryArgsData = SS.CountKey }
-      let foundCount = queryResultData resp
-      foundCount `shouldBe` SS.Count 4
+      it "can make sure the synchronous tx transaction worked and the count is now 4" $ \c -> do
+        resp <-  assertQuery . RPC.runTendermintM rpcConfig $
+          getCount defaultQueryArgs { queryArgsData = SS.CountKey }
+        let foundCount = queryResultData resp
+        foundCount `shouldBe` SS.Count c
 
 --------------------------------------------------------------------------------
 -- Query Client

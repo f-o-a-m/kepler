@@ -1,37 +1,38 @@
 version: '3.7'
 services:
-  tendermint-init:
-    image: tendermint/tendermint:v0.32.8
-    command: init
-    volumes:
-        - tendermint-storage:/tendermint
-  tendermint:
-    depends_on:
-      - tendermint-init
-      - simple-storage
-    image: tendermint/tendermint:v0.32.8
-    command: node --rpc.laddr=tcp://0.0.0.0:26657 --proxy_app=tcp://simple-storage:26658
-    volumes:
-      - tendermint-storage:/tendermint
-    restart: always
-    ports:
-      - "26656-26657:26656-26657"
-  simple-storage:
-    build:
-      context: ../../.
-      dockerfile: Dockerfile
-    image: hs-abci:test
-    environment:
-     - DD_API_KEY=${DD_API_KEY}
-    restart: always
-    entrypoint: /usr/local/bin/simple-storage
-    expose:
-      - "26658"
+#  tendermint-init:
+#    image: tendermint/tendermint:v0.32.8
+#    command: init
+#    volumes:
+#        - tendermint-storage:/tendermint
+#  tendermint:
+#    depends_on:
+#      - tendermint-init
+#      - simple-storage
+#    image: tendermint/tendermint:v0.32.8
+#    command: node --rpc.laddr=tcp://0.0.0.0:26657 --proxy_app=tcp://simple-storage:26658
+#    volumes:
+#      - tendermint-storage:/tendermint
+#    restart: always
+#    ports:
+#      - "26656-26657:26656-26657"
+#  simple-storage:
+#    build:
+#      context: ../../.
+#      dockerfile: Dockerfile
+#    image: hs-abci:test
+#    environment:
+#     - DD_API_KEY=${DD_API_KEY}
+#    restart: always
+#    entrypoint: /usr/local/bin/simple-storage
+#    expose:
+#      - "26658"
   iavl:
     image: foamspace/iavl:latest
     command: /iavlserver  -db-name "test" -datadir "."  -grpc-endpoint "0.0.0.0:8090"  -gateway-endpoint "0.0.0.0:8091"
     ports: 
-     - "8090-8091:8091-8091"
+     - "8090:8090"
+     - "8091:8091"
     
 volumes:
   tendermint-storage:

@@ -10,7 +10,7 @@ import           SimpleStorage.Modules.SimpleStorage.Keeper  (SimpleStorage,
 import           SimpleStorage.Modules.SimpleStorage.Message
 import           SimpleStorage.Modules.SimpleStorage.Types   (Count (..))
 import           Tendermint.SDK.BaseApp                      ((:~>), Return,
-                                                              RouteTx,
+                                                              RouteTx, BaseEffs,
                                                               RoutingTx (..),
                                                               TxEffs,
                                                               TypedMessage)
@@ -24,12 +24,14 @@ type MessageApi =
 messageHandlers
   :: Member SimpleStorage r
   => Members TxEffs r
+  => Members BaseEffs r
   => RouteTx MessageApi r
 messageHandlers = updateCountH
 
 updateCountH
   :: Member SimpleStorage r
   => Members TxEffs r
+  => Members BaseEffs r
   => RoutingTx UpdateCountTx
   -> Sem r ()
 updateCountH (RoutingTx Tx{txMsg}) =

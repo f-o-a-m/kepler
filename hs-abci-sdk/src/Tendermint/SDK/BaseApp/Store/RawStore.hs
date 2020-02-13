@@ -45,7 +45,7 @@ import           Tendermint.SDK.Types.Address  (Address, addressFromBytes,
 data RawStoreKey = RawStoreKey
   { rsStoreKey :: BS.ByteString
   , rsKey      :: BS.ByteString
-  } deriving (Eq, Ord)
+  } deriving (Eq, Show, Ord)
 
 makeRawKey :: RawStoreKey -> BS.ByteString
 makeRawKey RawStoreKey{..} = rsStoreKey <> rsKey
@@ -151,7 +151,7 @@ prove (StoreKey sk) k =
 data CommitResponse = CommitResponse
   { rootHash   :: Base64String
   , newVersion :: Natural
-  }
+  } deriving (Eq, Show)
 
 data Transaction m a where
   -- transact

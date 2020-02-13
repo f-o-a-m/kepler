@@ -38,7 +38,7 @@ makeLenses ''AppConfig
 makeAppConfig :: IO AppConfig
 makeAppConfig = do
   versions <- initIAVLVersions
-  let grpcConfig = GrpcConfig "iavl" 8090
+  let grpcConfig = GrpcConfig "localhost" 8090
   prometheusEnv <- runMaybeT $ do
     prometheusPort <- read <$> MaybeT (lookupEnv "STATS_PORT")
     pure $ P.MetricsScrapingConfig prometheusPort

@@ -25,6 +25,7 @@ type SimpleStorageM r =
 simpleStorageModule
   :: Member SimpleStorage r
   => Members BaseApp.TxEffs r
+  => Members BaseApp.BaseEffs r
   => SimpleStorageM r
 simpleStorageModule = Module
   { moduleTxDeliverer = messageHandlers

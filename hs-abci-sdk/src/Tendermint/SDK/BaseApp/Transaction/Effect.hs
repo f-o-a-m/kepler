@@ -38,7 +38,6 @@ import           Tendermint.SDK.Types.TxResult            (TxResult,
                                                            txResultGasUsed,
                                                            txResultGasWanted)
 
-
 type TxEffs =
     [ Output E.Event
     , G.GasMeter
@@ -112,10 +111,10 @@ evalCachedReadStore
   -> Sem (Tagged Cache.Cache ReadStore ': r) a
   -> Sem r a
 evalCachedReadStore (_ :: Proxy scope) c m = do
-  cache <- liftIO $ readIORef c
   interpret
     (\(Tagged action) -> case action of
-      StoreGet k ->
+      StoreGet k -> do
+        cache <- liftIO $ readIORef c
         case Cache.get k cache of
           Left Cache.Deleted -> pure Nothing
           Right (Just v)     -> pure (Just v)
@@ -129,9 +128,12 @@ evalCachedWriteStore
   -> Sem (Tagged Cache.Cache WriteStore ': r) a
   -> Sem r a
 evalCachedWriteStore c m = do
-  cache <- liftIO $ readIORef c
   interpret
     (liftIO . \(Tagged action) -> case action of
-      StorePut k v  -> writeIORef c $ Cache.put k v cache
-      StoreDelete k -> writeIORef c $ Cache.delete k cache
+      StorePut k v  -> do
+       cache <- liftIO $ readIORef c
+       writeIORef c $ Cache.put k v cache
+      StoreDelete k -> do
+        cache <- liftIO $ readIORef c
+        writeIORef c $ Cache.delete k cache
     ) m

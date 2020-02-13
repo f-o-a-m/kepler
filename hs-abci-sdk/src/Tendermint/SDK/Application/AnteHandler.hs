@@ -14,6 +14,7 @@ import           Tendermint.SDK.BaseApp.Transaction (AnteHandler (..),
 import qualified Tendermint.SDK.Modules.Auth        as A
 import           Tendermint.SDK.Types.Message       (Msg (..))
 import           Tendermint.SDK.Types.Transaction   (Tx (..))
+import qualified Debug.Trace as Trace
 
 
 nonceAnteHandler
@@ -22,6 +23,7 @@ nonceAnteHandler
   => AnteHandler r
 nonceAnteHandler = AnteHandler $
   \txApplication tx@(RoutingTx Tx{..}) -> do
+    Trace.traceM "Running nonceAntehandler"
     let Msg{msgAuthor} = txMsg
     mAcnt <- A.getAccount msgAuthor
     account <- case mAcnt of
@@ -33,7 +35,9 @@ nonceAnteHandler = AnteHandler $
         unless (txNonce == 0) $
           throwSDKError (NonceException 0 txNonce)
         A.createAccount msgAuthor
+    Trace.traceM "Running handler"
     result <- txApplication tx
+    Trace.traceM "Handler ran"
     A.putAccount msgAuthor $
       account { A.accountNonce = A.accountNonce account + 1}
     pure result

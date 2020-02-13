@@ -38,7 +38,7 @@ import           Tendermint.SDK.Crypto                    (RecoverableSignatureS
 import           Tendermint.SDK.Types.Transaction         (parseTx)
 import           Tendermint.SDK.Types.TxResult            (checkTxTxResult,
                                                            deliverTxTxResult)
-
+import Debug.Trace as Trace
 
 type Handler mt r = Request mt -> Sem r (Response mt)
 
@@ -136,6 +136,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
           )
 
       checkTx (RequestCheckTx _checkTx) =  do
+        Trace.traceM "CheckTx received"
         res <- catch
           ( let txBytes =  _checkTx ^. Req._checkTxTx . to Base64.toBytes
             in do
@@ -148,11 +149,17 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
         return . ResponseCheckTx $ res ^. from checkTxTxResult
 
       deliverTx (RequestDeliverTx _deliverTx) = do
+        Trace.traceM "DeliverTx received"
         res <- catch @AppError
           ( let txBytes = _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
             in do
                (res, cache) <- txParser txBytes >>= deliverServer
-               maybe (pure ()) writeCache cache
+               case cache of
+                 Nothing -> Trace.traceM "Failed Transaction No Cache" >> pure ()
+                 Just c -> do
+                   Trace.traceM "Writing cache"
+                   Trace.traceM $ show c
+                   writeCache c
                pure res
           )
           (\(err :: AppError) ->
@@ -162,8 +169,10 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
 
       commit :: Handler 'MTCommit (BaseApp core)
       commit _ = do
-        _ <- Store.commit
+        resp <- Store.commit
+        Trace.traceM $ show resp
         rootHash <- Store.commitBlock
+        Trace.traceM $ "Root Hash Response " <> show resp
         return . ResponseCommit $ def
           & Resp._commitData .~ Base64.fromBytes rootHash
 

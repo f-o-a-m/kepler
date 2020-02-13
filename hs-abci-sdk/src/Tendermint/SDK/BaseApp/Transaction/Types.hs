@@ -18,6 +18,7 @@ import           Tendermint.SDK.BaseApp.Store             (WriteStore)
 import qualified Tendermint.SDK.BaseApp.Transaction.Cache as Cache
 import           Tendermint.SDK.Types.Transaction         (Tx (..))
 import           Tendermint.SDK.Types.TxResult            (TxResult)
+import Debug.Trace as Trace
 
 --------------------------------------------------------------------------------
 -- Router Types and Combinators
@@ -70,6 +71,7 @@ newTransactionContext
   -> IO TransactionContext
 newTransactionContext (RoutingTx Tx{txGas}) = do
   initialGas <- newIORef $ G.GasAmount txGas
+  Trace.traceM "creating new cache"
   initialCache <- newIORef Cache.emptyCache
   es <- newIORef []
   pure TransactionContext

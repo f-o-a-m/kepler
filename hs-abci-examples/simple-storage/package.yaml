@@ -134,3 +134,4 @@ tests:
       - hspec
       - mtl
       - servant
+      - random
