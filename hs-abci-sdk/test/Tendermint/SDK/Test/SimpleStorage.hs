@@ -26,8 +26,10 @@ import           Polysemy
 import           Polysemy.Error                      (Error, throw)
 import           Servant.API
 import           Tendermint.SDK.Application          (BaseApp, Module (..),
-                                                      defaultCompileToCore)
+                                                      defaultCompileToCorePure)
 import qualified Tendermint.SDK.BaseApp              as BaseApp
+import           Tendermint.SDK.BaseApp.CoreEffPure  (CoreEffsPure, PureContext,
+                                                      runCoreEffsPure)
 import           Tendermint.SDK.BaseApp.Router.Types (RouterError (..))
 import           Tendermint.SDK.Codec                (HasCodec (..))
 import           Tendermint.SDK.Types.Message        (HasMessageType (..),
@@ -198,12 +200,12 @@ simpleStorageModule = Module
   }
 
 evalToIO
-  :: BaseApp.Context
-  -> Sem (BaseApp BaseApp.CoreEffs) a
+  :: PureContext
+  -> Sem (BaseApp CoreEffsPure) a
   -> IO a
 evalToIO context action = do
   eRes <-
-     BaseApp.runCoreEffs context .
-       defaultCompileToCore $
+     runCoreEffsPure context .
+       defaultCompileToCorePure $
        action
   either (error . show) pure eRes
