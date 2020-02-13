@@ -26,7 +26,7 @@ services:
     environment:
      - STATS_PORT=9200
      - IAVL_HOST=iavl
-     - IAVL_port=8090
+     - IAVL_PORT=8090
     restart: always
     entrypoint: /usr/local/bin/nameservice
     expose:

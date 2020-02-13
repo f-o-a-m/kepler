@@ -43,7 +43,7 @@ services:
     environment:
      - DD_API_KEY=${DD_API_KEY}
      - IAVL_HOST=iavl
-     - IAVL_port=8090
+     - IAVL_PORT=8090
     volumes:
      - /proc/:/host/proc/:ro
      - ./conf.d/openmetrics.d:/etc/datadog-agent/conf.d/openmetrics.d
