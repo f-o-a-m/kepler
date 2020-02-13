@@ -1,6 +1,5 @@
 module Tendermint.SDK.BaseApp.Store.IAVLStore
-  ( IAVLVersion(..)
-  , IAVLVersions(..)
+  ( IAVLVersions(..)
   , GrpcClient
   , GrpcConfig(..)
   , initGrpcClient
@@ -24,12 +23,12 @@ import           Data.Text                             (pack)
 import qualified Database.IAVL.RPC                     as IAVL
 import           Database.IAVL.RPC.Types               (GrpcConfig (..),
                                                         initGrpcClient)
+import           Debug.Trace                           as Trace
 import           Network.GRPC.Client                   (RawReply)
 import           Network.GRPC.Client.Helpers           (GrpcClient)
 import           Network.HTTP2.Client                  (ClientIO,
                                                         TooMuchConcurrency,
                                                         runClientIO)
-import           Numeric.Natural                       (Natural)
 import           Polysemy                              (Embed, Member, Members,
                                                         Sem, interpret)
 import           Polysemy.Error                        (Error)
@@ -42,20 +41,14 @@ import           Tendermint.SDK.BaseApp.Store.RawStore (CommitBlock (..),
                                                         ReadStore (..),
                                                         StoreEffs,
                                                         Transaction (..),
+                                                        Version (..),
                                                         WriteStore (..),
                                                         makeRawKey)
 import           Tendermint.SDK.Types.Effects          ((:&))
-import Debug.Trace as Trace
-
-data IAVLVersion =
-    Genesis
-  | Version Natural
-  | Latest
-  deriving (Eq, Show)
 
 data IAVLVersions = IAVLVersions
-  { latest    :: IORef IAVLVersion
-  , committed :: IORef IAVLVersion
+  { latest    :: IORef Version
+  , committed :: IORef Version
   }
 
 initIAVLVersions :: IO IAVLVersions
@@ -83,7 +76,7 @@ evalWrite gc m =
 evalRead
   :: Member (Embed IO) r
   => GrpcClient
-  -> IORef IAVLVersion
+  -> IORef Version
   -> forall a. Sem (ReadStore ': r) a -> Sem r a
 evalRead gc iavlVersion m = do
   Trace.traceM "evalRead"

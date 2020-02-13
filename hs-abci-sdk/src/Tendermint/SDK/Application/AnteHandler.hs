@@ -5,6 +5,7 @@ module Tendermint.SDK.Application.AnteHandler
   ) where
 
 import           Control.Monad                      (unless)
+import qualified Debug.Trace                        as Trace
 import           Polysemy
 import           Polysemy.Error                     (Error)
 import           Tendermint.SDK.BaseApp.Errors      (AppError, SDKError (..),
@@ -14,7 +15,6 @@ import           Tendermint.SDK.BaseApp.Transaction (AnteHandler (..),
 import qualified Tendermint.SDK.Modules.Auth        as A
 import           Tendermint.SDK.Types.Message       (Msg (..))
 import           Tendermint.SDK.Types.Transaction   (Tx (..))
-import qualified Debug.Trace as Trace
 
 
 nonceAnteHandler

@@ -15,7 +15,8 @@ import           System.Environment
 import           System.IO                              (stdout)
 import qualified Tendermint.SDK.BaseApp                 as BaseApp
 import           Tendermint.SDK.BaseApp.Logger.Katip    as KL
-import           Tendermint.SDK.BaseApp.Store.IAVLStore (initIAVLVersions, GrpcConfig(..))
+import           Tendermint.SDK.BaseApp.Store.IAVLStore (GrpcConfig (..),
+                                                         initIAVLVersions)
 
 
 data AppConfig = AppConfig

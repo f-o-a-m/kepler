@@ -54,7 +54,10 @@ jobs:
     name: "Test Core and Client Libraries"
     script:
     - echo "Test libraries"
+    # this image is needed for the sdk IAVLSpec
+    - docker run --name iavl -p 8090:8090 -p 8091:8091 -d foamspace/iavl:latest /iavlserver  -db-name "test" -datadir "."  -grpc-endpoint "0.0.0.0:8090"  -gateway-endpoint "0.0.0.0:8091"
     - make test-libraries
+    - docker rm -f iavl
     - echo "Test Libraries with Nix"
     - echo "This stage is currently disabled as Nix doesn't seem to play well with libsecp256k1"
 

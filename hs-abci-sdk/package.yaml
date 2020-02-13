@@ -100,6 +100,7 @@ library:
   - Tendermint.SDK.BaseApp
   - Tendermint.SDK.BaseApp.BaseEffs
   - Tendermint.SDK.BaseApp.CoreEff
+  - Tendermint.SDK.BaseApp.CoreEffPure
   - Tendermint.SDK.BaseApp.Errors
   - Tendermint.SDK.BaseApp.Events
   - Tendermint.SDK.BaseApp.Gas
@@ -116,6 +117,7 @@ library:
   - Tendermint.SDK.BaseApp.Router.Router
   - Tendermint.SDK.BaseApp.Store
   - Tendermint.SDK.BaseApp.Store.IAVLStore
+  - Tendermint.SDK.BaseApp.Store.MemoryStore
   - Tendermint.SDK.BaseApp.Store.RawStore
   - Tendermint.SDK.BaseApp.Transaction
   - Tendermint.SDK.BaseApp.Transaction.AnteHandler

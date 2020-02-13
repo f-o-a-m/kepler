@@ -9,31 +9,33 @@ module Tendermint.SDK.Test.SimpleStorage
   , Count(..)
   ) where
 
-import           Control.Lens                     (iso, (^.))
-import           Crypto.Hash                      (SHA256 (..), hashWith)
-import           Data.Bifunctor                   (first)
-import           Data.ByteArray                   (convert)
-import qualified Data.ByteArray.Base64String      as Base64
-import           Data.ByteString                  (ByteString)
-import           Data.Int                         (Int32)
+import           Control.Lens                        (iso, (^.))
+import           Crypto.Hash                         (SHA256 (..), hashWith)
+import           Data.Bifunctor                      (first)
+import           Data.ByteArray                      (convert)
+import qualified Data.ByteArray.Base64String         as Base64
+import           Data.ByteString                     (ByteString)
+import           Data.Int                            (Int32)
 import           Data.Proxy
-import qualified Data.Serialize                   as Serialize
-import           Data.Serialize.Text              ()
-import           Data.String.Conversions          (cs)
-import           Data.Validation                  (Validation (..))
-import           GHC.Generics                     (Generic)
+import qualified Data.Serialize                      as Serialize
+import           Data.Serialize.Text                 ()
+import           Data.String.Conversions             (cs)
+import           Data.Validation                     (Validation (..))
+import           GHC.Generics                        (Generic)
 import           Polysemy
-import Polysemy.Error (Error, throw)
+import           Polysemy.Error                      (Error, throw)
 import           Servant.API
-import           Tendermint.SDK.Application       (BaseApp, Module (..),
-                                                   defaultCompileToCore)
-import qualified Tendermint.SDK.BaseApp           as BaseApp
-import           Tendermint.SDK.Codec             (HasCodec (..))
-import           Tendermint.SDK.Types.Message     (HasMessageType (..),
-                                                   Msg (..),
-                                                   ValidateMessage (..))
-import           Tendermint.SDK.Types.Transaction (Tx (..))
-import Tendermint.SDK.BaseApp.Router.Types (RouterError(..))
+import           Tendermint.SDK.Application          (BaseApp, Module (..),
+                                                      defaultCompileToCorePure)
+import qualified Tendermint.SDK.BaseApp              as BaseApp
+import           Tendermint.SDK.BaseApp.CoreEffPure  (CoreEffsPure, PureContext,
+                                                      runCoreEffsPure)
+import           Tendermint.SDK.BaseApp.Router.Types (RouterError (..))
+import           Tendermint.SDK.Codec                (HasCodec (..))
+import           Tendermint.SDK.Types.Message        (HasMessageType (..),
+                                                      Msg (..),
+                                                      ValidateMessage (..))
+import           Tendermint.SDK.Types.Transaction    (Tx (..))
 
 
 --------------------------------------------------------------------------------
@@ -198,12 +200,12 @@ simpleStorageModule = Module
   }
 
 evalToIO
-  :: BaseApp.Context
-  -> Sem (BaseApp BaseApp.CoreEffs) a
+  :: PureContext
+  -> Sem (BaseApp CoreEffsPure) a
   -> IO a
 evalToIO context action = do
   eRes <-
-     BaseApp.runCoreEffs context .
-       defaultCompileToCore $
+     runCoreEffsPure context .
+       defaultCompileToCorePure $
        action
   either (error . show) pure eRes

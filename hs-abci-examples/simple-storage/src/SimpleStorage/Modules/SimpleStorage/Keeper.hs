@@ -8,6 +8,7 @@ module SimpleStorage.Modules.SimpleStorage.Keeper
   , eval
   ) where
 
+import qualified Debug.Trace                               as Trace
 import           Polysemy                                  (Members, Sem,
                                                             interpret, makeSem)
 import           Polysemy.Output                           (Output)
@@ -15,7 +16,6 @@ import           SimpleStorage.Modules.SimpleStorage.Types (Count,
                                                             CountKey (..),
                                                             CountSet (..))
 import qualified Tendermint.SDK.BaseApp                    as BaseApp
-import qualified Debug.Trace as Trace
 
 storeKey :: BaseApp.StoreKey "simple_storage"
 storeKey = BaseApp.StoreKey "simple_storage"

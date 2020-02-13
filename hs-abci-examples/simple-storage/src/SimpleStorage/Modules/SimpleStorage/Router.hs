@@ -9,8 +9,8 @@ import           SimpleStorage.Modules.SimpleStorage.Keeper  (SimpleStorage,
                                                               updateCount)
 import           SimpleStorage.Modules.SimpleStorage.Message
 import           SimpleStorage.Modules.SimpleStorage.Types   (Count (..))
-import           Tendermint.SDK.BaseApp                      ((:~>), Return,
-                                                              RouteTx, BaseEffs,
+import           Tendermint.SDK.BaseApp                      ((:~>), BaseEffs,
+                                                              Return, RouteTx,
                                                               RoutingTx (..),
                                                               TxEffs,
                                                               TypedMessage)

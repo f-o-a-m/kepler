@@ -10,6 +10,7 @@ import           Control.Lens                             (lens)
 import           Data.ByteString                          (ByteString)
 import           Data.IORef                               (IORef, newIORef)
 import           Data.Kind                                (Constraint)
+import           Debug.Trace                              as Trace
 import           Polysemy                                 (EffectRow, Member)
 import qualified Tendermint.SDK.BaseApp.Events            as E
 import qualified Tendermint.SDK.BaseApp.Gas               as G
@@ -18,7 +19,6 @@ import           Tendermint.SDK.BaseApp.Store             (WriteStore)
 import qualified Tendermint.SDK.BaseApp.Transaction.Cache as Cache
 import           Tendermint.SDK.Types.Transaction         (Tx (..))
 import           Tendermint.SDK.Types.TxResult            (TxResult)
-import Debug.Trace as Trace
 
 --------------------------------------------------------------------------------
 -- Router Types and Combinators

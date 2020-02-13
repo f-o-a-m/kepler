@@ -1,24 +1,20 @@
 module Tendermint.SDK.BaseApp.BaseEffs
   ( BaseEffs
-  , compileToCoreEffs
+  , compileToCore
   ) where
 
 import           Control.Exception                         (throwIO)
 import           Control.Monad.IO.Class                    (liftIO)
-import           Polysemy                                  (Sem)
+import           Polysemy                                  (Embed, Members, Sem)
 import           Polysemy.Error                            (Error, runError)
---import           Polysemy.Reader                           (ask)
+import           Polysemy.Reader                           (Reader)
 import           Polysemy.Resource                         (Resource,
                                                             resourceToIO)
-import           Tendermint.SDK.BaseApp.CoreEff            (CoreEffs)
 import           Tendermint.SDK.BaseApp.Errors             (AppError)
---                                                            makeAppError)
 import           Tendermint.SDK.BaseApp.Logger             (Logger)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip       as KL
 import           Tendermint.SDK.BaseApp.Metrics            (Metrics)
 import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus as Prometheus
---import           Tendermint.SDK.BaseApp.Store              (ReadStore)
---import qualified Tendermint.SDK.BaseApp.Store.IAVLStore    as IAVL
 import           Tendermint.SDK.Types.Effects              ((:&))
 
 -- | Concrete row of effects for the BaseApp. Note that because there does
@@ -32,21 +28,15 @@ type BaseEffs =
   ]
 
 -- | An intermediary interpeter, bringing 'BaseApp' down to 'CoreEff'.
-compileToCoreEffs
-  :: forall a.
-     Sem (BaseEffs :& CoreEffs) a
-  -> Sem CoreEffs a
-compileToCoreEffs action = do
-  --grpc <- ask @IAVL.GrpcClient
-  --version  <- do
-  --  IAVL.IAVLVersions{..} <- ask @IAVL.IAVLVersions
-  --  pure $ case scope of
-  --    Consensus       -> latest
-  --    QueryAndMempool -> committed
+compileToCore
+  :: Members [Embed IO, Reader KL.LogConfig, Reader (Maybe Prometheus.PrometheusEnv)] core
+  => forall a.
+     Sem (BaseEffs :& core) a
+  -> Sem core a
+compileToCore action = do
   eRes <- runError .
     resourceToIO .
     KL.evalKatip .
     Prometheus.evalWithMetrics $
-   -- IAVL.evalRead grpc version $
     action
   either (liftIO . throwIO) return eRes
