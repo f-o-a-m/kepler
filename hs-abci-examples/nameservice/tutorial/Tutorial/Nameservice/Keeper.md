@@ -101,13 +101,13 @@ With this `storeKey` it is possible to write the `eval` function to resolve the 
 
 ~~~ haskell
 eval
-  :: Members [BA.RawStore, Error BA.AppError] r
+  :: Members BA.TxEffs r
   => forall a. Sem (NameserviceKeeper ': Error NameserviceError ': r) a
   -> Sem r a
 eval = mapError BA.makeAppError . evalNameservice
   where
     evalNameservice
-      :: Members [BA.RawStore, Error BA.AppError] r
+      :: Members BA.TxEffs r
       => Sem (NameserviceKeeper ': r) a -> Sem r a
     evalNameservice =
       interpret (\case

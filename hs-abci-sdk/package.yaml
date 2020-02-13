@@ -77,8 +77,6 @@ library:
     - proto3-wire
     - secp256k1-haskell
     - servant
-    - singletons
-    - stm
     - string-conversions
     - text
     - time

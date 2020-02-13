@@ -38,14 +38,6 @@ data EmptyTxServer = EmptyTxServer
 
 data RouteContext = CheckTx | DeliverTx deriving (Eq, Show)
 
-data SRouteContext (c :: RouteContext) where
-  SCheckTx :: SRouteContext 'CheckTx
-  SDeliverTx :: SRouteContext 'DeliverTx
-
-type family HasWriteInContext (c :: RouteContext) (r :: EffectRow) :: Constraint where
-  HasWriteInContext 'CheckTx _ = ()
-  HasWriteInContext 'DeliverTx r = Member WriteStore r
-
 --------------------------------------------------------------------------------
 -- Transaction Application types
 --------------------------------------------------------------------------------

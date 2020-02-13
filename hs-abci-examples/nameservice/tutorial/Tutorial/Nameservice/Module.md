@@ -8,29 +8,30 @@ At this point we can collect the relevant pieces to form the Nameservice module:
 module Tutorial.Nameservice.Module where
 
 import Nameservice.Modules.Nameservice.Keeper (NameserviceEffs, eval)
-import Nameservice.Modules.Nameservice.Query (QueryApi, server)
+import Nameservice.Modules.Nameservice.Query (QueryApi, querier)
 import Nameservice.Modules.Nameservice.Router (MessageApi, messageHandlers)
 import Nameservice.Modules.Nameservice.Types (NameserviceModuleName)
 import Nameservice.Modules.Token                (TokenEffs)
 import Polysemy                                 (Members)
 import Data.Proxy
 import Tendermint.SDK.Application               (Module (..))
-import           Tendermint.SDK.BaseApp       (BaseAppEffs,
+import           Tendermint.SDK.BaseApp       (BaseEffs, TxEffs,
                                                DefaultCheckTx (..))
 
 -- a convenient type alias
 type NameserviceM r =
-  Module NameserviceModuleName MessageApi QueryApi NameserviceEffs r
+  Module NameserviceModuleName MessageApi MessageApi QueryApi NameserviceEffs r
 
 nameserviceModule
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
+  => Members TxEffs r
   => Members TokenEffs r
   => Members NameserviceEffs r
   => NameserviceM r
 nameserviceModule = Module
   { moduleTxDeliverer = messageHandlers
   , moduleTxChecker = defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
-  , moduleQueryServer = server
+  , moduleQuerier = querier
   , moduleEval = eval
   }
 

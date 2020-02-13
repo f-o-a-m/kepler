@@ -42,13 +42,13 @@ import Nameservice.Modules.Token (tokenModule, TokenM, TokenEffs)
 import Network.ABCI.Server.App (App)
 import Polysemy (Sem)
 import Tendermint.SDK.Modules.Auth (authModule, AuthEffs, AuthM)
-import Tendermint.SDK.Application (Modules(..), HandlersContext(..), baseAppAnteHandler, makeApp)
-import Tendermint.SDK.BaseApp (BaseApp, CoreEffs, (:&), compileScopedEff)
+import Tendermint.SDK.Application (BaseApp, ModuleList(..), HandlersContext(..), baseAppAnteHandler, makeApp, defaultCompileToCore)
+import Tendermint.SDK.BaseApp (CoreEffs, TxEffs, (:&))
 import Tendermint.SDK.Crypto (Secp256k1)
 ~~~
 
 This is the part of the application where the effects list must be given a monomorphic type. There is also a requirement
-that the `Modules` type for the application be given the same _order_ as the effects introducted. This ordering problem is due
+that the `ModuleList` type for the application be given the same _order_ as the effects introducted. This ordering problem is due
 to the fact that type level lists are used to represent the effects in `polysemy`, and the order matters there. Still, it's only a small annoyance.
 
 
@@ -57,6 +57,7 @@ type EffR =
    NameserviceEffs :&
    TokenEffs :&
    AuthEffs :&
+   TxEffs :&
    BaseApp CoreEffs
 
 type NameserviceModules =
@@ -75,11 +76,11 @@ handlersContext :: HandlersContext Secp256k1 NameserviceModules EffR CoreEffs
 handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = nameserviceModules
-  , compileToCore  = compileScopedEff
+  , compileToCore  = defaultCompileToCore
   , anteHandler = baseAppAnteHandler
   }
   where
-  nameserviceModules :: Modules NameserviceModules EffR
+  nameserviceModules :: ModuleList NameserviceModules EffR
   nameserviceModules =
        nameserviceModule
     :+ tokenModule
