@@ -1,4 +1,10 @@
-module Tendermint.SDK.BaseApp.Store.MemoryStore where
+module Tendermint.SDK.BaseApp.Store.MemoryStore
+  ( DBVersions(..)
+  , initDBVersions
+  , DB
+  , initDB
+  , evalStoreEffs
+  ) where
 
 
 import           Control.Monad.IO.Class                (liftIO)
@@ -10,7 +16,8 @@ import           Data.ByteArray                        (convert)
 import qualified Data.ByteArray.Base64String           as Base64
 import           Data.ByteString                       (ByteString)
 import           Data.IORef
-import           Data.Maybe                            (fromMaybe)
+import           Data.List                             (sortOn)
+import           Data.Ord                              (Down (..))
 import           Debug.Trace                           as Trace
 import           Numeric.Natural                       (Natural)
 import           Polysemy
@@ -36,31 +43,14 @@ instance AT.MerkleHash AuthTreeHash where
     concatHashes (AuthTreeHash a) (AuthTreeHash b) = AuthTreeHash $ Cryptonite.concatHashes a b
 
 data DB = DB
-  { dbCommitted    :: IORef (AT.Tree Natural (AT.Tree ByteString ByteString))
-  , dbLatest       :: IORef (AT.Tree ByteString ByteString)
-  , currentVersion :: IORef (Maybe Natural)
+  { dbCommitted :: IORef (AT.Tree Natural (AT.Tree ByteString ByteString))
+  , dbLatest    :: IORef (AT.Tree ByteString ByteString)
   }
-
-getRootHash
-  :: DB
-  -> IO ByteString
-getRootHash DB{currentVersion, dbCommitted} = do
-  mcv <- readIORef currentVersion
-  case mcv of
-    Nothing -> pure ""
-    Just v -> do
-      cs <- readIORef dbCommitted
-      case AT.lookup v cs of
-        Nothing -> pure ""
-        Just tree ->
-          let AuthTreeHash hash = AT.merkleHash tree
-          in pure $ convert hash
 
 initDB :: IO DB
 initDB =
   DB <$> newIORef AT.empty
      <*> newIORef AT.empty
-     <*> newIORef Nothing
 
 evalWrite
   :: Member (Embed IO) r
@@ -107,33 +97,34 @@ evalTransaction db@DB{..} m = do
     (\case
       -- NOTICE :: Currently unnecessary with the DB commit/version implementation.
       BeginTransaction -> pure ()
-      Rollback -> liftIO $ modifyIORef dbLatest (const AT.empty)
+      Rollback -> liftIO $ do
+          c <- getRecentCommit db
+          writeIORef dbLatest c
       Commit -> liftIO $ do
         Trace.traceM "Commit interpreter"
         l <- readIORef dbLatest
-        mcv <- readIORef currentVersion
-        let cv = fromMaybe 0 mcv
-        modifyIORef dbCommitted $ AT.insert (cv + 1) l
+        v <- makeCommit db l
         root <- getRootHash db
         pure $ CommitResponse
           { rootHash = Base64.fromBytes root
-          , newVersion = fromInteger . toInteger $ cv
+          , newVersion = fromInteger . toInteger $ v
           }
     ) m
 
 evalCommitBlock
   :: Member (Embed IO) r
   => DB
+  -> DBVersions
   -> forall a. Sem (CommitBlock ': r) a -> Sem r a
-evalCommitBlock db@DB{..} = do
+evalCommitBlock db DBVersions{..} = do
   interpret
     (\case
       CommitBlock -> liftIO $ do
-        version <- readIORef currentVersion
-        Trace.traceM $ "QueryMempool is now version " <> show version
-        writeIORef currentVersion $ case version of
-            Nothing -> Just 0
-            Just v  -> Just $ v + 1
+        mv <- getVersion db
+        Trace.traceM $ "QueryMempool is now version " <> show mv
+        writeIORef committed $ case mv of
+            Nothing -> Genesis
+            Just v  -> Version v
         root <- getRootHash db
         pure . Base64.fromBytes $ root
     )
@@ -152,9 +143,9 @@ evalStoreEffs
      Sem (StoreEffs :& r) a
   -> Sem r a
 evalStoreEffs action = do
-  DBVersions{..} <- ask
+  vs@DBVersions{..} <- ask
   db <- ask
-  evalCommitBlock db .
+  evalCommitBlock db vs .
     evalTransaction db .
     evalWrite db .
     untag .
@@ -162,3 +153,47 @@ evalStoreEffs action = do
     untag .
     evalRead db latest .
     untag $ action
+
+getRootHash
+  :: DB
+  -> IO ByteString
+getRootHash db@DB{dbCommitted} = do
+  mcv <- getVersion db
+  case mcv of
+    Nothing -> pure ""
+    Just v -> do
+      cs <- readIORef dbCommitted
+      case AT.lookup v cs of
+        Nothing -> pure ""
+        Just tree ->
+          let AuthTreeHash hash = AT.merkleHash tree
+          in pure $ convert hash
+
+getVersion
+  :: DB
+  -> IO (Maybe Natural)
+getVersion DB{..}= do
+  c <- readIORef dbCommitted
+  pure $
+    if c == AT.empty
+      then Nothing
+      else Just $ maximum $ map fst $ AT.toList c
+
+getRecentCommit
+  :: DB
+  -> IO (AT.Tree ByteString ByteString)
+getRecentCommit DB{..} = do
+  c <- readIORef dbCommitted
+  case sortOn (Down . fst) $ AT.toList c of
+    []    -> pure AT.empty
+    a : _ -> pure $ snd a
+
+makeCommit
+  :: DB
+  -> AT.Tree ByteString ByteString
+  -> IO Natural
+makeCommit db@DB{dbCommitted} commit = do
+  mv <- getVersion db
+  let v = maybe 0 (+1) mv
+  modifyIORef dbCommitted $ AT.insert v commit
+  pure v
