@@ -53,8 +53,7 @@ instance A.ToJSON CountSet where
 instance A.FromJSON CountSet where
   parseJSON = A.genericParseJSON countSetOptions
 
-instance BaseApp.ToEvent CountSet where
-  makeEventType _ = "count_set"
+instance BaseApp.ToEvent CountSet
 
 instance BaseApp.Select CountSet
 

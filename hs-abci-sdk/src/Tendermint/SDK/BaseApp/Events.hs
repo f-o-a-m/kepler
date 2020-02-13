@@ -85,6 +85,8 @@ emit
   -> Sem r ()
 emit e = output $ toEvent e
 
+
+
 -- | Special event wrapper to add contextual event_type info
 newtype ContextEvent t = ContextEvent t
 instance (A.ToJSON a, ToEvent a) => A.ToJSON (ContextEvent a) where
