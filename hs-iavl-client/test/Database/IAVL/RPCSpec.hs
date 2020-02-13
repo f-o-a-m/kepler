@@ -205,11 +205,13 @@ spec = beforeAll (initGrpcClient $ GrpcConfig "0.0.0.0" 8090) $ do
                               & Api.value .~ value
       res <- runGrpc $ set gc setReq
       res ^. Api.result `shouldBe` False
-
-      let hasReq = defMessage & Api.key .~ key
-                              & Api.version .~ 0
+      verRes <- runGrpc $ version gc
+      let currentVersion = verRes ^. Api.version
+          hasReq = defMessage & Api.key .~ key
+                              & Api.version .~ currentVersion
+      print $ "The current version is " <> show currentVersion
       hasRes <- runGrpc $ has gc hasReq
-      hasRes ^. Api.result `shouldBe` True
+      hasRes ^. Api.result `shouldBe` False
 
 
 runGrpc :: ClientIO (Either TooMuchConcurrency (RawReply a)) -> IO a
