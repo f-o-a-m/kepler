@@ -1,4 +1,7 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell      #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 
 module Tendermint.SDK.BaseApp.Logger.Katip
   ( -- setup and config
@@ -13,14 +16,16 @@ module Tendermint.SDK.BaseApp.Logger.Katip
   , evalKatip
   ) where
 
+import           Control.Lens                  (over, view)
 import           Control.Lens.TH               (makeLenses)
 import qualified Data.Aeson                    as A
 import           Data.String                   (fromString)
 import           Data.String.Conversions       (cs)
 import           Data.Text                     (Text)
 import qualified Katip                         as K
-import           Polysemy                      (Sem, interpretH, pureT, raise,
-                                                runT)
+import           Polysemy                      (Embed, Members, Sem, interpretH,
+                                                pureT, raise, runT)
+import           Polysemy.Reader               (Reader, asks, local)
 import           Tendermint.SDK.BaseApp.Logger
 
 newtype Object a = Object a
@@ -59,6 +64,16 @@ data InitialLogNamespace = InitialLogNamespace
   }
 
 makeLenses ''InitialLogNamespace
+
+instance (Members [Embed IO, Reader LogConfig] r) => K.Katip (Sem r)  where
+  getLogEnv = asks $ view logEnv
+  localLogEnv f m = local (over logEnv f) m
+
+instance (Members [Embed IO, Reader LogConfig] r) => K.KatipContext (Sem r) where
+  getKatipContext = asks $ view logContext
+  localKatipContext f m = local (over logContext f) m
+  getKatipNamespace = asks $ view logNamespace
+  localKatipNamespace f m = local (over logNamespace f) m
 
 evalKatip
   :: forall r a.

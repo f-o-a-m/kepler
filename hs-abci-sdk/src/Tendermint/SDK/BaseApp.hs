@@ -2,7 +2,7 @@ module Tendermint.SDK.BaseApp
   ( -- * BaseApp
     BaseEffs
   , (:&)
-  , compileToCoreEffs
+  , compileToCore
 
   -- * CoreEff
   , CoreEffs

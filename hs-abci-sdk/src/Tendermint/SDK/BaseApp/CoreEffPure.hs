@@ -1,14 +1,16 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell      #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Tendermint.SDK.BaseApp.CoreEff
-  ( CoreEffs
-  , Context(..)
+module Tendermint.SDK.BaseApp.CoreEffPure
+  ( CoreEffsPure
+  , PureContext(..)
   , contextLogConfig
   , contextPrometheusEnv
   , contextVersions
-  , contextGrpcClient
-  , makeContext
-  , runCoreEffs
+  , contextDB
+  , makePureContext
+  , runCoreEffsPure
   ) where
 
 import           Control.Lens                              (makeLenses)
@@ -20,47 +22,46 @@ import           Polysemy.Reader                           (Reader, runReader)
 import           Tendermint.SDK.BaseApp.Errors             (AppError)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip       as KL
 import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus as P
-import qualified Tendermint.SDK.BaseApp.Store.IAVLStore    as IAVL
+import qualified Tendermint.SDK.BaseApp.Store.MemoryStore  as Memory
 
 -- | CoreEffs is one level below BaseAppEffs, and provides one possible
 -- | interpretation for its effects to IO.
-type CoreEffs =
+type CoreEffsPure =
   '[ Reader KL.LogConfig
    , Reader (Maybe P.PrometheusEnv)
-   , Reader IAVL.IAVLVersions
-   , Reader IAVL.GrpcClient
+   , Reader Memory.DBVersions
+   , Reader Memory.DB
    , Error AppError
    , Embed IO
    ]
 
--- | 'Context' is the environment required to run 'CoreEffs' to 'IO'
-data Context = Context
+-- | 'Context' is the environment required to run 'CoreEffsPure' to 'IO'
+data PureContext = PureContext
   { _contextLogConfig     :: KL.LogConfig
   , _contextPrometheusEnv :: Maybe P.PrometheusEnv
-  , _contextGrpcClient    :: IAVL.GrpcClient
-  , _contextVersions      :: IAVL.IAVLVersions
+  , _contextDB            :: Memory.DB
+  , _contextVersions      :: Memory.DBVersions
   }
 
-makeLenses ''Context
+makeLenses ''PureContext
 
-makeContext
+makePureContext
   :: KL.InitialLogNamespace
   -> Maybe P.MetricsScrapingConfig
-  -> IAVL.IAVLVersions
-  -> IAVL.GrpcConfig
-  -> IO Context
-makeContext KL.InitialLogNamespace{..} scrapingCfg versions rpcConf = do
+  -> IO PureContext
+makePureContext KL.InitialLogNamespace{..} scrapingCfg = do
   metCfg <- case scrapingCfg of
         Nothing -> pure Nothing
         Just scfg -> P.emptyState >>= \es ->
           pure . Just $ P.PrometheusEnv es scfg
   logCfg <- mkLogConfig _initialLogEnvironment _initialLogProcessName
-  grpc <- IAVL.initGrpcClient rpcConf
-  pure $ Context
+  versions <- Memory.initDBVersions
+  db <- Memory.initDB
+  pure $ PureContext
     { _contextLogConfig = logCfg
     , _contextPrometheusEnv = metCfg
     , _contextVersions = versions
-    , _contextGrpcClient = grpc
+    , _contextDB = db
     }
     where
       mkLogConfig :: Text -> Text -> IO KL.LogConfig
@@ -73,14 +74,14 @@ makeContext KL.InitialLogNamespace{..} scrapingCfg versions rpcConf = do
           , _logEnv = le
           }
 
--- | The standard interpeter for 'CoreEffs'.
-runCoreEffs
-  :: Context
-  -> forall a. Sem CoreEffs a -> IO (Either AppError a)
-runCoreEffs Context{..} =
+-- | The standard interpeter for 'CoreEffsPure'.
+runCoreEffsPure
+  :: PureContext
+  -> forall a. Sem CoreEffsPure a -> IO (Either AppError a)
+runCoreEffsPure PureContext{..} =
   runM .
     runError .
-    runReader _contextGrpcClient .
+    runReader _contextDB .
     runReader _contextVersions .
     runReader _contextPrometheusEnv .
     runReader _contextLogConfig
