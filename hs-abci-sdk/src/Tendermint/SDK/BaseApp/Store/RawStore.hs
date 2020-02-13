@@ -3,6 +3,7 @@
 module Tendermint.SDK.BaseApp.Store.RawStore
   ( StoreEffs
   , Scope(..)
+  , Version(..)
   , RawKey(..)
   , IsKey(..)
   , RawStoreKey(..)
@@ -185,6 +186,12 @@ withSandbox m =
    in finally (tryTx <* rollback) rollback
 
 data Scope = Consensus | QueryAndMempool
+
+data Version =
+    Genesis
+  | Version Natural
+  | Latest
+  deriving (Eq, Show)
 
 type StoreEffs =
   [ Tagged 'Consensus ReadStore

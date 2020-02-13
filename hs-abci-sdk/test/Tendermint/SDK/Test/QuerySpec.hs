@@ -1,24 +1,24 @@
 module Tendermint.SDK.Test.QuerySpec (spec) where
 
-import qualified Data.ByteArray.Base64String            as Base64
+import           Control.Monad.IO.Class                   (liftIO)
+import qualified Data.ByteArray.Base64String              as Base64
+import           Data.Maybe                               (isJust)
 import           Data.Proxy
-import           Data.Text                              (Text)
-import qualified Network.ABCI.Types.Messages.Request    as Req
-import qualified Network.ABCI.Types.Messages.Response   as Resp
-import qualified Tendermint.SDK.Application             as App
-import qualified Tendermint.SDK.Application.Module      as M
-import qualified Tendermint.SDK.BaseApp                 as BA
+import           Data.Text                                (Text)
+import qualified Network.ABCI.Types.Messages.Request      as Req
+import qualified Network.ABCI.Types.Messages.Response     as Resp
+import qualified Tendermint.SDK.Application               as App
+import qualified Tendermint.SDK.Application.Module        as M
+import qualified Tendermint.SDK.BaseApp                   as BA
+import qualified Tendermint.SDK.BaseApp.Logger.Katip      as KL
+import qualified Tendermint.SDK.BaseApp.Store             as Store
+import qualified Tendermint.SDK.BaseApp.Store.IAVLStore   as IAVL
 import           Tendermint.SDK.BaseApp.Transaction.Cache (writeCache)
-import qualified Tendermint.SDK.BaseApp.Logger.Katip    as KL
-import qualified Tendermint.SDK.BaseApp.Store           as Store
-import qualified Tendermint.SDK.BaseApp.Store.IAVLStore as IAVL
-import           Tendermint.SDK.Codec                   (HasCodec (..))
-import qualified Tendermint.SDK.Test.SimpleStorage      as SS
-import           Tendermint.SDK.Types.Message           (Msg (..))
-import           Tendermint.SDK.Types.Transaction       (Tx (..))
+import           Tendermint.SDK.Codec                     (HasCodec (..))
+import qualified Tendermint.SDK.Test.SimpleStorage        as SS
+import           Tendermint.SDK.Types.Message             (Msg (..))
+import           Tendermint.SDK.Types.Transaction         (Tx (..))
 import           Test.Hspec
-import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (isJust)
 
 type Effs = SS.SimpleStorage ': BA.TxEffs BA.:& App.BaseApp BA.CoreEffs
 

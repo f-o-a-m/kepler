@@ -116,6 +116,7 @@ library:
   - Tendermint.SDK.BaseApp.Router.Router
   - Tendermint.SDK.BaseApp.Store
   - Tendermint.SDK.BaseApp.Store.IAVLStore
+  - Tendermint.SDK.BaseApp.Store.MemoryStore
   - Tendermint.SDK.BaseApp.Store.RawStore
   - Tendermint.SDK.BaseApp.Transaction
   - Tendermint.SDK.BaseApp.Transaction.AnteHandler

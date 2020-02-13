@@ -2,11 +2,13 @@ module SimpleStorage.Test.E2ESpec (spec) where
 
 import           Control.Monad.Reader                (ReaderT, runReaderT)
 import           Data.Default.Class                  (def)
+import           Data.Int                            (Int32)
 import           Data.Proxy
 import qualified Network.Tendermint.Client           as RPC
 import           Servant.API                         ((:<|>) (..))
 import           SimpleStorage.Application
 import qualified SimpleStorage.Modules.SimpleStorage as SS
+import           System.Random                       (randomIO)
 import qualified Tendermint.SDK.Application.Module   as M
 import           Tendermint.SDK.BaseApp.Errors       (AppError (..))
 import           Tendermint.SDK.BaseApp.Query        (QueryArgs (..),
@@ -29,8 +31,6 @@ import           Tendermint.Utils.User               (User (..),
                                                       makeSignerFromUser,
                                                       makeUser)
 import           Test.Hspec
-import System.Random (randomIO)
-import Data.Int (Int32)
 
 spec :: Spec
 spec = do

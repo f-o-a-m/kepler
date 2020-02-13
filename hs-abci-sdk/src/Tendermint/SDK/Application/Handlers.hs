@@ -12,6 +12,7 @@ import           Crypto.Hash.Algorithms                   (SHA256)
 import qualified Data.ByteArray.Base64String              as Base64
 import           Data.Default.Class                       (Default (..))
 import           Data.Proxy
+import           Debug.Trace                              as Trace
 import           Network.ABCI.Server.App                  (App (..),
                                                            MessageType (..),
                                                            Request (..),
@@ -38,7 +39,6 @@ import           Tendermint.SDK.Crypto                    (RecoverableSignatureS
 import           Tendermint.SDK.Types.Transaction         (parseTx)
 import           Tendermint.SDK.Types.TxResult            (checkTxTxResult,
                                                            deliverTxTxResult)
-import Debug.Trace as Trace
 
 type Handler mt r = Request mt -> Sem r (Response mt)
 
