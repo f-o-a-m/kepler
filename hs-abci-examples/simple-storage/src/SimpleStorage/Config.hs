@@ -26,7 +26,10 @@ makeLenses ''AppConfig
 makeAppConfig :: IO AppConfig
 makeAppConfig = do
   versions <- initIAVLVersions
-  let grpcConfig = GrpcConfig "localhost" 8090
+  grpcConfig <- do
+    host <- getEnv "IAVL_HOST"
+    port <- read <$> getEnv "IAVL_PORT"
+    pure $ GrpcConfig host port
   c <- BaseApp.makeContext (KL.InitialLogNamespace "dev" "simple-storage") Nothing versions grpcConfig
   addScribesToLogEnv $
     AppConfig { _baseAppContext = c

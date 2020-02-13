@@ -26,6 +26,8 @@ services:
      - ES_HOST=elk
      - ES_PORT=9200
      - STATS_PORT=5555
+     - IAVL_HOST=iavl
+     - IAVL_port=8090
     restart: always
     depends_on:
       - elk
