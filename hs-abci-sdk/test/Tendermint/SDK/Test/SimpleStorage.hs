@@ -16,7 +16,6 @@ import           Data.ByteArray                   (convert)
 import qualified Data.ByteArray.Base64String      as Base64
 import           Data.ByteString                  (ByteString)
 import           Data.Int                         (Int32)
-import           Data.Maybe                       (fromJust)
 import           Data.Proxy
 import qualified Data.Serialize                   as Serialize
 import           Data.Serialize.Text              ()
@@ -24,6 +23,7 @@ import           Data.String.Conversions          (cs)
 import           Data.Validation                  (Validation (..))
 import           GHC.Generics                     (Generic)
 import           Polysemy
+import Polysemy.Error (Error, throw)
 import           Servant.API
 import           Tendermint.SDK.Application       (BaseApp, Module (..),
                                                    defaultCompileToCore)
@@ -33,6 +33,8 @@ import           Tendermint.SDK.Types.Message     (HasMessageType (..),
                                                    Msg (..),
                                                    ValidateMessage (..))
 import           Tendermint.SDK.Types.Transaction (Tx (..))
+import Tendermint.SDK.BaseApp.Router.Types (RouterError(..))
+
 
 --------------------------------------------------------------------------------
 -- Types
@@ -89,7 +91,7 @@ storeKey = BaseApp.StoreKey "simple_storage"
 
 data SimpleStorage m a where
     PutCount :: Count -> SimpleStorage m ()
-    GetCount :: SimpleStorage m Count
+    GetCount :: SimpleStorage m (Maybe Count)
 
 makeSem ''SimpleStorage
 
@@ -107,7 +109,7 @@ eval
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> BaseApp.put storeKey CountKey count
-  GetCount -> fromJust <$> BaseApp.get storeKey CountKey
+  GetCount -> BaseApp.get storeKey CountKey
   )
 
 --------------------------------------------------------------------------------
@@ -146,21 +148,23 @@ type GetMultipliedCount =
   :> BaseApp.Leaf Count
 
 getMultipliedCount
-  :: Member SimpleStorage r
+  :: Members [Error BaseApp.AppError, SimpleStorage] r
   => Integer
   -> Integer
   -> Sem r (BaseApp.QueryResult Count)
 getMultipliedCount subtractor multiplier = do
   let m = fromInteger multiplier
       s = fromInteger subtractor
-  c <- getCount
-  pure $ BaseApp.QueryResult
-    { queryResultData = m * c - s
-    , queryResultIndex = 0
-    , queryResultKey = Base64.fromBytes $ CountKey ^. BaseApp.rawKey
-    , queryResultProof  = Nothing
-    , queryResultHeight = 0
-    }
+  mc <- getCount
+  case mc of
+    Nothing -> throw . BaseApp.makeAppError $ ResourceNotFound
+    Just c -> pure $ BaseApp.QueryResult
+      { queryResultData = m * c - s
+      , queryResultIndex = 0
+      , queryResultKey = Base64.fromBytes $ CountKey ^. BaseApp.rawKey
+      , queryResultProof  = Nothing
+      , queryResultHeight = 0
+      }
 
 type QueryApi = GetMultipliedCount :<|> BaseApp.QueryApi CountStoreContents
 

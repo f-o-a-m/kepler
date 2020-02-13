@@ -8,6 +8,7 @@ import qualified Network.ABCI.Types.Messages.Response   as Resp
 import qualified Tendermint.SDK.Application             as App
 import qualified Tendermint.SDK.Application.Module      as M
 import qualified Tendermint.SDK.BaseApp                 as BA
+import           Tendermint.SDK.BaseApp.Transaction.Cache (writeCache)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip    as KL
 import qualified Tendermint.SDK.BaseApp.Store           as Store
 import qualified Tendermint.SDK.BaseApp.Store.IAVLStore as IAVL
@@ -16,6 +17,8 @@ import qualified Tendermint.SDK.Test.SimpleStorage      as SS
 import           Tendermint.SDK.Types.Message           (Msg (..))
 import           Tendermint.SDK.Types.Transaction       (Tx (..))
 import           Test.Hspec
+import Control.Monad.IO.Class (liftIO)
+import Data.Maybe (isJust)
 
 type Effs = SS.SimpleStorage ': BA.TxEffs BA.:& App.BaseApp BA.CoreEffs
 
@@ -45,7 +48,13 @@ spec = beforeAll initContext $
               , txSigner = undefined
               , txNonce = undefined
               }
-        _ <- SS.evalToIO ctx $ updateCount tx
+        _ <- SS.evalToIO ctx $ do
+          (_, mCache) <- updateCount tx
+          liftIO (mCache `shouldSatisfy` isJust)
+          let (Just cache) = mCache
+          writeCache cache
+          _ <- Store.commit
+          Store.commitBlock
         let q = Req.Query
               -- TODO -- this shouldn't require / count
               { queryPath = "/simple_storage/manipulated/1?factor=4"
