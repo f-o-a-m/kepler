@@ -83,5 +83,5 @@ runCoreEffsPure PureContext{..} =
     runError .
     runReader _contextDB .
     runReader _contextVersions .
-    runReader _contextPrometheusEnv .
+    runReader Nothing .
     runReader _contextLogConfig
