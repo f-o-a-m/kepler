@@ -94,8 +94,8 @@ instance ToJSON Faucetted where
   toJSON = A.genericToJSON faucettedAesonOptions
 instance FromJSON Faucetted where
   parseJSON = A.genericParseJSON faucettedAesonOptions
-instance BaseApp.ToEvent Faucetted where
-  makeEventType _ = "Faucetted"
+
+instance BaseApp.ToEvent Faucetted
 instance BaseApp.Select Faucetted
 
 data TransferEvent = TransferEvent
@@ -111,6 +111,5 @@ instance A.ToJSON TransferEvent where
   toJSON = A.genericToJSON transferEventAesonOptions
 instance A.FromJSON TransferEvent where
   parseJSON = A.genericParseJSON transferEventAesonOptions
-instance BaseApp.ToEvent TransferEvent where
-  makeEventType _ = "TransferEvent"
+instance BaseApp.ToEvent TransferEvent
 instance BaseApp.Select TransferEvent

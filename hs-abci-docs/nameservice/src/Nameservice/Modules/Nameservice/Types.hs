@@ -27,7 +27,8 @@ type NameserviceModuleName = "nameservice"
 
 --------------------------------------------------------------------------------
 
-newtype Name = Name Text deriving (Eq, Show, Generic, A.ToJSON, A.FromJSON)
+newtype Name = Name Text deriving (Eq, Show, Generic, A.ToJSON, A.FromJSON, HasCodec)
+
 instance Primitive Name where
   encodePrimitive n (Name txt) = Encode.text n . TL.fromStrict $ txt
   decodePrimitive = Name . TL.toStrict <$> Decode.text
@@ -107,8 +108,7 @@ instance ToJSON NameClaimed where
   toJSON = A.genericToJSON nameClaimedAesonOptions
 instance FromJSON NameClaimed where
   parseJSON = A.genericParseJSON nameClaimedAesonOptions
-instance BaseApp.ToEvent NameClaimed where
-  makeEventType _ = "NameClaimed"
+instance BaseApp.ToEvent NameClaimed
 instance BaseApp.Select NameClaimed
 
 data NameRemapped = NameRemapped
@@ -124,8 +124,7 @@ instance ToJSON NameRemapped where
   toJSON = A.genericToJSON nameRemappedAesonOptions
 instance FromJSON NameRemapped where
   parseJSON = A.genericParseJSON nameRemappedAesonOptions
-instance BaseApp.ToEvent NameRemapped where
-  makeEventType _ = "NameRemapped"
+instance BaseApp.ToEvent NameRemapped
 instance BaseApp.Select NameRemapped
 
 data NameDeleted = NameDeleted
@@ -139,6 +138,5 @@ instance ToJSON NameDeleted where
   toJSON = A.genericToJSON nameDeletedAesonOptions
 instance FromJSON NameDeleted where
   parseJSON = A.genericParseJSON nameDeletedAesonOptions
-instance BaseApp.ToEvent NameDeleted where
-  makeEventType _ = "NameDeleted"
+instance BaseApp.ToEvent NameDeleted
 instance BaseApp.Select NameDeleted

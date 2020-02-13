@@ -5,11 +5,16 @@ import qualified Data.Aeson               as A
 import qualified Data.ByteArray.HexString as Hex
 import           Data.ByteString          (ByteString)
 import           GHC.Generics             (Generic)
+import           Tendermint.SDK.Codec     (HasCodec (..))
 
 -- | Used as a unique identifier for an account.
 newtype Address =
     Address Hex.HexString
     deriving (Eq, Show, Generic, Ord, A.ToJSON, A.FromJSON)
+
+instance HasCodec Address where
+  encode = addressToBytes
+  decode = Right . addressFromBytes
 
 addressToBytes :: Address -> ByteString
 addressToBytes (Address addrHex) = Hex.toBytes addrHex
