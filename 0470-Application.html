@@ -465,17 +465,18 @@ footer
 
 }
 
-/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0010-Overview.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0020-Installation.html" class="tintin-fg-disabled">Installation</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-disabled">Foundations - BaseApp</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0400-Tutorial.html" class="tintin-fg-disabled">Tutorial</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-disabled">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-active">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>Application</h1>
+/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0010-Overview.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0020-Installation.html" class="tintin-fg-disabled">Installation</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-disabled">Foundations - BaseEffs, TxEffs, and QueryEffs</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0400-Tutorial.html" class="tintin-fg-disabled">Tutorial</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-disabled">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-active">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>Application</h1>
 <h2>From Modules to App</h2>
 <p>The <code>App</code> type in <code>Network.ABCI.Server</code> is defined as</p>
 <pre class="haskell"><code>newtype App m = App
   { unApp :: forall (t :: MessageType). Request t -&gt; m (Response t) }
 </code></pre>
-<p>and ultimately our configuration of modules must be converted to this format. This is probably the most important part of the SDK, to provide the bridge between the list of modules - a heterogeneous list of type <code>Modules</code> - and the actual application. The type that provides the input for this bridge is <code>HandlersContext</code>:</p>
+<p>and ultimately our configuration of modules must be converted to this format. This is probably the most important part of the SDK, to provide the bridge between the list of modules - a heterogeneous list of type <code>ModuleList</code> - and the actual application. The type that provides the input for this bridge is <code>HandlersContext</code>:</p>
 <pre class="haskell"><code>data HandlersContext alg ms r core = HandlersContext
   { signatureAlgP :: Proxy alg
-  , modules       :: M.Modules ms r
-  , compileToCore :: forall a. ScopedEff core a -&gt; Sem core a
+  , modules       :: M.ModuleList ms r
+  , anteHandler   :: BA.AnteHandler r
+  , compileToCore :: forall a. Sem (BA.BaseApp core) a -&gt; Sem core a
   }
 </code></pre>
 <p>where</p>
@@ -485,10 +486,18 @@ footer
 <li><code>r</code> is the global effects list for the application</li>
 <li><code>core</code> is the set of core effects that are used to interpet <code>BaseApp</code> to <code>IO</code>.</li>
 </ul>
-<p>We should say a few words on this <code>compileToCore</code> field. The application developer has access to any effects in <code>BaseApp</code>,
-but <code>BaseApp</code> itself still needs to be interpreted in order to run the application. In other words, <code>BaseApp</code> is still just a
-list of free effects. The set of effects capable of interpreting <code>BaseApp</code> is called <code>core</code>, and while the developer is free to provide any <code>core</code> they want, we have a standard set of them in the SDK - e.g. in memory, production, etc.</p>
-<p>The <code>ScopedEff</code> type is more complicated and not relevant to the discussion of application development. Long story short, tendermint core requests three connections to the application&#39;s state - <code>Consensus</code>, <code>Mempool</code> and <code>Query</code>. The <code>ScopedEff</code> type is used to abstract this concern away from the developer, and as long as you are using one of the <code>core</code> effects provided in the SDK you don&#39;t need to worry about it.</p>
+<p>We should say a few words on this <code>compileToCore</code> field. The application developer has to, at the end of the day, specify how the entire effects system for the application will be interpreted to <code>IO</code>. Luckily most of these decisions are abstracted away, but the one that remains is dealing with <code>BaseApp core</code>. The sdk provides two default methods for two different types of <code>core</code>:</p>
+<pre class="haskell"><code>defaultCompileToCore
+  :: forall a.
+     Sem (BaseApp CoreEffs) a
+  -&gt; Sem CoreEffs a
+
+defaultCompileToPureCore
+  :: forall a.
+     Sem (BaseApp PureCoreEffs) a
+  -&gt; Sem PureCoreEffs a
+</code></pre>
+<p>The difference is that <code>defaultCompileToCore</code> uses the IAVL store external database and also allows for metrics, where <code>defaultCompileToPureCore</code> uses an in-memory db and treats all metrics operations as a no-op.</p>
 <h2>Tutorial.Nameservice.Application</h2>
 <pre class="haskell"><code>module Tutorial.Nameservice.Application where
 
@@ -498,17 +507,16 @@ import Nameservice.Modules.Token (tokenModule, TokenM, TokenEffs)
 import Network.ABCI.Server.App (App)
 import Polysemy (Sem)
 import Tendermint.SDK.Modules.Auth (authModule, AuthEffs, AuthM)
-import Tendermint.SDK.Application (Modules(..), HandlersContext(..), baseAppAnteHandler, makeApp)
-import Tendermint.SDK.BaseApp (BaseApp, CoreEffs, (:&amp;), compileScopedEff)
+import Tendermint.SDK.Application (ModuleList(..), HandlersContext(..), baseAppAnteHandler, makeApp, createIOApp)
+import Tendermint.SDK.BaseApp (BaseApp, CoreEffs, Context, TxEffs, (:&amp;), defaultCompileToCore, runCoreEffs)
 import Tendermint.SDK.Crypto (Secp256k1)
 </code></pre>
-<p>This is the part of the application where the effects list must be given a monomorphic type. There is also a requirement
-that the <code>Modules</code> type for the application be given the same <em>order</em> as the effects introducted. This ordering problem is due
-to the fact that type level lists are used to represent the effects in <code>polysemy</code>, and the order matters there. Still, it&#39;s only a small annoyance.</p>
+<p>This is the part of the application where the effects list must be given a monomorphic type. The only requirement is that you list the effects in the same order that the corresponding modules appear in the <code>NameserviceModules</code> list:</p>
 <pre class="haskell"><code>type EffR =
    NameserviceEffs :&amp;
    TokenEffs :&amp;
    AuthEffs :&amp;
+   TxEffs :&amp;
    BaseApp CoreEffs
 
 type NameserviceModules =
@@ -517,17 +525,17 @@ type NameserviceModules =
     , AuthM EffR
     ]
 </code></pre>
-<p>Notice that we&#39;ve specified <code>EffR</code> as the effects list for each of the modules to run in, which trivially satisfies the constraints on each module at the definition site, since it is simply the union of all effects.</p>
+<p>Also notice that <code>TxEffs :&amp; BaseApp CoreEffs</code> appears at the end of the effects list, but doesn&#39;t strictly corrospond to a module. This needs to be here as ultimately all transactions and queries are intereted to <code>TxEffs :&amp; BaseApp CoreEffs</code> before being run.</p>
 <p>We&#39;re now ready to define the <code>HandlersContext</code> for our application:</p>
 <pre class="haskell"><code>handlersContext :: HandlersContext Secp256k1 NameserviceModules EffR CoreEffs
 handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = nameserviceModules
-  , compileToCore  = compileScopedEff
+  , compileToCore  = defaultCompileToCore
   , anteHandler = baseAppAnteHandler
   }
   where
-  nameserviceModules :: Modules NameserviceModules EffR
+  nameserviceModules :: ModuleList NameserviceModules EffR
   nameserviceModules =
        nameserviceModule
     :+ tokenModule
@@ -537,5 +545,9 @@ handlersContext = HandlersContext
 <p>Finally we&#39;re able to define our application that runs in the <code>CoreEffs</code> context defined in the SDK:</p>
 <pre class="haskell"><code>app :: App (Sem CoreEffs)
 app = makeApp handlersContext 
+</code></pre>
+<p>Since the ABCI server requires you to pass a value of type <code>App IO</code>, we have one more transformation to perform to get replace the <code>Sem CoreEffs</code> in our app. We can simple use the <code>createIOApp</code> function:</p>
+<pre class="haskell"><code>makeIOApp :: Context -&gt; App IO
+makeIOApp ctx = createIOApp (runCoreEffs ctx) app
 </code></pre>
 </div></div></div></div></div></section><div class="tintin-doc-footer clear-fix"><div class="row next-prev"><div class="col-md-4 offset-md-4"><a href="0460-Module.html">&lt; Previous: Nameservice - Module</a></div><div class="col-md-4 ml-auto"><a href="98-Logging.html">Next: Logging &gt;</a></div></div><div class="float-right"><div style="float: left" class="d-inline"><p class>Site generated with </p></div><a style="float: left" href="https://theam.github.io/tintin"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/logo.svg" class="filter-gray"></a><div class="clear-fix float-right"><span style="float:left">&mdash; &copy; 2018 </span><a href="http://theam.io" class="float:left"><img src="http://theam.io/logo_theam.png" class="footer-theam"></a></div></div></div></div><script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/haskell.min.js"></script><script src="https://cdn.rawgit.com/icons8/bower-webicon/v0.10.7/jquery-webicon.min.js"></script><script>hljs.initHighlightingOnLoad()</script><script>$(function () {$("#menu-toggle").click(function(e) {e.preventDefault();$("#wrapper").toggleClass("toggled");$("#menu-toggle img").toggleClass("rotateIn rotateOut");})});</script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/contrib/auto-render.min.js"></script><script>renderMathInElement(document.body);</script></body></html>

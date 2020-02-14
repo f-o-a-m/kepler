@@ -112,11 +112,11 @@ module Nameservice.Modules.Token.Keeper
 data Token m a
 [PutBalance] :: Address -> Amount -> Token m ()
 [GetBalance'] :: Address -> Token m (Maybe Amount)
-getBalance' :: forall r_a11TO. MemberWithError Token r_a11TO => Address -> Sem r_a11TO (Maybe Amount)
-putBalance :: forall r_a11TL. MemberWithError Token r_a11TL => Address -> Amount -> Sem r_a11TL ()
+getBalance' :: forall r_a13sY. MemberWithError Token r_a13sY => Address -> Sem r_a13sY (Maybe Amount)
+putBalance :: forall r_a13sV. MemberWithError Token r_a13sV => Address -> Amount -> Sem r_a13sV ()
 type TokenEffs = '[Token, Error TokenError]
 storeKey :: StoreKey "token"
-eval :: Members [RawStore, Error AppError] r => forall a. Sem (Token : (Error TokenError : r)) a -> Sem r a
+eval :: Members TxEffs r => forall a. Sem (Token : (Error TokenError : r)) a -> Sem r a
 faucetAccount :: Members [Logger, Output Event] r => Members TokenEffs r => FaucetAccount -> Sem r ()
 getBalance :: Member Token r => Address -> Sem r Amount
 transfer :: Members [Logger, Output Event] r => Members TokenEffs r => Address -> Amount -> Address -> Sem r ()
@@ -125,18 +125,18 @@ mint :: Member Token r => Address -> Amount -> Sem r ()
 
 module Nameservice.Modules.Token.Router
 type MessageApi = TypedMessage Burn :~> Return () :<|> TypedMessage Transfer :~> Return () :<|> TypedMessage FaucetAccount :~> Return ()
-messageHandlers :: Members TokenEffs r => Members BaseAppEffs r => RouteTx MessageApi r  'DeliverTx
+messageHandlers :: Members TokenEffs r => Members BaseEffs r => Members TxEffs r => RouteTx MessageApi r
 
 module Nameservice.Modules.Token.Query
 
 -- | Query Api
 type TokenContents = '[(Address, Amount)]
 type QueryApi = QueryApi TokenContents
-server :: Members [RawStore, Error AppError] r => RouteQ QueryApi r
+querier :: Members QueryEffs r => RouteQ QueryApi r
 
 module Nameservice.Modules.Token
-type TokenM r = Module "token" MessageApi QueryApi TokenEffs r
-tokenModule :: Members BaseAppEffs r => Members TokenEffs r => TokenM r
+type TokenM r = Module "token" MessageApi MessageApi QueryApi TokenEffs r
+tokenModule :: Members BaseEffs r => Members TxEffs r => Members TokenEffs r => TokenM r
 
 -- | Used as a unique identifier for an account.
 data Address
@@ -173,11 +173,11 @@ faucetAccount :: Members [Logger, Output Event] r => Members TokenEffs r => Fauc
 transfer :: Members [Logger, Output Event] r => Members TokenEffs r => Address -> Amount -> Address -> Sem r ()
 mint :: Member Token r => Address -> Amount -> Sem r ()
 burn :: Members TokenEffs r => Address -> Amount -> Sem r ()
-eval :: Members [RawStore, Error AppError] r => forall a. Sem (Token : (Error TokenError : r)) a -> Sem r a
+eval :: Members TxEffs r => forall a. Sem (Token : (Error TokenError : r)) a -> Sem r a
 type MessageApi = TypedMessage Burn :~> Return () :<|> TypedMessage Transfer :~> Return () :<|> TypedMessage FaucetAccount :~> Return ()
-messageHandlers :: Members TokenEffs r => Members BaseAppEffs r => RouteTx MessageApi r  'DeliverTx
+messageHandlers :: Members TokenEffs r => Members BaseEffs r => Members TxEffs r => RouteTx MessageApi r
 type QueryApi = QueryApi TokenContents
-server :: Members [RawStore, Error AppError] r => RouteQ QueryApi r
+querier :: Members QueryEffs r => RouteQ QueryApi r
 
 module Nameservice.Modules.Nameservice.Types
 type NameserviceModuleName = "nameservice"
@@ -294,93 +294,37 @@ instance Tendermint.SDK.Types.Message.ValidateMessage Nameservice.Modules.Namese
 
 module Nameservice.Modules.Nameservice.Keeper
 data NameserviceKeeper m a
-[PutWhois] :: Name -> Whois -> NameserviceKeeper m ()
-[GetWhois] :: Name -> NameserviceKeeper m (Maybe Whois)
-[DeleteWhois] :: Name -> NameserviceKeeper m ()
-deleteWhois :: forall r_a1fvf. MemberWithError NameserviceKeeper r_a1fvf => Name -> Sem r_a1fvf ()
-getWhois :: forall r_a1fvd. MemberWithError NameserviceKeeper r_a1fvd => Name -> Sem r_a1fvd (Maybe Whois)
-putWhois :: forall r_a1fva. MemberWithError NameserviceKeeper r_a1fva => Name -> Whois -> Sem r_a1fva ()
 type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
-storeKey :: StoreKey NameserviceModuleName
-eval :: Members [RawStore, Error AppError] r => forall a. Sem (NameserviceKeeper : (Error NameserviceError : r)) a -> Sem r a
 setName :: Members [Logger, Output Event] r => Members NameserviceEffs r => SetName -> Sem r ()
 deleteName :: Members [Logger, Token, Output Event] r => Members NameserviceEffs r => DeleteName -> Sem r ()
 
 -- | did it succeed
 buyName :: Members [Logger, Output Event] r => Members TokenEffs r => Members NameserviceEffs r => BuyName -> Sem r ()
+storeKey :: StoreKey NameserviceModuleName
+eval :: Members TxEffs r => forall a. Sem (NameserviceKeeper : (Error NameserviceError : r)) a -> Sem r a
 
 module Nameservice.Modules.Nameservice.Router
 type MessageApi = TypedMessage BuyName :~> Return () :<|> TypedMessage SetName :~> Return () :<|> TypedMessage DeleteName :~> Return ()
-messageHandlers :: Members BaseAppEffs r => Members TokenEffs r => Members NameserviceEffs r => RouteTx MessageApi r  'DeliverTx
-buyNameH :: Members BaseAppEffs r => Members TxEffs r => Members TokenEffs r => Members NameserviceEffs r => RoutingTx BuyName -> Sem r ()
-setNameH :: Members BaseAppEffs r => Members TxEffs r => Members NameserviceEffs r => RoutingTx SetName -> Sem r ()
-deleteNameH :: Members BaseAppEffs r => Members TxEffs r => Members TokenEffs r => Members NameserviceEffs r => RoutingTx DeleteName -> Sem r ()
+messageHandlers :: Members BaseEffs r => Members TokenEffs r => Members TxEffs r => Members NameserviceEffs r => RouteTx MessageApi r
 
 module Nameservice.Modules.Nameservice.Query
-
--- | Query API
-type NameserviceContents = '[(Name, Whois)]
 type QueryApi = QueryApi NameserviceContents
-server :: Members [RawStore, Error AppError] r => RouteQ QueryApi r
+querier :: Members QueryEffs r => RouteQ QueryApi r
 
 module Nameservice.Modules.Nameservice
-type NameserviceM r = Module "nameservice" MessageApi QueryApi NameserviceEffs r
-nameserviceModule :: Members BaseAppEffs r => Members TokenEffs r => Members NameserviceEffs r => NameserviceM r
-newtype Name
-Name :: Text -> Name
-data Whois
-Whois :: Text -> Address -> Amount -> Whois
-[whoisValue] :: Whois -> Text
-[whoisOwner] :: Whois -> Address
-[whoisPrice] :: Whois -> Amount
-data NameserviceError
-InsufficientBid :: Text -> NameserviceError
-UnauthorizedSet :: Text -> NameserviceError
-InvalidDelete :: Text -> NameserviceError
-data NameClaimed
-NameClaimed :: Address -> Name -> Text -> Amount -> NameClaimed
-[nameClaimedOwner] :: NameClaimed -> Address
-[nameClaimedName] :: NameClaimed -> Name
-[nameClaimedValue] :: NameClaimed -> Text
-[nameClaimedBid] :: NameClaimed -> Amount
-data NameRemapped
-NameRemapped :: Name -> Text -> Text -> NameRemapped
-[nameRemappedName] :: NameRemapped -> Name
-[nameRemappedOldValue] :: NameRemapped -> Text
-[nameRemappedNewValue] :: NameRemapped -> Text
-data NameDeleted
-NameDeleted :: Name -> NameDeleted
-[nameDeletedName] :: NameDeleted -> Name
-data BuyName
-BuyName :: Amount -> Name -> Text -> Address -> BuyName
-[buyNameBid] :: BuyName -> Amount
-[buyNameName] :: BuyName -> Name
-[buyNameValue] :: BuyName -> Text
-[buyNameBuyer] :: BuyName -> Address
-data SetName
-SetName :: Name -> Address -> Text -> SetName
-[setNameName] :: SetName -> Name
-[setNameOwner] :: SetName -> Address
-[setNameValue] :: SetName -> Text
-data DeleteName
-DeleteName :: Address -> Name -> DeleteName
-[deleteNameOwner] :: DeleteName -> Address
-[deleteNameName] :: DeleteName -> Name
+type NameserviceM r = Module "nameservice" MessageApi MessageApi QueryApi NameserviceEffs r
+nameserviceModule :: Members BaseEffs r => Members TxEffs r => Members TokenEffs r => Members NameserviceEffs r => NameserviceM r
+data NameserviceKeeper m a
 type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
-getWhois :: forall r_a1fvd. MemberWithError NameserviceKeeper r_a1fvd => Name -> Sem r_a1fvd (Maybe Whois)
+eval :: Members TxEffs r => forall a. Sem (NameserviceKeeper : (Error NameserviceError : r)) a -> Sem r a
+setName :: Members [Logger, Output Event] r => Members NameserviceEffs r => SetName -> Sem r ()
+deleteName :: Members [Logger, Token, Output Event] r => Members NameserviceEffs r => DeleteName -> Sem r ()
 
 -- | did it succeed
 buyName :: Members [Logger, Output Event] r => Members TokenEffs r => Members NameserviceEffs r => BuyName -> Sem r ()
-setName :: Members [Logger, Output Event] r => Members NameserviceEffs r => SetName -> Sem r ()
-deleteName :: Members [Logger, Token, Output Event] r => Members NameserviceEffs r => DeleteName -> Sem r ()
-eval :: Members [RawStore, Error AppError] r => forall a. Sem (NameserviceKeeper : (Error NameserviceError : r)) a -> Sem r a
-type MessageApi = TypedMessage BuyName :~> Return () :<|> TypedMessage SetName :~> Return () :<|> TypedMessage DeleteName :~> Return ()
-messageHandlers :: Members BaseAppEffs r => Members TokenEffs r => Members NameserviceEffs r => RouteTx MessageApi r  'DeliverTx
-type QueryApi = QueryApi NameserviceContents
-server :: Members [RawStore, Error AppError] r => RouteQ QueryApi r
 
 module Nameservice.Application
-type EffR = NameserviceEffs :& TokenEffs :& AuthEffs :& BaseApp CoreEffs
+type EffR = NameserviceEffs :& TokenEffs :& AuthEffs :& TxEffs :& BaseApp CoreEffs
 type NameserviceModules = '[NameserviceM EffR, TokenM EffR, AuthM EffR]
 handlersContext :: HandlersContext Secp256k1 NameserviceModules EffR CoreEffs
 

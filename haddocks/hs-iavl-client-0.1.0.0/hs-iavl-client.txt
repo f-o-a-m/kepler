@@ -7,6 +7,25 @@
 @package hs-iavl-client
 @version 0.1.0.0
 
+module Database.IAVL.RPC.Types
+
+-- | GRPCClientError
+--   
+--   This type represents error with the GRPC Client
+data GRPCClientError
+ClientSetupError :: Text -> GRPCClientError
+
+-- | initGrpcClient
+data GrpcConfig
+GrpcConfig :: String -> Integer -> GrpcConfig
+[grpcHost] :: GrpcConfig -> String
+[grpcPort] :: GrpcConfig -> Integer
+
+-- | Initialize the GRPC Client
+initGrpcClient :: GrpcConfig -> IO GrpcClient
+instance GHC.Show.Show Database.IAVL.RPC.Types.GRPCClientError
+instance GHC.Exception.Type.Exception Database.IAVL.RPC.Types.GRPCClientError
+
 module Proto.Google.Api.Http
 
 -- | Fields :

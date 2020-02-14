@@ -1,4 +1,4 @@
-<!DOCTYPE HTML><html><head><title>kepler - Foundations - BaseApp</title><meta charset="utf-8"><meta content="summary" name="twitter:card"><meta content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png" name="twitter:site"><meta content="kepler - Foundations - BaseApp" name="twitter:title"><meta content="Haskell Cosmos SDK" name="twitter:description"><meta content="f-o-a-m" name="twitter:creator"><meta content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png" name="twitter:image"><meta itemprop="og:type" content="website"><meta itemprop="og:site_name" content="theam"><meta itemprop="og:title" content="kepler - Foundations - BaseApp"><meta itemprop="og:url" content="f-o-a-m/kepler"><meta itemprop="og:image" content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png"><meta itemprop="og:description" content="Haskell Cosmos SDK"><link href="https://fonts.googleapis.com/css?family=Open Sans|Lora:400" rel="stylesheet"><link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow-night.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet"><link href="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/favicon-custom.ico" rel="shortcut icon"><link href="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.css" rel="stylesheet"><style>
+<!DOCTYPE HTML><html><head><title>kepler - Foundations - BaseEffs, TxEffs, and QueryEffs</title><meta charset="utf-8"><meta content="summary" name="twitter:card"><meta content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png" name="twitter:site"><meta content="kepler - Foundations - BaseEffs, TxEffs, and QueryEffs" name="twitter:title"><meta content="Haskell Cosmos SDK" name="twitter:description"><meta content="f-o-a-m" name="twitter:creator"><meta content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png" name="twitter:image"><meta itemprop="og:type" content="website"><meta itemprop="og:site_name" content="theam"><meta itemprop="og:title" content="kepler - Foundations - BaseEffs, TxEffs, and QueryEffs"><meta itemprop="og:url" content="f-o-a-m/kepler"><meta itemprop="og:image" content="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/tintin-hexcolor &quot;#5e5184&quot;.png"><meta itemprop="og:description" content="Haskell Cosmos SDK"><link href="https://fonts.googleapis.com/css?family=Open Sans|Lora:400" rel="stylesheet"><link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow-night.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet"><link href="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/favicon-custom.ico" rel="shortcut icon"><link href="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.css" rel="stylesheet"><style>
 html
 {
   height     : 100%;
@@ -465,14 +465,12 @@ footer
 
 }
 
-/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0010-Overview.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0020-Installation.html" class="tintin-fg-disabled">Installation</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-active">Foundations - BaseApp</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0400-Tutorial.html" class="tintin-fg-disabled">Tutorial</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-disabled">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>BaseApp</h1>
-<p><code>BaseApp</code> is the set of effects that the SDK operates with and are freely available
-for an application developer to make use of in any part of their application code. It is expected
-(in fact required) that any application code can be rewritten in terms of the <code>BaseApp</code>
-effects. Let&#39;s look at the <code>BaseApp</code> type:</p>
-<pre class="haskell"><code>type BaseAppEffs =
-  [ RawStore
-  , Output Event
+/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0010-Overview.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0020-Installation.html" class="tintin-fg-disabled">Installation</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-active">Foundations - BaseEffs, TxEffs, and QueryEffs</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0400-Tutorial.html" class="tintin-fg-disabled">Tutorial</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-disabled">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>BaseEffs</h1>
+<p><code>BaseEffs</code> is a set of effects that the SDK operates with and are freely available
+for an application developer to make use of in any part of their application code. They
+are defined as:</p>
+<pre class="haskell"><code>type BaseEffs =
+  [ Metrics
   , Logger
   , Resource
   , Error AppError
@@ -480,12 +478,56 @@ effects. Let&#39;s look at the <code>BaseApp</code> type:</p>
 </code></pre>
 <p>These effects are:</p>
 <ol>
-<li><code>RawStore</code> - allows for basic storage operations, e.g. get, put, delete, prove etc.</li>
-<li><code>Output Event</code> - allows for emitting events in the course of transaction processing.</li>
-<li><code>Logger</code> - allows for console loging with log levels.</li>
+<li><code>Metrics</code> - creates and manages custom counters and timers.</li>
+<li><code>Logger</code> - allows for structured logging with log levels.</li>
 <li><code>Resource</code> - allows for bracketing and resource management in the presence of exeptions.</li>
 <li><code>Error AppError</code> -- allows for errors of type <code>AppError</code> to be thrown or caught.</li>
 </ol>
-<p><code>BaseApp</code> acts as an intermediate effect system for specifying applications, it does not make any assumptions about how these effects will be interpreted at runtime. For example, <code>RawStore</code> could eventualy be interpeted by any persistent or in-memory storage capable of handling the commands <code>Put</code>, <code>Get</code> etc.</p>
-<p>Most of the work in writing modules involves plugging into <code>BaseApp</code> at various points. For example, your module can create custom errors to throw or catch, but you must tell the SDK how to translate this custom error into an <code>AppError</code>. Likewise your module can define custom events to log during transaction execution, but you must describe to the SDK how to translate these custom events types into the type <code>Event</code>.</p>
+<p>The SDK does not make any assumptions about how <code>BaseEffs</code> will be interpreted at runtime, it only assumes that the developer might want use one of the provided core effects systems to interpret them. For example, the standard <code>CoreEffs</code> uses a prometheus metrics server to interpret the <code>Metrics</code> effect while <code>PureCoreEffs</code> just ignores the effect entirely.</p>
+<h1>TxEffs</h1>
+<p><code>TxEffs</code> are the effects used to interpret transactions and are defined as</p>
+<pre class="haskell"><code>type TxEffs =
+  [ Output Event
+  , GasMeter
+  , WriteStore
+  , ReadStore
+  , Error AppError
+  ]
+</code></pre>
+<p>where</p>
+<ol>
+<li><code>Output Event</code> - allows for emitting events during transaction execution.</li>
+<li><code>GasMeter</code> - allows for gas costs to be levied at any place during transaction code.</li>
+<li><code>WriteStore</code> - allows for put/delete operations on the database.</li>
+<li><code>ReadStore</code> - allows for get/prove operations on the database.</li>
+<li><code>Error AppError</code> - allows for throwing and catching errors raised during transactions.</li>
+</ol>
+<p><code>TxEffs</code> effects are available any time during transactions and are interpreted at the time of transaction routing. It&#39;s worth noting that the interpreters take care of finalizing writes to the database when it&#39;s appropriate (i.e. during a <code>deliverTx</code> message) and not otherwise (e.g. during a <code>checkTx</code> message).</p>
+<h1>QueryEffs</h1>
+<p><code>QueryEffs</code> are used to interpret queries and are defined as</p>
+<pre class="haskell"><code>type QueryEffs = 
+  [ ReadStore
+  , Error AppError
+  ]
+</code></pre>
+<p>where</p>
+<ol>
+<li><code>ReadStore</code> allows for get/prove operations on the database.</li>
+<li><code>Error AppError</code> allows for throwing/catching errors when performing database queries.</li>
+</ol>
+<p><code>QueryEffs</code> are available any time you are writing handlers for a module&#39;s query api. The SDK manages a separate connection for reading from committed (i.e. via blocks) state when <code>QueryEffs</code> are present.</p>
+<h1>BaseApp</h1>
+<p>There is a type alias in the SDK called <code>BaseApp</code> with the definition</p>
+<pre class="haskell"><code>type BaseApp core = BaseEffs :&amp; StoreEffs :&amp; core
+</code></pre>
+<p>where <code>StoreEffs</code> is given by</p>
+<pre class="haskell"><code>type StoreEffs =
+  [ Tagged &#39;Consensus ReadStore
+  , Tagged &#39;QueryAndMempool ReadStore
+  , Tagged &#39;Consensus WriteStore
+  , Transaction
+  , CommitBlock
+  ]
+</code></pre>
+<p>It sits at the bottom of any applications effects list and ultimately everything is interpreted through these effects before being run, e.g. <code>TxEffs</code> and <code>QueryEffs</code>. This effects list is pretty much the only place where the application developer needs to decide how the interpretation should be done. There are two options in the SDK, using <code>PureCoreEffs</code> or <code>CoreEffs</code> depending on whether you want to rely on an external or in-memory database.</p>
 </div></div></div></div></div></section><div class="tintin-doc-footer clear-fix"><div class="row next-prev"><div class="col-md-4 offset-md-4"><a href="0310-Overview.html">&lt; Previous: Foundations - Overview</a></div><div class="col-md-4 ml-auto"><a href="0330-Modules.html">Next: Foundations - Module &gt;</a></div></div><div class="float-right"><div style="float: left" class="d-inline"><p class>Site generated with </p></div><a style="float: left" href="https://theam.github.io/tintin"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/logo.svg" class="filter-gray"></a><div class="clear-fix float-right"><span style="float:left">&mdash; &copy; 2018 </span><a href="http://theam.io" class="float:left"><img src="http://theam.io/logo_theam.png" class="footer-theam"></a></div></div></div></div><script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/haskell.min.js"></script><script src="https://cdn.rawgit.com/icons8/bower-webicon/v0.10.7/jquery-webicon.min.js"></script><script>hljs.initHighlightingOnLoad()</script><script>$(function () {$("#menu-toggle").click(function(e) {e.preventDefault();$("#wrapper").toggleClass("toggled");$("#menu-toggle img").toggleClass("rotateIn rotateOut");})});</script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/contrib/auto-render.min.js"></script><script>renderMathInElement(document.body);</script></body></html>

@@ -465,42 +465,41 @@ footer
 
 }
 
-/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0010-Overview.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0020-Installation.html" class="tintin-fg-disabled">Installation</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-disabled">Foundations - BaseApp</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0400-Tutorial.html" class="tintin-fg-disabled">Tutorial</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-disabled">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-active">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>Module</h1>
+/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0010-Overview.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0020-Installation.html" class="tintin-fg-disabled">Installation</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-disabled">Foundations - BaseEffs, TxEffs, and QueryEffs</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0400-Tutorial.html" class="tintin-fg-disabled">Tutorial</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-disabled">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-active">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>Module</h1>
 <h2>Tutorial.Nameservice.Module</h2>
 <p>At this point we can collect the relevant pieces to form the Nameservice module:</p>
 <pre class="haskell"><code>module Tutorial.Nameservice.Module where
 
 import Nameservice.Modules.Nameservice.Keeper (NameserviceEffs, eval)
-import Nameservice.Modules.Nameservice.Query (QueryApi, server)
+import Nameservice.Modules.Nameservice.Query (QueryApi, querier)
 import Nameservice.Modules.Nameservice.Router (MessageApi, messageHandlers)
 import Nameservice.Modules.Nameservice.Types (NameserviceModuleName)
 import Nameservice.Modules.Token                (TokenEffs)
 import Polysemy                                 (Members)
 import Data.Proxy
 import Tendermint.SDK.Application               (Module (..))
-import           Tendermint.SDK.BaseApp       (BaseAppEffs,
-                                               DefaultCheckTx (..))
+import Tendermint.SDK.BaseApp (BaseEffs, TxEffs, DefaultCheckTx (..))
 
 -- a convenient type alias
 type NameserviceM r =
-  Module NameserviceModuleName MessageApi QueryApi NameserviceEffs r
+  Module NameserviceModuleName MessageApi MessageApi QueryApi NameserviceEffs r
 
 nameserviceModule
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
+  =&gt; Members TxEffs r
   =&gt; Members TokenEffs r
   =&gt; Members NameserviceEffs r
   =&gt; NameserviceM r
 nameserviceModule = Module
   { moduleTxDeliverer = messageHandlers
   , moduleTxChecker = defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
-  , moduleQueryServer = server
+  , moduleQuerier = querier
   , moduleEval = eval
   }
 
 </code></pre>
-<p>Here We are using <code>defaultCheckTx</code> as our transaction checker, which is a static message validator defined that respons to any message with the following handler:</p>
-<pre class="haskell"><code>
-defaultCheckTxHandler
+<p>Here We are using <code>defaultCheckTx</code> as our transaction checker, which is a static, message validating handler defined as:</p>
+<pre class="haskell"><code>defaultCheckTxHandler
   :: Member (Error AppError) r
   =&gt; ValidateMessage msg
   =&gt; RoutingTx msg
@@ -510,15 +509,14 @@ defaultCheckTxHandler(RoutingTx Tx{txMsg}) =
     V.Failure err -&gt;
       throwSDKError . MessageValidation . map formatMessageSemanticError $ err
     V.Success _ -&gt; pure ()
-
 </code></pre>
 <p>Note that this checker can be used to implement any transaction for which</p>
 <ol>
 <li>The message accepted by the router has a <code>ValidateMessage</code> instance</li>
-<li>The return type is marked with <code>OnCheckUnit</code>, meaning that <code>()</code> is returned for any <code>checkTx</code> ABCI message.</li>
+<li>The return type in the serve type is <code>Return ()</code></li>
 </ol>
-<p>To generate a router for which every transaction has these properties, we used the <code>defaultCheckTx</code> type class method</p>
-<p>Note the constraints on <code>r</code>:</p>
+<p>To generate a server for which every transaction has these properties, we used the <code>defaultCheckTx</code> type class method on the <code>MessageApi</code> type. This will generate a server of type <code>VoidReturn MessageApi</code>, which has the exact same shape as <code>MessageApi</code> just will all the return values changed to <code>Return ()</code>. In this paricular case all handlers for <code>MessageApi</code> already return <code>()</code>, so we have <code>MessageApi ~ VoidReturn MessageApi</code> and there&#39;s no need to use the <code>VoidReturn</code> family in the module type.</p>
+<p>Note the constraints on <code>r</code> in the Module&#39;s type:</p>
 <pre class="haskell"><code>...
   :: Members BaseAppEffs r
   =&gt; Members TokenEffs r

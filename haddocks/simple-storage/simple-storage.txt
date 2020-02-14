@@ -66,6 +66,7 @@ instance GHC.Classes.Eq SimpleStorage.Modules.SimpleStorage.Types.Count
 instance Data.Aeson.Types.ToJSON.ToJSON SimpleStorage.Modules.SimpleStorage.Types.CountSet
 instance Data.Aeson.Types.FromJSON.FromJSON SimpleStorage.Modules.SimpleStorage.Types.CountSet
 instance Tendermint.SDK.BaseApp.Events.ToEvent SimpleStorage.Modules.SimpleStorage.Types.CountSet
+instance Tendermint.SDK.BaseApp.Logger.Select SimpleStorage.Modules.SimpleStorage.Types.CountSet
 instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey SimpleStorage.Modules.SimpleStorage.Types.CountKey
 instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey SimpleStorage.Modules.SimpleStorage.Types.CountKey "simple_storage"
 instance Tendermint.SDK.BaseApp.Query.Types.FromQueryData SimpleStorage.Modules.SimpleStorage.Types.CountKey
@@ -75,33 +76,33 @@ instance Tendermint.SDK.BaseApp.Query.Types.Queryable SimpleStorage.Modules.Simp
 module SimpleStorage.Modules.SimpleStorage.Keeper
 data SimpleStorage m a
 type SimpleStorageEffs = '[SimpleStorage]
+updateCount :: Members '[SimpleStorage, Output Event, Logger] r => Count -> Sem r ()
+getCount :: forall r_aQGL. MemberWithError SimpleStorage r_aQGL => Sem r_aQGL (Maybe Count)
 storeKey :: StoreKey "simple_storage"
-updateCount :: Members '[SimpleStorage, Output Event] r => Count -> Sem r ()
-getCount :: forall r_aOwe. MemberWithError SimpleStorage r_aOwe => Sem r_aOwe Count
-eval :: forall r. Members '[RawStore, Error AppError] r => forall a. Sem (SimpleStorage : r) a -> Sem r a
+eval :: forall r. Members TxEffs r => forall a. Sem (SimpleStorage : r) a -> Sem r a
 
 module SimpleStorage.Modules.SimpleStorage.Router
 type MessageApi = TypedMessage UpdateCountTx :~> Return ()
-messageHandlers :: Member SimpleStorage r => RouteTx MessageApi r  'DeliverTx
+messageHandlers :: Member SimpleStorage r => Members TxEffs r => Members BaseEffs r => RouteTx MessageApi r
 
 module SimpleStorage.Modules.SimpleStorage.Query
 type CountStoreContents = '[(CountKey, Count)]
 type QueryApi = QueryApi CountStoreContents
-server :: Members [RawStore, Error AppError] r => RouteQ QueryApi r
+querier :: Members QueryEffs r => RouteQ QueryApi r
 
 module SimpleStorage.Modules.SimpleStorage
-type SimpleStorageM r = Module "simple_storage" MessageApi QueryApi SimpleStorageEffs r
+type SimpleStorageM r = Module "simple_storage" MessageApi MessageApi QueryApi SimpleStorageEffs r
 type QueryApi = QueryApi CountStoreContents
 type MessageApi = TypedMessage UpdateCountTx :~> Return ()
-simpleStorageModule :: Member SimpleStorage r => Members BaseAppEffs r => SimpleStorageM r
+simpleStorageModule :: Member SimpleStorage r => Members TxEffs r => Members BaseEffs r => SimpleStorageM r
 data SimpleStorage m a
 type SimpleStorageEffs = '[SimpleStorage]
-getCount :: forall r_aOwe. MemberWithError SimpleStorage r_aOwe => Sem r_aOwe Count
-updateCount :: Members '[SimpleStorage, Output Event] r => Count -> Sem r ()
-eval :: forall r. Members '[RawStore, Error AppError] r => forall a. Sem (SimpleStorage : r) a -> Sem r a
+getCount :: forall r_aQGL. MemberWithError SimpleStorage r_aQGL => Sem r_aQGL (Maybe Count)
+updateCount :: Members '[SimpleStorage, Output Event, Logger] r => Count -> Sem r ()
+eval :: forall r. Members TxEffs r => forall a. Sem (SimpleStorage : r) a -> Sem r a
 
 module SimpleStorage.Application
-type EffR = SimpleStorageEffs :& AuthEffs :& BaseApp CoreEffs
+type EffR = SimpleStorageEffs :& AuthEffs :& TxEffs :& BaseApp CoreEffs
 type SimpleStorageModules = '[SimpleStorageM EffR, AuthM EffR]
 handlersContext :: HandlersContext Secp256k1 SimpleStorageModules EffR CoreEffs
 
