@@ -792,7 +792,7 @@ data GasMeter m a
 newtype GasAmount
 GasAmount :: Int64 -> GasAmount
 [unGasAmount] :: GasAmount -> Int64
-withGas :: forall r_a1kMG a_a1kCb. MemberWithError GasMeter r_a1kMG => GasAmount -> Sem r_a1kMG a_a1kCb -> Sem r_a1kMG a_a1kCb
+withGas :: forall r_a1kMI a_a1kCd. MemberWithError GasMeter r_a1kMI => GasAmount -> Sem r_a1kMI a_a1kCd -> Sem r_a1kMI a_a1kCd
 eval :: Members [Error AppError, State GasAmount] r => Sem (GasMeter : r) a -> Sem r a
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Gas.GasAmount
 instance GHC.Num.Num Tendermint.SDK.BaseApp.Gas.GasAmount
@@ -1096,8 +1096,8 @@ Account :: [Coin] -> Word64 -> Account
 data Accounts m a
 [PutAccount] :: Address -> Account -> Accounts m ()
 [GetAccount] :: Address -> Accounts m (Maybe Account)
-getAccount :: forall r_a1oYI. MemberWithError Accounts r_a1oYI => Address -> Sem r_a1oYI (Maybe Account)
-putAccount :: forall r_a1oYF. MemberWithError Accounts r_a1oYF => Address -> Account -> Sem r_a1oYF ()
+getAccount :: forall r_a1oYK. MemberWithError Accounts r_a1oYK => Address -> Sem r_a1oYK (Maybe Account)
+putAccount :: forall r_a1oYH. MemberWithError Accounts r_a1oYH => Address -> Account -> Sem r_a1oYH ()
 createAccount :: Members [Accounts, Error AuthError] r => Address -> Sem r Account
 eval :: Members [RawStore, Error AppError] r => Sem (Accounts : (Error AuthError : r)) a -> Sem r a
 type Api = QueryApi AuthContents
