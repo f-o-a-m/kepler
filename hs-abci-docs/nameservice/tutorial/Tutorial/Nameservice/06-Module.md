@@ -19,8 +19,7 @@ import Nameservice.Modules.Token                (TokenEffs)
 import Polysemy                                 (Members)
 import Data.Proxy
 import Tendermint.SDK.Application               (Module (..))
-import           Tendermint.SDK.BaseApp       (BaseEffs, TxEffs,
-                                               DefaultCheckTx (..))
+import Tendermint.SDK.BaseApp (BaseEffs, TxEffs, DefaultCheckTx (..))
 
 -- a convenient type alias
 type NameserviceM r =
@@ -41,10 +40,9 @@ nameserviceModule = Module
 
 ~~~
 
-Here We are using `defaultCheckTx` as our transaction checker, which is a static message validator defined that respons to any message with the following handler:
+Here We are using `defaultCheckTx` as our transaction checker, which is a static, message validating handler defined as:
 
 ~~~ haskell ignore
-
 defaultCheckTxHandler
   :: Member (Error AppError) r
   => ValidateMessage msg
@@ -55,16 +53,15 @@ defaultCheckTxHandler(RoutingTx Tx{txMsg}) =
     V.Failure err ->
       throwSDKError . MessageValidation . map formatMessageSemanticError $ err
     V.Success _ -> pure ()
-
 ~~~
 
 Note that this checker can be used to implement any transaction for which
 1. The message accepted by the router has a `ValidateMessage` instance
-2. The return type is marked with `OnCheckUnit`, meaning that `()` is returned for any `checkTx` ABCI message.
+2. The return type in the serve type is `Return ()`
 
-To generate a router for which every transaction has these properties, we used the `defaultCheckTx` type class method
+To generate a server for which every transaction has these properties, we used the `defaultCheckTx` type class method on the `MessageApi` type. This will generate a server of type `VoidReturn MessageApi`, which has the exact same shape as `MessageApi` just will all the return values changed to `Return ()`. In this paricular case all handlers for `MessageApi` already return `()`, so we have `MessageApi ~ VoidReturn MessageApi` and there's no need to use the `VoidReturn` family in the module type.
 
-Note the constraints on `r`:
+Note the constraints on `r` in the Module's type:
 
 ~~~ haskell ignore
 ...
