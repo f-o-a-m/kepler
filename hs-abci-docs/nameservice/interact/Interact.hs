@@ -19,7 +19,8 @@ import qualified Nameservice.Modules.Nameservice   as N
 import qualified Nameservice.Modules.Token         as T
 import qualified Network.Tendermint.Client         as RPC
 import           Servant.API                       ((:<|>) (..))
-import           Tendermint.SDK.Application.Module (ApplicationD,ApplicationC, ApplicationQ)
+import           Tendermint.SDK.Application.Module (ApplicationC, ApplicationD,
+                                                    ApplicationQ)
 import           Tendermint.SDK.BaseApp.Errors     (AppError (..))
 import           Tendermint.SDK.BaseApp.Query      (QueryArgs (..),
                                                     QueryResult (..))
