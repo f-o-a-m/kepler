@@ -1,4 +1,7 @@
-module Nameservice.Modules.Nameservice.Query where
+module Nameservice.Modules.Nameservice.Query
+  ( QueryApi
+  , querier
+  ) where
 
 import           Data.Proxy
 import           Nameservice.Modules.Nameservice.Keeper (storeKey)

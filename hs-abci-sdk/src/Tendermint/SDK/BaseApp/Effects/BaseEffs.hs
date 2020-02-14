@@ -1,7 +1,7 @@
 module Tendermint.SDK.BaseApp.Effects.BaseEffs
   ( BaseEffs
-  , compileToCore
-  , compileToPureCore
+  , evalBaseEffs
+  , evalBaseEffsPure
   ) where
 
 import           Control.Exception                         (throwIO)
@@ -29,12 +29,12 @@ type BaseEffs =
   ]
 
 -- | An intermediary interpeter, bringing 'BaseApp' down to 'CoreEff'.
-compileToCore
+evalBaseEffs
   :: Members [Embed IO, Reader KL.LogConfig, Reader (Maybe Prometheus.PrometheusEnv)] core
   => forall a.
      Sem (BaseEffs :& core) a
   -> Sem core a
-compileToCore action = do
+evalBaseEffs action = do
   eRes <- runError .
     resourceToIO .
     KL.evalKatip .
@@ -42,12 +42,12 @@ compileToCore action = do
     action
   either (liftIO . throwIO) return eRes
 
-compileToPureCore
+evalBaseEffsPure
   :: Members [Embed IO, Reader KL.LogConfig] core
   => forall a.
      Sem (BaseEffs :& core) a
   -> Sem core a
-compileToPureCore action = do
+evalBaseEffsPure action = do
   eRes <- runError .
     resourceToIO .
     KL.evalKatip .

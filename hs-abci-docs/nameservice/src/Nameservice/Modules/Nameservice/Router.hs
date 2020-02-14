@@ -1,4 +1,7 @@
-module Nameservice.Modules.Nameservice.Router where
+module Nameservice.Modules.Nameservice.Router
+  ( MessageApi
+  , messageHandlers
+  ) where
 
 import           Nameservice.Modules.Nameservice.Keeper   (NameserviceEffs,
                                                            buyName, deleteName,

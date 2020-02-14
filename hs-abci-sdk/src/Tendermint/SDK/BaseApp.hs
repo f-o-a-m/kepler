@@ -1,12 +1,13 @@
 module Tendermint.SDK.BaseApp
   ( -- * BaseApp
     BaseEffs
+  , defaultCompileToCore
+  , defaultCompileToPureCore
   , BaseApp
   , (:&)
 
   -- * Core Effects
   , CoreEffs
-  , compileToCore
   , Context(..)
   , contextLogConfig
   , contextPrometheusEnv
@@ -16,7 +17,6 @@ module Tendermint.SDK.BaseApp
 
   -- * Pure Effects
   , PureCoreEffs
-  , compileToPureCore
   , PureContext(..)
   , pureContextLogConfig
   , pureContextVersions
@@ -72,6 +72,7 @@ module Tendermint.SDK.BaseApp
   -- * Transaction
   , AnteHandler(..)
   , RoutingTx(..)
+  , RouteTx
   , RouteContext(..)
   , Return
   , (:~>)
@@ -90,7 +91,7 @@ module Tendermint.SDK.BaseApp
   , QueryResult(..)
   , storeQueryHandlers
   , EmptyQueryServer(..)
-
+  , RouterError(ResourceNotFound)
   ) where
 
 import           Tendermint.SDK.BaseApp.Effects
@@ -100,6 +101,7 @@ import           Tendermint.SDK.BaseApp.Gas
 import           Tendermint.SDK.BaseApp.Logger
 import           Tendermint.SDK.BaseApp.Metrics
 import           Tendermint.SDK.BaseApp.Query
+import           Tendermint.SDK.BaseApp.Router      (RouterError (ResourceNotFound))
 import           Tendermint.SDK.BaseApp.Store
 import           Tendermint.SDK.BaseApp.Transaction
 import           Tendermint.SDK.Types.Effects       ((:&))

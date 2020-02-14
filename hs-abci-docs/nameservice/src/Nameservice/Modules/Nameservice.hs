@@ -4,40 +4,16 @@ module Nameservice.Modules.Nameservice
     -- * Module
     NameserviceM
   , nameserviceModule
-
-    -- * types
-  , Name(..)
-  , Whois (..)
-  , NameserviceError(..)
-  , NameClaimed(..)
-  , NameRemapped(..)
-  , NameDeleted(..)
-  , BuyName(..)
-  , SetName(..)
-  , DeleteName(..)
-
-  -- * effects
-  , NameserviceEffs
-  , getWhois
-  , buyName
-  , setName
-  , deleteName
-
-  -- * interpreter
-  , eval
-
-  -- * message router
-  , MessageApi
-  , messageHandlers
-
-  -- * query API
-  , QueryApi
-  , querier
+  , module           Nameservice.Modules.Nameservice.Keeper
+  , module           Nameservice.Modules.Nameservice.Messages
+  , module           Nameservice.Modules.Nameservice.Query
+  , module           Nameservice.Modules.Nameservice.Router
+  , module           Nameservice.Modules.Nameservice.Types
 
   ) where
 
 import           Data.Proxy
-import           Nameservice.Modules.Nameservice.Keeper
+import           Nameservice.Modules.Nameservice.Keeper   hiding (storeKey)
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Query
 import           Nameservice.Modules.Nameservice.Router

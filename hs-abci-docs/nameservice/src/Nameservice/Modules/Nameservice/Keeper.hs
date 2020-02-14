@@ -1,6 +1,14 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Nameservice.Modules.Nameservice.Keeper where
+module Nameservice.Modules.Nameservice.Keeper
+  ( NameserviceKeeper
+  , NameserviceEffs
+  , setName
+  , deleteName
+  , buyName
+  , storeKey
+  , eval
+  ) where
 
 import           Data.Proxy
 import           Data.String.Conversions                  (cs)

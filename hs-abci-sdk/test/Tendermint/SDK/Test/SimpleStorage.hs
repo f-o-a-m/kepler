@@ -9,33 +9,29 @@ module Tendermint.SDK.Test.SimpleStorage
   , Count(..)
   ) where
 
-import           Control.Lens                        (iso, (^.))
-import           Crypto.Hash                         (SHA256 (..), hashWith)
-import           Data.Bifunctor                      (first)
-import           Data.ByteArray                      (convert)
-import qualified Data.ByteArray.Base64String         as Base64
-import           Data.ByteString                     (ByteString)
-import           Data.Int                            (Int32)
+import           Control.Lens                     (iso, (^.))
+import           Crypto.Hash                      (SHA256 (..), hashWith)
+import           Data.Bifunctor                   (first)
+import           Data.ByteArray                   (convert)
+import qualified Data.ByteArray.Base64String      as Base64
+import           Data.ByteString                  (ByteString)
+import           Data.Int                         (Int32)
 import           Data.Proxy
-import qualified Data.Serialize                      as Serialize
-import           Data.Serialize.Text                 ()
-import           Data.String.Conversions             (cs)
-import           Data.Validation                     (Validation (..))
-import           GHC.Generics                        (Generic)
+import qualified Data.Serialize                   as Serialize
+import           Data.Serialize.Text              ()
+import           Data.String.Conversions          (cs)
+import           Data.Validation                  (Validation (..))
+import           GHC.Generics                     (Generic)
 import           Polysemy
-import           Polysemy.Error                      (Error, throw)
+import           Polysemy.Error                   (Error, throw)
 import           Servant.API
-import           Tendermint.SDK.Application          (BaseApp, Module (..),
-                                                      defaultCompileToCorePure)
-import qualified Tendermint.SDK.BaseApp              as BaseApp
-import           Tendermint.SDK.BaseApp.CoreEffPure  (CoreEffsPure, PureContext,
-                                                      runCoreEffsPure)
-import           Tendermint.SDK.BaseApp.Router.Types (RouterError (..))
-import           Tendermint.SDK.Codec                (HasCodec (..))
-import           Tendermint.SDK.Types.Message        (HasMessageType (..),
-                                                      Msg (..),
-                                                      ValidateMessage (..))
-import           Tendermint.SDK.Types.Transaction    (Tx (..))
+import           Tendermint.SDK.Application       (Module (..))
+import qualified Tendermint.SDK.BaseApp           as BA
+import           Tendermint.SDK.Codec             (HasCodec (..))
+import           Tendermint.SDK.Types.Message     (HasMessageType (..),
+                                                   Msg (..),
+                                                   ValidateMessage (..))
+import           Tendermint.SDK.Types.Transaction (Tx (..))
 
 
 --------------------------------------------------------------------------------
@@ -50,18 +46,18 @@ instance HasCodec Count where
     encode = Serialize.encode
     decode = first cs . Serialize.decode
 
-instance BaseApp.RawKey CountKey where
+instance BA.RawKey CountKey where
     rawKey = iso (\_ -> cs countKey) (const CountKey)
       where
         countKey :: ByteString
         countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
 
-instance BaseApp.IsKey CountKey "simple_storage" where
+instance BA.IsKey CountKey "simple_storage" where
     type Value CountKey "simple_storage" = Count
 
-instance BaseApp.FromQueryData CountKey
+instance BA.FromQueryData CountKey
 
-instance BaseApp.Queryable Count where
+instance BA.Queryable Count where
   type Name Count = "count"
 
 --------------------------------------------------------------------------------
@@ -88,8 +84,8 @@ instance ValidateMessage UpdateCountTx where
 -- Keeper
 --------------------------------------------------------------------------------
 
-storeKey :: BaseApp.StoreKey "simple_storage"
-storeKey = BaseApp.StoreKey "simple_storage"
+storeKey :: BA.StoreKey "simple_storage"
+storeKey = BA.StoreKey "simple_storage"
 
 data SimpleStorage m a where
     PutCount :: Count -> SimpleStorage m ()
@@ -107,11 +103,11 @@ updateCount count = putCount count
 
 eval
   :: forall r.
-     Members BaseApp.TxEffs r
+     Members BA.TxEffs r
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
-  PutCount count -> BaseApp.put storeKey CountKey count
-  GetCount -> BaseApp.get storeKey CountKey
+  PutCount count -> BA.put storeKey CountKey count
+  GetCount -> BA.get storeKey CountKey
   )
 
 --------------------------------------------------------------------------------
@@ -119,20 +115,20 @@ eval = interpret (\case
 --------------------------------------------------------------------------------
 
 type MessageApi =
-  BaseApp.TypedMessage UpdateCountTx BaseApp.:~> BaseApp.Return ()
+  BA.TypedMessage UpdateCountTx BA.:~> BA.Return ()
 
 messageHandlers
   :: Member SimpleStorage r
-  => Members BaseApp.TxEffs r
-  => BaseApp.RouteTx MessageApi r
+  => Members BA.TxEffs r
+  => BA.RouteTx MessageApi r
 messageHandlers = updateCountH
 
 updateCountH
   :: Member SimpleStorage r
-  => Members BaseApp.TxEffs r
-  => BaseApp.RoutingTx UpdateCountTx
+  => Members BA.TxEffs r
+  => BA.RoutingTx UpdateCountTx
   -> Sem r ()
-updateCountH (BaseApp.RoutingTx Tx{txMsg}) =
+updateCountH (BA.RoutingTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
       UpdateCountTx{updateCountTxCount} = msgData
   in updateCount (Count updateCountTxCount)
@@ -147,36 +143,36 @@ type GetMultipliedCount =
      "manipulated"
   :> Capture "subtract" Integer
   :> QueryParam' '[Required, Strict] "factor" Integer
-  :> BaseApp.Leaf Count
+  :> BA.Leaf Count
 
 getMultipliedCount
-  :: Members [Error BaseApp.AppError, SimpleStorage] r
+  :: Members [Error BA.AppError, SimpleStorage] r
   => Integer
   -> Integer
-  -> Sem r (BaseApp.QueryResult Count)
+  -> Sem r (BA.QueryResult Count)
 getMultipliedCount subtractor multiplier = do
   let m = fromInteger multiplier
       s = fromInteger subtractor
   mc <- getCount
   case mc of
-    Nothing -> throw . BaseApp.makeAppError $ ResourceNotFound
-    Just c -> pure $ BaseApp.QueryResult
+    Nothing -> throw . BA.makeAppError $ BA.ResourceNotFound
+    Just c -> pure $ BA.QueryResult
       { queryResultData = m * c - s
       , queryResultIndex = 0
-      , queryResultKey = Base64.fromBytes $ CountKey ^. BaseApp.rawKey
+      , queryResultKey = Base64.fromBytes $ CountKey ^. BA.rawKey
       , queryResultProof  = Nothing
       , queryResultHeight = 0
       }
 
-type QueryApi = GetMultipliedCount :<|> BaseApp.QueryApi CountStoreContents
+type QueryApi = GetMultipliedCount :<|> BA.QueryApi CountStoreContents
 
 querier
   :: forall r.
-     Members BaseApp.QueryEffs r
+     Members BA.QueryEffs r
   => Member SimpleStorage r
-  => BaseApp.RouteQ QueryApi r
+  => BA.RouteQ QueryApi r
 querier =
-  let storeHandlers = BaseApp.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
+  let storeHandlers = BA.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
         storeKey (Proxy :: Proxy r)
   in getMultipliedCount :<|> storeHandlers
 
@@ -189,23 +185,20 @@ type SimpleStorageM r =
 
 simpleStorageModule
   :: Member SimpleStorage r
-  => Members BaseApp.TxEffs r
-  => Members BaseApp.BaseEffs r
+  => Members BA.TxEffs r
+  => Members BA.BaseEffs r
   => SimpleStorageM r
 simpleStorageModule = Module
   { moduleTxDeliverer = messageHandlers
-  , moduleTxChecker = BaseApp.defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
+  , moduleTxChecker = BA.defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
   , moduleQuerier = querier
   , moduleEval = eval
   }
 
 evalToIO
-  :: PureContext
-  -> Sem (BaseApp CoreEffsPure) a
+  :: BA.PureContext
+  -> Sem (BA.BaseApp BA.PureCoreEffs) a
   -> IO a
 evalToIO context action = do
-  eRes <-
-     runCoreEffsPure context .
-       defaultCompileToCorePure $
-       action
+  eRes <- BA.runPureCoreEffs context .  BA.defaultCompileToPureCore $ action
   either (error . show) pure eRes

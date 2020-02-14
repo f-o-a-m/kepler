@@ -46,8 +46,8 @@ import Nameservice.Modules.Token (tokenModule, TokenM, TokenEffs)
 import Network.ABCI.Server.App (App)
 import Polysemy (Sem)
 import Tendermint.SDK.Modules.Auth (authModule, AuthEffs, AuthM)
-import Tendermint.SDK.Application (BaseApp, ModuleList(..), HandlersContext(..), baseAppAnteHandler, makeApp, defaultCompileToCore)
-import Tendermint.SDK.BaseApp (CoreEffs, TxEffs, (:&))
+import Tendermint.SDK.Application (ModuleList(..), HandlersContext(..), baseAppAnteHandler, makeApp)
+import Tendermint.SDK.BaseApp (BaseApp, CoreEffs, TxEffs, (:&), defaultCompileToCore)
 import Tendermint.SDK.Crypto (Secp256k1)
 ~~~
 

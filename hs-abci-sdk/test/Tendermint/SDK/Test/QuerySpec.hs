@@ -10,9 +10,10 @@ import qualified Network.ABCI.Types.Messages.Response     as Resp
 import qualified Tendermint.SDK.Application               as App
 import qualified Tendermint.SDK.Application.Module        as M
 import qualified Tendermint.SDK.BaseApp                   as BA
-import qualified Tendermint.SDK.BaseApp.CoreEffPure       as Pure
 import qualified Tendermint.SDK.BaseApp.Logger.Katip      as KL
+import           Tendermint.SDK.BaseApp.Query             (serveQueryApplication)
 import qualified Tendermint.SDK.BaseApp.Store             as Store
+import           Tendermint.SDK.BaseApp.Transaction       (serveTxApplication)
 import           Tendermint.SDK.BaseApp.Transaction.Cache (writeCache)
 import           Tendermint.SDK.Codec                     (HasCodec (..))
 import qualified Tendermint.SDK.Test.SimpleStorage        as SS
@@ -20,7 +21,7 @@ import           Tendermint.SDK.Types.Message             (Msg (..))
 import           Tendermint.SDK.Types.Transaction         (Tx (..))
 import           Test.Hspec
 
-type Effs = SS.SimpleStorage ': BA.TxEffs BA.:& App.BaseApp Pure.CoreEffsPure
+type Effs = SS.SimpleStorage ': BA.TxEffs BA.:& BA.BaseApp BA.PureCoreEffs
 
 type Ms = '[SS.SimpleStorageM Effs]
 
@@ -29,10 +30,10 @@ spec = beforeAll initContext $
   describe "Query tests" $ do
     let modules :: App.ModuleList Ms Effs
         modules = SS.simpleStorageModule App.:+ App.NilModules
-        rProxy = Proxy @(App.BaseApp Pure.CoreEffsPure)
+        rProxy = Proxy @(BA.BaseApp BA.PureCoreEffs)
         app = M.makeApplication rProxy mempty modules
-        ssServer = BA.serveQueryApplication (Proxy @(M.ApplicationQ Ms)) rProxy $ M.applicationQuerier app
-        updateCount = BA.serveTxApplication (Proxy @(M.ApplicationD Ms)) rProxy (Proxy @'Store.Consensus) $ M.applicationTxDeliverer app
+        ssServer = serveQueryApplication (Proxy @(M.ApplicationQ Ms)) rProxy $ M.applicationQuerier app
+        updateCount = serveTxApplication (Proxy @(M.ApplicationD Ms)) rProxy (Proxy @'Store.Consensus) $ M.applicationTxDeliverer app
     it "Can make a new count and query it with a multiplier" $ \ctx -> do
         let increaseCountMsg = Msg
               { msgAuthor = undefined
@@ -67,6 +68,6 @@ spec = beforeAll initContext $
         let resultCount = decode (Base64.toBytes queryValue) :: Either Text SS.Count
         resultCount `shouldBe` Right 3
 
-initContext :: IO Pure.PureContext
+initContext :: IO BA.PureContext
 initContext = do
-  Pure.makePureContext (KL.InitialLogNamespace "test" "spec") Nothing
+  BA.makePureContext (KL.InitialLogNamespace "test" "spec")

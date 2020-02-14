@@ -23,10 +23,10 @@ defaultCompileToCore
   :: forall a.
      Sem (BaseApp CoreEffs) a
   -> Sem CoreEffs a
-defaultCompileToCore = compileToCore . IAVL.evalStoreEffs
+defaultCompileToCore = evalBaseEffs . IAVL.evalStoreEffs
 
 defaultCompileToPureCore
   :: forall a.
      Sem (BaseApp PureCoreEffs) a
   -> Sem PureCoreEffs a
-defaultCompileToPureCore = compileToPureCore . Memory.evalStoreEffs
+defaultCompileToPureCore = evalBaseEffsPure . Memory.evalStoreEffs

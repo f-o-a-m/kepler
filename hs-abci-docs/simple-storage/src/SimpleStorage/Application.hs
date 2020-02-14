@@ -6,13 +6,11 @@ module SimpleStorage.Application
 
 import           Data.Proxy
 import           SimpleStorage.Modules.SimpleStorage as SimpleStorage
-import           Tendermint.SDK.Application          (BaseApp,
-                                                      HandlersContext (..),
+import           Tendermint.SDK.Application          (HandlersContext (..),
                                                       ModuleList (..),
-                                                      baseAppAnteHandler,
-                                                      defaultCompileToCore)
+                                                      baseAppAnteHandler)
 import           Tendermint.SDK.BaseApp              ((:&))
-import qualified Tendermint.SDK.BaseApp              as BaseApp
+import qualified Tendermint.SDK.BaseApp              as BA
 import           Tendermint.SDK.Crypto               (Secp256k1)
 import qualified Tendermint.SDK.Modules.Auth         as A
 
@@ -21,8 +19,8 @@ import qualified Tendermint.SDK.Modules.Auth         as A
 type EffR =
   SimpleStorage.SimpleStorageEffs :&
   A.AuthEffs :&
-  BaseApp.TxEffs :&
-  BaseApp BaseApp.CoreEffs
+  BA.TxEffs :&
+  BA.BaseApp BA.CoreEffs
 
 
 type SimpleStorageModules =
@@ -30,11 +28,11 @@ type SimpleStorageModules =
    , A.AuthM EffR
    ]
 
-handlersContext :: HandlersContext Secp256k1 SimpleStorageModules EffR BaseApp.CoreEffs
+handlersContext :: HandlersContext Secp256k1 SimpleStorageModules EffR BA.CoreEffs
 handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = simpleStorageModules
-  , compileToCore  = defaultCompileToCore
+  , compileToCore  = BA.defaultCompileToCore
   , anteHandler = baseAppAnteHandler
   }
   where

@@ -2,9 +2,9 @@
 module SimpleStorage.Modules.SimpleStorage.Keeper
   ( SimpleStorage
   , SimpleStorageEffs
-  , storeKey
   , updateCount
   , getCount
+  , storeKey
   , eval
   ) where
 
