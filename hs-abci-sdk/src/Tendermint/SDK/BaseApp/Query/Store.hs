@@ -79,7 +79,7 @@ instance
     , StoreQueryHandlers ((k', a') ': as) ns r
     , Members QueryEffs r
     ) => StoreQueryHandlers ((k,a) ': (k', a') : as) ns r where
-        type (QueryApi ((k, a) ': (k', a') : as)) = (QA k :> Leaf a) :<|> QueryApi ((k', a') ': as)
+        type (QueryApi ((k, a) ': (k', a') : as)) = (QA k :> StoreLeaf a) :<|> QueryApi ((k', a') ': as)
         storeQueryHandlers _ storeKey pr =
           storeQueryHandler  (Proxy :: Proxy a) storeKey :<|>
           storeQueryHandlers (Proxy :: Proxy ((k', a') ': as)) storeKey pr
