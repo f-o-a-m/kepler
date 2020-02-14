@@ -14,7 +14,7 @@ import           Servant.API                         ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp.Errors       (AppError, makeAppError)
 import           Tendermint.SDK.BaseApp.Query.Router (HasQueryRouter (..),
                                                       methodRouter)
-import           Tendermint.SDK.BaseApp.Query.Types  (Leaf, QA, QueryArgs (..),
+import           Tendermint.SDK.BaseApp.Query.Types  (QA, QueryArgs (..),
                                                       QueryResult (..),
                                                       Queryable (..))
 import           Tendermint.SDK.BaseApp.Router       (RouterError (..),
@@ -75,7 +75,7 @@ instance
     , StoreQueryHandlers ((k', a') ': as) ns r
     , Members [RawStore, Error AppError] r
     ) => StoreQueryHandlers ((k,a) ': (k', a') : as) ns r where
-        type (QueryApi ((k, a) ': (k', a') : as)) = (QA k :> Leaf a) :<|> QueryApi ((k', a') ': as)
+        type (QueryApi ((k, a) ': (k', a') : as)) = (QA k :> StoreLeaf a) :<|> QueryApi ((k', a') ': as)
         storeQueryHandlers _ storeKey pr =
           storeQueryHandler  (Proxy :: Proxy a) storeKey :<|>
           storeQueryHandlers (Proxy :: Proxy ((k', a') ': as)) storeKey pr
