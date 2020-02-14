@@ -157,7 +157,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
 
       commit :: Handler 'MTCommit (BA.BaseApp core)
       commit _ = do
-        resp <- Store.commit
+        _ <- Store.commit
         rootHash <- Store.commitBlock
         return . ResponseCommit $ def
           & Resp._commitData .~ Base64.fromBytes rootHash
