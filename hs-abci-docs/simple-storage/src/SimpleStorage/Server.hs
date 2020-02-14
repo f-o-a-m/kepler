@@ -15,14 +15,10 @@ makeAndServeApplication :: AppConfig -> IO ()
 makeAndServeApplication AppConfig{..} = do
   putStrLn "Starting ABCI application..."
   let nat :: forall a. Sem CoreEffs a -> IO a
-      nat = catchError . runCoreEffs _baseAppContext
+      nat = runCoreEffs _baseAppContext
       application = makeApp handlersContext
       middleware :: Middleware (Sem CoreEffs)
       middleware = appEndo . fold $
           [ Endo Logger.mkLoggerM
           ]
   serveApp $ createIOApp nat (middleware application)
- where
-  catchError f = f >>= \case
-    Left err -> error (show err)
-    Right a -> pure a

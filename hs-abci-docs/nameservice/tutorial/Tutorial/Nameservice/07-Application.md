@@ -59,8 +59,8 @@ import Nameservice.Modules.Token (tokenModule, TokenM, TokenEffs)
 import Network.ABCI.Server.App (App)
 import Polysemy (Sem)
 import Tendermint.SDK.Modules.Auth (authModule, AuthEffs, AuthM)
-import Tendermint.SDK.Application (ModuleList(..), HandlersContext(..), baseAppAnteHandler, makeApp)
-import Tendermint.SDK.BaseApp (BaseApp, CoreEffs, TxEffs, (:&), defaultCompileToCore)
+import Tendermint.SDK.Application (ModuleList(..), HandlersContext(..), baseAppAnteHandler, makeApp, createIOApp)
+import Tendermint.SDK.BaseApp (BaseApp, CoreEffs, Context, TxEffs, (:&), defaultCompileToCore, runCoreEffs)
 import Tendermint.SDK.Crypto (Secp256k1)
 ~~~
 
@@ -109,4 +109,11 @@ Finally we're able to define our application that runs in the `CoreEffs` context
 ~~~ haskell
 app :: App (Sem CoreEffs)
 app = makeApp handlersContext 
+~~~
+
+Since the ABCI server requires you to pass a value of type `App IO`, we have one more transformation to perform to get replace the `Sem CoreEffs` in our app. We can simple use the `createIOApp` function:
+
+~~~ haskell
+makeIOApp :: Context -> App IO
+makeIOApp ctx = createIOApp (runCoreEffs ctx) app
 ~~~

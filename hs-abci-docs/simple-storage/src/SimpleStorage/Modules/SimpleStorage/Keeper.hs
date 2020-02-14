@@ -8,7 +8,6 @@ module SimpleStorage.Modules.SimpleStorage.Keeper
   , eval
   ) where
 
-import qualified Debug.Trace                               as Trace
 import           Polysemy                                  (Members, Sem,
                                                             interpret, makeSem)
 import           Polysemy.Output                           (Output)
@@ -33,7 +32,6 @@ updateCount
   => Count
   -> Sem r ()
 updateCount count = do
-  Trace.traceM "updating count"
   putCount count
   let event = CountSet count
   BaseApp.emit event
@@ -45,7 +43,6 @@ eval
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> do
-    Trace.traceM "putting count"
     BaseApp.put storeKey CountKey count
   GetCount -> BaseApp.get storeKey CountKey
   )

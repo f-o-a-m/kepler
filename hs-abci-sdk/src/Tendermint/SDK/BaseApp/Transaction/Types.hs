@@ -9,7 +9,6 @@ module Tendermint.SDK.BaseApp.Transaction.Types
 import           Control.Lens                             (lens)
 import           Data.ByteString                          (ByteString)
 import           Data.IORef                               (IORef, newIORef)
-import           Debug.Trace                              as Trace
 import qualified Tendermint.SDK.BaseApp.Events            as E
 import qualified Tendermint.SDK.BaseApp.Gas               as G
 import           Tendermint.SDK.BaseApp.Router            (HasPath (..))
@@ -60,7 +59,6 @@ newTransactionContext
   -> IO TransactionContext
 newTransactionContext (RoutingTx Tx{txGas}) = do
   initialGas <- newIORef $ G.GasAmount txGas
-  Trace.traceM "creating new cache"
   initialCache <- newIORef Cache.emptyCache
   es <- newIORef []
   pure TransactionContext

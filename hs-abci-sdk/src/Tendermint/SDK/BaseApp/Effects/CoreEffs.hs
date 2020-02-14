@@ -15,9 +15,7 @@ import           Control.Lens                              (makeLenses)
 import           Data.Text                                 (Text)
 import qualified Katip                                     as K
 import           Polysemy                                  (Embed, Sem, runM)
-import           Polysemy.Error                            (Error, runError)
 import           Polysemy.Reader                           (Reader, runReader)
-import           Tendermint.SDK.BaseApp.Errors             (AppError)
 import qualified Tendermint.SDK.BaseApp.Logger.Katip       as KL
 import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus as P
 import qualified Tendermint.SDK.BaseApp.Store.IAVLStore    as IAVL
@@ -29,7 +27,6 @@ type CoreEffs =
    , Reader (Maybe P.PrometheusEnv)
    , Reader IAVL.IAVLVersions
    , Reader IAVL.GrpcClient
-   , Error AppError
    , Embed IO
    ]
 
@@ -76,10 +73,9 @@ makeContext KL.InitialLogNamespace{..} scrapingCfg versions rpcConf = do
 -- | The standard interpeter for 'CoreEffs'.
 runCoreEffs
   :: Context
-  -> forall a. Sem CoreEffs a -> IO (Either AppError a)
+  -> forall a. Sem CoreEffs a -> IO a
 runCoreEffs Context{..} =
   runM .
-    runError .
     runReader _contextGrpcClient .
     runReader _contextVersions .
     runReader _contextPrometheusEnv .

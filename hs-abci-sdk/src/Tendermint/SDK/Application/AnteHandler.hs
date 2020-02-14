@@ -5,7 +5,6 @@ module Tendermint.SDK.Application.AnteHandler
   ) where
 
 import           Control.Monad                      (unless)
-import qualified Debug.Trace                        as Trace
 import           Polysemy
 import           Polysemy.Error                     (Error)
 import           Tendermint.SDK.BaseApp.Errors      (AppError, SDKError (..),
@@ -23,7 +22,6 @@ nonceAnteHandler
   => AnteHandler r
 nonceAnteHandler = AnteHandler $
   \txApplication tx@(RoutingTx Tx{..}) -> do
-    Trace.traceM "Running nonceAntehandler"
     let Msg{msgAuthor} = txMsg
     mAcnt <- A.getAccount msgAuthor
     account <- case mAcnt of
@@ -35,9 +33,7 @@ nonceAnteHandler = AnteHandler $
         unless (txNonce == 0) $
           throwSDKError (NonceException 0 txNonce)
         A.createAccount msgAuthor
-    Trace.traceM "Running handler"
     result <- txApplication tx
-    Trace.traceM "Handler ran"
     A.putAccount msgAuthor $
       account { A.accountNonce = A.accountNonce account + 1}
     pure result

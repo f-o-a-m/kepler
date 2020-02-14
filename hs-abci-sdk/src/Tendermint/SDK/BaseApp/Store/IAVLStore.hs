@@ -22,7 +22,6 @@ import           Data.Text                             (pack)
 import qualified Database.IAVL.RPC                     as IAVL
 import           Database.IAVL.RPC.Types               (GrpcConfig (..),
                                                         initGrpcClient)
-import           Debug.Trace                           as Trace
 import           Network.GRPC.Client                   (RawReply)
 import           Network.GRPC.Client.Helpers           (GrpcClient)
 import           Network.HTTP2.Client                  (ClientIO,
@@ -61,12 +60,9 @@ evalWrite gc m =
   interpret
     (\case
       StorePut k v -> do
-        Trace.traceM $ "Writing to DB " <> show (k,v)
         let setReq = defMessage & Api.key .~ makeRawKey k
                                 & Api.value .~ v
-        res <- liftIO . runGrpc $ IAVL.set gc setReq
-        Trace.traceM $ show res
-        pure ()
+        void . liftIO . runGrpc $ IAVL.set gc setReq
       StoreDelete k ->
         let remReq = defMessage & Api.key .~ makeRawKey k
         in void . liftIO . runGrpc $ IAVL.remove gc remReq
@@ -78,12 +74,10 @@ evalRead
   -> IORef Version
   -> forall a. Sem (ReadStore ': r) a -> Sem r a
 evalRead gc iavlVersion m = do
-  Trace.traceM "evalRead"
   interpret
     (\case
       StoreGet k -> do
         version <- liftIO $ readIORef iavlVersion
-        Trace.traceM $ "Looking up version " <> show version
         case version of
           Latest -> do
             let getReq = defMessage & Api.key .~ makeRawKey k
@@ -113,7 +107,6 @@ evalTransaction gc m = do
       BeginTransaction -> pure ()
       Rollback -> void . liftIO . runGrpc $ IAVL.rollback gc
       Commit -> do
-        Trace.traceM "Commit interpreter"
         resp <- liftIO . runGrpc $ IAVL.saveVersion gc
         pure $ CommitResponse
           { rootHash = fromBytes (resp ^. Api.rootHash)
@@ -133,7 +126,6 @@ evalCommitBlock gc IAVLVersions{committed} = do
         versionResp <- liftIO . runGrpc $ IAVL.version gc
         let version = Version . fromInteger . toInteger $ versionResp ^. Api.version
         liftIO $ writeIORef committed version
-        Trace.traceM $ "QueryMempool is now version " <> show version
         hashResp <- liftIO . runGrpc $ IAVL.hash gc
         pure . fromBytes $ hashResp ^. Api.rootHash
     )

@@ -11,7 +11,6 @@ import           Crypto.Hash.Algorithms                   (SHA256)
 import qualified Data.ByteArray.Base64String              as Base64
 import           Data.Default.Class                       (Default (..))
 import           Data.Proxy
-import           Debug.Trace                              as Trace
 import           Network.ABCI.Server.App                  (App (..),
                                                            MessageType (..),
                                                            Request (..),
@@ -132,7 +131,6 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
           )
 
       checkTx (RequestCheckTx _checkTx) =  do
-        Trace.traceM "CheckTx received"
         res <- catch
           ( let txBytes =  _checkTx ^. Req._checkTxTx . to Base64.toBytes
             in do
@@ -145,17 +143,11 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
         return . ResponseCheckTx $ res ^. from checkTxTxResult
 
       deliverTx (RequestDeliverTx _deliverTx) = do
-        Trace.traceM "DeliverTx received"
         res <- catch @BA.AppError
           ( let txBytes = _deliverTx ^. Req._deliverTxTx . to Base64.toBytes
             in do
                (res, cache) <- txParser txBytes >>= deliverServer
-               case cache of
-                 Nothing -> Trace.traceM "Failed Transaction No Cache" >> pure ()
-                 Just c -> do
-                   Trace.traceM "Writing cache"
-                   Trace.traceM $ show c
-                   writeCache c
+               maybe (pure ()) writeCache cache
                pure res
           )
           (\(err :: BA.AppError) ->
@@ -166,9 +158,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
       commit :: Handler 'MTCommit (BA.BaseApp core)
       commit _ = do
         resp <- Store.commit
-        Trace.traceM $ show resp
         rootHash <- Store.commitBlock
-        Trace.traceM $ "Root Hash Response " <> show resp
         return . ResponseCommit $ def
           & Resp._commitData .~ Base64.fromBytes rootHash
 

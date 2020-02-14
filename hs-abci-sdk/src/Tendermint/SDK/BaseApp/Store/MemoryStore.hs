@@ -21,7 +21,6 @@ import           Data.ByteString                       (ByteString)
 import           Data.IORef
 import           Data.List                             (sortOn)
 import           Data.Ord                              (Down (..))
-import           Debug.Trace                           as Trace
 import           Numeric.Natural                       (Natural)
 import           Polysemy
 import           Polysemy.Reader                       (Reader, ask)
@@ -74,12 +73,10 @@ evalRead
   -> IORef Version
   -> forall a. Sem (ReadStore ': r) a -> Sem r a
 evalRead DB{dbCommitted,dbLatest} iavlVersion m = do
-  Trace.traceM "evalRead"
   interpret
     (\case
       StoreGet k -> do
         version <- liftIO $ readIORef iavlVersion
-        Trace.traceM $ "Looking up version " <> show version
         case version of
           Latest -> do
             tree <- liftIO $ readIORef dbLatest
@@ -104,7 +101,6 @@ evalTransaction db@DB{..} m = do
           c <- getRecentCommit db
           writeIORef dbLatest c
       Commit -> liftIO $ do
-        Trace.traceM "Commit interpreter"
         l <- readIORef dbLatest
         v <- makeCommit db l
         root <- getRootHash db
@@ -124,7 +120,6 @@ evalCommitBlock db DBVersions{..} = do
     (\case
       CommitBlock -> liftIO $ do
         mv <- getVersion db
-        Trace.traceM $ "QueryMempool is now version " <> show mv
         writeIORef committed $ case mv of
             Nothing -> Genesis
             Just v  -> Version v
