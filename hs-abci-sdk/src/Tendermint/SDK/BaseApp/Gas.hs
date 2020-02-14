@@ -1,8 +1,11 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Tendermint.SDK.BaseApp.Gas
-  ( GasMeter(..)
+  (
+  -- * Effect
+    GasMeter(..)
   , GasAmount(..)
   , withGas
+  -- * Eval
   , eval
   , doNothing
   ) where

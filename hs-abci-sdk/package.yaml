@@ -96,9 +96,10 @@ library:
   - Tendermint.SDK.Application.Handlers
   - Tendermint.SDK.Application.AnteHandler
   - Tendermint.SDK.BaseApp
-  - Tendermint.SDK.BaseApp.BaseEffs
-  - Tendermint.SDK.BaseApp.CoreEff
-  - Tendermint.SDK.BaseApp.CoreEffPure
+  - Tendermint.SDK.BaseApp.Effects
+  - Tendermint.SDK.BaseApp.Effects.BaseEffs
+  - Tendermint.SDK.BaseApp.Effects.CoreEffs
+  - Tendermint.SDK.BaseApp.Effects.PureCoreEffs
   - Tendermint.SDK.BaseApp.Errors
   - Tendermint.SDK.BaseApp.Events
   - Tendermint.SDK.BaseApp.Gas

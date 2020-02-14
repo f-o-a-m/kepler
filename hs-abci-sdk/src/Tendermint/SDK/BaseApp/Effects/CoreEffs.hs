@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.BaseApp.CoreEff
+module Tendermint.SDK.BaseApp.Effects.CoreEffs
   ( CoreEffs
   , Context(..)
   , contextLogConfig

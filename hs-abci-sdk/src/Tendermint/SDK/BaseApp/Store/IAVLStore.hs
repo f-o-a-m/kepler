@@ -1,16 +1,15 @@
 module Tendermint.SDK.BaseApp.Store.IAVLStore
-  ( IAVLVersions(..)
+  (
+  -- * Environment
+    IAVLVersions(..)
+  , initIAVLVersions
+  -- * Eval
+  , evalStoreEffs
+  -- * Re-Exports
   , GrpcClient
   , GrpcConfig(..)
   , initGrpcClient
-  , initIAVLVersions
-  , evalTransaction
-  , evalCommitBlock
-  , evalRead
-  , evalWrite
-  , evalStoreEffs
   ) where
-
 
 import           Control.Lens                          ((&), (.~), (^.))
 import           Control.Monad                         (void)

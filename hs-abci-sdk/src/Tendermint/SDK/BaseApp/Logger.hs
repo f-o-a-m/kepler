@@ -1,11 +1,15 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Tendermint.SDK.BaseApp.Logger
-  ( Logger(..)
+  (
+  -- * Effects
+    Logger(..)
   , Tendermint.SDK.BaseApp.Logger.log
-  , addContext
-  , LogSelect(..)
   , Select(..)
+  , addContext
+
+  -- * Types
+  , LogSelect(..)
   , Severity(..)
   , Verbosity(..)
   ) where

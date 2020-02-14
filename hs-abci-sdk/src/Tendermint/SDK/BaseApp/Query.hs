@@ -1,5 +1,6 @@
 module Tendermint.SDK.BaseApp.Query
   ( serveQueryApplication
+  -- * Re-Exports
   , HasQueryRouter(..)
   , StoreQueryHandlers(..)
   , QueryEffs

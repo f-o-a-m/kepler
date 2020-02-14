@@ -1,11 +1,12 @@
 module Tendermint.SDK.BaseApp
   ( -- * BaseApp
     BaseEffs
+  , BaseApp
   , (:&)
-  , compileToCore
 
-  -- * CoreEff
+  -- * Core Effects
   , CoreEffs
+  , compileToCore
   , Context(..)
   , contextLogConfig
   , contextPrometheusEnv
@@ -13,8 +14,17 @@ module Tendermint.SDK.BaseApp
   , makeContext
   , runCoreEffs
 
+  -- * Pure Effects
+  , PureCoreEffs
+  , compileToPureCore
+  , PureContext(..)
+  , pureContextLogConfig
+  , pureContextVersions
+  , pureContextDB
+  , makePureContext
+  , runPureCoreEffs
+
   -- * Store
-  , StoreEffs
   , ReadStore
   , WriteStore
   , RawKey(..)
@@ -31,8 +41,6 @@ module Tendermint.SDK.BaseApp
   -- * Errors
   , AppError(..)
   , IsAppError(..)
-  , SDKError(..)
-  , throwSDKError
 
   -- * Events
   , Event(..)
@@ -43,12 +51,13 @@ module Tendermint.SDK.BaseApp
 
   -- * Gas
   , GasMeter
+  , withGas
 
   -- * Logger
   , Logger
   , Tendermint.SDK.BaseApp.Logger.log
-  , addContext
   , LogSelect(..)
+  , addContext
   , Severity(..)
   , Select(..)
   , Verbosity(..)
@@ -61,35 +70,30 @@ module Tendermint.SDK.BaseApp
   , HistogramName(..)
 
   -- * Transaction
-  , TransactionApplication
+  , AnteHandler(..)
   , RoutingTx(..)
   , RouteContext(..)
-  , RouteTx
   , Return
   , (:~>)
   , TypedMessage
   , TxEffs
   , EmptyTxServer(..)
-  , serveTxApplication
   , DefaultCheckTx(..)
   , VoidReturn
-  , AnteHandler(..)
 
   -- * Query
   , QueryEffs
   , Queryable(..)
   , FromQueryData(..)
-  , QueryApi
   , RouteQ
+  , QueryApi
   , QueryResult(..)
   , storeQueryHandlers
-  , serveQueryApplication
   , EmptyQueryServer(..)
 
   ) where
 
-import           Tendermint.SDK.BaseApp.BaseEffs
-import           Tendermint.SDK.BaseApp.CoreEff
+import           Tendermint.SDK.BaseApp.Effects
 import           Tendermint.SDK.BaseApp.Errors
 import           Tendermint.SDK.BaseApp.Events
 import           Tendermint.SDK.BaseApp.Gas

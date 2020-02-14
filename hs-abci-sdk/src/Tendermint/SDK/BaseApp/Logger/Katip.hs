@@ -2,9 +2,9 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-
 module Tendermint.SDK.BaseApp.Logger.Katip
-  ( -- setup and config
+  (
+  -- * Setup and Config
     LogConfig(..)
   , logNamespace
   , logContext
@@ -12,7 +12,8 @@ module Tendermint.SDK.BaseApp.Logger.Katip
   , InitialLogNamespace(..)
   , initialLogEnvironment
   , initialLogProcessName
-  -- eval
+
+  -- * Eval
   , evalKatip
   ) where
 

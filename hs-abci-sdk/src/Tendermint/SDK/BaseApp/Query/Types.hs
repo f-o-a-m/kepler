@@ -1,4 +1,22 @@
-module Tendermint.SDK.BaseApp.Query.Types where
+module Tendermint.SDK.BaseApp.Query.Types
+  (
+  -- * Server combinators
+    Leaf
+  , QA
+  , EmptyQueryServer(..)
+  , FromQueryData(..)
+
+  -- * Query Application
+  , QueryApplication
+  , QueryRequest(..)
+  , parseQueryRequest
+  , QueryArgs(..)
+  , defaultQueryArgs
+  , QueryResult(..)
+
+  -- * Store Queries
+  , Queryable(..)
+  ) where
 
 import           Control.Lens                           (from, lens, (^.))
 import           Data.ByteArray.Base64String            (Base64String, toBytes)

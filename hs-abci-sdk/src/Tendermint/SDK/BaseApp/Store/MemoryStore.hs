@@ -1,8 +1,11 @@
 module Tendermint.SDK.BaseApp.Store.MemoryStore
-  ( DBVersions(..)
+  (
+  -- * Environment
+    DBVersions(..)
   , initDBVersions
   , DB
   , initDB
+  -- * Eval
   , evalStoreEffs
   ) where
 

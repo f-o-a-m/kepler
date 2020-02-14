@@ -1,7 +1,26 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Tendermint.SDK.BaseApp.Store.RawStore
-  ( StoreEffs
+  (
+  -- * Effects
+    StoreEffs
+  , ReadStore(..)
+  , get
+  , prove
+  , WriteStore(..)
+  , put
+  , storePut
+  , delete
+  , storeDelete
+  , CommitBlock(..)
+  , commitBlock
+  , Transaction(..)
+  , beginTransaction
+  , withSandbox
+  , withTransaction
+  , commit
+
+  -- * Types
   , Scope(..)
   , Version(..)
   , RawKey(..)
@@ -9,22 +28,7 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   , RawStoreKey(..)
   , makeRawKey
   , StoreKey(..)
-  , ReadStore(..)
-  , get
-  , prove
-  , WriteStore(..)
-  , storePut
-  , storeDelete
-  , put
-  , delete
-  , CommitBlock(..)
-  , commitBlock
-  , Transaction(..)
   , CommitResponse(..)
-  , beginTransaction
-  , commit
-  , withSandbox
-  , withTransaction
   ) where
 
 import           Control.Lens                  (Iso', iso, (^.))

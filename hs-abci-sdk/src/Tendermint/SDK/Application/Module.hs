@@ -1,5 +1,16 @@
 {-# LANGUAGE UndecidableInstances #-}
-module Tendermint.SDK.Application.Module where
+
+module Tendermint.SDK.Application.Module
+  ( Module(..)
+  , ModuleList(..)
+  , Application(..)
+  , ToApplication(..)
+  , hoistApplication
+  , Eval(..)
+  , makeApplication
+  , applyAnteHandler
+
+  ) where
 
 import           Data.Proxy
 import           GHC.TypeLits                       (Symbol)

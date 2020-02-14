@@ -1,6 +1,7 @@
-module Tendermint.SDK.BaseApp.BaseEffs
+module Tendermint.SDK.BaseApp.Effects.BaseEffs
   ( BaseEffs
   , compileToCore
+  , compileToPureCore
   ) where
 
 import           Control.Exception                         (throwIO)
@@ -38,5 +39,18 @@ compileToCore action = do
     resourceToIO .
     KL.evalKatip .
     Prometheus.evalWithMetrics $
+    action
+  either (liftIO . throwIO) return eRes
+
+compileToPureCore
+  :: Members [Embed IO, Reader KL.LogConfig] core
+  => forall a.
+     Sem (BaseEffs :& core) a
+  -> Sem core a
+compileToPureCore action = do
+  eRes <- runError .
+    resourceToIO .
+    KL.evalKatip .
+    Prometheus.evalNothing $
     action
   either (liftIO . throwIO) return eRes

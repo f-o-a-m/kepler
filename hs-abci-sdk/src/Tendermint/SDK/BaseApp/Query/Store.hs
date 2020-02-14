@@ -1,6 +1,9 @@
 {-# LANGUAGE UndecidableInstances #-}
 
-module Tendermint.SDK.BaseApp.Query.Store where
+module Tendermint.SDK.BaseApp.Query.Store
+  ( StoreLeaf
+  , StoreQueryHandlers(..)
+  ) where
 
 import           Control.Lens                        (to, (^.))
 import           Data.ByteArray.Base64String         (fromBytes)
@@ -16,7 +19,7 @@ import           Tendermint.SDK.BaseApp.Errors       (makeAppError)
 import           Tendermint.SDK.BaseApp.Query.Effect (QueryEffs)
 import           Tendermint.SDK.BaseApp.Query.Router (HasQueryRouter (..),
                                                       methodRouter)
-import           Tendermint.SDK.BaseApp.Query.Types  (Leaf, QA, QueryArgs (..),
+import           Tendermint.SDK.BaseApp.Query.Types  (QA, QueryArgs (..),
                                                       QueryResult (..),
                                                       Queryable (..))
 import           Tendermint.SDK.BaseApp.Router       (RouterError (..),
