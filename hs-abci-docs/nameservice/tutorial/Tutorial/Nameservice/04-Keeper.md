@@ -91,7 +91,7 @@ Taking a look at the class constraints, we see
 
 ### Evaluating Module Effects
 
-Like we said before, all modules must ultimately compile to the set of effects belonging to `BaseApp`. For effects interpreted to `RawStore`, this means that you will need to define something called a `StoreKey`.
+Like we said before, all transactions must ultimately compile to the set of effects belonging to `TxEffs` and `BaseEffs`. For effects interpreted to `ReadStore` and `WriteStore`, this means that you will need to define something called a `StoreKey`.
 
 
 A `StoreKey` is effectively a namespacing inside the database, and is unique for a given module. In theory it could be any `ByteString`, but the natural definition in the case of Nameservice is would be something like
@@ -105,13 +105,13 @@ With this `storeKey` it is possible to write the `eval` function to resolve the 
 
 ~~~ haskell
 eval
-  :: Members [BA.RawStore, Error BA.AppError] r
+  :: Members BA.TxEffs r
   => forall a. Sem (NameserviceKeeper ': Error NameserviceError ': r) a
   -> Sem r a
 eval = mapError BA.makeAppError . evalNameservice
   where
     evalNameservice
-      :: Members [BA.RawStore, Error BA.AppError] r
+      :: Members BA.TxEffs r
       => Sem (NameserviceKeeper ': r) a -> Sem r a
     evalNameservice =
       interpret (\case

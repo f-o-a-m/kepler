@@ -26,12 +26,12 @@ storeKey :: BaseApp.StoreKey "token"
 storeKey = BaseApp.StoreKey "token"
 
 eval
-  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+  :: Members BaseApp.TxEffs r
   => forall a. Sem (Token ': Error TokenError ': r) a -> Sem r a
 eval = mapError BaseApp.makeAppError . evalToken
   where
     evalToken
-      :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+      :: Members BaseApp.TxEffs r
       => forall a. Sem (Token ': r) a -> Sem r a
     evalToken =
       interpret

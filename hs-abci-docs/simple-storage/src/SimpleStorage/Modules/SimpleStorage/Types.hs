@@ -53,3 +53,5 @@ instance A.FromJSON CountSet where
 
 instance BaseApp.ToEvent CountSet where
   makeEventType _ = "count_set"
+
+instance BaseApp.Select CountSet

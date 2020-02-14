@@ -1,7 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Tendermint.SDK.BaseApp.Metrics.Prometheus
-  ( -- config and setup
+  (
+    -- | Config and Setup
     MetricsScrapingConfig(..)
   , prometheusPort
   , MetricsState(..)
@@ -13,12 +14,14 @@ module Tendermint.SDK.BaseApp.Metrics.Prometheus
   , envMetricsScrapingConfig
   , emptyState
   , forkMetricsServer
-  -- utils
+
+  -- * Utils
   , mkPrometheusMetricId
   , metricIdStorable
   , countToIdentifier
   , histogramToIdentifier
-  -- eval
+
+  -- * Eval
   , evalWithMetrics
   , evalNothing
   , evalMetrics

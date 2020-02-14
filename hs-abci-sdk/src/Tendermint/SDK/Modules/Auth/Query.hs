@@ -1,12 +1,12 @@
 module Tendermint.SDK.Modules.Auth.Query
   ( Api
-  , server
+  , querier
   ) where
 
 import           Data.Proxy
 import           Polysemy                           (Members)
-import           Polysemy.Error                     (Error)
 import qualified Tendermint.SDK.BaseApp             as BaseApp
+import           Tendermint.SDK.BaseApp.Query       (QueryEffs)
 import           Tendermint.SDK.Modules.Auth.Keeper (storeKey)
 import           Tendermint.SDK.Modules.Auth.Types  (Account)
 import           Tendermint.SDK.Types.Address       (Address)
@@ -19,8 +19,8 @@ type AuthContents = '[(Address, Account)]
 
 type Api = BaseApp.QueryApi AuthContents
 
-server
-  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+querier
+  :: Members QueryEffs r
   => BaseApp.RouteQ Api r
-server =
+querier =
   BaseApp.storeQueryHandlers (Proxy :: Proxy AuthContents) storeKey (Proxy :: Proxy r)

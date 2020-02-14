@@ -10,10 +10,9 @@ import           Nameservice.Modules.Token.Messages (Burn (..), FaucetAccount,
                                                      Transfer (..))
 import           Polysemy                           (Members, Sem)
 import           Servant.API                        ((:<|>) (..))
-import           Tendermint.SDK.BaseApp             ((:~>), BaseAppEffs, Return,
-                                                     RouteContext (..), RouteTx,
-                                                     RoutingTx (..), TxEffs,
-                                                     TypedMessage)
+import           Tendermint.SDK.BaseApp             ((:~>), BaseEffs, Return,
+                                                     RouteTx, RoutingTx (..),
+                                                     TxEffs, TypedMessage)
 import           Tendermint.SDK.Types.Message       (Msg (..))
 import           Tendermint.SDK.Types.Transaction   (Tx (..))
 
@@ -24,14 +23,15 @@ type MessageApi =
 
 messageHandlers
   :: Members TokenEffs r
-  => Members BaseAppEffs r
-  => RouteTx MessageApi r 'DeliverTx
+  => Members BaseEffs r
+  => Members TxEffs r
+  => RouteTx MessageApi r
 messageHandlers = burnH :<|> transferH :<|> faucetH
 
 transferH
   :: Members TokenEffs r
   => Members TxEffs r
-  => Members BaseAppEffs r
+  => Members BaseEffs r
   => RoutingTx Transfer
   -> Sem r ()
 transferH (RoutingTx Tx{txMsg=Msg{msgData}}) =
@@ -49,7 +49,7 @@ burnH (RoutingTx Tx{txMsg=Msg{msgData}}) =
 faucetH
   :: Members TokenEffs r
   => Members TxEffs r
-  => Members BaseAppEffs r
+  => Members BaseEffs r
   => RoutingTx FaucetAccount
   -> Sem r ()
 faucetH (RoutingTx Tx{txMsg=Msg{msgData}}) =

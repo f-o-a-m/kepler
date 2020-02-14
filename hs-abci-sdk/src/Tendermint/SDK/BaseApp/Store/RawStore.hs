@@ -1,47 +1,71 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Tendermint.SDK.BaseApp.Store.RawStore
-  ( RawStore(..)
+  (
+  -- * Effects
+    StoreEffs
+  , ReadStore(..)
+  , get
+  , prove
+  , WriteStore(..)
+  , put
+  , storePut
+  , delete
+  , storeDelete
+  , CommitBlock(..)
+  , commitBlock
+  , Transaction(..)
+  , beginTransaction
+  , withSandbox
+  , withTransaction
+  , commit
+
+  -- * Types
+  , Scope(..)
+  , Version(..)
   , RawKey(..)
   , IsKey(..)
+  , RawStoreKey(..)
+  , makeRawKey
   , StoreKey(..)
-  , get
-  , put
-  , delete
-  , prove
-  , storeRoot
-  , withTransaction
-  , withSandbox
-  , beginBlock
-  , commitBlock
+  , CommitResponse(..)
   ) where
 
 import           Control.Lens                  (Iso', iso, (^.))
+import           Data.ByteArray.Base64String   (Base64String)
 import qualified Data.ByteString               as BS
 import           Data.Proxy
 import           Data.String.Conversions       (cs)
+import           Numeric.Natural               (Natural)
 import           Polysemy                      (Member, Members, Sem, makeSem)
 import           Polysemy.Error                (Error, catch, throw)
 import           Polysemy.Resource             (Resource, finally, onException)
+import           Polysemy.Tagged               (Tagged)
 import           Tendermint.SDK.BaseApp.Errors (AppError, SDKError (ParseError),
                                                 throwSDKError)
 import           Tendermint.SDK.Codec          (HasCodec (..))
 import           Tendermint.SDK.Types.Address  (Address, addressFromBytes,
                                                 addressToBytes)
 
-newtype StoreKey n = StoreKey BS.ByteString
+data RawStoreKey = RawStoreKey
+  { rsStoreKey :: BS.ByteString
+  , rsKey      :: BS.ByteString
+  } deriving (Eq, Show, Ord)
 
-data RawStore m a where
-  RawStorePut   :: StoreKey ns -> BS.ByteString -> BS.ByteString -> RawStore m ()
-  RawStoreGet   :: StoreKey ns -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
-  RawStoreDelete :: StoreKey ns -> BS.ByteString -> RawStore m ()
-  RawStoreProve :: StoreKey ns -> BS.ByteString -> RawStore m (Maybe BS.ByteString)
-  RawStoreRoot :: RawStore m BS.ByteString
-  RawStoreBeginTransaction :: RawStore m ()
-  RawStoreRollback :: RawStore m ()
-  RawStoreCommit :: RawStore m ()
+makeRawKey :: RawStoreKey -> BS.ByteString
+makeRawKey RawStoreKey{..} = rsStoreKey <> rsKey
 
-makeSem ''RawStore
+data ReadStore m a where
+  StoreGet   :: RawStoreKey -> ReadStore m (Maybe BS.ByteString)
+  StoreProve :: RawStoreKey -> ReadStore m (Maybe BS.ByteString)
+
+makeSem ''ReadStore
+
+data WriteStore m a where
+  StorePut   :: RawStoreKey -> BS.ByteString -> WriteStore m ()
+  StoreDelete :: RawStoreKey -> WriteStore m ()
+
+makeSem ''WriteStore
 
 class RawKey k where
   rawKey :: Iso' k BS.ByteString
@@ -49,99 +73,134 @@ class RawKey k where
 instance RawKey Address where
     rawKey = iso addressToBytes addressFromBytes
 
-
 class RawKey k => IsKey k ns where
   type Value k ns = a | a -> ns k
-  prefixWith :: Proxy k -> Proxy ns -> BS.ByteString
+  prefix :: Proxy k -> Proxy ns -> BS.ByteString
 
-  default prefixWith :: Proxy k -> Proxy ns -> BS.ByteString
-  prefixWith _ _ = ""
+  default prefix :: Proxy k -> Proxy ns -> BS.ByteString
+  prefix _ _ = ""
 
+newtype StoreKey ns = StoreKey BS.ByteString
+
+data CommitBlock m a where
+  CommitBlock :: CommitBlock m Base64String
+
+makeSem ''CommitBlock
 
 put
   :: forall k r ns.
      IsKey k ns
   => HasCodec (Value k ns)
-  => Member RawStore r
+  => Member WriteStore r
   => StoreKey ns
   -> k
   -> Value k ns
   -> Sem r ()
-put sk k a =
-  let key = prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
+put (StoreKey sk) k a =
+  let key = RawStoreKey
+        { rsStoreKey = sk
+        , rsKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
+        }
       val = encode a
-  in rawStorePut sk key val
+  in storePut key val
 
 get
   :: forall k r ns.
      IsKey k ns
   => HasCodec (Value k ns)
-  => Members [RawStore, Error AppError] r
+  => Members [ReadStore, Error AppError] r
   => StoreKey ns
   -> k
   -> Sem r (Maybe (Value k ns))
-get sk k = do
-  let key = prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
-  mRes <- rawStoreGet sk key
+get (StoreKey sk) k = do
+  let key = RawStoreKey
+        { rsStoreKey = sk
+        , rsKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
+        }
+  mRes <- storeGet key
   case mRes of
     Nothing -> pure Nothing
     Just raw -> case decode raw of
-      Left e  -> throwSDKError (ParseError $ "Impossible codec error "  <> cs e)
+      Left e  -> throwSDKError (ParseError $ "Impossible codec error: "  <> cs e)
       Right a -> pure $ Just a
 
 delete
   :: forall k ns r.
      IsKey k ns
-  => Member RawStore r
+  => Member WriteStore r
   => StoreKey ns
   -> k
   -> Sem r ()
-delete sk k = rawStoreDelete sk $
-  prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
+delete (StoreKey sk) k =
+  let key = RawStoreKey
+        { rsStoreKey = sk
+        , rsKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
+        }
+  in storeDelete key
 
 prove
   :: forall k ns r.
      IsKey k ns
-  => Member RawStore r
+  => Member ReadStore r
   => StoreKey ns
   -> k
   -> Sem r (Maybe BS.ByteString)
-prove sk k = rawStoreProve sk $
-  prefixWith (Proxy @k) (Proxy @ns) <> k ^. rawKey
+prove (StoreKey sk) k =
+  let key = RawStoreKey
+        { rsStoreKey = sk
+        , rsKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
+        }
+  in storeProve key
 
-beginBlock
-  :: Member RawStore r
-  => Sem r ()
-beginBlock = rawStoreBeginTransaction
 
-commitBlock
-  :: Member RawStore r
-  => Sem r ()
-commitBlock = rawStoreCommit
+data CommitResponse = CommitResponse
+  { rootHash   :: Base64String
+  , newVersion :: Natural
+  } deriving (Eq, Show)
 
-storeRoot
-  :: Member RawStore r
-  => Sem r BS.ByteString
-storeRoot = rawStoreRoot
+data Transaction m a where
+  -- transact
+  BeginTransaction :: Transaction m ()
+  Rollback :: Transaction m ()
+  Commit :: Transaction m CommitResponse
+
+makeSem ''Transaction
 
 withTransaction
   :: forall r a.
-     Members [RawStore, Resource, Error AppError] r
+     Members [Transaction, Resource, Error AppError] r
   => Sem r a
-  -> Sem r a
+  -> Sem r (a, CommitResponse)
 withTransaction m =
-   let tryTx = m `catch` (\e -> rawStoreRollback *> throw e)
+   let tryTx = m `catch` (\e -> rollback *> throw e)
+       actionWithCommit = do
+         res <- tryTx
+         c <- commit
+         pure (res, c)
    in do
-      rawStoreBeginTransaction
-      onException (tryTx <* rawStoreCommit) rawStoreRollback
+      onException actionWithCommit rollback
 
 withSandbox
   :: forall r a.
-     Members [RawStore, Resource, Error AppError] r
+     Members [Transaction, Resource, Error AppError] r
   => Sem r a
   -> Sem r a
 withSandbox m =
-   let tryTx = m `catch` (\e -> rawStoreRollback *> throw e)
-   in do
-      rawStoreBeginTransaction
-      finally (tryTx <* rawStoreRollback) rawStoreRollback
+   let tryTx = m `catch` (\e -> rollback *> throw e)
+   in finally (tryTx <* rollback) rollback
+
+data Scope = Consensus | QueryAndMempool
+
+data Version =
+    Genesis
+  | Version Natural
+  | Latest
+  deriving (Eq, Show)
+
+type StoreEffs =
+  [ Tagged 'Consensus ReadStore
+  , Tagged 'QueryAndMempool ReadStore
+  , Tagged 'Consensus WriteStore
+  , Transaction
+  , CommitBlock
+  ]

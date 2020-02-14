@@ -26,9 +26,12 @@ services:
      - ES_HOST=elk
      - ES_PORT=9200
      - STATS_PORT=5555
+     - IAVL_HOST=iavl
+     - IAVL_port=8090
     restart: always
     depends_on:
       - elk
+      - iavl
     ports:
       - "26658"
       - "5555:5555"
@@ -39,6 +42,8 @@ services:
     restart: always
     environment:
      - DD_API_KEY=${DD_API_KEY}
+     - IAVL_HOST=iavl
+     - IAVL_PORT=8090
     volumes:
      - /proc/:/host/proc/:ro
      - ./conf.d/openmetrics.d:/etc/datadog-agent/conf.d/openmetrics.d
@@ -51,5 +56,14 @@ services:
     expose:
       - "9200"
       - "5601"
+  iavl:
+    image: foamspace/iavl:latest
+    command: /iavlserver  -db-name "test" -datadir "."  -grpc-endpoint "0.0.0.0:8090"  -gateway-endpoint "0.0.0.0:8091"
+    ports: 
+     - "8090-8091:8091-8091"
+    expose: 
+     - "8090"
+     - "8091"
+    
 volumes:
   tendermint-storage:

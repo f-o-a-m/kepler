@@ -1,7 +1,7 @@
 module Tendermint.SDK.Application.AnteHandler
-  ( AnteHandler(..)
-  , applyAnteHandler
-  , baseAppAnteHandler
+  ( module Tendermint.SDK.Application.AnteHandler
+  --  Re-Exports
+  , AnteHandler(..)
   ) where
 
 import           Control.Monad                      (unless)
@@ -9,27 +9,12 @@ import           Polysemy
 import           Polysemy.Error                     (Error)
 import           Tendermint.SDK.BaseApp.Errors      (AppError, SDKError (..),
                                                      throwSDKError)
-import           Tendermint.SDK.BaseApp.Transaction (RoutingTx (..),
-                                                     TransactionApplication)
+import           Tendermint.SDK.BaseApp.Transaction (AnteHandler (..),
+                                                     RoutingTx (..))
 import qualified Tendermint.SDK.Modules.Auth        as A
 import           Tendermint.SDK.Types.Message       (Msg (..))
 import           Tendermint.SDK.Types.Transaction   (Tx (..))
 
-data AnteHandler r = AnteHandler
-  ( TransactionApplication (Sem r) -> TransactionApplication (Sem r))
-
-instance Semigroup (AnteHandler r) where
-  (<>) (AnteHandler h1) (AnteHandler h2) =
-      AnteHandler $ h1 . h2
-
-instance Monoid (AnteHandler r) where
-  mempty = AnteHandler id
-
-applyAnteHandler
-  :: AnteHandler r
-  -> TransactionApplication (Sem r)
-  -> TransactionApplication (Sem r)
-applyAnteHandler (AnteHandler ah) = ($) ah
 
 nonceAnteHandler
   :: Members A.AuthEffs r

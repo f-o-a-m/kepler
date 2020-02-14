@@ -51,8 +51,10 @@ library:
     - http2-client-grpc
     - proto-lens
     - proto-lens-runtime
+    - text
   exposed-modules:
   - Database.IAVL.RPC
+  - Database.IAVL.RPC.Types
   generated-exposed-modules:
   - Proto.Iavl.Api
   - Proto.Iavl.Api_Fields

@@ -1,6 +1,14 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Nameservice.Modules.Nameservice.Keeper where
+module Nameservice.Modules.Nameservice.Keeper
+  ( NameserviceKeeper
+  , NameserviceEffs
+  , setName
+  , deleteName
+  , buyName
+  , storeKey
+  , eval
+  ) where
 
 import           Data.Proxy
 import           Data.String.Conversions                  (cs)
@@ -29,13 +37,13 @@ storeKey :: BaseApp.StoreKey NameserviceModuleName
 storeKey = BaseApp.StoreKey . cs . symbolVal $ Proxy @NameserviceModuleName
 
 eval
-  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+  :: Members BaseApp.TxEffs r
   => forall a. Sem (NameserviceKeeper ': Error NameserviceError ': r) a
   -> Sem r a
 eval = mapError BaseApp.makeAppError . evalNameservice
   where
     evalNameservice
-      :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+      :: Members BaseApp.TxEffs r
       => Sem (NameserviceKeeper ': r) a -> Sem r a
     evalNameservice =
       interpret (\case

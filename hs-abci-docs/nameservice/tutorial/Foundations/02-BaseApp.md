@@ -1,18 +1,16 @@
 ---
-title: Foundations - BaseApp
+title: Foundations - BaseEffs, TxEffs, and QueryEffs
 ---
 
-# BaseApp
+# BaseEffs
 
-`BaseApp` is the set of effects that the SDK operates with and are freely available
-for an application developer to make use of in any part of their application code. It is expected
-(in fact required) that any application code can be rewritten in terms of the `BaseApp`
-effects. Let's look at the `BaseApp` type:
+`BaseEffs` is a set of effects that the SDK operates with and are freely available
+for an application developer to make use of in any part of their application code. They
+are defined as:
 
 ~~~ haskell ignore
-type BaseAppEffs =
-  [ RawStore
-  , Output Event
+type BaseEffs =
+  [ Metrics
   , Logger
   , Resource
   , Error AppError
@@ -21,12 +19,74 @@ type BaseAppEffs =
 
 These effects are:
 
-1. `RawStore` - allows for basic storage operations, e.g. get, put, delete, prove etc.
-2. `Output Event` - allows for emitting events in the course of transaction processing.
-3. `Logger` - allows for console loging with log levels.
-4. `Resource` - allows for bracketing and resource management in the presence of exeptions.
-5. `Error AppError` -- allows for errors of type `AppError` to be thrown or caught.
+1. `Metrics` - creates and manages custom counters and timers.
+2. `Logger` - allows for structured logging with log levels.
+3. `Resource` - allows for bracketing and resource management in the presence of exeptions.
+4. `Error AppError` -- allows for errors of type `AppError` to be thrown or caught.
 
-`BaseApp` acts as an intermediate effect system for specifying applications, it does not make any assumptions about how these effects will be interpreted at runtime. For example, `RawStore` could eventualy be interpeted by any persistent or in-memory storage capable of handling the commands `Put`, `Get` etc.
+The SDK does not make any assumptions about how `BaseEffs` will be interpreted at runtime, it only assumes that the developer might want use one of the provided core effects systems to interpret them. For example, the standard `CoreEffs` uses a prometheus metrics server to interpret the `Metrics` effect while `PureCoreEffs` just ignores the effect entirely. 
 
-Most of the work in writing modules involves plugging into `BaseApp` at various points. For example, your module can create custom errors to throw or catch, but you must tell the SDK how to translate this custom error into an `AppError`. Likewise your module can define custom events to log during transaction execution, but you must describe to the SDK how to translate these custom events types into the type `Event`.
+# TxEffs
+
+`TxEffs` are the effects used to interpret transactions and are defined as
+
+~~~ haskell ignore
+type TxEffs =
+  [ Output Event
+  , GasMeter
+  , WriteStore
+  , ReadStore
+  , Error AppError
+  ]
+~~~
+
+where
+
+1. `Output Event` - allows for emitting events during transaction execution.
+2. `GasMeter` - allows for gas costs to be levied at any place during transaction code.
+3. `WriteStore` - allows for put/delete operations on the database.
+4. `ReadStore` - allows for get/prove operations on the database.
+5. `Error AppError` - allows for throwing and catching errors raised during transactions.
+
+`TxEffs` effects are available any time during transactions and are interpreted at the time of transaction routing. It's worth noting that the interpreters take care of finalizing writes to the database when it's appropriate (i.e. during a `deliverTx` message) and not otherwise (e.g. during a `checkTx` message).
+
+# QueryEffs
+
+`QueryEffs` are used to interpret queries and are defined as 
+
+~~~ haskell ignore
+type QueryEffs = 
+  [ ReadStore
+  , Error AppError
+  ]
+~~~
+
+where
+
+1. `ReadStore` allows for get/prove operations on the database.
+2. `Error AppError` allows for throwing/catching errors when performing database queries.
+
+`QueryEffs` are available any time you are writing handlers for a module's query api. The SDK manages a separate connection for reading from committed (i.e. via blocks) state when `QueryEffs` are present.
+
+# BaseApp
+
+There is a type alias in the SDK called `BaseApp` with the definition
+
+~~~ haskell ignore
+type BaseApp core = BaseEffs :& StoreEffs :& core
+~~~
+
+where `StoreEffs` is given by
+
+~~~ haskell ignore
+type StoreEffs =
+  [ Tagged 'Consensus ReadStore
+  , Tagged 'QueryAndMempool ReadStore
+  , Tagged 'Consensus WriteStore
+  , Transaction
+  , CommitBlock
+  ]
+~~~
+
+
+It sits at the bottom of any applications effects list and ultimately everything is interpreted through these effects before being run, e.g. `TxEffs` and `QueryEffs`. This effects list is pretty much the only place where the application developer needs to decide how the interpretation should be done. There are two options in the SDK, using `PureCoreEffs` or `CoreEffs` depending on whether you want to rely on an external or in-memory database.
