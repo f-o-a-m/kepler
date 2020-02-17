@@ -149,18 +149,24 @@ tests:
     - Tutorial.Nameservice.Module
     - Tutorial.Nameservice.Query
     - Tutorial.Nameservice.Types
+    - Tutorial.Nameservice.Testing
     ghc-options: -Wall -pgmL markdown-unlit
     dependencies:
     - aeson
     - base
+    - data-default-class
     - hs-abci-sdk
     - hs-abci-server
+    - hs-abci-test-utils
+    - hs-tendermint-client
     - lens
     - markdown-unlit
+    - mtl
     - nameservice
     - polysemy
     - polysemy-plugin
     - proto3-suite
+    - servant
     - string-conversions
     - text
   nameservice-test:
