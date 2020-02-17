@@ -46,7 +46,7 @@ import           Test.RandomStrings                (onlyWith, randomASCII,
 
 faucetAccount :: Signer -> Auth.Amount -> IO ()
 faucetAccount s@(Signer addr _) amount =
-  runAction_ s faucet $ N.FaucetAccount addr "nameservice" amount
+  runAction_ s faucet $ N.FaucetAccount addr N.nameserviceCoinId amount
 
 createName :: Signer -> N.Name -> Text -> IO ()
 createName s name val = buyName s name val 0
