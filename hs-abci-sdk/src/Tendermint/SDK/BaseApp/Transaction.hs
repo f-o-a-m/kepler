@@ -8,7 +8,7 @@ module Tendermint.SDK.BaseApp.Transaction
   , VoidReturn
   , TxEffs
   , evalReadOnly
-  , AnteHandler(..)
+  , AnteHandler
   ) where
 
 import           Control.Lens                                   ((&), (.~))

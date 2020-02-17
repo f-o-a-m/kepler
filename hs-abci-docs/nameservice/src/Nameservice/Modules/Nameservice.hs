@@ -10,6 +10,7 @@ module Nameservice.Modules.Nameservice
   , module           Nameservice.Modules.Nameservice.Router
   , module           Nameservice.Modules.Nameservice.Types
 
+
   ) where
 
 import           Data.Proxy
@@ -18,20 +19,22 @@ import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Query
 import           Nameservice.Modules.Nameservice.Router
 import           Nameservice.Modules.Nameservice.Types
-import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members)
 import           Tendermint.SDK.Application               (Module (..))
 import           Tendermint.SDK.BaseApp                   (BaseEffs,
                                                            DefaultCheckTx (..),
                                                            TxEffs)
+import           Tendermint.SDK.Modules.Auth              (AuthEffs)
+import           Tendermint.SDK.Modules.Bank              (BankEffs)
 
 type NameserviceM r =
   Module "nameservice" MessageApi MessageApi QueryApi NameserviceEffs r
 
 nameserviceModule
   :: Members BaseEffs r
+  => Members AuthEffs r
   => Members TxEffs r
-  => Members TokenEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
   => NameserviceM r
 nameserviceModule = Module

@@ -55,13 +55,13 @@ module Tutorial.Nameservice.Application where
 
 import Data.Proxy
 import Nameservice.Modules.Nameservice (nameserviceModule, NameserviceM, NameserviceEffs)
-import Nameservice.Modules.Token (tokenModule, TokenM, TokenEffs)
 import Network.ABCI.Server.App (App)
 import Polysemy (Sem)
 import Tendermint.SDK.Modules.Auth (authModule, AuthEffs, AuthM)
 import Tendermint.SDK.Application (ModuleList(..), HandlersContext(..), baseAppAnteHandler, makeApp, createIOApp)
 import Tendermint.SDK.BaseApp (BaseApp, CoreEffs, Context, TxEffs, (:&), defaultCompileToCore, runCoreEffs)
 import Tendermint.SDK.Crypto (Secp256k1)
+import Tendermint.SDK.Modules.Bank (bankModule, BankM, BankEffs)
 ~~~
 
 This is the part of the application where the effects list must be given a monomorphic type. The only requirement is that you list the effects in the same order that the corresponding modules appear in the `NameserviceModules` list:
@@ -70,14 +70,14 @@ This is the part of the application where the effects list must be given a monom
 ~~~ haskell
 type EffR =
    NameserviceEffs :&
-   TokenEffs :&
+   BankEffs :&
    AuthEffs :&
    TxEffs :&
    BaseApp CoreEffs
 
 type NameserviceModules =
    '[ NameserviceM EffR
-    , TokenM EffR
+    , BankM EffR
     , AuthM EffR
     ]
 ~~~
@@ -98,7 +98,7 @@ handlersContext = HandlersContext
   nameserviceModules :: ModuleList NameserviceModules EffR
   nameserviceModules =
        nameserviceModule
-    :+ tokenModule
+    :+ bankModule
     :+ authModule
     :+ NilModules
 ~~~

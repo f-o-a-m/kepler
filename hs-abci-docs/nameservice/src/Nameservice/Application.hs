@@ -6,24 +6,24 @@ module Nameservice.Application
 
 import           Data.Proxy
 import qualified Nameservice.Modules.Nameservice as N
-import qualified Nameservice.Modules.Token       as T
 import           Tendermint.SDK.Application      (HandlersContext (..),
                                                   ModuleList (..),
                                                   baseAppAnteHandler)
 import qualified Tendermint.SDK.BaseApp          as BA
 import           Tendermint.SDK.Crypto           (Secp256k1)
 import qualified Tendermint.SDK.Modules.Auth     as A
+import qualified Tendermint.SDK.Modules.Bank     as B
 
 type EffR =
    N.NameserviceEffs BA.:&
-   T.TokenEffs BA.:&
+   B.BankEffs BA.:&
    A.AuthEffs BA.:&
    BA.TxEffs BA.:&
    BA.BaseApp BA.CoreEffs
 
 type NameserviceModules =
    '[ N.NameserviceM EffR
-    , T.TokenM EffR
+    , B.BankM EffR
     , A.AuthM EffR
     ]
 
@@ -38,6 +38,6 @@ handlersContext = HandlersContext
   nameserviceModules :: ModuleList NameserviceModules EffR
   nameserviceModules =
        N.nameserviceModule
-    :+ T.tokenModule
+    :+ B.bankModule
     :+ A.authModule
     :+ NilModules

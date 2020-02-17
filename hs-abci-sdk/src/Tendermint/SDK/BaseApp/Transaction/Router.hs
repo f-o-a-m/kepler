@@ -6,6 +6,7 @@ module Tendermint.SDK.BaseApp.Transaction.Router
 
 import           Control.Monad.IO.Class                         (liftIO)
 import           Data.ByteString                                (ByteString)
+import           Data.Monoid
 import           Data.Proxy
 import           Data.String.Conversions                        (cs)
 import           GHC.TypeLits                                   (KnownSymbol,
@@ -18,7 +19,7 @@ import           Servant.API
 import qualified Tendermint.SDK.BaseApp.Router                  as R
 import           Tendermint.SDK.BaseApp.Store                   (ReadStore,
                                                                  Scope)
-import           Tendermint.SDK.BaseApp.Transaction.AnteHandler (AnteHandler (..))
+import           Tendermint.SDK.BaseApp.Transaction.AnteHandler (AnteHandler)
 import           Tendermint.SDK.BaseApp.Transaction.Cache       (Cache)
 import           Tendermint.SDK.BaseApp.Transaction.Effect      (TxEffs, runTx)
 import           Tendermint.SDK.BaseApp.Transaction.Types
@@ -112,7 +113,7 @@ instance ( HasMessageType msg, HasCodec msg
     in methodRouter ps $ R.addBody subserver $ R.withRequest f
       where mt = messageType (Proxy :: Proxy msg)
 
-  applyAnteHandler _ _ _ (AnteHandler ah) f = ah f
+  applyAnteHandler _ _ _ ah f = appEndo ah f
 
   hoistTxRouter _ _ _ nat = (.) nat
 

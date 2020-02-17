@@ -17,15 +17,15 @@ although the definition of `RawStore` is different than the above.
 
 The interface we give is actually a typed key value store. This means that within the scope of a module `m`, for any key type `k`, there is only one possible value type `v` associated with `k`. 
 
-For example, a user's balance in the `Token` module, might be modeled by a mapping 
+For example, a user's balance in the `Bank` module, might be modeled by a mapping 
 
 ~~~ haskell ignore
 balance :: Tendermint.SDK.Types.Address -> Integer
 ~~~
 
-(We'll properly introduce the module `Token` later in the walkthrough.)
+(We'll properly introduce the module `Bank` later in the walkthrough.)
 
-This means that in the scope of the `Token` module, the database utlity `get` function applied to a value of type `Address` will result in a value of type `Integer`. If the `Token` module would like to store another mapping whose keys have type `Tendermint.SDK.Types.Address`, you must use a newtype instead. Otherwise you will get a compiler error.
+This means that in the scope of the `Bank` module, the database utlity `get` function applied to a value of type `Address` will result in a value of type `Integer`. If the `Bank` module would like to store another mapping whose keys have type `Tendermint.SDK.Types.Address`, you must use a newtype instead. Otherwise you will get a compiler error.
 
 At the same time, you are free to define another mapping from `k -> v'` in the scope of a different module. For example, you can have both the `balance` mapping described above, as well a mapping 
 
@@ -43,19 +43,20 @@ module Tutorial.Nameservice.Types where
 
 import Control.Lens (iso)
 import qualified Data.Aeson as A
-import Data.Bifunctor (first)
+import Data.Bifunctor (bimap)
 import Data.Proxy
 import Data.String.Conversions (cs)
 import Data.Text (Text)
+import Data.Word (Word64)
 import GHC.Generics (Generic)
 import GHC.TypeLits (symbolVal)
 import Nameservice.Aeson (defaultNameserviceOptions)
-import Nameservice.Modules.Token (Amount)
 import Proto3.Suite (Message, fromByteString, toLazyByteString)
 import qualified Tendermint.SDK.BaseApp as BA
 import Tendermint.SDK.Codec (HasCodec(..))
 import Tendermint.SDK.Types.Address (Address)
-import Tendermint.SDK.Types.Message (coerceProto3Error, formatMessageParseError)
+import Tendermint.SDK.Modules.Auth (Amount (..))
+import Tendermint.SDK.Modules.Bank ()
 ~~~
 
 ### Storage types
@@ -69,7 +70,7 @@ data Whois = Whois
   { whoisValue :: Text
   , whoisOwner :: Address
   , whoisPrice :: Amount
-  } deriving (Eq, Show, Generic)
+  } deriving (Eq, Show)
 ~~~
 
 The way that we register `Name` as a key in the store is by using the `RawKey` typeclass
@@ -97,15 +98,32 @@ class HasCodec a where
 
 This class is used everywhere in the SDK as the binary codec class for things like storage items, messages, transaction formats etc. It's agnostic to the actual serialization format, you can use `JSON`, `CBOR`, `Protobuf`, etc. Throughout the SDK we typically use `protobuf` as it is powerful in addition to the fact that there's decent support for this in Haskell either through the `proto3-suite` package or the `proto-lens` package.
 
-So we can implement a `HasCodec` instance for `Whois`
+So we can implement a `HasCodec` instance for `Whois` via the `WhoisMessage` type:
 
 ~~~ haskell
 -- Message is a class from proto3-suite that defines protobuf codecs generically.
-instance Message Whois
+data WhoisMessage = WhoisMessage
+  { whoisMessageValue :: Text
+  , whoisMessageOwner :: Address
+  , whoisMessagePrice :: Word64
+  } deriving (Eq, Show, Generic)
+instance Message WhoisMessage
 
 instance HasCodec Whois where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+  encode Whois {..} =
+    let whoisMessage = WhoisMessage
+          { whoisMessageValue = whoisValue
+          , whoisMessageOwner = whoisOwner
+          , whoisMessagePrice = unAmount whoisPrice
+          }
+    in cs . toLazyByteString $ whoisMessage
+  decode =
+    let toWhois WhoisMessage {..} = Whois
+          { whoisValue = whoisMessageValue
+          , whoisOwner = whoisMessageOwner
+          , whoisPrice = Amount whoisMessagePrice
+          }
+    in bimap (cs . show) toWhois . fromByteString @WhoisMessage
 ~~~
 
 Finally we can register `(Name, Whois)` with the module's store with the `IsKey` class, which tells how to associate a key type with a value type within the scope of given module, where the scope is represented by the modules name as a type level string. There is an optional prefixing function for the key in this context in order to avoid collisions in the database. This would be useful for example if you were using multiple newtyped `Address` types as keys in the same module.

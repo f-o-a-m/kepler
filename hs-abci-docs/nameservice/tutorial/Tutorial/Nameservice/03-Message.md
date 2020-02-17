@@ -23,24 +23,26 @@ All in all, neither is really difficult to work with, and depending on what stag
 ~~~ haskell
 module Tutorial.Nameservice.Message where
 
-import Data.Bifunctor (first)
+import Data.Bifunctor (bimap, first)
 import Data.Foldable (sequenceA_)
 import Data.String.Conversions (cs)
 import Data.Text (Text)
+import Data.Word (Word64)
 import GHC.Generics (Generic)
 import Nameservice.Modules.Nameservice.Types (Name(..))
-import Nameservice.Modules.Token (Amount)
 import Proto3.Suite (Named, Message, fromByteString, toLazyByteString)
 import Tendermint.SDK.Types.Address (Address)
 import Tendermint.SDK.Types.Message (Msg(..), ValidateMessage(..), HasMessageType(..),
                                      isAuthorCheck, nonEmptyCheck,
                                      coerceProto3Error, formatMessageParseError)
+import Tendermint.SDK.Modules.Auth (Amount (..))
+import Tendermint.SDK.Modules.Bank ()
 import Tendermint.SDK.Codec (HasCodec(..))
 ~~~
 
 ### Message Definitions
 
-For the puroposes of the tutorial, we will use the `proto3-suite` for the message codecs:
+For the puroposes of the tutorial, we will use the `proto3-suite` for the message codecs. For `BuyName`, an intermediary datatype, `BuyNameMessage` is used to support encoding for `Amount`:
 
 
 ~~~ haskell
@@ -74,14 +76,35 @@ data BuyName = BuyName
   , buyNameName  :: Name
   , buyNameValue :: Text
   , buyNameBuyer :: Address
-  } deriving (Eq, Show, Generic)
+  } deriving (Eq, Show)
 
-instance Message BuyName
-instance Named BuyName
+data BuyNameMessage = BuyNameMessage
+  { buyNameMessageBid   :: Word64
+  , buyNameMessageName  :: Name
+  , buyNameMessageValue :: Text
+  , buyNameMessageBuyer :: Address
+  } deriving (Eq, Show, Generic)
+instance Message BuyNameMessage
+instance Named BuyNameMessage
 
 instance HasCodec BuyName where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+  encode BuyName {..} =
+    let buyNameMessage = BuyNameMessage
+          { buyNameMessageBid = unAmount buyNameBid
+          , buyNameMessageName = buyNameName
+          , buyNameMessageValue = buyNameValue
+          , buyNameMessageBuyer = buyNameBuyer
+          }
+    in cs . toLazyByteString $ buyNameMessage
+  decode =
+    let toBuyName BuyNameMessage {..} = BuyName
+          { buyNameBid = Amount buyNameMessageBid
+          , buyNameName = buyNameMessageName
+          , buyNameValue = buyNameMessageValue
+          , buyNameBuyer = buyNameMessageBuyer
+          }
+    in bimap (formatMessageParseError . coerceProto3Error) toBuyName
+       . fromByteString @BuyNameMessage
 ~~~
 
 As `protobuf` is a schemaless format, parsing is sometimes ambiguous if two types are the same up to field names, or one is a subset of the other. For this reason we use the type class `HasTypedMessage`

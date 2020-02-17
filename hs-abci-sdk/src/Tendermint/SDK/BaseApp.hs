@@ -70,7 +70,7 @@ module Tendermint.SDK.BaseApp
   , HistogramName(..)
 
   -- * Transaction
-  , AnteHandler(..)
+  , AnteHandler
   , RoutingTx(..)
   , RouteTx
   , RouteContext(..)

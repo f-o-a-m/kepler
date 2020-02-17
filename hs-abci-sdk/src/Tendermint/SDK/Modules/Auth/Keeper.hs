@@ -21,22 +21,6 @@ type AuthEffs = '[Accounts, Error AuthError]
 storeKey :: StoreKey AuthModule
 storeKey = StoreKey "auth"
 
-createAccount
-  :: Members [Accounts, Error AuthError] r
-  => Address
-  -> Sem r Account
-createAccount addr = do
-  mAcct <- getAccount addr
-  case mAcct of
-    Just _ -> throw $ AccountAlreadExists addr
-    Nothing -> do
-      let emptyAccount = Account
-            { accountCoins = []
-            , accountNonce = 0
-            }
-      putAccount addr emptyAccount
-      pure emptyAccount
-
 eval
   :: Members [ReadStore, WriteStore, Error AppError] r
   => Sem (Accounts : Error AuthError : r) a
@@ -53,3 +37,21 @@ eval = mapError makeAppError . evalAuth
           PutAccount addr acnt ->
             put storeKey addr acnt
         )
+
+--------------------------------------------------------------------------------
+
+createAccount
+  :: Members [Accounts, Error AuthError] r
+  => Address
+  -> Sem r Account
+createAccount addr = do
+  mAcct <- getAccount addr
+  case mAcct of
+    Just _ -> throw $ AccountAlreadyExists addr
+    Nothing -> do
+      let emptyAccount = Account
+            { accountCoins = []
+            , accountNonce = 0
+            }
+      putAccount addr emptyAccount
+      pure emptyAccount

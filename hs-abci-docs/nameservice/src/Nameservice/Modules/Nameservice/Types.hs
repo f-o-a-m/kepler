@@ -1,15 +1,17 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module Nameservice.Modules.Nameservice.Types where
 
 import           Control.Lens                 (iso)
 import           Data.Aeson                   as A
-import           Data.Bifunctor               (first)
+import           Data.Bifunctor               (bimap)
 import           Data.String                  (IsString (..))
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
 import qualified Data.Text.Lazy               as TL
+import           Data.Word                    (Word64)
 import           GHC.Generics                 (Generic)
 import           Nameservice.Aeson            (defaultNameserviceOptions)
-import           Nameservice.Modules.Token    (Amount (..))
 import           Proto3.Suite                 (HasDefault, Message,
                                                MessageField, Named,
                                                Primitive (..), fromByteString,
@@ -19,6 +21,8 @@ import qualified Proto3.Wire.Decode           as Decode
 import qualified Proto3.Wire.Encode           as Encode
 import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
+import           Tendermint.SDK.Modules.Auth  (Amount (..), CoinId (..))
+import           Tendermint.SDK.Modules.Bank  ()
 import           Tendermint.SDK.Types.Address (Address)
 
 --------------------------------------------------------------------------------
@@ -43,13 +47,31 @@ data Whois = Whois
   { whoisValue :: Text
   , whoisOwner :: Address
   , whoisPrice :: Amount
+  } deriving (Eq, Show)
+
+data WhoisMessage = WhoisMessage
+  { whoisMessageValue :: Text
+  , whoisMessageOwner :: Address
+  , whoisMessagePrice :: Word64
   } deriving (Eq, Show, Generic)
-instance Message Whois
-instance Named Whois
+instance Message WhoisMessage
+instance Named WhoisMessage
 
 instance HasCodec Whois where
-  encode = cs . toLazyByteString
-  decode = first (cs . show) . fromByteString
+  encode Whois {..} =
+    let whoisMessage = WhoisMessage
+          { whoisMessageValue = whoisValue
+          , whoisMessageOwner = whoisOwner
+          , whoisMessagePrice = unAmount whoisPrice
+          }
+    in cs . toLazyByteString $ whoisMessage
+  decode =
+    let toWhois WhoisMessage {..} = Whois
+          { whoisValue = whoisMessageValue
+          , whoisOwner = whoisMessageOwner
+          , whoisPrice = Amount whoisMessagePrice
+          }
+    in bimap (cs . show) toWhois . fromByteString @WhoisMessage
 
 instance BaseApp.RawKey Name where
     rawKey = iso (\(Name n) -> cs n) (Name . cs)
@@ -92,6 +114,23 @@ instance BaseApp.IsAppError NameserviceError where
 --------------------------------------------------------------------------------
 -- Events
 --------------------------------------------------------------------------------
+
+data Faucetted = Faucetted
+  { faucettedAccount :: Address
+  , faucettedCoinId  :: CoinId
+  , faucettedAmount  :: Amount
+  } deriving (Eq, Show, Generic)
+
+faucettedAesonOptions :: A.Options
+faucettedAesonOptions = defaultNameserviceOptions "faucetted"
+
+instance ToJSON Faucetted where
+  toJSON = A.genericToJSON faucettedAesonOptions
+instance FromJSON Faucetted where
+  parseJSON = A.genericParseJSON faucettedAesonOptions
+instance BaseApp.ToEvent Faucetted where
+  makeEventType _ = "Faucetted"
+instance BaseApp.Select Faucetted
 
 data NameClaimed = NameClaimed
   { nameClaimedOwner :: Address

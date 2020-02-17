@@ -3,10 +3,12 @@
 module Nameservice.Modules.Nameservice.Keeper
   ( NameserviceKeeper
   , NameserviceEffs
+  , nameserviceCoinId
   , setName
   , deleteName
   , buyName
   , storeKey
+  , faucetAccount
   , eval
   ) where
 
@@ -15,14 +17,16 @@ import           Data.String.Conversions                  (cs)
 import           GHC.TypeLits                             (symbolVal)
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Types
-import           Nameservice.Modules.Token                (Token, TokenEffs,
-                                                           burn, mint, transfer)
 import           Polysemy                                 (Members, Sem,
                                                            interpret, makeSem)
 import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
 import qualified Tendermint.SDK.BaseApp                   as BaseApp
+import           Tendermint.SDK.Modules.Auth              (AuthEffs, Coin (..),
+                                                           CoinId)
+import           Tendermint.SDK.Modules.Bank              (BankEffs, burn, mint,
+                                                           transfer)
 
 data NameserviceKeeper m a where
   PutWhois :: Name -> Whois -> NameserviceKeeper m ()
@@ -35,6 +39,9 @@ type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
 
 storeKey :: BaseApp.StoreKey NameserviceModuleName
 storeKey = BaseApp.StoreKey . cs . symbolVal $ Proxy @NameserviceModuleName
+
+nameserviceCoinId :: CoinId
+nameserviceCoinId = "nameservice"
 
 eval
   :: Members BaseApp.TxEffs r
@@ -56,6 +63,22 @@ eval = mapError BaseApp.makeAppError . evalNameservice
         )
 
 --------------------------------------------------------------------------------
+
+faucetAccount
+  :: Members [BaseApp.Logger, Output BaseApp.Event] r
+  => Members AuthEffs r
+  => FaucetAccount
+  -> Sem r ()
+faucetAccount FaucetAccount{..} = do
+  let coin = Coin faucetAccountCoinId faucetAccountAmount
+  mint faucetAccountTo coin
+  let event = Faucetted
+        { faucettedAccount = faucetAccountTo
+        , faucettedCoinId = faucetAccountCoinId
+        , faucettedAmount = faucetAccountAmount
+        }
+  BaseApp.emit event
+  BaseApp.logEvent event
 
 setName
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
@@ -80,7 +103,8 @@ setName SetName{..} = do
           BaseApp.logEvent event
 
 deleteName
-  :: Members [BaseApp.Logger, Token, Output BaseApp.Event] r
+  :: Members [BaseApp.Logger, Output BaseApp.Event] r
+  => Members AuthEffs r
   => Members NameserviceEffs r
   => DeleteName
   -> Sem r ()
@@ -92,7 +116,7 @@ deleteName DeleteName{..} = do
       if whoisOwner /= deleteNameOwner
         then throw $ InvalidDelete "Deleter must be the owner."
         else do
-          mint deleteNameOwner whoisPrice
+          mint deleteNameOwner (Coin nameserviceCoinId whoisPrice)
           deleteWhois deleteNameName
           let event = NameDeleted
                 { nameDeletedName = deleteNameName
@@ -102,7 +126,8 @@ deleteName DeleteName{..} = do
 
 buyName
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
-  => Members TokenEffs r
+  => Members AuthEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
   => BuyName
   -> Sem r ()
@@ -120,12 +145,13 @@ buyName msg = do
     where
       buyUnclaimedName
         :: Members [BaseApp.Logger, Output BaseApp.Event] r
-        => Members TokenEffs r
+        => Members AuthEffs r
+        => Members BankEffs r
         => Members NameserviceEffs r
         => BuyName
         -> Sem r ()
       buyUnclaimedName BuyName{..} = do
-        burn buyNameBuyer buyNameBid
+        burn buyNameBuyer (Coin nameserviceCoinId buyNameBid)
         let whois = Whois
               { whoisOwner = buyNameBuyer
               , whoisValue = buyNameValue
@@ -143,7 +169,8 @@ buyName msg = do
 
       buyClaimedName
         :: Members NameserviceEffs r
-        => Members TokenEffs r
+        => Members AuthEffs r
+        => Members BankEffs r
         => Members [BaseApp.Logger, Output BaseApp.Event] r
         => BuyName
         -> Whois
@@ -152,7 +179,7 @@ buyName msg = do
         let Whois{ whoisPrice = forsalePrice, whoisOwner = previousOwner } = currentWhois
         in if buyNameBid > forsalePrice
              then do
-               transfer buyNameBuyer buyNameBid previousOwner
+               transfer buyNameBuyer (Coin nameserviceCoinId buyNameBid) previousOwner
                -- update new owner, price and value based on BuyName
                putWhois buyNameName currentWhois { whoisOwner = buyNameBuyer
                                                  , whoisPrice = buyNameBid

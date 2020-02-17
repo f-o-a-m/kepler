@@ -2,9 +2,9 @@
 
 module Nameservice.Test.EventOrphans where
 
-import           Nameservice.Modules.Nameservice (NameClaimed, NameDeleted,
-                                                  NameRemapped)
-import           Nameservice.Modules.Token       (Faucetted, TransferEvent)
+import           Nameservice.Modules.Nameservice (Faucetted, NameClaimed,
+                                                  NameDeleted, NameRemapped)
+import           Tendermint.SDK.Modules.Bank     (TransferEvent)
 import qualified Tendermint.Utils.Events         as Event
 
 -- Orphan instances for retrieving event logs for unit testing

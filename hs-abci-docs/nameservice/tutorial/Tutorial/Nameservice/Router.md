@@ -13,10 +13,10 @@ import           Nameservice.Modules.Nameservice.Keeper   (NameserviceEffs,
                                                            setName)
 import           Nameservice.Modules.Nameservice.Messages (BuyName, DeleteName,
                                                            SetName)
-import           Nameservice.Modules.Token                (TokenEffs)
 import           Polysemy                                 (Members, Sem)
+import           Tendermint.SDK.Modules.Bank (BankEffs)
 import           Servant.API                              ((:<|>) (..))
-import           Tendermint.SDK.BaseApp                   ((:~>), BaseAppEffs,
+import           Tendermint.SDK.BaseApp                   ((:~>), BaseEffs,
                                                            Return,
                                                            RouteContext (..),
                                                            RouteTx,
@@ -76,16 +76,16 @@ Rather than cover all possible cases, we just note that in the case of the Names
 ~~~ haskell
 
 messageHandlers
-  :: Members BaseAppEffs r
-  => Members TokenEffs r
+  :: Members BaseEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
   => RouteTx MessageApi r 'DeliverTx
 messageHandlers = buyNameH :<|> setNameH :<|> deleteNameH
 
 buyNameH
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
   => Members TxEffs r
-  => Members TokenEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
   => RoutingTx BuyName
   -> Sem r ()
@@ -94,7 +94,7 @@ buyNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
   withTimer "buy_duration_seconds" $ buyName msgData
 
 setNameH
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
   => Members TxEffs r
   => Members NameserviceEffs r
   => RoutingTx SetName
@@ -104,9 +104,9 @@ setNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
   withTimer "set_duration_seconds" $ setName msgData
 
 deleteNameH
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
   => Members TxEffs r
-  => Members TokenEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
   => RoutingTx DeleteName
   -> Sem r ()

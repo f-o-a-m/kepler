@@ -15,6 +15,7 @@ import           Data.Word                            (Word32, Word64)
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Polysemy
 import           Polysemy.Error                       (Error, throw)
+import           Tendermint.SDK.Types.Address         (Address)
 import           Tendermint.SDK.Types.TxResult        (TxResult (..))
 
 -- | This type represents a common error response for the query, checkTx,
@@ -83,6 +84,7 @@ data SDKError =
   | NonceException Word64 Word64
   | RawStoreInvalidOperation Text
   | GrpcError Text
+  | UnknownAccountError Address
   deriving (Show)
 
 -- | As of right now it's not expected that one can recover from an 'SDKError',
@@ -147,4 +149,10 @@ instance IsAppError SDKError where
     { appErrorCode = 9
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Grpc error: \n" <> msg
+    }
+
+  makeAppError (UnknownAccountError addr) = AppError
+    { appErrorCode = 10
+    , appErrorCodespace = "sdk"
+    , appErrorMessage = "Unknown account at  " <> (cs . show $ addr)
     }

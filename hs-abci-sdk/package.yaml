@@ -74,6 +74,7 @@ library:
     - prometheus
     - proto-lens
     - proto-lens-runtime
+    - proto3-suite
     - proto3-wire
     - secp256k1-haskell
     - servant
@@ -128,6 +129,12 @@ library:
   - Tendermint.SDK.Codec
   - Tendermint.SDK.Crypto
   - Tendermint.SDK.Modules.Auth
+  - Tendermint.SDK.Modules.Bank
+  - Tendermint.SDK.Modules.Bank.Messages
+  - Tendermint.SDK.Modules.Bank.Types
+  - Tendermint.SDK.Modules.Bank.Keeper
+  - Tendermint.SDK.Modules.Bank.Query
+  - Tendermint.SDK.Modules.Bank.Router
   - Tendermint.SDK.Types.Address
   - Tendermint.SDK.Types.Effects
   - Tendermint.SDK.Types.Message
@@ -137,6 +144,8 @@ library:
   generated-exposed-modules:
   - Proto.Modules.Auth
   - Proto.Modules.Auth_Fields
+  - Proto.Modules.Bank
+  - Proto.Modules.Bank_Fields
   - Proto.Types.Transaction
   - Proto.Types.Transaction_Fields
 

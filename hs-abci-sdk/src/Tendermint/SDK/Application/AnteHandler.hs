@@ -1,47 +1,65 @@
 module Tendermint.SDK.Application.AnteHandler
   ( module Tendermint.SDK.Application.AnteHandler
   --  Re-Exports
-  , AnteHandler(..)
+  , AnteHandler
   ) where
 
-import           Control.Monad                      (unless)
+import           Control.Monad                      (unless, void)
+import           Data.Foldable                      (fold)
+import           Data.Monoid                        (Endo (..))
 import           Polysemy
 import           Polysemy.Error                     (Error)
 import           Tendermint.SDK.BaseApp.Errors      (AppError, SDKError (..),
                                                      throwSDKError)
-import           Tendermint.SDK.BaseApp.Transaction (AnteHandler (..),
+import           Tendermint.SDK.BaseApp.Transaction (AnteHandler,
                                                      RoutingTx (..))
 import qualified Tendermint.SDK.Modules.Auth        as A
 import           Tendermint.SDK.Types.Message       (Msg (..))
 import           Tendermint.SDK.Types.Transaction   (Tx (..))
 
 
+createAccountAnteHandler
+  :: Members A.AuthEffs r
+  => AnteHandler r
+createAccountAnteHandler = Endo $
+  \txApplication tx@(RoutingTx Tx{..}) -> do
+    let Msg{msgAuthor} = txMsg
+    mAcnt <- A.getAccount msgAuthor
+    case mAcnt of
+      Nothing -> void $ A.createAccount msgAuthor
+      _       -> pure ()
+    txApplication tx >>= pure
+
 nonceAnteHandler
   :: Members A.AuthEffs r
   => Member (Error AppError) r
   => AnteHandler r
-nonceAnteHandler = AnteHandler $
+nonceAnteHandler = Endo $
   \txApplication tx@(RoutingTx Tx{..}) -> do
     let Msg{msgAuthor} = txMsg
-    mAcnt <- A.getAccount msgAuthor
-    account <- case mAcnt of
-      Just a@A.Account{accountNonce} -> do
-        unless (accountNonce <= txNonce) $
-          throwSDKError (NonceException accountNonce txNonce)
-        pure a
-      Nothing -> do
-        unless (txNonce == 0) $
-          throwSDKError (NonceException 0 txNonce)
-        A.createAccount msgAuthor
+    preMAcnt <- A.getAccount msgAuthor
+    case preMAcnt of
+      Just A.Account{accountNonce} -> do
+        let expectedNonce = accountNonce + 1
+        unless (txNonce == expectedNonce) $
+          throwSDKError (NonceException expectedNonce txNonce)
+      Nothing -> throwSDKError (UnknownAccountError msgAuthor)
     result <- txApplication tx
-    A.putAccount msgAuthor $
-      account { A.accountNonce = A.accountNonce account + 1}
+    postMAcnt <- A.getAccount msgAuthor
+    case postMAcnt of
+      Just acnt@A.Account{accountNonce} -> do
+        A.putAccount msgAuthor $
+          acnt { A.accountNonce = accountNonce + 1}
+      -- @NOTE: no-op when no nonce is availble to update
+      Nothing -> pure ()
     pure result
 
 baseAppAnteHandler
   :: Members A.AuthEffs r
   => Member (Error AppError) r
   => AnteHandler r
-baseAppAnteHandler = mconcat $
-  [ nonceAnteHandler
+baseAppAnteHandler = fold $
+  -- @NOTE: antehandlers in this list are applied top to bottom
+  [ createAccountAnteHandler
+  , nonceAnteHandler
   ]

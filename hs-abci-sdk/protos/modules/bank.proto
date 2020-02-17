@@ -1,0 +1,15 @@
+syntax = "proto3";
+package Bank;
+
+message Transfer {
+  bytes to = 1;
+  bytes from = 2;
+  string cid = 3;
+  uint64 amount = 4;
+}
+
+message Burn {
+  bytes address = 1;
+  string cid = 2;
+  uint64 amount = 3;
+}
