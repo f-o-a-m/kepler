@@ -77,7 +77,7 @@ module SimpleStorage.Modules.SimpleStorage.Keeper
 data SimpleStorage m a
 type SimpleStorageEffs = '[SimpleStorage]
 updateCount :: Members '[SimpleStorage, Output Event, Logger] r => Count -> Sem r ()
-getCount :: forall r_aQGL. MemberWithError SimpleStorage r_aQGL => Sem r_aQGL (Maybe Count)
+getCount :: forall r_aSK9. MemberWithError SimpleStorage r_aSK9 => Sem r_aSK9 (Maybe Count)
 storeKey :: StoreKey "simple_storage"
 eval :: forall r. Members TxEffs r => forall a. Sem (SimpleStorage : r) a -> Sem r a
 
@@ -97,7 +97,7 @@ type MessageApi = TypedMessage UpdateCountTx :~> Return ()
 simpleStorageModule :: Member SimpleStorage r => Members TxEffs r => Members BaseEffs r => SimpleStorageM r
 data SimpleStorage m a
 type SimpleStorageEffs = '[SimpleStorage]
-getCount :: forall r_aQGL. MemberWithError SimpleStorage r_aQGL => Sem r_aQGL (Maybe Count)
+getCount :: forall r_aSK9. MemberWithError SimpleStorage r_aSK9 => Sem r_aSK9 (Maybe Count)
 updateCount :: Members '[SimpleStorage, Output Event, Logger] r => Count -> Sem r ()
 eval :: forall r. Members TxEffs r => forall a. Sem (SimpleStorage : r) a -> Sem r a
 

@@ -22,14 +22,35 @@ data Account
 -- | Fields :
 --   
 --   <ul>
---   <li><a>denomination</a> <tt>:: Lens' Coin Data.Text.Text</tt></li>
---   <li><a>amount</a> <tt>:: Lens' Coin Data.Word.Word64</tt></li>
+--   <li><a>amount</a> <tt>:: Lens' Amount Data.Word.Word64</tt></li>
+--   </ul>
+data Amount
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>id</a> <tt>:: Lens' Coin CoinId</tt></li>
+--   <li><a>maybe'id</a> <tt>:: Lens' Coin (Prelude.Maybe CoinId)</tt></li>
+--   <li><a>amount</a> <tt>:: Lens' Coin Amount</tt></li>
+--   <li><a>maybe'amount</a> <tt>:: Lens' Coin (Prelude.Maybe
+--   Amount)</tt></li>
 --   </ul>
 data Coin
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>id</a> <tt>:: Lens' CoinId Data.Text.Text</tt></li>
+--   </ul>
+data CoinId
 instance GHC.Classes.Ord Proto.Modules.Auth.Account
 instance GHC.Classes.Eq Proto.Modules.Auth.Account
 instance GHC.Classes.Ord Proto.Modules.Auth.Coin
 instance GHC.Classes.Eq Proto.Modules.Auth.Coin
+instance GHC.Classes.Ord Proto.Modules.Auth.CoinId
+instance GHC.Classes.Eq Proto.Modules.Auth.CoinId
+instance GHC.Classes.Ord Proto.Modules.Auth.Amount
+instance GHC.Classes.Eq Proto.Modules.Auth.Amount
 instance GHC.Show.Show Proto.Modules.Auth.Account
 instance Data.ProtoLens.Field.HasField Proto.Modules.Auth.Account "coins" [Proto.Modules.Auth.Coin]
 instance Data.ProtoLens.Field.HasField Proto.Modules.Auth.Account "vec'coins" (Data.Vector.Vector Proto.Modules.Auth.Coin)
@@ -37,17 +58,77 @@ instance Data.ProtoLens.Field.HasField Proto.Modules.Auth.Account "nonce" GHC.Wo
 instance Data.ProtoLens.Message.Message Proto.Modules.Auth.Account
 instance Control.DeepSeq.NFData Proto.Modules.Auth.Account
 instance GHC.Show.Show Proto.Modules.Auth.Coin
-instance Data.ProtoLens.Field.HasField Proto.Modules.Auth.Coin "denomination" Data.Text.Internal.Text
-instance Data.ProtoLens.Field.HasField Proto.Modules.Auth.Coin "amount" GHC.Word.Word64
+instance Data.ProtoLens.Field.HasField Proto.Modules.Auth.Coin "id" Proto.Modules.Auth.CoinId
+instance Data.ProtoLens.Field.HasField Proto.Modules.Auth.Coin "maybe'id" (GHC.Maybe.Maybe Proto.Modules.Auth.CoinId)
+instance Data.ProtoLens.Field.HasField Proto.Modules.Auth.Coin "amount" Proto.Modules.Auth.Amount
+instance Data.ProtoLens.Field.HasField Proto.Modules.Auth.Coin "maybe'amount" (GHC.Maybe.Maybe Proto.Modules.Auth.Amount)
 instance Data.ProtoLens.Message.Message Proto.Modules.Auth.Coin
 instance Control.DeepSeq.NFData Proto.Modules.Auth.Coin
+instance GHC.Show.Show Proto.Modules.Auth.CoinId
+instance Data.ProtoLens.Field.HasField Proto.Modules.Auth.CoinId "id" Data.Text.Internal.Text
+instance Data.ProtoLens.Message.Message Proto.Modules.Auth.CoinId
+instance Control.DeepSeq.NFData Proto.Modules.Auth.CoinId
+instance GHC.Show.Show Proto.Modules.Auth.Amount
+instance Data.ProtoLens.Field.HasField Proto.Modules.Auth.Amount "amount" GHC.Word.Word64
+instance Data.ProtoLens.Message.Message Proto.Modules.Auth.Amount
+instance Control.DeepSeq.NFData Proto.Modules.Auth.Amount
 
 module Proto.Modules.Auth_Fields
 amount :: forall f s a. (Functor f, HasField s "amount" a) => LensLike' f s a
 coins :: forall f s a. (Functor f, HasField s "coins" a) => LensLike' f s a
-denomination :: forall f s a. (Functor f, HasField s "denomination" a) => LensLike' f s a
+id :: forall f s a. (Functor f, HasField s "id" a) => LensLike' f s a
+maybe'amount :: forall f s a. (Functor f, HasField s "maybe'amount" a) => LensLike' f s a
+maybe'id :: forall f s a. (Functor f, HasField s "maybe'id" a) => LensLike' f s a
 nonce :: forall f s a. (Functor f, HasField s "nonce" a) => LensLike' f s a
 vec'coins :: forall f s a. (Functor f, HasField s "vec'coins" a) => LensLike' f s a
+
+module Proto.Modules.Bank
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>address</a> <tt>:: Lens' Burn
+--   Data.ByteString.ByteString</tt></li>
+--   <li><a>cid</a> <tt>:: Lens' Burn Data.Text.Text</tt></li>
+--   <li><a>amount</a> <tt>:: Lens' Burn Data.Word.Word64</tt></li>
+--   </ul>
+data Burn
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>to</a> <tt>:: Lens' Transfer
+--   Data.ByteString.ByteString</tt></li>
+--   <li><a>from</a> <tt>:: Lens' Transfer
+--   Data.ByteString.ByteString</tt></li>
+--   <li><a>cid</a> <tt>:: Lens' Transfer Data.Text.Text</tt></li>
+--   <li><a>amount</a> <tt>:: Lens' Transfer Data.Word.Word64</tt></li>
+--   </ul>
+data Transfer
+instance GHC.Classes.Ord Proto.Modules.Bank.Transfer
+instance GHC.Classes.Eq Proto.Modules.Bank.Transfer
+instance GHC.Classes.Ord Proto.Modules.Bank.Burn
+instance GHC.Classes.Eq Proto.Modules.Bank.Burn
+instance GHC.Show.Show Proto.Modules.Bank.Transfer
+instance Data.ProtoLens.Field.HasField Proto.Modules.Bank.Transfer "to" Data.ByteString.Internal.ByteString
+instance Data.ProtoLens.Field.HasField Proto.Modules.Bank.Transfer "from" Data.ByteString.Internal.ByteString
+instance Data.ProtoLens.Field.HasField Proto.Modules.Bank.Transfer "cid" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Modules.Bank.Transfer "amount" GHC.Word.Word64
+instance Data.ProtoLens.Message.Message Proto.Modules.Bank.Transfer
+instance Control.DeepSeq.NFData Proto.Modules.Bank.Transfer
+instance GHC.Show.Show Proto.Modules.Bank.Burn
+instance Data.ProtoLens.Field.HasField Proto.Modules.Bank.Burn "address" Data.ByteString.Internal.ByteString
+instance Data.ProtoLens.Field.HasField Proto.Modules.Bank.Burn "cid" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Modules.Bank.Burn "amount" GHC.Word.Word64
+instance Data.ProtoLens.Message.Message Proto.Modules.Bank.Burn
+instance Control.DeepSeq.NFData Proto.Modules.Bank.Burn
+
+module Proto.Modules.Bank_Fields
+address :: forall f s a. (Functor f, HasField s "address" a) => LensLike' f s a
+amount :: forall f s a. (Functor f, HasField s "amount" a) => LensLike' f s a
+cid :: forall f s a. (Functor f, HasField s "cid" a) => LensLike' f s a
+from :: forall f s a. (Functor f, HasField s "from" a) => LensLike' f s a
+to :: forall f s a. (Functor f, HasField s "to" a) => LensLike' f s a
 
 module Proto.Types.Transaction
 
@@ -108,13 +189,13 @@ module Tendermint.SDK.BaseApp.Logger
 data Logger m a
 [Log] :: Severity -> Text -> Logger m ()
 [AddContext] :: (Select x, ToJSON x) => x -> m a -> Logger m a
-log :: forall r_azqu. MemberWithError Logger r_azqu => Severity -> Text -> Sem r_azqu ()
+log :: forall r_aCqy. MemberWithError Logger r_aCqy => Severity -> Text -> Sem r_aCqy ()
 
 -- | Class for selecting object keys for contextual logging
 class Select a
 select :: Select a => Verbosity -> a -> LogSelect
 select :: Select a => Verbosity -> a -> LogSelect
-addContext :: forall r_azqx x_Xy4t a_ay4u. (MemberWithError Logger r_azqx, Select x_Xy4t, ToJSON x_Xy4t) => x_Xy4t -> Sem r_azqx a_ay4u -> Sem r_azqx a_ay4u
+addContext :: forall r_aCqB x_XB4x a_aB4y. (MemberWithError Logger r_aCqB, Select x_XB4x, ToJSON x_XB4x) => x_XB4x -> Sem r_aCqB a_aB4y -> Sem r_aCqB a_aB4y
 data LogSelect
 All :: LogSelect
 Some :: [Text] -> LogSelect
@@ -197,8 +278,8 @@ data Metrics m a
 
 -- | Times an action and records it in a histogram
 [WithTimer] :: HistogramName -> m a -> Metrics m a
-withTimer :: forall r_aNSF a_aNHB. MemberWithError Metrics r_aNSF => HistogramName -> Sem r_aNSF a_aNHB -> Sem r_aNSF a_aNHB
-incCount :: forall r_aNSD. MemberWithError Metrics r_aNSD => CountName -> Sem r_aNSD ()
+withTimer :: forall r_aQSJ a_aQHF. MemberWithError Metrics r_aQSJ => HistogramName -> Sem r_aQSJ a_aQHF -> Sem r_aQSJ a_aQHF
+incCount :: forall r_aQSH. MemberWithError Metrics r_aQSH => CountName -> Sem r_aQSH ()
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Metrics.HistogramName
 instance GHC.Classes.Eq Tendermint.SDK.BaseApp.Metrics.HistogramName
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Metrics.CountName
@@ -269,6 +350,13 @@ instance GHC.Classes.Ord Tendermint.SDK.Types.Address.Address
 instance GHC.Generics.Generic Tendermint.SDK.Types.Address.Address
 instance GHC.Show.Show Tendermint.SDK.Types.Address.Address
 instance GHC.Classes.Eq Tendermint.SDK.Types.Address.Address
+instance Proto3.Suite.Class.Primitive Tendermint.SDK.Types.Address.Address
+instance Proto3.Suite.Class.HasDefault Tendermint.SDK.Types.Address.Address
+instance Proto3.Suite.Class.MessageField Tendermint.SDK.Types.Address.Address
+instance Tendermint.SDK.Codec.HasCodec Tendermint.SDK.Types.Address.Address
+instance Web.Internal.HttpApiData.ToHttpApiData Tendermint.SDK.Types.Address.Address
+instance Web.Internal.HttpApiData.FromHttpApiData Tendermint.SDK.Types.Address.Address
+instance Proto3.Suite.Class.HasDefault Data.ByteArray.HexString.HexString
 
 module Tendermint.SDK.Crypto
 
@@ -486,6 +574,7 @@ SignatureRecoveryError :: Text -> SDKError
 NonceException :: Word64 -> Word64 -> SDKError
 RawStoreInvalidOperation :: Text -> SDKError
 GrpcError :: Text -> SDKError
+UnknownAccountError :: Address -> SDKError
 
 -- | As of right now it's not expected that one can recover from an
 --   <a>SDKError</a>, | so we are throwing them as <a>AppError</a>s
@@ -508,20 +597,20 @@ data WriteStore m a
 [StorePut] :: RawStoreKey -> ByteString -> WriteStore m ()
 [StoreDelete] :: RawStoreKey -> WriteStore m ()
 put :: forall k r ns. IsKey k ns => HasCodec (Value k ns) => Member WriteStore r => StoreKey ns -> k -> Value k ns -> Sem r ()
-storePut :: forall r_a15VI. MemberWithError WriteStore r_a15VI => RawStoreKey -> ByteString -> Sem r_a15VI ()
+storePut :: forall r_a1cpt. MemberWithError WriteStore r_a1cpt => RawStoreKey -> ByteString -> Sem r_a1cpt ()
 delete :: forall k ns r. IsKey k ns => Member WriteStore r => StoreKey ns -> k -> Sem r ()
-storeDelete :: forall r_a15VL. MemberWithError WriteStore r_a15VL => RawStoreKey -> Sem r_a15VL ()
+storeDelete :: forall r_a1cpw. MemberWithError WriteStore r_a1cpw => RawStoreKey -> Sem r_a1cpw ()
 data CommitBlock m a
 [CommitBlock] :: CommitBlock m Base64String
-commitBlock :: forall r_a161E. MemberWithError CommitBlock r_a161E => Sem r_a161E Base64String
+commitBlock :: forall r_a1cvp. MemberWithError CommitBlock r_a1cvp => Sem r_a1cvp Base64String
 data Transaction m a
 [BeginTransaction] :: Transaction m ()
 [Rollback] :: Transaction m ()
 [Commit] :: Transaction m CommitResponse
-beginTransaction :: forall r_a16dH. MemberWithError Transaction r_a16dH => Sem r_a16dH ()
+beginTransaction :: forall r_a1cHs. MemberWithError Transaction r_a1cHs => Sem r_a1cHs ()
 withSandbox :: forall r a. Members [Transaction, Resource, Error AppError] r => Sem r a -> Sem r a
 withTransaction :: forall r a. Members [Transaction, Resource, Error AppError] r => Sem r a -> Sem r (a, CommitResponse)
-commit :: forall r_a16dJ. MemberWithError Transaction r_a16dJ => Sem r_a16dJ CommitResponse
+commit :: forall r_a1cHu. MemberWithError Transaction r_a1cHu => Sem r_a1cHu CommitResponse
 data Scope
 Consensus :: Scope
 QueryAndMempool :: Scope
@@ -790,7 +879,7 @@ data GasMeter m a
 newtype GasAmount
 GasAmount :: Int64 -> GasAmount
 [unGasAmount] :: GasAmount -> Int64
-withGas :: forall r_a1rGs a_a1rvX. MemberWithError GasMeter r_a1rGs => GasAmount -> Sem r_a1rGs a_a1rvX -> Sem r_a1rGs a_a1rvX
+withGas :: forall r_a1y4M a_a1xUh. MemberWithError GasMeter r_a1y4M => GasAmount -> Sem r_a1y4M a_a1xUh -> Sem r_a1y4M a_a1xUh
 eval :: Members [Error AppError, State GasAmount] r => Sem (GasMeter : r) a -> Sem r a
 doNothing :: forall r. forall a. Sem (GasMeter : r) a -> Sem r a
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Gas.GasAmount
@@ -842,10 +931,7 @@ instance forall k (r :: [(* -> *) -> * -> *]) msg (a :: k). (Polysemy.Internal.U
 instance Tendermint.SDK.BaseApp.Transaction.Checker.DefaultCheckTx Tendermint.SDK.BaseApp.Transaction.Types.EmptyTxServer r
 
 module Tendermint.SDK.BaseApp.Transaction.AnteHandler
-newtype AnteHandler r
-AnteHandler :: (forall msg a. (RoutingTx msg -> Sem r a) -> RoutingTx msg -> Sem r a) -> AnteHandler r
-instance GHC.Base.Semigroup (Tendermint.SDK.BaseApp.Transaction.AnteHandler.AnteHandler r)
-instance GHC.Base.Monoid (Tendermint.SDK.BaseApp.Transaction.AnteHandler.AnteHandler r)
+type AnteHandler r = forall msg a. (Endo (RoutingTx msg -> Sem r a))
 
 module Tendermint.SDK.BaseApp.Transaction.Effect
 type TxEffs = [Output Event, GasMeter, WriteStore, ReadStore, Error AppError]
@@ -882,8 +968,7 @@ defaultCheckTx :: DefaultCheckTx api r => Proxy api -> Proxy r -> DefaultCheckTx
 type family VoidReturn (api :: *) :: *
 type TxEffs = [Output Event, GasMeter, WriteStore, ReadStore, Error AppError]
 evalReadOnly :: forall r. forall a. Sem (TxEffs :& r) a -> Sem (ReadStore : (Error AppError : r)) a
-newtype AnteHandler r
-AnteHandler :: (forall msg a. (RoutingTx msg -> Sem r a) -> RoutingTx msg -> Sem r a) -> AnteHandler r
+type AnteHandler r = forall msg a. (Endo (RoutingTx msg -> Sem r a))
 
 module Tendermint.SDK.BaseApp.Effects.PureCoreEffs
 
@@ -1027,15 +1112,15 @@ ContextEvent :: t -> ContextEvent t
 emit :: ToEvent e => Member (Output Event) r => e -> Sem r ()
 logEvent :: forall e r. (ToJSON e, ToEvent e, Select e) => Member Logger r => e -> Sem r ()
 data GasMeter m a
-withGas :: forall r_a1rGs a_a1rvX. MemberWithError GasMeter r_a1rGs => GasAmount -> Sem r_a1rGs a_a1rvX -> Sem r_a1rGs a_a1rvX
+withGas :: forall r_a1y4M a_a1xUh. MemberWithError GasMeter r_a1y4M => GasAmount -> Sem r_a1y4M a_a1xUh -> Sem r_a1y4M a_a1xUh
 
 -- | Effect allowing for console logging.
 data Logger m a
-log :: forall r_azqu. MemberWithError Logger r_azqu => Severity -> Text -> Sem r_azqu ()
+log :: forall r_aCqy. MemberWithError Logger r_aCqy => Severity -> Text -> Sem r_aCqy ()
 data LogSelect
 All :: LogSelect
 Some :: [Text] -> LogSelect
-addContext :: forall r_azqx x_Xy4t a_ay4u. (MemberWithError Logger r_azqx, Select x_Xy4t, ToJSON x_Xy4t) => x_Xy4t -> Sem r_azqx a_ay4u -> Sem r_azqx a_ay4u
+addContext :: forall r_aCqB x_XB4x a_aB4y. (MemberWithError Logger r_aCqB, Select x_XB4x, ToJSON x_XB4x) => x_XB4x -> Sem r_aCqB a_aB4y -> Sem r_aCqB a_aB4y
 data Severity
 Debug :: Severity
 Info :: Severity
@@ -1053,8 +1138,8 @@ V1 :: Verbosity
 V2 :: Verbosity
 V3 :: Verbosity
 data Metrics m a
-incCount :: forall r_aNSD. MemberWithError Metrics r_aNSD => CountName -> Sem r_aNSD ()
-withTimer :: forall r_aNSF a_aNHB. MemberWithError Metrics r_aNSF => HistogramName -> Sem r_aNSF a_aNHB -> Sem r_aNSF a_aNHB
+incCount :: forall r_aQSH. MemberWithError Metrics r_aQSH => CountName -> Sem r_aQSH ()
+withTimer :: forall r_aQSJ a_aQHF. MemberWithError Metrics r_aQSJ => HistogramName -> Sem r_aQSJ a_aQHF -> Sem r_aQSJ a_aQHF
 data CountName
 CountName :: Text -> [(Text, Text)] -> CountName
 [countName] :: CountName -> Text
@@ -1064,8 +1149,7 @@ HistogramName :: Text -> [(Text, Text)] -> [Double] -> HistogramName
 [histogramName] :: HistogramName -> Text
 [histogramLabels] :: HistogramName -> [(Text, Text)]
 [histogramBuckets] :: HistogramName -> [Double]
-newtype AnteHandler r
-AnteHandler :: (forall msg a. (RoutingTx msg -> Sem r a) -> RoutingTx msg -> Sem r a) -> AnteHandler r
+type AnteHandler r = forall msg a. (Endo (RoutingTx msg -> Sem r a))
 data RoutingTx msg
 [RoutingTx] :: Tx alg msg -> RoutingTx msg
 type family RouteTx layout (s :: EffectRow) :: *
@@ -1153,40 +1237,112 @@ instance Tendermint.SDK.Application.Module.ToApplication (m' : ms) r => Tendermi
 module Tendermint.SDK.Modules.Auth
 type AuthM r = Module AuthModule EmptyTxServer EmptyTxServer Api AuthEffs r
 authModule :: Members BaseEffs r => Member ReadStore r => AuthM r
-type AuthEffs = '[Accounts, Error AuthError]
-data Account
-Account :: [Coin] -> Word64 -> Account
-[accountCoins] :: Account -> [Coin]
-[accountNonce] :: Account -> Word64
 data Accounts m a
 [PutAccount] :: Address -> Account -> Accounts m ()
 [GetAccount] :: Address -> Accounts m (Maybe Account)
-getAccount :: forall r_a1zfo. MemberWithError Accounts r_a1zfo => Address -> Sem r_a1zfo (Maybe Account)
-putAccount :: forall r_a1zfl. MemberWithError Accounts r_a1zfl => Address -> Account -> Sem r_a1zfl ()
-createAccount :: Members [Accounts, Error AuthError] r => Address -> Sem r Account
+type AuthEffs = '[Accounts, Error AuthError]
+putAccount :: forall r_a1IjK. MemberWithError Accounts r_a1IjK => Address -> Account -> Sem r_a1IjK ()
+getAccount :: forall r_a1IjN. MemberWithError Accounts r_a1IjN => Address -> Sem r_a1IjN (Maybe Account)
 eval :: Members [ReadStore, WriteStore, Error AppError] r => Sem (Accounts : (Error AuthError : r)) a -> Sem r a
+createAccount :: Members [Accounts, Error AuthError] r => Address -> Sem r Account
 type Api = QueryApi AuthContents
 querier :: Members QueryEffs r => RouteQ Api r
 type AuthModule = "auth"
+data AuthError
+AccountAlreadyExists :: Address -> AuthError
+newtype CoinId
+CoinId :: Text -> CoinId
+[unCoinId] :: CoinId -> Text
+newtype Amount
+Amount :: Word64 -> Amount
+[unAmount] :: Amount -> Word64
 data Coin
-Coin :: Text -> Word64 -> Coin
-[coinDenomination] :: Coin -> Text
-[coinAmount] :: Coin -> Word64
+Coin :: CoinId -> Amount -> Coin
+[coinId] :: Coin -> CoinId
+[coinAmount] :: Coin -> Amount
+coinAesonOptions :: Options
 data Account
 Account :: [Coin] -> Word64 -> Account
 [accountCoins] :: Account -> [Coin]
 [accountNonce] :: Account -> Word64
-data AuthError
-AccountAlreadExists :: Address -> AuthError
+
+module Tendermint.SDK.Modules.Bank.Types
+type BankModule = "bank"
+data BankError
+InsufficientFunds :: Text -> BankError
+data TransferEvent
+TransferEvent :: CoinId -> Amount -> Address -> Address -> TransferEvent
+[transferEventCoinId] :: TransferEvent -> CoinId
+[transferEventAmount] :: TransferEvent -> Amount
+[transferEventTo] :: TransferEvent -> Address
+[transferEventFrom] :: TransferEvent -> Address
+transferEventAesonOptions :: Options
+instance GHC.Generics.Generic Tendermint.SDK.Modules.Bank.Types.TransferEvent
+instance GHC.Show.Show Tendermint.SDK.Modules.Bank.Types.TransferEvent
+instance GHC.Classes.Eq Tendermint.SDK.Modules.Bank.Types.TransferEvent
+instance Data.Aeson.Types.ToJSON.ToJSON Tendermint.SDK.Modules.Bank.Types.TransferEvent
+instance Data.Aeson.Types.FromJSON.FromJSON Tendermint.SDK.Modules.Bank.Types.TransferEvent
+instance Tendermint.SDK.BaseApp.Events.ToEvent Tendermint.SDK.Modules.Bank.Types.TransferEvent
+instance Tendermint.SDK.BaseApp.Logger.Select Tendermint.SDK.Modules.Bank.Types.TransferEvent
+instance Tendermint.SDK.BaseApp.Errors.IsAppError Tendermint.SDK.Modules.Bank.Types.BankError
+
+module Tendermint.SDK.Modules.Bank.Messages
+data Transfer
+Transfer :: Address -> Address -> CoinId -> Amount -> Transfer
+[transferTo] :: Transfer -> Address
+[transferFrom] :: Transfer -> Address
+[transferCoinId] :: Transfer -> CoinId
+[transferAmount] :: Transfer -> Amount
+data Burn
+Burn :: Address -> CoinId -> Amount -> Burn
+[burnAddress] :: Burn -> Address
+[burnCoinId] :: Burn -> CoinId
+[burnAmount] :: Burn -> Amount
+instance GHC.Generics.Generic Tendermint.SDK.Modules.Bank.Messages.Burn
+instance GHC.Show.Show Tendermint.SDK.Modules.Bank.Messages.Burn
+instance GHC.Classes.Eq Tendermint.SDK.Modules.Bank.Messages.Burn
+instance GHC.Generics.Generic Tendermint.SDK.Modules.Bank.Messages.Transfer
+instance GHC.Show.Show Tendermint.SDK.Modules.Bank.Messages.Transfer
+instance GHC.Classes.Eq Tendermint.SDK.Modules.Bank.Messages.Transfer
+instance Control.Lens.Wrapped.Wrapped Tendermint.SDK.Modules.Bank.Messages.Burn
+instance Tendermint.SDK.Types.Message.HasMessageType Tendermint.SDK.Modules.Bank.Messages.Burn
+instance Tendermint.SDK.Codec.HasCodec Tendermint.SDK.Modules.Bank.Messages.Burn
+instance Tendermint.SDK.Types.Message.ValidateMessage Tendermint.SDK.Modules.Bank.Messages.Burn
+instance Control.Lens.Wrapped.Wrapped Tendermint.SDK.Modules.Bank.Messages.Transfer
+instance Tendermint.SDK.Types.Message.HasMessageType Tendermint.SDK.Modules.Bank.Messages.Transfer
+instance Tendermint.SDK.Codec.HasCodec Tendermint.SDK.Modules.Bank.Messages.Transfer
+instance Tendermint.SDK.Types.Message.ValidateMessage Tendermint.SDK.Modules.Bank.Messages.Transfer
+
+module Tendermint.SDK.Modules.Bank.Keeper
+type BankEffs = '[Error BankError]
+eval :: Member (Error AppError) r => forall a. Sem (Error BankError : r) a -> Sem r a
+getCoinBalance :: Members AuthEffs r => Address -> CoinId -> Sem r Coin
+replaceCoinValue :: Coin -> [Coin] -> [Coin]
+putCoinBalance :: Members AuthEffs r => Address -> Coin -> Sem r ()
+transfer :: Members [Logger, Output Event] r => Members AuthEffs r => Members BankEffs r => Address -> Coin -> Address -> Sem r ()
+burn :: Members AuthEffs r => Members BankEffs r => Address -> Coin -> Sem r ()
+mint :: Members AuthEffs r => Address -> Coin -> Sem r ()
+
+module Tendermint.SDK.Modules.Bank.Router
+type MessageApi = TypedMessage Burn :~> Return () :<|> TypedMessage Transfer :~> Return ()
+messageHandlers :: Members AuthEffs r => Members BankEffs r => Members TxEffs r => Members BaseEffs r => RouteTx MessageApi r
+
+module Tendermint.SDK.Modules.Bank.Query
+
+-- | Query Api
+type GetAddressCoinBalance = "balance" :> QA Address :> QueryParam' '[Required, Strict] "coin_id" CoinId :> Leaf Coin
+getAddressCoinBalance :: Members AuthEffs r => QueryArgs Address -> CoinId -> Sem r (QueryResult Coin)
+type QueryApi = GetAddressCoinBalance
+querier :: forall r. Members AuthEffs r => RouteQ QueryApi r
 
 module Tendermint.SDK.Application.App
 createIOApp :: forall r. (forall a. Sem r a -> IO a) -> App (Sem r) -> App IO
 
 module Tendermint.SDK.Application.AnteHandler
+createAccountAnteHandler :: Members AuthEffs r => AnteHandler r
 nonceAnteHandler :: Members AuthEffs r => Member (Error AppError) r => AnteHandler r
 baseAppAnteHandler :: Members AuthEffs r => Member (Error AppError) r => AnteHandler r
-newtype AnteHandler r
-AnteHandler :: (forall msg a. (RoutingTx msg -> Sem r a) -> RoutingTx msg -> Sem r a) -> AnteHandler r
+type AnteHandler r = forall msg a. (Endo (RoutingTx msg -> Sem r a))
 
 module Tendermint.SDK.Application.Handlers
 type Handler mt r = Request mt -> Sem r (Response mt)
@@ -1218,3 +1374,7 @@ HandlersContext :: Proxy alg -> ModuleList ms r -> AnteHandler r -> (forall a. S
 baseAppAnteHandler :: Members AuthEffs r => Member (Error AppError) r => AnteHandler r
 createIOApp :: forall r. (forall a. Sem r a -> IO a) -> App (Sem r) -> App IO
 makeApp :: forall alg ms r core. RecoverableSignatureSchema alg => Message alg ~ Digest SHA256 => ToApplication ms (Effs ms (BaseApp core)) => HasTxRouter (ApplicationC ms) (Effs ms (BaseApp core))  'QueryAndMempool => HasTxRouter (ApplicationC ms) (BaseApp core)  'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms (BaseApp core))  'Consensus => HasTxRouter (ApplicationD ms) (BaseApp core)  'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms (BaseApp core)) => HasQueryRouter (ApplicationQ ms) (BaseApp core) => Eval ms (BaseApp core) => Effs ms (BaseApp core) ~ r => HandlersContext alg ms r core -> App (Sem core)
+
+module Tendermint.SDK.Modules.Bank
+type BankM r = Module "bank" MessageApi MessageApi QueryApi BankEffs r
+bankModule :: Members BaseEffs r => Members AuthEffs r => Members BankEffs r => Members TxEffs r => BankM r

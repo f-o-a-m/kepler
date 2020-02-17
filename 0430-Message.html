@@ -465,7 +465,7 @@ footer
 
 }
 
-/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0010-Overview.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0020-Installation.html" class="tintin-fg-disabled">Installation</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-disabled">Foundations - BaseEffs, TxEffs, and QueryEffs</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0400-Tutorial.html" class="tintin-fg-disabled">Tutorial</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-active">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-disabled">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>Message</h1>
+/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0010-Overview.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0020-Installation.html" class="tintin-fg-disabled">Installation</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-disabled">Foundations - SDK Effects</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0400-Tutorial.html" class="tintin-fg-disabled">Tutorial</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-active">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-disabled">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>Message</h1>
 <h2>Message Types</h2>
 <p>Each module is ultimately a small state machine used for processing messages. Each module must define what messages it accepts, if any. Like many other types found in the SDK, this message class must implement the <code>HasCodec</code> class. We recommend using a protobuf serialization format for messages using either the <code>proto3-suite</code> or <code>proto-lens</code> libraries, though in theory you could use anything (e.g. <code>JSON</code>).</p>
 <h3><code>proto3-suite</code></h3>
@@ -478,22 +478,24 @@ The disadvantage is that the generated code is a bit strange, and may require yo
 <h2>Tutorial.Nameservice.Message</h2>
 <pre class="haskell"><code>module Tutorial.Nameservice.Message where
 
-import Data.Bifunctor (first)
+import Data.Bifunctor (bimap, first)
 import Data.Foldable (sequenceA_)
 import Data.String.Conversions (cs)
 import Data.Text (Text)
+import Data.Word (Word64)
 import GHC.Generics (Generic)
 import Nameservice.Modules.Nameservice.Types (Name(..))
-import Nameservice.Modules.Token (Amount)
 import Proto3.Suite (Named, Message, fromByteString, toLazyByteString)
 import Tendermint.SDK.Types.Address (Address)
 import Tendermint.SDK.Types.Message (Msg(..), ValidateMessage(..), HasMessageType(..),
                                      isAuthorCheck, nonEmptyCheck,
                                      coerceProto3Error, formatMessageParseError)
+import Tendermint.SDK.Modules.Auth (Amount (..))
+import Tendermint.SDK.Modules.Bank ()
 import Tendermint.SDK.Codec (HasCodec(..))
 </code></pre>
 <h3>Message Definitions</h3>
-<p>For the puroposes of the tutorial, we will use the <code>proto3-suite</code> for the message codecs:</p>
+<p>For the puroposes of the tutorial, we will use the <code>proto3-suite</code> for the message codecs. For <code>BuyName</code>, an intermediary datatype, <code>BuyNameMessage</code> is used to support encoding for <code>Amount</code>:</p>
 <pre class="haskell"><code>data SetName = SetName
   { setNameName  :: Name
   , setNameOwner :: Address
@@ -524,14 +526,35 @@ data BuyName = BuyName
   , buyNameName  :: Name
   , buyNameValue :: Text
   , buyNameBuyer :: Address
-  } deriving (Eq, Show, Generic)
+  } deriving (Eq, Show)
 
-instance Message BuyName
-instance Named BuyName
+data BuyNameMessage = BuyNameMessage
+  { buyNameMessageBid   :: Word64
+  , buyNameMessageName  :: Name
+  , buyNameMessageValue :: Text
+  , buyNameMessageBuyer :: Address
+  } deriving (Eq, Show, Generic)
+instance Message BuyNameMessage
+instance Named BuyNameMessage
 
 instance HasCodec BuyName where
-  encode = cs . toLazyByteString
-  decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
+  encode BuyName {..} =
+    let buyNameMessage = BuyNameMessage
+          { buyNameMessageBid = unAmount buyNameBid
+          , buyNameMessageName = buyNameName
+          , buyNameMessageValue = buyNameValue
+          , buyNameMessageBuyer = buyNameBuyer
+          }
+    in cs . toLazyByteString $ buyNameMessage
+  decode =
+    let toBuyName BuyNameMessage {..} = BuyName
+          { buyNameBid = Amount buyNameMessageBid
+          , buyNameName = buyNameMessageName
+          , buyNameValue = buyNameMessageValue
+          , buyNameBuyer = buyNameMessageBuyer
+          }
+    in bimap (formatMessageParseError . coerceProto3Error) toBuyName
+       . fromByteString @BuyNameMessage
 </code></pre>
 <p>As <code>protobuf</code> is a schemaless format, parsing is sometimes ambiguous if two types are the same up to field names, or one is a subset of the other. For this reason we use the type class <code>HasTypedMessage</code></p>
 <pre class="haskell"><code>class HasMessageType msg where

@@ -465,7 +465,7 @@ footer
 
 }
 
-/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0010-Overview.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0020-Installation.html" class="tintin-fg-disabled">Installation</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-disabled">Foundations - BaseEffs, TxEffs, and QueryEffs</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0400-Tutorial.html" class="tintin-fg-disabled">Tutorial</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-active">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>Keeper</h1>
+/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0010-Overview.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0020-Installation.html" class="tintin-fg-disabled">Installation</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-BaseApp.html" class="tintin-fg-disabled">Foundations - SDK Effects</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0400-Tutorial.html" class="tintin-fg-disabled">Tutorial</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-active">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0470-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>Keeper</h1>
 <h2>Definition</h2>
 <p>&quot;Keeper&quot; is a word taken from the cosmos-sdk, it&#39;s basically the interface that the module exposes to the other modules in the application. For example, in the Nameservice app, the Nameservice keeper exposes functions to <code>buy</code>/<code>sell</code>/<code>delete</code> entries in the mapping. Likewise, the Nameservice keeper depends on the keeper from the <code>bank</code> module in order to transfer tokens when executing those methods. A keeper might also indicate what kinds of exceptions are able to be caught and thrown from the module. For example, calling <code>transfer</code> while buying a <code>Name</code> might throw an <code>InsufficientFunds</code> exception, which the Namerservice module can chose whether to catch or not.</p>
 <h2>Tutorial.Nameservice.Keeper</h2>
@@ -475,13 +475,14 @@ module Tutorial.Nameservice.Keeper where
 import Data.Proxy
 import Data.String.Conversions (cs)
 import GHC.TypeLits (symbolVal)
-import Polysemy (Sem, Members, makeSem, interpret)
+import Polysemy (Sem, Member, Members, makeSem, interpret)
 import Polysemy.Error (Error, throw, mapError)
 import Polysemy.Output (Output)
 import Nameservice.Modules.Nameservice.Messages (DeleteName(..))
 import Nameservice.Modules.Nameservice.Types (Whois(..), Name, NameDeleted(..), NameserviceModuleName, NameserviceError(..))
-import Nameservice.Modules.Token (Token, mint)
 import qualified Tendermint.SDK.BaseApp as BA
+import Tendermint.SDK.Modules.Auth (AuthEffs, Coin(..))
+import Tendermint.SDK.Modules.Bank (BankEffs, mint)
 </code></pre>
 <p>Generally a keeper is defined by a set of effects that the module introduces and depends on. In the case of Nameservice, we introduce the custom <code>Nameservice</code> effect:</p>
 <pre class="haskell"><code>data NameserviceKeeper m a where
@@ -500,7 +501,9 @@ deleteWhois :: forall r. Member NameserviceKeeper r =&gt; Name -&gt; Sem r ()
 </code></pre>
 <p>We can then write the top level function for example for deleting a name:</p>
 <pre class="haskell"><code>deleteName
-  :: Members [Token, Output BA.Event] r
+  :: Member (Output BA.Event) r
+  =&gt; Members AuthEffs r
+  =&gt; Members BankEffs r
   =&gt; Members [NameserviceKeeper, Error NameserviceError] r
   =&gt; DeleteName
   -&gt; Sem r ()
@@ -512,7 +515,7 @@ deleteName DeleteName{..} = do
       if whoisOwner /= deleteNameOwner
         then throw $ InvalidDelete &quot;Deleter must be the owner.&quot;
         else do
-          mint deleteNameOwner whoisPrice
+          mint deleteNameOwner (Coin &quot;nameservice&quot; whoisPrice)
           deleteWhois deleteNameName
           BA.emit NameDeleted
             { nameDeletedName = deleteNameName
@@ -527,12 +530,12 @@ deleteName DeleteName{..} = do
 <li>Emit an event that the name has been deleted.</li>
 </ol>
 <p>Taking a look at the class constraints, we see</p>
-<pre class="haskell"><code>(Members NameserviceEffs, Members [Token, Output Event] r)
+<pre class="haskell"><code>(Members NameserviceEffs, Member (Output Event) r)
 </code></pre>
 <ul>
 <li>The <code>NameserviceKeeper</code> effect is required because the function may manipulate the modules database with <code>deleteName</code>.</li>
 <li>The <code>Error NameserviceError</code> effect is required because the function may throw an error.</li>
-<li>The <code>Token</code> effect is required because the function will mint coins.</li>
+<li>The <code>Auth</code> effect is required because the function will mint coins.</li>
 <li>The <code>Output Event</code> effect is required because the function may emit a <code>NameDeleted</code> event.</li>
 </ul>
 <h3>Evaluating Module Effects</h3>
