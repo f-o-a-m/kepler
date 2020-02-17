@@ -1,6 +1,5 @@
 module Nameservice.Application
-  ( EffR
-  , NameserviceModules
+  ( NameserviceModules
   , handlersContext
   ) where
 
@@ -14,10 +13,6 @@ import           Tendermint.SDK.Crypto           (Secp256k1)
 import qualified Tendermint.SDK.Modules.Auth     as A
 import qualified Tendermint.SDK.Modules.Bank     as B
 
-type EffR =
-   N.NameserviceEffs BA.:&
-   B.BankEffs BA.:&
-   A.AuthEffs
 
 type NameserviceModules =
    '[ N.Nameservice
@@ -25,7 +20,7 @@ type NameserviceModules =
     , A.Auth
     ]
 
-handlersContext :: HandlersContext Secp256k1 NameserviceModules EffR BA.CoreEffs
+handlersContext :: HandlersContext Secp256k1 NameserviceModules BA.CoreEffs
 handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = nameserviceModules
@@ -33,7 +28,6 @@ handlersContext = HandlersContext
   , anteHandler = baseAppAnteHandler
   }
   where
-  nameserviceModules :: ModuleList NameserviceModules (BA.AppEffs EffR BA.CoreEffs)
   nameserviceModules =
        N.nameserviceModule
     :+ B.bankModule

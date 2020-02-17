@@ -71,16 +71,16 @@ defaultHandlers = Handlers
     defaultHandler = const $ pure def
 
 
-data HandlersContext alg ms r core = HandlersContext
+data HandlersContext alg ms core = HandlersContext
   { signatureAlgP :: Proxy alg
-  , modules       :: M.ModuleList ms (BA.AppEffs r core)
-  , anteHandler   :: BA.AnteHandler (BA.AppEffs r core)
+  , modules       :: M.ModuleList ms (BA.AppEffs (M.ModulesEffs ms) core)
+  , anteHandler   :: BA.AnteHandler (BA.AppEffs (M.ModulesEffs ms) core)
   , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
   }
 
 -- Common function between checkTx and deliverTx
 makeHandlers
-  :: forall alg ms r core.
+  :: forall alg ms core.
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
   => M.ToApplication ms (M.Effs ms (BA.BaseAppEffs core))
@@ -91,10 +91,10 @@ makeHandlers
   => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms (BA.BaseAppEffs core))
   => Q.HasQueryRouter (M.ApplicationQ ms) (BA.BaseAppEffs core)
   => M.Eval ms (BA.BaseAppEffs core)
-  => M.Effs ms (BA.BaseAppEffs core) ~ (BA.AppEffs r core)
-  => HandlersContext alg ms r core
+  => M.Effs ms (BA.BaseAppEffs core) ~ (BA.AppEffs (M.ModulesEffs ms) core)
+  => HandlersContext alg ms core
   -> Handlers (BA.BaseAppEffs core)
-makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
+makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
   let
 
       rProxy :: Proxy (BA.BaseAppEffs core)
@@ -170,7 +170,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms r core) =
        }
 
 makeApp
-  :: forall alg ms r core.
+  :: forall alg ms core.
 
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
@@ -182,8 +182,8 @@ makeApp
   => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms (BA.BaseAppEffs core))
   => Q.HasQueryRouter (M.ApplicationQ ms) (BA.BaseAppEffs core)
   => M.Eval ms (BA.BaseAppEffs core)
-  => M.Effs ms (BA.BaseAppEffs core) ~ (BA.AppEffs r core)
-  => HandlersContext alg ms r core
+  => M.Effs ms (BA.BaseAppEffs core) ~ (BA.AppEffs (M.ModulesEffs ms) core)
+  => HandlersContext alg ms core
   -> App (Sem core)
 makeApp handlersContext@HandlersContext{compileToCore} =
   let Handlers{..} = makeHandlers handlersContext :: Handlers (BA.BaseAppEffs core)

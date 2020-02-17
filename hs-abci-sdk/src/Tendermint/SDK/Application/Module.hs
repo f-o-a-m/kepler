@@ -5,6 +5,7 @@ module Tendermint.SDK.Application.Module
   , Component
   , ComponentEffs
   , ModuleList(..)
+  , ModulesEffs
   , Application(..)
   , ToApplication(..)
   , hoistApplication
@@ -43,7 +44,7 @@ data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: Eff
 
 type family ComponentEffs (m :: Component) :: EffectRow where
   ComponentEffs (Module _ _ _ _ es deps) = es :& DependencyEffs deps :& T.TxEffs :& BaseEffs
-  ComponentEffs _ = TypeError ('Text "DependencyEffs is a partial function defined only on partially applied Module")
+  ComponentEffs _ = TypeError ('Text "DependencyEffs is a partial function defined only on Component")
 
 data ModuleList (ms :: [Component]) r where
   NilModules :: ModuleList '[] r
@@ -52,6 +53,12 @@ data ModuleList (ms :: [Component]) r where
        -> ModuleList (Module name check deliver query es deps ': ms) r
 
 infixr 5 :+
+
+type family ModulesEffs (ms :: [Component]) :: EffectRow where
+  ModulesEffs '[] = '[]
+  ModulesEffs (Module _ _ _ _ es deps ': rest) = es :& ModulesEffs rest
+  ModulesEffs _ = TypeError ('Text "ModulesEffs is a partial function defined only on [Component]")
+
 
 data Application check deliver query r s = Application
   { applicationTxChecker   :: T.RouteTx check r
