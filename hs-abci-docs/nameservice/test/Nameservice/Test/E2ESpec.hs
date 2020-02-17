@@ -9,8 +9,7 @@ import qualified Nameservice.Modules.Nameservice   as N
 import           Nameservice.Test.EventOrphans     ()
 import qualified Network.Tendermint.Client         as RPC
 import           Servant.API                       ((:<|>) (..))
-import           Tendermint.SDK.Application.Module (AppQueryRouter (QApi),
-                                                    AppTxRouter (TApi))
+import qualified Tendermint.SDK.Application.Module as M
 import           Tendermint.SDK.BaseApp.Errors     (AppError (..))
 import           Tendermint.SDK.BaseApp.Query      (QueryArgs (..),
                                                     QueryResult (..),
@@ -361,7 +360,7 @@ getBalance
 getWhois :<|> getBalance :<|> getAccount =
   genClientQ (Proxy :: Proxy m) queryApiP def
   where
-    queryApiP :: Proxy (QApi NameserviceModules)
+    queryApiP :: Proxy (M.ApplicationQ NameserviceModules)
     queryApiP = Proxy
 
 
@@ -428,7 +427,9 @@ faucet
 (buyName :<|> setName :<|> deleteName :<|> faucet) :<|>
   (_ :<|> transfer) :<|>
   EmptyTxClient =
-    genClientT (Proxy @TxClientM) txApiP defaultClientTxOpts
+    genClientT (Proxy @TxClientM) txApiCP txApiDP defaultClientTxOpts
     where
-      txApiP :: Proxy (TApi NameserviceModules)
-      txApiP = Proxy
+      txApiCP :: Proxy (M.ApplicationC NameserviceModules)
+      txApiCP = Proxy
+      txApiDP :: Proxy (M.ApplicationD NameserviceModules)
+      txApiDP = Proxy

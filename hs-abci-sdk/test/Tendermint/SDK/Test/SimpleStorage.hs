@@ -16,7 +16,6 @@ import           Data.ByteArray                   (convert)
 import qualified Data.ByteArray.Base64String      as Base64
 import           Data.ByteString                  (ByteString)
 import           Data.Int                         (Int32)
-import           Data.Maybe                       (fromJust)
 import           Data.Proxy
 import qualified Data.Serialize                   as Serialize
 import           Data.Serialize.Text              ()
@@ -24,15 +23,16 @@ import           Data.String.Conversions          (cs)
 import           Data.Validation                  (Validation (..))
 import           GHC.Generics                     (Generic)
 import           Polysemy
-import           Polysemy.Error                   (Error)
+import           Polysemy.Error                   (Error, throw)
 import           Servant.API
 import           Tendermint.SDK.Application       (Module (..))
-import qualified Tendermint.SDK.BaseApp           as BaseApp
+import qualified Tendermint.SDK.BaseApp           as BA
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Types.Message     (HasMessageType (..),
                                                    Msg (..),
                                                    ValidateMessage (..))
 import           Tendermint.SDK.Types.Transaction (Tx (..))
+
 
 --------------------------------------------------------------------------------
 -- Types
@@ -46,18 +46,18 @@ instance HasCodec Count where
     encode = Serialize.encode
     decode = first cs . Serialize.decode
 
-instance BaseApp.RawKey CountKey where
+instance BA.RawKey CountKey where
     rawKey = iso (\_ -> cs countKey) (const CountKey)
       where
         countKey :: ByteString
         countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
 
-instance BaseApp.IsKey CountKey "simple_storage" where
+instance BA.IsKey CountKey "simple_storage" where
     type Value CountKey "simple_storage" = Count
 
-instance BaseApp.FromQueryData CountKey
+instance BA.FromQueryData CountKey
 
-instance BaseApp.Queryable Count where
+instance BA.Queryable Count where
   type Name Count = "count"
 
 --------------------------------------------------------------------------------
@@ -84,12 +84,12 @@ instance ValidateMessage UpdateCountTx where
 -- Keeper
 --------------------------------------------------------------------------------
 
-storeKey :: BaseApp.StoreKey "simple_storage"
-storeKey = BaseApp.StoreKey "simple_storage"
+storeKey :: BA.StoreKey "simple_storage"
+storeKey = BA.StoreKey "simple_storage"
 
 data SimpleStorage m a where
     PutCount :: Count -> SimpleStorage m ()
-    GetCount :: SimpleStorage m Count
+    GetCount :: SimpleStorage m (Maybe Count)
 
 makeSem ''SimpleStorage
 
@@ -103,11 +103,11 @@ updateCount count = putCount count
 
 eval
   :: forall r.
-     Members '[BaseApp.RawStore, Error BaseApp.AppError] r
+     Members BA.TxEffs r
   => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
 eval = interpret (\case
-  PutCount count -> BaseApp.put storeKey CountKey count
-  GetCount -> fromJust <$> BaseApp.get storeKey CountKey
+  PutCount count -> BA.put storeKey CountKey count
+  GetCount -> BA.get storeKey CountKey
   )
 
 --------------------------------------------------------------------------------
@@ -115,19 +115,20 @@ eval = interpret (\case
 --------------------------------------------------------------------------------
 
 type MessageApi =
-  BaseApp.TypedMessage UpdateCountTx BaseApp.:~> BaseApp.Return ()
+  BA.TypedMessage UpdateCountTx BA.:~> BA.Return ()
 
 messageHandlers
   :: Member SimpleStorage r
-  => BaseApp.RouteTx MessageApi r 'BaseApp.DeliverTx
+  => Members BA.TxEffs r
+  => BA.RouteTx MessageApi r
 messageHandlers = updateCountH
 
 updateCountH
   :: Member SimpleStorage r
-  => Members BaseApp.TxEffs r
-  => BaseApp.RoutingTx UpdateCountTx
+  => Members BA.TxEffs r
+  => BA.RoutingTx UpdateCountTx
   -> Sem r ()
-updateCountH (BaseApp.RoutingTx Tx{txMsg}) =
+updateCountH (BA.RoutingTx Tx{txMsg}) =
   let Msg{msgData} = txMsg
       UpdateCountTx{updateCountTxCount} = msgData
   in updateCount (Count updateCountTxCount)
@@ -142,33 +143,36 @@ type GetMultipliedCount =
      "manipulated"
   :> Capture "subtract" Integer
   :> QueryParam' '[Required, Strict] "factor" Integer
-  :> BaseApp.Leaf Count
+  :> BA.Leaf Count
 
 getMultipliedCount
-  :: Member SimpleStorage r
+  :: Members [Error BA.AppError, SimpleStorage] r
   => Integer
   -> Integer
-  -> Sem r (BaseApp.QueryResult Count)
+  -> Sem r (BA.QueryResult Count)
 getMultipliedCount subtractor multiplier = do
   let m = fromInteger multiplier
       s = fromInteger subtractor
-  c <- getCount
-  pure $ BaseApp.QueryResult
-    { queryResultData = m * c - s
-    , queryResultIndex = 0
-    , queryResultKey = Base64.fromBytes $ CountKey ^. BaseApp.rawKey
-    , queryResultProof  = Nothing
-    , queryResultHeight = 0
-    }
+  mc <- getCount
+  case mc of
+    Nothing -> throw . BA.makeAppError $ BA.ResourceNotFound
+    Just c -> pure $ BA.QueryResult
+      { queryResultData = m * c - s
+      , queryResultIndex = 0
+      , queryResultKey = Base64.fromBytes $ CountKey ^. BA.rawKey
+      , queryResultProof  = Nothing
+      , queryResultHeight = 0
+      }
 
-type QueryApi = GetMultipliedCount :<|> BaseApp.QueryApi CountStoreContents
+type QueryApi = GetMultipliedCount :<|> BA.QueryApi CountStoreContents
 
-server
+querier
   :: forall r.
-     Members [SimpleStorage, BaseApp.RawStore, Error BaseApp.AppError] r
-  => BaseApp.RouteQ QueryApi r
-server =
-  let storeHandlers = BaseApp.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
+     Members BA.QueryEffs r
+  => Member SimpleStorage r
+  => BA.RouteQ QueryApi r
+querier =
+  let storeHandlers = BA.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
         storeKey (Proxy :: Proxy r)
   in getMultipliedCount :<|> storeHandlers
 
@@ -177,25 +181,24 @@ server =
 --------------------------------------------------------------------------------
 
 type SimpleStorageM r =
-  Module "simple_storage" MessageApi QueryApi SimpleStorageEffs r
+  Module "simple_storage" MessageApi MessageApi QueryApi SimpleStorageEffs r
 
 simpleStorageModule
   :: Member SimpleStorage r
-  => Members BaseApp.BaseAppEffs r
+  => Members BA.TxEffs r
+  => Members BA.BaseEffs r
   => SimpleStorageM r
 simpleStorageModule = Module
   { moduleTxDeliverer = messageHandlers
-  , moduleTxChecker = BaseApp.defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
-  , moduleQueryServer = server
+  , moduleTxChecker = BA.defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
+  , moduleQuerier = querier
   , moduleEval = eval
   }
 
 evalToIO
-  :: BaseApp.Context
-  -> Sem (SimpleStorage ': BaseApp.BaseApp BaseApp.CoreEffs) a
+  :: BA.PureContext
+  -> Sem (BA.BaseApp BA.PureCoreEffs) a
   -> IO a
-evalToIO context action =
-  BaseApp.runCoreEffs context .
-    BaseApp.compileToCoreEffs .
-    BaseApp.applyScope @'BaseApp.Consensus $
-    eval action
+evalToIO context action = do
+  eRes <- BA.runPureCoreEffs context .  BA.defaultCompileToPureCore $ action
+  either (error . show) pure eRes

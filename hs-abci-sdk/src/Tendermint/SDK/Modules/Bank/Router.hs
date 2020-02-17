@@ -5,9 +5,7 @@ module Tendermint.SDK.Modules.Bank.Router
 
 import           Polysemy                             (Members, Sem)
 import           Servant.API                          ((:<|>) (..))
-import           Tendermint.SDK.BaseApp               ((:~>), BaseAppEffs,
-                                                       Return,
-                                                       RouteContext (..),
+import           Tendermint.SDK.BaseApp               ((:~>), BaseEffs, Return,
                                                        RouteTx, RoutingTx (..),
                                                        TxEffs, TypedMessage)
 import           Tendermint.SDK.Modules.Auth          (AuthEffs, Coin (..))
@@ -23,15 +21,16 @@ type MessageApi =
 messageHandlers
   :: Members AuthEffs r
   => Members BankEffs r
-  => Members BaseAppEffs r
-  => RouteTx MessageApi r 'DeliverTx
+  => Members TxEffs r
+  => Members BaseEffs r
+  => RouteTx MessageApi r
 messageHandlers = burnH :<|> transferH
 
 transferH
   :: Members AuthEffs r
   => Members BankEffs r
   => Members TxEffs r
-  => Members BaseAppEffs r
+  => Members BaseEffs r
   => RoutingTx Transfer
   -> Sem r ()
 transferH (RoutingTx Tx{txMsg=Msg{msgData}}) =

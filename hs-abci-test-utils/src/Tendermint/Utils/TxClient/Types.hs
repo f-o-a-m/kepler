@@ -1,28 +1,27 @@
 module Tendermint.Utils.TxClient.Types where
 
-import           Control.Lens                                ((^.))
-import           Crypto.Hash                                 (Digest)
-import           Crypto.Hash.Algorithms                      (SHA256)
-import           Data.Bifunctor                              (first)
-import qualified Data.ByteArray.Base64String                 as Base64
-import           Data.Int                                    (Int64)
+import           Control.Lens                           ((^.))
+import           Crypto.Hash                            (Digest)
+import           Crypto.Hash.Algorithms                 (SHA256)
+import           Data.Bifunctor                         (first)
+import qualified Data.ByteArray.Base64String            as Base64
+import           Data.Int                               (Int64)
 import           Data.Proxy
-import           Data.Text                                   (Text)
-import           Network.ABCI.Types.Messages.FieldTypes      (Event)
-import qualified Network.ABCI.Types.Messages.Response        as Response
-import qualified Network.Tendermint.Client                   as RPC
-import           Tendermint.SDK.BaseApp.Errors               (AppError,
-                                                              txResultAppError)
-import qualified Tendermint.SDK.BaseApp.Transaction          as T
-import qualified Tendermint.SDK.BaseApp.Transaction.Modifier as T
-import           Tendermint.SDK.Codec                        (HasCodec (..))
-import           Tendermint.SDK.Crypto                       (RecoverableSignatureSchema (..),
-                                                              SignatureSchema (..))
-import           Tendermint.SDK.Types.Address                (Address)
-import           Tendermint.SDK.Types.Transaction            (RawTransaction (..),
-                                                              signRawTransaction)
-import           Tendermint.SDK.Types.TxResult               (checkTxTxResult,
-                                                              deliverTxTxResult)
+import           Data.Text                              (Text)
+import           Network.ABCI.Types.Messages.FieldTypes (Event)
+import qualified Network.ABCI.Types.Messages.Response   as Response
+import qualified Network.Tendermint.Client              as RPC
+import           Tendermint.SDK.BaseApp.Errors          (AppError,
+                                                         txResultAppError)
+import qualified Tendermint.SDK.BaseApp.Transaction     as T
+import           Tendermint.SDK.Codec                   (HasCodec (..))
+import           Tendermint.SDK.Crypto                  (RecoverableSignatureSchema (..),
+                                                         SignatureSchema (..))
+import           Tendermint.SDK.Types.Address           (Address)
+import           Tendermint.SDK.Types.Transaction       (RawTransaction (..),
+                                                         signRawTransaction)
+import           Tendermint.SDK.Types.TxResult          (checkTxTxResult,
+                                                         deliverTxTxResult)
 
 data TxOpts = TxOpts
   { txOptsGas    :: Int64
@@ -65,13 +64,12 @@ data TxClientResponse c d =
   deriving (Eq, Show)
 
 parseRPCResponse
-  :: HasCodec a
-  => HasCodec (T.OnCheckReturn 'T.CheckTx oc a)
-  => Proxy a
-  -> Proxy (oc :: T.OnCheck)
-  -> RPC.ResultBroadcastTxCommit
-  -> TxClientResponse (T.OnCheckReturn 'T.CheckTx oc a) a
-parseRPCResponse _ _ RPC.ResultBroadcastTxCommit{..} =
+  :: forall check deliver.
+     HasCodec check
+  => HasCodec deliver
+  => RPC.ResultBroadcastTxCommit
+  -> TxClientResponse check deliver
+parseRPCResponse RPC.ResultBroadcastTxCommit{..} =
       let
           makeCheckResp r@Response.CheckTx{..} = case checkTxCode of
               0 -> do

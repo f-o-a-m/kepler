@@ -1,23 +1,16 @@
 name:                hs-abci-extra
 version:             0.1.0.0
-github:              "https://github.com/f-o-a-m/hs-abci-server"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2019 Author name here"
+github:              "https://github.com/f-o-a-m/kepler/hs-abci-server"
+license:             Apache
+author:              "Martin Allen"
+maintainer:          "martin@foam.space"
+copyright:           "2020 Martin Allen"
 
 extra-source-files:
 - README.md
 - ChangeLog.md
 
-# Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
-
-# To avoid duplicated efforts in documentation and dealing with the
-# complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci-server#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-abci-server/README.md>
 
 dependencies:
 - base >= 4.7 && < 5

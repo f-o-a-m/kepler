@@ -1,6 +1,16 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Nameservice.Modules.Nameservice.Keeper where
+module Nameservice.Modules.Nameservice.Keeper
+  ( NameserviceKeeper
+  , NameserviceEffs
+  , nameserviceCoinId
+  , setName
+  , deleteName
+  , buyName
+  , storeKey
+  , faucetAccount
+  , eval
+  ) where
 
 import           Data.Proxy
 import           Data.String.Conversions                  (cs)
@@ -34,13 +44,13 @@ nameserviceCoinId :: CoinId
 nameserviceCoinId = "nameservice"
 
 eval
-  :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+  :: Members BaseApp.TxEffs r
   => forall a. Sem (NameserviceKeeper ': Error NameserviceError ': r) a
   -> Sem r a
 eval = mapError BaseApp.makeAppError . evalNameservice
   where
     evalNameservice
-      :: Members [BaseApp.RawStore, Error BaseApp.AppError] r
+      :: Members BaseApp.TxEffs r
       => Sem (NameserviceKeeper ': r) a -> Sem r a
     evalNameservice =
       interpret (\case

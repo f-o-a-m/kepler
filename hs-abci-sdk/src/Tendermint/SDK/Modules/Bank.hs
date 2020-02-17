@@ -1,59 +1,41 @@
 module Tendermint.SDK.Modules.Bank
   (
-
   -- * Module
     BankM
   , bankModule
-  -- * types
-  , Address
-  , BankError(..)
-  , Transfer(..)
 
-  -- * effects
-  , BankEffs
-  , TransferEvent(..)
-  , getCoinBalance
-  , putCoinBalance
-  , transfer
-  , mint
-  , burn
-
-  -- * interpreter
-  , eval
-
-  -- * transaction
-  , MessageApi
-  , messageHandlers
-
-  -- * Query Api
-  , QueryApi
-  , server
+  , module           Tendermint.SDK.Modules.Bank.Keeper
+  , module           Tendermint.SDK.Modules.Bank.Messages
+  , module           Tendermint.SDK.Modules.Bank.Query
+  , module           Tendermint.SDK.Modules.Bank.Router
+  , module           Tendermint.SDK.Modules.Bank.Types
 
   ) where
 
 import           Data.Proxy
 import           Polysemy                             (Members)
 import           Tendermint.SDK.Application           (Module (..))
-import           Tendermint.SDK.BaseApp               (BaseAppEffs,
-                                                       DefaultCheckTx (..))
+import           Tendermint.SDK.BaseApp               (BaseEffs,
+                                                       DefaultCheckTx (..),
+                                                       TxEffs)
 import qualified Tendermint.SDK.Modules.Auth          as Auth
 import           Tendermint.SDK.Modules.Bank.Keeper
 import           Tendermint.SDK.Modules.Bank.Messages
 import           Tendermint.SDK.Modules.Bank.Query
 import           Tendermint.SDK.Modules.Bank.Router
 import           Tendermint.SDK.Modules.Bank.Types
-import           Tendermint.SDK.Types.Address         (Address)
 
-type BankM r = Module "bank" MessageApi QueryApi BankEffs r
+type BankM r = Module "bank" MessageApi MessageApi QueryApi BankEffs r
 
 bankModule
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
   => Members Auth.AuthEffs r
   => Members BankEffs r
+  => Members TxEffs r
   => BankM r
 bankModule = Module
   { moduleTxDeliverer = messageHandlers
   , moduleTxChecker = defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
-  , moduleQueryServer = server
+  , moduleQuerier = querier
   , moduleEval = eval
   }

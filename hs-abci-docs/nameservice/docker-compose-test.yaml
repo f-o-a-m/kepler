@@ -21,12 +21,24 @@ services:
       context: ../../.
       dockerfile: Dockerfile
     image: hs-abci:test
+    depends_on:
+      - iavl
     environment:
      - STATS_PORT=9200
+     - IAVL_HOST=iavl
+     - IAVL_PORT=8090
     restart: always
     entrypoint: /usr/local/bin/nameservice
     expose:
       - "26658"
       - "9200"
+  iavl:
+    image: foamspace/iavl:latest
+    command: /iavlserver  -db-name "test" -datadir "."  -grpc-endpoint "0.0.0.0:8090"  -gateway-endpoint "0.0.0.0:8091"
+    ports: 
+     - "8090-8091:8091-8091"
+    expose: 
+     - "8090"
+     - "8091"
 volumes:
   tendermint-storage:

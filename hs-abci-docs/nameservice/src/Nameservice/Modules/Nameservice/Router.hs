@@ -1,4 +1,7 @@
-module Nameservice.Modules.Nameservice.Router where
+module Nameservice.Modules.Nameservice.Router
+  ( MessageApi
+  , messageHandlers
+  ) where
 
 import           Nameservice.Modules.Nameservice.Keeper   (NameserviceEffs,
                                                            buyName, deleteName,
@@ -9,10 +12,8 @@ import           Nameservice.Modules.Nameservice.Messages (BuyName, DeleteName,
                                                            SetName)
 import           Polysemy                                 (Members, Sem)
 import           Servant.API                              ((:<|>) (..))
-import           Tendermint.SDK.BaseApp                   ((:~>), BaseAppEffs,
-                                                           Return,
-                                                           RouteContext (..),
-                                                           RouteTx,
+import           Tendermint.SDK.BaseApp                   ((:~>), BaseEffs,
+                                                           Return, RouteTx,
                                                            RoutingTx (..),
                                                            TxEffs, TypedMessage,
                                                            incCount, withTimer)
@@ -29,15 +30,16 @@ type MessageApi =
   :<|> TypedMessage FaucetAccount :~> Return ()
 
 messageHandlers
-  :: Members BaseAppEffs r
-  => Members AuthEffs r
+  :: Members BaseEffs r
   => Members BankEffs r
+  => Members AuthEffs r
+  => Members TxEffs r
   => Members NameserviceEffs r
-  => RouteTx MessageApi r 'DeliverTx
+  => RouteTx MessageApi r
 messageHandlers = buyNameH :<|> setNameH :<|> deleteNameH :<|> faucetH
 
 buyNameH
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
   => Members TxEffs r
   => Members AuthEffs r
   => Members BankEffs r
@@ -49,7 +51,7 @@ buyNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
   withTimer "buy_duration_seconds" $ buyName msgData
 
 setNameH
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
   => Members TxEffs r
   => Members NameserviceEffs r
   => RoutingTx SetName
@@ -59,7 +61,7 @@ setNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
   withTimer "set_duration_seconds" $ setName msgData
 
 deleteNameH
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
   => Members TxEffs r
   => Members AuthEffs r
   => Members NameserviceEffs r
@@ -72,7 +74,7 @@ deleteNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
 faucetH
   :: Members AuthEffs r
   => Members TxEffs r
-  => Members BaseAppEffs r
+  => Members BaseEffs r
   => RoutingTx FaucetAccount
   -> Sem r ()
 faucetH (RoutingTx Tx{txMsg=Msg{msgData}}) =

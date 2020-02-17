@@ -2,39 +2,29 @@ module Tendermint.SDK.Modules.Auth
   ( AuthM
   , authModule
 
-  , AuthEffs
-  , Account(..)
-  , Amount(..)
-  , Coin(..)
-  , CoinId(..)
-  , Accounts(..)
-  , getAccount
-  , putAccount
-  , createAccount
-  , eval
-
-  , Api
-  , server
-
+  , module Tendermint.SDK.Modules.Auth.Keeper
+  , module Tendermint.SDK.Modules.Auth.Query
   , module Tendermint.SDK.Modules.Auth.Types
   ) where
 
-import           Polysemy                           (Members)
+import           Polysemy                           (Member, Members)
 import           Tendermint.SDK.Application.Module  (Module (..))
-import           Tendermint.SDK.BaseApp             (BaseAppEffs, EmptyTxServer,
-                                                     emptyTxServer)
-import           Tendermint.SDK.Modules.Auth.Keeper
+import           Tendermint.SDK.BaseApp             (BaseEffs,
+                                                     EmptyTxServer (..),
+                                                     ReadStore)
+import           Tendermint.SDK.Modules.Auth.Keeper hiding (storeKey)
 import           Tendermint.SDK.Modules.Auth.Query
 import           Tendermint.SDK.Modules.Auth.Types
 
-type AuthM r = Module AuthModule EmptyTxServer Api AuthEffs r
+type AuthM r = Module AuthModule EmptyTxServer EmptyTxServer Api AuthEffs r
 
 authModule
-  :: Members BaseAppEffs r
+  :: Members BaseEffs r
+  => Member ReadStore r
   => AuthM r
 authModule = Module
-  { moduleTxDeliverer = emptyTxServer
-  , moduleTxChecker = emptyTxServer
-  , moduleQueryServer = server
+  { moduleTxDeliverer = EmptyTxServer
+  , moduleTxChecker = EmptyTxServer
+  , moduleQuerier = querier
   , moduleEval = eval
   }

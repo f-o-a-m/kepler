@@ -37,8 +37,8 @@ getAddressCoinBalance (QueryArgs _ address _) cid = do
 
 type QueryApi = GetAddressCoinBalance
 
-server
+querier
   :: forall r.
      Members Auth.AuthEffs r
   => BaseApp.RouteQ QueryApi r
-server = getAddressCoinBalance
+querier = getAddressCoinBalance

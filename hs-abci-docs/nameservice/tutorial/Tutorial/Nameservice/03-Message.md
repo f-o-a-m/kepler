@@ -200,5 +200,3 @@ instance ValidateMessage BuyName where
         , isAuthorCheck "Owner" msg buyNameBuyer
         ]
 ~~~
-
-[Next: Keeper](Keeper.md)

@@ -6,7 +6,7 @@ title: Metrics
 
 The SDK has some built in support for metrics via [prometheus](https://prometheus.io/), but ultimately you may choose a different runtime interpretation for the metrics, or even choose to ignore it entirely.
 
-The `Nameservice` application uses application specific metrics, for instance increasing the message counters for module level messages, or for timing module responses. It also uses the server metrics via the [metrics middleware](https://github.com/f-o-a-m/hs-abci/blob/master/hs-abci-extra/src/Network/ABCI/Server/Middleware/Metrics.hs) to count ABCI messages and to time server responses. This middleware is highly recommended for any production system.
+The `Nameservice` application uses application specific metrics, for instance increasing the message counters for module level messages, or for timing module responses. It also uses the server metrics via the [metrics middleware](https://github.com/f-o-a-m/kepler/blob/master/hs-abci-extra/src/Network/ABCI/Server/Middleware/Metrics.hs) to count ABCI messages and to time server responses. This middleware is highly recommended for any production system.
 
 ## Setting up metrics
 

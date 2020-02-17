@@ -6,15 +6,17 @@ module SimpleStorage.Config
   , makeAppConfig
   ) where
 
-import           Control.Lens                        (makeLenses, (&), (.~),
-                                                      (^.))
-import           Data.Maybe                          (fromMaybe)
-import           Data.String.Conversions             (cs)
-import qualified Katip                               as K
+import           Control.Lens                           (makeLenses, (&), (.~),
+                                                         (^.))
+import           Data.Maybe                             (fromMaybe)
+import           Data.String.Conversions                (cs)
+import qualified Katip                                  as K
 import           System.Environment
-import           System.IO                           (stdout)
-import qualified Tendermint.SDK.BaseApp              as BaseApp
-import           Tendermint.SDK.BaseApp.Logger.Katip as KL
+import           System.IO                              (stdout)
+import qualified Tendermint.SDK.BaseApp                 as BaseApp
+import           Tendermint.SDK.BaseApp.Logger.Katip    as KL
+import           Tendermint.SDK.BaseApp.Store.IAVLStore (GrpcConfig (..),
+                                                         initIAVLVersions)
 
 
 data AppConfig = AppConfig
@@ -24,7 +26,12 @@ makeLenses ''AppConfig
 
 makeAppConfig :: IO AppConfig
 makeAppConfig = do
-  c <- BaseApp.makeContext (KL.InitialLogNamespace "dev" "simple-storage") Nothing
+  versions <- initIAVLVersions
+  grpcConfig <- do
+    host <- getEnv "IAVL_HOST"
+    port <- read <$> getEnv "IAVL_PORT"
+    pure $ GrpcConfig host port
+  c <- BaseApp.makeContext (KL.InitialLogNamespace "dev" "simple-storage") Nothing versions grpcConfig
   addScribesToLogEnv $
     AppConfig { _baseAppContext = c
               }

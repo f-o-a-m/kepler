@@ -185,7 +185,7 @@ class IsAppError e where
   makeAppError :: e -> AppError
 ~~~
 
-The fields for `AppError` correspond to tendermint message fields for messages that support error return types, such as `checkTx`, `deliverTx`, and `query`. Typically we use the module name as the codespace, like in the definition of `NamespaceError`:
+The fields for `AppError` correspond to tendermint message fields for messages that support error return types, such as `checkTx`, `deliverTx`, and `query`. Typically we use the module name as the codespace, like in the definition of `NameserviceError`:
 
 ~~~ haskell
 data NameserviceError =
@@ -272,5 +272,3 @@ instance A.FromJSON NameClaimed where
 instance BA.ToEvent NameClaimed where
   makeEventType _ = "NameClaimed"
 ~~~
-
-[Next: Message](Message.md)

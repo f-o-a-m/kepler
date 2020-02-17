@@ -1,10 +1,16 @@
 module Tendermint.SDK.BaseApp.Events
-  ( Event(..)
-  , ToEvent(..)
+  (
+  -- * Class
+    ToEvent(..)
   , ContextEvent(..)
+  , makeEvent
+
+  -- * Effect
   , emit
   , logEvent
-  , makeEvent
+
+  -- * Re-Exports
+  , Event(..)
   ) where
 
 import qualified Data.Aeson                             as A

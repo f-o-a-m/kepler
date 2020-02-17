@@ -1,15 +1,15 @@
 name:                hs-iavl-client
 version:             0.1.0.0
-github:              "f-o-a-m/hs-abci/hs-iavl-client"
+github:              "f-o-a-m/kepler/hs-iavl-client"
 license:             Apache
 author:              "Martin Allen"
 maintainer:          "martin@foam.space"
-copyright:           "2019 Martin Allen"
+copyright:           "2020 Martin Allen"
 
 extra-source-files:
 - protos/**/*.proto
 
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-iavl-client#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-iavl-client/README.md>
 
 custom-setup:
   dependencies:
@@ -51,8 +51,10 @@ library:
     - http2-client-grpc
     - proto-lens
     - proto-lens-runtime
+    - text
   exposed-modules:
   - Database.IAVL.RPC
+  - Database.IAVL.RPC.Types
   generated-exposed-modules:
   - Proto.Iavl.Api
   - Proto.Iavl.Api_Fields

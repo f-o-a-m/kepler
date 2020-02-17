@@ -82,7 +82,10 @@ data SDKError =
   | MessageValidation [Text]
   | SignatureRecoveryError Text
   | NonceException Word64 Word64
+  | RawStoreInvalidOperation Text
+  | GrpcError Text
   | UnknownAccountError Address
+  deriving (Show)
 
 -- | As of right now it's not expected that one can recover from an 'SDKError',
 -- | so we are throwing them as 'AppError's directly.
@@ -122,6 +125,7 @@ instance IsAppError SDKError where
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Message failed validation: " <> intercalate "\n" errors
     }
+
   makeAppError (SignatureRecoveryError msg) = AppError
     { appErrorCode = 6
     , appErrorCodespace = "sdk"
@@ -135,8 +139,20 @@ instance IsAppError SDKError where
          " but got " <> (cs . show $ toInteger found) <> "."
     }
 
-  makeAppError (UnknownAccountError addr) = AppError
+  makeAppError (RawStoreInvalidOperation operation) = AppError
     { appErrorCode = 8
+    , appErrorCodespace = "sdk"
+    , appErrorMessage = "Unsupported RawStore operation: `" <> operation <> "`"
+    }
+
+  makeAppError (GrpcError msg) = AppError
+    { appErrorCode = 9
+    , appErrorCodespace = "sdk"
+    , appErrorMessage = "Grpc error: \n" <> msg
+    }
+
+  makeAppError (UnknownAccountError addr) = AppError
+    { appErrorCode = 10
     , appErrorCodespace = "sdk"
     , appErrorMessage = "Unknown account at  " <> (cs . show $ addr)
     }

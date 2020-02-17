@@ -1,7 +1,7 @@
 module Tendermint.SDK.Application.AnteHandler
-  ( AnteHandler
-  , applyAnteHandler
-  , baseAppAnteHandler
+  ( module Tendermint.SDK.Application.AnteHandler
+  --  Re-Exports
+  , AnteHandler
   ) where
 
 import           Control.Monad                      (unless, void)
@@ -11,19 +11,12 @@ import           Polysemy
 import           Polysemy.Error                     (Error)
 import           Tendermint.SDK.BaseApp.Errors      (AppError, SDKError (..),
                                                      throwSDKError)
-import           Tendermint.SDK.BaseApp.Transaction (RoutingTx (..),
-                                                     TransactionApplication)
+import           Tendermint.SDK.BaseApp.Transaction (AnteHandler,
+                                                     RoutingTx (..))
 import qualified Tendermint.SDK.Modules.Auth        as A
 import           Tendermint.SDK.Types.Message       (Msg (..))
 import           Tendermint.SDK.Types.Transaction   (Tx (..))
 
-type AnteHandler r = Endo (TransactionApplication (Sem r))
-
-applyAnteHandler
-  :: AnteHandler r
-  -> TransactionApplication (Sem r)
-  -> TransactionApplication (Sem r)
-applyAnteHandler = appEndo
 
 createAccountAnteHandler
   :: Members A.AuthEffs r

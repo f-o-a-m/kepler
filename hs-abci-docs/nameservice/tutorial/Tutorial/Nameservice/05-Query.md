@@ -13,8 +13,7 @@ import Data.Proxy
 import Nameservice.Modules.Nameservice.Keeper (storeKey)
 import Nameservice.Modules.Nameservice.Types (Whois, Name)
 import Polysemy (Members)
-import Polysemy.Error (Error)
-import Tendermint.SDK.BaseApp (RawStore, AppError, RouteQ, QueryApi, storeQueryHandlers)
+import Tendermint.SDK.BaseApp (QueryEffs, RouteQ, QueryApi, storeQueryHandlers)
 ~~~
 
 The way to query application state is via the `query` message which uses a `url` like format. The SDK tries to abstract as much of this away as possible. For example, if you want to only serve state that you have registered with the store via the `IsKey` class, then things are very easy. If you need to make joins to serve requests, we support this as well and it's not hard, but we will skip this for now.
@@ -33,15 +32,13 @@ type Api = QueryApi NameserviceContents
 To serve all the data registered with the `IsKey` class, we can use the `storeQueryHandlers` function, supplying a proxy for the store contents, the `storeKey` and a proxy for the effects used in serving requests. In this case because we are serving only types registered with the store, we will need to assume the `RawStore` and `Error AppError` effects.
 
 ~~~ haskell
-server
-  :: Members [RawStore, Error AppError] r
+querier
+  :: Members QueryEffs r
   => RouteQ Api r
-server =
+querier =
   storeQueryHandlers (Proxy @NameserviceContents) storeKey (Proxy :: Proxy r)
 ~~~
 
 Here `RouteT` is a type family that can build a server from the `Api` type to handle incoming requests. It is similar to how `servant` works, and is largely vendored from that codebase.
 
 Note that more advanced queries are possible other than just serving what is in storage. For example you might want to use joins to fulfill requests or use query parameters in the url. These are all possible, but we won't go into details here as they are not used in the app.
-
-[Next: Router](Router.md)

@@ -1,12 +1,12 @@
 name:                hs-abci-sdk
 version:             0.1.0.0
-github:              "f-o-a-m/hs-abci/hs-abci-sdk"
+github:              "f-o-a-m/kepler/hs-abci-sdk"
 license:             Apache
 author:              Martin Allen
 maintainer:          "martin@foam.space"
-copyright:           "2019 Martin Allen"
+copyright:           "2020 Martin Allen"
 
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-sdk#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-abci-sdk/README.md>
 
 extra-source-files:
 - protos/**/*.proto
@@ -59,8 +59,11 @@ library:
     - errors
     - hs-abci-server
     - hs-abci-types
+    - hs-iavl-client
     - http-api-data
     - http-types
+    - http2-client
+    - http2-client-grpc
     - katip
     - lens
     - memory
@@ -75,7 +78,6 @@ library:
     - proto3-wire
     - secp256k1-haskell
     - servant
-    - stm
     - string-conversions
     - text
     - time
@@ -90,13 +92,15 @@ library:
   - -Wredundant-constraints
   exposed-modules:
   - Tendermint.SDK.Application
-  - Tendermint.SDK.Application.AnteHandler
   - Tendermint.SDK.Application.App
   - Tendermint.SDK.Application.Module
   - Tendermint.SDK.Application.Handlers
+  - Tendermint.SDK.Application.AnteHandler
   - Tendermint.SDK.BaseApp
-  - Tendermint.SDK.BaseApp.BaseApp
-  - Tendermint.SDK.BaseApp.CoreEff
+  - Tendermint.SDK.BaseApp.Effects
+  - Tendermint.SDK.BaseApp.Effects.BaseEffs
+  - Tendermint.SDK.BaseApp.Effects.CoreEffs
+  - Tendermint.SDK.BaseApp.Effects.PureCoreEffs
   - Tendermint.SDK.BaseApp.Errors
   - Tendermint.SDK.BaseApp.Events
   - Tendermint.SDK.BaseApp.Gas
@@ -112,13 +116,14 @@ library:
   - Tendermint.SDK.BaseApp.Router.Types
   - Tendermint.SDK.BaseApp.Router.Router
   - Tendermint.SDK.BaseApp.Store
-  - Tendermint.SDK.BaseApp.Store.AuthTreeStore
+  - Tendermint.SDK.BaseApp.Store.IAVLStore
+  - Tendermint.SDK.BaseApp.Store.MemoryStore
   - Tendermint.SDK.BaseApp.Store.RawStore
-  - Tendermint.SDK.BaseApp.Store.Scope
   - Tendermint.SDK.BaseApp.Transaction
+  - Tendermint.SDK.BaseApp.Transaction.AnteHandler
+  - Tendermint.SDK.BaseApp.Transaction.Cache
   - Tendermint.SDK.BaseApp.Transaction.Checker
   - Tendermint.SDK.BaseApp.Transaction.Effect
-  - Tendermint.SDK.BaseApp.Transaction.Modifier
   - Tendermint.SDK.BaseApp.Transaction.Router
   - Tendermint.SDK.BaseApp.Transaction.Types
   - Tendermint.SDK.Codec
@@ -149,7 +154,7 @@ tests:
     main:                Spec.hs
     source-dirs:         test
     other-modules:
-    - Tendermint.SDK.Test.AuthTreeStoreSpec
+    - Tendermint.SDK.Test.IAVLStoreSpec
     - Tendermint.SDK.Test.CryptoSpec
     - Tendermint.SDK.Test.GasSpec
     - Tendermint.SDK.Test.MetricsSpec
@@ -177,6 +182,7 @@ tests:
       - hspec
       - hspec-core
       - hspec-discover
+      - http2-client-grpc
       - lens
       - memory
       - polysemy
