@@ -29,6 +29,8 @@ The application consists of three modules:
 
 ## How to Read this Tutorial
 
+First a warning. The `hs-abci-sdk` package is a sophisticated *framework* for building blockchain applications backed by tendermint consensus. As it is a framework, there are certain points when syntax is simplified at the expense of introducing indirection, type synonyms, and a few type families. There was a serious amount of effort to expose as little of this as possible, but alas sometimes things will be confusing and it's best to blindly follow the examples.
+
 This tutorial is largely written as a literate haskell file to simulate developing the Nameservice app from scratch. The file structure is similar to the actual app. We will partially develop a haskell module corresponding to what you find in the app, but possibly not the whole thing. Thus whenever we depend on a haskell module in the tutorial, rather than importing from the tutorial itself we will import from the app.
 
 The benefit of this is that we don't have to develop the entire application in this tutorial. Any breaking changes in the app will (hopefully) break the tutorial and so if you can read this, the tutorial is correct.

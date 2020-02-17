@@ -3,9 +3,8 @@
 module Tendermint.SDK.Application.Module
   ( Module(..)
   , Component
-  , ComponentEffs
+  , ModuleEffs
   , ModuleList(..)
-  , ModulesEffs
   , Application(..)
   , ToApplication(..)
   , hoistApplication
@@ -21,7 +20,8 @@ import           GHC.TypeLits                       (ErrorMessage (..), Symbol,
                                                      TypeError)
 import           Polysemy                           (EffectRow, Members, Sem)
 import           Servant.API                        ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp             ((:&), BaseEffs)
+import           Tendermint.SDK.BaseApp             ((:&), BaseAppEffs,
+                                                     BaseEffs)
 import qualified Tendermint.SDK.BaseApp.Query       as Q
 import           Tendermint.SDK.BaseApp.Store       (Scope (..))
 import qualified Tendermint.SDK.BaseApp.Transaction as T
@@ -42,9 +42,9 @@ data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: Eff
   , moduleEval :: forall s. (Members T.TxEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a
   }
 
-type family ComponentEffs (m :: Component) :: EffectRow where
-  ComponentEffs (Module _ _ _ _ es deps) = es :& DependencyEffs deps :& T.TxEffs :& BaseEffs
-  ComponentEffs _ = TypeError ('Text "DependencyEffs is a partial function defined only on Component")
+type family ModuleEffs (m :: Component) :: EffectRow where
+  ModuleEffs (Module _ _ _ _ es deps) = es :& DependencyEffs deps :& T.TxEffs :& BaseEffs
+  ModuleEffs _ = TypeError ('Text "ModuleEffs is a partial function defined only on Component")
 
 data ModuleList (ms :: [Component]) r where
   NilModules :: ModuleList '[] r
@@ -53,12 +53,6 @@ data ModuleList (ms :: [Component]) r where
        -> ModuleList (Module name check deliver query es deps ': ms) r
 
 infixr 5 :+
-
-type family ModulesEffs (ms :: [Component]) :: EffectRow where
-  ModulesEffs '[] = '[]
-  ModulesEffs (Module _ _ _ _ es deps ': rest) = es :& ModulesEffs rest
-  ModulesEffs _ = TypeError ('Text "ModulesEffs is a partial function defined only on [Component]")
-
 
 data Application check deliver query r s = Application
   { applicationTxChecker   :: T.RouteTx check r
@@ -113,39 +107,40 @@ hoistApplication natT natQ (app :: Application check deliver query r s) =
     , applicationQuerier = Q.hoistQueryRouter (Proxy @query) (Proxy @s) natQ $ applicationQuerier app
     }
 
-class Eval ms s where
-  type Effs ms s :: EffectRow
+class Eval ms (core :: EffectRow) where
+  type Effs ms core :: EffectRow
   eval
-    :: ModuleList ms r
+    :: proxy core
+    -> ModuleList ms r
     -> forall a.
-       Sem (Effs ms s) a
-    -> Sem (T.TxEffs :& s) a
+       Sem (Effs ms core) a
+    -> Sem (T.TxEffs :& BaseAppEffs core) a
 
-instance (DependencyEffs deps ~ '[]) => Eval '[Module name check deliver query es deps] s where
-  type Effs '[Module name check deliver query es deps] s = es :& T.TxEffs :& s
-  eval (m :+ NilModules) = moduleEval m
+instance (DependencyEffs deps ~ '[]) => Eval '[Module name check deliver query es deps] core where
+  type Effs '[Module name check deliver query es deps] core = es :& T.TxEffs :& BaseAppEffs core
+  eval _ (m :+ NilModules) = moduleEval m
 
 instance ( Members (DependencyEffs deps) (Effs (m' ': ms) s)
          , Members T.TxEffs (Effs (m' ': ms) s)
          , Eval (m' ': ms) s
          ) => Eval (Module name check deliver query es deps ': m' ': ms) s where
   type Effs (Module name check deliver query es deps ': m' ': ms) s = es :& (Effs (m': ms)) s
-  eval (m :+ rest) = eval rest . moduleEval m
+  eval pcore (m :+ rest) = eval pcore rest . moduleEval m
 
 makeApplication
-  :: Eval ms deps
-  => ToApplication ms (Effs ms deps)
-  => T.HasTxRouter (ApplicationC ms) (Effs ms deps) 'QueryAndMempool
-  => T.HasTxRouter (ApplicationD ms) (Effs ms deps) 'Consensus
-  => Q.HasQueryRouter (ApplicationQ ms) (Effs ms deps)
-  => Proxy deps
-  -> T.AnteHandler (Effs ms deps)
-  -> ModuleList ms (Effs ms deps)
-  -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (T.TxEffs :& deps) (Q.QueryEffs :& deps)
-makeApplication (Proxy :: Proxy deps) ah (ms :: ModuleList ms (Effs ms deps)) =
-  let app = applyAnteHandler ah $ toApplication ms :: Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (Effs ms deps) (Effs ms deps)
+  :: Eval ms core
+  => ToApplication ms (Effs ms core)
+  => T.HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool
+  => T.HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus
+  => Q.HasQueryRouter (ApplicationQ ms) (Effs ms core)
+  => Proxy core
+  -> T.AnteHandler (Effs ms core)
+  -> ModuleList ms (Effs ms core)
+  -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (T.TxEffs :& BaseAppEffs core) (Q.QueryEffs :& BaseAppEffs core)
+makeApplication p@(Proxy :: Proxy core) ah (ms :: ModuleList ms (Effs ms core)) =
+  let app = applyAnteHandler ah $ toApplication ms :: Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (Effs ms core) (Effs ms core)
       -- WEIRD: if you move the eval into a separate let binding then it doesn't typecheck...
-  in hoistApplication (eval @ms @deps ms) (T.evalReadOnly . eval @ms @deps ms) app
+  in hoistApplication (eval @ms @core p ms) (T.evalReadOnly . eval @ms @core p ms) app
 
 applyAnteHandler
   :: T.HasTxRouter check r 'QueryAndMempool

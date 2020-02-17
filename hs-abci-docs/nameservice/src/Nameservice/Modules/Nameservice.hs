@@ -20,8 +20,8 @@ import           Nameservice.Modules.Nameservice.Query
 import           Nameservice.Modules.Nameservice.Router
 import           Nameservice.Modules.Nameservice.Types
 import           Polysemy                                 (Members)
-import           Tendermint.SDK.Application               (ComponentEffs,
-                                                           Module (..))
+import           Tendermint.SDK.Application               (Module (..),
+                                                           ModuleEffs)
 import           Tendermint.SDK.BaseApp                   (DefaultCheckTx (..))
 import           Tendermint.SDK.Modules.Bank              (Bank)
 
@@ -30,7 +30,7 @@ type Nameservice =
   Module "nameservice" MessageApi MessageApi QueryApi NameserviceEffs '[Bank]
 
 nameserviceModule
-  :: Members (ComponentEffs Nameservice) r
+  :: Members (ModuleEffs Nameservice) r
   => Nameservice r
 nameserviceModule = Module
   { moduleTxDeliverer = messageHandlers

@@ -2,7 +2,6 @@
 
 module Tendermint.SDK.Test.SimpleStorage
   ( SimpleStorage
-  , SimpleStorageEffs
   , UpdateCountTx(..)
   , simpleStorageModule
   , evalToIO
@@ -25,7 +24,7 @@ import           GHC.Generics                     (Generic)
 import           Polysemy
 import           Polysemy.Error                   (Error, throw)
 import           Servant.API
-import           Tendermint.SDK.Application       (ComponentEffs, Module (..))
+import           Tendermint.SDK.Application       (Module (..), ModuleEffs)
 import qualified Tendermint.SDK.BaseApp           as BA
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Types.Message     (HasMessageType (..),
@@ -185,7 +184,7 @@ type SimpleStorage =
   Module "simple_storage" MessageApi MessageApi QueryApi SimpleStorageEffs '[]
 
 simpleStorageModule
-  :: Members (ComponentEffs SimpleStorage) r
+  :: Members (ModuleEffs SimpleStorage) r
   => SimpleStorage r
 simpleStorageModule = Module
   { moduleTxDeliverer = messageHandlers

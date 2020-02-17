@@ -14,8 +14,7 @@ module Tendermint.SDK.Modules.Bank
 
 import           Data.Proxy
 import           Polysemy                             (Members)
-import           Tendermint.SDK.Application           (ComponentEffs,
-                                                       Module (..))
+import           Tendermint.SDK.Application           (Module (..), ModuleEffs)
 import           Tendermint.SDK.BaseApp               (DefaultCheckTx (..))
 import qualified Tendermint.SDK.Modules.Auth          as Auth
 import           Tendermint.SDK.Modules.Bank.Keeper
@@ -28,7 +27,7 @@ type Bank =
   Module BankName MessageApi MessageApi QueryApi BankEffs '[Auth.Auth]
 
 bankModule
-  :: Members (ComponentEffs Bank) r
+  :: Members (ModuleEffs Bank) r
   => Bank r
 bankModule = Module
   { moduleTxDeliverer = messageHandlers

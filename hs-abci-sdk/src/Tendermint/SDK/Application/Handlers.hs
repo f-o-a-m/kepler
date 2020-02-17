@@ -73,8 +73,8 @@ defaultHandlers = Handlers
 
 data HandlersContext alg ms core = HandlersContext
   { signatureAlgP :: Proxy alg
-  , modules       :: M.ModuleList ms (BA.AppEffs (M.ModulesEffs ms) core)
-  , anteHandler   :: BA.AnteHandler (BA.AppEffs (M.ModulesEffs ms) core)
+  , modules       :: M.ModuleList ms (M.Effs ms core)
+  , anteHandler   :: BA.AnteHandler (M.Effs ms core)
   , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
   }
 
@@ -83,26 +83,29 @@ makeHandlers
   :: forall alg ms core.
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
-  => M.ToApplication ms (M.Effs ms (BA.BaseAppEffs core))
-  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms (BA.BaseAppEffs core)) 'Store.QueryAndMempool
+  => M.ToApplication ms (M.Effs ms core)
+  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms core) 'Store.QueryAndMempool
   => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs core) 'Store.QueryAndMempool
-  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms (BA.BaseAppEffs core)) 'Store.Consensus
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms core) 'Store.Consensus
   => T.HasTxRouter (M.ApplicationD ms) (BA.BaseAppEffs core) 'Store.Consensus
-  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms (BA.BaseAppEffs core))
+  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms core)
   => Q.HasQueryRouter (M.ApplicationQ ms) (BA.BaseAppEffs core)
-  => M.Eval ms (BA.BaseAppEffs core)
-  => M.Effs ms (BA.BaseAppEffs core) ~ (BA.AppEffs (M.ModulesEffs ms) core)
+  => M.Eval ms core
+ -- => M.Effs ms core ~ (BA.AppEffs (M.ModulesEffs ms) core)
   => HandlersContext alg ms core
   -> Handlers (BA.BaseAppEffs core)
 makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
   let
+
+      cProxy :: Proxy core
+      cProxy = Proxy
 
       rProxy :: Proxy (BA.BaseAppEffs core)
       rProxy = Proxy
 
       app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms)
                (T.TxEffs BA.:& BA.BaseAppEffs core) (Q.QueryEffs BA.:& BA.BaseAppEffs core)
-      app = M.makeApplication rProxy anteHandler modules
+      app = M.makeApplication cProxy anteHandler modules
 
       txParser bs = case parseTx signatureAlgP bs of
         Left err -> throwSDKError $ ParseError err
@@ -174,15 +177,15 @@ makeApp
 
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
-  => M.ToApplication ms (M.Effs ms (BA.BaseAppEffs core))
-  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms (BA.BaseAppEffs core)) 'Store.QueryAndMempool
+  => M.ToApplication ms (M.Effs ms core)
+  => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms core) 'Store.QueryAndMempool
   => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs core) 'Store.QueryAndMempool
-  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms (BA.BaseAppEffs core)) 'Store.Consensus
+  => T.HasTxRouter (M.ApplicationD ms) (M.Effs ms core) 'Store.Consensus
   => T.HasTxRouter (M.ApplicationD ms) (BA.BaseAppEffs core) 'Store.Consensus
-  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms (BA.BaseAppEffs core))
+  => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms core)
   => Q.HasQueryRouter (M.ApplicationQ ms) (BA.BaseAppEffs core)
-  => M.Eval ms (BA.BaseAppEffs core)
-  => M.Effs ms (BA.BaseAppEffs core) ~ (BA.AppEffs (M.ModulesEffs ms) core)
+  => M.Eval ms core
+  -- => M.Effs ms (BA.BaseAppEffs core) ~ (BA.AppEffs (M.ModulesEffs ms) core)
   => HandlersContext alg ms core
   -> App (Sem core)
 makeApp handlersContext@HandlersContext{compileToCore} =

@@ -2,7 +2,8 @@ module Tendermint.SDK.Application
   ( ModuleList(..)
   , Module(..)
   , Component
-  , ComponentEffs
+  , Eval(..)
+  , ModuleEffs
   , HandlersContext(..)
   , baseAppAnteHandler
   , createIOApp
