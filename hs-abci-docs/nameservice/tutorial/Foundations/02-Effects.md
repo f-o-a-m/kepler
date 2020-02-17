@@ -87,7 +87,7 @@ type StoreEffs =
   ]
 ~~~
 
- They are used to interpret `TxEffects` depending on what context you're in, e.g. while executing a `delierTx` versus `checkTx` message, or a `query`. Some effects are tagged with a promoted value of type `Scope`, i.e. `'Consensus` and `'QueryAndMempool`. This is because your application will keep multiple connections to the database that are used in different situations. For example, since writing to the state at a previous blocktims is impossible, we disallow writing to the database in such instances and instead 
+ They are used to interpret `TxEffects` depending on what context you're in, e.g. while executing a `delierTx` versus `checkTx` message, or a `query`. Some effects are tagged with a promoted value of type `Scope`, i.e. `'Consensus` and `'QueryAndMempool`. This is because your application will keep multiple connections to the database that are used in different situations. For example, since writing to the state at a previous blocktimes is impossible, we disallow writing to the database in such instances.
 
 
 # Effects Type Synonyms
@@ -96,7 +96,7 @@ There are a few  effects lists that appear so frequently at different points in 
 
 ## Effs
 
-`Effs` is technically a type family coming from the class `Tendermint.SDK.Application.Module.Eval`. It is used to enumerate all the effects that would be needed in order to run an application defined as a `ModuleList`. 
+`Effs` is technically a type family coming from the class `Tendermint.SDK.Application.Module.Eval`. It is used to enumerate all the effects that would be needed in order to run an application defined by a `ModuleList`. 
 
 ## BaseAppEffs
 

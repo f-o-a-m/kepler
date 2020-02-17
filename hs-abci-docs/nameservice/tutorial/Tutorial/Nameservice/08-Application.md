@@ -65,7 +65,7 @@ import Tendermint.SDK.Crypto (Secp256k1)
 import Tendermint.SDK.Modules.Bank (Bank, bankModule)
 ~~~
 
-At this point we need to simply list the modules we want to use in our application. We only require that if a module is declared as a dependency by another (via the `deps` type variable in the `Module` type), then that requires that the dependency be inserted below that module. For example, since `Nameservice` depends on `Bank`, we must `Bank` after `Nameservice`. Similarly since `Bank` depends on `Auth`, we must list `Auth` after `Bank`:
+At this point we need to simply list the modules we want to use in our application. We only require that if a module is declared as a dependency by another (via the `deps` type variable in the `Module` type), then that dependency should be inserted below that module. For example, since `Nameservice` depends on `Bank`, we must list `Bank` after `Nameservice`. Similarly since `Bank` depends on `Auth`, we must list `Auth` after `Bank`:
 
 
 ~~~ haskell

@@ -4,7 +4,7 @@ title: Nameservice - Testing
 
 # Testing and Client Generation
 
-It's time to see the real benefit in including as much information as possible in the types, which goes beyond a simple gurantee that certain things won't fail at runtime. Since the `api`s for querying state and delivering transactions was specified in the type of each module, hence in the type of the application via the `ModulesList`, we are able to generate client libraries for these actions for free. This is especially useful in testing to eliminate as much boilerplate as possible, and to get compile time failures whenever an api change would break your tests.
+It's time to see the real benefits of including as much information as possible in the types, which goes beyond a simple guarantee that certain things won't fail at runtime. Since the `api`s for querying state and delivering transactions was specified in the type of each module, hence in the type of the application via the `ModulesList`, we are able to generate client libraries for these actions for free. This is especially useful in testing to eliminate as much boilerplate as possible, and to get compile time failures whenever an api change would break your tests.
 
 
 Let's take a look at how this works in the `E2E` test suite:
@@ -70,7 +70,7 @@ getWhois' :: QueryArgs N.Name -> IO (QueryClientResponse N.Whois)
 getWhois' = RPC.runTendermintM rpcConfig . getWhois
 ~~~
 
-Similarly we can generate a client for sending transactions as well. This is slightly tricker because of the `nonce` problem, exlpained in the following chain of reason:
+Similarly we can generate a client for sending transactions as well. This is slightly tricker because of the `nonce` problem, exlpained in the following chain of reasoning:
 
 1. In order to submit a valid transaction, we need to provide the correct nonce value for the transaction author, which is an ever increasing sequence of natural numbers.
 2. In order to get the current nonce value for a transaction author, we need to query the accounts module for their current nonce value.
