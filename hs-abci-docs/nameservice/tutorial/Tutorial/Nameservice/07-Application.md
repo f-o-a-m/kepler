@@ -20,7 +20,7 @@ data HandlersContext alg ms r core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.ModuleList ms r
   , anteHandler   :: BA.AnteHandler r
-  , compileToCore :: forall a. Sem (BA.BaseApp core) a -> Sem core a
+  , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
   }
 ~~~
 
@@ -57,11 +57,11 @@ import Data.Proxy
 import Nameservice.Modules.Nameservice (nameserviceModule, NameserviceM, NameserviceEffs)
 import Network.ABCI.Server.App (App)
 import Polysemy (Sem)
-import Tendermint.SDK.Modules.Auth (authModule, AuthEffs, AuthM)
+import Tendermint.SDK.Modules.Auth (AuthName, AuthEffs, AuthM)
 import Tendermint.SDK.Application (ModuleList(..), HandlersContext(..), baseAppAnteHandler, makeApp, createIOApp)
 import Tendermint.SDK.BaseApp (BaseApp, CoreEffs, Context, TxEffs, (:&), defaultCompileToCore, runCoreEffs)
 import Tendermint.SDK.Crypto (Secp256k1)
-import Tendermint.SDK.Modules.Bank (bankModule, BankM, BankEffs)
+import Tendermint.SDK.Modules.Bank (BankName, BankM, BankEffs)
 ~~~
 
 This is the part of the application where the effects list must be given a monomorphic type. The only requirement is that you list the effects in the same order that the corresponding modules appear in the `NameserviceModules` list:
@@ -98,8 +98,8 @@ handlersContext = HandlersContext
   nameserviceModules :: ModuleList NameserviceModules EffR
   nameserviceModules =
        nameserviceModule
-    :+ bankModule
-    :+ authModule
+    :+ BankName
+    :+ AuthName
     :+ NilModules
 ~~~
 

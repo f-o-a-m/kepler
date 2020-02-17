@@ -27,10 +27,10 @@ import           Web.HttpApiData              (FromHttpApiData (..),
 
 --------------------------------------------------------------------------------
 
-type AuthModule = "auth"
+type AuthName = "auth"
 
-instance IsKey Address AuthModule where
-  type Value Address AuthModule = Account
+instance IsKey Address AuthName where
+  type Value Address AuthName = Account
 
 instance Queryable Account where
   type Name Account = "account"
@@ -46,7 +46,7 @@ instance IsAppError AuthError where
   makeAppError (AccountAlreadyExists addr) =
     AppError
       { appErrorCode = 1
-      , appErrorCodespace = cs (symbolVal $ Proxy @AuthModule)
+      , appErrorCodespace = cs (symbolVal $ Proxy @AuthName)
       , appErrorMessage = "Account Already Exists " <> (cs . show $ addr) <> "."
       }
 

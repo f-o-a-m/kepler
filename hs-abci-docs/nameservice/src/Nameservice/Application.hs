@@ -17,14 +17,12 @@ import qualified Tendermint.SDK.Modules.Bank     as B
 type EffR =
    N.NameserviceEffs BA.:&
    B.BankEffs BA.:&
-   A.AuthEffs BA.:&
-   BA.TxEffs BA.:&
-   BA.BaseApp BA.CoreEffs
+   A.AuthEffs
 
 type NameserviceModules =
-   '[ N.NameserviceM EffR
-    , B.BankM EffR
-    , A.AuthM EffR
+   '[ N.Nameservice
+    , B.Bank
+    , A.Auth
     ]
 
 handlersContext :: HandlersContext Secp256k1 NameserviceModules EffR BA.CoreEffs
@@ -35,7 +33,7 @@ handlersContext = HandlersContext
   , anteHandler = baseAppAnteHandler
   }
   where
-  nameserviceModules :: ModuleList NameserviceModules EffR
+  nameserviceModules :: ModuleList NameserviceModules (BA.AppEffs EffR BA.CoreEffs)
   nameserviceModules =
        N.nameserviceModule
     :+ B.bankModule

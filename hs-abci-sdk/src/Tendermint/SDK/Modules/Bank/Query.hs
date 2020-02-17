@@ -7,7 +7,7 @@ import           Servant.API
 import qualified Tendermint.SDK.BaseApp             as BaseApp
 import           Tendermint.SDK.BaseApp.Query       (QueryArgs (..))
 import qualified Tendermint.SDK.Modules.Auth        as Auth
-import           Tendermint.SDK.Modules.Bank.Keeper (Bank, getBalance)
+import           Tendermint.SDK.Modules.Bank.Keeper (BankKeeper, getBalance)
 import           Tendermint.SDK.Types.Address       (Address)
 
 --------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ type GetAddressCoinBalance =
   :> BaseApp.Leaf Auth.Coin
 
 getAddressCoinBalance
-  :: Member Bank r
+  :: Member BankKeeper r
   => QueryArgs Address
   -> Auth.CoinId
   -> Sem r (BaseApp.QueryResult Auth.Coin)
@@ -39,6 +39,6 @@ type QueryApi = GetAddressCoinBalance
 
 querier
   :: forall r.
-     Member Bank r
+     Member BankKeeper r
   => BaseApp.RouteQ QueryApi r
 querier = getAddressCoinBalance

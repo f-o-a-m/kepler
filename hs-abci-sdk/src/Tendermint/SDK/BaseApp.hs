@@ -3,7 +3,8 @@ module Tendermint.SDK.BaseApp
     BaseEffs
   , defaultCompileToCore
   , defaultCompileToPureCore
-  , BaseApp
+  , AppEffs
+  , BaseAppEffs
   , (:&)
 
   -- * Core Effects

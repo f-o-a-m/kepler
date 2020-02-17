@@ -18,7 +18,7 @@ makeSem ''Accounts
 
 type AuthEffs = '[Accounts, Error AuthError]
 
-storeKey :: StoreKey AuthModule
+storeKey :: StoreKey AuthName
 storeKey = StoreKey "auth"
 
 eval

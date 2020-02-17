@@ -15,7 +15,7 @@ import Nameservice.Modules.Nameservice.Keeper (NameserviceEffs, eval)
 import Nameservice.Modules.Nameservice.Query (QueryApi, querier)
 import Nameservice.Modules.Nameservice.Router (MessageApi, messageHandlers)
 import Nameservice.Modules.Nameservice.Types (NameserviceModuleName)
-import Tendermint.SDK.Application               (Module (..), ModuleMembers)
+import Tendermint.SDK.Application               (Module (..), ComponentEffs)
 import Tendermint.SDK.BaseApp (DefaultCheckTx (..))
 import Tendermint.SDK.Modules.Bank                (BankM)
 import Data.Proxy
@@ -25,7 +25,7 @@ type NameserviceM =
   Module NameserviceModuleName MessageApi MessageApi QueryApi NameserviceEffs '[BankM]
 
 nameserviceModule
-  :: ModuleMembers NameserviceM r
+  :: ComponentEffs NameserviceM r
   => NameserviceM r
 nameserviceModule = Module
   { moduleTxDeliverer = messageHandlers
@@ -57,11 +57,11 @@ Note that this checker can be used to implement any transaction for which
 
 To generate a server for which every transaction has these properties, we used the `defaultCheckTx` type class method on the `MessageApi` type. This will generate a server of type `VoidReturn MessageApi`, which has the exact same shape as `MessageApi` just will all the return values changed to `Return ()`. In this paricular case all handlers for `MessageApi` already return `()`, so we have `MessageApi ~ VoidReturn MessageApi` and there's no need to use the `VoidReturn` family in the module type.
 
-Note the constraint on `r` in the Module's type using the constraint-valued type family `ModuleMembers`. In this case it evaluates to the following equivalent set of constraints:
+Note the constraint on `r` in the Module's type using the constraint-valued type family `ComponentEffs`. In this case it evaluates to the following equivalent set of constraints:
 
 ~~~ haskell ignore
 ...
-  ModuleMembers NameserviceM r 
+  ComponentEffs NameserviceM r 
     ~ ( Members NameserviceEffs r
       , Members (DependencyEffs '[Bank] r)
       , Members TxEffs r

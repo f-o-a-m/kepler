@@ -18,14 +18,12 @@ import qualified Tendermint.SDK.Modules.Auth         as A
 
 type EffR =
   SimpleStorage.SimpleStorageEffs :&
-  A.AuthEffs :&
-  BA.TxEffs :&
-  BA.BaseApp BA.CoreEffs
+  A.AuthEffs
 
 
 type SimpleStorageModules =
-  '[ SimpleStorage.SimpleStorageM EffR
-   , A.AuthM EffR
+  '[ SimpleStorage.SimpleStorage
+   , A.Auth
    ]
 
 handlersContext :: HandlersContext Secp256k1 SimpleStorageModules EffR BA.CoreEffs
@@ -36,7 +34,7 @@ handlersContext = HandlersContext
   , anteHandler = baseAppAnteHandler
   }
   where
-  simpleStorageModules :: ModuleList SimpleStorageModules EffR
+  simpleStorageModules :: ModuleList SimpleStorageModules (BA.AppEffs EffR BA.CoreEffs)
   simpleStorageModules =
        SimpleStorage.simpleStorageModule
     :+ A.authModule

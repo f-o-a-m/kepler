@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 module SimpleStorage.Modules.SimpleStorage.Keeper
-  ( SimpleStorage
+  ( SimpleStorageKeeper
   , SimpleStorageEffs
   , updateCount
   , getCount
@@ -11,24 +11,22 @@ module SimpleStorage.Modules.SimpleStorage.Keeper
 import           Polysemy                                  (Members, Sem,
                                                             interpret, makeSem)
 import           Polysemy.Output                           (Output)
-import           SimpleStorage.Modules.SimpleStorage.Types (Count,
-                                                            CountKey (..),
-                                                            CountSet (..))
+import           SimpleStorage.Modules.SimpleStorage.Types
 import qualified Tendermint.SDK.BaseApp                    as BaseApp
 
-storeKey :: BaseApp.StoreKey "simple_storage"
+storeKey :: BaseApp.StoreKey SimpleStorageName
 storeKey = BaseApp.StoreKey "simple_storage"
 
-data SimpleStorage m a where
-    PutCount :: Count -> SimpleStorage m ()
-    GetCount :: SimpleStorage m (Maybe Count)
+data SimpleStorageKeeper m a where
+    PutCount :: Count -> SimpleStorageKeeper m ()
+    GetCount :: SimpleStorageKeeper m (Maybe Count)
 
-makeSem ''SimpleStorage
+makeSem ''SimpleStorageKeeper
 
-type SimpleStorageEffs = '[SimpleStorage]
+type SimpleStorageEffs = '[SimpleStorageKeeper]
 
 updateCount
-  ::  Members '[SimpleStorage, Output BaseApp.Event, BaseApp.Logger] r
+  ::  Members '[SimpleStorageKeeper, Output BaseApp.Event, BaseApp.Logger] r
   => Count
   -> Sem r ()
 updateCount count = do
@@ -40,7 +38,7 @@ updateCount count = do
 eval
   :: forall r.
      Members BaseApp.TxEffs r
-  => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
+  => forall a. (Sem (SimpleStorageKeeper ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> do
     BaseApp.put storeKey CountKey count

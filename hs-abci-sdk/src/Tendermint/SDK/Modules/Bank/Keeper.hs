@@ -13,27 +13,27 @@ import           Tendermint.SDK.Modules.Bank.Types (BankError (..),
                                                     TransferEvent (..))
 import           Tendermint.SDK.Types.Address      (Address)
 
-type BankEffs = '[Bank, Error BankError]
+type BankEffs = '[BankKeeper, Error BankError]
 
-data Bank m a where
-  GetBalance :: Address -> Auth.CoinId -> Bank m Auth.Coin
-  PutBalance :: Address -> Auth.Coin -> Bank m ()
+data BankKeeper m a where
+  GetBalance :: Address -> Auth.CoinId -> BankKeeper m Auth.Coin
+  PutBalance :: Address -> Auth.Coin -> BankKeeper m ()
 
-makeSem ''Bank
+makeSem ''BankKeeper
 
 eval
   :: Member (Error BaseApp.AppError) r
   => Members Auth.AuthEffs r
-  => forall a. Sem (Bank ': Error BankError ': r) a -> Sem r a
-eval = mapError BaseApp.makeAppError . evalBank
+  => forall a. Sem (BankKeeper ': Error BankError ': r) a -> Sem r a
+eval = mapError BaseApp.makeAppError . evalBankKeeper
   where
-    evalBank
+    evalBankKeeper
       :: forall r.
          Members Auth.AuthEffs r
       => forall a.
-         Sem (Bank ': r) a
+         Sem (BankKeeper ': r) a
       -> Sem r a
-    evalBank = interpret (\case
+    evalBankKeeper = interpret (\case
       GetBalance addr coinId -> getCoinBalance addr coinId
       PutBalance addr coins -> putCoinBalance addr coins
       )
@@ -118,7 +118,7 @@ burn addr (Auth.Coin cid amount) = do
     else putBalance addr (Auth.Coin cid (bal - amount))
 
 mint
-  :: Member Bank r
+  :: Member BankKeeper r
   => Address
   -> Auth.Coin
   -> Sem r ()

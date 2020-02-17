@@ -2,7 +2,8 @@
 
 module Tendermint.SDK.Application.Module
   ( Module(..)
-  , ModuleMembers
+  , Component
+  , ComponentEffs
   , ModuleList(..)
   , Application(..)
   , ToApplication(..)
@@ -13,9 +14,10 @@ module Tendermint.SDK.Application.Module
 
   ) where
 
-import           Data.Kind                          (Constraint)
+import           Data.Kind                          (Type)
 import           Data.Proxy
-import           GHC.TypeLits                       (Symbol)
+import           GHC.TypeLits                       (ErrorMessage (..), Symbol,
+                                                     TypeError)
 import           Polysemy                           (EffectRow, Members, Sem)
 import           Servant.API                        ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp             ((:&), BaseEffs)
@@ -23,28 +25,31 @@ import qualified Tendermint.SDK.BaseApp.Query       as Q
 import           Tendermint.SDK.BaseApp.Store       (Scope (..))
 import qualified Tendermint.SDK.BaseApp.Transaction as T
 
+type Component = EffectRow -> Type
+
 -- NOTE: This does not pull in transitive dependencies on purpose to avoid
 -- unintended enlarged scope
-type family DependencyEffs (ms :: [EffectRow -> *]) :: EffectRow where
+type family DependencyEffs (ms :: [Component]) :: EffectRow where
   DependencyEffs '[] = '[]
   DependencyEffs (Module _ _ _ _ es deps ': rest) = es :& DependencyEffs rest
+  DependencyEffs _ = TypeError ('Text "DependencyEffs is a partial function defined only on partially applied Modules")
 
-data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: EffectRow) (deps :: [EffectRow -> *]) (r :: EffectRow) = Module
+data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow) = Module
   { moduleTxChecker :: T.RouteTx check r
   , moduleTxDeliverer :: T.RouteTx deliver r
   , moduleQuerier :: Q.RouteQ query r
   , moduleEval :: forall s. (Members T.TxEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a
   }
 
-type family ModuleMembers (m :: EffectRow -> *) (r :: EffectRow) :: Constraint where
-  ModuleMembers (Module _ _ _ _ es deps) r =
-    (Members es r, Members (DependencyEffs deps) r, Members T.TxEffs r, Members BaseEffs r)
+type family ComponentEffs (m :: Component) :: EffectRow where
+  ComponentEffs (Module _ _ _ _ es deps) = es :& DependencyEffs deps :& T.TxEffs :& BaseEffs
+  ComponentEffs _ = TypeError ('Text "DependencyEffs is a partial function defined only on partially applied Module")
 
-data ModuleList ms r where
+data ModuleList (ms :: [Component]) r where
   NilModules :: ModuleList '[] r
   (:+) :: Module name check deliver query es deps r
        -> ModuleList ms r
-       -> ModuleList (Module name check deliver query es deps r ': ms) r
+       -> ModuleList (Module name check deliver query es deps ': ms) r
 
 infixr 5 :+
 
@@ -61,10 +66,10 @@ class ToApplication ms r where
 
   toApplication :: ModuleList ms r -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) r r
 
-instance ToApplication '[Module name check deliver query es deps r] r where
-  type ApplicationC '[Module name check deliver query es deps r] = name :> check
-  type ApplicationD '[Module name check deliver query es deps r] = name :> deliver
-  type ApplicationQ '[Module name check deliver query es deps r] = name :> query
+instance ToApplication '[Module name check deliver query es deps] r where
+  type ApplicationC '[Module name check deliver query es deps] = name :> check
+  type ApplicationD '[Module name check deliver query es deps] = name :> deliver
+  type ApplicationQ '[Module name check deliver query es deps] = name :> query
 
   toApplication (Module{..} :+ NilModules) =
     Application
@@ -73,10 +78,10 @@ instance ToApplication '[Module name check deliver query es deps r] r where
       , applicationQuerier = moduleQuerier
       }
 
-instance ToApplication (m' ': ms) r => ToApplication (Module name check deliver query es deps r ': m' ': ms) r where
-  type ApplicationC (Module name check deliver query es deps r ': m' ': ms) = (name :> check) :<|> ApplicationC (m' ': ms)
-  type ApplicationD (Module name check deliver query es deps r ': m' ': ms) = (name :> deliver) :<|> ApplicationD (m' ': ms)
-  type ApplicationQ (Module name check deliver query es deps r ': m' ': ms) = (name :> query) :<|> ApplicationQ (m' ': ms)
+instance ToApplication (m' ': ms) r => ToApplication (Module name check deliver query es deps ': m' ': ms) r where
+  type ApplicationC (Module name check deliver query es deps ': m' ': ms) = (name :> check) :<|> ApplicationC (m' ': ms)
+  type ApplicationD (Module name check deliver query es deps ': m' ': ms) = (name :> deliver) :<|> ApplicationD (m' ': ms)
+  type ApplicationQ (Module name check deliver query es deps ': m' ': ms) = (name :> query) :<|> ApplicationQ (m' ': ms)
 
   toApplication (Module{..} :+ rest) =
     let app = toApplication rest
@@ -109,15 +114,15 @@ class Eval ms s where
        Sem (Effs ms s) a
     -> Sem (T.TxEffs :& s) a
 
-instance (DependencyEffs deps ~ '[]) => Eval '[Module name check deliver query es deps r] s where
-  type Effs '[Module name check deliver query es deps r] s = es :& T.TxEffs :& s
+instance (DependencyEffs deps ~ '[]) => Eval '[Module name check deliver query es deps] s where
+  type Effs '[Module name check deliver query es deps] s = es :& T.TxEffs :& s
   eval (m :+ NilModules) = moduleEval m
 
 instance ( Members (DependencyEffs deps) (Effs (m' ': ms) s)
          , Members T.TxEffs (Effs (m' ': ms) s)
          , Eval (m' ': ms) s
-         ) => Eval (Module name check deliver query es deps r ': m' ': ms) s where
-  type Effs (Module name check deliver query es deps r ': m' ': ms) s = es :& (Effs (m': ms)) s
+         ) => Eval (Module name check deliver query es deps ': m' ': ms) s where
+  type Effs (Module name check deliver query es deps ': m' ': ms) s = es :& (Effs (m': ms)) s
   eval (m :+ rest) = eval rest . moduleEval m
 
 makeApplication

@@ -1,5 +1,5 @@
 module Tendermint.SDK.Modules.Auth
-  ( AuthM
+  ( Auth
   , authModule
 
   , module Tendermint.SDK.Modules.Auth.Keeper
@@ -7,17 +7,19 @@ module Tendermint.SDK.Modules.Auth
   , module Tendermint.SDK.Modules.Auth.Types
   ) where
 
-import           Tendermint.SDK.Application.Module  (Module (..), ModuleMembers)
+import           Polysemy                           (Members)
+import           Tendermint.SDK.Application.Module  (ComponentEffs, Module (..))
 import           Tendermint.SDK.BaseApp             (EmptyTxServer (..))
 import           Tendermint.SDK.Modules.Auth.Keeper hiding (storeKey)
 import           Tendermint.SDK.Modules.Auth.Query
 import           Tendermint.SDK.Modules.Auth.Types
 
-type AuthM = Module AuthModule EmptyTxServer EmptyTxServer Api AuthEffs '[]
+type Auth =
+  Module AuthName EmptyTxServer EmptyTxServer Api AuthEffs '[]
 
 authModule
-  :: ModuleMembers AuthM r
-  => AuthM r
+  :: Members (ComponentEffs Auth) r
+  => Auth r
 authModule = Module
   { moduleTxDeliverer = EmptyTxServer
   , moduleTxChecker = EmptyTxServer

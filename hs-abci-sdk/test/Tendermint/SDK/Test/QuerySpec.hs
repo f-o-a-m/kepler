@@ -21,16 +21,16 @@ import           Tendermint.SDK.Types.Message             (Msg (..))
 import           Tendermint.SDK.Types.Transaction         (Tx (..))
 import           Test.Hspec
 
-type Effs = SS.SimpleStorage ': BA.TxEffs BA.:& BA.BaseApp BA.PureCoreEffs
+type Effs = SS.SimpleStorageEffs
 
-type Ms = '[SS.SimpleStorageM Effs]
+type Ms = '[SS.SimpleStorage]
 
 spec :: Spec
 spec = beforeAll initContext $
   describe "Query tests" $ do
-    let modules :: App.ModuleList Ms Effs
+    let modules :: App.ModuleList Ms (BA.AppEffs Effs BA.PureCoreEffs)
         modules = SS.simpleStorageModule App.:+ App.NilModules
-        rProxy = Proxy @(BA.BaseApp BA.PureCoreEffs)
+        rProxy = Proxy @(BA.BaseAppEffs BA.PureCoreEffs)
         app = M.makeApplication rProxy mempty modules
         ssServer = serveQueryApplication (Proxy @(M.ApplicationQ Ms)) rProxy $ M.applicationQuerier app
         updateCount = serveTxApplication (Proxy @(M.ApplicationD Ms)) rProxy (Proxy @'Store.Consensus) $ M.applicationTxDeliverer app
