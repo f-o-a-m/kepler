@@ -1,5 +1,5 @@
 ---
-title: Foundations - BaseEffs, TxEffs, and QueryEffs
+title: Foundations - SDK Effects
 ---
 
 # BaseEffs
