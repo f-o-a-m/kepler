@@ -17,7 +17,6 @@ import           Tendermint.SDK.BaseApp                   ((:~>), BaseEffs,
                                                            RoutingTx (..),
                                                            TxEffs, TypedMessage,
                                                            incCount, withTimer)
-import           Tendermint.SDK.Modules.Auth              (AuthEffs)
 import           Tendermint.SDK.Modules.Bank              (BankEffs)
 import           Tendermint.SDK.Types.Message             (Msg (..))
 import           Tendermint.SDK.Types.Transaction         (Tx (..))
@@ -32,7 +31,6 @@ type MessageApi =
 messageHandlers
   :: Members BaseEffs r
   => Members BankEffs r
-  => Members AuthEffs r
   => Members TxEffs r
   => Members NameserviceEffs r
   => RouteTx MessageApi r
@@ -41,7 +39,6 @@ messageHandlers = buyNameH :<|> setNameH :<|> deleteNameH :<|> faucetH
 buyNameH
   :: Members BaseEffs r
   => Members TxEffs r
-  => Members AuthEffs r
   => Members BankEffs r
   => Members NameserviceEffs r
   => RoutingTx BuyName
@@ -63,7 +60,7 @@ setNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
 deleteNameH
   :: Members BaseEffs r
   => Members TxEffs r
-  => Members AuthEffs r
+  => Members BankEffs r
   => Members NameserviceEffs r
   => RoutingTx DeleteName
   -> Sem r ()
@@ -72,8 +69,8 @@ deleteNameH (RoutingTx Tx{txMsg=Msg{msgData}}) = do
   withTimer "delete_duration_seconds" $ deleteName msgData
 
 faucetH
-  :: Members AuthEffs r
-  => Members TxEffs r
+  :: Members TxEffs r
+  => Members BankEffs r
   => Members BaseEffs r
   => RoutingTx FaucetAccount
   -> Sem r ()

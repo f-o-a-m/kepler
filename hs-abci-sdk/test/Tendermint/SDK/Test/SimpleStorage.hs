@@ -25,7 +25,7 @@ import           GHC.Generics                     (Generic)
 import           Polysemy
 import           Polysemy.Error                   (Error, throw)
 import           Servant.API
-import           Tendermint.SDK.Application       (Module (..))
+import           Tendermint.SDK.Application       (Module (..), ModuleMembers)
 import qualified Tendermint.SDK.BaseApp           as BA
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Types.Message     (HasMessageType (..),
@@ -180,13 +180,11 @@ querier =
 -- Module Definition
 --------------------------------------------------------------------------------
 
-type SimpleStorageM r =
-  Module "simple_storage" MessageApi MessageApi QueryApi SimpleStorageEffs r
+type SimpleStorageM =
+  Module "simple_storage" MessageApi MessageApi QueryApi SimpleStorageEffs '[]
 
 simpleStorageModule
-  :: Member SimpleStorage r
-  => Members BA.TxEffs r
-  => Members BA.BaseEffs r
+  :: ModuleMembers SimpleStorageM r
   => SimpleStorageM r
 simpleStorageModule = Module
   { moduleTxDeliverer = messageHandlers

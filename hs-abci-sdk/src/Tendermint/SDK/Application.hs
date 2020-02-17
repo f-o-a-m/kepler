@@ -1,6 +1,7 @@
 module Tendermint.SDK.Application
   ( ModuleList(..)
   , Module(..)
+  , ModuleMembers
   , HandlersContext(..)
   , baseAppAnteHandler
   , createIOApp

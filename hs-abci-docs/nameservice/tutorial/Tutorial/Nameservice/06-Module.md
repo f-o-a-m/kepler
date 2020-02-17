@@ -15,23 +15,17 @@ import Nameservice.Modules.Nameservice.Keeper (NameserviceEffs, eval)
 import Nameservice.Modules.Nameservice.Query (QueryApi, querier)
 import Nameservice.Modules.Nameservice.Router (MessageApi, messageHandlers)
 import Nameservice.Modules.Nameservice.Types (NameserviceModuleName)
-import Polysemy                                 (Members)
-import Tendermint.SDK.Application               (Module (..))
-import Tendermint.SDK.BaseApp (BaseEffs, TxEffs, DefaultCheckTx (..))
-import Tendermint.SDK.Modules.Bank                (BankEffs)
+import Tendermint.SDK.Application               (Module (..), ModuleMembers)
+import Tendermint.SDK.BaseApp (DefaultCheckTx (..))
+import Tendermint.SDK.Modules.Bank                (BankM)
 import Data.Proxy
-import Tendermint.SDK.Modules.Auth                (AuthEffs)
 
 -- a convenient type alias
-type NameserviceM r =
-  Module NameserviceModuleName MessageApi MessageApi QueryApi NameserviceEffs r
+type NameserviceM =
+  Module NameserviceModuleName MessageApi MessageApi QueryApi NameserviceEffs '[BankM]
 
 nameserviceModule
-  :: Members BaseEffs r
-  => Members BankEffs r
-  => Members TxEffs r
-  => Members AuthEffs r
-  => Members NameserviceEffs r
+  :: ModuleMembers NameserviceM r
   => NameserviceM r
 nameserviceModule = Module
   { moduleTxDeliverer = messageHandlers
@@ -63,16 +57,24 @@ Note that this checker can be used to implement any transaction for which
 
 To generate a server for which every transaction has these properties, we used the `defaultCheckTx` type class method on the `MessageApi` type. This will generate a server of type `VoidReturn MessageApi`, which has the exact same shape as `MessageApi` just will all the return values changed to `Return ()`. In this paricular case all handlers for `MessageApi` already return `()`, so we have `MessageApi ~ VoidReturn MessageApi` and there's no need to use the `VoidReturn` family in the module type.
 
-Note the constraints on `r` in the Module's type:
+Note the constraint on `r` in the Module's type using the constraint-valued type family `ModuleMembers`. In this case it evaluates to the following equivalent set of constraints:
 
 ~~~ haskell ignore
 ...
-  :: Members BaseEffs r
-  => Members BankEffs r
-  => Members NameserviceEffs r
+  ModuleMembers NameserviceM r 
+    ~ ( Members NameserviceEffs r
+      , Members (DependencyEffs '[Bank] r)
+      , Members TxEffs r
+      , Members BaseEffs r
+      )
+    ~ ( Members NameserviceEffs r
+      , Members BankEffs r 
+      , Members TxEffs r
+      , Members BaseEffs r
+      )
 ...
 ~~~
 
-This is saying that we can run this module in any context for which `r` has the effects from `BaseApp`, `Bank`, and `Nameservice`. This is how we explicitly declare module dependencies, by using the constraint system.
+This is saying that we can run this module in any context for which `r` has the effects from `BaseEffs`, `TxEffs`, `BankEffs`, and `NameserviceEffs`. This is how we explicitly declare global effect dependencies for a module, by using the constraint system.
 
 Other than that, there is nothing really to note. We are just collecting the pieces we have already defined in one place.

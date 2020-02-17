@@ -2,6 +2,7 @@
 
 module Tendermint.SDK.Application.Module
   ( Module(..)
+  , ModuleMembers
   , ModuleList(..)
   , Application(..)
   , ToApplication(..)
@@ -12,27 +13,38 @@ module Tendermint.SDK.Application.Module
 
   ) where
 
+import           Data.Kind                          (Constraint)
 import           Data.Proxy
 import           GHC.TypeLits                       (Symbol)
 import           Polysemy                           (EffectRow, Members, Sem)
 import           Servant.API                        ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp             ((:&))
+import           Tendermint.SDK.BaseApp             ((:&), BaseEffs)
 import qualified Tendermint.SDK.BaseApp.Query       as Q
 import           Tendermint.SDK.BaseApp.Store       (Scope (..))
 import qualified Tendermint.SDK.BaseApp.Transaction as T
 
-data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: EffectRow) (r :: EffectRow)  = Module
+-- NOTE: This does not pull in transitive dependencies on purpose to avoid
+-- unintended enlarged scope
+type family DependencyEffs (ms :: [EffectRow -> *]) :: EffectRow where
+  DependencyEffs '[] = '[]
+  DependencyEffs (Module _ _ _ _ es deps ': rest) = es :& DependencyEffs rest
+
+data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: EffectRow) (deps :: [EffectRow -> *]) (r :: EffectRow) = Module
   { moduleTxChecker :: T.RouteTx check r
   , moduleTxDeliverer :: T.RouteTx deliver r
   , moduleQuerier :: Q.RouteQ query r
-  , moduleEval :: forall deps. Members T.TxEffs deps => forall a. Sem (es :& deps) a -> Sem deps a
+  , moduleEval :: forall s. (Members T.TxEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a
   }
+
+type family ModuleMembers (m :: EffectRow -> *) (r :: EffectRow) :: Constraint where
+  ModuleMembers (Module _ _ _ _ es deps) r =
+    (Members es r, Members (DependencyEffs deps) r, Members T.TxEffs r, Members BaseEffs r)
 
 data ModuleList ms r where
   NilModules :: ModuleList '[] r
-  (:+) :: Module name check deliver query es r
+  (:+) :: Module name check deliver query es deps r
        -> ModuleList ms r
-       -> ModuleList (Module name check deliver query es r ': ms) r
+       -> ModuleList (Module name check deliver query es deps r ': ms) r
 
 infixr 5 :+
 
@@ -49,10 +61,10 @@ class ToApplication ms r where
 
   toApplication :: ModuleList ms r -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) r r
 
-instance ToApplication '[Module name check deliver query es r] r where
-  type ApplicationC '[Module name check deliver query es r] = name :> check
-  type ApplicationD '[Module name check deliver query es r] = name :> deliver
-  type ApplicationQ '[Module name check deliver query es r] = name :> query
+instance ToApplication '[Module name check deliver query es deps r] r where
+  type ApplicationC '[Module name check deliver query es deps r] = name :> check
+  type ApplicationD '[Module name check deliver query es deps r] = name :> deliver
+  type ApplicationQ '[Module name check deliver query es deps r] = name :> query
 
   toApplication (Module{..} :+ NilModules) =
     Application
@@ -61,10 +73,10 @@ instance ToApplication '[Module name check deliver query es r] r where
       , applicationQuerier = moduleQuerier
       }
 
-instance ToApplication (m' ': ms) r => ToApplication (Module name check deliver query es r ': m' ': ms) r where
-  type ApplicationC (Module name check deliver query es r ': m' ': ms) = (name :> check) :<|> ApplicationC (m' ': ms)
-  type ApplicationD (Module name check deliver query es r ': m' ': ms) = (name :> deliver) :<|> ApplicationD (m' ': ms)
-  type ApplicationQ (Module name check deliver query es r ': m' ': ms) = (name :> query) :<|> ApplicationQ (m' ': ms)
+instance ToApplication (m' ': ms) r => ToApplication (Module name check deliver query es deps r ': m' ': ms) r where
+  type ApplicationC (Module name check deliver query es deps r ': m' ': ms) = (name :> check) :<|> ApplicationC (m' ': ms)
+  type ApplicationD (Module name check deliver query es deps r ': m' ': ms) = (name :> deliver) :<|> ApplicationD (m' ': ms)
+  type ApplicationQ (Module name check deliver query es deps r ': m' ': ms) = (name :> query) :<|> ApplicationQ (m' ': ms)
 
   toApplication (Module{..} :+ rest) =
     let app = toApplication rest
@@ -89,22 +101,23 @@ hoistApplication natT natQ (app :: Application check deliver query r s) =
     , applicationQuerier = Q.hoistQueryRouter (Proxy @query) (Proxy @s) natQ $ applicationQuerier app
     }
 
-class Eval ms deps where
-  type Effs ms deps :: EffectRow
+class Eval ms s where
+  type Effs ms s :: EffectRow
   eval
     :: ModuleList ms r
     -> forall a.
-       Sem (Effs ms deps) a
-    -> Sem (T.TxEffs :& deps) a
+       Sem (Effs ms s) a
+    -> Sem (T.TxEffs :& s) a
 
-instance Eval '[Module name check deliver query es r] deps where
-  type Effs '[Module name check deliver query es r] deps = es :& T.TxEffs :& deps
+instance (DependencyEffs deps ~ '[]) => Eval '[Module name check deliver query es deps r] s where
+  type Effs '[Module name check deliver query es deps r] s = es :& T.TxEffs :& s
   eval (m :+ NilModules) = moduleEval m
 
-instance ( Members T.TxEffs (Effs (m' ': ms) deps)
-         , Eval (m' ': ms) deps
-         ) => Eval (Module name check deliver query es r ': m' ': ms) deps where
-  type Effs (Module name check deliver query es r ': m' ': ms) deps = es :& (Effs (m': ms)) deps
+instance ( Members (DependencyEffs deps) (Effs (m' ': ms) s)
+         , Members T.TxEffs (Effs (m' ': ms) s)
+         , Eval (m' ': ms) s
+         ) => Eval (Module name check deliver query es deps r ': m' ': ms) s where
+  type Effs (Module name check deliver query es deps r ': m' ': ms) s = es :& (Effs (m': ms)) s
   eval (m :+ rest) = eval rest . moduleEval m
 
 makeApplication

@@ -19,8 +19,8 @@ import           SimpleStorage.Modules.SimpleStorage.Types
 import           Tendermint.SDK.Application                  (Module (..))
 import qualified Tendermint.SDK.BaseApp                      as BaseApp
 
-type SimpleStorageM r =
-  Module "simple_storage" MessageApi MessageApi QueryApi SimpleStorageEffs r
+type SimpleStorageM =
+  Module "simple_storage" MessageApi MessageApi QueryApi SimpleStorageEffs '[]
 
 simpleStorageModule
   :: Member SimpleStorage r
