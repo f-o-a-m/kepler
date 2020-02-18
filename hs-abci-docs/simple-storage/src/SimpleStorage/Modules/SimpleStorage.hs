@@ -1,32 +1,29 @@
 module SimpleStorage.Modules.SimpleStorage
-  ( SimpleStorageM
-  , QueryApi
-  , MessageApi
+  ( SimpleStorage
   , simpleStorageModule
+
   , module SimpleStorage.Modules.SimpleStorage.Keeper
   , module SimpleStorage.Modules.SimpleStorage.Message
   , module SimpleStorage.Modules.SimpleStorage.Types
   ) where
 
 import           Data.Proxy
-import           Polysemy                                    (Member, Members)
+import           Polysemy                                    (Members)
 import           SimpleStorage.Modules.SimpleStorage.Keeper  hiding (storeKey)
 import           SimpleStorage.Modules.SimpleStorage.Message
-import           SimpleStorage.Modules.SimpleStorage.Query   (QueryApi, querier)
-import           SimpleStorage.Modules.SimpleStorage.Router  (MessageApi,
-                                                              messageHandlers)
+import           SimpleStorage.Modules.SimpleStorage.Query
+import           SimpleStorage.Modules.SimpleStorage.Router
 import           SimpleStorage.Modules.SimpleStorage.Types
-import           Tendermint.SDK.Application                  (Module (..))
+import           Tendermint.SDK.Application                  (Module (..),
+                                                              ModuleEffs)
 import qualified Tendermint.SDK.BaseApp                      as BaseApp
 
-type SimpleStorageM r =
-  Module "simple_storage" MessageApi MessageApi QueryApi SimpleStorageEffs r
+type SimpleStorage =
+  Module SimpleStorageName MessageApi MessageApi QueryApi SimpleStorageEffs '[]
 
 simpleStorageModule
-  :: Member SimpleStorage r
-  => Members BaseApp.TxEffs r
-  => Members BaseApp.BaseEffs r
-  => SimpleStorageM r
+  :: Members (ModuleEffs SimpleStorage) r
+  => SimpleStorage r
 simpleStorageModule = Module
   { moduleTxDeliverer = messageHandlers
   , moduleTxChecker = BaseApp.defaultCheckTx (Proxy @MessageApi) (Proxy :: Proxy r)

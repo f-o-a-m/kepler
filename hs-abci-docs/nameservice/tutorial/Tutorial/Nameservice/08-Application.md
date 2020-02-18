@@ -16,11 +16,11 @@ newtype App m = App
 and ultimately our configuration of modules must be converted to this format. This is probably the most important part of the SDK, to provide the bridge between the list of modules - a heterogeneous list of type `ModuleList` - and the actual application. The type that provides the input for this bridge is `HandlersContext`:
 
 ~~~ haskell ignore
-data HandlersContext alg ms r core = HandlersContext
+data HandlersContext alg ms core = HandlersContext
   { signatureAlgP :: Proxy alg
-  , modules       :: M.ModuleList ms r
-  , anteHandler   :: BA.AnteHandler r
-  , compileToCore :: forall a. Sem (BA.BaseApp core) a -> Sem core a
+  , modules       :: M.ModuleList ms (Effs ms core)
+  , anteHandler   :: BA.AnteHandler (Effs ms core)
+  , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
   }
 ~~~
 
@@ -29,6 +29,7 @@ where
 - `ms` is the type level list of modules
 - `r` is the global effects list for the application
 - `core` is the set of core effects that are used to interpet `BaseApp` to `IO`.
+- `Effs` is a type family that gathers the effect dependencies for `ms` in the appropriate order.
 
 We should say a few words on this `compileToCore` field. The application developer has to, at the end of the day, specify how the entire effects system for the application will be interpreted to `IO`. Luckily most of these decisions are abstracted away, but the one that remains is dealing with `BaseApp core`. The sdk provides two default methods for two different types of `core`:
 
@@ -54,40 +55,31 @@ The difference is that `defaultCompileToCore` uses the IAVL store external datab
 module Tutorial.Nameservice.Application where
 
 import Data.Proxy
-import Nameservice.Modules.Nameservice (nameserviceModule, NameserviceM, NameserviceEffs)
+import Nameservice.Modules.Nameservice (Nameservice, nameserviceModule)
 import Network.ABCI.Server.App (App)
 import Polysemy (Sem)
-import Tendermint.SDK.Modules.Auth (authModule, AuthEffs, AuthM)
+import Tendermint.SDK.Modules.Auth (Auth, authModule)
 import Tendermint.SDK.Application (ModuleList(..), HandlersContext(..), baseAppAnteHandler, makeApp, createIOApp)
-import Tendermint.SDK.BaseApp (BaseApp, CoreEffs, Context, TxEffs, (:&), defaultCompileToCore, runCoreEffs)
+import Tendermint.SDK.BaseApp (CoreEffs, Context, defaultCompileToCore, runCoreEffs)
 import Tendermint.SDK.Crypto (Secp256k1)
-import Tendermint.SDK.Modules.Bank (bankModule, BankM, BankEffs)
+import Tendermint.SDK.Modules.Bank (Bank, bankModule)
 ~~~
 
-This is the part of the application where the effects list must be given a monomorphic type. The only requirement is that you list the effects in the same order that the corresponding modules appear in the `NameserviceModules` list:
+At this point we need to simply list the modules we want to use in our application. We only require that if a module is declared as a dependency by another (via the `deps` type variable in the `Module` type), then that dependency should be inserted below that module. For example, since `Nameservice` depends on `Bank`, we must list `Bank` after `Nameservice`. Similarly since `Bank` depends on `Auth`, we must list `Auth` after `Bank`:
 
 
 ~~~ haskell
-type EffR =
-   NameserviceEffs :&
-   BankEffs :&
-   AuthEffs :&
-   TxEffs :&
-   BaseApp CoreEffs
-
 type NameserviceModules =
-   '[ NameserviceM EffR
-    , BankM EffR
-    , AuthM EffR
+   '[ Nameservice
+    , Bank
+    , Auth
     ]
 ~~~
-
-Also notice that `TxEffs :& BaseApp CoreEffs` appears at the end of the effects list, but doesn't strictly corrospond to a module. This needs to be here as ultimately all transactions and queries are intereted to `TxEffs :& BaseApp CoreEffs` before being run.
 
 We're now ready to define the `HandlersContext` for our application:
 
 ~~~ haskell
-handlersContext :: HandlersContext Secp256k1 NameserviceModules EffR CoreEffs
+handlersContext :: HandlersContext Secp256k1 NameserviceModules CoreEffs
 handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = nameserviceModules
@@ -95,7 +87,6 @@ handlersContext = HandlersContext
   , anteHandler = baseAppAnteHandler
   }
   where
-  nameserviceModules :: ModuleList NameserviceModules EffR
   nameserviceModules =
        nameserviceModule
     :+ bankModule

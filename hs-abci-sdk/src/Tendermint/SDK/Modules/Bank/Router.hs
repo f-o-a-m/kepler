@@ -8,7 +8,7 @@ import           Servant.API                          ((:<|>) (..))
 import           Tendermint.SDK.BaseApp               ((:~>), BaseEffs, Return,
                                                        RouteTx, RoutingTx (..),
                                                        TxEffs, TypedMessage)
-import           Tendermint.SDK.Modules.Auth          (AuthEffs, Coin (..))
+import           Tendermint.SDK.Modules.Auth          (Coin (..))
 import           Tendermint.SDK.Modules.Bank.Keeper   (BankEffs, burn, transfer)
 import           Tendermint.SDK.Modules.Bank.Messages (Burn (..), Transfer (..))
 import           Tendermint.SDK.Types.Message         (Msg (..))
@@ -19,16 +19,14 @@ type MessageApi =
   :<|> TypedMessage Transfer :~> Return ()
 
 messageHandlers
-  :: Members AuthEffs r
-  => Members BankEffs r
+  ::Members BankEffs r
   => Members TxEffs r
   => Members BaseEffs r
   => RouteTx MessageApi r
 messageHandlers = burnH :<|> transferH
 
 transferH
-  :: Members AuthEffs r
-  => Members BankEffs r
+  :: Members BankEffs r
   => Members TxEffs r
   => Members BaseEffs r
   => RoutingTx Transfer
@@ -39,8 +37,7 @@ transferH (RoutingTx Tx{txMsg=Msg{msgData}}) =
   in transfer transferFrom coin transferTo
 
 burnH
-  :: Members AuthEffs r
-  => Members BankEffs r
+  :: Members BankEffs r
   => RoutingTx Burn
   -> Sem r ()
 burnH (RoutingTx Tx{txMsg=Msg{msgData}}) =

@@ -1,8 +1,13 @@
 ---
-title: Foundations - SDK Effects
+title: Foundations - Effects
 ---
 
-# BaseEffs
+# Effects Lists
+
+There are several distinguished effects lists you should be familiar with that come up at different parts of the sdk or application development. They are often combined or stacked using the `:&` operator, which is simply concatenation of type level lists.
+
+
+## BaseEffs
 
 `BaseEffs` is a set of effects that the SDK operates with and are freely available
 for an application developer to make use of in any part of their application code. They
@@ -26,7 +31,7 @@ These effects are:
 
 The SDK does not make any assumptions about how `BaseEffs` will be interpreted at runtime, it only assumes that the developer might want use one of the provided core effects systems to interpret them. For example, the standard `CoreEffs` uses a prometheus metrics server to interpret the `Metrics` effect while `PureCoreEffs` just ignores the effect entirely. 
 
-# TxEffs
+## TxEffs
 
 `TxEffs` are the effects used to interpret transactions and are defined as
 
@@ -50,7 +55,7 @@ where
 
 `TxEffs` effects are available any time during transactions and are interpreted at the time of transaction routing. It's worth noting that the interpreters take care of finalizing writes to the database when it's appropriate (i.e. during a `deliverTx` message) and not otherwise (e.g. during a `checkTx` message).
 
-# QueryEffs
+## QueryEffs
 
 `QueryEffs` are used to interpret queries and are defined as 
 
@@ -68,15 +73,9 @@ where
 
 `QueryEffs` are available any time you are writing handlers for a module's query api. The SDK manages a separate connection for reading from committed (i.e. via blocks) state when `QueryEffs` are present.
 
-# BaseApp
+## StoreEffs
 
-There is a type alias in the SDK called `BaseApp` with the definition
-
-~~~ haskell ignore
-type BaseApp core = BaseEffs :& StoreEffs :& core
-~~~
-
-where `StoreEffs` is given by
+`StoreEffs` describe the possible interactions with an abstract merkelized key-value database:
 
 ~~~ haskell ignore
 type StoreEffs =
@@ -88,5 +87,23 @@ type StoreEffs =
   ]
 ~~~
 
+ They are used to interpret `TxEffects` depending on what context you're in, e.g. while executing a `delierTx` versus `checkTx` message, or a `query`. Some effects are tagged with a promoted value of type `Scope`, i.e. `'Consensus` and `'QueryAndMempool`. This is because your application will keep multiple connections to the database that are used in different situations. For example, since writing to the state at a previous blocktimes is impossible, we disallow writing to the database in such instances.
+
+
+# Effects Type Synonyms
+
+There are a few  effects lists that appear so frequently at different points in the SDK that they deserve synonyms:
+
+## Effs
+
+`Effs` is technically a type family coming from the class `Tendermint.SDK.Application.Module.Eval`. It is used to enumerate all the effects that would be needed in order to run an application defined by a `ModuleList`. 
+
+## BaseAppEffs
+
+There is a type alias in the SDK called `BaseAppEffs` with the definition
+
+~~~ haskell ignore
+type BaseApp core = BaseEffs :& StoreEffs :& core
+~~~
 
 It sits at the bottom of any applications effects list and ultimately everything is interpreted through these effects before being run, e.g. `TxEffs` and `QueryEffs`. This effects list is pretty much the only place where the application developer needs to decide how the interpretation should be done. There are two options in the SDK, using `PureCoreEffs` or `CoreEffs` depending on whether you want to rely on an external or in-memory database.

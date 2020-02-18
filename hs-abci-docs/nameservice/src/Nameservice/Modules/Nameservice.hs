@@ -2,7 +2,7 @@ module Nameservice.Modules.Nameservice
 
   (
     -- * Module
-    NameserviceM
+    Nameservice
   , nameserviceModule
   , module           Nameservice.Modules.Nameservice.Keeper
   , module           Nameservice.Modules.Nameservice.Messages
@@ -20,23 +20,18 @@ import           Nameservice.Modules.Nameservice.Query
 import           Nameservice.Modules.Nameservice.Router
 import           Nameservice.Modules.Nameservice.Types
 import           Polysemy                                 (Members)
-import           Tendermint.SDK.Application               (Module (..))
-import           Tendermint.SDK.BaseApp                   (BaseEffs,
-                                                           DefaultCheckTx (..),
-                                                           TxEffs)
-import           Tendermint.SDK.Modules.Auth              (AuthEffs)
-import           Tendermint.SDK.Modules.Bank              (BankEffs)
+import           Tendermint.SDK.Application               (Module (..),
+                                                           ModuleEffs)
+import           Tendermint.SDK.BaseApp                   (DefaultCheckTx (..))
+import           Tendermint.SDK.Modules.Bank              (Bank)
 
-type NameserviceM r =
-  Module "nameservice" MessageApi MessageApi QueryApi NameserviceEffs r
+
+type Nameservice =
+  Module "nameservice" MessageApi MessageApi QueryApi NameserviceEffs '[Bank]
 
 nameserviceModule
-  :: Members BaseEffs r
-  => Members AuthEffs r
-  => Members TxEffs r
-  => Members BankEffs r
-  => Members NameserviceEffs r
-  => NameserviceM r
+  :: Members (ModuleEffs Nameservice) r
+  => Nameservice r
 nameserviceModule = Module
   { moduleTxDeliverer = messageHandlers
   , moduleTxChecker = defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)

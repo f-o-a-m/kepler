@@ -1,5 +1,5 @@
 module Tendermint.SDK.BaseApp.Effects
-  ( BaseApp
+  ( BaseAppEffs
   , defaultCompileToCore
   , defaultCompileToPureCore
   , module Tendermint.SDK.BaseApp.Effects.BaseEffs
@@ -17,16 +17,18 @@ import qualified Tendermint.SDK.BaseApp.Store.MemoryStore    as Memory
 import           Tendermint.SDK.Types.Effects                ((:&))
 
 
-type BaseApp core = StoreEffs :& BaseEffs :& core
+
+
+type BaseAppEffs core = StoreEffs :& BaseEffs :& core
 
 defaultCompileToCore
   :: forall a.
-     Sem (BaseApp CoreEffs) a
+     Sem (BaseAppEffs CoreEffs) a
   -> Sem CoreEffs a
 defaultCompileToCore = evalBaseEffs . IAVL.evalStoreEffs
 
 defaultCompileToPureCore
   :: forall a.
-     Sem (BaseApp PureCoreEffs) a
+     Sem (BaseAppEffs PureCoreEffs) a
   -> Sem PureCoreEffs a
 defaultCompileToPureCore = evalBaseEffsPure . Memory.evalStoreEffs

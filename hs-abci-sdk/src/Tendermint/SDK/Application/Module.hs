@@ -2,6 +2,8 @@
 
 module Tendermint.SDK.Application.Module
   ( Module(..)
+  , Component
+  , ModuleEffs
   , ModuleList(..)
   , Application(..)
   , ToApplication(..)
@@ -12,27 +14,43 @@ module Tendermint.SDK.Application.Module
 
   ) where
 
+import           Data.Kind                          (Type)
 import           Data.Proxy
-import           GHC.TypeLits                       (Symbol)
+import           GHC.TypeLits                       (ErrorMessage (..), Symbol,
+                                                     TypeError)
 import           Polysemy                           (EffectRow, Members, Sem)
 import           Servant.API                        ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp             ((:&))
+import           Tendermint.SDK.BaseApp             ((:&), BaseAppEffs,
+                                                     BaseEffs)
 import qualified Tendermint.SDK.BaseApp.Query       as Q
 import           Tendermint.SDK.BaseApp.Store       (Scope (..))
 import qualified Tendermint.SDK.BaseApp.Transaction as T
 
-data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: EffectRow) (r :: EffectRow)  = Module
+type Component = EffectRow -> Type
+
+-- NOTE: This does not pull in transitive dependencies on purpose to avoid
+-- unintended enlarged scope
+type family DependencyEffs (ms :: [Component]) :: EffectRow where
+  DependencyEffs '[] = '[]
+  DependencyEffs (Module _ _ _ _ es deps ': rest) = es :& DependencyEffs rest
+  DependencyEffs _ = TypeError ('Text "DependencyEffs is a partial function defined only on partially applied Modules")
+
+data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow) = Module
   { moduleTxChecker :: T.RouteTx check r
   , moduleTxDeliverer :: T.RouteTx deliver r
   , moduleQuerier :: Q.RouteQ query r
-  , moduleEval :: forall deps. Members T.TxEffs deps => forall a. Sem (es :& deps) a -> Sem deps a
+  , moduleEval :: forall s. (Members T.TxEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a
   }
 
-data ModuleList ms r where
+type family ModuleEffs (m :: Component) :: EffectRow where
+  ModuleEffs (Module _ _ _ _ es deps) = es :& DependencyEffs deps :& T.TxEffs :& BaseEffs
+  ModuleEffs _ = TypeError ('Text "ModuleEffs is a partial function defined only on Component")
+
+data ModuleList (ms :: [Component]) r where
   NilModules :: ModuleList '[] r
-  (:+) :: Module name check deliver query es r
+  (:+) :: Module name check deliver query es deps r
        -> ModuleList ms r
-       -> ModuleList (Module name check deliver query es r ': ms) r
+       -> ModuleList (Module name check deliver query es deps ': ms) r
 
 infixr 5 :+
 
@@ -49,10 +67,10 @@ class ToApplication ms r where
 
   toApplication :: ModuleList ms r -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) r r
 
-instance ToApplication '[Module name check deliver query es r] r where
-  type ApplicationC '[Module name check deliver query es r] = name :> check
-  type ApplicationD '[Module name check deliver query es r] = name :> deliver
-  type ApplicationQ '[Module name check deliver query es r] = name :> query
+instance ToApplication '[Module name check deliver query es deps] r where
+  type ApplicationC '[Module name check deliver query es deps] = name :> check
+  type ApplicationD '[Module name check deliver query es deps] = name :> deliver
+  type ApplicationQ '[Module name check deliver query es deps] = name :> query
 
   toApplication (Module{..} :+ NilModules) =
     Application
@@ -61,10 +79,10 @@ instance ToApplication '[Module name check deliver query es r] r where
       , applicationQuerier = moduleQuerier
       }
 
-instance ToApplication (m' ': ms) r => ToApplication (Module name check deliver query es r ': m' ': ms) r where
-  type ApplicationC (Module name check deliver query es r ': m' ': ms) = (name :> check) :<|> ApplicationC (m' ': ms)
-  type ApplicationD (Module name check deliver query es r ': m' ': ms) = (name :> deliver) :<|> ApplicationD (m' ': ms)
-  type ApplicationQ (Module name check deliver query es r ': m' ': ms) = (name :> query) :<|> ApplicationQ (m' ': ms)
+instance ToApplication (m' ': ms) r => ToApplication (Module name check deliver query es deps ': m' ': ms) r where
+  type ApplicationC (Module name check deliver query es deps ': m' ': ms) = (name :> check) :<|> ApplicationC (m' ': ms)
+  type ApplicationD (Module name check deliver query es deps ': m' ': ms) = (name :> deliver) :<|> ApplicationD (m' ': ms)
+  type ApplicationQ (Module name check deliver query es deps ': m' ': ms) = (name :> query) :<|> ApplicationQ (m' ': ms)
 
   toApplication (Module{..} :+ rest) =
     let app = toApplication rest
@@ -89,38 +107,40 @@ hoistApplication natT natQ (app :: Application check deliver query r s) =
     , applicationQuerier = Q.hoistQueryRouter (Proxy @query) (Proxy @s) natQ $ applicationQuerier app
     }
 
-class Eval ms deps where
-  type Effs ms deps :: EffectRow
+class Eval ms (core :: EffectRow) where
+  type Effs ms core :: EffectRow
   eval
-    :: ModuleList ms r
+    :: proxy core
+    -> ModuleList ms r
     -> forall a.
-       Sem (Effs ms deps) a
-    -> Sem (T.TxEffs :& deps) a
+       Sem (Effs ms core) a
+    -> Sem (T.TxEffs :& BaseAppEffs core) a
 
-instance Eval '[Module name check deliver query es r] deps where
-  type Effs '[Module name check deliver query es r] deps = es :& T.TxEffs :& deps
-  eval (m :+ NilModules) = moduleEval m
+instance (DependencyEffs deps ~ '[]) => Eval '[Module name check deliver query es deps] core where
+  type Effs '[Module name check deliver query es deps] core = es :& T.TxEffs :& BaseAppEffs core
+  eval _ (m :+ NilModules) = moduleEval m
 
-instance ( Members T.TxEffs (Effs (m' ': ms) deps)
-         , Eval (m' ': ms) deps
-         ) => Eval (Module name check deliver query es r ': m' ': ms) deps where
-  type Effs (Module name check deliver query es r ': m' ': ms) deps = es :& (Effs (m': ms)) deps
-  eval (m :+ rest) = eval rest . moduleEval m
+instance ( Members (DependencyEffs deps) (Effs (m' ': ms) s)
+         , Members T.TxEffs (Effs (m' ': ms) s)
+         , Eval (m' ': ms) s
+         ) => Eval (Module name check deliver query es deps ': m' ': ms) s where
+  type Effs (Module name check deliver query es deps ': m' ': ms) s = es :& (Effs (m': ms)) s
+  eval pcore (m :+ rest) = eval pcore rest . moduleEval m
 
 makeApplication
-  :: Eval ms deps
-  => ToApplication ms (Effs ms deps)
-  => T.HasTxRouter (ApplicationC ms) (Effs ms deps) 'QueryAndMempool
-  => T.HasTxRouter (ApplicationD ms) (Effs ms deps) 'Consensus
-  => Q.HasQueryRouter (ApplicationQ ms) (Effs ms deps)
-  => Proxy deps
-  -> T.AnteHandler (Effs ms deps)
-  -> ModuleList ms (Effs ms deps)
-  -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (T.TxEffs :& deps) (Q.QueryEffs :& deps)
-makeApplication (Proxy :: Proxy deps) ah (ms :: ModuleList ms (Effs ms deps)) =
-  let app = applyAnteHandler ah $ toApplication ms :: Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (Effs ms deps) (Effs ms deps)
+  :: Eval ms core
+  => ToApplication ms (Effs ms core)
+  => T.HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool
+  => T.HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus
+  => Q.HasQueryRouter (ApplicationQ ms) (Effs ms core)
+  => Proxy core
+  -> T.AnteHandler (Effs ms core)
+  -> ModuleList ms (Effs ms core)
+  -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (T.TxEffs :& BaseAppEffs core) (Q.QueryEffs :& BaseAppEffs core)
+makeApplication p@(Proxy :: Proxy core) ah (ms :: ModuleList ms (Effs ms core)) =
+  let app = applyAnteHandler ah $ toApplication ms :: Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (Effs ms core) (Effs ms core)
       -- WEIRD: if you move the eval into a separate let binding then it doesn't typecheck...
-  in hoistApplication (eval @ms @deps ms) (T.evalReadOnly . eval @ms @deps ms) app
+  in hoistApplication (eval @ms @core p ms) (T.evalReadOnly . eval @ms @core p ms) app
 
 applyAnteHandler
   :: T.HasTxRouter check r 'QueryAndMempool

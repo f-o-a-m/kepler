@@ -55,3 +55,5 @@ instance BaseApp.ToEvent CountSet where
   makeEventType _ = "count_set"
 
 instance BaseApp.Select CountSet
+
+type SimpleStorageName = "simple_storage"

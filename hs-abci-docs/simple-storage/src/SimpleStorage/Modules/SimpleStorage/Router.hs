@@ -5,7 +5,7 @@ module SimpleStorage.Modules.SimpleStorage.Router
 
 import           Polysemy                                    (Member, Members,
                                                               Sem)
-import           SimpleStorage.Modules.SimpleStorage.Keeper  (SimpleStorage,
+import           SimpleStorage.Modules.SimpleStorage.Keeper  (SimpleStorageKeeper,
                                                               updateCount)
 import           SimpleStorage.Modules.SimpleStorage.Message
 import           SimpleStorage.Modules.SimpleStorage.Types   (Count (..))
@@ -22,14 +22,14 @@ type MessageApi =
   TypedMessage UpdateCountTx :~> Return ()
 
 messageHandlers
-  :: Member SimpleStorage r
+  :: Member SimpleStorageKeeper r
   => Members TxEffs r
   => Members BaseEffs r
   => RouteTx MessageApi r
 messageHandlers = updateCountH
 
 updateCountH
-  :: Member SimpleStorage r
+  :: Member SimpleStorageKeeper r
   => Members TxEffs r
   => Members BaseEffs r
   => RoutingTx UpdateCountTx

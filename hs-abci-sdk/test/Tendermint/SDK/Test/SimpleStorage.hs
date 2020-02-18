@@ -1,8 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Tendermint.SDK.Test.SimpleStorage
-  ( SimpleStorageM
-  , SimpleStorage
+  ( SimpleStorage
   , UpdateCountTx(..)
   , simpleStorageModule
   , evalToIO
@@ -25,7 +24,7 @@ import           GHC.Generics                     (Generic)
 import           Polysemy
 import           Polysemy.Error                   (Error, throw)
 import           Servant.API
-import           Tendermint.SDK.Application       (Module (..))
+import           Tendermint.SDK.Application       (Module (..), ModuleEffs)
 import qualified Tendermint.SDK.BaseApp           as BA
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import           Tendermint.SDK.Types.Message     (HasMessageType (..),
@@ -87,24 +86,25 @@ instance ValidateMessage UpdateCountTx where
 storeKey :: BA.StoreKey "simple_storage"
 storeKey = BA.StoreKey "simple_storage"
 
-data SimpleStorage m a where
-    PutCount :: Count -> SimpleStorage m ()
-    GetCount :: SimpleStorage m (Maybe Count)
+data SimpleStorageKeeper m a where
+    PutCount :: Count -> SimpleStorageKeeper m ()
+    GetCount :: SimpleStorageKeeper m (Maybe Count)
 
-makeSem ''SimpleStorage
+makeSem ''SimpleStorageKeeper
 
-type SimpleStorageEffs = '[SimpleStorage]
 
 updateCount
-  ::  Member SimpleStorage r
+  :: Member SimpleStorageKeeper r
   => Count
   -> Sem r ()
 updateCount count = putCount count
 
+type SimpleStorageEffs = '[SimpleStorageKeeper]
+
 eval
   :: forall r.
      Members BA.TxEffs r
-  => forall a. (Sem (SimpleStorage ': r) a -> Sem r a)
+  => forall a. (Sem (SimpleStorageKeeper ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> BA.put storeKey CountKey count
   GetCount -> BA.get storeKey CountKey
@@ -118,13 +118,13 @@ type MessageApi =
   BA.TypedMessage UpdateCountTx BA.:~> BA.Return ()
 
 messageHandlers
-  :: Member SimpleStorage r
+  :: Member SimpleStorageKeeper r
   => Members BA.TxEffs r
   => BA.RouteTx MessageApi r
 messageHandlers = updateCountH
 
 updateCountH
-  :: Member SimpleStorage r
+  :: Member SimpleStorageKeeper r
   => Members BA.TxEffs r
   => BA.RoutingTx UpdateCountTx
   -> Sem r ()
@@ -146,7 +146,7 @@ type GetMultipliedCount =
   :> BA.Leaf Count
 
 getMultipliedCount
-  :: Members [Error BA.AppError, SimpleStorage] r
+  :: Members [Error BA.AppError, SimpleStorageKeeper] r
   => Integer
   -> Integer
   -> Sem r (BA.QueryResult Count)
@@ -169,7 +169,7 @@ type QueryApi = GetMultipliedCount :<|> BA.QueryApi CountStoreContents
 querier
   :: forall r.
      Members BA.QueryEffs r
-  => Member SimpleStorage r
+  => Member SimpleStorageKeeper r
   => BA.RouteQ QueryApi r
 querier =
   let storeHandlers = BA.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
@@ -180,14 +180,12 @@ querier =
 -- Module Definition
 --------------------------------------------------------------------------------
 
-type SimpleStorageM r =
-  Module "simple_storage" MessageApi MessageApi QueryApi SimpleStorageEffs r
+type SimpleStorage =
+  Module "simple_storage" MessageApi MessageApi QueryApi SimpleStorageEffs '[]
 
 simpleStorageModule
-  :: Member SimpleStorage r
-  => Members BA.TxEffs r
-  => Members BA.BaseEffs r
-  => SimpleStorageM r
+  :: Members (ModuleEffs SimpleStorage) r
+  => SimpleStorage r
 simpleStorageModule = Module
   { moduleTxDeliverer = messageHandlers
   , moduleTxChecker = BA.defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
@@ -197,7 +195,7 @@ simpleStorageModule = Module
 
 evalToIO
   :: BA.PureContext
-  -> Sem (BA.BaseApp BA.PureCoreEffs) a
+  -> Sem (BA.BaseAppEffs BA.PureCoreEffs) a
   -> IO a
 evalToIO context action = do
   eRes <- BA.runPureCoreEffs context .  BA.defaultCompileToPureCore $ action
