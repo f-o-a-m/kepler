@@ -2,7 +2,7 @@ module Tendermint.Utils.Test.EventSpec (spec) where
 
 import qualified Data.Aeson                    as A
 import           GHC.Generics                  (Generic)
-import           Tendermint.SDK.BaseApp.Events (ToEvent (..), makeEvent)
+import           Tendermint.SDK.BaseApp.Events (ToEvent (..))
 import           Tendermint.Utils.Events       (FromEvent (..))
 import           Test.Hspec
 
@@ -14,7 +14,7 @@ spec = describe "Event Tests" $ do
             , from = "you"
             , amount = 1
             }
-      fromEvent (makeEvent transferEv) `shouldBe` Right transferEv
+      fromEvent (toEvent transferEv) `shouldBe` Right transferEv
 
 data Transfer = Transfer
   { to     :: String
@@ -24,8 +24,6 @@ data Transfer = Transfer
 
 instance A.ToJSON Transfer
 
-instance ToEvent Transfer where
-    makeEventType _ = "transfer"
-
+instance ToEvent Transfer
 instance A.FromJSON Transfer
 instance FromEvent Transfer
