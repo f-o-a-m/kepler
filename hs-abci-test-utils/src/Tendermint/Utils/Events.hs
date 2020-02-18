@@ -30,11 +30,11 @@ instance (GFromNamedEventPrimatives a, GFromNamedEventPrimatives b) => GFromName
   gfromNamedEventPrimatives kvs =
     (:*:) <$> gfromNamedEventPrimatives kvs <*> gfromNamedEventPrimatives kvs
 
-class GFromEvent1 f where
-  gfromEventData1 :: Event -> Either Text (f p)
+class GFromEvent f where
+  gfromEventData :: Event -> Either Text (f p)
 
-instance (GFromNamedEventPrimatives f, Datatype d) => GFromEvent1 (D1 d f) where
-  gfromEventData1 Event{eventType, eventAttributes} =
+instance (GFromNamedEventPrimatives f, Datatype d) => GFromEvent (D1 d f) where
+  gfromEventData Event{eventType, eventAttributes} =
     let dt = cs $ datatypeName (undefined ::  D1 d f p)
     in if dt == eventType
          then fmap M1 . gfromNamedEventPrimatives $
@@ -44,6 +44,6 @@ instance (GFromNamedEventPrimatives f, Datatype d) => GFromEvent1 (D1 d f) where
 class ToEvent e => FromEvent e where
   fromEvent :: Event -> Either Text e
 
-  default fromEvent :: (Generic e, GFromEvent1 (Rep e)) => Event -> Either Text e
-  fromEvent = fmap to . gfromEventData1
+  default fromEvent :: (Generic e, GFromEvent (Rep e)) => Event -> Either Text e
+  fromEvent = fmap to . gfromEventData
 

@@ -3,7 +3,6 @@ module Tendermint.SDK.BaseApp.Events
   -- * Class
     ToEvent(..)
   , ContextEvent(..)
-  , makeEvent
 
   -- * Effect
   , emit
@@ -16,10 +15,7 @@ module Tendermint.SDK.BaseApp.Events
 import qualified Data.Aeson                             as A
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteString                        as BS
-import           Data.Int                               (Int64)
-import           Data.String.Conversions                (ConvertibleStrings (..),
-                                                         cs)
-import           Data.Text                              (Text)
+import           Data.String.Conversions                (cs)
 import           GHC.Generics
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..),
                                                          KVPair (..))
@@ -48,11 +44,11 @@ instance (Selector s, HasCodec a) => GToNamedEventPrimatives (S1 s (K1 i a)) whe
 instance (GToNamedEventPrimatives a, GToNamedEventPrimatives b) => GToNamedEventPrimatives (a :*: b) where
   gtoNamedEventPrimatives (a :*: b) = gtoNamedEventPrimatives a <> gtoNamedEventPrimatives b
 
-class GToEvent1 f where
-  gmakeEvent1 :: f p -> Event
+class GToEvent f where
+  gmakeEvent :: f p -> Event
 
-instance (GToNamedEventPrimatives f, Datatype d) => GToEvent1 (D1 d f) where
-  gmakeEvent1 m1@(M1 x) = Event
+instance (GToNamedEventPrimatives f, Datatype d) => GToEvent (D1 d f) where
+  gmakeEvent m1@(M1 x) = Event
     { eventType = cs $ datatypeName m1
     , eventAttributes = (\(k, v) -> KVPair (Base64.fromBytes k) (Base64.fromBytes v)) <$> gtoNamedEventPrimatives x
     }
@@ -62,8 +58,8 @@ instance (GToNamedEventPrimatives f, Datatype d) => GToEvent1 (D1 d f) where
 class ToEvent e where
   toEvent :: e -> Event
 
-  default toEvent :: (Generic e, GToEvent1 (Rep e)) => e -> Event
-  toEvent = gmakeEvent1 . from
+  default toEvent :: (Generic e, GToEvent (Rep e)) => e -> Event
+  toEvent = gmakeEvent . from
 
 emit
   :: ToEvent e

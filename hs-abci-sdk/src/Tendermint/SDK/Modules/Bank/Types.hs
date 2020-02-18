@@ -50,6 +50,5 @@ instance A.ToJSON TransferEvent where
   toJSON = A.genericToJSON transferEventAesonOptions
 instance A.FromJSON TransferEvent where
   parseJSON = A.genericParseJSON transferEventAesonOptions
-instance BaseApp.ToEvent TransferEvent where
-  makeEventType _ = "TransferEvent"
+instance BaseApp.ToEvent TransferEvent
 instance BaseApp.Select TransferEvent

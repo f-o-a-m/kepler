@@ -131,8 +131,7 @@ instance ToJSON Faucetted where
   toJSON = A.genericToJSON faucettedAesonOptions
 instance FromJSON Faucetted where
   parseJSON = A.genericParseJSON faucettedAesonOptions
-instance BaseApp.ToEvent Faucetted where
-  makeEventType _ = "Faucetted"
+instance BaseApp.ToEvent Faucetted
 instance BaseApp.Select Faucetted
 
 data NameClaimed = NameClaimed
