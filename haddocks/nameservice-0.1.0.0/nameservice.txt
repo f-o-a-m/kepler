@@ -180,40 +180,39 @@ data NameserviceKeeper m a
 type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
 nameserviceCoinId :: CoinId
 setName :: Members [Logger, Output Event] r => Members NameserviceEffs r => SetName -> Sem r ()
-deleteName :: Members [Logger, Output Event] r => Members AuthEffs r => Members NameserviceEffs r => DeleteName -> Sem r ()
+deleteName :: Members [Logger, Output Event] r => Members BankEffs r => Members NameserviceEffs r => DeleteName -> Sem r ()
 
 -- | did it succeed
-buyName :: Members [Logger, Output Event] r => Members AuthEffs r => Members BankEffs r => Members NameserviceEffs r => BuyName -> Sem r ()
+buyName :: Members [Logger, Output Event] r => Members BankEffs r => Members NameserviceEffs r => BuyName -> Sem r ()
 storeKey :: StoreKey NameserviceModuleName
-faucetAccount :: Members [Logger, Output Event] r => Members AuthEffs r => FaucetAccount -> Sem r ()
+faucetAccount :: Members [Logger, Output Event] r => Members BankEffs r => FaucetAccount -> Sem r ()
 eval :: Members TxEffs r => forall a. Sem (NameserviceKeeper : (Error NameserviceError : r)) a -> Sem r a
 
 module Nameservice.Modules.Nameservice.Router
 type MessageApi = TypedMessage BuyName :~> Return () :<|> TypedMessage SetName :~> Return () :<|> TypedMessage DeleteName :~> Return () :<|> TypedMessage FaucetAccount :~> Return ()
-messageHandlers :: Members BaseEffs r => Members BankEffs r => Members AuthEffs r => Members TxEffs r => Members NameserviceEffs r => RouteTx MessageApi r
+messageHandlers :: Members BaseEffs r => Members BankEffs r => Members TxEffs r => Members NameserviceEffs r => RouteTx MessageApi r
 
 module Nameservice.Modules.Nameservice.Query
 type QueryApi = QueryApi NameserviceContents
 querier :: Members QueryEffs r => RouteQ QueryApi r
 
 module Nameservice.Modules.Nameservice
-type NameserviceM r = Module "nameservice" MessageApi MessageApi QueryApi NameserviceEffs r
-nameserviceModule :: Members BaseEffs r => Members AuthEffs r => Members TxEffs r => Members BankEffs r => Members NameserviceEffs r => NameserviceM r
+type Nameservice = Module "nameservice" MessageApi MessageApi QueryApi NameserviceEffs '[Bank]
+nameserviceModule :: Members (ModuleEffs Nameservice) r => Nameservice r
 data NameserviceKeeper m a
 type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
 nameserviceCoinId :: CoinId
 eval :: Members TxEffs r => forall a. Sem (NameserviceKeeper : (Error NameserviceError : r)) a -> Sem r a
-faucetAccount :: Members [Logger, Output Event] r => Members AuthEffs r => FaucetAccount -> Sem r ()
+faucetAccount :: Members [Logger, Output Event] r => Members BankEffs r => FaucetAccount -> Sem r ()
 setName :: Members [Logger, Output Event] r => Members NameserviceEffs r => SetName -> Sem r ()
-deleteName :: Members [Logger, Output Event] r => Members AuthEffs r => Members NameserviceEffs r => DeleteName -> Sem r ()
+deleteName :: Members [Logger, Output Event] r => Members BankEffs r => Members NameserviceEffs r => DeleteName -> Sem r ()
 
 -- | did it succeed
-buyName :: Members [Logger, Output Event] r => Members AuthEffs r => Members BankEffs r => Members NameserviceEffs r => BuyName -> Sem r ()
+buyName :: Members [Logger, Output Event] r => Members BankEffs r => Members NameserviceEffs r => BuyName -> Sem r ()
 
 module Nameservice.Application
-type EffR = NameserviceEffs :& BankEffs :& AuthEffs :& TxEffs :& BaseApp CoreEffs
-type NameserviceModules = '[NameserviceM EffR, BankM EffR, AuthM EffR]
-handlersContext :: HandlersContext Secp256k1 NameserviceModules EffR CoreEffs
+type NameserviceModules = '[Nameservice, Bank, Auth]
+handlersContext :: HandlersContext Secp256k1 NameserviceModules CoreEffs
 
 module Nameservice.Server
 makeAndServeApplication :: AppConfig -> IO ()

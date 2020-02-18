@@ -10,7 +10,7 @@
 </span><a name="line-10"></a><span>
 </span><a name="line-11"></a><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><a name="line-12"></a><span>
-</span><a name="line-13"></a><span class="hs-keyword">type</span><span> </span><a name="BankModule"><a href="Tendermint.SDK.Modules.Bank.Types.html#BankModule"><span class="hs-identifier">BankModule</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-string">&quot;bank&quot;</span><span>
+</span><a name="line-13"></a><span class="hs-keyword">type</span><span> </span><a name="BankName"><a href="Tendermint.SDK.Modules.Bank.Types.html#BankName"><span class="hs-identifier">BankName</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-string">&quot;bank&quot;</span><span>
 </span><a name="line-14"></a><span>
 </span><a name="line-15"></a><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><a name="line-16"></a><span class="hs-comment">-- Exceptions</span><span>
@@ -20,11 +20,11 @@
 </span><a name="line-20"></a><span>    </span><a name="InsufficientFunds"><a href="Tendermint.SDK.Modules.Bank.Types.html#InsufficientFunds"><span class="hs-identifier">InsufficientFunds</span></a></a><span> </span><span class="hs-identifier hs-type">Text</span><span>
 </span><a name="line-21"></a><span>
 </span><a name="line-22"></a><span class="hs-keyword">instance</span><span> </span><a href="Tendermint.SDK.BaseApp.Errors.html#IsAppError"><span class="hs-identifier hs-type">BaseApp.IsAppError</span></a><span> </span><a href="Tendermint.SDK.Modules.Bank.Types.html#BankError"><span class="hs-identifier hs-type">BankError</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-23"></a><span>  </span><a name="local-8214565720324061904"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier">makeAppError</span></a></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.Modules.Bank.Types.html#InsufficientFunds"><span class="hs-identifier hs-var">InsufficientFunds</span></a><span> </span><a name="local-6989586621679424023"><a href="#local-6989586621679424023"><span class="hs-identifier">msg</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><a name="line-23"></a><span>  </span><a name="local-8214565720324061904"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier">makeAppError</span></a></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.Modules.Bank.Types.html#InsufficientFunds"><span class="hs-identifier hs-var">InsufficientFunds</span></a><span> </span><a name="local-6989586621679428592"><a href="#local-6989586621679428592"><span class="hs-identifier">msg</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
 </span><a name="line-24"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-var">BaseApp.AppError</span></a><span>
 </span><a name="line-25"></a><span>    </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">appErrorCode</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-number">1</span><span>
 </span><a name="line-26"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">appErrorCodespace</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-string">&quot;bank&quot;</span><span>
-</span><a name="line-27"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">appErrorMessage</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679424023"><span class="hs-identifier hs-var">msg</span></a><span>
+</span><a name="line-27"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">appErrorMessage</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679428592"><span class="hs-identifier hs-var">msg</span></a><span>
 </span><a name="line-28"></a><span>    </span><span class="hs-special">}</span><span>
 </span><a name="line-29"></a><span>
 </span><a name="line-30"></a><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
