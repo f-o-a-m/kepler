@@ -31,8 +31,11 @@ import           Tendermint.Utils.ClientUtils      (assertQuery, assertTx,
                                                     ensureQueryResponseCode,
                                                     ensureResponseCodes,
                                                     rpcConfig)
+import           Tendermint.Utils.Events           (FromEvent (..))
 import           Tendermint.Utils.User             (makeSignerFromUser,
                                                     makeUser)
+-- import Tendermint.SDK.BaseApp.Events (ToEvent(..))
+
 import           Test.Hspec
 
 spec :: Spec
@@ -72,9 +75,8 @@ spec = do
               }
         resp <- assertTx . runTxClientM $ buyName opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @N.NameClaimed) resp
-        errs `shouldBe` []
-        filter (claimedLog ==) es `shouldBe` [claimedLog]
+        [evclaimedLog] <- deliverTxEvents (Proxy @N.NameClaimed) resp
+        fromEvent evclaimedLog `shouldBe` Right claimedLog
 
       it "Can query for a name" $ do
         let expected = N.Whois
@@ -111,9 +113,8 @@ spec = do
               }
         resp <- assertTx . runTxClientM $ setName opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @N.NameRemapped) resp
-        errs `shouldBe` []
-        filter (remappedLog ==) es `shouldBe` [remappedLog]
+        [evremappedLog] <- deliverTxEvents (Proxy @N.NameRemapped) resp
+        fromEvent evremappedLog `shouldBe` Right remappedLog
 
         let expected = N.Whois
               { whoisValue = "goodbye to a world"
@@ -157,6 +158,13 @@ spec = do
               , nameClaimedValue = newVal
               , nameClaimedBid = purchaseAmount
               }
+            transferLog = T.TransferEvent
+              { transferEventAmount = purchaseAmount
+              , transferEventTo =
+                signerAddress user1
+              , transferEventFrom =
+                signerAddress user2
+              }
             opts = TxOpts
               { txOptsSigner = user2
               , txOptsGas = 0
@@ -164,9 +172,9 @@ spec = do
 
         resp <- assertTx . runTxClientM $ buyName opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @N.NameClaimed) resp
-        errs `shouldBe` []
-        filter (claimedLog ==) es `shouldBe` [claimedLog]
+        [evtransferLog, evclaimedLog] <- deliverTxEvents (Proxy @N.NameClaimed) resp
+        fromEvent evtransferLog `shouldBe` Right transferLog
+        fromEvent evclaimedLog `shouldBe` Right claimedLog
 
         -- check for updated balances - seller: addr1, buyer: addr2
         sellerFoundAmount <- getUserBalance user1
@@ -189,9 +197,10 @@ spec = do
         -- check balance before
         beforeBuyAmount <- getUserBalance user2
         -- buy
-        let val = "hello (again) world"
+        let bid = 500
+            val = "hello (again) world"
             msg = N.BuyName
-              { buyNameBid = 500
+              { buyNameBid = bid
               , buyNameName = satoshi
               , buyNameValue = val
               , buyNameBuyer = signerAddress user2
@@ -200,7 +209,12 @@ spec = do
               { nameClaimedOwner = signerAddress user2
               , nameClaimedName = satoshi
               , nameClaimedValue = val
-              , nameClaimedBid = 500
+              , nameClaimedBid = bid
+              }
+            transferLog = T.TransferEvent
+              { transferEventAmount = bid
+              , transferEventTo = signerAddress user2
+              , transferEventFrom = signerAddress user2
               }
             opts = TxOpts
               { txOptsSigner = user2
@@ -209,9 +223,9 @@ spec = do
 
         resp <- assertTx . runTxClientM $ buyName opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @N.NameClaimed) resp
-        errs `shouldBe` []
-        filter (claimedLog ==) es `shouldBe` [claimedLog]
+        [evtransferLog, evclaimedLog] <- deliverTxEvents (Proxy @N.NameClaimed) resp
+        fromEvent evtransferLog `shouldBe` Right transferLog
+        fromEvent evclaimedLog `shouldBe` Right claimedLog
 
         -- check balance after
         afterBuyAmount <- getUserBalance user2
@@ -250,9 +264,8 @@ spec = do
 
         resp <- assertTx . runTxClientM $ deleteName opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @N.NameDeleted) resp
-        errs `shouldBe` []
-        filter (deletedLog ==) es `shouldBe` [deletedLog]
+        [evdeletedLog] <- deliverTxEvents (Proxy @N.NameDeleted) resp
+        fromEvent evdeletedLog `shouldBe` Right deletedLog
 
         respQ <- RPC.runTendermintM rpcConfig $
           getWhois defaultQueryArgs { queryArgsData = satoshi }
@@ -300,9 +313,8 @@ spec = do
 
         resp <- assertTx . runTxClientM $ transfer opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @B.TransferEvent) resp
-        errs `shouldBe` []
-        filter (transferLog ==) es `shouldBe` [transferLog]
+        [evtransferLog] <- deliverTxEvents (Proxy @B.TransferEvent) resp
+        fromEvent evtransferLog `shouldBe` Right transferLog
 
         -- check balances
         balance1' <- getUserBalance user1
