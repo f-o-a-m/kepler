@@ -28,23 +28,10 @@ import           Polysemy.Output                        (Output, output)
 import qualified Tendermint.SDK.BaseApp.Logger          as Log
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 
-data EventValue = EVBytes BS.ByteString
-                | EVInt Int64
-                | EVString Text
-  deriving (Eq, Show)
-
-instance ConvertibleStrings EventValue BS.ByteString where
-  convertString (EVBytes bs) = cs bs
-  convertString (EVInt int)  = cs $ show int
-  convertString (EVString t) = cs t
-
-
 {-
 TODO : These JSON instances are fragile but convenient. We
 should come up with a custom solution.
 -}
-
-
 
 class GToNamedEventPrimatives f where
   gtoNamedEventPrimatives :: f a -> [(BS.ByteString, BS.ByteString)]
