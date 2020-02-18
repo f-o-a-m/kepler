@@ -1,21 +1,19 @@
 module Tendermint.Utils.ClientUtils where
 
-import           Control.Monad                 (unless)
-import           Data.Aeson                    (ToJSON)
-import           Data.Aeson.Encode.Pretty      (encodePretty)
-import           Data.Either                   (partitionEithers)
+import           Control.Monad                          (unless)
+import           Data.Aeson                             (ToJSON)
+import           Data.Aeson.Encode.Pretty               (encodePretty)
 import           Data.Proxy
-import           Data.String.Conversions       (cs)
-import           Data.Text                     (Text)
-import           Data.Word                     (Word32)
-import qualified Network.Tendermint.Client     as RPC
-import           Tendermint.SDK.BaseApp.Errors (AppError (..))
-import           Tendermint.SDK.BaseApp.Query  (QueryResult (..))
-import           Tendermint.Utils.Client       (QueryClientResponse (..),
-                                                SynchronousResponse (..),
-                                                TxClientResponse (..),
-                                                TxResponse (..))
-import           Tendermint.Utils.Events       (FromEvent (..))
+import           Data.String.Conversions                (cs)
+import           Data.Word                              (Word32)
+import           Network.ABCI.Types.Messages.FieldTypes (Event (..))
+import qualified Network.Tendermint.Client              as RPC
+import           Tendermint.SDK.BaseApp.Errors          (AppError (..))
+import           Tendermint.SDK.BaseApp.Query           (QueryResult (..))
+import           Tendermint.Utils.Client                (QueryClientResponse (..),
+                                                         SynchronousResponse (..),
+                                                         TxClientResponse (..),
+                                                         TxResponse (..))
 
 --------------------------------------------------------------------------------
 -- | Tx helpers
@@ -36,14 +34,13 @@ assertTx m = do
 -- get the logged events from a deliver response,
 deliverTxEvents
   :: Monad m
-  => FromEvent e
   => Proxy e
   -> SynchronousResponse a b
-  -> m ([Text],[e])
+  -> m [Event]
 deliverTxEvents _ SynchronousResponse{deliverTxResponse} =
   case deliverTxResponse of
-    TxResponse {txResponseEvents} ->
-      return . partitionEithers . map fromEvent $ txResponseEvents
+    TxResponse {txResponseEvents} -> do
+      pure txResponseEvents
     TxError appError -> fail (show appError)
 
 -- check for a specific check response code
