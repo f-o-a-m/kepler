@@ -158,12 +158,11 @@ spec = do
               , nameClaimedValue = newVal
               , nameClaimedBid = purchaseAmount
               }
-            transferLog = T.TransferEvent
+            transferLog = B.TransferEvent
               { transferEventAmount = purchaseAmount
-              , transferEventTo =
-                signerAddress user1
-              , transferEventFrom =
-                signerAddress user2
+              , transferEventCoinId = N.nameserviceCoinId
+              , transferEventTo = signerAddress user1
+              , transferEventFrom = signerAddress user2
               }
             opts = TxOpts
               { txOptsSigner = user2
@@ -211,8 +210,9 @@ spec = do
               , nameClaimedValue = val
               , nameClaimedBid = bid
               }
-            transferLog = T.TransferEvent
+            transferLog = B.TransferEvent
               { transferEventAmount = bid
+              , transferEventCoinId = N.nameserviceCoinId
               , transferEventTo = signerAddress user2
               , transferEventFrom = signerAddress user2
               }

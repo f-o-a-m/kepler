@@ -25,6 +25,7 @@ default-extensions:
   - ScopedTypeVariables
   - TypeOperators
   - FlexibleContexts
+  - GeneralizedNewtypeDeriving
 
 library:
   source-dirs: src
@@ -70,3 +71,5 @@ tests:
     - hs-abci-test-utils
     - hspec
     - hspec-core
+    - text
+    - string-conversions

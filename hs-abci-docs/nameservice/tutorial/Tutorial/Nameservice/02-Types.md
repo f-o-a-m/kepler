@@ -4,7 +4,7 @@ title: Nameservice - Types
 
 # Types
 
-The `Types` module is used to define the basic types that the module will make use of. This includes things like custom error types, event types, database types, etc. 
+The `Types` module is used to define the basic types that the module will make use of. This includes things like custom error types, event types, database types, etc.
 
 ## Using A Typed Key Value Store
 It is important to note that the database modeled by the `RawStore` effect (in the `BaseApp` type) is just a key value store for raw `ByteString`s. This means you can _think_ of `RawStore` as
@@ -15,9 +15,9 @@ type RawStore = Map ByteString ByteString
 
 although the definition of `RawStore` is different than the above.
 
-The interface we give is actually a typed key value store. This means that within the scope of a module `m`, for any key type `k`, there is only one possible value type `v` associated with `k`. 
+The interface we give is actually a typed key value store. This means that within the scope of a module `m`, for any key type `k`, there is only one possible value type `v` associated with `k`.
 
-For example, a user's balance in the `Bank` module, might be modeled by a mapping 
+For example, a user's balance in the `Bank` module, might be modeled by a mapping
 
 ~~~ haskell ignore
 balance :: Tendermint.SDK.Types.Address -> Integer
@@ -27,11 +27,11 @@ balance :: Tendermint.SDK.Types.Address -> Integer
 
 This means that in the scope of the `Bank` module, the database utlity `get` function applied to a value of type `Address` will result in a value of type `Integer`. If the `Bank` module would like to store another mapping whose keys have type `Tendermint.SDK.Types.Address`, you must use a newtype instead. Otherwise you will get a compiler error.
 
-At the same time, you are free to define another mapping from `k -> v'` in the scope of a different module. For example, you can have both the `balance` mapping described above, as well a mapping 
+At the same time, you are free to define another mapping from `k -> v'` in the scope of a different module. For example, you can have both the `balance` mapping described above, as well a mapping
 
 ~~~ haskell ignore
 owner :: Tendermint.SDK.Types.Address -> Account
-~~~ 
+~~~
 in the `Auth` module.
 
 ## Tutorial.Nameservice.Types
@@ -62,7 +62,7 @@ import Tendermint.SDK.Modules.Bank ()
 Remember the `Nameservice` module is responsible for maintaining a marketplace around a mapping `Name -> Whois`. Let us define the types for the marketplace mapping as
 
 ~~~ haskell
-newtype Name = Name Text deriving (Eq, Show, Generic, A.ToJSON, A.FromJSON)
+newtype Name = Name Text deriving (Eq, Show, Generic, A.ToJSON, A.FromJSON, HasCodec)
 
 data Whois = Whois
   { whoisValue :: Text
@@ -168,7 +168,7 @@ since `Whois` already implements the `HasCodec` class.
 
 ### Error Types
 
-You might want to define a module specific error type that has a `throw`/`catch` interface. This error type should be accessible by any other dependent modules, and any uncaught error should eventually be converted into some kind of generic application error understandable by Tendermint. 
+You might want to define a module specific error type that has a `throw`/`catch` interface. This error type should be accessible by any other dependent modules, and any uncaught error should eventually be converted into some kind of generic application error understandable by Tendermint.
 
 There is a simple way to do this using the `IsAppError` typeclass
 
@@ -267,6 +267,5 @@ instance A.ToJSON NameClaimed where
 instance A.FromJSON NameClaimed where
   parseJSON = A.genericParseJSON nameClaimedAesonOptions
 
-instance BA.ToEvent NameClaimed where
-  makeEventType _ = "NameClaimed"
+instance BA.ToEvent NameClaimed
 ~~~
