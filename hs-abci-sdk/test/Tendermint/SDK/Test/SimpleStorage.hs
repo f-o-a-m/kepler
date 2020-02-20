@@ -2,7 +2,6 @@
 
 module Tendermint.SDK.Test.SimpleStorage
   ( SimpleStorage
-  , SimpleStorageName
   , UpdateCountTx(..)
   , UpdatePaidCountTx(..)
   , simpleStorageModule
