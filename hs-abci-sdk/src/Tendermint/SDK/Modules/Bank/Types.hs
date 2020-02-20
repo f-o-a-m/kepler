@@ -1,4 +1,9 @@
-module Tendermint.SDK.Modules.Bank.Types where
+module Tendermint.SDK.Modules.Bank.Types
+  ( module Tendermint.SDK.Modules.Bank.Types
+  , Auth.Amount(..)
+  , Auth.Coin(..)
+  , Auth.CoinId(..)
+  ) where
 
 import           Data.Aeson                   as A
 import           Data.Text                    (Text)

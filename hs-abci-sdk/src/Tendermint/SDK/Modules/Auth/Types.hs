@@ -1,6 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Tendermint.SDK.Modules.Auth.Types where
+module Tendermint.SDK.Modules.Auth.Types
+  ( module Tendermint.SDK.Modules.Auth.Types
+  , Address(..)
+  ) where
 
 import           Control.Lens                 (Wrapped (..), from, iso, view,
                                                (&), (.~), (^.), (^..),
@@ -21,7 +24,7 @@ import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..),
                                                IsKey (..), Queryable (..))
 import           Tendermint.SDK.Codec         (HasCodec (..),
                                                defaultSDKAesonOptions)
-import           Tendermint.SDK.Types.Address (Address)
+import           Tendermint.SDK.Types.Address (Address (..))
 import           Web.HttpApiData              (FromHttpApiData (..),
                                                ToHttpApiData (..))
 
