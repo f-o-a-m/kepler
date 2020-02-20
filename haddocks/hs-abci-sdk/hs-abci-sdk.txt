@@ -1249,12 +1249,40 @@ eval :: Members [ReadStore, WriteStore, Error AppError] r => Sem (Accounts : (Er
 createAccount :: Members [Accounts, Error AuthError] r => Address -> Sem r Account
 type Api = QueryApi AuthContents
 querier :: Members QueryEffs r => RouteQ Api r
-type AuthName = "auth"
-data AuthError
-AccountAlreadyExists :: Address -> AuthError
+data Account
+Account :: [Coin] -> Word64 -> Account
+[accountCoins] :: Account -> [Coin]
+[accountNonce] :: Account -> Word64
+data Coin
+Coin :: CoinId -> Amount -> Coin
+[coinId] :: Coin -> CoinId
+[coinAmount] :: Coin -> Amount
+newtype Amount
+Amount :: Word64 -> Amount
+[unAmount] :: Amount -> Word64
 newtype CoinId
 CoinId :: Text -> CoinId
 [unCoinId] :: CoinId -> Text
+data AuthError
+AccountAlreadyExists :: Address -> AuthError
+type AuthName = "auth"
+coinAesonOptions :: Options
+
+-- | Used as a unique identifier for an account.
+newtype Address
+Address :: HexString -> Address
+
+module Tendermint.SDK.Modules.Bank.Types
+data TransferEvent
+TransferEvent :: CoinId -> Amount -> Address -> Address -> TransferEvent
+[transferEventCoinId] :: TransferEvent -> CoinId
+[transferEventAmount] :: TransferEvent -> Amount
+[transferEventTo] :: TransferEvent -> Address
+[transferEventFrom] :: TransferEvent -> Address
+data BankError
+InsufficientFunds :: Text -> BankError
+type BankName = "bank"
+transferEventAesonOptions :: Options
 newtype Amount
 Amount :: Word64 -> Amount
 [unAmount] :: Amount -> Word64
@@ -1262,23 +1290,9 @@ data Coin
 Coin :: CoinId -> Amount -> Coin
 [coinId] :: Coin -> CoinId
 [coinAmount] :: Coin -> Amount
-coinAesonOptions :: Options
-data Account
-Account :: [Coin] -> Word64 -> Account
-[accountCoins] :: Account -> [Coin]
-[accountNonce] :: Account -> Word64
-
-module Tendermint.SDK.Modules.Bank.Types
-type BankName = "bank"
-data BankError
-InsufficientFunds :: Text -> BankError
-data TransferEvent
-TransferEvent :: CoinId -> Amount -> Address -> Address -> TransferEvent
-[transferEventCoinId] :: TransferEvent -> CoinId
-[transferEventAmount] :: TransferEvent -> Amount
-[transferEventTo] :: TransferEvent -> Address
-[transferEventFrom] :: TransferEvent -> Address
-transferEventAesonOptions :: Options
+newtype CoinId
+CoinId :: Text -> CoinId
+[unCoinId] :: CoinId -> Text
 instance GHC.Generics.Generic Tendermint.SDK.Modules.Bank.Types.TransferEvent
 instance GHC.Show.Show Tendermint.SDK.Modules.Bank.Types.TransferEvent
 instance GHC.Classes.Eq Tendermint.SDK.Modules.Bank.Types.TransferEvent
