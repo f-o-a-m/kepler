@@ -42,7 +42,6 @@ library:
     - base >= 4.7 && < 5
     - bytestring
     - cryptonite
-    - errors
     - http-api-data
     - lens
     - mtl
