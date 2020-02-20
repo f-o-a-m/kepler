@@ -70,7 +70,7 @@ eval = mapError BaseApp.makeAppError . evalBankKeeper
     putCoinBalance address coin = do
       mAcnt <- Auth.getAccount address
       acnt <- case mAcnt of
-                Nothing -> Auth.createAccount address >>= pure
+                Nothing -> Auth.createAccount address
                 Just a  -> pure a
       let updatedCoins = replaceCoinValue coin (Auth.accountCoins acnt)
           updatedAcnt = acnt { Auth.accountCoins = updatedCoins }

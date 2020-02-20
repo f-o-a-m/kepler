@@ -2,8 +2,11 @@
 
 module Tendermint.SDK.Test.SimpleStorage
   ( SimpleStorage
+  , SimpleStorageName
   , UpdateCountTx(..)
+  , UpdatePaidCountTx(..)
   , simpleStorageModule
+  , simpleStorageCoinId
   , evalToIO
   , Count(..)
   ) where
@@ -22,6 +25,7 @@ import           Data.String.Conversions          (cs)
 import           Data.Validation                  (Validation (..))
 import           Data.Word                        (Word64)
 import           GHC.Generics                     (Generic)
+import           GHC.TypeLits                     (symbolVal)
 import           Polysemy
 import           Polysemy.Error                   (Error, catch, throw)
 import           Servant.API
@@ -42,7 +46,7 @@ import           Tendermint.SDK.Types.Transaction (Tx (..))
 type SimpleStorageName = "simple_storage"
 
 simpleStorageCoinId :: B.CoinId
-simpleStorageCoinId = B.CoinId "simple_storage"
+simpleStorageCoinId = B.CoinId . cs . symbolVal $ Proxy @SimpleStorageName
 
 newtype Count = Count Int32 deriving (Eq, Show, Ord, Num, Serialize.Serialize)
 
@@ -108,7 +112,7 @@ instance ValidateMessage UpdatePaidCountTx where
 --------------------------------------------------------------------------------
 
 storeKey :: BA.StoreKey SimpleStorageName
-storeKey = BA.StoreKey "simple_storage"
+storeKey = BA.StoreKey (cs . symbolVal $ Proxy @SimpleStorageName)
 
 data SimpleStorageKeeper m a where
     PutCount :: Count -> SimpleStorageKeeper m ()
@@ -124,17 +128,23 @@ updateCount
 updateCount count = putCount count
 
 updatePaidCount
-  :: Member SimpleStorageKeeper r
+  :: forall r .
+     Member SimpleStorageKeeper r
   => Members B.BankEffs r
+  => Members BA.BaseEffs r
   => Address
   -> Count
   -> B.Amount
   -> Sem r ()
 updatePaidCount from count amount =
-  catch
-    (B.burn from (B.Coin simpleStorageCoinId amount) >> updateCount count)
+  catch @_ @r
+    ( do
+        B.burn from (B.Coin simpleStorageCoinId amount)
+        updateCount count
+    )
     (\(B.InsufficientFunds _) -> do
-      B.mint from (B.Coin simpleStorageCoinId amount)
+      let mintAmount = B.Coin simpleStorageCoinId (amount + 1)
+      B.mint from mintAmount
       updatePaidCount from count amount
     )
 
@@ -160,6 +170,7 @@ type MessageApi =
 messageHandlers
   :: Member SimpleStorageKeeper r
   => Members B.BankEffs r
+  => Members BA.BaseEffs r
   => BA.RouteTx MessageApi r
 messageHandlers = updateCountH :<|> updatePaidCountH
 
@@ -175,6 +186,7 @@ updateCountH (BA.RoutingTx Tx{txMsg}) =
 updatePaidCountH
   :: Member SimpleStorageKeeper r
   => Members B.BankEffs r
+  => Members BA.BaseEffs r
   => BA.RoutingTx UpdatePaidCountTx
   -> Sem r ()
 updatePaidCountH (BA.RoutingTx Tx{txMsg}) =

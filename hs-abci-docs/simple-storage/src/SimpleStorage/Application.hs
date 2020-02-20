@@ -16,7 +16,6 @@ import qualified Tendermint.SDK.Modules.Auth         as A
 
 type SimpleStorageModules =
   '[ SimpleStorage.SimpleStorage
-   , B.Bank
    , A.Auth
    ]
 
@@ -30,6 +29,5 @@ handlersContext = HandlersContext
   where
   simpleStorageModules =
        SimpleStorage.simpleStorageModule
-    :+ B.bankModule
     :+ A.authModule
     :+ NilModules

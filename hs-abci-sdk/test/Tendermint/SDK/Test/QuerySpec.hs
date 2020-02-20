@@ -1,7 +1,10 @@
 module Tendermint.SDK.Test.QuerySpec (spec) where
 
+import           Control.Lens                             ((^.))
 import           Control.Monad.IO.Class                   (liftIO)
 import qualified Data.ByteArray.Base64String              as Base64
+import qualified Data.ByteArray.HexString                 as Hex
+import           Data.ByteString                          (ByteString)
 import           Data.Maybe                               (isJust)
 import           Data.Proxy
 import           Data.Text                                (Text)
@@ -52,7 +55,7 @@ doTx :: TransactionApplication (Sem (BA.BaseAppEffs BA.PureCoreEffs))
 doTx = serveTxApplication (Proxy @(M.ApplicationD Ms)) rProxy (Proxy @'Store.Consensus) $ M.applicationTxDeliverer app
 
 spec :: Spec
-spec = beforeAll initContext $
+spec = beforeAll initContext $ do
   describe "Query tests" $ do
     it "Can make a new count and query it with a multiplier" $ \ctx -> do
         let increaseCountMsg = Msg
@@ -87,6 +90,62 @@ spec = beforeAll initContext $
         queryCode `shouldBe` 0
         let resultCount = decode (Base64.toBytes queryValue) :: Either Text SS.Count
         resultCount `shouldBe` Right 3
+
+  describe "throw/catch tests" $ do
+    it "Can throw and catch a bank error" $ \ctx -> do
+        let addr = A.Address . Hex.fromBytes $ ("1234" :: ByteString)
+
+            queryBalance = do
+             let path = "/bank/balance?coin_id=" <> B.unCoinId SS.simpleStorageCoinId
+                 q1 = Req.Query
+                   { queryPath = path
+                   , queryData = Base64.fromBytes (addr ^. BA.rawKey)
+                   , queryProve = False
+                   , queryHeight = 0
+                   }
+             Resp.Query{..} <- SS.evalToIO ctx $ doQuery q1
+             queryCode `shouldBe` 0
+             let Right resultBalance = decode (Base64.toBytes queryValue) :: Either Text B.Coin
+             pure resultBalance
+
+        initialBalance <- queryBalance
+
+        let increaseCountMsg = Msg
+              { msgAuthor = addr
+              , msgType = "update_paid_count"
+              , msgData = encode $ SS.UpdatePaidCountTx 33 10
+              }
+
+            tx = BA.RoutingTx $ Tx
+              { txMsg = increaseCountMsg
+              , txRoute = "simple_storage"
+              , txGas = 0
+              , txSignature = undefined
+              , txSignBytes = undefined
+              , txSigner = undefined
+              , txNonce = undefined
+              }
+        _ <- SS.evalToIO ctx $ do
+          (_, mCache) <- doTx tx
+          liftIO (mCache `shouldSatisfy` isJust)
+          let (Just cache) = mCache
+          writeCache cache
+          _ <- Store.commit
+          Store.commitBlock
+        let q = Req.Query
+              -- TODO -- this shouldn't require / count
+              { queryPath = "/simple_storage/count"
+              , queryData = undefined
+              , queryProve = False
+              , queryHeight = 0
+              }
+        Resp.Query{..} <- SS.evalToIO ctx $ doQuery q
+        queryCode `shouldBe` 0
+        let resultCount = decode (Base64.toBytes queryValue) :: Either Text SS.Count
+        resultCount `shouldBe` Right 33
+
+        finalBalance <- queryBalance
+        finalBalance `shouldBe` initialBalance {B.coinAmount = B.coinAmount initialBalance + 1}
 
 
 initContext :: IO BA.PureContext
