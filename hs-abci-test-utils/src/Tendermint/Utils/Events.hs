@@ -3,9 +3,10 @@ module Tendermint.Utils.Events where
 
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteString                        as BS
+import           Data.Char                              (toUpper)
 import qualified Data.List                              as L
 import           Data.String.Conversions                (cs)
-import           Data.Text                              (Text)
+import           Data.Text                              (Text, pack, unpack)
 import           GHC.Generics
 import           Network.ABCI.Types.Messages.FieldTypes (KVPair (..))
 import           Tendermint.SDK.BaseApp.Events          (Event (..), ToEvent)
@@ -35,11 +36,14 @@ class GFromEvent f where
 
 instance (GFromNamedEventPrimatives f, Datatype d) => GFromEvent (D1 d f) where
   gfromEventData Event{eventType, eventAttributes} =
-    let dt = cs $ datatypeName (undefined ::  D1 d f p)
-    in if dt == eventType
+    let upperFirstChar []       = []
+        upperFirstChar (x : xs) = toUpper x : xs
+        eventType' = pack . upperFirstChar . unpack $ eventType
+        dt = cs $ datatypeName (undefined ::  D1 d f p)
+    in if dt == eventType'
          then fmap M1 . gfromNamedEventPrimatives $
                 map (\(KVPair k v) -> (Base64.toBytes k, Base64.toBytes v)) eventAttributes
-         else Left $ "Expected Event type " <> dt <> " does not match found Event type " <> cs eventType <> "."
+         else Left $ "Expected Event type " <> dt <> " does not match found Event type " <> cs eventType' <> "."
 
 class ToEvent e => FromEvent e where
   fromEvent :: Event -> Either Text e
