@@ -14,7 +14,7 @@ import           Polysemy.Output                           (Output)
 import           SimpleStorage.Modules.SimpleStorage.Types
 import qualified Tendermint.SDK.BaseApp                    as BaseApp
 
-storeKey :: BaseApp.StoreKey SimpleStorageName
+storeKey :: BaseApp.StoreKey SimpleStorageNamespace
 storeKey = BaseApp.StoreKey "simple_storage"
 
 data SimpleStorageKeeper m a where

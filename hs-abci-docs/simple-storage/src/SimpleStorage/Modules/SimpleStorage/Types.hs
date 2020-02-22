@@ -14,6 +14,8 @@ import           GHC.Generics            (Generic)
 import qualified Tendermint.SDK.BaseApp  as BaseApp
 import           Tendermint.SDK.Codec    (HasCodec (..))
 
+data SimpleStorageNamespace
+
 newtype Count = Count Int32 deriving (Eq, Show, A.ToJSON, A.FromJSON, Serialize.Serialize)
 
 data CountKey = CountKey
@@ -28,8 +30,8 @@ instance BaseApp.RawKey CountKey where
         countKey :: ByteString
         countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
 
-instance BaseApp.IsKey CountKey "simple_storage" where
-    type Value CountKey "simple_storage" = Count
+instance BaseApp.IsKey CountKey SimpleStorageNamespace where
+    type Value CountKey SimpleStorageNamespace = Count
 
 instance BaseApp.FromQueryData CountKey
 

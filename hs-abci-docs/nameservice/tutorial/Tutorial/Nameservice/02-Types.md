@@ -44,12 +44,10 @@ module Tutorial.Nameservice.Types where
 import Control.Lens (iso)
 import qualified Data.Aeson as A
 import Data.Bifunctor (bimap)
-import Data.Proxy
 import Data.String.Conversions (cs)
 import Data.Text (Text)
 import Data.Word (Word64)
 import GHC.Generics (Generic)
-import GHC.TypeLits (symbolVal)
 import Nameservice.Aeson (defaultNameserviceOptions)
 import Proto3.Suite (Message, fromByteString, toLazyByteString)
 import qualified Tendermint.SDK.BaseApp as BA
@@ -140,10 +138,10 @@ class RawKey k => IsKey k ns where
 For the case of the `Name -> Whois` mapping, the `IsKey` instance looked like looks like this:
 
 ~~~ haskell
-type NameserviceModuleName = "nameservice"
+data NameserviceNamespace
 
-instance BA.IsKey Name NameserviceModuleName where
-  type Value Name NameserviceModuleName = Whois
+instance BA.IsKey Name NameserviceNamespace where
+  type Value Name NameserviceNamespace = Whois
 ~~~
 
 At is point, you can use the database operations exported by `Tendermint.SDK.BaseApp.Store` such as `put`/`set`/`delete` for key value pairs of type `(Name, Whois)`.
@@ -194,23 +192,23 @@ data NameserviceError =
   | InvalidDelete Text
 
 instance BA.IsAppError NameserviceError where
- -- remember 'symbolVal (Proxy @NameserviceModuleName)' resolves to "nameservice"
+ -- remember 'symbolVal (Proxy @NameserviceName)' resolves to "nameservice"
   makeAppError (InsufficientBid msg) =
     BA.AppError
       { appErrorCode = 1
-      , appErrorCodespace = cs $ symbolVal (Proxy @NameserviceModuleName)
+      , appErrorCodespace = "nameservice"
       , appErrorMessage = msg
       }
   makeAppError (UnauthorizedSet msg) =
     BA.AppError
       { appErrorCode = 2
-      , appErrorCodespace = cs $ symbolVal (Proxy @NameserviceModuleName)
+      , appErrorCodespace = "nameservice"
       , appErrorMessage = msg
       }
   makeAppError (InvalidDelete msg) =
     BA.AppError
       { appErrorCode = 3
-      , appErrorCodespace = cs $ symbolVal (Proxy @NameserviceModuleName)
+      , appErrorCodespace = "nameservice"
       , appErrorMessage = msg
       }
 ~~~

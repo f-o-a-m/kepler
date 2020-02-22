@@ -27,7 +27,7 @@ import           Tendermint.SDK.Modules.Bank              (Bank)
 
 
 type Nameservice =
-  Module "nameservice" MessageApi MessageApi QueryApi NameserviceEffs '[Bank]
+  Module NameserviceName MessageApi MessageApi QueryApi NameserviceEffs '[Bank]
 
 nameserviceModule
   :: Members (ModuleEffs Nameservice) r
