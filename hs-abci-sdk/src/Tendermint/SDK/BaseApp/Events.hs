@@ -15,6 +15,7 @@ module Tendermint.SDK.BaseApp.Events
 import qualified Data.Aeson                             as A
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteString                        as BS
+import           Data.Char                              (toLower)
 import           Data.String.Conversions                (cs)
 import           GHC.Generics
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..),
@@ -49,9 +50,12 @@ class GToEvent f where
 
 instance (GToNamedEventPrimatives f, Datatype d) => GToEvent (D1 d f) where
   gmakeEvent m1@(M1 x) = Event
-    { eventType = cs $ datatypeName m1
+    { eventType = cs . lowerFirst $ datatypeName m1
     , eventAttributes = (\(k, v) -> KVPair (Base64.fromBytes k) (Base64.fromBytes v)) <$> gtoNamedEventPrimatives x
     }
+    where
+      lowerFirst []       = []
+      lowerFirst (y : ys) = toLower y : ys
 
 -- | A class representing a type that can be emitted as an event in the
 -- | event logs for the deliverTx response.
