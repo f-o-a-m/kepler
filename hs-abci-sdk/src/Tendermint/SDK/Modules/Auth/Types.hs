@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
 module Tendermint.SDK.Modules.Auth.Types
   ( module Tendermint.SDK.Modules.Auth.Types
   , Address(..)
@@ -32,8 +30,10 @@ import           Web.HttpApiData              (FromHttpApiData (..),
 
 type AuthName = "auth"
 
-instance IsKey Address AuthName where
-  type Value Address AuthName = Account
+data AuthNamespace
+
+instance IsKey Address AuthNamespace where
+  type Value Address AuthNamespace = Account
 
 instance Queryable Account where
   type Name Account = "account"

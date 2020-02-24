@@ -36,8 +36,8 @@ makeSem ''NameserviceKeeper
 
 type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
 
-storeKey :: BaseApp.StoreKey NameserviceModuleName
-storeKey = BaseApp.StoreKey . cs . symbolVal $ Proxy @NameserviceModuleName
+storeKey :: BaseApp.StoreKey NameserviceNamespace
+storeKey = BaseApp.StoreKey . cs . symbolVal $ Proxy @NameserviceName
 
 nameserviceCoinId :: CoinId
 nameserviceCoinId = "nameservice"

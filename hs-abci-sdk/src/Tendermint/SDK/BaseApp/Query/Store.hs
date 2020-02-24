@@ -9,8 +9,7 @@ import           Control.Lens                        (to, (^.))
 import           Data.ByteArray.Base64String         (fromBytes)
 import           Data.Proxy
 import           Data.String.Conversions             (cs)
-import           GHC.TypeLits                        (KnownSymbol, Symbol,
-                                                      symbolVal)
+import           GHC.TypeLits                        (KnownSymbol, symbolVal)
 import           Polysemy                            (Member, Members, Sem)
 import           Polysemy.Error                      (throw)
 import           Polysemy.Tagged                     (Tagged)
@@ -38,7 +37,7 @@ instance (Queryable a,  Member (Tagged 'QueryAndMempool ReadStore) r, KnownSymbo
      where proxyPath = Proxy :: Proxy (Name a)
    hoistQueryRouter _ _ = ($)
 
-class StoreQueryHandler a (ns :: Symbol) h where
+class StoreQueryHandler a ns h where
     storeQueryHandler :: Proxy a -> StoreKey ns -> h
 
 instance
@@ -62,7 +61,7 @@ instance
         , queryResultHeight = 0
         }
 
-class StoreQueryHandlers (kvs :: [*]) (ns :: Symbol) r where
+class StoreQueryHandlers (kvs :: [*]) ns r where
     type QueryApi kvs :: *
     storeQueryHandlers :: Proxy kvs -> StoreKey ns -> Proxy r -> RouteQ (QueryApi kvs) r
 

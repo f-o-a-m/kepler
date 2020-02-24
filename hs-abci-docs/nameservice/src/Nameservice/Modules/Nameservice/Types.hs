@@ -27,7 +27,9 @@ import           Tendermint.SDK.Types.Address (Address)
 
 --------------------------------------------------------------------------------
 
-type NameserviceModuleName = "nameservice"
+type NameserviceName = "nameservice"
+
+data NameserviceNamespace
 
 --------------------------------------------------------------------------------
 
@@ -76,8 +78,8 @@ instance HasCodec Whois where
 instance BaseApp.RawKey Name where
     rawKey = iso (\(Name n) -> cs n) (Name . cs)
 
-instance BaseApp.IsKey Name NameserviceModuleName where
-  type Value Name NameserviceModuleName = Whois
+instance BaseApp.IsKey Name NameserviceNamespace where
+  type Value Name NameserviceNamespace = Whois
 
 instance BaseApp.Queryable Whois where
   type Name Whois = "whois"

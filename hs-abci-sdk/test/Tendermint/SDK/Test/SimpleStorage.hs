@@ -44,6 +44,8 @@ import           Tendermint.SDK.Types.Transaction (Tx (..))
 --------------------------------------------------------------------------------
 type SimpleStorageName = "simple_storage"
 
+data SimpleStorageNamespace
+
 simpleStorageCoinId :: B.CoinId
 simpleStorageCoinId = B.CoinId . cs . symbolVal $ Proxy @SimpleStorageName
 
@@ -61,8 +63,8 @@ instance BA.RawKey CountKey where
         countKey :: ByteString
         countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
 
-instance BA.IsKey CountKey SimpleStorageName where
-    type Value CountKey SimpleStorageName = Count
+instance BA.IsKey CountKey SimpleStorageNamespace where
+    type Value CountKey SimpleStorageNamespace = Count
 
 instance BA.FromQueryData CountKey
 
@@ -110,7 +112,7 @@ instance ValidateMessage UpdatePaidCountTx where
 -- Keeper
 --------------------------------------------------------------------------------
 
-storeKey :: BA.StoreKey SimpleStorageName
+storeKey :: BA.StoreKey SimpleStorageNamespace
 storeKey = BA.StoreKey (cs . symbolVal $ Proxy @SimpleStorageName)
 
 data SimpleStorageKeeper m a where

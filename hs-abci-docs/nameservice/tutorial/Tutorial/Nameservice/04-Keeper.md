@@ -14,14 +14,11 @@ title: Nameservice - Keeper
 {-# LANGUAGE TemplateHaskell #-}
 module Tutorial.Nameservice.Keeper where
 
-import Data.Proxy
-import Data.String.Conversions (cs)
-import GHC.TypeLits (symbolVal)
 import Polysemy (Sem, Member, Members, makeSem, interpret)
 import Polysemy.Error (Error, throw, mapError)
 import Polysemy.Output (Output)
 import Nameservice.Modules.Nameservice.Messages (DeleteName(..))
-import Nameservice.Modules.Nameservice.Types (Whois(..), Name, NameDeleted(..), NameserviceModuleName, NameserviceError(..))
+import Nameservice.Modules.Nameservice.Types (Whois(..), Name, NameDeleted(..), NameserviceNamespace, NameserviceError(..))
 import qualified Tendermint.SDK.BaseApp as BA
 import Tendermint.SDK.Modules.Auth (AuthEffs, Coin(..))
 import Tendermint.SDK.Modules.Bank (BankEffs, mint)
@@ -100,8 +97,8 @@ Like we said before, all transactions must ultimately compile to the set of effe
 A `StoreKey` is effectively a namespacing inside the database, and is unique for a given module. In theory it could be any `ByteString`, but the natural definition in the case of Nameservice is would be something like
 
 ~~~ haskell
-storeKey :: BA.StoreKey NameserviceModuleName
-storeKey = BA.StoreKey . cs . symbolVal $ (Proxy @NameserviceModuleName)
+storeKey :: BA.StoreKey NameserviceNamespace
+storeKey = BA.StoreKey "nameservice"
 ~~~
 
 With this `storeKey` it is possible to write the `eval` function to resolve the effects defined in Nameservice, namely the `NameserviceKeeper` effect and `Error NameserviceError`:
