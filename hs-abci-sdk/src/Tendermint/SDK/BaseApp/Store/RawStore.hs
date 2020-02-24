@@ -5,6 +5,7 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   -- * Effects
     StoreEffs
   , ReadStore(..)
+  , storeGet
   , get
   , prove
   , WriteStore(..)
