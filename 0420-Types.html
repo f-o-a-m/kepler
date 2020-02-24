@@ -489,12 +489,10 @@ footer
 import Control.Lens (iso)
 import qualified Data.Aeson as A
 import Data.Bifunctor (bimap)
-import Data.Proxy
 import Data.String.Conversions (cs)
 import Data.Text (Text)
 import Data.Word (Word64)
 import GHC.Generics (Generic)
-import GHC.TypeLits (symbolVal)
 import Nameservice.Aeson (defaultNameserviceOptions)
 import Proto3.Suite (Message, fromByteString, toLazyByteString)
 import qualified Tendermint.SDK.BaseApp as BA
@@ -562,10 +560,10 @@ instance HasCodec Whois where
   prefixWith _ _ = &quot;&quot;
 </code></pre>
 <p>For the case of the <code>Name -&gt; Whois</code> mapping, the <code>IsKey</code> instance looked like looks like this:</p>
-<pre class="haskell"><code>type NameserviceModuleName = &quot;nameservice&quot;
+<pre class="haskell"><code>data NameserviceNamespace
 
-instance BA.IsKey Name NameserviceModuleName where
-  type Value Name NameserviceModuleName = Whois
+instance BA.IsKey Name NameserviceNamespace where
+  type Value Name NameserviceNamespace = Whois
 </code></pre>
 <p>At is point, you can use the database operations exported by <code>Tendermint.SDK.BaseApp.Store</code> such as <code>put</code>/<code>set</code>/<code>delete</code> for key value pairs of type <code>(Name, Whois)</code>.</p>
 <h3>Query Types</h3>
@@ -598,23 +596,23 @@ class IsAppError e where
   | InvalidDelete Text
 
 instance BA.IsAppError NameserviceError where
- -- remember &#39;symbolVal (Proxy @NameserviceModuleName)&#39; resolves to &quot;nameservice&quot;
+ -- remember &#39;symbolVal (Proxy @NameserviceName)&#39; resolves to &quot;nameservice&quot;
   makeAppError (InsufficientBid msg) =
     BA.AppError
       { appErrorCode = 1
-      , appErrorCodespace = cs $ symbolVal (Proxy @NameserviceModuleName)
+      , appErrorCodespace = &quot;nameservice&quot;
       , appErrorMessage = msg
       }
   makeAppError (UnauthorizedSet msg) =
     BA.AppError
       { appErrorCode = 2
-      , appErrorCodespace = cs $ symbolVal (Proxy @NameserviceModuleName)
+      , appErrorCodespace = &quot;nameservice&quot;
       , appErrorMessage = msg
       }
   makeAppError (InvalidDelete msg) =
     BA.AppError
       { appErrorCode = 3
-      , appErrorCodespace = cs $ symbolVal (Proxy @NameserviceModuleName)
+      , appErrorCodespace = &quot;nameservice&quot;
       , appErrorMessage = msg
       }
 </code></pre>

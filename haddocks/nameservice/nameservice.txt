@@ -20,7 +20,8 @@ prometheusServerThreadId :: Lens' AppConfig (IORef (Maybe ThreadId))
 makeAppConfig :: IO AppConfig
 
 module Nameservice.Modules.Nameservice.Types
-type NameserviceModuleName = "nameservice"
+type NameserviceName = "nameservice"
+data NameserviceNamespace
 newtype Name
 Name :: Text -> Name
 data Whois
@@ -102,7 +103,7 @@ instance Tendermint.SDK.BaseApp.Errors.IsAppError Nameservice.Modules.Nameservic
 instance Proto3.Suite.Class.Message Nameservice.Modules.Nameservice.Types.WhoisMessage
 instance Proto3.Suite.Class.Named Nameservice.Modules.Nameservice.Types.WhoisMessage
 instance Tendermint.SDK.Codec.HasCodec Nameservice.Modules.Nameservice.Types.Whois
-instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey Nameservice.Modules.Nameservice.Types.Name Nameservice.Modules.Nameservice.Types.NameserviceModuleName
+instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey Nameservice.Modules.Nameservice.Types.Name Nameservice.Modules.Nameservice.Types.NameserviceNamespace
 instance Tendermint.SDK.BaseApp.Query.Types.Queryable Nameservice.Modules.Nameservice.Types.Whois
 instance Proto3.Suite.Class.Primitive Nameservice.Modules.Nameservice.Types.Name
 instance Proto3.Suite.Class.HasDefault Nameservice.Modules.Nameservice.Types.Name
@@ -184,7 +185,7 @@ deleteName :: Members [Logger, Output Event] r => Members BankEffs r => Members 
 
 -- | did it succeed
 buyName :: Members [Logger, Output Event] r => Members BankEffs r => Members NameserviceEffs r => BuyName -> Sem r ()
-storeKey :: StoreKey NameserviceModuleName
+storeKey :: StoreKey NameserviceNamespace
 faucetAccount :: Members [Logger, Output Event] r => Members BankEffs r => FaucetAccount -> Sem r ()
 eval :: Members TxEffs r => forall a. Sem (NameserviceKeeper : (Error NameserviceError : r)) a -> Sem r a
 
@@ -197,7 +198,7 @@ type QueryApi = QueryApi NameserviceContents
 querier :: Members QueryEffs r => RouteQ QueryApi r
 
 module Nameservice.Modules.Nameservice
-type Nameservice = Module "nameservice" MessageApi MessageApi QueryApi NameserviceEffs '[Bank]
+type Nameservice = Module NameserviceName MessageApi MessageApi QueryApi NameserviceEffs '[Bank]
 nameserviceModule :: Members (ModuleEffs Nameservice) r => Nameservice r
 data NameserviceKeeper m a
 type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]

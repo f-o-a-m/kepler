@@ -49,6 +49,7 @@ instance Control.Lens.Wrapped.Wrapped SimpleStorage.Modules.SimpleStorage.Messag
 instance Tendermint.SDK.Codec.HasCodec SimpleStorage.Modules.SimpleStorage.Message.UpdateCountTx
 
 module SimpleStorage.Modules.SimpleStorage.Types
+data SimpleStorageNamespace
 newtype Count
 Count :: Int32 -> Count
 data CountKey
@@ -69,7 +70,7 @@ instance Data.Aeson.Types.FromJSON.FromJSON SimpleStorage.Modules.SimpleStorage.
 instance Tendermint.SDK.BaseApp.Events.ToEvent SimpleStorage.Modules.SimpleStorage.Types.CountSet
 instance Tendermint.SDK.BaseApp.Logger.Select SimpleStorage.Modules.SimpleStorage.Types.CountSet
 instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey SimpleStorage.Modules.SimpleStorage.Types.CountKey
-instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey SimpleStorage.Modules.SimpleStorage.Types.CountKey "simple_storage"
+instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey SimpleStorage.Modules.SimpleStorage.Types.CountKey SimpleStorage.Modules.SimpleStorage.Types.SimpleStorageNamespace
 instance Tendermint.SDK.BaseApp.Query.Types.FromQueryData SimpleStorage.Modules.SimpleStorage.Types.CountKey
 instance Tendermint.SDK.Codec.HasCodec SimpleStorage.Modules.SimpleStorage.Types.Count
 instance Tendermint.SDK.BaseApp.Query.Types.Queryable SimpleStorage.Modules.SimpleStorage.Types.Count
@@ -78,8 +79,8 @@ module SimpleStorage.Modules.SimpleStorage.Keeper
 data SimpleStorageKeeper m a
 type SimpleStorageEffs = '[SimpleStorageKeeper]
 updateCount :: Members '[SimpleStorageKeeper, Output Event, Logger] r => Count -> Sem r ()
-getCount :: forall r_aSKj. MemberWithError SimpleStorageKeeper r_aSKj => Sem r_aSKj (Maybe Count)
-storeKey :: StoreKey SimpleStorageName
+getCount :: forall r_aSKE. MemberWithError SimpleStorageKeeper r_aSKE => Sem r_aSKE (Maybe Count)
+storeKey :: StoreKey SimpleStorageNamespace
 eval :: forall r. Members TxEffs r => forall a. Sem (SimpleStorageKeeper : r) a -> Sem r a
 
 module SimpleStorage.Modules.SimpleStorage.Router
@@ -96,7 +97,7 @@ type SimpleStorage = Module SimpleStorageName MessageApi MessageApi QueryApi Sim
 simpleStorageModule :: Members (ModuleEffs SimpleStorage) r => SimpleStorage r
 data SimpleStorageKeeper m a
 type SimpleStorageEffs = '[SimpleStorageKeeper]
-getCount :: forall r_aSKj. MemberWithError SimpleStorageKeeper r_aSKj => Sem r_aSKj (Maybe Count)
+getCount :: forall r_aSKE. MemberWithError SimpleStorageKeeper r_aSKE => Sem r_aSKE (Maybe Count)
 updateCount :: Members '[SimpleStorageKeeper, Output Event, Logger] r => Count -> Sem r ()
 eval :: forall r. Members TxEffs r => forall a. Sem (SimpleStorageKeeper : r) a -> Sem r a
 
