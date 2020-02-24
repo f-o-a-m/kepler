@@ -168,7 +168,7 @@ elemIndex a as = do
     elemIndex' n len
       | n == len = pure Nothing
       | otherwise = do
-          mRes <- as !! n 
+          mRes <- as !! n
           let keepLooking = elemIndex' (n + 1) len
           case mRes of
             Nothing -> keepLooking
@@ -182,4 +182,4 @@ toList
   -> Sem r [a]
 toList as = do
   n <- length as
-  catMaybes <$> forM [0..n] ((!!) as)
+  catMaybes <$> forM [0..n] (as !!)
