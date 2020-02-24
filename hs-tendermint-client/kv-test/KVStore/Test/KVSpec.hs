@@ -99,7 +99,7 @@ spec = do
       it "Can monitor all events" $ \(TestEnv mvex mvres _) -> do
         expected <- readMVar mvex
         res <- readMVar mvres
-        fromList expected `shouldBe` fromList res
+        fromList res `shouldBe` fromList expected
 
 encodeTx :: String -> Base64String
 encodeTx = Base64.fromBytes . cs @String @ByteString
