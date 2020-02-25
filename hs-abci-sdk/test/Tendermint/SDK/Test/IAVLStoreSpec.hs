@@ -84,7 +84,7 @@ spec' (Proxy :: Proxy r) = do
           tag @'Consensus $ (put storeKey IntStoreKey (IntStore 1)  :: Sem (WriteStore ': r) ())
         void $ withTransaction $ do
           tag @'Consensus $ (put storeKey IntStoreKey (IntStore 6)  :: Sem (WriteStore ': r) ())
-          throwSDKError InternalError
+          throwSDKError $ InternalError "SomeError"
       appErrorCode apperr `shouldBe` 1
       Right mv <- runDriver driver $
         tag @'Consensus @ReadStore $ get storeKey IntStoreKey
