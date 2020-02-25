@@ -9,15 +9,13 @@ module Tendermint.SDK.BaseApp.Store.List
   , toList
   ) where
 
-import           Control.Monad                 (forM)
 import qualified Data.ByteArray.HexString      as Hex
 import qualified Data.ByteString               as BS
-import           Data.Maybe                    (catMaybes)
 import           Data.String.Conversions       (cs)
 import           Data.Word                     (Word64)
 import           Polysemy
 import           Polysemy.Error                (Error)
-import           Prelude                       hiding (length, (!!))
+import           Prelude                       hiding (foldl, length, (!!))
 import qualified Prelude                       as P (length)
 import           Tendermint.SDK.BaseApp.Errors (AppError, SDKError (InternalError, ParseError),
                                                 throwSDKError)
@@ -28,7 +26,7 @@ import           Tendermint.SDK.Codec          (HasCodec (..))
 
 -- | A 'StoreList a' is an appendable list whose elements can be accessed
 -- | by their index. You can also delete from the list, in which case accessing
--- | that index will result in a `Nothing`.  
+-- | that index will result in a `Nothing`.
 data StoreList a = StoreList
   { storeListKey :: BS.ByteString
   }
@@ -118,15 +116,33 @@ elemIndex a as = do
             Nothing -> keepLooking
             Just a' -> if a == a' then pure $ Just n else keepLooking
 
+foldl
+  :: Members [Error AppError, ReadStore] r
+  => HasCodec a
+  => (b -> a -> b)
+  -> b
+  -> StoreList a
+  -> Sem r b
+foldl f b as = do
+  len <- length as
+  foldl' 0 len b
+  where
+    foldl' currentIndex end accum
+      | currentIndex == end = pure accum
+      | currentIndex < end = do
+          ma <- as !! currentIndex
+          case ma of
+            Nothing -> foldl' (currentIndex + 1) end accum
+            Just a  -> foldl' (currentIndex + 1) end (f accum a)
+      | otherwise = error "Impossible case in StoreList foldl!"
+
 -- | View the 'StoreList' as a 'List'.
 toList
   :: Members [Error AppError, ReadStore] r
   => HasCodec a
   => StoreList a
   -> Sem r [a]
-toList as = do
-  n <- length as
-  catMaybes <$> forM [0..n] (as !!)
+toList = foldl (flip (:)) []
 
 --------------------------------------------------------------------------------
 -- Internal functions
@@ -147,7 +163,6 @@ elementKey k =
           let nZeros = n - P.length a
           in replicate nZeros '0' <> a
     in Hex.toBytes "0x01" <> cs (padToNChars 20 $ show k)
-
 
 length
   :: Members [Error AppError, ReadStore] r
