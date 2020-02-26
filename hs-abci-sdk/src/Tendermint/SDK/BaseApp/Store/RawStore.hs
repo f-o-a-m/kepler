@@ -4,6 +4,7 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   (
   -- * Effects
     StoreEffs
+  , Scope(..)
   , ReadStore(..)
   , storeGet
   , get
@@ -22,18 +23,17 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   , commit
 
   -- * Types
-  , Scope(..)
-  , Version(..)
   , RawKey(..)
   , IsKey(..)
   , RawStoreKey(..)
   , KeyRoot(..)
-  , makeRawKey
+  , makeKeyBytes
+  , CommitResponse(..)
   , Store
   , nestStore
-  , makeRawStoreKey
   , makeStore
-  , CommitResponse(..)
+
+  , Version(..)
   ) where
 
 import           Control.Lens                  (Iso', iso, (^.))
@@ -52,25 +52,9 @@ import           Tendermint.SDK.Codec          (HasCodec (..))
 import           Tendermint.SDK.Types.Address  (Address, addressFromBytes,
                                                 addressToBytes)
 
-data RawStoreKey = RawStoreKey
-  { rsPathFromRoot :: [BS.ByteString]
-  , rsKey          :: BS.ByteString
-  } deriving (Eq, Show, Ord)
-
-makeRawKey :: RawStoreKey -> BS.ByteString
-makeRawKey RawStoreKey{..} =  mconcat rsPathFromRoot <> rsKey
-
-data ReadStore m a where
-  StoreGet   :: RawStoreKey -> ReadStore m (Maybe BS.ByteString)
-  StoreProve :: RawStoreKey -> ReadStore m (Maybe BS.ByteString)
-
-makeSem ''ReadStore
-
-data WriteStore m a where
-  StorePut   :: RawStoreKey -> BS.ByteString -> WriteStore m ()
-  StoreDelete :: RawStoreKey -> WriteStore m ()
-
-makeSem ''WriteStore
+--------------------------------------------------------------------------------
+-- | Keys
+--------------------------------------------------------------------------------
 
 class RawKey k where
   rawKey :: Iso' k BS.ByteString
@@ -84,6 +68,18 @@ class RawKey k => IsKey k ns where
 
   default prefix :: Proxy k -> Proxy ns -> BS.ByteString
   prefix _ _ = ""
+
+data RawStoreKey = RawStoreKey
+  { rsPathFromRoot :: [BS.ByteString]
+  , rsKey          :: BS.ByteString
+  } deriving (Eq, Show, Ord)
+
+makeKeyBytes :: RawStoreKey -> BS.ByteString
+makeKeyBytes RawStoreKey{..} =  mconcat rsPathFromRoot <> rsKey
+
+--------------------------------------------------------------------------------
+-- | Store
+--------------------------------------------------------------------------------
 
 newtype KeyRoot ns =
   KeyRoot BS.ByteString deriving (Eq, Show)
@@ -103,22 +99,35 @@ nestStore (Store parentPath) (Store childPath) =
     { storePathFromRoot =  parentPath ++ childPath
     }
 
-makeRawStoreKey
+makeStoreKey
   :: forall k ns.
      IsKey k ns
   => Store ns
   -> k
   -> RawStoreKey
-makeRawStoreKey (Store path) k =
+makeStoreKey (Store path) k =
   RawStoreKey
     { rsKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
     , rsPathFromRoot = path
     }
 
-data CommitBlock m a where
-  CommitBlock :: CommitBlock m Base64String
 
-makeSem ''CommitBlock
+--------------------------------------------------------------------------------
+-- | Read and Write Effects
+--------------------------------------------------------------------------------
+
+
+data ReadStore m a where
+  StoreGet   :: RawStoreKey -> ReadStore m (Maybe BS.ByteString)
+  StoreProve :: RawStoreKey -> ReadStore m (Maybe BS.ByteString)
+
+makeSem ''ReadStore
+
+data WriteStore m a where
+  StorePut   :: RawStoreKey -> BS.ByteString -> WriteStore m ()
+  StoreDelete :: RawStoreKey -> WriteStore m ()
+
+makeSem ''WriteStore
 
 put
   :: forall k r ns.
@@ -130,7 +139,7 @@ put
   -> Value k ns
   -> Sem r ()
 put store k a =
-  let key = makeRawStoreKey store k
+  let key = makeStoreKey store k
       val = encode a
   in storePut key val
 
@@ -143,7 +152,7 @@ get
   -> k
   -> Sem r (Maybe (Value k ns))
 get store k = do
-  let key = makeRawStoreKey store k
+  let key = makeStoreKey store k
   mRes <- storeGet key
   case mRes of
     Nothing -> pure Nothing
@@ -159,7 +168,7 @@ delete
   -> k
   -> Sem r ()
 delete store k =
-  let key = makeRawStoreKey store k
+  let key = makeStoreKey store k
   in storeDelete key
 
 prove
@@ -170,9 +179,17 @@ prove
   -> k
   -> Sem r (Maybe BS.ByteString)
 prove store k =
-  let key = makeRawStoreKey store k
+  let key = makeStoreKey store k
   in storeProve key
 
+--------------------------------------------------------------------------------
+-- | Consensus Effects
+--------------------------------------------------------------------------------
+
+data CommitBlock m a where
+  CommitBlock :: CommitBlock m Base64String
+
+makeSem ''CommitBlock
 
 data CommitResponse = CommitResponse
   { rootHash   :: Base64String
@@ -210,13 +227,17 @@ withSandbox m =
    let tryTx = m `catch` (\e -> rollback *> throw e)
    in finally (tryTx <* rollback) rollback
 
-data Scope = Consensus | QueryAndMempool
-
 data Version =
     Genesis
   | Version Natural
   | Latest
   deriving (Eq, Show)
+
+--------------------------------------------------------------------------------
+-- | Store Effects
+--------------------------------------------------------------------------------
+
+data Scope = Consensus | QueryAndMempool
 
 type StoreEffs =
   [ Tagged 'Consensus ReadStore

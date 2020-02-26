@@ -41,7 +41,7 @@ import           Tendermint.SDK.BaseApp.Store.RawStore (CommitBlock (..),
                                                         Transaction (..),
                                                         Version (..),
                                                         WriteStore (..),
-                                                        makeRawKey)
+                                                        makeKeyBytes)
 import           Tendermint.SDK.Types.Effects          ((:&))
 
 data IAVLVersions = IAVLVersions
@@ -60,11 +60,11 @@ evalWrite gc m =
   interpret
     (\case
       StorePut k v -> do
-        let setReq = defMessage & Api.key .~ makeRawKey k
+        let setReq = defMessage & Api.key .~ makeKeyBytes k
                                 & Api.value .~ v
         void . liftIO . runGrpc $ IAVL.set gc setReq
       StoreDelete k ->
-        let remReq = defMessage & Api.key .~ makeRawKey k
+        let remReq = defMessage & Api.key .~ makeKeyBytes k
         in void . liftIO . runGrpc $ IAVL.remove gc remReq
     ) m
 
@@ -80,13 +80,13 @@ evalRead gc iavlVersion m = do
         version <- liftIO $ readIORef iavlVersion
         case version of
           Latest -> do
-            let getReq = defMessage & Api.key .~ makeRawKey k
+            let getReq = defMessage & Api.key .~ makeKeyBytes k
             res <- liftIO . runGrpc $ IAVL.get gc getReq
             case res ^. Api.value of
               ""  -> pure Nothing
               val -> pure $ Just val
           Version v -> do
-            let getVerReq = defMessage & Api.key .~ makeRawKey k
+            let getVerReq = defMessage & Api.key .~ makeKeyBytes k
                                        & Api.version .~ fromInteger (toInteger v)
             res <- liftIO . runGrpc $ IAVL.getVersioned gc getVerReq
             case res ^. Api.value of
