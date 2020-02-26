@@ -1,17 +1,11 @@
 syntax = "proto3";
 package Auth;
 
-message CoinId {
-  string id = 1;
-}
-
-message Amount {
-  uint64 amount = 1;
-}
+import "modules/types.proto";
 
 message Coin {
-  CoinId id = 1;
-  Amount amount = 2;
+  modules.CoinId id = 1;
+  modules.Amount amount = 2;
 }
 
 message Account {

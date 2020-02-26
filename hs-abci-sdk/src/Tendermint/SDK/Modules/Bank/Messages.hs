@@ -1,7 +1,7 @@
 module Tendermint.SDK.Modules.Bank.Messages where
 
 import           Control.Lens                 (Wrapped (..), from, iso, view,
-                                               (&), (.~), (^.))
+                                               (&), (.~), (^.), _Unwrapped')
 import           Data.Bifunctor               (bimap)
 import qualified Data.ProtoLens               as P
 import           Data.String.Conversions      (cs)
@@ -32,13 +32,13 @@ instance Wrapped Transfer where
       P.defMessage
         & B.to .~ addressToBytes transferTo
         & B.from .~ addressToBytes transferFrom
-        & B.cid .~ unCoinId transferCoinId
-        & B.amount .~ unAmount transferAmount
+        & B.cid .~ transferCoinId ^. _Wrapped'
+        & B.amount .~ transferAmount ^. _Wrapped'
     f message = Transfer
       { transferTo = addressFromBytes $ message ^. B.to
       , transferFrom = addressFromBytes $ message ^. B.from
-      , transferCoinId = CoinId $ message ^. B.cid
-      , transferAmount = Amount $ message ^. B.amount
+      , transferCoinId = message ^. B.cid . _Unwrapped'
+      , transferAmount = message ^. B.amount . _Unwrapped'
       }
 
 instance HasMessageType Transfer where
@@ -67,12 +67,12 @@ instance Wrapped Burn where
     t Burn {..} =
       P.defMessage
         & B.address .~ addressToBytes burnAddress
-        & B.cid .~ unCoinId burnCoinId
-        & B.amount .~ unAmount burnAmount
+        & B.cid .~ burnCoinId ^. _Wrapped'
+        & B.amount .~ burnAmount ^. _Wrapped'
     f message = Burn
       { burnAddress = addressFromBytes $ message ^. B.address
-      , burnCoinId = CoinId $ message ^. B.cid
-      , burnAmount = Amount $ message ^. B.amount
+      , burnCoinId = message ^. B.cid . _Unwrapped'
+      , burnAmount = message ^. B.amount . _Unwrapped'
       }
 
 instance HasMessageType Burn where
