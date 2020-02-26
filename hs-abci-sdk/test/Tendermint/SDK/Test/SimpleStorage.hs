@@ -74,6 +74,7 @@ instance BA.FromQueryData CountKey
 instance BA.Queryable Count where
   type Name Count = "count"
 
+<<<<<<< HEAD
 -- Counts (Multiple)
 
 --data CountsKey = CountsKey
@@ -86,6 +87,16 @@ instance BA.Queryable Count where
 --
 --instance BA.IsKey CountsKey SimpleStorageNamespace where
 --    type Value CountKey SimpleStorageNamespace = L.StoreList Count
+=======
+newtype AmountPaid = AmountPaid B.Amount deriving (Eq, Show, Num, Ord, HasCodec)
+
+-- for reporting how much paid to change count
+instance BA.IsKey Address SimpleStorageNamespace where
+    type Value Address SimpleStorageNamespace = AmountPaid
+
+instance BA.Queryable AmountPaid where
+  type Name AmountPaid = "paid"
+>>>>>>> remove-inj-restriction
 
 --------------------------------------------------------------------------------
 -- Message Types
@@ -134,8 +145,7 @@ storeKey = BA.StoreKeyRoot (cs . symbolVal $ Proxy @SimpleStorageName)
 data SimpleStorageKeeper m a where
     PutCount :: Count -> SimpleStorageKeeper m ()
     GetCount :: SimpleStorageKeeper m (Maybe Count)
-    --PutCounts :: Count -> SimpleStorageKeeper m ()
-    --GetCounts :: SimpleStorageKeeper m (StoreList Count)
+    StoreAmountPaid :: Address -> AmountPaid -> SimpleStorageKeeper m ()
 
 makeSem ''SimpleStorageKeeper
 
@@ -163,6 +173,7 @@ updatePaidCount from count amount =
     ( do
         B.burn from (B.Coin simpleStorageCoinId amount)
         updateCount count
+        storeAmountPaid from (AmountPaid amount)
     )
     (\(B.InsufficientFunds _) -> do
       let mintAmount = B.Coin simpleStorageCoinId (amount + 1)
@@ -179,6 +190,7 @@ eval
 eval = interpret (\case
   PutCount count -> BA.put storeKey CountKey count
   GetCount -> BA.get storeKey CountKey
+  StoreAmountPaid from amt -> BA.put storeKey from amt
   )
 
 --------------------------------------------------------------------------------
@@ -221,7 +233,10 @@ updatePaidCountH (BA.RoutingTx Tx{txMsg}) =
 -- Server
 --------------------------------------------------------------------------------
 
-type CountStoreContents = '[(CountKey, Count)]
+type CountStoreContents =
+  '[ (CountKey, Count)
+   , (Address, AmountPaid)
+   ]
 
 type GetMultipliedCount =
      "manipulated"
