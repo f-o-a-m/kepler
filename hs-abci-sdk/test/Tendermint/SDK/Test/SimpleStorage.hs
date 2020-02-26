@@ -71,6 +71,15 @@ instance BA.FromQueryData CountKey
 instance BA.Queryable Count where
   type Name Count = "count"
 
+newtype AmountPaid = AmountPaid B.Amount deriving (Eq, Show, Num, Ord, HasCodec)
+
+-- for reporting how much paid to change count
+instance BA.IsKey Address SimpleStorageNamespace where
+    type Value Address SimpleStorageNamespace = AmountPaid
+
+instance BA.Queryable AmountPaid where
+  type Name AmountPaid = "paid"
+
 --------------------------------------------------------------------------------
 -- Message Types
 --------------------------------------------------------------------------------
@@ -118,6 +127,7 @@ storeKey = BA.StoreKey (cs . symbolVal $ Proxy @SimpleStorageName)
 data SimpleStorageKeeper m a where
     PutCount :: Count -> SimpleStorageKeeper m ()
     GetCount :: SimpleStorageKeeper m (Maybe Count)
+    StoreAmountPaid :: Address -> AmountPaid -> SimpleStorageKeeper m ()
 
 makeSem ''SimpleStorageKeeper
 
@@ -142,6 +152,7 @@ updatePaidCount from count amount =
     ( do
         B.burn from (B.Coin simpleStorageCoinId amount)
         updateCount count
+        storeAmountPaid from (AmountPaid amount)
     )
     (\(B.InsufficientFunds _) -> do
       let mintAmount = B.Coin simpleStorageCoinId (amount + 1)
@@ -158,6 +169,7 @@ eval
 eval = interpret (\case
   PutCount count -> BA.put storeKey CountKey count
   GetCount -> BA.get storeKey CountKey
+  StoreAmountPaid from amt -> BA.put storeKey from amt
   )
 
 --------------------------------------------------------------------------------
@@ -200,7 +212,10 @@ updatePaidCountH (BA.RoutingTx Tx{txMsg}) =
 -- Server
 --------------------------------------------------------------------------------
 
-type CountStoreContents = '[(CountKey, Count)]
+type CountStoreContents =
+  '[ (CountKey, Count)
+   , (Address, AmountPaid)
+   ]
 
 type GetMultipliedCount =
      "manipulated"

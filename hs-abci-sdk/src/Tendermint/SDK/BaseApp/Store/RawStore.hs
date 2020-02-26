@@ -74,7 +74,7 @@ instance RawKey Address where
     rawKey = iso addressToBytes addressFromBytes
 
 class RawKey k => IsKey k ns where
-  type Value k ns = a | a -> ns k
+  type Value k ns :: *
   prefix :: Proxy k -> Proxy ns -> BS.ByteString
 
   default prefix :: Proxy k -> Proxy ns -> BS.ByteString
