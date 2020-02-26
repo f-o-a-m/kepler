@@ -25,7 +25,7 @@ import           Tendermint.SDK.BaseApp.Router       (RouterError (..),
                                                       pathRouter)
 import           Tendermint.SDK.BaseApp.Store        (IsKey (..), RawKey (..),
                                                       ReadStore, Scope (..),
-                                                      StoreKey, get)
+                                                      StoreKeyRoot, get)
 import           Tendermint.SDK.Codec                (HasCodec)
 
 data StoreLeaf a
@@ -38,7 +38,7 @@ instance (Queryable a,  Member (Tagged 'QueryAndMempool ReadStore) r, KnownSymbo
    hoistQueryRouter _ _ = ($)
 
 class StoreQueryHandler a ns h where
-    storeQueryHandler :: Proxy a -> StoreKey ns -> h
+    storeQueryHandler :: Proxy a -> StoreKeyRoot ns -> h
 
 instance
   ( IsKey k ns
@@ -63,7 +63,7 @@ instance
 
 class StoreQueryHandlers (kvs :: [*]) ns r where
     type QueryApi kvs :: *
-    storeQueryHandlers :: Proxy kvs -> StoreKey ns -> Proxy r -> RouteQ (QueryApi kvs) r
+    storeQueryHandlers :: Proxy kvs -> StoreKeyRoot ns -> Proxy r -> RouteQ (QueryApi kvs) r
 
 instance
     ( IsKey k ns

@@ -32,6 +32,7 @@ import           Tendermint.SDK.Application       (Module (..), ModuleEffs)
 import qualified Tendermint.SDK.BaseApp           as BA
 import           Tendermint.SDK.Codec             (HasCodec (..))
 import qualified Tendermint.SDK.Modules.Bank      as B
+--import qualified Tendermint.SDK.BaseApp.Store.List as L
 import           Tendermint.SDK.Types.Address     (Address)
 import           Tendermint.SDK.Types.Message     (HasMessageType (..),
                                                    Msg (..),
@@ -50,6 +51,8 @@ simpleStorageCoinId :: B.CoinId
 simpleStorageCoinId = B.CoinId . cs . symbolVal $ Proxy @SimpleStorageName
 
 newtype Count = Count Int32 deriving (Eq, Show, Ord, Num, Serialize.Serialize)
+
+-- Count
 
 data CountKey = CountKey
 
@@ -70,6 +73,19 @@ instance BA.FromQueryData CountKey
 
 instance BA.Queryable Count where
   type Name Count = "count"
+
+-- Counts (Multiple)
+
+--data CountsKey = CountsKey
+--
+--instance BA.RawKey CountsKey where
+--    rawKey = iso (\_ -> cs countsKey) (const CountsKey)
+--      where
+--        countsKey :: ByteString
+--        countsKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("counts" :: String)
+--
+--instance BA.IsKey CountsKey SimpleStorageNamespace where
+--    type Value CountKey SimpleStorageNamespace = L.StoreList Count
 
 --------------------------------------------------------------------------------
 -- Message Types
@@ -112,21 +128,26 @@ instance ValidateMessage UpdatePaidCountTx where
 -- Keeper
 --------------------------------------------------------------------------------
 
-storeKey :: BA.StoreKey SimpleStorageNamespace
-storeKey = BA.StoreKey (cs . symbolVal $ Proxy @SimpleStorageName)
+storeKey :: BA.StoreKeyRoot SimpleStorageNamespace
+storeKey = BA.StoreKeyRoot (cs . symbolVal $ Proxy @SimpleStorageName)
 
 data SimpleStorageKeeper m a where
     PutCount :: Count -> SimpleStorageKeeper m ()
     GetCount :: SimpleStorageKeeper m (Maybe Count)
+    --PutCounts :: Count -> SimpleStorageKeeper m ()
+    --GetCounts :: SimpleStorageKeeper m (StoreList Count)
 
 makeSem ''SimpleStorageKeeper
 
+--countsList :: L.StoreList Count
+--countsList = L.makeStoreList countsKey
 
 updateCount
   :: Member SimpleStorageKeeper r
   => Count
   -> Sem r ()
 updateCount count = putCount count
+
 
 updatePaidCount
   :: forall r .

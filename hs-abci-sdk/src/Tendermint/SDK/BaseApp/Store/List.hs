@@ -2,13 +2,16 @@
 
 module Tendermint.SDK.BaseApp.Store.List
   ( StoreList
+  , makeStoreList
   , append
+  , modifyAtIndex
+  , deleteWhen
   , (!!)
   , elemIndex
-  , delete
   , toList
   ) where
 
+import Control.Lens ((^.))
 import qualified Data.ByteArray.HexString      as Hex
 import qualified Data.ByteString               as BS
 import           Data.String.Conversions       (cs)
@@ -19,17 +22,40 @@ import           Prelude                       hiding (foldl, length, (!!))
 import qualified Prelude                       as P (length)
 import           Tendermint.SDK.BaseApp.Errors (AppError, SDKError (InternalError, ParseError),
                                                 throwSDKError)
-import           Tendermint.SDK.BaseApp.Store  (RawStoreKey (..), ReadStore,
-                                                WriteStore, storeDelete,
+import           Tendermint.SDK.BaseApp.Store  (RawStoreKey (..), ReadStore, rawKey,
+                                                WriteStore, storeDelete, IsKey(..),
                                                 storeGet, storePut)
 import           Tendermint.SDK.Codec          (HasCodec (..))
+import qualified Data.Text as T
+
+
 
 -- | A 'StoreList a' is an appendable list whose elements can be accessed
 -- | by their index. You can also delete from the list, in which case accessing
 -- | that index will result in a `Nothing`.
-data StoreList a = StoreList
-  { storeListKey :: BS.ByteString
-  }
+data StoreList a = StoreList (Word64 -> RawStoreKey)
+
+newtype Idx = Idx Word64 deriving (Eq, Show, Ord, Num)
+
+instance RawKey Idx where
+  rawKey = lens elementKey unElementKey
+
+instance IsKey Idx (StoreList a) where
+  type Value Idx (StoreList a) = a
+
+-- | Smart constuctor to make sure we're making a 'StoreList' from
+-- | the appropriate key type.
+makeStoreList
+  :: Member WriteStore r
+  => IsKey k ns
+  => Value k ns ~ StoreList a
+  => k
+  -> Store ns
+  -> Value k ns
+makeStoreList k store = do
+  let rsk = k ^. rawKey
+      store' = store { path = path store ++ [rsk] }
+  in StoreList $ \i -> 
 
 -- | Add an item to the end of the list.
 append
@@ -40,14 +66,14 @@ append
   -> Sem r ()
 append a as = do
   n <- length as
-  writeAt n (encode a) as
+  writeAt (Idx n) (encode a) as
 
--- | Access an item directly by it's index.
+-- | Access an item directly by its index.
 (!!)
   :: Members [Error AppError, ReadStore] r
   => HasCodec a
   => StoreList a
-  -> Word64
+  -> Idx
   -> Sem r (Maybe a)
 as@StoreList{..} !! n = do
   len <- length as
@@ -67,33 +93,50 @@ as@StoreList{..} !! n = do
 
 infixl 9  !!
 
--- | Delete the first occurance of an item.
-delete
+-- | Modify a list at a particular index, return the
+-- | updated value if the element was found.
+modifyAtIndex
   :: Members [Error AppError, ReadStore, WriteStore] r
   => HasCodec a
-  => Eq a
-  => a
+  => Idx
+  -> (a -> a)
+  -> StoreList a
+  -> Sem r (Maybe a)
+modifyAtIndex i f as = do
+  mRes <- as !! i
+  case mRes of
+    Nothing -> pure Nothing
+    Just res -> do
+      let a' = f res 
+      writeAt i (encode $ a') as
+      pure (Just a')
+    
+-- | Delete when the predicate evaluates to true.
+deleteWhen
+  :: Members [Error AppError, ReadStore, WriteStore] r
+  => HasCodec a
+  => (a -> Bool)
   -> StoreList a
   -> Sem r ()
-delete a as@StoreList{..} = do
+deleteWhen p as@StoreList{..} = do
     len <- length as
     delete' 0 (len - 1)
   where
-    delete' n maxN  =
-      if n > maxN
+    delete' n end  =
+      if n > end
         then pure ()
         else do
           mRes <- as !! n
           case mRes of
-            Nothing -> delete' (n + 1) maxN
+            Nothing -> delete' (n + 1) end
             Just res ->
-              if a == res
+              if p res
                 then let k = RawStoreKey
                            { rsKey = elementKey n
                            , rsStoreKey = storeListKey
                            }
-                     in storeDelete k
-                else delete' (n + 1) maxN
+                     in storeDelete k >> delete' (n + 1) end
+                else delete' (n + 1) end
 
 -- | Get the first index where an element appears in the list.
 elemIndex
@@ -102,7 +145,7 @@ elemIndex
   => Eq a
   => a
   -> StoreList a
-  -> Sem r (Maybe Word64)
+  -> Sem r (Maybe Idx)
 elemIndex a as = do
     len <- length as
     elemIndex' 0 len
@@ -114,7 +157,7 @@ elemIndex a as = do
           let keepLooking = elemIndex' (n + 1) len
           case mRes of
             Nothing -> keepLooking
-            Just a' -> if a == a' then pure $ Just n else keepLooking
+            Just a' -> if a == a' then pure $ Just (Idx n) else keepLooking
 
 foldl
   :: Members [Error AppError, ReadStore] r
@@ -156,14 +199,22 @@ lengthKey :: BS.ByteString
 lengthKey = Hex.toBytes "0x00"
 
 elementKey
-  :: Word64
+  :: Idx
   -> BS.ByteString
-elementKey k =
+elementKey (Idx k) =
     let padToNChars n a =
           let nZeros = n - P.length a
           in replicate nZeros '0' <> a
     in Hex.toBytes "0x01" <> cs (padToNChars 20 $ show k)
 
+unElementKey
+  :: BS.ByteString
+  -> Idx
+unElementKey bs = 
+    let str = cs $ fromMaybe (error "Idx missing 0x1 prefix") $ 
+                BS.stripPrefix (Hex.toBytes "0x01") bs
+    in Idx . read . dropWhile (== '0') $ str
+        
 length
   :: Members [Error AppError, ReadStore] r
   => StoreList a
@@ -180,11 +231,11 @@ length StoreList{..} =
 
 writeAt
   :: Members [Error AppError, ReadStore, WriteStore] r
-  => Word64
+  => Idx
   -> BS.ByteString
   -> StoreList a
   -> Sem r ()
-writeAt i a as@StoreList{..} = do
+writeAt idx@(Idx i) a as@StoreList{..} = do
   len <- length as
   writeAt' len
   where

@@ -29,7 +29,7 @@ module Tendermint.SDK.BaseApp
   , WriteStore
   , RawKey(..)
   , IsKey(..)
-  , StoreKey(..)
+  , StoreKeyRoot(..)
   , put
   , get
   , delete

@@ -23,7 +23,7 @@ import           Tendermint.SDK.BaseApp.Store             (IsKey (..),
                                                            ReadStore,
                                                            Scope (..),
                                                            StoreEffs,
-                                                           StoreKey (..),
+                                                           StoreKeyRoot (..),
                                                            WriteStore,
                                                            WriteStore, commit,
                                                            commitBlock, delete,
@@ -169,8 +169,8 @@ instance RawKey IntStoreKey where
 instance IsKey IntStoreKey "int_store" where
     type Value IntStoreKey "int_store" = IntStore
 
-storeKey :: StoreKey "int_store"
-storeKey = StoreKey "int_store"
+storeKey :: StoreKeyRoot "int_store"
+storeKey = StoreKeyRoot "int_store"
 
 type IAVLEffs =
   StoreEffs :& [Reader IAVLVersions, Reader GrpcClient, Error AppError, Resource, Embed IO]
