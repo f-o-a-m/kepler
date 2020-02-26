@@ -30,7 +30,7 @@ module Tendermint.SDK.BaseApp
   , RawKey(..)
   , IsKey(..)
   , Store
-  , StoreKeyRoot(..)
+  , KeyRoot(..)
   , makeStore
   , put
   , get

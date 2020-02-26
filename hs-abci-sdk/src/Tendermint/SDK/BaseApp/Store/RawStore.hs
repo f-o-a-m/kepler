@@ -27,7 +27,7 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   , RawKey(..)
   , IsKey(..)
   , RawStoreKey(..)
-  , StoreKeyRoot(..)
+  , KeyRoot(..)
   , makeRawKey
   , Store
   , nestStore
@@ -85,15 +85,15 @@ class RawKey k => IsKey k ns where
   default prefix :: Proxy k -> Proxy ns -> BS.ByteString
   prefix _ _ = ""
 
-newtype StoreKeyRoot ns =
-  StoreKeyRoot BS.ByteString deriving (Eq, Show)
+newtype KeyRoot ns =
+  KeyRoot BS.ByteString deriving (Eq, Show)
 
 data Store ns = Store
   { storePathFromRoot :: [BS.ByteString]
   }
 
-makeStore :: StoreKeyRoot ns  -> Store ns
-makeStore (StoreKeyRoot ns) = Store
+makeStore :: KeyRoot ns  -> Store ns
+makeStore (KeyRoot ns) = Store
   { storePathFromRoot = [ns]
   }
 

@@ -125,7 +125,7 @@ instance ValidateMessage UpdatePaidCountTx where
 --------------------------------------------------------------------------------
 
 store :: BA.Store SimpleStorageNamespace
-store = BA.makeStore $ BA.StoreKeyRoot (cs . symbolVal $ Proxy @SimpleStorageName)
+store = BA.makeStore $ BA.KeyRoot (cs . symbolVal $ Proxy @SimpleStorageName)
 
 data SimpleStorageKeeper m a where
     PutCount :: Count -> SimpleStorageKeeper m ()

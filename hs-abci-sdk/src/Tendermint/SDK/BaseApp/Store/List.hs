@@ -26,7 +26,7 @@ import           Tendermint.SDK.BaseApp.Errors (AppError,
                                                 throwSDKError)
 import           Tendermint.SDK.BaseApp.Store  (IsKey (..), RawKey (..),
                                                 ReadStore, Store,
-                                                StoreKeyRoot (..), WriteStore,
+                                                KeyRoot (..), WriteStore,
                                                 delete, get, makeStore,
                                                 nestStore, put, rawKey)
 import           Tendermint.SDK.Codec          (HasCodec (..))
@@ -63,8 +63,8 @@ makeStoreList
   -> Store ns
   -> StoreList a
 makeStoreList k store =
-  let skr :: StoreKeyRoot (StoreList a)
-      skr = StoreKeyRoot $ k ^. rawKey
+  let skr :: KeyRoot (StoreList a)
+      skr = KeyRoot $ k ^. rawKey
   in StoreList $ nestStore store (makeStore skr)
 
 -- | Add an item to the end of the list.
