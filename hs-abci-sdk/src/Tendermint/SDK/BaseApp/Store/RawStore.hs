@@ -25,7 +25,7 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   -- * Types
   , RawKey(..)
   , IsKey(..)
-  , RawStoreKey(..)
+  , StoreKey(..)
   , KeyRoot(..)
   , makeKeyBytes
   , CommitResponse(..)
@@ -69,13 +69,13 @@ class RawKey k => IsKey k ns where
   default prefix :: Proxy k -> Proxy ns -> BS.ByteString
   prefix _ _ = ""
 
-data RawStoreKey = RawStoreKey
+data StoreKey = StoreKey
   { rsPathFromRoot :: [BS.ByteString]
   , rsKey          :: BS.ByteString
   } deriving (Eq, Show, Ord)
 
-makeKeyBytes :: RawStoreKey -> BS.ByteString
-makeKeyBytes RawStoreKey{..} =  mconcat rsPathFromRoot <> rsKey
+makeKeyBytes :: StoreKey -> BS.ByteString
+makeKeyBytes StoreKey{..} =  mconcat rsPathFromRoot <> rsKey
 
 --------------------------------------------------------------------------------
 -- | Store
@@ -104,9 +104,9 @@ makeStoreKey
      IsKey k ns
   => Store ns
   -> k
-  -> RawStoreKey
+  -> StoreKey
 makeStoreKey (Store path) k =
-  RawStoreKey
+  StoreKey
     { rsKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
     , rsPathFromRoot = path
     }
@@ -118,14 +118,14 @@ makeStoreKey (Store path) k =
 
 
 data ReadStore m a where
-  StoreGet   :: RawStoreKey -> ReadStore m (Maybe BS.ByteString)
-  StoreProve :: RawStoreKey -> ReadStore m (Maybe BS.ByteString)
+  StoreGet   :: StoreKey -> ReadStore m (Maybe BS.ByteString)
+  StoreProve :: StoreKey -> ReadStore m (Maybe BS.ByteString)
 
 makeSem ''ReadStore
 
 data WriteStore m a where
-  StorePut   :: RawStoreKey -> BS.ByteString -> WriteStore m ()
-  StoreDelete :: RawStoreKey -> WriteStore m ()
+  StorePut   :: StoreKey -> BS.ByteString -> WriteStore m ()
+  StoreDelete :: StoreKey -> WriteStore m ()
 
 makeSem ''WriteStore
 

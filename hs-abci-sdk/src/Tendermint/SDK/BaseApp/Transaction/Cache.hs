@@ -15,20 +15,20 @@ import           Data.Set                              (Set)
 import qualified Data.Set                              as Set
 import           Polysemy                              (Member, Sem)
 import           Polysemy.Tagged                       (Tagged, tag)
-import           Tendermint.SDK.BaseApp.Store.RawStore (RawStoreKey, Scope (..),
+import           Tendermint.SDK.BaseApp.Store.RawStore (Scope (..), StoreKey,
                                                         WriteStore, storeDelete,
                                                         storePut)
 
 data Cache = Cache
-  { keysToDelete :: Set RawStoreKey
-  , stateCache   :: Map RawStoreKey ByteString
+  { keysToDelete :: Set StoreKey
+  , stateCache   :: Map StoreKey ByteString
   } deriving (Eq, Show)
 
 emptyCache :: Cache
 emptyCache = Cache Set.empty Map.empty
 
 put
-  :: RawStoreKey
+  :: StoreKey
   -> ByteString
   -> Cache
   -> Cache
@@ -40,7 +40,7 @@ put k v Cache{..} =
 data Deleted = Deleted
 
 get
-  :: RawStoreKey
+  :: StoreKey
   -> Cache
   -> Either Deleted (Maybe ByteString)
 get k Cache{..} =
@@ -49,7 +49,7 @@ get k Cache{..} =
     else Right $ Map.lookup k stateCache
 
 delete
-  :: RawStoreKey
+  :: StoreKey
   -> Cache
   -> Cache
 delete k Cache{..} =

@@ -24,11 +24,11 @@ import qualified Prelude                       as P (length)
 import           Tendermint.SDK.BaseApp.Errors (AppError,
                                                 SDKError (InternalError),
                                                 throwSDKError)
-import           Tendermint.SDK.BaseApp.Store  (IsKey (..), RawKey (..),
-                                                ReadStore, Store,
-                                                KeyRoot (..), WriteStore,
-                                                delete, get, makeStore,
-                                                nestStore, put, rawKey)
+import           Tendermint.SDK.BaseApp.Store  (IsKey (..), KeyRoot (..),
+                                                RawKey (..), ReadStore, Store,
+                                                WriteStore, delete, get,
+                                                makeStore, nestStore, put,
+                                                rawKey)
 import           Tendermint.SDK.Codec          (HasCodec (..))
 
 
@@ -39,6 +39,7 @@ import           Tendermint.SDK.Codec          (HasCodec (..))
 data StoreList (a :: *) = StoreList
   { storeListStore :: Store (StoreList a) }
 
+-- | Represents an index into a list
 newtype Idx = Idx Word64 deriving (Eq, Show, Ord, Num)
 
 instance RawKey Idx where
@@ -47,6 +48,7 @@ instance RawKey Idx where
 instance IsKey Idx (StoreList a) where
   type Value Idx (StoreList a) = a
 
+-- Internal, used for accessing list length.
 data LengthKey = LengthKey
 
 instance RawKey LengthKey where

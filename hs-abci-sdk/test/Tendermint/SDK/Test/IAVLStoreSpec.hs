@@ -19,11 +19,11 @@ import           Polysemy.Tagged                          (tag)
 import           Tendermint.SDK.BaseApp.Errors            (AppError (..), SDKError (InternalError),
                                                            throwSDKError)
 import           Tendermint.SDK.BaseApp.Store             (IsKey (..),
+                                                           KeyRoot (..),
                                                            RawKey (..),
                                                            ReadStore,
                                                            Scope (..), Store,
                                                            StoreEffs,
-                                                           KeyRoot (..),
                                                            WriteStore,
                                                            WriteStore, commit,
                                                            commitBlock, delete,

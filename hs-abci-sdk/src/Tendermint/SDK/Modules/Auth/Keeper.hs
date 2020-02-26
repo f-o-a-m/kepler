@@ -4,8 +4,8 @@ module Tendermint.SDK.Modules.Auth.Keeper where
 
 import           Polysemy
 import           Polysemy.Error                    (Error, mapError, throw)
-import           Tendermint.SDK.BaseApp            (AppError, ReadStore, Store,
-                                                    KeyRoot (..),
+import           Tendermint.SDK.BaseApp            (AppError, KeyRoot (..),
+                                                    ReadStore, Store,
                                                     WriteStore, get,
                                                     makeAppError, makeStore,
                                                     put)
