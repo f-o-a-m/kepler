@@ -74,20 +74,6 @@ instance BA.FromQueryData CountKey
 instance BA.Queryable Count where
   type Name Count = "count"
 
-<<<<<<< HEAD
--- Counts (Multiple)
-
---data CountsKey = CountsKey
---
---instance BA.RawKey CountsKey where
---    rawKey = iso (\_ -> cs countsKey) (const CountsKey)
---      where
---        countsKey :: ByteString
---        countsKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("counts" :: String)
---
---instance BA.IsKey CountsKey SimpleStorageNamespace where
---    type Value CountKey SimpleStorageNamespace = L.StoreList Count
-=======
 newtype AmountPaid = AmountPaid B.Amount deriving (Eq, Show, Num, Ord, HasCodec)
 
 -- for reporting how much paid to change count
@@ -96,7 +82,6 @@ instance BA.IsKey Address SimpleStorageNamespace where
 
 instance BA.Queryable AmountPaid where
   type Name AmountPaid = "paid"
->>>>>>> remove-inj-restriction
 
 --------------------------------------------------------------------------------
 -- Message Types
@@ -139,8 +124,8 @@ instance ValidateMessage UpdatePaidCountTx where
 -- Keeper
 --------------------------------------------------------------------------------
 
-storeKey :: BA.StoreKeyRoot SimpleStorageNamespace
-storeKey = BA.StoreKeyRoot (cs . symbolVal $ Proxy @SimpleStorageName)
+store :: BA.Store SimpleStorageNamespace
+store = BA.makeStore $ BA.StoreKeyRoot (cs . symbolVal $ Proxy @SimpleStorageName)
 
 data SimpleStorageKeeper m a where
     PutCount :: Count -> SimpleStorageKeeper m ()
@@ -188,9 +173,9 @@ eval
      Members BA.TxEffs r
   => forall a. (Sem (SimpleStorageKeeper ': r) a -> Sem r a)
 eval = interpret (\case
-  PutCount count -> BA.put storeKey CountKey count
-  GetCount -> BA.get storeKey CountKey
-  StoreAmountPaid from amt -> BA.put storeKey from amt
+  PutCount count -> BA.put store CountKey count
+  GetCount -> BA.get store CountKey
+  StoreAmountPaid from amt -> BA.put store from amt
   )
 
 --------------------------------------------------------------------------------
@@ -272,7 +257,7 @@ querier
   => BA.RouteQ QueryApi r
 querier =
   let storeHandlers = BA.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
-        storeKey (Proxy :: Proxy r)
+        store (Proxy :: Proxy r)
   in getMultipliedCount :<|> storeHandlers
 
 --------------------------------------------------------------------------------

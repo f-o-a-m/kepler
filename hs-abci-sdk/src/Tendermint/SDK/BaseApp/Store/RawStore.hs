@@ -27,6 +27,7 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   , RawKey(..)
   , IsKey(..)
   , RawStoreKey(..)
+  , StoreKeyRoot(..)
   , makeRawKey
   , Store
   , nestStore
@@ -52,8 +53,8 @@ import           Tendermint.SDK.Types.Address  (Address, addressFromBytes,
                                                 addressToBytes)
 
 data RawStoreKey = RawStoreKey
-  { rsPathFromRoot     :: [BS.ByteString]
-  , rsKey      :: BS.ByteString
+  { rsPathFromRoot :: [BS.ByteString]
+  , rsKey          :: BS.ByteString
   } deriving (Eq, Show, Ord)
 
 makeRawKey :: RawStoreKey -> BS.ByteString
@@ -84,7 +85,7 @@ class RawKey k => IsKey k ns where
   default prefix :: Proxy k -> Proxy ns -> BS.ByteString
   prefix _ _ = ""
 
-newtype StoreKeyRoot ns = 
+newtype StoreKeyRoot ns =
   StoreKeyRoot BS.ByteString deriving (Eq, Show)
 
 data Store ns = Store
@@ -92,24 +93,24 @@ data Store ns = Store
   }
 
 makeStore :: StoreKeyRoot ns  -> Store ns
-makeStore (StoreKeyRoot ns) = Store 
+makeStore (StoreKeyRoot ns) = Store
   { storePathFromRoot = [ns]
   }
 
 nestStore :: Store parentns -> Store childns -> Store childns
-nestStore (Store parentPath) (Store childPath) = 
+nestStore (Store parentPath) (Store childPath) =
   Store
     { storePathFromRoot =  parentPath ++ childPath
     }
 
 makeRawStoreKey
   :: forall k ns.
-     IsKey k ns 
+     IsKey k ns
   => Store ns
   -> k
   -> RawStoreKey
-makeRawStoreKey (Store path) k = 
-  RawStoreKey 
+makeRawStoreKey (Store path) k =
+  RawStoreKey
     { rsKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
     , rsPathFromRoot = path
     }

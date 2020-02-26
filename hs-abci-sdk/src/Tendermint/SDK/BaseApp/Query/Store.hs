@@ -25,7 +25,7 @@ import           Tendermint.SDK.BaseApp.Router       (RouterError (..),
                                                       pathRouter)
 import           Tendermint.SDK.BaseApp.Store        (IsKey (..), RawKey (..),
                                                       ReadStore, Scope (..),
-                                                      StoreKeyRoot, get)
+                                                      Store, get)
 import           Tendermint.SDK.Codec                (HasCodec)
 
 data StoreLeaf a
@@ -38,7 +38,7 @@ instance (Queryable a,  Member (Tagged 'QueryAndMempool ReadStore) r, KnownSymbo
    hoistQueryRouter _ _ = ($)
 
 class StoreQueryHandler a ns h where
-    storeQueryHandler :: Proxy a -> StoreKeyRoot ns -> h
+    storeQueryHandler :: Proxy a -> Store ns -> h
 
 instance
   ( IsKey k ns
@@ -47,9 +47,9 @@ instance
   , Members QueryEffs r
   )
    => StoreQueryHandler a ns (QueryArgs k -> Sem r (QueryResult a)) where
-  storeQueryHandler _ storeKey QueryArgs{..} = do
+  storeQueryHandler _ store QueryArgs{..} = do
     let key = queryArgsData
-    mRes <- get storeKey key
+    mRes <- get store key
     case mRes of
       Nothing -> throw . makeAppError $ ResourceNotFound
       Just (res :: a) -> pure $ QueryResult
@@ -63,7 +63,7 @@ instance
 
 class StoreQueryHandlers (kvs :: [*]) ns r where
     type QueryApi kvs :: *
-    storeQueryHandlers :: Proxy kvs -> StoreKeyRoot ns -> Proxy r -> RouteQ (QueryApi kvs) r
+    storeQueryHandlers :: Proxy kvs -> Store ns -> Proxy r -> RouteQ (QueryApi kvs) r
 
 instance
     ( IsKey k ns
@@ -72,7 +72,7 @@ instance
     , Members QueryEffs r
     )  => StoreQueryHandlers '[(k,a)] ns r where
       type QueryApi '[(k,a)] =  QA k :> StoreLeaf a
-      storeQueryHandlers _ storeKey _ = storeQueryHandler (Proxy :: Proxy a) storeKey
+      storeQueryHandlers _ store _ = storeQueryHandler (Proxy :: Proxy a) store
 
 instance
     ( IsKey k ns
@@ -82,6 +82,6 @@ instance
     , Members QueryEffs r
     ) => StoreQueryHandlers ((k,a) ': (k', a') : as) ns r where
         type (QueryApi ((k, a) ': (k', a') : as)) = (QA k :> StoreLeaf a) :<|> QueryApi ((k', a') ': as)
-        storeQueryHandlers _ storeKey pr =
-          storeQueryHandler  (Proxy :: Proxy a) storeKey :<|>
-          storeQueryHandlers (Proxy :: Proxy ((k', a') ': as)) storeKey pr
+        storeQueryHandlers _ store pr =
+          storeQueryHandler  (Proxy :: Proxy a) store :<|>
+          storeQueryHandlers (Proxy :: Proxy ((k', a') ': as)) store pr

@@ -4,9 +4,11 @@ module Tendermint.SDK.Modules.Auth.Keeper where
 
 import           Polysemy
 import           Polysemy.Error                    (Error, mapError, throw)
-import           Tendermint.SDK.BaseApp            (AppError, ReadStore,
-                                                    StoreKeyRoot(..), WriteStore,
-                                                    get, makeAppError, put)
+import           Tendermint.SDK.BaseApp            (AppError, ReadStore, Store,
+                                                    StoreKeyRoot (..),
+                                                    WriteStore, get,
+                                                    makeAppError, makeStore,
+                                                    put)
 import           Tendermint.SDK.Modules.Auth.Types
 import           Tendermint.SDK.Types.Address      (Address)
 
@@ -18,8 +20,8 @@ makeSem ''Accounts
 
 type AuthEffs = '[Accounts, Error AuthError]
 
-storeKey :: StoreKeyRoot AuthNamespace
-storeKey = StoreKeyRoot "auth"
+store :: Store AuthNamespace
+store = makeStore $ StoreKeyRoot "auth"
 
 eval
   :: Members [ReadStore, WriteStore, Error AppError] r
@@ -33,9 +35,9 @@ eval = mapError makeAppError . evalAuth
     evalAuth =
       interpret (\case
           GetAccount addr ->
-            get storeKey addr
+            get store addr
           PutAccount addr acnt ->
-            put storeKey addr acnt
+            put store addr acnt
         )
 
 --------------------------------------------------------------------------------

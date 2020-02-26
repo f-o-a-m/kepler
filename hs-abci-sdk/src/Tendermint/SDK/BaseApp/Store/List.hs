@@ -11,51 +11,61 @@ module Tendermint.SDK.BaseApp.Store.List
   , toList
   ) where
 
-import Control.Lens ((^.))
+import           Control.Lens                  (iso, (^.))
 import qualified Data.ByteArray.HexString      as Hex
 import qualified Data.ByteString               as BS
+import           Data.Maybe                    (fromMaybe)
 import           Data.String.Conversions       (cs)
 import           Data.Word                     (Word64)
 import           Polysemy
 import           Polysemy.Error                (Error)
 import           Prelude                       hiding (foldl, length, (!!))
 import qualified Prelude                       as P (length)
-import           Tendermint.SDK.BaseApp.Errors (AppError, SDKError (InternalError, ParseError),
+import           Tendermint.SDK.BaseApp.Errors (AppError,
+                                                SDKError (InternalError),
                                                 throwSDKError)
-import           Tendermint.SDK.BaseApp.Store  (RawStoreKey (..), ReadStore, rawKey,
-                                                WriteStore, storeDelete, IsKey(..),
-                                                storeGet, storePut)
+import           Tendermint.SDK.BaseApp.Store  (IsKey (..), RawKey (..),
+                                                ReadStore, Store,
+                                                StoreKeyRoot (..), WriteStore,
+                                                delete, get, makeStore,
+                                                nestStore, put, rawKey)
 import           Tendermint.SDK.Codec          (HasCodec (..))
-import qualified Data.Text as T
 
 
 
 -- | A 'StoreList a' is an appendable list whose elements can be accessed
 -- | by their index. You can also delete from the list, in which case accessing
 -- | that index will result in a `Nothing`.
-data StoreList a = StoreList (Word64 -> RawStoreKey)
+data StoreList (a :: *) = StoreList
+  { storeListStore :: Store (StoreList a) }
 
 newtype Idx = Idx Word64 deriving (Eq, Show, Ord, Num)
 
 instance RawKey Idx where
-  rawKey = lens elementKey unElementKey
+  rawKey = iso elementKey unElementKey
 
 instance IsKey Idx (StoreList a) where
   type Value Idx (StoreList a) = a
 
+data LengthKey = LengthKey
+
+instance RawKey LengthKey where
+  rawKey = iso (const lengthKey) unLengthKey
+
+instance IsKey LengthKey (StoreList a) where
+  type Value LengthKey (StoreList a) = Word64
+
 -- | Smart constuctor to make sure we're making a 'StoreList' from
 -- | the appropriate key type.
 makeStoreList
-  :: Member WriteStore r
-  => IsKey k ns
-  => Value k ns ~ StoreList a
+  :: RawKey k
   => k
   -> Store ns
-  -> Value k ns
-makeStoreList k store = do
-  let rsk = k ^. rawKey
-      store' = store { path = path store ++ [rsk] }
-  in StoreList $ \i -> 
+  -> StoreList a
+makeStoreList k store =
+  let skr :: StoreKeyRoot (StoreList a)
+      skr = StoreKeyRoot $ k ^. rawKey
+  in StoreList $ nestStore store (makeStore skr)
 
 -- | Add an item to the end of the list.
 append
@@ -66,7 +76,7 @@ append
   -> Sem r ()
 append a as = do
   n <- length as
-  writeAt (Idx n) (encode a) as
+  writeAt (Idx n) a as
 
 -- | Access an item directly by its index.
 (!!)
@@ -77,19 +87,9 @@ append a as = do
   -> Sem r (Maybe a)
 as@StoreList{..} !! n = do
   len <- length as
-  if len - 1 < n
+  if Idx (len - 1) < n
     then pure Nothing
-    else do
-      let k = RawStoreKey
-            { rsStoreKey = storeListKey
-            , rsKey = elementKey n
-            }
-      mRes <- storeGet k
-      case mRes of
-        Nothing -> pure Nothing
-        Just res -> case decode res of
-          Right a -> pure (Just a)
-          Left e -> throwSDKError (ParseError $ "Impossible codec error: "  <> cs e)
+    else get storeListStore n
 
 infixl 9  !!
 
@@ -107,10 +107,10 @@ modifyAtIndex i f as = do
   case mRes of
     Nothing -> pure Nothing
     Just res -> do
-      let a' = f res 
-      writeAt i (encode $ a') as
+      let a' = f res
+      writeAt i a' as
       pure (Just a')
-    
+
 -- | Delete when the predicate evaluates to true.
 deleteWhen
   :: Members [Error AppError, ReadStore, WriteStore] r
@@ -120,7 +120,7 @@ deleteWhen
   -> Sem r ()
 deleteWhen p as@StoreList{..} = do
     len <- length as
-    delete' 0 (len - 1)
+    delete' 0 (Idx (len - 1))
   where
     delete' n end  =
       if n > end
@@ -131,11 +131,9 @@ deleteWhen p as@StoreList{..} = do
             Nothing -> delete' (n + 1) end
             Just res ->
               if p res
-                then let k = RawStoreKey
-                           { rsKey = elementKey n
-                           , rsStoreKey = storeListKey
-                           }
-                     in storeDelete k >> delete' (n + 1) end
+                then do
+                  delete storeListStore n
+                  delete' (n + 1) end
                 else delete' (n + 1) end
 
 -- | Get the first index where an element appears in the list.
@@ -148,7 +146,7 @@ elemIndex
   -> Sem r (Maybe Idx)
 elemIndex a as = do
     len <- length as
-    elemIndex' 0 len
+    elemIndex' 0 (Idx len)
   where
     elemIndex' n len
       | n == len = pure Nothing
@@ -157,7 +155,7 @@ elemIndex a as = do
           let keepLooking = elemIndex' (n + 1) len
           case mRes of
             Nothing -> keepLooking
-            Just a' -> if a == a' then pure $ Just (Idx n) else keepLooking
+            Just a' -> if a == a' then pure $ Just n else keepLooking
 
 foldl
   :: Members [Error AppError, ReadStore] r
@@ -168,7 +166,7 @@ foldl
   -> Sem r b
 foldl f b as = do
   len <- length as
-  foldl' 0 len b
+  foldl' 0 (Idx len) b
   where
     foldl' currentIndex end accum
       | currentIndex == end = pure accum
@@ -198,6 +196,11 @@ toList = foldl (flip (:)) []
 lengthKey :: BS.ByteString
 lengthKey = Hex.toBytes "0x00"
 
+unLengthKey :: BS.ByteString -> LengthKey
+unLengthKey bs
+  | bs == Hex.toBytes "0x00" = LengthKey
+  | otherwise = error $ "Couldn't parse LengthKey bytes: " <> cs bs
+
 elementKey
   :: Idx
   -> BS.ByteString
@@ -210,29 +213,24 @@ elementKey (Idx k) =
 unElementKey
   :: BS.ByteString
   -> Idx
-unElementKey bs = 
-    let str = cs $ fromMaybe (error "Idx missing 0x1 prefix") $ 
+unElementKey bs =
+    let str = cs $ fromMaybe (error "Idx missing 0x01 prefix") $
                 BS.stripPrefix (Hex.toBytes "0x01") bs
     in Idx . read . dropWhile (== '0') $ str
-        
+
 length
   :: Members [Error AppError, ReadStore] r
   => StoreList a
   -> Sem r Word64
-length StoreList{..} =
-  let k = RawStoreKey
-        { rsStoreKey = storeListKey
-        , rsKey = lengthKey
-        }
-      unsafeDecode v = case decode v of
-        Left e -> throwSDKError (ParseError $ "Impossible codec error: "  <> cs e)
-        Right a -> pure a
-  in storeGet k >>= maybe (pure 0) unsafeDecode
+length StoreList{..} = do
+  mLen <- get storeListStore LengthKey
+  pure $ fromMaybe 0 mLen
 
 writeAt
   :: Members [Error AppError, ReadStore, WriteStore] r
+  => HasCodec a
   => Idx
-  -> BS.ByteString
+  -> a
   -> StoreList a
   -> Sem r ()
 writeAt idx@(Idx i) a as@StoreList{..} = do
@@ -241,20 +239,8 @@ writeAt idx@(Idx i) a as@StoreList{..} = do
   where
     writeAt' len
       | i == len = do
-        let k = RawStoreKey
-              { rsStoreKey = storeListKey
-              , rsKey = elementKey i
-              }
-            lk = RawStoreKey
-              { rsStoreKey = storeListKey
-              , rsKey = lengthKey
-              }
-        storePut k a
-        storePut lk (encode i)
-      | i < len = do
-        let k = RawStoreKey
-              { rsStoreKey = storeListKey
-              , rsKey = elementKey i
-              }
-        storePut k a
+        put storeListStore idx a
+        put storeListStore LengthKey i
+      | i < len =
+        put storeListStore idx a
       | otherwise = throwSDKError $ InternalError "Cannot write past list length index."
