@@ -67,7 +67,7 @@ data Config = Config
 makeConfig :: IO Config
 makeConfig = do
   db <- Mem.initDB
-  v <- newIORef Genesis
+  v <- newIORef Latest
   pure $ Config db v
 
 runToIO
