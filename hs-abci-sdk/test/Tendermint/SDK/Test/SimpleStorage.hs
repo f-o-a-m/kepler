@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# OPTIONS_GHC -fno-warn-unused-top-binds #-}
 
 module Tendermint.SDK.Test.SimpleStorage
   ( SimpleStorage
@@ -8,7 +9,6 @@ module Tendermint.SDK.Test.SimpleStorage
   , simpleStorageCoinId
   , evalToIO
   , Count(..)
-  , getAllCounts
   ) where
 
 import           Control.Lens                      (iso, (^.))

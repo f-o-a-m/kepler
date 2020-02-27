@@ -76,9 +76,10 @@ append
   => a
   -> StoreList a
   -> Sem r ()
-append a as = do
+append a as@StoreList{..} = do
   n <- length as
   writeAt (Idx n) a as
+  put storeListStore LengthKey (n + 1)
 
 -- | Access an item directly by its index.
 (!!)

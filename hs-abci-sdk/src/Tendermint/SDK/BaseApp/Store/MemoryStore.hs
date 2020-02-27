@@ -63,7 +63,7 @@ evalWrite
 evalWrite DB{dbLatest} m =
   interpret
     (\case
-      StorePut k v -> do
+      StorePut k v ->
         liftIO . modifyIORef dbLatest $ AT.insert (makeKeyBytes k) v
       StoreDelete k ->
         liftIO . modifyIORef dbLatest $ AT.delete (makeKeyBytes k)
@@ -162,8 +162,8 @@ getRootHash db@DB{dbCommitted} = do
   case mcv of
     Nothing -> pure ""
     Just v -> do
-      cs <- readIORef dbCommitted
-      case AT.lookup v cs of
+      c <- readIORef dbCommitted
+      case AT.lookup v c of
         Nothing -> pure ""
         Just tree ->
           let AuthTreeHash hash = AT.merkleHash tree

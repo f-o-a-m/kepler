@@ -3,6 +3,7 @@ module Tendermint.SDK.Test.ListSpec (spec) where
 import           Control.Lens                             (iso)
 import           Data.ByteString                          (ByteString)
 import           Data.IORef                               (IORef, newIORef)
+import           Data.Maybe                               (fromJust, isJust)
 import           Data.String.Conversions                  (cs)
 import           Data.Word                                (Word64)
 import           Polysemy                                 (Embed, Sem, runM)
@@ -17,11 +18,51 @@ import           Test.Hspec
 spec :: Spec
 spec =
   beforeAll makeConfig $
-    describe "StoreList Spec" $
+    describe "StoreList Spec" $ do
 
       it "Can create an empty list" $ \config -> do
         res <- runToIO config $ L.toList valList
         res `shouldBe` []
+
+      it "Can add an element to the list" $ \config -> do
+        res <- runToIO config $ do
+          let n = 1
+          L.append n valList
+          mi <- L.elemIndex n valList
+          l <- L.toList valList
+          pure (mi, l)
+        res `shouldBe` (Just 0, [1])
+        runToIO config $ L.deleteWhen (const True) valList
+
+      it "Can add an element, modify it, then delete it" $ \config -> do
+        let n = 2
+            m = 3
+
+        -- save the element and get its index
+        i <- runToIO config $ do
+          L.append n valList
+          L.elemIndex n valList
+        i `shouldSatisfy` isJust
+
+        -- accessing at the index gets the value back again
+        n' <- runToIO config (valList L.!! fromJust i)
+        Just n `shouldBe` n'
+
+        -- modifying the element at the index is successful
+        mm <- runToIO config $ L.modifyAtIndex (fromJust i) (const m) valList
+        mm `shouldBe` Just m
+
+        -- deleting the element and trying to find it gives Nothing
+        res2 <- runToIO config $ do
+          L.deleteWhen (== m) valList
+          L.elemIndex n valList
+        res2 `shouldBe` Nothing
+
+        -- modifying a deleted element gives Nothing
+        let k = 4
+        mm' <- runToIO config $ L.modifyAtIndex (fromJust i) (const k) valList
+        mm' `shouldBe` Nothing
+
 
 
 
