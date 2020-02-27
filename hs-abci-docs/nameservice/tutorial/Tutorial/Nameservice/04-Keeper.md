@@ -94,14 +94,14 @@ Taking a look at the class constraints, we see
 Like we said before, all transactions must ultimately compile to the set of effects belonging to `TxEffs` and `BaseEffs`. For effects interpreted to `ReadStore` and `WriteStore`, this means that you will need to define something called a `StoreKey`.
 
 
-A `StoreKey` is effectively a namespacing inside the database, and is unique for a given module. In theory it could be any `ByteString`, but the natural definition in the case of Nameservice is would be something like
+A `Store` is effectively a namespacing inside the database, and is unique for a given module. In theory it could be any `ByteString`, but the natural definition in the case of Nameservice is would be something like
 
 ~~~ haskell
-storeKey :: BA.StoreKey NameserviceNamespace
-storeKey = BA.StoreKey "nameservice"
+store :: BA.Store NameserviceNamespace
+store = BA.makeStore $ BA.KeyRoot "nameservice"
 ~~~
 
-With this `storeKey` it is possible to write the `eval` function to resolve the effects defined in Nameservice, namely the `NameserviceKeeper` effect and `Error NameserviceError`:
+With this `store` it is possible to write the `eval` function to resolve the effects defined in Nameservice, namely the `NameserviceKeeper` effect and `Error NameserviceError`:
 
 ~~~ haskell
 eval
@@ -115,8 +115,8 @@ eval = mapError BA.makeAppError . evalNameservice
       => Sem (NameserviceKeeper ': r) a -> Sem r a
     evalNameservice =
       interpret (\case
-          GetWhois name -> BA.get storeKey name
-          PutWhois name whois -> BA.put storeKey name whois
-          DeleteWhois name -> BA.delete storeKey name
+          GetWhois name -> BA.get store name
+          PutWhois name whois -> BA.put store name whois
+          DeleteWhois name -> BA.delete store name
         )
 ~~~
