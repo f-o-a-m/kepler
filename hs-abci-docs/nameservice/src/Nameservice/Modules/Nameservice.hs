@@ -14,7 +14,7 @@ module Nameservice.Modules.Nameservice
   ) where
 
 import           Data.Proxy
-import           Nameservice.Modules.Nameservice.Keeper   hiding (storeKey)
+import           Nameservice.Modules.Nameservice.Keeper   hiding (store)
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Query
 import           Nameservice.Modules.Nameservice.Router

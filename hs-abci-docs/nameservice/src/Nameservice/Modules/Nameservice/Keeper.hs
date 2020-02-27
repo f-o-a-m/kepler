@@ -7,7 +7,7 @@ module Nameservice.Modules.Nameservice.Keeper
   , setName
   , deleteName
   , buyName
-  , storeKey
+  , store
   , faucetAccount
   , eval
   ) where
@@ -36,8 +36,9 @@ makeSem ''NameserviceKeeper
 
 type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
 
-storeKey :: BaseApp.StoreKey NameserviceNamespace
-storeKey = BaseApp.StoreKey . cs . symbolVal $ Proxy @NameserviceName
+store :: BaseApp.Store NameserviceNamespace
+store = BaseApp.makeStore $
+  BaseApp.KeyRoot $ cs . symbolVal $ Proxy @NameserviceName
 
 nameserviceCoinId :: CoinId
 nameserviceCoinId = "nameservice"
@@ -54,11 +55,11 @@ eval = mapError BaseApp.makeAppError . evalNameservice
     evalNameservice =
       interpret (\case
           GetWhois name ->
-            BaseApp.get storeKey name
+            BaseApp.get store name
           PutWhois name whois ->
-            BaseApp.put storeKey name whois
+            BaseApp.put store name whois
           DeleteWhois name ->
-            BaseApp.delete storeKey name
+            BaseApp.delete store name
         )
 
 --------------------------------------------------------------------------------

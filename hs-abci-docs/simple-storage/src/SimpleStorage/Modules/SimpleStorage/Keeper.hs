@@ -4,7 +4,7 @@ module SimpleStorage.Modules.SimpleStorage.Keeper
   , SimpleStorageEffs
   , updateCount
   , getCount
-  , storeKey
+  , store
   , eval
   ) where
 
@@ -14,8 +14,8 @@ import           Polysemy.Output                           (Output)
 import           SimpleStorage.Modules.SimpleStorage.Types
 import qualified Tendermint.SDK.BaseApp                    as BaseApp
 
-storeKey :: BaseApp.StoreKey SimpleStorageNamespace
-storeKey = BaseApp.StoreKey "simple_storage"
+store :: BaseApp.Store SimpleStorageNamespace
+store = BaseApp.makeStore $ BaseApp.KeyRoot "simple_storage"
 
 data SimpleStorageKeeper m a where
     PutCount :: Count -> SimpleStorageKeeper m ()
@@ -41,6 +41,6 @@ eval
   => forall a. (Sem (SimpleStorageKeeper ': r) a -> Sem r a)
 eval = interpret (\case
   PutCount count -> do
-    BaseApp.put storeKey CountKey count
-  GetCount -> BaseApp.get storeKey CountKey
+    BaseApp.put store CountKey count
+  GetCount -> BaseApp.get store CountKey
   )

@@ -28,6 +28,7 @@ module Tendermint.SDK.BaseApp
   , ReadStore
   , WriteStore
   , RawKey(..)
+  , StoreKey(..)
   , IsKey(..)
   , Store
   , KeyRoot(..)

@@ -70,12 +70,12 @@ class RawKey k => IsKey k ns where
   prefix _ _ = ""
 
 data StoreKey = StoreKey
-  { rsPathFromRoot :: [BS.ByteString]
-  , rsKey          :: BS.ByteString
+  { skPathFromRoot :: [BS.ByteString]
+  , skKey          :: BS.ByteString
   } deriving (Eq, Show, Ord)
 
 makeKeyBytes :: StoreKey -> BS.ByteString
-makeKeyBytes StoreKey{..} =  mconcat rsPathFromRoot <> rsKey
+makeKeyBytes StoreKey{..} =  mconcat skPathFromRoot <> skKey
 
 --------------------------------------------------------------------------------
 -- | Store
@@ -107,8 +107,8 @@ makeStoreKey
   -> StoreKey
 makeStoreKey (Store path) k =
   StoreKey
-    { rsKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
-    , rsPathFromRoot = path
+    { skKey = prefix (Proxy @k) (Proxy @ns) <> k ^. rawKey
+    , skPathFromRoot = path
     }
 
 

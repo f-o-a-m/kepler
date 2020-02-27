@@ -6,7 +6,7 @@ module SimpleStorage.Modules.SimpleStorage.Query
 
 import           Data.Proxy
 import           Polysemy                                   (Members)
-import           SimpleStorage.Modules.SimpleStorage.Keeper (storeKey)
+import           SimpleStorage.Modules.SimpleStorage.Keeper (store)
 import           SimpleStorage.Modules.SimpleStorage.Types  (Count, CountKey)
 import qualified Tendermint.SDK.BaseApp                     as BaseApp
 
@@ -20,4 +20,4 @@ querier
   => BaseApp.RouteQ QueryApi r
 querier =
   BaseApp.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
-    storeKey (Proxy :: Proxy r)
+    store (Proxy :: Proxy r)
