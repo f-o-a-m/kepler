@@ -11,35 +11,35 @@ module Tendermint.SDK.Test.SimpleStorage
   , getAllCounts
   ) where
 
-import           Control.Lens                     (iso, (^.))
-import           Crypto.Hash                      (SHA256 (..), hashWith)
-import           Data.Bifunctor                   (first)
-import           Data.ByteArray                   (convert)
-import qualified Data.ByteArray.Base64String      as Base64
-import           Data.ByteString                  (ByteString)
-import           Data.Int                         (Int32)
+import           Control.Lens                      (iso, (^.))
+import           Crypto.Hash                       (SHA256 (..), hashWith)
+import           Data.Bifunctor                    (first)
+import           Data.ByteArray                    (convert)
+import qualified Data.ByteArray.Base64String       as Base64
+import           Data.ByteString                   (ByteString)
+import           Data.Int                          (Int32)
 import           Data.Proxy
-import qualified Data.Serialize                   as Serialize
-import           Data.Serialize.Text              ()
-import           Data.String.Conversions          (cs)
-import           Data.Validation                  (Validation (..))
-import           Data.Word                        (Word64)
-import           GHC.Generics                     (Generic)
-import           GHC.TypeLits                     (symbolVal)
+import qualified Data.Serialize                    as Serialize
+import           Data.Serialize.Text               ()
+import           Data.String.Conversions           (cs)
+import           Data.Validation                   (Validation (..))
+import           Data.Word                         (Word64)
+import           GHC.Generics                      (Generic)
+import           GHC.TypeLits                      (symbolVal)
 import           Polysemy
-import           Polysemy.Error                   (Error, catch, throw)
+import           Polysemy.Error                    (Error, catch, throw)
 import           Servant.API
-import           Tendermint.SDK.Application       (Module (..), ModuleEffs)
-import qualified Tendermint.SDK.BaseApp           as BA
-import           Tendermint.SDK.Codec             (HasCodec (..))
-import qualified Tendermint.SDK.Modules.Bank      as B
+import           Tendermint.SDK.Application        (Module (..), ModuleEffs)
+import qualified Tendermint.SDK.BaseApp            as BA
+import           Tendermint.SDK.Codec              (HasCodec (..))
+import qualified Tendermint.SDK.Modules.Bank       as B
 --import qualified Tendermint.SDK.BaseApp.Store.List as L
-import           Tendermint.SDK.Types.Address     (Address)
-import           Tendermint.SDK.Types.Message     (HasMessageType (..),
-                                                   Msg (..),
-                                                   ValidateMessage (..))
-import           Tendermint.SDK.Types.Transaction (Tx (..))
 import qualified Tendermint.SDK.BaseApp.Store.List as L
+import           Tendermint.SDK.Types.Address      (Address)
+import           Tendermint.SDK.Types.Message      (HasMessageType (..),
+                                                    Msg (..),
+                                                    ValidateMessage (..))
+import           Tendermint.SDK.Types.Transaction  (Tx (..))
 
 
 --------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ updateCount
   :: Member SimpleStorageKeeper r
   => Count
   -> Sem r ()
-updateCount count = 
+updateCount count =
   putCount count
 
 
@@ -188,7 +188,7 @@ eval
      Members BA.TxEffs r
   => forall a. (Sem (SimpleStorageKeeper ': r) a -> Sem r a)
 eval = interpret (\case
-  PutCount count -> do 
+  PutCount count -> do
     BA.put store CountKey count
     L.append count countsList
   GetCount -> BA.get store CountKey
