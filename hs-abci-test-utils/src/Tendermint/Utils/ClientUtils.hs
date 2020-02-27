@@ -3,21 +3,17 @@ module Tendermint.Utils.ClientUtils where
 import           Control.Monad                          (unless)
 import           Data.Aeson                             (ToJSON)
 import           Data.Aeson.Encode.Pretty               (encodePretty)
-import           Data.Either                            (partitionEithers)
 import           Data.Proxy
 import           Data.String.Conversions                (cs)
-import           Data.Text                              (Text)
 import           Data.Word                              (Word32)
 import           Network.ABCI.Types.Messages.FieldTypes (Event (..))
 import qualified Network.Tendermint.Client              as RPC
 import           Tendermint.SDK.BaseApp.Errors          (AppError (..))
-import           Tendermint.SDK.BaseApp.Events          (ToEvent (..))
 import           Tendermint.SDK.BaseApp.Query           (QueryResult (..))
 import           Tendermint.Utils.Client                (QueryClientResponse (..),
                                                          SynchronousResponse (..),
                                                          TxClientResponse (..),
                                                          TxResponse (..))
-import           Tendermint.Utils.Events                (FromEvent (..))
 
 --------------------------------------------------------------------------------
 -- | Tx helpers
@@ -38,16 +34,13 @@ assertTx m = do
 -- get the logged events from a deliver response,
 deliverTxEvents
   :: Monad m
-  => FromEvent e
   => Proxy e
   -> SynchronousResponse a b
-  -> m ([Text],[e])
-deliverTxEvents pE SynchronousResponse{deliverTxResponse} =
+  -> m [Event]
+deliverTxEvents _ SynchronousResponse{deliverTxResponse} =
   case deliverTxResponse of
-    TxResponse {txResponseEvents} ->
-      let eventName = cs $ makeEventType pE
-          es = filter ((== eventName) . eventType) txResponseEvents
-      in return . partitionEithers . map fromEvent $ es
+    TxResponse {txResponseEvents} -> do
+      pure txResponseEvents
     TxError appError -> fail (show appError)
 
 -- check for a specific check response code

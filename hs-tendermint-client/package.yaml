@@ -72,5 +72,9 @@ tests:
       - hs-abci-types
       - hs-tendermint-client
       - hspec
+      - lens-aeson
       - lens
+      - text
+      - unordered-containers
       - string-conversions
+      - hs-abci-sdk
