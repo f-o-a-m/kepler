@@ -7,6 +7,8 @@ module Tendermint.SDK.BaseApp.Store.MemoryStore
   , initDB
   -- * Eval
   , evalStoreEffs
+  , evalRead
+  , evalWrite
   ) where
 
 
