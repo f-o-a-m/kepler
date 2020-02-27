@@ -213,32 +213,6 @@ V3 :: Verbosity
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Logger.Severity
 instance GHC.Classes.Eq Tendermint.SDK.BaseApp.Logger.Severity
 
-module Tendermint.SDK.BaseApp.Events
-
--- | A class representing a type that can be emitted as an event in the |
---   event logs for the deliverTx response.
-class ToEvent e
-makeEventType :: ToEvent e => Proxy e -> String
-makeEventData :: ToEvent e => e -> [(ByteString, ByteString)]
-makeEventData :: (ToEvent e, ToJSON e) => e -> [(ByteString, ByteString)]
-
--- | Special event wrapper to add contextual event_type info
-newtype ContextEvent t
-ContextEvent :: t -> ContextEvent t
-makeEvent :: ToEvent e => e -> Event
-emit :: ToEvent e => Member (Output Event) r => e -> Sem r ()
-logEvent :: forall e r. (ToJSON e, ToEvent e, Select e) => Member Logger r => e -> Sem r ()
-data Event
-Event :: Text -> [KVPair] -> Event
-
--- | Type of Event
-[eventType] :: Event -> Text
-
--- | Event attributes
-[eventAttributes] :: Event -> [KVPair]
-instance (Data.Aeson.Types.ToJSON.ToJSON a, Tendermint.SDK.BaseApp.Events.ToEvent a) => Data.Aeson.Types.ToJSON.ToJSON (Tendermint.SDK.BaseApp.Events.ContextEvent a)
-instance Tendermint.SDK.BaseApp.Logger.Select a => Tendermint.SDK.BaseApp.Logger.Select (Tendermint.SDK.BaseApp.Events.ContextEvent a)
-
 module Tendermint.SDK.BaseApp.Logger.Katip
 data LogConfig
 LogConfig :: Namespace -> LogContexts -> LogEnv -> LogConfig
@@ -278,8 +252,8 @@ data Metrics m a
 
 -- | Times an action and records it in a histogram
 [WithTimer] :: HistogramName -> m a -> Metrics m a
-withTimer :: forall r_aQSJ a_aQHF. MemberWithError Metrics r_aQSJ => HistogramName -> Sem r_aQSJ a_aQHF -> Sem r_aQSJ a_aQHF
-incCount :: forall r_aQSH. MemberWithError Metrics r_aQSH => CountName -> Sem r_aQSH ()
+withTimer :: forall r_aM7d a_aLYZ. MemberWithError Metrics r_aM7d => HistogramName -> Sem r_aM7d a_aLYZ -> Sem r_aM7d a_aLYZ
+incCount :: forall r_aM7b. MemberWithError Metrics r_aM7b => CountName -> Sem r_aM7b ()
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Metrics.HistogramName
 instance GHC.Classes.Eq Tendermint.SDK.BaseApp.Metrics.HistogramName
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Metrics.CountName
@@ -335,6 +309,37 @@ encode :: HasCodec a => a -> ByteString
 decode :: HasCodec a => ByteString -> Either Text a
 defaultSDKAesonOptions :: String -> Options
 instance Tendermint.SDK.Codec.HasCodec ()
+instance Tendermint.SDK.Codec.HasCodec GHC.Base.String
+instance Tendermint.SDK.Codec.HasCodec Data.Text.Internal.Text
+instance Tendermint.SDK.Codec.HasCodec Data.ByteString.Internal.ByteString
+
+module Tendermint.SDK.BaseApp.Events
+
+-- | A class representing a type that can be emitted as an event in the |
+--   event logs for the deliverTx response.
+class ToEvent e
+toEvent :: ToEvent e => e -> Event
+toEvent :: (ToEvent e, Generic e, GToEvent (Rep e)) => e -> Event
+
+-- | Special event wrapper to add contextual event_type info
+newtype ContextEvent t
+ContextEvent :: t -> ContextEvent t
+emit :: ToEvent e => Member (Output Event) r => e -> Sem r ()
+logEvent :: forall e r. (ToJSON e, ToEvent e, Select e) => Member Logger r => e -> Sem r ()
+data Event
+Event :: Text -> [KVPair] -> Event
+
+-- | Type of Event
+[eventType] :: Event -> Text
+
+-- | Event attributes
+[eventAttributes] :: Event -> [KVPair]
+instance (Data.Aeson.Types.ToJSON.ToJSON a, Tendermint.SDK.BaseApp.Events.ToEvent a) => Data.Aeson.Types.ToJSON.ToJSON (Tendermint.SDK.BaseApp.Events.ContextEvent a)
+instance Tendermint.SDK.BaseApp.Logger.Select a => Tendermint.SDK.BaseApp.Logger.Select (Tendermint.SDK.BaseApp.Events.ContextEvent a)
+instance forall k (f :: k -> *) (d :: GHC.Generics.Meta). (Tendermint.SDK.BaseApp.Events.GToNamedEventPrimatives f, GHC.Generics.Datatype d) => Tendermint.SDK.BaseApp.Events.GToEvent (GHC.Generics.D1 d f)
+instance forall k (f :: k -> *) (c :: GHC.Generics.Meta). Tendermint.SDK.BaseApp.Events.GToNamedEventPrimatives f => Tendermint.SDK.BaseApp.Events.GToNamedEventPrimatives (GHC.Generics.C1 c f)
+instance (GHC.Generics.Selector s, Tendermint.SDK.Codec.HasCodec a) => Tendermint.SDK.BaseApp.Events.GToNamedEventPrimatives (GHC.Generics.S1 s (GHC.Generics.K1 i a))
+instance forall k (a :: k -> *) (b :: k -> *). (Tendermint.SDK.BaseApp.Events.GToNamedEventPrimatives a, Tendermint.SDK.BaseApp.Events.GToNamedEventPrimatives b) => Tendermint.SDK.BaseApp.Events.GToNamedEventPrimatives (a GHC.Generics.:*: b)
 
 module Tendermint.SDK.Types.Address
 
@@ -597,20 +602,20 @@ data WriteStore m a
 [StorePut] :: RawStoreKey -> ByteString -> WriteStore m ()
 [StoreDelete] :: RawStoreKey -> WriteStore m ()
 put :: forall k r ns. IsKey k ns => HasCodec (Value k ns) => Member WriteStore r => StoreKey ns -> k -> Value k ns -> Sem r ()
-storePut :: forall r_a1cpt. MemberWithError WriteStore r_a1cpt => RawStoreKey -> ByteString -> Sem r_a1cpt ()
+storePut :: forall r_a1cRH. MemberWithError WriteStore r_a1cRH => RawStoreKey -> ByteString -> Sem r_a1cRH ()
 delete :: forall k ns r. IsKey k ns => Member WriteStore r => StoreKey ns -> k -> Sem r ()
-storeDelete :: forall r_a1cpw. MemberWithError WriteStore r_a1cpw => RawStoreKey -> Sem r_a1cpw ()
+storeDelete :: forall r_a1cRK. MemberWithError WriteStore r_a1cRK => RawStoreKey -> Sem r_a1cRK ()
 data CommitBlock m a
 [CommitBlock] :: CommitBlock m Base64String
-commitBlock :: forall r_a1cvr. MemberWithError CommitBlock r_a1cvr => Sem r_a1cvr Base64String
+commitBlock :: forall r_a1cXF. MemberWithError CommitBlock r_a1cXF => Sem r_a1cXF Base64String
 data Transaction m a
 [BeginTransaction] :: Transaction m ()
 [Rollback] :: Transaction m ()
 [Commit] :: Transaction m CommitResponse
-beginTransaction :: forall r_a1cHu. MemberWithError Transaction r_a1cHu => Sem r_a1cHu ()
+beginTransaction :: forall r_a1d9J. MemberWithError Transaction r_a1d9J => Sem r_a1d9J ()
 withSandbox :: forall r a. Members [Transaction, Resource, Error AppError] r => Sem r a -> Sem r a
 withTransaction :: forall r a. Members [Transaction, Resource, Error AppError] r => Sem r a -> Sem r (a, CommitResponse)
-commit :: forall r_a1cHw. MemberWithError Transaction r_a1cHw => Sem r_a1cHw CommitResponse
+commit :: forall r_a1d9L. MemberWithError Transaction r_a1d9L => Sem r_a1d9L CommitResponse
 data Scope
 Consensus :: Scope
 QueryAndMempool :: Scope
@@ -879,7 +884,7 @@ data GasMeter m a
 newtype GasAmount
 GasAmount :: Int64 -> GasAmount
 [unGasAmount] :: GasAmount -> Int64
-withGas :: forall r_a1y5e a_a1xUJ. MemberWithError GasMeter r_a1y5e => GasAmount -> Sem r_a1y5e a_a1xUJ -> Sem r_a1y5e a_a1xUJ
+withGas :: forall r_a1yp5 a_a1yeA. MemberWithError GasMeter r_a1yp5 => GasAmount -> Sem r_a1yp5 a_a1yeA -> Sem r_a1yp5 a_a1yeA
 eval :: Members [Error AppError, State GasAmount] r => Sem (GasMeter : r) a -> Sem r a
 doNothing :: forall r. forall a. Sem (GasMeter : r) a -> Sem r a
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Gas.GasAmount
@@ -1102,9 +1107,8 @@ Event :: Text -> [KVPair] -> Event
 -- | A class representing a type that can be emitted as an event in the |
 --   event logs for the deliverTx response.
 class ToEvent e
-makeEventType :: ToEvent e => Proxy e -> String
-makeEventData :: ToEvent e => e -> [(ByteString, ByteString)]
-makeEventData :: (ToEvent e, ToJSON e) => e -> [(ByteString, ByteString)]
+toEvent :: ToEvent e => e -> Event
+toEvent :: (ToEvent e, Generic e, GToEvent (Rep e)) => e -> Event
 
 -- | Special event wrapper to add contextual event_type info
 newtype ContextEvent t
@@ -1112,7 +1116,7 @@ ContextEvent :: t -> ContextEvent t
 emit :: ToEvent e => Member (Output Event) r => e -> Sem r ()
 logEvent :: forall e r. (ToJSON e, ToEvent e, Select e) => Member Logger r => e -> Sem r ()
 data GasMeter m a
-withGas :: forall r_a1y5e a_a1xUJ. MemberWithError GasMeter r_a1y5e => GasAmount -> Sem r_a1y5e a_a1xUJ -> Sem r_a1y5e a_a1xUJ
+withGas :: forall r_a1yp5 a_a1yeA. MemberWithError GasMeter r_a1yp5 => GasAmount -> Sem r_a1yp5 a_a1yeA -> Sem r_a1yp5 a_a1yeA
 
 -- | Effect allowing for console logging.
 data Logger m a
@@ -1138,8 +1142,8 @@ V1 :: Verbosity
 V2 :: Verbosity
 V3 :: Verbosity
 data Metrics m a
-incCount :: forall r_aQSH. MemberWithError Metrics r_aQSH => CountName -> Sem r_aQSH ()
-withTimer :: forall r_aQSJ a_aQHF. MemberWithError Metrics r_aQSJ => HistogramName -> Sem r_aQSJ a_aQHF -> Sem r_aQSJ a_aQHF
+incCount :: forall r_aM7b. MemberWithError Metrics r_aM7b => CountName -> Sem r_aM7b ()
+withTimer :: forall r_aM7d a_aLYZ. MemberWithError Metrics r_aM7d => HistogramName -> Sem r_aM7d a_aLYZ -> Sem r_aM7d a_aLYZ
 data CountName
 CountName :: Text -> [(Text, Text)] -> CountName
 [countName] :: CountName -> Text
@@ -1243,8 +1247,8 @@ data Accounts m a
 [PutAccount] :: Address -> Account -> Accounts m ()
 [GetAccount] :: Address -> Accounts m (Maybe Account)
 type AuthEffs = '[Accounts, Error AuthError]
-putAccount :: forall r_a1Ikw. MemberWithError Accounts r_a1Ikw => Address -> Account -> Sem r_a1Ikw ()
-getAccount :: forall r_a1Ikz. MemberWithError Accounts r_a1Ikz => Address -> Sem r_a1Ikz (Maybe Account)
+putAccount :: forall r_a1IxQ. MemberWithError Accounts r_a1IxQ => Address -> Account -> Sem r_a1IxQ ()
+getAccount :: forall r_a1IxT. MemberWithError Accounts r_a1IxT => Address -> Sem r_a1IxT (Maybe Account)
 eval :: Members [ReadStore, WriteStore, Error AppError] r => Sem (Accounts : (Error AuthError : r)) a -> Sem r a
 createAccount :: Members [Accounts, Error AuthError] r => Address -> Sem r Account
 type Api = QueryApi AuthContents
@@ -1335,8 +1339,8 @@ type BankEffs = '[BankKeeper, Error BankError]
 data BankKeeper m a
 [GetBalance] :: Address -> CoinId -> BankKeeper m Coin
 [PutBalance] :: Address -> Coin -> BankKeeper m ()
-putBalance :: forall r_a1Nc1. MemberWithError BankKeeper r_a1Nc1 => Address -> Coin -> Sem r_a1Nc1 ()
-getBalance :: forall r_a1NbY. MemberWithError BankKeeper r_a1NbY => Address -> CoinId -> Sem r_a1NbY Coin
+putBalance :: forall r_a1NDL. MemberWithError BankKeeper r_a1NDL => Address -> Coin -> Sem r_a1NDL ()
+getBalance :: forall r_a1NDI. MemberWithError BankKeeper r_a1NDI => Address -> CoinId -> Sem r_a1NDI Coin
 eval :: Member (Error AppError) r => Members AuthEffs r => forall a. Sem (BankKeeper : (Error BankError : r)) a -> Sem r a
 transfer :: Members [Logger, Output Event] r => Members BankEffs r => Address -> Coin -> Address -> Sem r ()
 burn :: Members BankEffs r => Address -> Coin -> Sem r ()

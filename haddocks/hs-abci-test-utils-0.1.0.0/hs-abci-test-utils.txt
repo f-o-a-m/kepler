@@ -8,12 +8,17 @@
 @version 0.1.0.0
 
 module Tendermint.Utils.Events
-
--- | A class that can parse event log items in the deliverTx response.
---   Primarily | useful for client applications and testing.
+class GFromNamedEventPrimatives f
+gfromNamedEventPrimatives :: GFromNamedEventPrimatives f => [(ByteString, ByteString)] -> Either Text (f a)
+class GFromEvent f
+gfromEventData :: GFromEvent f => Event -> Either Text (f p)
 class ToEvent e => FromEvent e
 fromEvent :: FromEvent e => Event -> Either Text e
-fromEvent :: (FromEvent e, FromJSON e) => Event -> Either Text e
+fromEvent :: (FromEvent e, Generic e, GFromEvent (Rep e)) => Event -> Either Text e
+instance (Tendermint.Utils.Events.GFromNamedEventPrimatives f, GHC.Generics.Datatype d) => Tendermint.Utils.Events.GFromEvent (GHC.Generics.D1 d f)
+instance (GHC.Generics.Selector s, Tendermint.SDK.Codec.HasCodec a) => Tendermint.Utils.Events.GFromNamedEventPrimatives (GHC.Generics.S1 s (GHC.Generics.K1 i a))
+instance Tendermint.Utils.Events.GFromNamedEventPrimatives f => Tendermint.Utils.Events.GFromNamedEventPrimatives (GHC.Generics.C1 c f)
+instance (Tendermint.Utils.Events.GFromNamedEventPrimatives a, Tendermint.Utils.Events.GFromNamedEventPrimatives b) => Tendermint.Utils.Events.GFromNamedEventPrimatives (a GHC.Generics.:*: b)
 
 module Tendermint.Utils.QueryClient.Types
 
@@ -178,7 +183,7 @@ module Tendermint.Utils.ClientUtils
 
 -- | Tx helpers
 assertTx :: Monad m => m (TxClientResponse a b) -> m (SynchronousResponse a b)
-deliverTxEvents :: Monad m => FromEvent e => Proxy e -> SynchronousResponse a b -> m ([Text], [e])
+deliverTxEvents :: Monad m => Proxy e -> SynchronousResponse a b -> m [Event]
 ensureCheckResponseCode :: Monad m => Word32 -> SynchronousResponse a b -> m ()
 ensureDeliverResponseCode :: Monad m => Word32 -> SynchronousResponse a b -> m ()
 ensureResponseCodes :: Monad m => (Word32, Word32) -> SynchronousResponse a b -> m ()

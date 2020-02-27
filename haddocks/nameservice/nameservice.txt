@@ -78,6 +78,7 @@ instance GHC.Show.Show Nameservice.Modules.Nameservice.Types.WhoisMessage
 instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Types.WhoisMessage
 instance GHC.Show.Show Nameservice.Modules.Nameservice.Types.Whois
 instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Types.Whois
+instance Tendermint.SDK.Codec.HasCodec Nameservice.Modules.Nameservice.Types.Name
 instance Data.Aeson.Types.FromJSON.FromJSON Nameservice.Modules.Nameservice.Types.Name
 instance Data.Aeson.Types.ToJSON.ToJSON Nameservice.Modules.Nameservice.Types.Name
 instance GHC.Generics.Generic Nameservice.Modules.Nameservice.Types.Name
