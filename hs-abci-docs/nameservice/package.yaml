@@ -188,6 +188,12 @@ tests:
     - hs-abci-test-utils
     - hs-tendermint-client
     - hspec
+    - aeson
     - mtl
     - nameservice
     - servant
+    - text
+    - unordered-containers
+    - lens-aeson
+    - lens
+    - string-conversions

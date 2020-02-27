@@ -1,9 +1,18 @@
 module Nameservice.Test.E2ESpec (spec) where
 
+import           Control.Concurrent                (forkIO)
+import           Control.Concurrent.MVar           (MVar, modifyMVar_, newMVar,
+                                                    readMVar)
+import           Control.Lens                      ((^?))
 import           Control.Monad                     (forM_, void)
 import           Control.Monad.Reader              (ReaderT, runReaderT)
+import qualified Data.Aeson                        as A
+import           Data.Aeson.Lens                   (key)
 import           Data.Default.Class                (def)
+import           Data.HashSet                      (fromList)
 import           Data.Proxy
+import           Data.String.Conversions           (cs)
+import           Data.Text                         (Text)
 import           Nameservice.Application
 import qualified Nameservice.Modules.Nameservice   as N
 import           Nameservice.Test.EventOrphans     ()
@@ -11,6 +20,7 @@ import qualified Network.Tendermint.Client         as RPC
 import           Servant.API                       ((:<|>) (..))
 import qualified Tendermint.SDK.Application.Module as M
 import           Tendermint.SDK.BaseApp.Errors     (AppError (..))
+import           Tendermint.SDK.BaseApp.Events     (Event (..), ToEvent (..))
 import           Tendermint.SDK.BaseApp.Query      (QueryArgs (..),
                                                     QueryResult (..),
                                                     defaultQueryArgs)
@@ -31,28 +41,32 @@ import           Tendermint.Utils.ClientUtils      (assertQuery, assertTx,
                                                     ensureQueryResponseCode,
                                                     ensureResponseCodes,
                                                     rpcConfig)
+import           Tendermint.Utils.Events           (FromEvent (..))
 import           Tendermint.Utils.User             (makeSignerFromUser,
                                                     makeUser)
+
 import           Test.Hspec
+
+
 
 spec :: Spec
 spec = do
   let satoshi = N.Name "satoshi"
       faucetAmount = 1000
 
-  beforeAll (forM_ [user1, user2] $ faucetUser faucetAmount) $ do
+  beforeAll (testInit faucetAmount) $ do
 
     describe "Nameservice Spec" $ do
-      it "Can query /health to make sure the node is alive" $ do
+      it "Can query /health to make sure the node is alive" $ const $ do
         resp <- RPC.runTendermintM rpcConfig $ RPC.health
         resp `shouldBe` RPC.ResultHealth
 
-      it "Can query account balances" $ do
+      it "Can query account balances" $ const $ do
         void . assertQuery . RPC.runTendermintM rpcConfig $
           let queryArgs = defaultQueryArgs { queryArgsData = signerAddress user1 }
           in getBalance queryArgs N.nameserviceCoinId
 
-      it "Can create a name" $ do
+      it "Can create a name" $ \tenv -> do
         let val = "hello world"
             msg = N.BuyName
               { buyNameBid = 0
@@ -70,13 +84,16 @@ spec = do
               { txOptsSigner = user1
               , txOptsGas = 0
               }
+
+        -- Add event to be monitored and later checked for
+        addEventToCheck tenv claimedLog
+
         resp <- assertTx . runTxClientM $ buyName opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @N.NameClaimed) resp
-        errs `shouldBe` []
-        filter (claimedLog ==) es `shouldBe` [claimedLog]
+        [evclaimedLog] <- deliverTxEvents (Proxy @N.NameClaimed) resp
+        fromEvent evclaimedLog `shouldBe` Right claimedLog
 
-      it "Can query for a name" $ do
+      it "Can query for a name" $ const $ do
         let expected = N.Whois
               { whoisValue = "hello world"
               , whoisOwner = signerAddress user1
@@ -86,13 +103,13 @@ spec = do
           getWhois defaultQueryArgs { queryArgsData = satoshi }
         foundWhois `shouldBe` expected
 
-      it "Can query for a name that doesn't exist" $ do
+      it "Can query for a name that doesn't exist" $ const $ do
         let nope = N.Name "nope"
         resp <- RPC.runTendermintM rpcConfig $
           getWhois defaultQueryArgs { queryArgsData = nope }
         ensureQueryResponseCode 2 resp
 
-      it "Can set a name value" $ do
+      it "Can set a name value" $ \tenv -> do
         let oldVal = "hello world"
             newVal = "goodbye to a world"
             msg = N.SetName
@@ -109,11 +126,14 @@ spec = do
               { txOptsSigner = user1
               , txOptsGas = 0
               }
+
+        -- Add event to be monitored and later checked for
+        addEventToCheck tenv remappedLog
+
         resp <- assertTx . runTxClientM $ setName opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @N.NameRemapped) resp
-        errs `shouldBe` []
-        filter (remappedLog ==) es `shouldBe` [remappedLog]
+        [evremappedLog] <- deliverTxEvents (Proxy @N.NameRemapped) resp
+        fromEvent evremappedLog `shouldBe` Right remappedLog
 
         let expected = N.Whois
               { whoisValue = "goodbye to a world"
@@ -124,7 +144,7 @@ spec = do
           getWhois defaultQueryArgs { queryArgsData = satoshi }
         foundWhois `shouldBe` expected
 
-      it "Can fail to set a name" $ do
+      it "Can fail to set a name" $ const $ do
         -- try to set a name without being the owner
         let msg = N.SetName
               { setNameName = satoshi
@@ -138,7 +158,7 @@ spec = do
         resp <- assertTx . runTxClientM $ setName opts msg
         ensureResponseCodes (0,2) resp
 
-      it "Can buy an existing name" $ do
+      it "Can buy an existing name" $ \tenv -> do
         balance1 <- getUserBalance user1
         balance2 <- getUserBalance user2
         N.Whois{whoisPrice} <- fmap queryResultData . assertQuery . RPC.runTendermintM rpcConfig $
@@ -157,16 +177,26 @@ spec = do
               , nameClaimedValue = newVal
               , nameClaimedBid = purchaseAmount
               }
+            transferLog = B.TransferEvent
+              { transferEventAmount = purchaseAmount
+              , transferEventCoinId = N.nameserviceCoinId
+              , transferEventTo = signerAddress user1
+              , transferEventFrom = signerAddress user2
+              }
             opts = TxOpts
               { txOptsSigner = user2
               , txOptsGas = 0
               }
 
+        -- Add event to be monitored and later checked for
+        addEventToCheck tenv transferLog
+        addEventToCheck tenv claimedLog
+
         resp <- assertTx . runTxClientM $ buyName opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @N.NameClaimed) resp
-        errs `shouldBe` []
-        filter (claimedLog ==) es `shouldBe` [claimedLog]
+        [evtransferLog, evclaimedLog] <- deliverTxEvents (Proxy @N.NameClaimed) resp
+        fromEvent evtransferLog `shouldBe` Right transferLog
+        fromEvent evclaimedLog `shouldBe` Right claimedLog
 
         -- check for updated balances - seller: addr1, buyer: addr2
         sellerFoundAmount <- getUserBalance user1
@@ -185,13 +215,14 @@ spec = do
 
       -- @NOTE: this is possibly a problem with the go application too
       -- https://cosmos.network/docs/tutorial/buy-name.html#msg
-      it "Can buy self-owned names and make a profit " $ do
+      it "Can buy self-owned names and make a profit " $ \tenv -> do
         -- check balance before
         beforeBuyAmount <- getUserBalance user2
         -- buy
-        let val = "hello (again) world"
+        let bid = 500
+            val = "hello (again) world"
             msg = N.BuyName
-              { buyNameBid = 500
+              { buyNameBid = bid
               , buyNameName = satoshi
               , buyNameValue = val
               , buyNameBuyer = signerAddress user2
@@ -200,25 +231,35 @@ spec = do
               { nameClaimedOwner = signerAddress user2
               , nameClaimedName = satoshi
               , nameClaimedValue = val
-              , nameClaimedBid = 500
+              , nameClaimedBid = bid
+              }
+            transferLog = B.TransferEvent
+              { transferEventAmount = bid
+              , transferEventCoinId = N.nameserviceCoinId
+              , transferEventTo = signerAddress user2
+              , transferEventFrom = signerAddress user2
               }
             opts = TxOpts
               { txOptsSigner = user2
               , txOptsGas = 0
               }
 
+        -- Add event to be monitored and later checked for
+        addEventToCheck tenv transferLog
+        addEventToCheck tenv claimedLog
+
         resp <- assertTx . runTxClientM $ buyName opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @N.NameClaimed) resp
-        errs `shouldBe` []
-        filter (claimedLog ==) es `shouldBe` [claimedLog]
+        [evtransferLog, evclaimedLog] <- deliverTxEvents (Proxy @N.NameClaimed) resp
+        fromEvent evtransferLog `shouldBe` Right transferLog
+        fromEvent evclaimedLog `shouldBe` Right claimedLog
 
         -- check balance after
         afterBuyAmount <- getUserBalance user2
         -- owner/buyer still profits
         afterBuyAmount `shouldSatisfy` (> beforeBuyAmount)
 
-      it "Can fail to buy a name" $ do
+      it "Can fail to buy a name" $ const $ do
         -- try to buy at a lower price
         let msg = N.BuyName
               { buyNameBid = 100
@@ -234,7 +275,7 @@ spec = do
         resp <- assertTx . runTxClientM $ buyName opts msg
         ensureResponseCodes (0,1) resp
 
-      it "Can delete names" $ do
+      it "Can delete names" $ \tenv -> do
         let msg = N.DeleteName
               { deleteNameOwner = signerAddress user2
               , deleteNameName = satoshi
@@ -248,18 +289,20 @@ spec = do
               , txOptsGas = 0
               }
 
+        -- Add event to be monitored and later checked for
+        addEventToCheck tenv deletedLog
+
         resp <- assertTx . runTxClientM $ deleteName opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @N.NameDeleted) resp
-        errs `shouldBe` []
-        filter (deletedLog ==) es `shouldBe` [deletedLog]
+        [evdeletedLog] <- deliverTxEvents (Proxy @N.NameDeleted) resp
+        fromEvent evdeletedLog `shouldBe` Right deletedLog
 
         respQ <- RPC.runTendermintM rpcConfig $
           getWhois defaultQueryArgs { queryArgsData = satoshi }
         ensureQueryResponseCode 2 respQ
 
 
-      it "Can fail a transfer" $ do
+      it "Can fail a transfer" $ const $ do
         addr2Balance <- getUserBalance user2
         let tooMuchToTransfer = addr2Balance + 1
             msg = B.Transfer
@@ -276,7 +319,7 @@ spec = do
         resp <- assertTx . runTxClientM $ transfer opts msg
         ensureResponseCodes (0,1) resp
 
-      it "Can transfer" $ do
+      it "Can transfer" $ \tenv -> do
         balance1 <- getUserBalance user1
         balance2 <- getUserBalance user2
         let transferAmount = 1
@@ -298,17 +341,25 @@ spec = do
               , txOptsGas = 0
               }
 
+        -- Add event to be monitored and later checked for
+        addEventToCheck tenv transferLog
+
         resp <- assertTx . runTxClientM $ transfer opts msg
         ensureResponseCodes (0,0) resp
-        (errs, es) <- deliverTxEvents (Proxy @B.TransferEvent) resp
-        errs `shouldBe` []
-        filter (transferLog ==) es `shouldBe` [transferLog]
+        [evtransferLog] <- deliverTxEvents (Proxy @B.TransferEvent) resp
+        fromEvent evtransferLog `shouldBe` Right transferLog
 
         -- check balances
         balance1' <- getUserBalance user1
         balance1' `shouldBe` balance1 - transferAmount
         balance2' <- getUserBalance user2
         balance2' `shouldBe` balance2 + transferAmount
+
+    it "Can monitor all events" $ \(TestEnv mvex mvres _) -> do
+      expected <- readMVar mvex
+      res <- readMVar mvres
+      fromList expected `shouldBe` fromList res
+
 
 faucetUser
   :: Auth.Amount
@@ -433,3 +484,40 @@ faucet
       txApiCP = Proxy
       txApiDP :: Proxy (M.ApplicationD NameserviceModules)
       txApiDP = Proxy
+
+-- Test Init
+data TestEnv = TestEnv (MVar [A.Value]) (MVar [A.Value]) [Text]
+
+testInit :: Auth.Amount -> IO TestEnv
+testInit faucetAmount = do
+  forM_ [user1, user2] $ faucetUser faucetAmount
+  expectedEventsMVar <- newMVar []
+  resultEventsMVar <- newMVar []
+  pure $ TestEnv expectedEventsMVar resultEventsMVar []
+
+addEventToCheck :: ToEvent a => TestEnv -> a -> IO ()
+addEventToCheck (TestEnv mvexpected mvres ses) ev = do
+  modifyMVar_ mvexpected $ \es -> pure $ es <> [A.toJSON . toEvent $ ev]
+  let evType = eventType (toEvent ev)
+  if evType`elem` ses
+    then pure ()
+    else startNewListener evType
+ where
+  startNewListener evType =
+    let subReq = RPC.RequestSubscribe ("tm.event = 'Tx' AND " <> evType <> " EXISTS")
+        forkTendermintM = void . forkIO . void . RPC.runTendermintM rpcConfig
+    in forkTendermintM $ RPC.subscribe subReq (handler evType)
+  handler evType res = case res ^? txEvents of
+    Nothing -> pure ()
+    Just v -> case A.fromJSON v of
+      A.Error _ -> error ("Failed to parse\n" <> cs (A.encode v) )
+      A.Success evs ->
+        let filterFn v' = evType == eventType v'
+            filteredEvs = filter filterFn evs
+        in modifyMVar_ mvres $ \es -> pure $ es <> map A.toJSON filteredEvs
+  txEvents = key "result"
+           . key "data"
+           . key "value"
+           . key "TxResult"
+           . key "result"
+           . key "events"

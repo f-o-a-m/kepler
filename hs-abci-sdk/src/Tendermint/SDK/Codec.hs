@@ -25,6 +25,7 @@ instance HasCodec () where
   encode = const ""
   decode = const $ pure ()
 
+
 instance HasCodec Word32 where
   encode = PB.runBuilder . PB.putFixed32
   decode = first cs . PB.runParser PB.getFixed32
@@ -40,6 +41,19 @@ instance HasCodec Word64 where
 instance HasCodec Int64 where
   encode = PB.runBuilder . PB.putFixed64 . PB.signedInt64ToWord
   decode = first cs . PB.runParser (PB.wordToSignedInt64 <$> PB.getFixed64)
+
+instance HasCodec String where
+  encode = cs
+  decode = Right . cs
+
+instance HasCodec Text where
+  encode = cs
+  decode = Right . cs
+
+instance HasCodec BS.ByteString where
+  encode = id
+  decode = Right
+
 
 defaultSDKAesonOptions :: String -> Options
 defaultSDKAesonOptions prefix = aesonDrop (length prefix) snakeCase
