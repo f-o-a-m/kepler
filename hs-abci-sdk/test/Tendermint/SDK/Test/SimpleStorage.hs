@@ -8,6 +8,7 @@ module Tendermint.SDK.Test.SimpleStorage
   , simpleStorageCoinId
   , evalToIO
   , Count(..)
+  , getAllCounts
   ) where
 
 import           Control.Lens                     (iso, (^.))
@@ -38,6 +39,7 @@ import           Tendermint.SDK.Types.Message     (HasMessageType (..),
                                                    Msg (..),
                                                    ValidateMessage (..))
 import           Tendermint.SDK.Types.Transaction (Tx (..))
+import qualified Tendermint.SDK.BaseApp.Store.List as L
 
 
 --------------------------------------------------------------------------------
@@ -83,6 +85,17 @@ instance BA.IsKey Address SimpleStorageNamespace where
 instance BA.Queryable AmountPaid where
   type Name AmountPaid = "paid"
 
+-- | Counts
+
+data CountsKey = CountsKey
+
+instance BA.RawKey CountsKey where
+    rawKey = iso (\_ -> cs countsKey) (const CountsKey)
+      where
+        countsKey :: ByteString
+        countsKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("counts" :: String)
+
+
 --------------------------------------------------------------------------------
 -- Message Types
 --------------------------------------------------------------------------------
@@ -127,21 +140,23 @@ instance ValidateMessage UpdatePaidCountTx where
 store :: BA.Store SimpleStorageNamespace
 store = BA.makeStore $ BA.KeyRoot (cs . symbolVal $ Proxy @SimpleStorageName)
 
+countsList :: L.StoreList Count
+countsList = L.makeStoreList CountsKey store
+
 data SimpleStorageKeeper m a where
     PutCount :: Count -> SimpleStorageKeeper m ()
     GetCount :: SimpleStorageKeeper m (Maybe Count)
     StoreAmountPaid :: Address -> AmountPaid -> SimpleStorageKeeper m ()
+    GetAllCounts :: SimpleStorageKeeper m [Count]
 
 makeSem ''SimpleStorageKeeper
-
---countsList :: L.StoreList Count
---countsList = L.makeStoreList countsKey
 
 updateCount
   :: Member SimpleStorageKeeper r
   => Count
   -> Sem r ()
-updateCount count = putCount count
+updateCount count = 
+  putCount count
 
 
 updatePaidCount
@@ -173,9 +188,12 @@ eval
      Members BA.TxEffs r
   => forall a. (Sem (SimpleStorageKeeper ': r) a -> Sem r a)
 eval = interpret (\case
-  PutCount count -> BA.put store CountKey count
+  PutCount count -> do 
+    BA.put store CountKey count
+    L.append count countsList
   GetCount -> BA.get store CountKey
   StoreAmountPaid from amt -> BA.put store from amt
+  GetAllCounts -> L.toList countsList
   )
 
 --------------------------------------------------------------------------------
