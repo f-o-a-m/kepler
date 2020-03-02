@@ -11,35 +11,34 @@ module Tendermint.SDK.Test.SimpleStorage
   , Count(..)
   ) where
 
-import           Control.Lens                      (iso, (^.))
-import           Crypto.Hash                       (SHA256 (..), hashWith)
-import           Data.Bifunctor                    (first)
-import           Data.ByteArray                    (convert)
-import qualified Data.ByteArray.Base64String       as Base64
-import           Data.ByteString                   (ByteString)
-import           Data.Int                          (Int32)
+import           Control.Lens                       (iso, (^.))
+import           Crypto.Hash                        (SHA256 (..), hashWith)
+import           Data.Bifunctor                     (first)
+import           Data.ByteArray                     (convert)
+import qualified Data.ByteArray.Base64String        as Base64
+import           Data.ByteString                    (ByteString)
+import           Data.Int                           (Int32)
 import           Data.Proxy
-import qualified Data.Serialize                    as Serialize
-import           Data.Serialize.Text               ()
-import           Data.String.Conversions           (cs)
-import           Data.Validation                   (Validation (..))
-import           Data.Word                         (Word64)
-import           GHC.Generics                      (Generic)
-import           GHC.TypeLits                      (symbolVal)
+import qualified Data.Serialize                     as Serialize
+import           Data.Serialize.Text                ()
+import           Data.String.Conversions            (cs)
+import           Data.Validation                    (Validation (..))
+import           Data.Word                          (Word64)
+import           GHC.Generics                       (Generic)
+import           GHC.TypeLits                       (symbolVal)
 import           Polysemy
-import           Polysemy.Error                    (Error, catch, throw)
+import           Polysemy.Error                     (Error, catch, throw)
 import           Servant.API
-import           Tendermint.SDK.Application        (Module (..), ModuleEffs)
-import qualified Tendermint.SDK.BaseApp            as BA
-import           Tendermint.SDK.Codec              (HasCodec (..))
-import qualified Tendermint.SDK.Modules.Bank       as B
---import qualified Tendermint.SDK.BaseApp.Store.List as L
-import qualified Tendermint.SDK.BaseApp.Store.List as L
-import           Tendermint.SDK.Types.Address      (Address)
-import           Tendermint.SDK.Types.Message      (HasMessageType (..),
-                                                    Msg (..),
-                                                    ValidateMessage (..))
-import           Tendermint.SDK.Types.Transaction  (Tx (..))
+import           Tendermint.SDK.Application         (Module (..), ModuleEffs)
+import qualified Tendermint.SDK.BaseApp             as BA
+import           Tendermint.SDK.Codec               (HasCodec (..))
+import qualified Tendermint.SDK.Modules.Bank        as B
+import qualified Tendermint.SDK.BaseApp.Store.Array as A
+import           Tendermint.SDK.Types.Address       (Address)
+import           Tendermint.SDK.Types.Message       (HasMessageType (..),
+                                                     Msg (..),
+                                                     ValidateMessage (..))
+import           Tendermint.SDK.Types.Transaction   (Tx (..))
 
 
 --------------------------------------------------------------------------------
@@ -95,6 +94,8 @@ instance BA.RawKey CountsKey where
         countsKey :: ByteString
         countsKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("counts" :: String)
 
+instance BA.IsKey CountsKey SimpleStorageNamespace where
+  type Value CountsKey SimpleStorageNamespace = A.Array Count
 
 --------------------------------------------------------------------------------
 -- Message Types
@@ -140,8 +141,8 @@ instance ValidateMessage UpdatePaidCountTx where
 store :: BA.Store SimpleStorageNamespace
 store = BA.makeStore $ BA.KeyRoot (cs . symbolVal $ Proxy @SimpleStorageName)
 
-countsList :: L.StoreList Count
-countsList = L.makeStoreList CountsKey store
+countsList :: A.Array Count
+countsList = A.makeArray CountsKey store
 
 data SimpleStorageKeeper m a where
     PutCount :: Count -> SimpleStorageKeeper m ()
@@ -190,10 +191,10 @@ eval
 eval = interpret (\case
   PutCount count -> do
     BA.put store CountKey count
-    L.append count countsList
+    A.append count countsList
   GetCount -> BA.get store CountKey
   StoreAmountPaid from amt -> BA.put store from amt
-  GetAllCounts -> L.toList countsList
+  GetAllCounts -> A.toList countsList
   )
 
 --------------------------------------------------------------------------------

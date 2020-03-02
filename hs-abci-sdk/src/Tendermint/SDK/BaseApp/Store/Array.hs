@@ -8,7 +8,7 @@ module Tendermint.SDK.BaseApp.Store.Array
   , deleteWhen
   , (!!)
   , elemIndex
-  , toArray
+  , toList
   ) where
 
 import           Control.Lens                  (iso, (^.))
@@ -182,12 +182,12 @@ foldl f b as = do
       | otherwise = error "Impossible case in Array foldl!"
 
 -- | View the 'Array' as a 'Array'.
-toArray
+toList
   :: Members [Error AppError, ReadStore] r
   => HasCodec a
   => Array a
   -> Sem r [a]
-toArray = foldl (flip (:)) []
+toList = foldl (flip (:)) []
 
 --------------------------------------------------------------------------------
 -- Internal functions

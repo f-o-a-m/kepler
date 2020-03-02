@@ -18,7 +18,7 @@ import           Test.Hspec
 spec :: Spec
 spec =
   beforeAll makeConfig $
-    describe "StoreList Spec" $ do
+    describe "Array Spec" $ do
 
       it "Can create an empty list" $ \config -> do
         res <- runToIO config $ A.toList valList
@@ -76,18 +76,21 @@ data Namespace
 store :: BA.Store Namespace
 store = BA.makeStore $ BA.KeyRoot "namespace"
 
-data ValListKey = ValListKey
+data ValArrayKey = ValArrayKey
 
-instance BA.RawKey ValListKey where
-    rawKey = iso (\_ -> cs valListKey) (const ValListKey)
+instance BA.RawKey ValArrayKey where
+    rawKey = iso (\_ -> cs valListKey) (const ValArrayKey)
       where
         valListKey :: ByteString
-        valListKey =  cs $ ("valList" :: String)
+        valListKey =  cs $ ("valArray" :: String)
+
+instance BA.IsKey ValArrayKey Namespace where
+  type Value ValArrayKey Namespace = A.Array Val
 
 newtype Val = Val Word64 deriving (Eq, Show, Num, HasCodec)
 
-valList :: A.StoreList Val
-valList = A.makeStoreList ValListKey store
+valList :: A.Array Val
+valList = A.makeArray ValArrayKey store
 
 --------------------------------------------------------------------------------
 -- Interpreter

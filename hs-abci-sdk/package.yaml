@@ -162,7 +162,7 @@ tests:
     - Tendermint.SDK.Test.GasSpec
     - Tendermint.SDK.Test.MetricsSpec
     - Tendermint.SDK.Test.SimpleStorage
-    - Tendermint.SDK.Test.ListSpec
+    - Tendermint.SDK.Test.ArraySpec
     - Tendermint.SDK.Test.QuerySpec
 
     ghc-options:
