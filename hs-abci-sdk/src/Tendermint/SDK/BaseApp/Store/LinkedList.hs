@@ -5,19 +5,23 @@ module Tendermint.SDK.BaseApp.Store.LinkedList
   , makeLinkedList
   , append
   , delete
+  , deleteWhen
   , foldl
   , toList
   , length
+  , elemIndex
+  , (!!)
   ) where
 
 import           Control.Lens                          (from, iso, to, view,
                                                         (^.))
+import           Control.Monad                         (when)
 import qualified Data.ByteArray.HexString              as Hex
 import           Data.String.Conversions               (cs)
 import           Data.Word                             (Word64)
 import           Polysemy                              (Members, Sem)
 import           Polysemy.Error                        (Error)
-import           Prelude                               hiding (foldl, length)
+import           Prelude                               hiding ((!!), foldl, length)
 import           Tendermint.SDK.BaseApp.Errors         (AppError,
                                                         SDKError (InternalError),
                                                         throwSDKError)
@@ -29,7 +33,7 @@ data LinkedList (a :: *) = LinkedList
   { linkedListStore :: S.Store (LinkedList a)
   }
 
-newtype Idx = Idx Word64 deriving (Eq, Show, Ord, Num)
+newtype Idx = Idx {unIdx :: Word64} deriving (Eq, Show, Ord, Num)
 
 instance S.RawKey Idx where
     rawKey = iso (\(Idx ma) -> ma ^. S.rawKey)
@@ -137,6 +141,7 @@ append a l@LinkedList{..} = do
       M.insert hd' a valueMap
       S.put linkedListStore HeadKey hd'
 
+-- | Delete the first occurence in the list.
 delete
   :: Members [Error AppError, S.ReadStore, S.WriteStore] r
   => HasCodec a
@@ -157,7 +162,7 @@ delete a l@LinkedList{..} = do
       mNext <- M.lookup hd idxMap
       if a'== a
         -- the list looks like (a : as)
-        then deleteHead hd mNext
+        then deleteHead l
         -- the list looks like (b : as)
         else delete' hd mNext
     where
@@ -170,36 +175,40 @@ delete a l@LinkedList{..} = do
             a' <- assertLookup currIdx valueMap
             mNext <- M.lookup currIdx idxMap
             if a == a'
-              then deleteNode prevIdx currIdx
+              then snipNode prevIdx currIdx l
               else delete' currIdx mNext
 
-      -- (a) - (n) - rest ~> (n) - (rest)
-      deleteHead hd mNext = do
-        let valueMap = getValueMap l
-            idxMap = getIdxMap l
-        M.delete hd valueMap
-        case mNext of
-          -- (a)
-          Nothing -> S.delete linkedListStore HeadKey
-          -- (a) - (next) - rest
-          Just next -> do
-            M.delete hd idxMap
-            S.put linkedListStore HeadKey next
-
-      -- (n) - (a) - (n') - rest ~> (n) - (n') - rest
-      deleteNode prevIdx currIdx = do
-        let valueMap = getValueMap l
-            idxMap = getIdxMap l
-        -- remove the value that currIdx points to
-        M.delete currIdx valueMap
-        mNext <- M.lookup currIdx idxMap
-        case mNext of
-          -- (n) - (a) ~> (n)
-          Nothing -> M.delete prevIdx idxMap
-          -- (n) - (a) - (n') ~> (n) - (n')
-          Just next -> do
-            M.delete currIdx idxMap
-            M.insert prevIdx next idxMap
+-- | Delete an element whenever the predicate evaluates to 'True'
+deleteWhen
+  :: Members [Error AppError, S.ReadStore, S.WriteStore] r
+  => HasCodec a
+  => (a -> Bool)
+  -> LinkedList a
+  -> Sem r ()
+deleteWhen p l@LinkedList{..} = do
+  mhd <- S.get linkedListStore HeadKey
+  case mhd of
+    Nothing -> pure ()
+    Just hd -> do
+      let valueMap = getValueMap l
+          idxMap = getIdxMap l
+      a <- assertLookup hd valueMap
+      mNext <- M.lookup hd idxMap
+      when (p a) $
+        deleteHead l
+      deleteWhen' hd mNext
+  where
+    deleteWhen' prevIdx mcurrIdx =
+      case mcurrIdx of
+        Nothing -> pure ()
+        Just currIdx -> do
+          let valueMap = getValueMap l
+              idxMap = getIdxMap l
+          a <- assertLookup currIdx valueMap
+          mNext <- M.lookup currIdx idxMap
+          when (p a) $
+            snipNode prevIdx currIdx l
+          deleteWhen' currIdx mNext
 
 foldl
   :: Members [Error AppError, S.ReadStore] r
@@ -222,7 +231,7 @@ foldl f b l@LinkedList{..} = do
           mNext <- M.lookup hd idxMap
           foldl' mNext $! f acc a
 
--- | View the 'StoreList' as a 'List'.
+-- | View the 'LinkedList' as a 'List'.
 toList
   :: Members [Error AppError, S.ReadStore] r
   => HasCodec a
@@ -234,5 +243,97 @@ length
   :: Members [Error AppError, S.ReadStore] r
   => HasCodec a
   => LinkedList a
-  -> Sem r Int
+  -> Sem r Word64
 length = foldl (\n _ -> n + 1) 0
+
+elemIndex
+  :: Members [Error AppError, S.ReadStore] r
+  => HasCodec a
+  => Eq a
+  => a
+  -> LinkedList a
+  -> Sem r (Maybe Word64)
+elemIndex a l@LinkedList{..} = do
+  mhd <- S.get linkedListStore HeadKey
+  elemIndex' 0 mhd
+  where
+    elemIndex' i mcurrentHead =
+      case mcurrentHead of
+        Nothing -> pure Nothing
+        Just hd -> do
+          let valMap = getValueMap l
+          a' <- assertLookup hd valMap
+          if a == a'
+            then pure $ Just $ unIdx i
+            else do
+              let idxMap = getIdxMap l
+              mNext <- M.lookup hd idxMap
+              elemIndex' (i + 1) mNext
+
+(!!)
+  :: Members [Error AppError, S.ReadStore] r
+  => HasCodec a
+  => LinkedList a
+  -> Word64
+  -> Sem r (Maybe a)
+l@LinkedList{..} !! idx = do
+  mhd <- S.get linkedListStore HeadKey
+  getAtIndex 0 mhd
+  where
+    getAtIndex currPos mhd =
+      case mhd of
+        Nothing -> pure Nothing
+        Just hd ->
+          if idx == currPos
+            then
+              let valMap = getValueMap l
+              in Just <$> assertLookup hd valMap
+            else do
+              let idxMap = getIdxMap l
+              mNext <- M.lookup hd idxMap
+              getAtIndex (currPos + 1) mNext
+
+infixl 9  !!
+
+--------------------------------------------------------------------------------
+
+snipNode
+  :: Members [Error AppError, S.ReadStore, S.WriteStore] r
+  => Idx
+  -- ^ previous index
+  -> Idx
+  -- ^ current index (node to delete)
+  -> LinkedList a
+  -> Sem r ()
+snipNode prevIdx currIdx l = do
+  let valueMap = getValueMap l
+      idxMap = getIdxMap l
+  -- remove the value that currIdx points to
+  M.delete currIdx valueMap
+  mNext <- M.lookup currIdx idxMap
+  case mNext of
+    -- (n) - (a) ~> (n)
+    Nothing -> M.delete prevIdx idxMap
+    -- (n) - (a) - (n') ~> (n) - (n')
+    Just next -> do
+      M.delete currIdx idxMap
+      M.insert prevIdx next idxMap
+
+deleteHead
+  :: Members [Error AppError, S.ReadStore, S.WriteStore] r
+  => LinkedList a
+  -> Sem r ()
+deleteHead l@LinkedList{..} = do
+  mhd <- S.get linkedListStore HeadKey
+  case mhd of
+    Nothing -> pure ()
+    Just hd -> do
+      let valueMap = getValueMap l
+          idxMap = getIdxMap l
+      M.delete hd valueMap
+      mNext <- M.lookup hd idxMap
+      case mNext of
+        Nothing -> S.delete linkedListStore HeadKey
+        Just next -> do
+          M.delete hd idxMap
+          S.put linkedListStore HeadKey next
