@@ -1,8 +1,8 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 module Tendermint.SDK.BaseApp.Store.Map
-  ( StoreMap
-  , makeStoreMap
+  ( Map
+  , makeMap
   , insert
   , lookup
   , delete
@@ -17,23 +17,23 @@ import           Tendermint.SDK.BaseApp.Errors         (AppError)
 import qualified Tendermint.SDK.BaseApp.Store.RawStore as S
 import           Tendermint.SDK.Codec                  (HasCodec (..))
 
-data StoreMap (k :: *) (v :: *) = StoreMap
-  { storeMapStore :: S.Store (StoreMap k v)
+data Map (k :: *) (v :: *) = Map
+  { mapStore :: S.Store (Map k v)
   }
 
-instance S.RawKey k => S.IsKey k (StoreMap k v) where
-  type Value k (StoreMap k v) = v
+instance S.RawKey k => S.IsKey k (Map k v) where
+  type Value k (Map k v) = v
 
-makeStoreMap
+makeMap
   :: S.IsKey key ns
-  => S.Value key ns ~ StoreMap k v
+  => S.Value key ns ~ Map k v
   => key
   -> S.Store ns
   -> S.Value key ns
-makeStoreMap key store =
-  let skr :: S.KeyRoot (StoreMap k v)
+makeMap key store =
+  let skr :: S.KeyRoot (Map k v)
       skr = S.KeyRoot $ key ^. S.rawKey
-  in StoreMap $ S.nestStore store (S.makeStore skr)
+  in Map $ S.nestStore store (S.makeStore skr)
 
 insert
   :: Member S.WriteStore r
@@ -41,29 +41,29 @@ insert
   => HasCodec v
   => k
   -> v
-  -> StoreMap k v
+  -> Map k v
   -> Sem r ()
-insert k v StoreMap{..} =
-  S.put storeMapStore k v
+insert k v Map{..} =
+  S.put mapStore k v
 
 lookup
   :: Members [Error AppError, S.ReadStore] r
   => S.RawKey k
   => HasCodec v
   => k
-  -> StoreMap k v
+  -> Map k v
   -> Sem r (Maybe v)
-lookup k StoreMap{..} =
-  S.get storeMapStore k
+lookup k Map{..} =
+  S.get mapStore k
 
 delete
   :: Member S.WriteStore r
   => S.RawKey k
   => k
-  -> StoreMap k v
+  -> Map k v
   -> Sem r ()
-delete k StoreMap{..} =
-  S.delete storeMapStore k
+delete k Map{..} =
+  S.delete mapStore k
 
 update
   :: Members [Error AppError, S.ReadStore, S.WriteStore] r
@@ -71,7 +71,7 @@ update
   => HasCodec v
   => (v -> Maybe v)
   -> k
-  -> StoreMap k v
+  -> Map k v
   -> Sem r ()
 update f k store = do
   mv <- lookup k store

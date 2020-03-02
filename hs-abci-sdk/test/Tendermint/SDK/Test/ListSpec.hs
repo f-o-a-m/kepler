@@ -1,4 +1,4 @@
-module Tendermint.SDK.Test.ListSpec (spec) where
+module Tendermint.SDK.Test.ArraySpec (spec) where
 
 import           Control.Lens                             (iso)
 import           Data.ByteString                          (ByteString)
@@ -10,7 +10,7 @@ import           Polysemy                                 (Embed, Sem, runM)
 import           Polysemy.Error                           (Error, runError)
 import qualified Tendermint.SDK.BaseApp                   as BA
 import           Tendermint.SDK.BaseApp.Store             (Version (..))
-import qualified Tendermint.SDK.BaseApp.Store.List        as L
+import qualified Tendermint.SDK.BaseApp.Store.Array       as A
 import           Tendermint.SDK.BaseApp.Store.MemoryStore as Mem
 import           Tendermint.SDK.Codec                     (HasCodec (..))
 import           Test.Hspec
@@ -21,18 +21,18 @@ spec =
     describe "StoreList Spec" $ do
 
       it "Can create an empty list" $ \config -> do
-        res <- runToIO config $ L.toList valList
+        res <- runToIO config $ A.toList valList
         res `shouldBe` []
 
       it "Can add an element to the list" $ \config -> do
         res <- runToIO config $ do
           let n = 1
-          L.append n valList
-          mi <- L.elemIndex n valList
-          l <- L.toList valList
+          A.append n valList
+          mi <- A.elemIndex n valList
+          l <- A.toList valList
           pure (mi, l)
         res `shouldBe` (Just 0, [1])
-        runToIO config $ L.deleteWhen (const True) valList
+        runToIO config $ A.deleteWhen (const True) valList
 
       it "Can add an element, modify it, then delete it" $ \config -> do
         let n = 2
@@ -40,27 +40,27 @@ spec =
 
         -- save the element and get its index
         i <- runToIO config $ do
-          L.append n valList
-          L.elemIndex n valList
+          A.append n valList
+          A.elemIndex n valList
         i `shouldSatisfy` isJust
 
         -- accessing at the index gets the value back again
-        n' <- runToIO config (valList L.!! fromJust i)
+        n' <- runToIO config (valList A.!! fromJust i)
         Just n `shouldBe` n'
 
         -- modifying the element at the index is successful
-        mm <- runToIO config $ L.modifyAtIndex (fromJust i) (const m) valList
+        mm <- runToIO config $ A.modifyAtIndex (fromJust i) (const m) valList
         mm `shouldBe` Just m
 
         -- deleting the element and trying to find it gives Nothing
         res2 <- runToIO config $ do
-          L.deleteWhen (== m) valList
-          L.elemIndex n valList
+          A.deleteWhen (== m) valList
+          A.elemIndex n valList
         res2 `shouldBe` Nothing
 
         -- modifying a deleted element gives Nothing
         let k = 4
-        mm' <- runToIO config $ L.modifyAtIndex (fromJust i) (const k) valList
+        mm' <- runToIO config $ A.modifyAtIndex (fromJust i) (const k) valList
         mm' `shouldBe` Nothing
 
 
@@ -86,8 +86,8 @@ instance BA.RawKey ValListKey where
 
 newtype Val = Val Word64 deriving (Eq, Show, Num, HasCodec)
 
-valList :: L.StoreList Val
-valList = L.makeStoreList ValListKey store
+valList :: A.StoreList Val
+valList = A.makeStoreList ValListKey store
 
 --------------------------------------------------------------------------------
 -- Interpreter
