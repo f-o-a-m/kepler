@@ -31,7 +31,7 @@ spec =
         res <- runToIO config $ do
           L.append n valList
           mi <- L.elemIndex n valList
-          me <- maybe (pure Nothing) (\i -> valList L.!! i) mi 
+          me <- maybe (pure Nothing) (valList L.!! ) mi
           l <- L.toList valList
           len <- L.length valList
           pure (mi, me , l, len)
@@ -54,7 +54,7 @@ spec =
           L.append n valList
           L.append m valList
           mi <- L.elemIndex m valList
-          me <- maybe (pure Nothing) (\i -> valList L.!! i) mi 
+          me <- maybe (pure Nothing) (valList L.!!) mi
           l <- L.toList valList
           len <- L.length valList
           pure (mi, me, l, len)
@@ -79,7 +79,7 @@ spec =
           L.append m valList
           L.append k valList
           mi <- L.elemIndex m valList
-          me <- maybe (pure Nothing) (\i -> valList L.!! i) mi 
+          me <- maybe (pure Nothing) (valList L.!!) mi
           l <- L.toList valList
           len <- L.length valList
           pure (mi, me, l, len)
@@ -104,7 +104,7 @@ spec =
           L.append m valList
           L.append k valList
           mi <- L.elemIndex n valList
-          me <- maybe (pure Nothing) (\i -> valList L.!! i)  mi 
+          me <- maybe (pure Nothing) (valList L.!!)  mi
           l <- L.toList valList
           len <- L.length valList
           pure (mi, me, l, len)

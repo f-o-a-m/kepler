@@ -9,13 +9,35 @@ import           Polysemy                                 (Embed, Sem, runM)
 import           Polysemy.Error                           (Error, runError)
 import qualified Tendermint.SDK.BaseApp                   as BA
 import           Tendermint.SDK.BaseApp.Store             (Version (..))
-import qualified Tendermint.SDK.BaseApp.Store.Map as M
+import qualified Tendermint.SDK.BaseApp.Store.Map         as M
 import           Tendermint.SDK.BaseApp.Store.MemoryStore as Mem
 import           Tendermint.SDK.Codec                     (HasCodec (..))
 import           Test.Hspec
 
 spec :: Spec
-spec = pure ()
+spec =
+  beforeAll makeConfig $
+    describe "Map Spec" $ do
+
+      it "Can insert and delete from map" $ \config -> do
+        res <- runToIO config $ do
+          M.insert 1 1 valMap
+          v <- M.lookup 1 valMap
+          M.delete 1 valMap
+          v' <- M.lookup 1 valMap
+          pure (v,v')
+        res `shouldBe` (Just 1, Nothing)
+
+      it "Can insert and update  map" $ \config -> do
+        res <- runToIO config $ do
+          M.insert 1 1 valMap
+          M.update (const $ Just 2) 1 valMap
+          v <- M.lookup 1 valMap
+          M.update (const $ Nothing) 1 valMap
+          v' <- M.lookup 1 valMap
+          pure (v,v')
+        res `shouldBe` (Just 2, Nothing)
+
 
 --------------------------------------------------------------------------------
 -- Store types
