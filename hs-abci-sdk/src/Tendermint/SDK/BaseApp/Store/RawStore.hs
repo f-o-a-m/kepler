@@ -41,6 +41,7 @@ import           Data.ByteArray.Base64String   (Base64String)
 import qualified Data.ByteString               as BS
 import           Data.Proxy
 import           Data.String.Conversions       (cs)
+import           Data.Word                     (Word64)
 import           Numeric.Natural               (Natural)
 import           Polysemy                      (Member, Members, Sem, makeSem)
 import           Polysemy.Error                (Error, catch, throw)
@@ -61,6 +62,9 @@ class RawKey k where
 
 instance RawKey Address where
     rawKey = iso addressToBytes addressFromBytes
+
+instance RawKey Word64 where
+    rawKey = iso encode (either (error "Error decoding Word64 RawKey") id . decode)
 
 class RawKey k => IsKey k ns where
   type Value k ns :: *

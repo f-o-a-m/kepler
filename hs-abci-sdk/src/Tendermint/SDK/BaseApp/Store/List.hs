@@ -60,10 +60,11 @@ instance IsKey LengthKey (StoreList a) where
 -- | Smart constuctor to make sure we're making a 'StoreList' from
 -- | the appropriate key type.
 makeStoreList
-  :: RawKey k
+  :: IsKey k ns
+  => Value k ns ~ StoreList a
   => k
   -> Store ns
-  -> StoreList a
+  -> Value k ns
 makeStoreList k store =
   let skr :: KeyRoot (StoreList a)
       skr = KeyRoot $ k ^. rawKey
@@ -177,7 +178,7 @@ foldl f b as = do
           ma <- as !! currentIndex
           case ma of
             Nothing -> foldl' (currentIndex + 1) end accum
-            Just a  -> foldl' (currentIndex + 1) end (f accum a)
+            Just a  -> foldl' (currentIndex + 1) end $! f accum a
       | otherwise = error "Impossible case in StoreList foldl!"
 
 -- | View the 'StoreList' as a 'List'.
