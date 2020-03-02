@@ -16,7 +16,7 @@ import qualified Data.ByteArray.HexString             as Hex
 import           Data.ByteString                      (ByteString)
 import           Data.Default.Class                   (def)
 import           Data.Either                          (isRight)
-import           Data.HashSet                         (fromList)
+import           Data.HashSet                         (difference, fromList)
 import           Data.String.Conversions              (cs)
 import           Data.Text                            (Text)
 import           GHC.Generics                         (Generic)
@@ -99,7 +99,7 @@ spec = do
       it "Can monitor all events" $ \(TestEnv mvex mvres _) -> do
         expected <- readMVar mvex
         res <- readMVar mvres
-        fromList res `shouldBe` fromList expected
+        (fromList expected `difference` fromList res) `shouldBe` fromList []
 
 encodeTx :: String -> Base64String
 encodeTx = Base64.fromBytes . cs @String @ByteString
