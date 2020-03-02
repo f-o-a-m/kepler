@@ -1,4 +1,14 @@
-module Tendermint.SDK.BaseApp.Store.LinkedList where
+{-# LANGUAGE NoImplicitPrelude #-}
+
+module Tendermint.SDK.BaseApp.Store.LinkedList
+  ( LinkedList
+  , makeLinkedList
+  , append
+  , delete
+  , foldl
+  , toList
+  , length
+  ) where
 
 import           Control.Lens                          (from, iso, to, view,
                                                         (^.))
@@ -7,6 +17,7 @@ import           Data.String.Conversions               (cs)
 import           Data.Word                             (Word64)
 import           Polysemy                              (Members, Sem)
 import           Polysemy.Error                        (Error)
+import           Prelude                               hiding (foldl, length)
 import           Tendermint.SDK.BaseApp.Errors         (AppError,
                                                         SDKError (InternalError),
                                                         throwSDKError)
@@ -191,7 +202,7 @@ delete a l@LinkedList{..} = do
             M.insert prevIdx next idxMap
 
 foldl
-  :: Members [Error AppError, S.ReadStore, S.WriteStore] r
+  :: Members [Error AppError, S.ReadStore] r
   => HasCodec a
   => (b -> a -> b)
   -> b
@@ -210,3 +221,18 @@ foldl f b l@LinkedList{..} = do
           a <- assertLookup hd valMap
           mNext <- M.lookup hd idxMap
           foldl' mNext $! f acc a
+
+-- | View the 'StoreList' as a 'List'.
+toList
+  :: Members [Error AppError, S.ReadStore] r
+  => HasCodec a
+  => LinkedList a
+  -> Sem r [a]
+toList = foldl (flip (:)) []
+
+length
+  :: Members [Error AppError, S.ReadStore] r
+  => HasCodec a
+  => LinkedList a
+  -> Sem r Int
+length = foldl (\n _ -> n + 1) 0
