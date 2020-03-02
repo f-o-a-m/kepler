@@ -24,7 +24,7 @@ spec =
         res <- runToIO config $ L.toList valList
         res `shouldBe` []
 
-      it "Can add an element to the list then delete it" $ \config -> do
+      it "Can make a singleton list then delete it" $ \config -> do
         lInit <- runToIO config $ L.toList valList
         lInit `shouldBe` []
         let n = 1
