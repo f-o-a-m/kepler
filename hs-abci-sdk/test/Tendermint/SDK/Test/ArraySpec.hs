@@ -20,19 +20,19 @@ spec =
   beforeAll makeConfig $
     describe "Array Spec" $ do
 
-      it "Can create an empty list" $ \config -> do
-        res <- runToIO config $ A.toList valList
+      it "Can create an empty array" $ \config -> do
+        res <- runToIO config $ A.toList valArray
         res `shouldBe` []
 
-      it "Can add an element to the list" $ \config -> do
+      it "Can add an element to the array" $ \config -> do
         res <- runToIO config $ do
           let n = 1
-          A.append n valList
-          mi <- A.elemIndex n valList
-          l <- A.toList valList
+          A.append n valArray
+          mi <- A.elemIndex n valArray
+          l <- A.toList valArray
           pure (mi, l)
         res `shouldBe` (Just 0, [1])
-        runToIO config $ A.deleteWhen (const True) valList
+        runToIO config $ A.deleteWhen (const True) valArray
 
       it "Can add an element, modify it, then delete it" $ \config -> do
         let n = 2
@@ -40,27 +40,27 @@ spec =
 
         -- save the element and get its index
         i <- runToIO config $ do
-          A.append n valList
-          A.elemIndex n valList
+          A.append n valArray
+          A.elemIndex n valArray
         i `shouldSatisfy` isJust
 
         -- accessing at the index gets the value back again
-        n' <- runToIO config (valList A.!! fromJust i)
+        n' <- runToIO config (valArray A.!! fromJust i)
         Just n `shouldBe` n'
 
         -- modifying the element at the index is successful
-        mm <- runToIO config $ A.modifyAtIndex (fromJust i) (const m) valList
+        mm <- runToIO config $ A.modifyAtIndex (fromJust i) (const m) valArray
         mm `shouldBe` Just m
 
         -- deleting the element and trying to find it gives Nothing
         res2 <- runToIO config $ do
-          A.deleteWhen (== m) valList
-          A.elemIndex n valList
+          A.deleteWhen (== m) valArray
+          A.elemIndex n valArray
         res2 `shouldBe` Nothing
 
         -- modifying a deleted element gives Nothing
         let k = 4
-        mm' <- runToIO config $ A.modifyAtIndex (fromJust i) (const k) valList
+        mm' <- runToIO config $ A.modifyAtIndex (fromJust i) (const k) valArray
         mm' `shouldBe` Nothing
 
 
@@ -79,18 +79,18 @@ store = BA.makeStore $ BA.KeyRoot "namespace"
 data ValArrayKey = ValArrayKey
 
 instance BA.RawKey ValArrayKey where
-    rawKey = iso (\_ -> cs valListKey) (const ValArrayKey)
+    rawKey = iso (\_ -> cs valArrayKey) (const ValArrayKey)
       where
-        valListKey :: ByteString
-        valListKey =  cs $ ("valArray" :: String)
+        valArrayKey :: ByteString
+        valArrayKey =  cs $ ("valArray" :: String)
 
 instance BA.IsKey ValArrayKey Namespace where
   type Value ValArrayKey Namespace = A.Array Val
 
 newtype Val = Val Word64 deriving (Eq, Show, Num, HasCodec)
 
-valList :: A.Array Val
-valList = A.makeArray ValArrayKey store
+valArray :: A.Array Val
+valArray = A.makeArray ValArrayKey store
 
 --------------------------------------------------------------------------------
 -- Interpreter

@@ -238,7 +238,7 @@ toList
   => HasCodec a
   => List a
   -> Sem r [a]
-toList = foldl (flip (:)) []
+toList = fmap reverse . foldl (flip (:)) []
 
 length
   :: Members [Error AppError, S.ReadStore] r

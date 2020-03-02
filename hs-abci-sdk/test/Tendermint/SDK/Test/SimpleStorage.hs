@@ -31,9 +31,9 @@ import           Polysemy.Error                     (Error, catch, throw)
 import           Servant.API
 import           Tendermint.SDK.Application         (Module (..), ModuleEffs)
 import qualified Tendermint.SDK.BaseApp             as BA
+import qualified Tendermint.SDK.BaseApp.Store.Array as A
 import           Tendermint.SDK.Codec               (HasCodec (..))
 import qualified Tendermint.SDK.Modules.Bank        as B
-import qualified Tendermint.SDK.BaseApp.Store.Array as A
 import           Tendermint.SDK.Types.Address       (Address)
 import           Tendermint.SDK.Types.Message       (HasMessageType (..),
                                                      Msg (..),
