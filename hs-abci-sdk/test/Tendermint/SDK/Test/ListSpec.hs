@@ -31,10 +31,11 @@ spec =
         res <- runToIO config $ do
           L.append n valList
           mi <- L.elemIndex n valList
+          me <- maybe (pure Nothing) (\i -> valList L.!! i) mi 
           l <- L.toList valList
           len <- L.length valList
-          pure (mi, l, len)
-        res `shouldBe` (Just 0, [n], 1)
+          pure (mi, me , l, len)
+        res `shouldBe` (Just 0, Just n, [n], 1)
         res' <- runToIO config $ do
           L.delete n valList
           i <- L.elemIndex n valList
@@ -53,10 +54,11 @@ spec =
           L.append n valList
           L.append m valList
           mi <- L.elemIndex m valList
+          me <- maybe (pure Nothing) (\i -> valList L.!! i) mi 
           l <- L.toList valList
           len <- L.length valList
-          pure (mi, l, len)
-        res `shouldBe` (Just 0, [m,n], 2)
+          pure (mi, me, l, len)
+        res `shouldBe` (Just 0, Just m, [m,n], 2)
         res' <- runToIO config $ do
           L.delete m valList
           i <- L.elemIndex m valList
@@ -77,10 +79,11 @@ spec =
           L.append m valList
           L.append k valList
           mi <- L.elemIndex m valList
+          me <- maybe (pure Nothing) (\i -> valList L.!! i) mi 
           l <- L.toList valList
           len <- L.length valList
-          pure (mi, l, len)
-        res `shouldBe` (Just 1, [k,m,n], 3)
+          pure (mi, me, l, len)
+        res `shouldBe` (Just 1, Just m, [k,m,n], 3)
         res' <- runToIO config $ do
           L.delete m valList
           i <- L.elemIndex m valList
@@ -91,9 +94,7 @@ spec =
         runToIO config $ L.deleteWhen (const True) valList
 
       it "Can add add three elements and delete the third" $ \config -> do
-        putStrLn "Starting"
         lInit <- runToIO config $ L.toList valList
-        putStrLn "Test 1"
         lInit `shouldBe` []
         let n = 1
             m = 2
@@ -103,18 +104,17 @@ spec =
           L.append m valList
           L.append k valList
           mi <- L.elemIndex n valList
+          me <- maybe (pure Nothing) (\i -> valList L.!! i)  mi 
           l <- L.toList valList
           len <- L.length valList
-          pure (mi, l, len)
-        putStrLn "Test 2"
-        res `shouldBe` (Just 2, [k,m,n], 3)
+          pure (mi, me, l, len)
+        res `shouldBe` (Just 2, Just n, [k,m,n], 3)
         res' <- runToIO config $ do
           L.delete n valList
           i <- L.elemIndex n valList
           len <- L.length valList
           l <- L.toList valList
           pure (i, len, l)
-        putStrLn "Test 3"
         res' `shouldBe` (Nothing, 2, [k,m])
         runToIO config $ L.deleteWhen (const True) valList
 
