@@ -108,20 +108,6 @@ instance S.RawKey HeadKey where
 instance S.IsKey HeadKey (List a) where
   type Value HeadKey (List a) = Idx
 
-assertLookup
-  :: Members [S.ReadStore, Error AppError] r
-  => S.RawKey k
-  => HasCodec v
-  => k
-  -> M.Map k v
-  -> Sem r v
-assertLookup k m = do
-  mRes <- M.lookup k m
-  case mRes of
-    Nothing -> throwSDKError $
-      InternalError $ "Database integrity failed, lookup miss: " <> cs (k ^. S.rawKey)
-    Just res -> pure res
-
 append
   :: Members [Error AppError, S.ReadStore, S.WriteStore] r
   => HasCodec a
@@ -192,12 +178,15 @@ deleteWhen p l@List{..} = do
     Nothing -> pure ()
     Just hd -> do
       let valueMap = getValueMap l
-          idxMap = getIdxMap l
       a <- assertLookup hd valueMap
-      mNext <- M.lookup hd idxMap
-      when (p a) $
-        deleteHead l
-      deleteWhen' hd mNext
+      if p a
+        then do
+          deleteHead l
+          deleteWhen p l
+        else do
+          let idxMap = getIdxMap l
+          mNext <- M.lookup hd idxMap
+          deleteWhen' hd mNext
   where
     deleteWhen' prevIdx mcurrIdx =
       case mcurrIdx of
@@ -307,18 +296,15 @@ snipNode
   -> List a
   -> Sem r ()
 snipNode prevIdx currIdx l = do
-  let valueMap = getValueMap l
-      idxMap = getIdxMap l
-  -- remove the value that currIdx points to
-  M.delete currIdx valueMap
+  let idxMap = getIdxMap l
   mNext <- M.lookup currIdx idxMap
   case mNext of
-    -- (n) - (a) ~> (n)
+    -- (n) - (a) - [] ~> []
     Nothing -> M.delete prevIdx idxMap
-    -- (n) - (a) - (n') ~> (n) - (n')
+    -- (n) - (a) - rest ~> (n) ~> rest
     Just next -> do
-      M.delete currIdx idxMap
       M.insert prevIdx next idxMap
+  deleteDetachedNode currIdx l
 
 deleteHead
   :: Members [Error AppError, S.ReadStore, S.WriteStore] r
@@ -329,12 +315,37 @@ deleteHead l@List{..} = do
   case mhd of
     Nothing -> pure ()
     Just hd -> do
-      let valueMap = getValueMap l
-          idxMap = getIdxMap l
-      M.delete hd valueMap
+      let idxMap = getIdxMap l
       mNext <- M.lookup hd idxMap
       case mNext of
-        Nothing -> S.delete listStore HeadKey
+        Nothing -> do
+          S.delete listStore HeadKey
         Just next -> do
-          M.delete hd idxMap
           S.put listStore HeadKey next
+      deleteDetachedNode hd l
+
+deleteDetachedNode
+  :: Members [Error AppError, S.ReadStore, S.WriteStore] r
+  => Idx
+  -> List a
+  -> Sem r ()
+deleteDetachedNode idx l =
+  let valueMap = getValueMap l
+      idxMap = getIdxMap l
+  in do
+    M.delete idx valueMap
+    M.delete idx idxMap
+
+assertLookup
+  :: Members [S.ReadStore, Error AppError] r
+  => S.RawKey k
+  => HasCodec v
+  => k
+  -> M.Map k v
+  -> Sem r v
+assertLookup k m = do
+  mRes <- M.lookup k m
+  case mRes of
+    Nothing -> throwSDKError $
+      InternalError $ "Database integrity failed, lookup miss: " <> cs (k ^. S.rawKey)
+    Just res -> pure res

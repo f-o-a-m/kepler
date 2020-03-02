@@ -90,6 +90,35 @@ spec =
         res' `shouldBe` (Nothing, 2, [k,n])
         runToIO config $ L.deleteWhen (const True) valList
 
+      it "Can add add three elements and delete the third" $ \config -> do
+        putStrLn "Starting"
+        lInit <- runToIO config $ L.toList valList
+        putStrLn "Test 1"
+        lInit `shouldBe` []
+        let n = 1
+            m = 2
+            k = 3
+        res <- runToIO config $ do
+          L.append n valList
+          L.append m valList
+          L.append k valList
+          mi <- L.elemIndex n valList
+          l <- L.toList valList
+          len <- L.length valList
+          pure (mi, l, len)
+        putStrLn "Test 2"
+        res `shouldBe` (Just 2, [k,m,n], 3)
+        res' <- runToIO config $ do
+          L.delete n valList
+          i <- L.elemIndex n valList
+          len <- L.length valList
+          l <- L.toList valList
+          pure (i, len, l)
+        putStrLn "Test 3"
+        res' `shouldBe` (Nothing, 2, [k,m])
+        runToIO config $ L.deleteWhen (const True) valList
+
+
 
 
 
