@@ -18,6 +18,8 @@ import           GHC.Generics                 (Generic)
 import           GHC.TypeLits                 (symbolVal)
 import qualified Proto.Modules.Auth           as A
 import qualified Proto.Modules.Auth_Fields    as A
+import qualified Proto.Modules.Types          as AT
+import qualified Proto.Modules.Types_Fields   as AT
 import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..),
                                                IsKey (..), Queryable (..))
 import           Tendermint.SDK.Codec         (HasCodec (..),
@@ -58,15 +60,15 @@ instance IsAppError AuthError where
 newtype CoinId = CoinId { unCoinId :: Text } deriving (Eq, Show, Generic)
 
 instance Wrapped CoinId where
-  type Unwrapped CoinId = A.CoinId
+  type Unwrapped CoinId = AT.CoinId
 
   _Wrapped' = iso t f
    where
     t CoinId {..} =
       P.defMessage
-        & A.id .~ unCoinId
+        & AT.id .~ unCoinId
     f message = CoinId
-      { unCoinId = message ^. A.id
+      { unCoinId = message ^. AT.id
       }
 
 instance HasCodec CoinId where
@@ -90,15 +92,15 @@ newtype Amount = Amount { unAmount :: Word64 }
   deriving (Eq, Show, Num, Generic, Ord, JSON.ToJSON, JSON.FromJSON)
 
 instance Wrapped Amount where
-  type Unwrapped Amount = A.Amount
+  type Unwrapped Amount = AT.Amount
 
   _Wrapped' = iso t f
    where
     t Amount {..} =
       P.defMessage
-        & A.amount .~ unAmount
+        & AT.amount .~ unAmount
     f message = Amount
-      { unAmount = message ^. A.amount
+      { unAmount = message ^. AT.amount
       }
 
 instance HasCodec Amount where

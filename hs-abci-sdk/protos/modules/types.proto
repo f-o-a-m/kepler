@@ -1,0 +1,10 @@
+syntax = "proto3";
+package modules;
+
+message CoinId {
+  string id = 1;
+}
+
+message Amount {
+  uint64 amount = 1;
+}
