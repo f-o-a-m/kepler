@@ -1,4 +1,4 @@
-module Tendermint.SDK.Test.MapSpec where
+module Tendermint.SDK.Test.MapSpec (spec) where
 
 import           Control.Lens                             (iso)
 import           Data.ByteString                          (ByteString)
