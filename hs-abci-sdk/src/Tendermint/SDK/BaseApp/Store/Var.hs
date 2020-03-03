@@ -1,6 +1,7 @@
 module Tendermint.SDK.BaseApp.Store.Var
   ( Var
   , makeVar
+  , makeFullStoreKey
   , takeVar
   , unsafeTakeVar
   , putVar
@@ -31,6 +32,12 @@ makeVar
 makeVar key store =
   Var $ S.nestStore store $
     S.makeStore . S.KeyRoot $ key ^. S.rawKey
+
+makeFullStoreKey
+  :: Var a
+  -> S.StoreKey
+makeFullStoreKey Var{..} =
+  S.makeStoreKey varStore ()
 
 takeVar
   :: Members [S.ReadStore, Error AppError] r

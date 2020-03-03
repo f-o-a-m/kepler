@@ -20,8 +20,7 @@ import           Tendermint.SDK.BaseApp.Errors          (queryAppError)
 import           Tendermint.SDK.BaseApp.Query.Store     (StoreLeaf)
 import           Tendermint.SDK.BaseApp.Query.Types     (Leaf, QA,
                                                          QueryArgs (..),
-                                                         QueryResult (..),
-                                                         Queryable (..))
+                                                         QueryResult (..))
 import           Tendermint.SDK.BaseApp.Store           (RawKey (..))
 import           Tendermint.SDK.Codec                   (HasCodec (decode))
 import           Tendermint.Utils.QueryClient.Types

@@ -72,17 +72,11 @@ instance BA.IsKey CountKey SimpleStorageNamespace where
 
 instance BA.FromQueryData CountKey
 
-instance BA.Queryable Count where
-  type Name Count = "count"
-
 newtype AmountPaid = AmountPaid B.Amount deriving (Eq, Show, Num, Ord, HasCodec)
 
 -- for reporting how much paid to change count
 instance BA.IsKey Address SimpleStorageNamespace where
     type Value Address SimpleStorageNamespace = AmountPaid
-
-instance BA.Queryable AmountPaid where
-  type Name AmountPaid = "paid"
 
 -- | Counts
 

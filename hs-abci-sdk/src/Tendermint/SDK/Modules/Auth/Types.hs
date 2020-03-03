@@ -19,7 +19,7 @@ import           GHC.TypeLits                 (symbolVal)
 import qualified Proto.Modules.Auth           as A
 import qualified Proto.Modules.Auth_Fields    as A
 import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..),
-                                               IsKey (..), Queryable (..))
+                                               IsKey (..))
 import           Tendermint.SDK.Codec         (HasCodec (..),
                                                defaultSDKAesonOptions)
 import           Tendermint.SDK.Types.Address (Address (..))
@@ -34,9 +34,6 @@ data AuthNamespace
 
 instance IsKey Address AuthNamespace where
   type Value Address AuthNamespace = Account
-
-instance Queryable Account where
-  type Name Account = "account"
 
 --------------------------------------------------------------------------------
 -- Exceptions
@@ -132,9 +129,6 @@ instance HasCodec Coin where
 
 coinAesonOptions :: JSON.Options
 coinAesonOptions = defaultSDKAesonOptions "coin"
-
-instance Queryable Coin where
-  type Name Coin = "balance"
 
 --------------------------------------------------------------------------------
 

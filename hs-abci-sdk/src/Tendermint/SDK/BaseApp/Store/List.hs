@@ -3,6 +3,7 @@
 module Tendermint.SDK.BaseApp.Store.List
   ( List
   , makeList
+  , makeFullStoreKey
   , append
   , delete
   , deleteWhen
@@ -72,6 +73,10 @@ instance S.RawKey ValueKey where
 instance S.IsKey ValueKey (List a) where
   type Value ValueKey (List a) = M.Map Idx a
 
+
+instance S.IsKey Idx (List a) where
+  type Value Idx (List a) = a
+
 makeList
   :: S.IsKey key ns
   => S.Value key ns ~ List a
@@ -81,6 +86,13 @@ makeList
 makeList key store =
   List $ S.nestStore store $
     S.makeStore . S.KeyRoot $ key ^. S.rawKey
+
+makeFullStoreKey
+  :: List a
+  -> Word64
+  -> S.StoreKey
+makeFullStoreKey List{..} i =
+  S.makeStoreKey listStore (Idx i)
 
 getIdxMap
   :: List a

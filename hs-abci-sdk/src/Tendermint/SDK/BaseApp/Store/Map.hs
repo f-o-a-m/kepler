@@ -3,6 +3,7 @@
 module Tendermint.SDK.BaseApp.Store.Map
   ( Map
   , makeMap
+  , makeFullStoreKey
   , insert
   , lookup
   , delete
@@ -34,6 +35,14 @@ makeMap key store =
   let skr :: S.KeyRoot (Map k v)
       skr = S.KeyRoot $ key ^. S.rawKey
   in Map $ S.nestStore store (S.makeStore skr)
+
+makeFullStoreKey
+  :: S.RawKey k
+  => Map k v
+  -> k
+  -> S.StoreKey
+makeFullStoreKey Map{..} =
+  S.makeStoreKey mapStore
 
 insert
   :: Member S.WriteStore r

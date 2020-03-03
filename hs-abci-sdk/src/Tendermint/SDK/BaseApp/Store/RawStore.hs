@@ -32,6 +32,7 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   , Store
   , nestStore
   , makeStore
+  , makeStoreKey
 
   , Version(..)
   ) where
