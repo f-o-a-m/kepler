@@ -4,6 +4,7 @@ module Tendermint.SDK.BaseApp.Store.Var
   , takeVar
   , unsafeTakeVar
   , putVar
+  , deleteVar
   ) where
 
 import           Control.Lens                          ((^.))
@@ -56,3 +57,9 @@ putVar
   -> Var a
   -> Sem r ()
 putVar a Var{..} = S.put varStore () a
+
+deleteVar
+  :: Member S.WriteStore r
+  => Var a
+  -> Sem r ()
+deleteVar Var{..} = S.delete varStore ()

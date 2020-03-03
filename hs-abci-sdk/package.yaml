@@ -166,6 +166,7 @@ tests:
     - Tendermint.SDK.Test.ArraySpec
     - Tendermint.SDK.Test.ListSpec
     - Tendermint.SDK.Test.MapSpec
+    - Tendermint.SDK.Test.VarSpec
     - Tendermint.SDK.Test.QuerySpec
 
     ghc-options:
