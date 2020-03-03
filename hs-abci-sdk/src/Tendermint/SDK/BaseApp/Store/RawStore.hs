@@ -66,6 +66,9 @@ instance RawKey Address where
 instance RawKey Word64 where
     rawKey = iso encode (either (error "Error decoding Word64 RawKey") id . decode)
 
+instance RawKey () where
+    rawKey = iso (const "") (const ())
+
 class RawKey k => IsKey k ns where
   type Value k ns :: *
   prefix :: Proxy k -> Proxy ns -> BS.ByteString
