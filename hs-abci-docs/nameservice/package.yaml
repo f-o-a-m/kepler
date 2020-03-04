@@ -56,7 +56,6 @@ library:
     - polysemy
     - polysemy-plugin
     - proto3-suite
-    - proto3-wire
     - servant
     - string-conversions
     - text

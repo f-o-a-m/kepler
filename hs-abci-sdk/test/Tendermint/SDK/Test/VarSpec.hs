@@ -1,4 +1,4 @@
-module Tendermint.SDK.Test.VarSpec where
+module Tendermint.SDK.Test.VarSpec (spec) where
 
 import           Control.Lens                             (iso)
 import           Data.ByteString                          (ByteString)

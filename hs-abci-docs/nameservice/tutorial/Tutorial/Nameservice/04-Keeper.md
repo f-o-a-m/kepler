@@ -14,61 +14,71 @@ title: Nameservice - Keeper
 {-# LANGUAGE TemplateHaskell #-}
 module Tutorial.Nameservice.Keeper where
 
-import Polysemy (Sem, Member, Members, makeSem, interpret)
-import Polysemy.Error (Error, throw, mapError)
-import Polysemy.Output (Output)
-import Nameservice.Modules.Nameservice.Messages (DeleteName(..))
-import Nameservice.Modules.Nameservice.Types (Whois(..), Name, NameDeleted(..), NameserviceNamespace, NameserviceError(..))
+import Polysemy (Sem, Member, Members, makeSem)
+import Polysemy.Error (Error, throw)
+import Nameservice.Modules.Nameservice.Messages
+import Nameservice.Modules.Nameservice.Store (Name(..), whoisMap)
+import Nameservice.Modules.Nameservice.Types (Whois(..), NameDeleted(..), NameserviceError(..))
 import qualified Tendermint.SDK.BaseApp as BA
-import Tendermint.SDK.Modules.Auth (AuthEffs, Coin(..))
-import Tendermint.SDK.Modules.Bank (BankEffs, mint)
+import qualified Tendermint.SDK.BaseApp.Store.Map as M
+import Tendermint.SDK.Modules.Bank (BankEffs, Coin(..), CoinId, mint)
+
+
+nameserviceCoinId :: CoinId
+nameserviceCoinId = "nameservice"
 ~~~
 
 Generally a keeper is defined by a set of effects that the module introduces and depends on. In the case of Nameservice, we introduce the custom `Nameservice` effect:
 
 
 ~~~ haskell
+type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
+
 data NameserviceKeeper m a where
-  PutWhois :: Name -> Whois -> NameserviceKeeper m ()
+  BuyName :: BuyNameMsg -> NameserviceKeeper m ()
+  DeleteName :: DeleteNameMsg -> NameserviceKeeper m ()
+  SetName :: SetNameMsg -> NameserviceKeeper m ()
   GetWhois :: Name -> NameserviceKeeper m (Maybe Whois)
-  DeleteWhois :: Name -> NameserviceKeeper m ()
 
 makeSem ''NameserviceKeeper
-
-type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
 ~~~
 
-where `makeSem` is from polysemy, it uses template Haskell to create the helper functions `putWhoIs`, `getWhois`, `deleteWhois`:
+where `makeSem` is from polysemy, it uses template Haskell to create the helper functions `buyName`, `deleteName`, `setName`, `getWhois`:
 
 ~~~ haskell ignore
-putWhois :: forall r. Member NameserviceKeeper r => Name -> Whois -> Sem r ()
-getWhois :: forall r. Member NameserviceKeeper r => Name -> Sem r (Maybe Whois)
-deleteWhois :: forall r. Member NameserviceKeeper r => Name -> Sem r ()
+buyName :: BuyNameMsg -> NameserviceKeeper m ()
+deleteName :: DeleteNameMsg -> NameserviceKeeper m ()
+setName :: SetNameMsg -> NameserviceKeeper m ()
+getWhois :: Name -> NameserviceKeeper m (Maybe Whois)
 ~~~
 
-We can then write the top level function for example for deleting a name:
+### Evaluating Module Effects
+
+Like we said before, all transactions must ultimately compile to the set of effects belonging to `TxEffs` and `BaseEffs`. In particular this means that we must interpret `NameserviceEffs` into more basic effects. To do this we follow the general pattern of first interpreting `NameserviceKeeper` effects, then finally interpreting `Error NameserviceError` in terms of `Error AppError`. Let's focus on the `DeleteName` summand of `NameserviceKeeper`. We can write an interpreting function as follows:
 
 ~~~ haskell
-deleteName
-  :: Member (Output BA.Event) r
-  => Members AuthEffs r
+deleteNameF
+  :: Members BA.TxEffs r
+  => Members BA.BaseEffs r
   => Members BankEffs r
-  => Members [NameserviceKeeper, Error NameserviceError] r
-  => DeleteName
+  => Member (Error NameserviceError) r
+  => DeleteNameMsg
   -> Sem r ()
-deleteName DeleteName{..} = do
-  mWhois <- getWhois deleteNameName
+deleteNameF DeleteNameMsg{..} = do
+  mWhois <- M.lookup (Name deleteNameName) whoisMap
   case mWhois of
     Nothing -> throw $ InvalidDelete "Can't remove unassigned name."
     Just Whois{..} ->
       if whoisOwner /= deleteNameOwner
         then throw $ InvalidDelete "Deleter must be the owner."
         else do
-          mint deleteNameOwner (Coin "nameservice" whoisPrice)
-          deleteWhois deleteNameName
-          BA.emit NameDeleted
-            { nameDeletedName = deleteNameName
-            }
+          mint deleteNameOwner (Coin nameserviceCoinId whoisPrice)
+          M.delete (Name deleteNameName) whoisMap
+          let event = NameDeleted
+                { nameDeletedName = deleteNameName
+                }
+          BA.emit event
+          BA.logEvent event
 ~~~
 
 The control flow should be pretty clear:
@@ -76,47 +86,46 @@ The control flow should be pretty clear:
 2. Check that the name is registered to the person trying to delete it, if not throw an error.
 3. Refund the tokens locked in the name to the owner.
 4. Delete the entry from the database.
-5. Emit an event that the name has been deleted.
+5. Emit an event that the name has been deleted and log this event.
 
 Taking a look at the class constraints, we see
 
 ~~~ haskell ignore
-(Members NameserviceEffs, Member (Output Event) r)
+  ( Members BaseApp.TxEffs r
+  , Members BaseApp.BaseEffs r
+  , Members BankEffs r
+  , Member (Error NameserviceError) r
+  )
 ~~~
 
-- The `NameserviceKeeper` effect is required because the function may manipulate the modules database with `deleteName`.
+- The `TxEffs` effect is required because the function manipulates the `whoisMap` and emits an `Event`.
+- The `BaseEffs` effect is required because the function has logging.
 - The `Error NameserviceError` effect is required because the function may throw an error.
-- The `Auth` effect is required because the function will mint coins.
-- The `Output Event` effect is required because the function may emit a `NameDeleted` event.
-
-### Evaluating Module Effects
-
-Like we said before, all transactions must ultimately compile to the set of effects belonging to `TxEffs` and `BaseEffs`. For effects interpreted to `ReadStore` and `WriteStore`, this means that you will need to define something called a `StoreKey`.
+- The `BankEffs` effect is required because the function will mint coins.
 
 
-A `Store` is effectively a namespacing inside the database, and is unique for a given module. In theory it could be any `ByteString`, but the natural definition in the case of Nameservice is would be something like
+Using this helper function and others, we can write our module's `eval` function by interpreting the `NameserviceEffs` in two steps:
 
-~~~ haskell
-store :: BA.Store NameserviceNamespace
-store = BA.makeStore $ BA.KeyRoot "nameservice"
-~~~
-
-With this `store` it is possible to write the `eval` function to resolve the effects defined in Nameservice, namely the `NameserviceKeeper` effect and `Error NameserviceError`:
-
-~~~ haskell
+~~~ haskell ignore
 eval
   :: Members BA.TxEffs r
+  => Members BankEffs r
+  => Members BA.BaseEffs r
   => forall a. Sem (NameserviceKeeper ': Error NameserviceError ': r) a
   -> Sem r a
-eval = mapError BA.makeAppError . evalNameservice
+eval = mapError BaseApp.makeAppError . evalNameservice
   where
     evalNameservice
       :: Members BA.TxEffs r
+      => Members BA.BaseEffs r
+      => Members BankEffs r
+      => Member (Error NameserviceError) r
       => Sem (NameserviceKeeper ': r) a -> Sem r a
     evalNameservice =
       interpret (\case
-          GetWhois name -> BA.get store name
-          PutWhois name whois -> BA.put store name whois
-          DeleteWhois name -> BA.delete store name
+          ...
+          DeleteName msg -> deleteNameF msg
+          ...
         )
+
 ~~~
