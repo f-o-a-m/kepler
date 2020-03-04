@@ -2,6 +2,7 @@ module Tendermint.SDK.BaseApp.Query
   ( serveQueryApplication
   -- * Re-Exports
   , HasQueryRouter(..)
+  , StoreLeaf
   , storeQueryHandler
   , QueryEffs
   , module Tendermint.SDK.BaseApp.Query.Types

@@ -39,7 +39,7 @@ data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: Eff
   { moduleTxChecker :: T.RouteTx check r
   , moduleTxDeliverer :: T.RouteTx deliver r
   , moduleQuerier :: Q.RouteQ query r
-  , moduleEval :: forall s. (Members T.TxEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a
+  , moduleEval :: forall s. (Members T.TxEffs s, Members BaseEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a
   }
 
 type family ModuleEffs (m :: Component) :: EffectRow where
@@ -122,6 +122,7 @@ instance (DependencyEffs deps ~ '[]) => Eval '[Module name check deliver query e
 
 instance ( Members (DependencyEffs deps) (Effs (m' ': ms) s)
          , Members T.TxEffs (Effs (m' ': ms) s)
+         , Members BaseEffs (Effs (m' ': ms) s)
          , Eval (m' ': ms) s
          ) => Eval (Module name check deliver query es deps ': m' ': ms) s where
   type Effs (Module name check deliver query es deps ': m' ': ms) s = es :& (Effs (m': ms)) s

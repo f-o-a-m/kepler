@@ -18,8 +18,7 @@ import           GHC.Generics                 (Generic)
 import           GHC.TypeLits                 (symbolVal)
 import qualified Proto.Modules.Auth           as A
 import qualified Proto.Modules.Auth_Fields    as A
-import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..),
-                                               IsKey (..))
+import           Tendermint.SDK.BaseApp       (AppError (..), IsAppError (..))
 import           Tendermint.SDK.Codec         (HasCodec (..),
                                                defaultSDKAesonOptions)
 import           Tendermint.SDK.Types.Address (Address (..))
@@ -30,24 +29,27 @@ import           Web.HttpApiData              (FromHttpApiData (..),
 
 type AuthName = "auth"
 
-data AuthNamespace
-
-instance IsKey Address AuthNamespace where
-  type Value Address AuthNamespace = Account
-
 --------------------------------------------------------------------------------
 -- Exceptions
 --------------------------------------------------------------------------------
 
 data AuthError =
-  AccountAlreadyExists Address
+    AccountAlreadyExists Address
+  | AccountNotFound Address
 
 instance IsAppError AuthError where
   makeAppError (AccountAlreadyExists addr) =
     AppError
       { appErrorCode = 1
       , appErrorCodespace = cs (symbolVal $ Proxy @AuthName)
-      , appErrorMessage = "Account Already Exists " <> (cs . show $ addr) <> "."
+      , appErrorMessage = "Account already exists " <> (cs . show $ addr) <> "."
+      }
+
+  makeAppError (AccountNotFound addr) =
+    AppError
+      { appErrorCode = 2
+      , appErrorCodespace = cs (symbolVal $ Proxy @AuthName)
+      , appErrorMessage = "Account not found for address " <> (cs . show $ addr) <> "."
       }
 
 --------------------------------------------------------------------------------
