@@ -51,7 +51,7 @@ import           Test.Hspec
 
 spec :: Spec
 spec = do
-  let satoshi = N.Name "satoshi"
+  let satoshi = "satoshi"
       faucetAmount = 1000
 
   beforeAll (testInit faucetAmount) $ do
@@ -68,7 +68,7 @@ spec = do
 
       it "Can create a name" $ \tenv -> do
         let val = "hello world"
-            msg = N.BuyName
+            msg = N.BuyNameMsg
               { buyNameBid = 0
               , buyNameName = satoshi
               , buyNameValue = val
@@ -100,19 +100,19 @@ spec = do
               , whoisPrice = 0
               }
         foundWhois <- fmap queryResultData . assertQuery . RPC.runTendermintM rpcConfig $
-          getWhois defaultQueryArgs { queryArgsData = satoshi }
+          getWhois defaultQueryArgs { queryArgsData = N.Name satoshi }
         foundWhois `shouldBe` expected
 
       it "Can query for a name that doesn't exist" $ const $ do
-        let nope = N.Name "nope"
+        let nope = "nope"
         resp <- RPC.runTendermintM rpcConfig $
-          getWhois defaultQueryArgs { queryArgsData = nope }
+          getWhois defaultQueryArgs { queryArgsData = N.Name nope }
         ensureQueryResponseCode 2 resp
 
       it "Can set a name value" $ \tenv -> do
         let oldVal = "hello world"
             newVal = "goodbye to a world"
-            msg = N.SetName
+            msg = N.SetNameMsg
               { setNameName = satoshi
               , setNameOwner = signerAddress user1
               , setNameValue = newVal
@@ -141,12 +141,12 @@ spec = do
               , whoisPrice = 0
               }
         foundWhois <- fmap queryResultData . assertQuery . RPC.runTendermintM rpcConfig $
-          getWhois defaultQueryArgs { queryArgsData = satoshi }
+          getWhois defaultQueryArgs { queryArgsData = N.Name satoshi }
         foundWhois `shouldBe` expected
 
       it "Can fail to set a name" $ const $ do
         -- try to set a name without being the owner
-        let msg = N.SetName
+        let msg = N.SetNameMsg
               { setNameName = satoshi
               , setNameOwner = signerAddress user2
               , setNameValue = "goodbye to a world"
@@ -162,10 +162,10 @@ spec = do
         balance1 <- getUserBalance user1
         balance2 <- getUserBalance user2
         N.Whois{whoisPrice} <- fmap queryResultData . assertQuery . RPC.runTendermintM rpcConfig $
-          getWhois defaultQueryArgs { queryArgsData = satoshi }
+          getWhois defaultQueryArgs { queryArgsData = N.Name satoshi }
         let purchaseAmount = whoisPrice + 1
             newVal = "hello (again) world"
-            msg = N.BuyName
+            msg = N.BuyNameMsg
               { buyNameBid = purchaseAmount
               , buyNameName = satoshi
               , buyNameValue = newVal
@@ -210,7 +210,7 @@ spec = do
               , whoisPrice = purchaseAmount
               }
         foundWhois <- fmap queryResultData . assertQuery . RPC.runTendermintM rpcConfig $
-          getWhois defaultQueryArgs { queryArgsData = satoshi }
+          getWhois defaultQueryArgs { queryArgsData = N.Name satoshi }
         foundWhois `shouldBe` expected
 
       -- @NOTE: this is possibly a problem with the go application too
@@ -221,7 +221,7 @@ spec = do
         -- buy
         let bid = 500
             val = "hello (again) world"
-            msg = N.BuyName
+            msg = N.BuyNameMsg
               { buyNameBid = bid
               , buyNameName = satoshi
               , buyNameValue = val
@@ -261,7 +261,7 @@ spec = do
 
       it "Can fail to buy a name" $ const $ do
         -- try to buy at a lower price
-        let msg = N.BuyName
+        let msg = N.BuyNameMsg
               { buyNameBid = 100
               , buyNameName = satoshi
               , buyNameValue = "hello (again) world"
@@ -276,7 +276,7 @@ spec = do
         ensureResponseCodes (0,1) resp
 
       it "Can delete names" $ \tenv -> do
-        let msg = N.DeleteName
+        let msg = N.DeleteNameMsg
               { deleteNameOwner = signerAddress user2
               , deleteNameName = satoshi
               }
@@ -298,14 +298,14 @@ spec = do
         fromEvent evdeletedLog `shouldBe` Right deletedLog
 
         respQ <- RPC.runTendermintM rpcConfig $
-          getWhois defaultQueryArgs { queryArgsData = satoshi }
+          getWhois defaultQueryArgs { queryArgsData = N.Name satoshi }
         ensureQueryResponseCode 2 respQ
 
 
       it "Can fail a transfer" $ const $ do
         addr2Balance <- getUserBalance user2
         let tooMuchToTransfer = addr2Balance + 1
-            msg = B.Transfer
+            msg = B.TransferMsg
               { transferFrom = signerAddress user2
               , transferTo = signerAddress user1
               , transferCoinId = N.nameserviceCoinId
@@ -324,7 +324,7 @@ spec = do
         balance2 <- getUserBalance user2
         let transferAmount = 1
             msg =
-              B.Transfer
+              B.TransferMsg
                 { transferFrom = signerAddress user1
                 , transferTo = signerAddress user2
                 , transferCoinId = N.nameserviceCoinId
@@ -367,7 +367,7 @@ faucetUser
   -> IO ()
 faucetUser amount s@(Signer addr _) =
   void . assertTx .runTxClientM $
-    let msg = N.FaucetAccount addr N.nameserviceCoinId amount
+    let msg = N.FaucetAccountMsg addr N.nameserviceCoinId amount
         opts = TxOpts
           { txOptsGas = 0
           , txOptsSigner = s
@@ -451,28 +451,28 @@ runTxClientM m = runReaderT m txClientConfig
 -- Nameservice Client
 buyName
   :: TxOpts
-  -> N.BuyName
+  -> N.BuyNameMsg
   -> TxClientM (TxClientResponse () ())
 
 setName
   :: TxOpts
-  -> N.SetName
+  -> N.SetNameMsg
   -> TxClientM (TxClientResponse () ())
 
 deleteName
   :: TxOpts
-  -> N.DeleteName
+  -> N.DeleteNameMsg
   -> TxClientM (TxClientResponse () ())
 
 -- Bank Client
 transfer
   :: TxOpts
-  -> B.Transfer
+  -> B.TransferMsg
   -> TxClientM (TxClientResponse () ())
 
 faucet
   :: TxOpts
-  -> N.FaucetAccount
+  -> N.FaucetAccountMsg
   -> TxClientM (TxClientResponse () ())
 
 (buyName :<|> setName :<|> deleteName :<|> faucet) :<|>

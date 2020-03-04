@@ -42,6 +42,7 @@ import           Data.ByteArray.Base64String   (Base64String)
 import qualified Data.ByteString               as BS
 import           Data.Proxy
 import           Data.String.Conversions       (cs)
+import           Data.Text
 import           Data.Word                     (Word64)
 import           Numeric.Natural               (Natural)
 import           Polysemy                      (Member, Members, Sem, makeSem)
@@ -60,6 +61,9 @@ import           Tendermint.SDK.Types.Address  (Address, addressFromBytes,
 
 class RawKey k where
   rawKey :: Iso' k BS.ByteString
+
+instance RawKey Text where
+  rawKey = iso cs cs
 
 instance RawKey Address where
     rawKey = iso addressToBytes addressFromBytes

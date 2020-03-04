@@ -107,6 +107,7 @@ class QueryData a where
   toQueryData k = k ^. rawKey . to fromBytes
 
 instance QueryData Address
+instance QueryData Text
 instance QueryData Word64
 instance QueryData ()
 

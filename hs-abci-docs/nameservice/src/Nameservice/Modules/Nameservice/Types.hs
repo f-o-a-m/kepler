@@ -2,23 +2,15 @@
 
 module Nameservice.Modules.Nameservice.Types where
 
-import           Control.Lens                 (iso)
 import           Data.Aeson                   as A
 import           Data.Bifunctor               (bimap)
-import           Data.String                  (IsString (..))
 import           Data.String.Conversions      (cs)
 import           Data.Text                    (Text)
-import qualified Data.Text.Lazy               as TL
 import           Data.Word                    (Word64)
 import           GHC.Generics                 (Generic)
 import           Nameservice.Aeson            (defaultNameserviceOptions)
-import           Proto3.Suite                 (HasDefault, Message,
-                                               MessageField, Named,
-                                               Primitive (..), fromByteString,
+import           Proto3.Suite                 (Message, Named, fromByteString,
                                                toLazyByteString)
-import qualified Proto3.Suite.DotProto        as DotProto
-import qualified Proto3.Wire.Decode           as Decode
-import qualified Proto3.Wire.Encode           as Encode
 import qualified Tendermint.SDK.BaseApp       as BaseApp
 import           Tendermint.SDK.Codec         (HasCodec (..))
 import           Tendermint.SDK.Modules.Auth  (Amount (..), CoinId (..))
@@ -29,22 +21,8 @@ import           Tendermint.SDK.Types.Address (Address)
 
 type NameserviceName = "nameservice"
 
-data NameserviceNamespace
-
 --------------------------------------------------------------------------------
 
-newtype Name = Name Text deriving (Eq, Show, Generic, A.ToJSON, A.FromJSON, HasCodec)
-
-instance Primitive Name where
-  encodePrimitive n (Name txt) = Encode.text n . TL.fromStrict $ txt
-  decodePrimitive = Name . TL.toStrict <$> Decode.text
-  primType _ = DotProto.String
-instance HasDefault Name
-instance MessageField Name
-instance IsString Name where
-  fromString = Name . fromString
-
-instance BaseApp.QueryData Name
 
 data Whois = Whois
   { whoisValue :: Text
@@ -75,15 +53,6 @@ instance HasCodec Whois where
           , whoisPrice = Amount whoisMessagePrice
           }
     in bimap (cs . show) toWhois . fromByteString @WhoisMessage
-
-instance BaseApp.RawKey Name where
-    rawKey = iso (\(Name n) -> cs n) (Name . cs)
-
-instance BaseApp.IsKey Name NameserviceNamespace where
-  type Value Name NameserviceNamespace = Whois
-
-instance BaseApp.Queryable Whois where
-  type Name Whois = "whois"
 
 --------------------------------------------------------------------------------
 -- Exceptions
@@ -136,7 +105,7 @@ instance BaseApp.Select Faucetted
 
 data NameClaimed = NameClaimed
   { nameClaimedOwner :: Address
-  , nameClaimedName  :: Name
+  , nameClaimedName  :: Text
   , nameClaimedValue :: Text
   , nameClaimedBid   :: Amount
   } deriving (Eq, Show, Generic)
@@ -152,7 +121,7 @@ instance BaseApp.ToEvent NameClaimed
 instance BaseApp.Select NameClaimed
 
 data NameRemapped = NameRemapped
-  { nameRemappedName     :: Name
+  { nameRemappedName     :: Text
   , nameRemappedOldValue :: Text
   , nameRemappedNewValue :: Text
   } deriving (Eq, Show, Generic)
@@ -168,7 +137,7 @@ instance BaseApp.ToEvent NameRemapped
 instance BaseApp.Select NameRemapped
 
 data NameDeleted = NameDeleted
-  { nameDeletedName :: Name
+  { nameDeletedName :: Text
   } deriving (Eq, Show, Generic)
 
 nameDeletedAesonOptions :: A.Options
