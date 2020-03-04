@@ -89,9 +89,8 @@ module Tendermint.SDK.BaseApp
   , QueryEffs
   , FromQueryData(..)
   , RouteQ
-  , QueryApi
   , QueryResult(..)
-  , storeQueryHandlers
+  , storeQueryHandler
   , EmptyQueryServer(..)
   , RouterError(ResourceNotFound)
   ) where

@@ -103,5 +103,6 @@ class FromQueryData a where
 
 instance FromQueryData Address
 instance FromQueryData Word64
+instance FromQueryData ()
 
 data EmptyQueryServer = EmptyQueryServer
