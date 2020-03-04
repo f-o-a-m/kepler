@@ -1,23 +1,19 @@
 module SimpleStorage.Modules.SimpleStorage.Query
-  ( CountStoreContents
-  , QueryApi
+  ( QueryApi
   , querier
   ) where
 
-import           Data.Proxy
 import           Polysemy                                   (Members)
-import           SimpleStorage.Modules.SimpleStorage.Keeper (store)
-import           SimpleStorage.Modules.SimpleStorage.Types  (Count, CountKey)
+import           Servant.API                                ((:>))
+import           SimpleStorage.Modules.SimpleStorage.Keeper (countVar)
+import           SimpleStorage.Modules.SimpleStorage.Types  (Count)
 import qualified Tendermint.SDK.BaseApp                     as BaseApp
+import qualified Tendermint.SDK.BaseApp.Store.Var           as V
 
 
-type CountStoreContents = '[(CountKey, Count)]
-
-type QueryApi = BaseApp.QueryApi CountStoreContents
+type QueryApi = "count" :> BaseApp.StoreLeaf (V.Var Count)
 
 querier
   :: Members BaseApp.QueryEffs r
   => BaseApp.RouteQ QueryApi r
-querier =
-  BaseApp.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
-    store (Proxy :: Proxy r)
+querier = BaseApp.storeQueryHandler countVar

@@ -19,8 +19,8 @@ import           Servant.API                         ((:>))
 import           Tendermint.SDK.BaseApp.Errors       (makeAppError)
 import           Tendermint.SDK.BaseApp.Query.Effect (QueryEffs)
 import           Tendermint.SDK.BaseApp.Query.Router (HasQueryRouter (..))
-import           Tendermint.SDK.BaseApp.Query.Types  (FromQueryData, Leaf, QA,
-                                                      QueryArgs (..),
+import           Tendermint.SDK.BaseApp.Query.Types  (Leaf, QA, QueryArgs (..),
+                                                      QueryData,
                                                       QueryResult (..))
 import           Tendermint.SDK.BaseApp.Router       (RouterError (..))
 import           Tendermint.SDK.BaseApp.Store        (RawKey (..), ReadStore,
@@ -44,7 +44,7 @@ import           Tendermint.SDK.Codec                (HasCodec)
 
 data StoreLeaf a
 
-instance (FromQueryData k, HasCodec v, Member (Tagged 'QueryAndMempool ReadStore) r) => HasQueryRouter (StoreLeaf (M.Map k v)) r where
+instance (QueryData k, HasCodec v, Member (Tagged 'QueryAndMempool ReadStore) r) => HasQueryRouter (StoreLeaf (M.Map k v)) r where
 
    type RouteQ (StoreLeaf (M.Map k v)) r = RouteQ (QA k :> Leaf v) r
    routeQ _ = routeQ (Proxy @(QA k :> Leaf v))

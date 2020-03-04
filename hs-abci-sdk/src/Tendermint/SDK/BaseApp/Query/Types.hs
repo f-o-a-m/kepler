@@ -4,7 +4,7 @@ module Tendermint.SDK.BaseApp.Query.Types
     Leaf
   , QA
   , EmptyQueryServer(..)
-  , FromQueryData(..)
+  , QueryData(..)
 
   -- * Query Application
   , QueryApplication
@@ -16,8 +16,9 @@ module Tendermint.SDK.BaseApp.Query.Types
 
   ) where
 
-import           Control.Lens                           (from, lens, (^.))
-import           Data.ByteArray.Base64String            (Base64String, toBytes)
+import           Control.Lens                           (from, lens, to, (^.))
+import           Data.ByteArray.Base64String            (Base64String,
+                                                         fromBytes, toBytes)
 import           Data.Int                               (Int64)
 import           Data.Text                              (Text, breakOn, uncons)
 import           Data.Word                              (Word64)
@@ -95,14 +96,18 @@ data QueryResult a = QueryResult
 -- | This class is used to parse the 'data' field of the query request message.
 -- | The default method assumes that the 'data' is simply the key for the
 -- | value being queried.
-class FromQueryData a where
+class QueryData a where
   fromQueryData :: Base64String -> Either String a
+  toQueryData :: a -> Base64String
 
   default fromQueryData :: RawKey a => Base64String -> Either String a
   fromQueryData bs = Right (toBytes bs ^. from rawKey)
 
-instance FromQueryData Address
-instance FromQueryData Word64
-instance FromQueryData ()
+  default toQueryData :: RawKey a => a -> Base64String
+  toQueryData k = k ^. rawKey . to fromBytes
+
+instance QueryData Address
+instance QueryData Word64
+instance QueryData ()
 
 data EmptyQueryServer = EmptyQueryServer

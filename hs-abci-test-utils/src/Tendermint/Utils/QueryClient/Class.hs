@@ -1,7 +1,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Tendermint.Utils.QueryClient.Class where
 
-import           Control.Lens                           (to, (^.))
+import           Control.Lens                           ((^.))
 import           Control.Monad.Reader                   (ReaderT)
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteArray.HexString               as Hex
@@ -9,6 +9,7 @@ import           Data.ByteString                        (ByteString)
 import           Data.Proxy
 import           Data.String.Conversions                (cs)
 import           Data.Text                              (Text, intercalate)
+import           Data.Word                              (Word64)
 import           GHC.TypeLits                           (KnownSymbol, symbolVal)
 import           Network.ABCI.Types.Messages.FieldTypes (WrappedVal (..))
 import qualified Network.ABCI.Types.Messages.Request    as Req
@@ -20,8 +21,11 @@ import           Tendermint.SDK.BaseApp.Errors          (queryAppError)
 import           Tendermint.SDK.BaseApp.Query.Store     (StoreLeaf)
 import           Tendermint.SDK.BaseApp.Query.Types     (Leaf, QA,
                                                          QueryArgs (..),
+                                                         QueryData (..),
                                                          QueryResult (..))
-import           Tendermint.SDK.BaseApp.Store           (RawKey (..))
+import qualified Tendermint.SDK.BaseApp.Store.Array     as A
+import qualified Tendermint.SDK.BaseApp.Store.Map       as M
+import qualified Tendermint.SDK.BaseApp.Store.Var       as V
 import           Tendermint.SDK.Codec                   (HasCodec (decode))
 import           Tendermint.Utils.QueryClient.Types
 import           Web.Internal.HttpApiData               (ToHttpApiData (..))
@@ -80,10 +84,10 @@ instance (KnownSymbol sym, ToHttpApiData a, HasQueryClient m api, SBoolI (FoldRe
       pname :: Text
       pname  = cs $ symbolVal (Proxy :: Proxy sym)
 
-instance (RawKey k, HasQueryClient m a) => HasQueryClient m (QA k :> a) where
+instance (QueryData k, HasQueryClient m a) => HasQueryClient m (QA k :> a) where
     type ClientQ m (QA k :> a) = QueryArgs k -> ClientQ m a
     genClientQ pm _ (q,qs) QueryArgs{..} = genClientQ pm (Proxy @a)
-      (q { Req.queryData = queryArgsData ^. rawKey . to Base64.fromBytes
+      (q { Req.queryData = toQueryData queryArgsData
          , Req.queryHeight = WrappedVal queryArgsHeight
          , Req.queryProve = queryArgsProve
          }, qs)
@@ -133,12 +137,17 @@ leafGenClient (q,qs) = do
              }
     _ -> QueryError $ r ^. queryAppError
 
-instance (RunQueryClient m, Queryable a, name ~  Name a, KnownSymbol name ) => HasQueryClient m (StoreLeaf a) where
-    type ClientQ m (StoreLeaf a) = m (QueryClientResponse a)
-    genClientQ _ _ (q,qs) =
-        let leaf = symbolVal (Proxy @(Name a))
-            q' = q { Req.queryPath = Req.queryPath q <> "/" <> cs leaf }
-        in leafGenClient (q', qs)
+instance (HasCodec a, RunQueryClient m) => HasQueryClient m (StoreLeaf (V.Var a)) where
+    type ClientQ m (StoreLeaf (V.Var a)) = ClientQ m (QA () :> Leaf a)
+    genClientQ pm _ = genClientQ pm (Proxy @(QA () :> Leaf a))
+
+instance (HasCodec a, RunQueryClient m) => HasQueryClient m (StoreLeaf (A.Array a)) where
+    type ClientQ m (StoreLeaf (A.Array a)) = ClientQ m (QA Word64 :> Leaf a)
+    genClientQ pm _ = genClientQ pm (Proxy @(QA Word64 :> Leaf a))
+
+instance (QueryData k, HasCodec v, RunQueryClient m) => HasQueryClient m (StoreLeaf (M.Map k v)) where
+    type ClientQ m (StoreLeaf (M.Map k v)) = ClientQ m (QA k :> Leaf v)
+    genClientQ pm _ = genClientQ pm (Proxy @(QA k :> Leaf v))
 
 -- | Singleton type representing a client for an empty API.
 data EmptyQueryClient = EmptyQueryClient deriving (Eq, Show, Bounded, Enum)

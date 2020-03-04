@@ -44,7 +44,7 @@ instance MessageField Name
 instance IsString Name where
   fromString = Name . fromString
 
-instance BaseApp.FromQueryData Name
+instance BaseApp.QueryData Name
 
 data Whois = Whois
   { whoisValue :: Text

@@ -3,16 +3,14 @@ module SimpleStorage.Modules.SimpleStorage.Router
   , messageHandlers
   ) where
 
-import           Polysemy                                    (Member, Members,
-                                                              Sem)
+import           Polysemy                                    (Member, Sem)
 import           SimpleStorage.Modules.SimpleStorage.Keeper  (SimpleStorageKeeper,
                                                               updateCount)
 import           SimpleStorage.Modules.SimpleStorage.Message
 import           SimpleStorage.Modules.SimpleStorage.Types   (Count (..))
-import           Tendermint.SDK.BaseApp                      ((:~>), BaseEffs,
-                                                              Return, RouteTx,
+import           Tendermint.SDK.BaseApp                      ((:~>), Return,
+                                                              RouteTx,
                                                               RoutingTx (..),
-                                                              TxEffs,
                                                               TypedMessage)
 import           Tendermint.SDK.Types.Message                (Msg (..))
 import           Tendermint.SDK.Types.Transaction            (Tx (..))
@@ -23,15 +21,11 @@ type MessageApi =
 
 messageHandlers
   :: Member SimpleStorageKeeper r
-  => Members TxEffs r
-  => Members BaseEffs r
   => RouteTx MessageApi r
 messageHandlers = updateCountH
 
 updateCountH
   :: Member SimpleStorageKeeper r
-  => Members TxEffs r
-  => Members BaseEffs r
   => RoutingTx UpdateCountTx
   -> Sem r ()
 updateCountH (RoutingTx Tx{txMsg}) =

@@ -32,8 +32,8 @@ import           Servant.API
 import           Tendermint.SDK.Application         (Module (..), ModuleEffs)
 import qualified Tendermint.SDK.BaseApp             as BA
 import qualified Tendermint.SDK.BaseApp.Store.Array as A
-import qualified Tendermint.SDK.BaseApp.Store.Var   as V
 import qualified Tendermint.SDK.BaseApp.Store.Map   as M
+import qualified Tendermint.SDK.BaseApp.Store.Var   as V
 import           Tendermint.SDK.Codec               (HasCodec (..))
 import qualified Tendermint.SDK.Modules.Bank        as B
 import           Tendermint.SDK.Types.Address       (Address)
@@ -132,7 +132,7 @@ instance BA.IsKey CountKey SimpleStorageNamespace where
 countVar :: V.Var Count
 countVar = V.makeVar CountKey store
 
-instance BA.FromQueryData CountKey
+instance BA.QueryData CountKey
 
 data PaidKey = PaidKey
 
@@ -247,7 +247,7 @@ updatePaidCountH (BA.RoutingTx Tx{txMsg}) =
 -- Server
 --------------------------------------------------------------------------------
 
-type CountStoreApi = 
+type CountStoreApi =
   "count" :> BA.StoreLeaf (V.Var Count) :<|>
   "counts" :> BA.StoreLeaf (A.Array Count) :<|>
   "amount_paid" :> BA.StoreLeaf (M.Map Address AmountPaid)
@@ -285,7 +285,7 @@ querier
   => Member SimpleStorageKeeper r
   => BA.RouteQ QueryApi r
 querier =
-  getMultipliedCount :<|> 
+  getMultipliedCount :<|>
     ( BA.storeQueryHandler countVar :<|>
       BA.storeQueryHandler countsList :<|>
       BA.storeQueryHandler paidMap

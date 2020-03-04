@@ -88,7 +88,7 @@ module Tendermint.SDK.BaseApp
 
   -- * Query
   , QueryEffs
-  , FromQueryData(..)
+  , QueryData(..)
   , RouteQ
   , QueryResult(..)
   , storeQueryHandler
