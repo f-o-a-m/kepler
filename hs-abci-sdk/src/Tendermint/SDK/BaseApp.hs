@@ -40,6 +40,7 @@ module Tendermint.SDK.BaseApp
   -- * Query Routes
   , Leaf
   , QA
+  , StoreLeaf
 
   -- * Errors
   , AppError(..)
