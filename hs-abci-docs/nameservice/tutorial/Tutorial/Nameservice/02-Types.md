@@ -150,22 +150,6 @@ At is point, you can use the database operations exported by `Tendermint.SDK.Bas
 
 The [`cosmos-sdk`](https://github.com/cosmos/cosmos-sdk) assumes that you use `url` formatted queries with some possible query params. For example, to query a `Whois` value based on a `Name`, you might submit a `query` message with the route `nameservice/whois` and supply a value of type `Name` to specify as the `data` field. Our SDK makes the same assumption for compatability reasons.
 
-In order to register the `Whois` type with the query service, you must implement the `Queryable` typeclass:
-
-~~~ haskell ignore
-class HasCodec a => Queryable a where
-  type Name a :: Symbol
-~~~
-
-This means that any item which is queryable needs to have codecs via the `HasCodec` class. You also need to name the type, as this will match the leaf of the `url` used for querying. So for example, in the Nameservice app we have
-
-~~~ haskell
-instance BA.Queryable Whois where
-  type Name Whois = "whois"
-~~~
-
-since `Whois` already implements the `HasCodec` class.
-
 ### Error Types
 
 You might want to define a module specific error type that has a `throw`/`catch` interface. This error type should be accessible by any other dependent modules, and any uncaught error should eventually be converted into some kind of generic application error understandable by Tendermint.

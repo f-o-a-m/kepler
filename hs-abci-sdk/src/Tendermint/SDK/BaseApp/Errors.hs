@@ -82,7 +82,7 @@ data SDKError =
   | MessageValidation [Text]
   | SignatureRecoveryError Text
   | NonceException Word64 Word64
-  | RawStoreInvalidOperation Text
+  | StoreError Text
   | GrpcError Text
   | UnknownAccountError Address
   deriving (Show)
@@ -139,10 +139,10 @@ instance IsAppError SDKError where
          " but got " <> (cs . show $ toInteger found) <> "."
     }
 
-  makeAppError (RawStoreInvalidOperation operation) = AppError
+  makeAppError (StoreError msg) = AppError
     { appErrorCode = 8
     , appErrorCodespace = "sdk"
-    , appErrorMessage = "Unsupported RawStore operation: `" <> operation <> "`"
+    , appErrorMessage = "Store Error: " <> msg
     }
 
   makeAppError (GrpcError msg) = AppError

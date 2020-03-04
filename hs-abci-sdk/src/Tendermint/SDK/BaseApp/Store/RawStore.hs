@@ -32,6 +32,7 @@ module Tendermint.SDK.BaseApp.Store.RawStore
   , Store
   , nestStore
   , makeStore
+  , makeStoreKey
 
   , Version(..)
   ) where
@@ -41,6 +42,7 @@ import           Data.ByteArray.Base64String   (Base64String)
 import qualified Data.ByteString               as BS
 import           Data.Proxy
 import           Data.String.Conversions       (cs)
+import           Data.Text
 import           Data.Word                     (Word64)
 import           Numeric.Natural               (Natural)
 import           Polysemy                      (Member, Members, Sem, makeSem)
@@ -60,11 +62,17 @@ import           Tendermint.SDK.Types.Address  (Address, addressFromBytes,
 class RawKey k where
   rawKey :: Iso' k BS.ByteString
 
+instance RawKey Text where
+  rawKey = iso cs cs
+
 instance RawKey Address where
     rawKey = iso addressToBytes addressFromBytes
 
 instance RawKey Word64 where
     rawKey = iso encode (either (error "Error decoding Word64 RawKey") id . decode)
+
+instance RawKey () where
+    rawKey = iso (const "") (const ())
 
 class RawKey k => IsKey k ns where
   type Value k ns :: *

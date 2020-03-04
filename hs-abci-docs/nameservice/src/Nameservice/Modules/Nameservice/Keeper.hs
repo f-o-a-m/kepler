@@ -1,75 +1,78 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Nameservice.Modules.Nameservice.Keeper
-  ( NameserviceKeeper
-  , NameserviceEffs
+  ( NameserviceEffs
+  , NameserviceKeeper(..)
   , nameserviceCoinId
   , setName
   , deleteName
   , buyName
-  , store
   , faucetAccount
+  , getWhois
   , eval
   ) where
 
-import           Data.Proxy
-import           Data.String.Conversions                  (cs)
-import           GHC.TypeLits                             (symbolVal)
 import           Nameservice.Modules.Nameservice.Messages
+import           Nameservice.Modules.Nameservice.Store
 import           Nameservice.Modules.Nameservice.Types
-import           Polysemy                                 (Members, Sem,
+import           Polysemy                                 (Member, Members, Sem,
                                                            interpret, makeSem)
 import           Polysemy.Error                           (Error, mapError,
                                                            throw)
 import           Polysemy.Output                          (Output)
 import qualified Tendermint.SDK.BaseApp                   as BaseApp
+import qualified Tendermint.SDK.BaseApp.Store.Map         as M
 import           Tendermint.SDK.Modules.Auth              (Coin (..), CoinId)
 import           Tendermint.SDK.Modules.Bank              (BankEffs, burn, mint,
                                                            transfer)
 
 data NameserviceKeeper m a where
-  PutWhois :: Name -> Whois -> NameserviceKeeper m ()
+  FaucetAccount :: FaucetAccountMsg -> NameserviceKeeper m ()
+  BuyName :: BuyNameMsg -> NameserviceKeeper m ()
+  DeleteName :: DeleteNameMsg -> NameserviceKeeper m ()
+  SetName :: SetNameMsg -> NameserviceKeeper m ()
   GetWhois :: Name -> NameserviceKeeper m (Maybe Whois)
-  DeleteWhois :: Name -> NameserviceKeeper m ()
 
 makeSem ''NameserviceKeeper
 
 type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
-
-store :: BaseApp.Store NameserviceNamespace
-store = BaseApp.makeStore $
-  BaseApp.KeyRoot $ cs . symbolVal $ Proxy @NameserviceName
 
 nameserviceCoinId :: CoinId
 nameserviceCoinId = "nameservice"
 
 eval
   :: Members BaseApp.TxEffs r
+  => Members BankEffs r
+  => Members BaseApp.BaseEffs r
   => forall a. Sem (NameserviceKeeper ': Error NameserviceError ': r) a
   -> Sem r a
 eval = mapError BaseApp.makeAppError . evalNameservice
   where
     evalNameservice
       :: Members BaseApp.TxEffs r
+      => Members BaseApp.BaseEffs r
+      => Members BankEffs r
+      => Member (Error NameserviceError) r
       => Sem (NameserviceKeeper ': r) a -> Sem r a
     evalNameservice =
       interpret (\case
-          GetWhois name ->
-            BaseApp.get store name
-          PutWhois name whois ->
-            BaseApp.put store name whois
-          DeleteWhois name ->
-            BaseApp.delete store name
+          FaucetAccount msg -> faucetAccountF msg
+          BuyName msg -> buyNameF msg
+          DeleteName msg -> deleteNameF msg
+          SetName msg -> setNameF msg
+          GetWhois name -> M.lookup name whoisMap
         )
 
 --------------------------------------------------------------------------------
 
-faucetAccount
+--------------------------------------------------------------------------------
+
+faucetAccountF
   :: Members [BaseApp.Logger, Output BaseApp.Event] r
   => Members BankEffs r
-  => FaucetAccount
+  => FaucetAccountMsg
   -> Sem r ()
-faucetAccount FaucetAccount{..} = do
+faucetAccountF FaucetAccountMsg{..} = do
   let coin = Coin faucetAccountCoinId faucetAccountAmount
   mint faucetAccountTo coin
   let event = Faucetted
@@ -80,20 +83,21 @@ faucetAccount FaucetAccount{..} = do
   BaseApp.emit event
   BaseApp.logEvent event
 
-setName
-  :: Members [BaseApp.Logger, Output BaseApp.Event] r
-  => Members NameserviceEffs r
-  => SetName
+setNameF
+  :: Members BaseApp.TxEffs r
+  => Members BaseApp.BaseEffs r
+  => Member (Error NameserviceError) r
+  => SetNameMsg
   -> Sem r ()
-setName SetName{..} = do
-  mwhois <- getWhois setNameName
+setNameF SetNameMsg{..} = do
+  mwhois <- M.lookup (Name setNameName) whoisMap
   case mwhois of
     Nothing -> throw $ UnauthorizedSet "Cannot claim name with SetMessage tx."
     Just currentWhois@Whois{..} ->
       if whoisOwner /= setNameOwner
         then throw $ UnauthorizedSet "Setter must be the owner of the Name."
         else do
-          putWhois setNameName currentWhois {whoisValue = setNameValue}
+          M.insert (Name setNameName) (currentWhois {whoisValue = setNameValue}) whoisMap
           let event = NameRemapped
                 { nameRemappedName = setNameName
                 , nameRemappedNewValue = setNameValue
@@ -102,14 +106,15 @@ setName SetName{..} = do
           BaseApp.emit event
           BaseApp.logEvent event
 
-deleteName
-  :: Members [BaseApp.Logger, Output BaseApp.Event] r
+deleteNameF
+  :: Members BaseApp.TxEffs r
+  => Members BaseApp.BaseEffs r
   => Members BankEffs r
-  => Members NameserviceEffs r
-  => DeleteName
+  => Member (Error NameserviceError) r
+  => DeleteNameMsg
   -> Sem r ()
-deleteName DeleteName{..} = do
-  mWhois <- getWhois deleteNameName
+deleteNameF DeleteNameMsg{..} = do
+  mWhois <- M.lookup (Name deleteNameName) whoisMap
   case mWhois of
     Nothing -> throw $ InvalidDelete "Can't remove unassigned name."
     Just Whois{..} ->
@@ -117,23 +122,24 @@ deleteName DeleteName{..} = do
         then throw $ InvalidDelete "Deleter must be the owner."
         else do
           mint deleteNameOwner (Coin nameserviceCoinId whoisPrice)
-          deleteWhois deleteNameName
+          M.delete (Name deleteNameName) whoisMap
           let event = NameDeleted
                 { nameDeletedName = deleteNameName
                 }
           BaseApp.emit event
           BaseApp.logEvent event
 
-buyName
-  :: Members [BaseApp.Logger, Output BaseApp.Event] r
+buyNameF
+  :: Members BaseApp.TxEffs r
   => Members BankEffs r
-  => Members NameserviceEffs r
-  => BuyName
+  => Members BaseApp.BaseEffs r
+  => Member (Error NameserviceError) r
+  => BuyNameMsg
   -> Sem r ()
 -- ^ did it succeed
-buyName msg = do
+buyNameF msg = do
   let name = buyNameName msg
-  mWhois <- getWhois name
+  mWhois <- M.lookup (Name name) whoisMap
   case mWhois of
     -- The name is unclaimed, go ahead and debit the account
     -- and create it.
@@ -143,19 +149,19 @@ buyName msg = do
     Just whois -> buyClaimedName msg whois
     where
       buyUnclaimedName
-        :: Members [BaseApp.Logger, Output BaseApp.Event] r
+        :: Members BaseApp.TxEffs r
+        => Members BaseApp.BaseEffs r
         => Members BankEffs r
-        => Members NameserviceEffs r
-        => BuyName
+        => BuyNameMsg
         -> Sem r ()
-      buyUnclaimedName BuyName{..} = do
+      buyUnclaimedName BuyNameMsg{..} = do
         burn buyNameBuyer (Coin nameserviceCoinId buyNameBid)
         let whois = Whois
               { whoisOwner = buyNameBuyer
               , whoisValue = buyNameValue
               , whoisPrice = buyNameBid
               }
-        putWhois buyNameName whois
+        M.insert (Name buyNameName) whois whoisMap
         let event = NameClaimed
               { nameClaimedOwner = buyNameBuyer
               , nameClaimedName = buyNameName
@@ -166,22 +172,25 @@ buyName msg = do
         BaseApp.logEvent event
 
       buyClaimedName
-        :: Members NameserviceEffs r
+        :: Members BaseApp.TxEffs r
+        => Member (Error NameserviceError) r
+        => Members BaseApp.BaseEffs r
         => Members BankEffs r
-        => Members [BaseApp.Logger, Output BaseApp.Event] r
-        => BuyName
+        => BuyNameMsg
         -> Whois
         -> Sem r ()
-      buyClaimedName BuyName{..} currentWhois =
+      buyClaimedName BuyNameMsg{..} currentWhois =
         let Whois{ whoisPrice = forsalePrice, whoisOwner = previousOwner } = currentWhois
         in if buyNameBid > forsalePrice
              then do
                transfer buyNameBuyer (Coin nameserviceCoinId buyNameBid) previousOwner
                -- update new owner, price and value based on BuyName
-               putWhois buyNameName currentWhois { whoisOwner = buyNameBuyer
-                                                 , whoisPrice = buyNameBid
-                                                 , whoisValue = buyNameValue
-                                                 }
+               let whois' = currentWhois
+                     { whoisOwner = buyNameBuyer
+                     , whoisPrice = buyNameBid
+                     , whoisValue = buyNameValue
+                     }
+               M.insert (Name buyNameName) whois' whoisMap
                let event = NameClaimed
                      { nameClaimedOwner = buyNameBuyer
                      , nameClaimedName = buyNameName

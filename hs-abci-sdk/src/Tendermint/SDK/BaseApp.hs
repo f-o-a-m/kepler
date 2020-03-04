@@ -40,6 +40,7 @@ module Tendermint.SDK.BaseApp
   -- * Query Routes
   , Leaf
   , QA
+  , StoreLeaf
 
   -- * Errors
   , AppError(..)
@@ -87,12 +88,10 @@ module Tendermint.SDK.BaseApp
 
   -- * Query
   , QueryEffs
-  , Queryable(..)
-  , FromQueryData(..)
+  , QueryData(..)
   , RouteQ
-  , QueryApi
   , QueryResult(..)
-  , storeQueryHandlers
+  , storeQueryHandler
   , EmptyQueryServer(..)
   , RouterError(ResourceNotFound)
   ) where

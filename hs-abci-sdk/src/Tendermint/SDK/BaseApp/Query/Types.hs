@@ -4,7 +4,7 @@ module Tendermint.SDK.BaseApp.Query.Types
     Leaf
   , QA
   , EmptyQueryServer(..)
-  , FromQueryData(..)
+  , QueryData(..)
 
   -- * Query Application
   , QueryApplication
@@ -14,21 +14,19 @@ module Tendermint.SDK.BaseApp.Query.Types
   , defaultQueryArgs
   , QueryResult(..)
 
-  -- * Store Queries
-  , Queryable(..)
   ) where
 
-import           Control.Lens                           (from, lens, (^.))
-import           Data.ByteArray.Base64String            (Base64String, toBytes)
+import           Control.Lens                           (from, lens, to, (^.))
+import           Data.ByteArray.Base64String            (Base64String,
+                                                         fromBytes, toBytes)
 import           Data.Int                               (Int64)
 import           Data.Text                              (Text, breakOn, uncons)
-import           GHC.TypeLits                           (Symbol)
+import           Data.Word                              (Word64)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof, WrappedVal (..))
 import qualified Network.ABCI.Types.Messages.Request    as Request
 import qualified Network.ABCI.Types.Messages.Response   as Response
 import           Tendermint.SDK.BaseApp.Router.Types    (HasPath (..))
 import           Tendermint.SDK.BaseApp.Store           (RawKey (..))
-import           Tendermint.SDK.Codec                   (HasCodec (..))
 import           Tendermint.SDK.Types.Address           (Address)
 
 data Leaf (a :: *)
@@ -95,21 +93,22 @@ data QueryResult a = QueryResult
 
 --------------------------------------------------------------------------------
 
--- | class representing objects which can be queried via the hs-abci query message.
--- | Here the 'Name' is the leaf of the query url, e.g. if you can access a token
--- | balance of type `Balance` at "token/balance", then 'Name Balance ~ "balance"'.
-class HasCodec a => Queryable a where
-  type Name a :: Symbol
-
 -- | This class is used to parse the 'data' field of the query request message.
 -- | The default method assumes that the 'data' is simply the key for the
 -- | value being queried.
-class FromQueryData a where
+class QueryData a where
   fromQueryData :: Base64String -> Either String a
+  toQueryData :: a -> Base64String
 
   default fromQueryData :: RawKey a => Base64String -> Either String a
   fromQueryData bs = Right (toBytes bs ^. from rawKey)
 
-instance FromQueryData Address
+  default toQueryData :: RawKey a => a -> Base64String
+  toQueryData k = k ^. rawKey . to fromBytes
+
+instance QueryData Address
+instance QueryData Text
+instance QueryData Word64
+instance QueryData ()
 
 data EmptyQueryServer = EmptyQueryServer

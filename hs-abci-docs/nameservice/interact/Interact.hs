@@ -46,22 +46,22 @@ import           Test.RandomStrings                (onlyWith, randomASCII,
 
 faucetAccount :: Signer -> Auth.Amount -> IO ()
 faucetAccount s@(Signer addr _) amount =
-  runAction_ s faucet $ N.FaucetAccount addr N.nameserviceCoinId amount
+  runAction_ s faucet $ N.FaucetAccountMsg addr N.nameserviceCoinId amount
 
-createName :: Signer -> N.Name -> Text -> IO ()
+createName :: Signer -> Text -> Text -> IO ()
 createName s name val = buyName s name val 0
 
-buyName :: Signer -> N.Name -> Text -> Auth.Amount -> IO ()
+buyName :: Signer -> Text -> Text -> Auth.Amount -> IO ()
 buyName s@(Signer addr _) name newVal amount =
-  runAction_ s buy $ N.BuyName amount name newVal addr
+  runAction_ s buy $ N.BuyNameMsg amount name newVal addr
 
-deleteName :: Signer -> N.Name -> IO ()
+deleteName :: Signer -> Text -> IO ()
 deleteName s@(Signer addr _) name =
-  runAction_ s delete $ N.DeleteName addr name
+  runAction_ s delete $ N.DeleteNameMsg addr name
 
-setName :: Signer -> N.Name -> Text -> IO ()
+setName :: Signer -> Text -> Text -> IO ()
 setName s@(Signer addr _) name val =
-  runAction_ s set $ N.SetName name addr val
+  runAction_ s set $ N.SetNameMsg name addr val
 
 runAction_
   :: Signer
@@ -144,22 +144,22 @@ runTxClientM m = runReaderT m txClientConfig
 -- Nameservice Client
 buy
   :: TxOpts
-  -> N.BuyName
+  -> N.BuyNameMsg
   -> TxClientM (TxClientResponse () ())
 
 set
   :: TxOpts
-  -> N.SetName
+  -> N.SetNameMsg
   -> TxClientM (TxClientResponse () ())
 
 delete
   :: TxOpts
-  -> N.DeleteName
+  -> N.DeleteNameMsg
   -> TxClientM (TxClientResponse () ())
 
 faucet
   :: TxOpts
-  -> N.FaucetAccount
+  -> N.FaucetAccountMsg
   -> TxClientM (TxClientResponse () ())
 
 (buy :<|> set :<|> delete :<|> faucet) :<|>
@@ -183,10 +183,8 @@ genWords = do
   ws <- replicateM numWords Lorem.word
   return . cs . unwords $ ws
 
-genName :: IO N.Name
-genName = do
-  name <- Name.name
-  return . fromString $ name
+genName :: IO Text
+genName = fromString <$> Name.name
 
 genAmount :: IO Auth.Amount
 genAmount = do

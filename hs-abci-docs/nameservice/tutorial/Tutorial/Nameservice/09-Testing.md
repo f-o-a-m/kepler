@@ -117,28 +117,28 @@ Once we have defined our monad capable of querying nonces, we can then generate 
 -- Nameservice Client
 buyName
   :: TxOpts
-  -> N.BuyName
+  -> N.BuyNameMsg
   -> TxClientM (TxClientResponse () ())
 
 setName
   :: TxOpts
-  -> N.SetName
+  -> N.SetNameMsg
   -> TxClientM (TxClientResponse () ())
 
 deleteName
   :: TxOpts
-  -> N.DeleteName
+  -> N.DeleteNameMsg
   -> TxClientM (TxClientResponse () ())
 
 -- Bank Client
 transfer
   :: TxOpts
-  -> B.Transfer
+  -> B.TransferMsg
   -> TxClientM (TxClientResponse () ())
 
 faucet
   :: TxOpts
-  -> N.FaucetAccount
+  -> N.FaucetAccountMsg
   -> TxClientM (TxClientResponse () ())
 
 (buyName :<|> setName :<|> deleteName :<|> faucet) :<|>

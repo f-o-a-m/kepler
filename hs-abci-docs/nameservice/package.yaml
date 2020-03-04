@@ -56,7 +56,6 @@ library:
     - polysemy
     - polysemy-plugin
     - proto3-suite
-    - proto3-wire
     - servant
     - string-conversions
     - text
@@ -78,6 +77,7 @@ library:
   - Nameservice.Modules.Nameservice
   - Nameservice.Modules.Nameservice.Messages
   - Nameservice.Modules.Nameservice.Types
+  - Nameservice.Modules.Nameservice.Store
   - Nameservice.Modules.Nameservice.Keeper
   - Nameservice.Modules.Nameservice.Query
   - Nameservice.Modules.Nameservice.Router

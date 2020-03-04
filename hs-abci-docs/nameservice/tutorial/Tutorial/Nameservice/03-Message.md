@@ -29,7 +29,7 @@ import Data.String.Conversions (cs)
 import Data.Text (Text)
 import Data.Word (Word64)
 import GHC.Generics (Generic)
-import Nameservice.Modules.Nameservice.Types (Name(..))
+import Nameservice.Modules.Nameservice.Types
 import Proto3.Suite (Named, Message, fromByteString, toLazyByteString)
 import Tendermint.SDK.Types.Address (Address)
 import Tendermint.SDK.Types.Message (Msg(..), ValidateMessage(..), HasMessageType(..),
@@ -46,49 +46,49 @@ For the puroposes of the tutorial, we will use the `proto3-suite` for the messag
 
 
 ~~~ haskell
-data SetName = SetName
-  { setNameName  :: Name
+data SetNameMsg = SetNameMsg
+  { setNameName  :: Text
   , setNameOwner :: Address
   , setNameValue :: Text
   } deriving (Eq, Show, Generic)
 
-instance Message SetName
-instance Named SetName
+instance Message SetNameMsg
+instance Named SetNameMsg
 
-instance HasCodec SetName where
+instance HasCodec SetNameMsg where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
-data DeleteName = DeleteName
+data DeleteNameMsg = DeleteNameMsg
   { deleteNameOwner :: Address
-  , deleteNameName  :: Name
+  , deleteNameName  :: Text
   } deriving (Eq, Show, Generic)
 
-instance Message DeleteName
-instance Named DeleteName
+instance Message DeleteNameMsg
+instance Named DeleteNameMsg
 
-instance HasCodec DeleteName where
+instance HasCodec DeleteNameMsg where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
-data BuyName = BuyName
+data BuyNameMsg = BuyNameMsg
   { buyNameBid   :: Amount
-  , buyNameName  :: Name
+  , buyNameName  :: Text
   , buyNameValue :: Text
   , buyNameBuyer :: Address
   } deriving (Eq, Show)
 
 data BuyNameMessage = BuyNameMessage
   { buyNameMessageBid   :: Word64
-  , buyNameMessageName  :: Name
+  , buyNameMessageName  :: Text
   , buyNameMessageValue :: Text
   , buyNameMessageBuyer :: Address
   } deriving (Eq, Show, Generic)
 instance Message BuyNameMessage
 instance Named BuyNameMessage
 
-instance HasCodec BuyName where
-  encode BuyName {..} =
+instance HasCodec BuyNameMsg where
+  encode BuyNameMsg {..} =
     let buyNameMessage = BuyNameMessage
           { buyNameMessageBid = unAmount buyNameBid
           , buyNameMessageName = buyNameName
@@ -97,7 +97,7 @@ instance HasCodec BuyName where
           }
     in cs . toLazyByteString $ buyNameMessage
   decode =
-    let toBuyName BuyNameMessage {..} = BuyName
+    let toBuyName BuyNameMessage {..} = BuyNameMsg
           { buyNameBid = Amount buyNameMessageBid
           , buyNameName = buyNameMessageName
           , buyNameValue = buyNameMessageValue
@@ -118,13 +118,13 @@ to associate each message to a tag to assist in parsing. So for example, we can 
 
 ~~~ haskell
 
-instance HasMessageType SetName where
+instance HasMessageType SetNameMsg where
   messageType _ = "SetName"
 
-instance HasMessageType DeleteName where
+instance HasMessageType DeleteNameMsg where
   messageType _ = "DeleteName"
 
-instance HasMessageType BuyName where
+instance HasMessageType BuyNameMsg where
   messageType _ = "BuyName"
 ~~~
 
@@ -171,31 +171,28 @@ It is also possible to run dynamic checks on the transaction, i.e. checks that n
 Here are the validation instances for our message types, which use some of the combinators defined in the SDK 
 
 ~~~ haskell
-instance ValidateMessage SetName where
+instance ValidateMessage SetNameMsg where
   validateMessage msg@Msg{..} =
-    let SetName{setNameName, setNameValue} = msgData
-        Name name = setNameName
+    let SetNameMsg{setNameName, setNameValue} = msgData
     in sequenceA_
-        [ nonEmptyCheck "Name" name
+        [ nonEmptyCheck "Name" setNameName
         , nonEmptyCheck "Value" setNameValue
         , isAuthorCheck "Owner" msg setNameOwner
         ]
 
-instance ValidateMessage DeleteName where
+instance ValidateMessage DeleteNameMsg where
   validateMessage msg@Msg{..} =
-    let DeleteName{deleteNameName} = msgData
-        Name name = deleteNameName
+    let DeleteNameMsg{deleteNameName} = msgData
     in sequenceA_
-       [ nonEmptyCheck "Name" name
+       [ nonEmptyCheck "Name" deleteNameName
        , isAuthorCheck "Owner" msg deleteNameOwner
        ]
 
-instance ValidateMessage BuyName where
+instance ValidateMessage BuyNameMsg where
   validateMessage msg@Msg{..} =
-    let BuyName{buyNameName, buyNameValue} = msgData
-        Name name = buyNameName
+    let BuyNameMsg{buyNameName, buyNameValue} = msgData
     in sequenceA_
-        [ nonEmptyCheck "Name" name
+        [ nonEmptyCheck "Name" buyNameName
         , nonEmptyCheck "Value" buyNameValue
         , isAuthorCheck "Owner" msg buyNameBuyer
         ]

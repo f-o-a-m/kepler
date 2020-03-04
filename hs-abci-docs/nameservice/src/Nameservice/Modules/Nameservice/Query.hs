@@ -3,22 +3,21 @@ module Nameservice.Modules.Nameservice.Query
   , querier
   ) where
 
-import           Data.Proxy
-import           Nameservice.Modules.Nameservice.Keeper (store)
-import           Nameservice.Modules.Nameservice.Types  (Name, Whois)
-import           Polysemy                               (Members)
-import qualified Tendermint.SDK.BaseApp                 as BaseApp
+import           Nameservice.Modules.Nameservice.Store
+import           Nameservice.Modules.Nameservice.Types
+import           Polysemy                              (Members)
+import           Servant.API                           ((:>))
+import qualified Tendermint.SDK.BaseApp                as BaseApp
+import qualified Tendermint.SDK.BaseApp.Store.Map      as M
 
 --------------------------------------------------------------------------------
 -- | Query API
 --------------------------------------------------------------------------------
 
-type NameserviceContents = '[(Name, Whois)]
 
-type QueryApi = BaseApp.QueryApi NameserviceContents
+type QueryApi = "whois" :> BaseApp.StoreLeaf (M.Map Name Whois)
 
 querier
   :: Members BaseApp.QueryEffs r
   => BaseApp.RouteQ QueryApi r
-querier =
-  BaseApp.storeQueryHandlers (Proxy :: Proxy NameserviceContents) store (Proxy :: Proxy r)
+querier = BaseApp.storeQueryHandler whoisMap

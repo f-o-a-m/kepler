@@ -1,46 +1,76 @@
 {-# LANGUAGE TemplateHaskell #-}
+
 module SimpleStorage.Modules.SimpleStorage.Keeper
-  ( SimpleStorageKeeper
-  , SimpleStorageEffs
+  ( SimpleStorageEffs
+  , SimpleStorageKeeper(..)
   , updateCount
   , getCount
-  , store
   , eval
+  --
+  , countVar
   ) where
 
+import           Control.Lens                              (iso)
+import           Crypto.Hash                               (SHA256 (..),
+                                                            hashWith)
+import           Data.ByteArray                            (convert)
+import           Data.ByteString                           (ByteString)
+import           Data.String.Conversions                   (cs)
 import           Polysemy                                  (Members, Sem,
                                                             interpret, makeSem)
 import           Polysemy.Output                           (Output)
 import           SimpleStorage.Modules.SimpleStorage.Types
 import qualified Tendermint.SDK.BaseApp                    as BaseApp
+import qualified Tendermint.SDK.BaseApp.Store.Var          as V
 
-store :: BaseApp.Store SimpleStorageNamespace
-store = BaseApp.makeStore $ BaseApp.KeyRoot "simple_storage"
+type SimpleStorageEffs = '[SimpleStorageKeeper]
 
 data SimpleStorageKeeper m a where
-    PutCount :: Count -> SimpleStorageKeeper m ()
+    UpdateCount :: Count -> SimpleStorageKeeper m ()
     GetCount :: SimpleStorageKeeper m (Maybe Count)
 
 makeSem ''SimpleStorageKeeper
 
-type SimpleStorageEffs = '[SimpleStorageKeeper]
+eval
+  :: forall r.
+     Members BaseApp.TxEffs r
+  => Members BaseApp.BaseEffs r
+  => forall a. (Sem (SimpleStorageKeeper ': r) a -> Sem r a)
+eval = interpret (\case
+  UpdateCount count -> updateCountF count
+  GetCount -> V.takeVar countVar
+  )
 
-updateCount
-  ::  Members '[SimpleStorageKeeper, Output BaseApp.Event, BaseApp.Logger] r
+updateCountF
+  :: Members '[BaseApp.WriteStore, Output BaseApp.Event, BaseApp.Logger] r
   => Count
   -> Sem r ()
-updateCount count = do
-  putCount count
+updateCountF count = do
+  V.putVar count countVar
   let event = CountSet count
   BaseApp.emit event
   BaseApp.logEvent event
 
-eval
-  :: forall r.
-     Members BaseApp.TxEffs r
-  => forall a. (Sem (SimpleStorageKeeper ': r) a -> Sem r a)
-eval = interpret (\case
-  PutCount count -> do
-    BaseApp.put store CountKey count
-  GetCount -> BaseApp.get store CountKey
-  )
+
+--------------------------------------------------------------------------------
+
+data SimpleStorageNamespace
+
+store :: BaseApp.Store SimpleStorageNamespace
+store = BaseApp.makeStore $ BaseApp.KeyRoot "simple_storage"
+
+data CountKey = CountKey
+
+instance BaseApp.RawKey CountKey where
+    rawKey = iso (\_ -> cs countKey) (const CountKey)
+      where
+        countKey :: ByteString
+        countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
+
+instance BaseApp.IsKey CountKey SimpleStorageNamespace where
+    type Value CountKey SimpleStorageNamespace = V.Var Count
+
+countVar :: V.Var Count
+countVar = V.makeVar CountKey store
+
+instance BaseApp.QueryData CountKey

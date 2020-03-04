@@ -3,6 +3,7 @@
 module Tendermint.SDK.BaseApp.Store.Array
   ( Array
   , makeArray
+  , makeFullStoreKey
   , append
   , modifyAtIndex
   , deleteWhen
@@ -11,25 +12,22 @@ module Tendermint.SDK.BaseApp.Store.Array
   , toList
   ) where
 
-import           Control.Lens                  (iso, (^.))
-import qualified Data.ByteArray.HexString      as Hex
-import qualified Data.ByteString               as BS
-import           Data.Maybe                    (fromMaybe)
-import           Data.String.Conversions       (cs)
-import           Data.Word                     (Word64)
+import           Control.Lens                          (iso, (^.))
+import qualified Data.ByteArray.HexString              as Hex
+import qualified Data.ByteString                       as BS
+import           Data.Maybe                            (fromMaybe)
+import           Data.String.Conversions               (cs)
+import           Data.Word                             (Word64)
 import           Polysemy
-import           Polysemy.Error                (Error)
-import           Prelude                       hiding (foldl, length, (!!))
-import qualified Prelude                       as P (length)
-import           Tendermint.SDK.BaseApp.Errors (AppError,
-                                                SDKError (InternalError),
-                                                throwSDKError)
-import           Tendermint.SDK.BaseApp.Store  (IsKey (..), KeyRoot (..),
-                                                RawKey (..), ReadStore, Store,
-                                                WriteStore, delete, get,
-                                                makeStore, nestStore, put,
-                                                rawKey)
-import           Tendermint.SDK.Codec          (HasCodec (..))
+import           Polysemy.Error                        (Error)
+import           Prelude                               hiding (foldl, length,
+                                                        (!!))
+import qualified Prelude                               as P (length)
+import           Tendermint.SDK.BaseApp.Errors         (AppError,
+                                                        SDKError (InternalError),
+                                                        throwSDKError)
+import           Tendermint.SDK.BaseApp.Store.RawStore as S
+import           Tendermint.SDK.Codec                  (HasCodec (..))
 
 
 
@@ -37,42 +35,49 @@ import           Tendermint.SDK.Codec          (HasCodec (..))
 -- | by their index. You can also delete from the list, in which case accessing
 -- | that index will result in a `Nothing`.
 data Array (a :: *) = Array
-  { listStore :: Store (Array a) }
+  { arrayStore :: S.Store (Array a) }
 
 -- | Represents an index into a list
-newtype Idx = Idx Word64 deriving (Eq, Show, Ord, Num)
+newtype Idx = Idx {unIdx :: Word64} deriving (Eq, Show, Ord, Num)
 
-instance RawKey Idx where
+instance S.RawKey Idx where
   rawKey = iso elementKey unElementKey
 
-instance IsKey Idx (Array a) where
+instance S.IsKey Idx (Array a) where
   type Value Idx (Array a) = a
 
 -- Internal, used for accessing list length.
 data LengthKey = LengthKey
 
-instance RawKey LengthKey where
+instance S.RawKey LengthKey where
   rawKey = iso (const lengthKey) unLengthKey
 
-instance IsKey LengthKey (Array a) where
+instance S.IsKey LengthKey (Array a) where
   type Value LengthKey (Array a) = Word64
 
 -- | Smart constuctor to make sure we're making a 'Array' from
 -- | the appropriate key type.
 makeArray
-  :: IsKey k ns
-  => Value k ns ~ Array a
+  :: S.IsKey k ns
+  => S.Value k ns ~ Array a
   => k
-  -> Store ns
-  -> Value k ns
+  -> S.Store ns
+  -> S.Value k ns
 makeArray k store =
-  let skr :: KeyRoot (Array a)
-      skr = KeyRoot $ k ^. rawKey
-  in Array $ nestStore store (makeStore skr)
+  let skr :: S.KeyRoot (Array a)
+      skr = S.KeyRoot $ k ^. S.rawKey
+  in Array $ S.nestStore store (S.makeStore skr)
+
+makeFullStoreKey
+  :: Array a
+  -> Word64
+  -> S.StoreKey
+makeFullStoreKey Array{..} i =
+  S.makeStoreKey arrayStore (Idx i)
 
 -- | Add an item to the end of the list.
 append
-  :: Members [Error AppError, ReadStore, WriteStore] r
+  :: Members [Error AppError, S.ReadStore, S.WriteStore] r
   => HasCodec a
   => a
   -> Array a
@@ -80,29 +85,30 @@ append
 append a as@Array{..} = do
   n <- length as
   writeAt (Idx n) a as
-  put listStore LengthKey (n + 1)
+  S.put arrayStore LengthKey (n + 1)
 
 -- | Access an item directly by its index.
 (!!)
-  :: Members [Error AppError, ReadStore] r
+  :: Members [Error AppError, S.ReadStore] r
   => HasCodec a
   => Array a
-  -> Idx
+  -> Word64
   -> Sem r (Maybe a)
-as@Array{..} !! n = do
+as@Array{..} !! i = do
+  let n = Idx i
   len <- length as
   if Idx (len - 1) < n
     then pure Nothing
-    else get listStore n
+    else S.get arrayStore n
 
 infixl 9  !!
 
 -- | Modify a list at a particular index, return the
 -- | updated value if the element was found.
 modifyAtIndex
-  :: Members [Error AppError, ReadStore, WriteStore] r
+  :: Members [Error AppError, S.ReadStore, S.WriteStore] r
   => HasCodec a
-  => Idx
+  => Word64
   -> (a -> a)
   -> Array a
   -> Sem r (Maybe a)
@@ -112,19 +118,19 @@ modifyAtIndex i f as = do
     Nothing -> pure Nothing
     Just res -> do
       let a' = f res
-      writeAt i a' as
+      writeAt (Idx i) a' as
       pure (Just a')
 
 -- | Delete when the predicate evaluates to true.
 deleteWhen
-  :: Members [Error AppError, ReadStore, WriteStore] r
+  :: Members [Error AppError, S.ReadStore, S.WriteStore] r
   => HasCodec a
   => (a -> Bool)
   -> Array a
   -> Sem r ()
 deleteWhen p as@Array{..} = do
     len <- length as
-    delete' 0 (Idx (len - 1))
+    delete' 0 (len - 1)
   where
     delete' n end  =
       if n > end
@@ -136,21 +142,21 @@ deleteWhen p as@Array{..} = do
             Just res ->
               if p res
                 then do
-                  delete listStore n
+                  S.delete arrayStore (Idx n)
                   delete' (n + 1) end
                 else delete' (n + 1) end
 
 -- | Get the first index where an element appears in the list.
 elemIndex
-  :: Members [Error AppError, ReadStore] r
+  :: Members [Error AppError, S.ReadStore] r
   => HasCodec a
   => Eq a
   => a
   -> Array a
-  -> Sem r (Maybe Idx)
+  -> Sem r (Maybe Word64)
 elemIndex a as = do
     len <- length as
-    elemIndex' 0 (Idx len)
+    elemIndex' 0 len
   where
     elemIndex' n len
       | n == len = pure Nothing
@@ -162,7 +168,7 @@ elemIndex a as = do
             Just a' -> if a == a' then pure $ Just n else keepLooking
 
 foldl
-  :: Members [Error AppError, ReadStore] r
+  :: Members [Error AppError, S.ReadStore] r
   => HasCodec a
   => (b -> a -> b)
   -> b
@@ -170,7 +176,7 @@ foldl
   -> Sem r b
 foldl f b as = do
   len <- length as
-  foldl' 0 (Idx len) b
+  foldl' 0 len b
   where
     foldl' currentIndex end accum
       | currentIndex == end = pure accum
@@ -183,7 +189,7 @@ foldl f b as = do
 
 -- | View the 'Array' as a 'Array'.
 toList
-  :: Members [Error AppError, ReadStore] r
+  :: Members [Error AppError, S.ReadStore] r
   => HasCodec a
   => Array a
   -> Sem r [a]
@@ -223,15 +229,15 @@ unElementKey bs =
     in Idx . read . dropWhile (== '0') $ str
 
 length
-  :: Members [Error AppError, ReadStore] r
+  :: Members [Error AppError, S.ReadStore] r
   => Array a
   -> Sem r Word64
 length Array{..} = do
-  mLen <- get listStore LengthKey
+  mLen <- S.get arrayStore LengthKey
   pure $ fromMaybe 0 mLen
 
 writeAt
-  :: Members [Error AppError, ReadStore, WriteStore] r
+  :: Members [Error AppError, S.ReadStore, S.WriteStore] r
   => HasCodec a
   => Idx
   -> a
@@ -243,8 +249,8 @@ writeAt idx@(Idx i) a as@Array{..} = do
   where
     writeAt' len
       | i == len = do
-        put listStore idx a
-        put listStore LengthKey i
+        S.put arrayStore idx a
+        S.put arrayStore LengthKey i
       | i < len =
-        put listStore idx a
+        S.put arrayStore idx a
       | otherwise = throwSDKError $ InternalError "Cannot write past list length index."

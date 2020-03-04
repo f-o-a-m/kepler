@@ -32,6 +32,8 @@ import           Servant.API
 import           Tendermint.SDK.Application         (Module (..), ModuleEffs)
 import qualified Tendermint.SDK.BaseApp             as BA
 import qualified Tendermint.SDK.BaseApp.Store.Array as A
+import qualified Tendermint.SDK.BaseApp.Store.Map   as M
+import qualified Tendermint.SDK.BaseApp.Store.Var   as V
 import           Tendermint.SDK.Codec               (HasCodec (..))
 import qualified Tendermint.SDK.Modules.Bank        as B
 import           Tendermint.SDK.Types.Address       (Address)
@@ -46,56 +48,18 @@ import           Tendermint.SDK.Types.Transaction   (Tx (..))
 --------------------------------------------------------------------------------
 type SimpleStorageName = "simple_storage"
 
-data SimpleStorageNamespace
-
 simpleStorageCoinId :: B.CoinId
 simpleStorageCoinId = B.CoinId . cs . symbolVal $ Proxy @SimpleStorageName
 
 newtype Count = Count Int32 deriving (Eq, Show, Ord, Num, Serialize.Serialize)
 
--- Count
-
-data CountKey = CountKey
-
 instance HasCodec Count where
     encode = Serialize.encode
     decode = first cs . Serialize.decode
 
-instance BA.RawKey CountKey where
-    rawKey = iso (\_ -> cs countKey) (const CountKey)
-      where
-        countKey :: ByteString
-        countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
-
-instance BA.IsKey CountKey SimpleStorageNamespace where
-    type Value CountKey SimpleStorageNamespace = Count
-
-instance BA.FromQueryData CountKey
-
-instance BA.Queryable Count where
-  type Name Count = "count"
+-- Count
 
 newtype AmountPaid = AmountPaid B.Amount deriving (Eq, Show, Num, Ord, HasCodec)
-
--- for reporting how much paid to change count
-instance BA.IsKey Address SimpleStorageNamespace where
-    type Value Address SimpleStorageNamespace = AmountPaid
-
-instance BA.Queryable AmountPaid where
-  type Name AmountPaid = "paid"
-
--- | Counts
-
-data CountsKey = CountsKey
-
-instance BA.RawKey CountsKey where
-    rawKey = iso (\_ -> cs countsKey) (const CountsKey)
-      where
-        countsKey :: ByteString
-        countsKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("counts" :: String)
-
-instance BA.IsKey CountsKey SimpleStorageNamespace where
-  type Value CountsKey SimpleStorageNamespace = A.Array Count
 
 --------------------------------------------------------------------------------
 -- Message Types
@@ -138,64 +102,114 @@ instance ValidateMessage UpdatePaidCountTx where
 -- Keeper
 --------------------------------------------------------------------------------
 
-store :: BA.Store SimpleStorageNamespace
-store = BA.makeStore $ BA.KeyRoot (cs . symbolVal $ Proxy @SimpleStorageName)
-
-countsList :: A.Array Count
-countsList = A.makeArray CountsKey store
 
 data SimpleStorageKeeper m a where
-    PutCount :: Count -> SimpleStorageKeeper m ()
+    UpdateCount :: Count -> SimpleStorageKeeper m ()
+    UpdatePaidCount :: Address -> Count -> B.Amount -> SimpleStorageKeeper m ()
     GetCount :: SimpleStorageKeeper m (Maybe Count)
-    StoreAmountPaid :: Address -> AmountPaid -> SimpleStorageKeeper m ()
     GetAllCounts :: SimpleStorageKeeper m [Count]
 
 makeSem ''SimpleStorageKeeper
 
-updateCount
-  :: Member SimpleStorageKeeper r
-  => Count
-  -> Sem r ()
-updateCount count =
-  putCount count
+--------------------------------------------------------------------------------
 
+data SimpleStorageNamespace
 
-updatePaidCount
-  :: forall r .
-     Member SimpleStorageKeeper r
-  => Members B.BankEffs r
-  => Members BA.BaseEffs r
-  => Address
-  -> Count
-  -> B.Amount
-  -> Sem r ()
-updatePaidCount from count amount =
-  catch @_ @r
-    ( do
-        B.burn from (B.Coin simpleStorageCoinId amount)
-        updateCount count
-        storeAmountPaid from (AmountPaid amount)
-    )
-    (\(B.InsufficientFunds _) -> do
-      let mintAmount = B.Coin simpleStorageCoinId (amount + 1)
-      B.mint from mintAmount
-      updatePaidCount from count amount
-    )
+store :: BA.Store SimpleStorageNamespace
+store = BA.makeStore $ BA.KeyRoot (cs . symbolVal $ Proxy @SimpleStorageName)
+
+data CountKey = CountKey
+
+instance BA.RawKey CountKey where
+    rawKey = iso (\_ -> cs countKey) (const CountKey)
+      where
+        countKey :: ByteString
+        countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
+
+instance BA.IsKey CountKey SimpleStorageNamespace where
+    type Value CountKey SimpleStorageNamespace = V.Var Count
+
+countVar :: V.Var Count
+countVar = V.makeVar CountKey store
+
+instance BA.QueryData CountKey
+
+data PaidKey = PaidKey
+
+instance BA.RawKey PaidKey where
+    rawKey = iso (const paidKey) (const PaidKey)
+      where
+        paidKey :: ByteString
+        paidKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("paid" :: String)
+
+instance BA.IsKey PaidKey SimpleStorageNamespace where
+    type Value PaidKey SimpleStorageNamespace = M.Map Address AmountPaid
+
+paidMap :: M.Map Address AmountPaid
+paidMap = M.makeMap PaidKey store
+
+-- | Counts
+
+data CountsKey = CountsKey
+
+instance BA.RawKey CountsKey where
+    rawKey = iso (\_ -> cs countsKey) (const CountsKey)
+      where
+        countsKey :: ByteString
+        countsKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("counts" :: String)
+
+instance BA.IsKey CountsKey SimpleStorageNamespace where
+  type Value CountsKey SimpleStorageNamespace = A.Array Count
+
+countsList :: A.Array Count
+countsList = A.makeArray CountsKey store
+
+--------------------------------------------------------------------------------
 
 type SimpleStorageEffs = '[SimpleStorageKeeper]
 
 eval
   :: forall r.
      Members BA.TxEffs r
+  => Members B.BankEffs r
   => forall a. (Sem (SimpleStorageKeeper ': r) a -> Sem r a)
 eval = interpret (\case
-  PutCount count -> do
-    BA.put store CountKey count
-    A.append count countsList
-  GetCount -> BA.get store CountKey
-  StoreAmountPaid from amt -> BA.put store from amt
+  UpdateCount count -> updateCountF count
+  UpdatePaidCount addr count amt -> updatePaidCountF addr count amt
+  GetCount -> V.takeVar countVar
   GetAllCounts -> A.toList countsList
   )
+
+
+updateCountF
+  :: Members [Error BA.AppError, BA.ReadStore, BA.WriteStore] r
+  => Count
+  -> Sem r ()
+updateCountF count = do
+  V.putVar count countVar
+  A.append count countsList
+
+
+updatePaidCountF
+  :: forall r .
+     Members B.BankEffs r
+  => Members [BA.ReadStore, BA.WriteStore, Error BA.AppError] r
+  => Address
+  -> Count
+  -> B.Amount
+  -> Sem r ()
+updatePaidCountF from count amount =
+  catch @_ @r
+    ( do
+        B.burn from (B.Coin simpleStorageCoinId amount)
+        updateCountF count
+        M.update (Just . \a -> a + AmountPaid amount) from paidMap
+    )
+    (\(B.InsufficientFunds _) -> do
+      let mintAmount = B.Coin simpleStorageCoinId (amount + 1)
+      B.mint from mintAmount
+      updatePaidCountF from count amount
+    )
 
 --------------------------------------------------------------------------------
 -- Router
@@ -207,8 +221,6 @@ type MessageApi =
 
 messageHandlers
   :: Member SimpleStorageKeeper r
-  => Members B.BankEffs r
-  => Members BA.BaseEffs r
   => BA.RouteTx MessageApi r
 messageHandlers = updateCountH :<|> updatePaidCountH
 
@@ -223,8 +235,6 @@ updateCountH (BA.RoutingTx Tx{txMsg}) =
 
 updatePaidCountH
   :: Member SimpleStorageKeeper r
-  => Members B.BankEffs r
-  => Members BA.BaseEffs r
   => BA.RoutingTx UpdatePaidCountTx
   -> Sem r ()
 updatePaidCountH (BA.RoutingTx Tx{txMsg}) =
@@ -237,10 +247,10 @@ updatePaidCountH (BA.RoutingTx Tx{txMsg}) =
 -- Server
 --------------------------------------------------------------------------------
 
-type CountStoreContents =
-  '[ (CountKey, Count)
-   , (Address, AmountPaid)
-   ]
+type CountStoreApi =
+  "count" :> BA.StoreLeaf (V.Var Count) :<|>
+  "counts" :> BA.StoreLeaf (A.Array Count) :<|>
+  "amount_paid" :> BA.StoreLeaf (M.Map Address AmountPaid)
 
 type GetMultipliedCount =
      "manipulated"
@@ -267,7 +277,7 @@ getMultipliedCount subtractor multiplier = do
       , queryResultHeight = 0
       }
 
-type QueryApi = GetMultipliedCount :<|> BA.QueryApi CountStoreContents
+type QueryApi = GetMultipliedCount :<|> CountStoreApi
 
 querier
   :: forall r.
@@ -275,9 +285,11 @@ querier
   => Member SimpleStorageKeeper r
   => BA.RouteQ QueryApi r
 querier =
-  let storeHandlers = BA.storeQueryHandlers (Proxy :: Proxy CountStoreContents)
-        store (Proxy :: Proxy r)
-  in getMultipliedCount :<|> storeHandlers
+  getMultipliedCount :<|>
+    ( BA.storeQueryHandler countVar :<|>
+      BA.storeQueryHandler countsList :<|>
+      BA.storeQueryHandler paidMap
+    )
 
 --------------------------------------------------------------------------------
 -- Module Definition

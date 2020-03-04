@@ -55,7 +55,7 @@ spec = do
 
       it "can make sure the synchronous tx transaction worked and the count is now 4" $ \c -> do
         resp <-  assertQuery . RPC.runTendermintM rpcConfig $
-          getCount defaultQueryArgs { queryArgsData = SS.CountKey }
+          getCount defaultQueryArgs { queryArgsData = () }
         let foundCount = queryResultData resp
         foundCount `shouldBe` SS.Count c
 
@@ -64,7 +64,7 @@ spec = do
 --------------------------------------------------------------------------------
 
 getCount
-  :: QueryArgs SS.CountKey
+  :: QueryArgs ()
   -> RPC.TendermintM (QueryClientResponse SS.Count)
 
 getAccount

@@ -47,9 +47,9 @@ nonceAnteHandler = Endo $
     result <- txApplication tx
     postMAcnt <- A.getAccount msgAuthor
     case postMAcnt of
-      Just acnt@A.Account{accountNonce} -> do
-        A.putAccount msgAuthor $
-          acnt { A.accountNonce = accountNonce + 1}
+      Just A.Account{accountNonce} -> do
+        A.updateAccount msgAuthor $ \a ->
+          a { A.accountNonce = accountNonce + 1}
       -- @NOTE: no-op when no nonce is availble to update
       Nothing -> pure ()
     pure result
