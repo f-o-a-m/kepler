@@ -465,58 +465,68 @@ footer
 
 }
 
-/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0010-Overview.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0020-Installation.html" class="tintin-fg-disabled">Installation</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-Effects.html" class="tintin-fg-disabled">Foundations - Effects</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0400-Tutorial.html" class="tintin-fg-disabled">Tutorial</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-active">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Router.html" class="tintin-fg-disabled">Nameservice - Router</a></li><li><a href="0470-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0480-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="0490-Testing.html" class="tintin-fg-disabled">Nameservice - Testing</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>Keeper</h1>
+/* Generated with Clay, http://fvisser.nl/clay */</style></head><body class="h-100 tintin-fg-black tintin-bg-white"><div id="main-container" class="h-100"><section id="content"><div id="wrapper" class="toggled"><div id="sidebar-wrapper" class="h-100 tintin-bg-custom"><div class="h-100 tintin-bg-70"><p></p></div><ul class="sidebar-nav"><li class="sidebar-brand d-flex tintin-bg-custom"><a href="index.html" class="align-self-center tintin-fg-white">kepler</a></li><li><a href="0010-Overview.html" class="tintin-fg-disabled">Overview</a></li><li><a href="0020-Installation.html" class="tintin-fg-disabled">Installation</a></li><li><a href="0310-Overview.html" class="tintin-fg-disabled">Foundations - Overview</a></li><li><a href="0320-Effects.html" class="tintin-fg-disabled">Foundations - Effects</a></li><li><a href="0330-Modules.html" class="tintin-fg-disabled">Foundations - Module</a></li><li><a href="0340-Storage.html" class="tintin-fg-disabled">Foundations - Storage</a></li><li><a href="0400-Tutorial.html" class="tintin-fg-disabled">Tutorial</a></li><li><a href="0410-Overview.html" class="tintin-fg-disabled">Nameservice - Overview</a></li><li><a href="0420-Types.html" class="tintin-fg-disabled">Nameservice - Types</a></li><li><a href="0430-Message.html" class="tintin-fg-disabled">Nameservice - Message</a></li><li><a href="0440-Keeper.html" class="tintin-fg-active">Nameservice - Keeper</a></li><li><a href="0450-Query.html" class="tintin-fg-disabled">Nameservice - Query</a></li><li><a href="0460-Router.html" class="tintin-fg-disabled">Nameservice - Router</a></li><li><a href="0470-Module.html" class="tintin-fg-disabled">Nameservice - Module</a></li><li><a href="0480-Application.html" class="tintin-fg-disabled">Nameservice - Application</a></li><li><a href="0490-Testing.html" class="tintin-fg-disabled">Nameservice - Testing</a></li><li><a href="98-Logging.html" class="tintin-fg-disabled">Logging</a></li><li><a href="99-Metrics.html" class="tintin-fg-disabled">Metrics</a></li></ul></div><nav class="navbar navbar-expand-lg tintin-doc-topbar tintin-fg-white"><a href="#menu-toggle" id="menu-toggle" class><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/menu.png" class="img-fluid animated rotateOut"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/close.png" class="img-fluid animated rotateIn"></a></nav><div id="page-content-wrapper"><div class="container"><div class="col"><div class="animated fadeIn"><h1>Keeper</h1>
 <h2>Definition</h2>
 <p>&quot;Keeper&quot; is a word taken from the cosmos-sdk, it&#39;s basically the interface that the module exposes to the other modules in the application. For example, in the Nameservice app, the Nameservice keeper exposes functions to <code>buy</code>/<code>sell</code>/<code>delete</code> entries in the mapping. Likewise, the Nameservice keeper depends on the keeper from the <code>bank</code> module in order to transfer tokens when executing those methods. A keeper might also indicate what kinds of exceptions are able to be caught and thrown from the module. For example, calling <code>transfer</code> while buying a <code>Name</code> might throw an <code>InsufficientFunds</code> exception, which the Namerservice module can chose whether to catch or not.</p>
 <h2>Tutorial.Nameservice.Keeper</h2>
+<p>In this section, we will make use of the <code>Store</code> types defined in <code>Nameservice.Modules.Nameservice.Store</code>. For an overview on how this is setup, see the <code>Storage</code> chapter in the <code>Foundations</code> section of the tutorial.</p>
 <pre class="haskell"><code>{-# LANGUAGE TemplateHaskell #-}
 module Tutorial.Nameservice.Keeper where
 
-import Polysemy (Sem, Member, Members, makeSem, interpret)
-import Polysemy.Error (Error, throw, mapError)
-import Polysemy.Output (Output)
-import Nameservice.Modules.Nameservice.Messages (DeleteName(..))
-import Nameservice.Modules.Nameservice.Types (Whois(..), Name, NameDeleted(..), NameserviceNamespace, NameserviceError(..))
+import Polysemy (Sem, Member, Members, makeSem)
+import Polysemy.Error (Error, throw)
+import Nameservice.Modules.Nameservice.Messages
+import Nameservice.Modules.Nameservice.Store (Name(..), whoisMap)
+import Nameservice.Modules.Nameservice.Types (Whois(..), NameDeleted(..), NameserviceError(..))
 import qualified Tendermint.SDK.BaseApp as BA
-import Tendermint.SDK.Modules.Auth (AuthEffs, Coin(..))
-import Tendermint.SDK.Modules.Bank (BankEffs, mint)
+import qualified Tendermint.SDK.BaseApp.Store.Map as M
+import Tendermint.SDK.Modules.Bank (BankEffs, Coin(..), CoinId, mint)
+
+
+nameserviceCoinId :: CoinId
+nameserviceCoinId = &quot;nameservice&quot;
 </code></pre>
 <p>Generally a keeper is defined by a set of effects that the module introduces and depends on. In the case of Nameservice, we introduce the custom <code>Nameservice</code> effect:</p>
-<pre class="haskell"><code>data NameserviceKeeper m a where
-  PutWhois :: Name -&gt; Whois -&gt; NameserviceKeeper m ()
+<pre class="haskell"><code>type NameserviceEffs = &#39;[NameserviceKeeper, Error NameserviceError]
+
+data NameserviceKeeper m a where
+  BuyName :: BuyNameMsg -&gt; NameserviceKeeper m ()
+  DeleteName :: DeleteNameMsg -&gt; NameserviceKeeper m ()
+  SetName :: SetNameMsg -&gt; NameserviceKeeper m ()
   GetWhois :: Name -&gt; NameserviceKeeper m (Maybe Whois)
-  DeleteWhois :: Name -&gt; NameserviceKeeper m ()
 
 makeSem &#39;&#39;NameserviceKeeper
-
-type NameserviceEffs = &#39;[NameserviceKeeper, Error NameserviceError]
 </code></pre>
-<p>where <code>makeSem</code> is from polysemy, it uses template Haskell to create the helper functions <code>putWhoIs</code>, <code>getWhois</code>, <code>deleteWhois</code>:</p>
-<pre class="haskell"><code>putWhois :: forall r. Member NameserviceKeeper r =&gt; Name -&gt; Whois -&gt; Sem r ()
-getWhois :: forall r. Member NameserviceKeeper r =&gt; Name -&gt; Sem r (Maybe Whois)
-deleteWhois :: forall r. Member NameserviceKeeper r =&gt; Name -&gt; Sem r ()
+<p>where <code>makeSem</code> is from polysemy, it uses template Haskell to create the helper functions <code>buyName</code>, <code>deleteName</code>, <code>setName</code>, <code>getWhois</code>:</p>
+<pre class="haskell"><code>buyName :: BuyNameMsg -&gt; NameserviceKeeper m ()
+deleteName :: DeleteNameMsg -&gt; NameserviceKeeper m ()
+setName :: SetNameMsg -&gt; NameserviceKeeper m ()
+getWhois :: Name -&gt; NameserviceKeeper m (Maybe Whois)
 </code></pre>
-<p>We can then write the top level function for example for deleting a name:</p>
-<pre class="haskell"><code>deleteName
-  :: Member (Output BA.Event) r
-  =&gt; Members AuthEffs r
+<h3>Evaluating Module Effects</h3>
+<p>Like we said before, all transactions must ultimately compile to the set of effects belonging to <code>TxEffs</code> and <code>BaseEffs</code>. In particular this means that we must interpret <code>NameserviceEffs</code> into more basic effects. To do this we follow the general pattern of first interpreting <code>NameserviceKeeper</code> effects, then finally interpreting <code>Error NameserviceError</code> in terms of <code>Error AppError</code>. Let&#39;s focus on the <code>DeleteName</code> summand of <code>NameserviceKeeper</code>. We can write an interpreting function as follows:</p>
+<pre class="haskell"><code>deleteNameF
+  :: Members BA.TxEffs r
+  =&gt; Members BA.BaseEffs r
   =&gt; Members BankEffs r
-  =&gt; Members [NameserviceKeeper, Error NameserviceError] r
-  =&gt; DeleteName
+  =&gt; Member (Error NameserviceError) r
+  =&gt; DeleteNameMsg
   -&gt; Sem r ()
-deleteName DeleteName{..} = do
-  mWhois &lt;- getWhois deleteNameName
+deleteNameF DeleteNameMsg{..} = do
+  mWhois &lt;- M.lookup (Name deleteNameName) whoisMap
   case mWhois of
     Nothing -&gt; throw $ InvalidDelete &quot;Can&#39;t remove unassigned name.&quot;
     Just Whois{..} -&gt;
       if whoisOwner /= deleteNameOwner
         then throw $ InvalidDelete &quot;Deleter must be the owner.&quot;
         else do
-          mint deleteNameOwner (Coin &quot;nameservice&quot; whoisPrice)
-          deleteWhois deleteNameName
-          BA.emit NameDeleted
-            { nameDeletedName = deleteNameName
-            }
+          mint deleteNameOwner (Coin nameserviceCoinId whoisPrice)
+          M.delete (Name deleteNameName) whoisMap
+          let event = NameDeleted
+                { nameDeletedName = deleteNameName
+                }
+          BA.emit event
+          BA.logEvent event
 </code></pre>
 <p>The control flow should be pretty clear:</p>
 <ol>
@@ -524,38 +534,42 @@ deleteName DeleteName{..} = do
 <li>Check that the name is registered to the person trying to delete it, if not throw an error.</li>
 <li>Refund the tokens locked in the name to the owner.</li>
 <li>Delete the entry from the database.</li>
-<li>Emit an event that the name has been deleted.</li>
+<li>Emit an event that the name has been deleted and log this event.</li>
 </ol>
 <p>Taking a look at the class constraints, we see</p>
-<pre class="haskell"><code>(Members NameserviceEffs, Member (Output Event) r)
+<pre class="haskell"><code>  ( Members BaseApp.TxEffs r
+  , Members BaseApp.BaseEffs r
+  , Members BankEffs r
+  , Member (Error NameserviceError) r
+  )
 </code></pre>
 <ul>
-<li>The <code>NameserviceKeeper</code> effect is required because the function may manipulate the modules database with <code>deleteName</code>.</li>
+<li>The <code>TxEffs</code> effect is required because the function manipulates the <code>whoisMap</code> and emits an <code>Event</code>.</li>
+<li>The <code>BaseEffs</code> effect is required because the function has logging.</li>
 <li>The <code>Error NameserviceError</code> effect is required because the function may throw an error.</li>
-<li>The <code>Auth</code> effect is required because the function will mint coins.</li>
-<li>The <code>Output Event</code> effect is required because the function may emit a <code>NameDeleted</code> event.</li>
+<li>The <code>BankEffs</code> effect is required because the function will mint coins.</li>
 </ul>
-<h3>Evaluating Module Effects</h3>
-<p>Like we said before, all transactions must ultimately compile to the set of effects belonging to <code>TxEffs</code> and <code>BaseEffs</code>. For effects interpreted to <code>ReadStore</code> and <code>WriteStore</code>, this means that you will need to define something called a <code>StoreKey</code>.</p>
-<p>A <code>StoreKey</code> is effectively a namespacing inside the database, and is unique for a given module. In theory it could be any <code>ByteString</code>, but the natural definition in the case of Nameservice is would be something like</p>
-<pre class="haskell"><code>storeKey :: BA.StoreKey NameserviceNamespace
-storeKey = BA.StoreKey &quot;nameservice&quot;
-</code></pre>
-<p>With this <code>storeKey</code> it is possible to write the <code>eval</code> function to resolve the effects defined in Nameservice, namely the <code>NameserviceKeeper</code> effect and <code>Error NameserviceError</code>:</p>
+<p>Using this helper function and others, we can write our module&#39;s <code>eval</code> function by interpreting the <code>NameserviceEffs</code> in two steps:</p>
 <pre class="haskell"><code>eval
   :: Members BA.TxEffs r
+  =&gt; Members BankEffs r
+  =&gt; Members BA.BaseEffs r
   =&gt; forall a. Sem (NameserviceKeeper &#39;: Error NameserviceError &#39;: r) a
   -&gt; Sem r a
-eval = mapError BA.makeAppError . evalNameservice
+eval = mapError BaseApp.makeAppError . evalNameservice
   where
     evalNameservice
       :: Members BA.TxEffs r
+      =&gt; Members BA.BaseEffs r
+      =&gt; Members BankEffs r
+      =&gt; Member (Error NameserviceError) r
       =&gt; Sem (NameserviceKeeper &#39;: r) a -&gt; Sem r a
     evalNameservice =
       interpret (\case
-          GetWhois name -&gt; BA.get storeKey name
-          PutWhois name whois -&gt; BA.put storeKey name whois
-          DeleteWhois name -&gt; BA.delete storeKey name
+          ...
+          DeleteName msg -&gt; deleteNameF msg
+          ...
         )
+
 </code></pre>
 </div></div></div></div></div></section><div class="tintin-doc-footer clear-fix"><div class="row next-prev"><div class="col-md-4 offset-md-4"><a href="0430-Message.html">&lt; Previous: Nameservice - Message</a></div><div class="col-md-4 ml-auto"><a href="0450-Query.html">Next: Nameservice - Query &gt;</a></div></div><div class="float-right"><div style="float: left" class="d-inline"><p class>Site generated with </p></div><a style="float: left" href="https://theam.github.io/tintin"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/logo.svg" class="filter-gray"></a><div class="clear-fix float-right"><span style="float:left">&mdash; &copy; 2018 </span><a href="http://theam.io" class="float:left"><img src="http://theam.io/logo_theam.png" class="footer-theam"></a></div></div></div></div><script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/haskell.min.js"></script><script src="https://cdn.rawgit.com/icons8/bower-webicon/v0.10.7/jquery-webicon.min.js"></script><script>hljs.initHighlightingOnLoad()</script><script>$(function () {$("#menu-toggle").click(function(e) {e.preventDefault();$("#wrapper").toggleClass("toggled");$("#menu-toggle img").toggleClass("rotateIn rotateOut");})});</script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/contrib/auto-render.min.js"></script><script>renderMathInElement(document.body);</script></body></html>

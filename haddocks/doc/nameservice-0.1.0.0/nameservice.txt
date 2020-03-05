@@ -19,11 +19,72 @@ baseAppContext :: Lens' AppConfig Context
 prometheusServerThreadId :: Lens' AppConfig (IORef (Maybe ThreadId))
 makeAppConfig :: IO AppConfig
 
+module Nameservice.Modules.Nameservice.Messages
+data SetNameMsg
+SetNameMsg :: Text -> Address -> Text -> SetNameMsg
+[setNameName] :: SetNameMsg -> Text
+[setNameOwner] :: SetNameMsg -> Address
+[setNameValue] :: SetNameMsg -> Text
+data BuyNameMsg
+BuyNameMsg :: Amount -> Text -> Text -> Address -> BuyNameMsg
+[buyNameBid] :: BuyNameMsg -> Amount
+[buyNameName] :: BuyNameMsg -> Text
+[buyNameValue] :: BuyNameMsg -> Text
+[buyNameBuyer] :: BuyNameMsg -> Address
+data DeleteNameMsg
+DeleteNameMsg :: Address -> Text -> DeleteNameMsg
+[deleteNameOwner] :: DeleteNameMsg -> Address
+[deleteNameName] :: DeleteNameMsg -> Text
+data FaucetAccountMsg
+FaucetAccountMsg :: Address -> CoinId -> Amount -> FaucetAccountMsg
+[faucetAccountTo] :: FaucetAccountMsg -> Address
+[faucetAccountCoinId] :: FaucetAccountMsg -> CoinId
+[faucetAccountAmount] :: FaucetAccountMsg -> Amount
+data BuyNameMessage
+BuyNameMessage :: Word64 -> Text -> Text -> Address -> BuyNameMessage
+[buyNameMessageBid] :: BuyNameMessage -> Word64
+[buyNameMessageName] :: BuyNameMessage -> Text
+[buyNameMessageValue] :: BuyNameMessage -> Text
+[buyNameMessageBuyer] :: BuyNameMessage -> Address
+instance GHC.Generics.Generic Nameservice.Modules.Nameservice.Messages.BuyNameMessage
+instance GHC.Show.Show Nameservice.Modules.Nameservice.Messages.BuyNameMessage
+instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Messages.BuyNameMessage
+instance GHC.Show.Show Nameservice.Modules.Nameservice.Messages.BuyNameMsg
+instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Messages.BuyNameMsg
+instance GHC.Generics.Generic Nameservice.Modules.Nameservice.Messages.DeleteNameMsg
+instance GHC.Show.Show Nameservice.Modules.Nameservice.Messages.DeleteNameMsg
+instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Messages.DeleteNameMsg
+instance GHC.Generics.Generic Nameservice.Modules.Nameservice.Messages.SetNameMsg
+instance GHC.Show.Show Nameservice.Modules.Nameservice.Messages.SetNameMsg
+instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Messages.SetNameMsg
+instance GHC.Generics.Generic Nameservice.Modules.Nameservice.Messages.FaucetAccountMessage
+instance GHC.Show.Show Nameservice.Modules.Nameservice.Messages.FaucetAccountMessage
+instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Messages.FaucetAccountMessage
+instance GHC.Show.Show Nameservice.Modules.Nameservice.Messages.FaucetAccountMsg
+instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Messages.FaucetAccountMsg
+instance Proto3.Suite.Class.Message Nameservice.Modules.Nameservice.Messages.BuyNameMessage
+instance Proto3.Suite.Class.Named Nameservice.Modules.Nameservice.Messages.BuyNameMessage
+instance Tendermint.SDK.Codec.HasCodec Nameservice.Modules.Nameservice.Messages.BuyNameMsg
+instance Tendermint.SDK.Types.Message.HasMessageType Nameservice.Modules.Nameservice.Messages.BuyNameMsg
+instance Tendermint.SDK.Types.Message.ValidateMessage Nameservice.Modules.Nameservice.Messages.BuyNameMsg
+instance Proto3.Suite.Class.Message Nameservice.Modules.Nameservice.Messages.DeleteNameMsg
+instance Proto3.Suite.Class.Named Nameservice.Modules.Nameservice.Messages.DeleteNameMsg
+instance Tendermint.SDK.Types.Message.HasMessageType Nameservice.Modules.Nameservice.Messages.DeleteNameMsg
+instance Tendermint.SDK.Codec.HasCodec Nameservice.Modules.Nameservice.Messages.DeleteNameMsg
+instance Tendermint.SDK.Types.Message.ValidateMessage Nameservice.Modules.Nameservice.Messages.DeleteNameMsg
+instance Proto3.Suite.Class.Message Nameservice.Modules.Nameservice.Messages.SetNameMsg
+instance Proto3.Suite.Class.Named Nameservice.Modules.Nameservice.Messages.SetNameMsg
+instance Tendermint.SDK.Types.Message.HasMessageType Nameservice.Modules.Nameservice.Messages.SetNameMsg
+instance Tendermint.SDK.Codec.HasCodec Nameservice.Modules.Nameservice.Messages.SetNameMsg
+instance Tendermint.SDK.Types.Message.ValidateMessage Nameservice.Modules.Nameservice.Messages.SetNameMsg
+instance Proto3.Suite.Class.Message Nameservice.Modules.Nameservice.Messages.FaucetAccountMessage
+instance Proto3.Suite.Class.Named Nameservice.Modules.Nameservice.Messages.FaucetAccountMessage
+instance Tendermint.SDK.Codec.HasCodec Nameservice.Modules.Nameservice.Messages.FaucetAccountMsg
+instance Tendermint.SDK.Types.Message.HasMessageType Nameservice.Modules.Nameservice.Messages.FaucetAccountMsg
+instance Tendermint.SDK.Types.Message.ValidateMessage Nameservice.Modules.Nameservice.Messages.FaucetAccountMsg
+
 module Nameservice.Modules.Nameservice.Types
 type NameserviceName = "nameservice"
-data NameserviceNamespace
-newtype Name
-Name :: Text -> Name
 data Whois
 Whois :: Text -> Address -> Amount -> Whois
 [whoisValue] :: Whois -> Text
@@ -45,21 +106,21 @@ Faucetted :: Address -> CoinId -> Amount -> Faucetted
 [faucettedAmount] :: Faucetted -> Amount
 faucettedAesonOptions :: Options
 data NameClaimed
-NameClaimed :: Address -> Name -> Text -> Amount -> NameClaimed
+NameClaimed :: Address -> Text -> Text -> Amount -> NameClaimed
 [nameClaimedOwner] :: NameClaimed -> Address
-[nameClaimedName] :: NameClaimed -> Name
+[nameClaimedName] :: NameClaimed -> Text
 [nameClaimedValue] :: NameClaimed -> Text
 [nameClaimedBid] :: NameClaimed -> Amount
 nameClaimedAesonOptions :: Options
 data NameRemapped
-NameRemapped :: Name -> Text -> Text -> NameRemapped
-[nameRemappedName] :: NameRemapped -> Name
+NameRemapped :: Text -> Text -> Text -> NameRemapped
+[nameRemappedName] :: NameRemapped -> Text
 [nameRemappedOldValue] :: NameRemapped -> Text
 [nameRemappedNewValue] :: NameRemapped -> Text
 nameRemappedAesonOptions :: Options
 data NameDeleted
-NameDeleted :: Name -> NameDeleted
-[nameDeletedName] :: NameDeleted -> Name
+NameDeleted :: Text -> NameDeleted
+[nameDeletedName] :: NameDeleted -> Text
 nameDeletedAesonOptions :: Options
 instance GHC.Generics.Generic Nameservice.Modules.Nameservice.Types.NameDeleted
 instance GHC.Show.Show Nameservice.Modules.Nameservice.Types.NameDeleted
@@ -78,12 +139,6 @@ instance GHC.Show.Show Nameservice.Modules.Nameservice.Types.WhoisMessage
 instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Types.WhoisMessage
 instance GHC.Show.Show Nameservice.Modules.Nameservice.Types.Whois
 instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Types.Whois
-instance Tendermint.SDK.Codec.HasCodec Nameservice.Modules.Nameservice.Types.Name
-instance Data.Aeson.Types.FromJSON.FromJSON Nameservice.Modules.Nameservice.Types.Name
-instance Data.Aeson.Types.ToJSON.ToJSON Nameservice.Modules.Nameservice.Types.Name
-instance GHC.Generics.Generic Nameservice.Modules.Nameservice.Types.Name
-instance GHC.Show.Show Nameservice.Modules.Nameservice.Types.Name
-instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Types.Name
 instance Data.Aeson.Types.ToJSON.ToJSON Nameservice.Modules.Nameservice.Types.NameDeleted
 instance Data.Aeson.Types.FromJSON.FromJSON Nameservice.Modules.Nameservice.Types.NameDeleted
 instance Tendermint.SDK.BaseApp.Events.ToEvent Nameservice.Modules.Nameservice.Types.NameDeleted
@@ -104,113 +159,53 @@ instance Tendermint.SDK.BaseApp.Errors.IsAppError Nameservice.Modules.Nameservic
 instance Proto3.Suite.Class.Message Nameservice.Modules.Nameservice.Types.WhoisMessage
 instance Proto3.Suite.Class.Named Nameservice.Modules.Nameservice.Types.WhoisMessage
 instance Tendermint.SDK.Codec.HasCodec Nameservice.Modules.Nameservice.Types.Whois
-instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey Nameservice.Modules.Nameservice.Types.Name Nameservice.Modules.Nameservice.Types.NameserviceNamespace
-instance Tendermint.SDK.BaseApp.Query.Types.Queryable Nameservice.Modules.Nameservice.Types.Whois
-instance Proto3.Suite.Class.Primitive Nameservice.Modules.Nameservice.Types.Name
-instance Proto3.Suite.Class.HasDefault Nameservice.Modules.Nameservice.Types.Name
-instance Proto3.Suite.Class.MessageField Nameservice.Modules.Nameservice.Types.Name
-instance Data.String.IsString Nameservice.Modules.Nameservice.Types.Name
-instance Tendermint.SDK.BaseApp.Query.Types.FromQueryData Nameservice.Modules.Nameservice.Types.Name
-instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey Nameservice.Modules.Nameservice.Types.Name
 
-module Nameservice.Modules.Nameservice.Messages
-data SetName
-SetName :: Name -> Address -> Text -> SetName
-[setNameName] :: SetName -> Name
-[setNameOwner] :: SetName -> Address
-[setNameValue] :: SetName -> Text
-data BuyName
-BuyName :: Amount -> Name -> Text -> Address -> BuyName
-[buyNameBid] :: BuyName -> Amount
-[buyNameName] :: BuyName -> Name
-[buyNameValue] :: BuyName -> Text
-[buyNameBuyer] :: BuyName -> Address
-data BuyNameMessage
-BuyNameMessage :: Word64 -> Name -> Text -> Address -> BuyNameMessage
-[buyNameMessageBid] :: BuyNameMessage -> Word64
-[buyNameMessageName] :: BuyNameMessage -> Name
-[buyNameMessageValue] :: BuyNameMessage -> Text
-[buyNameMessageBuyer] :: BuyNameMessage -> Address
-data DeleteName
-DeleteName :: Address -> Name -> DeleteName
-[deleteNameOwner] :: DeleteName -> Address
-[deleteNameName] :: DeleteName -> Name
-data FaucetAccount
-FaucetAccount :: Address -> CoinId -> Amount -> FaucetAccount
-[faucetAccountTo] :: FaucetAccount -> Address
-[faucetAccountCoinId] :: FaucetAccount -> CoinId
-[faucetAccountAmount] :: FaucetAccount -> Amount
-instance GHC.Generics.Generic Nameservice.Modules.Nameservice.Messages.BuyNameMessage
-instance GHC.Show.Show Nameservice.Modules.Nameservice.Messages.BuyNameMessage
-instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Messages.BuyNameMessage
-instance GHC.Show.Show Nameservice.Modules.Nameservice.Messages.BuyName
-instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Messages.BuyName
-instance GHC.Generics.Generic Nameservice.Modules.Nameservice.Messages.DeleteName
-instance GHC.Show.Show Nameservice.Modules.Nameservice.Messages.DeleteName
-instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Messages.DeleteName
-instance GHC.Generics.Generic Nameservice.Modules.Nameservice.Messages.SetName
-instance GHC.Show.Show Nameservice.Modules.Nameservice.Messages.SetName
-instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Messages.SetName
-instance GHC.Generics.Generic Nameservice.Modules.Nameservice.Messages.FaucetAccountMessage
-instance GHC.Show.Show Nameservice.Modules.Nameservice.Messages.FaucetAccountMessage
-instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Messages.FaucetAccountMessage
-instance GHC.Show.Show Nameservice.Modules.Nameservice.Messages.FaucetAccount
-instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Messages.FaucetAccount
-instance Proto3.Suite.Class.Message Nameservice.Modules.Nameservice.Messages.BuyNameMessage
-instance Proto3.Suite.Class.Named Nameservice.Modules.Nameservice.Messages.BuyNameMessage
-instance Tendermint.SDK.Codec.HasCodec Nameservice.Modules.Nameservice.Messages.BuyName
-instance Tendermint.SDK.Types.Message.HasMessageType Nameservice.Modules.Nameservice.Messages.BuyName
-instance Tendermint.SDK.Types.Message.ValidateMessage Nameservice.Modules.Nameservice.Messages.BuyName
-instance Proto3.Suite.Class.Message Nameservice.Modules.Nameservice.Messages.DeleteName
-instance Proto3.Suite.Class.Named Nameservice.Modules.Nameservice.Messages.DeleteName
-instance Tendermint.SDK.Types.Message.HasMessageType Nameservice.Modules.Nameservice.Messages.DeleteName
-instance Tendermint.SDK.Codec.HasCodec Nameservice.Modules.Nameservice.Messages.DeleteName
-instance Tendermint.SDK.Types.Message.ValidateMessage Nameservice.Modules.Nameservice.Messages.DeleteName
-instance Proto3.Suite.Class.Message Nameservice.Modules.Nameservice.Messages.SetName
-instance Proto3.Suite.Class.Named Nameservice.Modules.Nameservice.Messages.SetName
-instance Tendermint.SDK.Types.Message.HasMessageType Nameservice.Modules.Nameservice.Messages.SetName
-instance Tendermint.SDK.Codec.HasCodec Nameservice.Modules.Nameservice.Messages.SetName
-instance Tendermint.SDK.Types.Message.ValidateMessage Nameservice.Modules.Nameservice.Messages.SetName
-instance Proto3.Suite.Class.Message Nameservice.Modules.Nameservice.Messages.FaucetAccountMessage
-instance Proto3.Suite.Class.Named Nameservice.Modules.Nameservice.Messages.FaucetAccountMessage
-instance Tendermint.SDK.Codec.HasCodec Nameservice.Modules.Nameservice.Messages.FaucetAccount
-instance Tendermint.SDK.Types.Message.HasMessageType Nameservice.Modules.Nameservice.Messages.FaucetAccount
-instance Tendermint.SDK.Types.Message.ValidateMessage Nameservice.Modules.Nameservice.Messages.FaucetAccount
-
-module Nameservice.Modules.Nameservice.Keeper
-data NameserviceKeeper m a
-type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
-nameserviceCoinId :: CoinId
-setName :: Members [Logger, Output Event] r => Members NameserviceEffs r => SetName -> Sem r ()
-deleteName :: Members [Logger, Output Event] r => Members BankEffs r => Members NameserviceEffs r => DeleteName -> Sem r ()
-
--- | did it succeed
-buyName :: Members [Logger, Output Event] r => Members BankEffs r => Members NameserviceEffs r => BuyName -> Sem r ()
-storeKey :: StoreKey NameserviceNamespace
-faucetAccount :: Members [Logger, Output Event] r => Members BankEffs r => FaucetAccount -> Sem r ()
-eval :: Members TxEffs r => forall a. Sem (NameserviceKeeper : (Error NameserviceError : r)) a -> Sem r a
-
-module Nameservice.Modules.Nameservice.Router
-type MessageApi = TypedMessage BuyName :~> Return () :<|> TypedMessage SetName :~> Return () :<|> TypedMessage DeleteName :~> Return () :<|> TypedMessage FaucetAccount :~> Return ()
-messageHandlers :: Members BaseEffs r => Members BankEffs r => Members TxEffs r => Members NameserviceEffs r => RouteTx MessageApi r
+module Nameservice.Modules.Nameservice.Store
+newtype Name
+Name :: Text -> Name
+[unName] :: Name -> Text
+whoisMap :: Map Name Whois
+instance Data.Aeson.Types.FromJSON.FromJSON Nameservice.Modules.Nameservice.Store.Name
+instance Data.Aeson.Types.ToJSON.ToJSON Nameservice.Modules.Nameservice.Store.Name
+instance GHC.Show.Show Nameservice.Modules.Nameservice.Store.Name
+instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Store.Name
+instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey Nameservice.Modules.Nameservice.Store.WhoisMapKey
+instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey Nameservice.Modules.Nameservice.Store.WhoisMapKey Nameservice.Modules.Nameservice.Store.NameserviceNamespace
+instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey Nameservice.Modules.Nameservice.Store.Name
+instance Tendermint.SDK.BaseApp.Query.Types.QueryData Nameservice.Modules.Nameservice.Store.Name
 
 module Nameservice.Modules.Nameservice.Query
-type QueryApi = QueryApi NameserviceContents
+
+-- | Query API
+type QueryApi = "whois" :> StoreLeaf (Map Name Whois)
 querier :: Members QueryEffs r => RouteQ QueryApi r
+
+module Nameservice.Modules.Nameservice.Keeper
+type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
+data NameserviceKeeper m a
+[FaucetAccount] :: FaucetAccountMsg -> NameserviceKeeper m ()
+[BuyName] :: BuyNameMsg -> NameserviceKeeper m ()
+[DeleteName] :: DeleteNameMsg -> NameserviceKeeper m ()
+[SetName] :: SetNameMsg -> NameserviceKeeper m ()
+[GetWhois] :: Name -> NameserviceKeeper m (Maybe Whois)
+nameserviceCoinId :: CoinId
+setName :: forall r_a1bTJ. MemberWithError NameserviceKeeper r_a1bTJ => SetNameMsg -> Sem r_a1bTJ ()
+deleteName :: forall r_a1bTH. MemberWithError NameserviceKeeper r_a1bTH => DeleteNameMsg -> Sem r_a1bTH ()
+buyName :: forall r_a1bTF. MemberWithError NameserviceKeeper r_a1bTF => BuyNameMsg -> Sem r_a1bTF ()
+faucetAccount :: forall r_a1bTD. MemberWithError NameserviceKeeper r_a1bTD => FaucetAccountMsg -> Sem r_a1bTD ()
+getWhois :: forall r_a1bTL. MemberWithError NameserviceKeeper r_a1bTL => Name -> Sem r_a1bTL (Maybe Whois)
+eval :: Members TxEffs r => Members BankEffs r => Members BaseEffs r => forall a. Sem (NameserviceKeeper : (Error NameserviceError : r)) a -> Sem r a
+
+module Nameservice.Modules.Nameservice.Router
+type MessageApi = TypedMessage BuyNameMsg :~> Return () :<|> TypedMessage SetNameMsg :~> Return () :<|> TypedMessage DeleteNameMsg :~> Return () :<|> TypedMessage FaucetAccountMsg :~> Return ()
+messageHandlers :: Members NameserviceEffs r => Members BaseEffs r => RouteTx MessageApi r
 
 module Nameservice.Modules.Nameservice
 type Nameservice = Module NameserviceName MessageApi MessageApi QueryApi NameserviceEffs '[Bank]
 nameserviceModule :: Members (ModuleEffs Nameservice) r => Nameservice r
-data NameserviceKeeper m a
-type NameserviceEffs = '[NameserviceKeeper, Error NameserviceError]
-nameserviceCoinId :: CoinId
-eval :: Members TxEffs r => forall a. Sem (NameserviceKeeper : (Error NameserviceError : r)) a -> Sem r a
-faucetAccount :: Members [Logger, Output Event] r => Members BankEffs r => FaucetAccount -> Sem r ()
-setName :: Members [Logger, Output Event] r => Members NameserviceEffs r => SetName -> Sem r ()
-deleteName :: Members [Logger, Output Event] r => Members BankEffs r => Members NameserviceEffs r => DeleteName -> Sem r ()
-
--- | did it succeed
-buyName :: Members [Logger, Output Event] r => Members BankEffs r => Members NameserviceEffs r => BuyName -> Sem r ()
+newtype Name
+Name :: Text -> Name
+[unName] :: Name -> Text
 
 module Nameservice.Application
 type NameserviceModules = '[Nameservice, Bank, Auth]
