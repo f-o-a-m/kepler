@@ -9,7 +9,7 @@ module SimpleStorage.Modules.SimpleStorage
 
 import           Data.Proxy
 import           Polysemy                                    (Members)
-import           SimpleStorage.Modules.SimpleStorage.Keeper  hiding (storeKey)
+import           SimpleStorage.Modules.SimpleStorage.Keeper  hiding (countVar)
 import           SimpleStorage.Modules.SimpleStorage.Message
 import           SimpleStorage.Modules.SimpleStorage.Query
 import           SimpleStorage.Modules.SimpleStorage.Router

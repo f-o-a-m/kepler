@@ -19,15 +19,15 @@ import           Polysemy.Tagged                          (tag)
 import           Tendermint.SDK.BaseApp.Errors            (AppError (..), SDKError (InternalError),
                                                            throwSDKError)
 import           Tendermint.SDK.BaseApp.Store             (IsKey (..),
+                                                           KeyRoot (..),
                                                            RawKey (..),
                                                            ReadStore,
-                                                           Scope (..),
+                                                           Scope (..), Store,
                                                            StoreEffs,
-                                                           StoreKey (..),
                                                            WriteStore,
                                                            WriteStore, commit,
                                                            commitBlock, delete,
-                                                           get, put,
+                                                           get, makeStore, put,
                                                            withSandbox,
                                                            withTransaction)
 import           Tendermint.SDK.BaseApp.Store.IAVLStore   (GrpcConfig (..),
@@ -53,76 +53,76 @@ spec' (Proxy :: Proxy r) = do
 
     it "can fail to query an empty AuthTreeStore" $ \(driver :: Driver r) -> do
       Right mv <- runDriver driver $ tag @'QueryAndMempool $
-        get storeKey IntStoreKey
+        get store IntStoreKey
       mv `shouldBe` Nothing
 
     it "can set a value and query the value" $ \(driver :: Driver r) -> do
       Right mv <- runDriver driver $ do
-        tag @'Consensus @WriteStore $ (put storeKey IntStoreKey (IntStore 1) :: Sem (WriteStore ': r) ())
-        tag @'Consensus @ReadStore $ get storeKey IntStoreKey
+        tag @'Consensus @WriteStore $ (put store IntStoreKey (IntStore 1) :: Sem (WriteStore ': r) ())
+        tag @'Consensus @ReadStore $ get store IntStoreKey
       mv `shouldBe` Just (IntStore 1)
 
     it "can make changes and roll back" $ \(driver :: Driver r) -> do
       Right mv'' <- runDriver driver $ do
         void $ withTransaction $
-          tag @'Consensus $ (put storeKey IntStoreKey (IntStore 1)  :: Sem (WriteStore ': r) ())
+          tag @'Consensus $ (put store IntStoreKey (IntStore 1)  :: Sem (WriteStore ': r) ())
         withSandbox $ do
-          tag @'Consensus @WriteStore $ (put storeKey IntStoreKey (IntStore 5)  :: Sem (WriteStore ': r) ())
-          mv <- tag @'Consensus @ReadStore $ get storeKey IntStoreKey
+          tag @'Consensus @WriteStore $ (put store IntStoreKey (IntStore 5)  :: Sem (WriteStore ': r) ())
+          mv <- tag @'Consensus @ReadStore $ get store IntStoreKey
           liftIO (mv `shouldBe` Just (IntStore 5))
 
-          tag @'Consensus @WriteStore$ (delete storeKey IntStoreKey  :: Sem (WriteStore ': r) ())
-          mv' <- tag @'Consensus @ReadStore $ get storeKey IntStoreKey
+          tag @'Consensus @WriteStore$ (delete store IntStoreKey  :: Sem (WriteStore ': r) ())
+          mv' <- tag @'Consensus @ReadStore $ get store IntStoreKey
 
           liftIO (mv' `shouldBe` Nothing)
-        tag @'Consensus @ReadStore $ get storeKey IntStoreKey
+        tag @'Consensus @ReadStore $ get store IntStoreKey
       mv'' `shouldBe` Just (IntStore 1)
 
     it "can roll back if an error occurs during a transaction" $ \driver -> do
       Left apperr <- runDriver driver $ do
         void $ withTransaction $
-          tag @'Consensus $ (put storeKey IntStoreKey (IntStore 1)  :: Sem (WriteStore ': r) ())
+          tag @'Consensus $ (put store IntStoreKey (IntStore 1)  :: Sem (WriteStore ': r) ())
         void $ withTransaction $ do
-          tag @'Consensus $ (put storeKey IntStoreKey (IntStore 6)  :: Sem (WriteStore ': r) ())
-          throwSDKError InternalError
+          tag @'Consensus $ (put store IntStoreKey (IntStore 6)  :: Sem (WriteStore ': r) ())
+          throwSDKError $ InternalError "SomeError"
       appErrorCode apperr `shouldBe` 1
       Right mv <- runDriver driver $
-        tag @'Consensus @ReadStore $ get storeKey IntStoreKey
+        tag @'Consensus @ReadStore $ get store IntStoreKey
       mv `shouldBe` Just (IntStore 1)
 
     it "can make changes with a transaction" $ \driver -> do
       Right (mv, _) <- runDriver driver . withTransaction $ do
-        tag @'Consensus $ (put storeKey IntStoreKey (IntStore 5)  :: Sem (WriteStore ': r) ())
-        tag @'Consensus @ReadStore $ get storeKey IntStoreKey
+        tag @'Consensus $ (put store IntStoreKey (IntStore 5)  :: Sem (WriteStore ': r) ())
+        tag @'Consensus @ReadStore $ get store IntStoreKey
       mv `shouldBe` Just (IntStore 5)
 
     it "can merge the scopes" $ \driver -> do
       -- set all to be initially the same value
       void $ runDriver driver $
         withTransaction $
-          tag @'Consensus $ (put storeKey IntStoreKey (IntStore 0)  :: Sem (WriteStore ': r) ())
+          tag @'Consensus $ (put store IntStoreKey (IntStore 0)  :: Sem (WriteStore ': r) ())
 
       -- mergeScopes so that all are using the latest version
       void $ runDriver driver $ commitBlock
 
       void $ runDriver driver $ do
-        res <- tag @'QueryAndMempool $ get storeKey IntStoreKey
+        res <- tag @'QueryAndMempool $ get store IntStoreKey
         liftIO (res `shouldBe` Just 0)
       void $ runDriver driver $ do
-        res <- tag @'Consensus @ReadStore $ get storeKey IntStoreKey
+        res <- tag @'Consensus @ReadStore $ get store IntStoreKey
         liftIO (res `shouldBe` Just 0)
 
 
       -- Make another change on Consensus that does not commit
       void $ runDriver driver $ do
-        tag @'Consensus $ (put storeKey IntStoreKey (IntStore 1)  :: Sem (WriteStore ': r) ())
+        tag @'Consensus $ (put store IntStoreKey (IntStore 1)  :: Sem (WriteStore ': r) ())
 
       void $ runDriver driver $ do
-        res <- tag @'QueryAndMempool @ReadStore $ get storeKey IntStoreKey
+        res <- tag @'QueryAndMempool @ReadStore $ get store IntStoreKey
         liftIO (res `shouldBe` Just 0)
 
       void $ runDriver driver $ do
-        res <- tag @'Consensus @ReadStore $ get storeKey IntStoreKey
+        res <- tag @'Consensus @ReadStore $ get store IntStoreKey
         liftIO (res `shouldBe` Just 1)
 
       -- commit the changes
@@ -132,11 +132,11 @@ spec' (Proxy :: Proxy r) = do
       void $ runDriver driver $ commitBlock
 
       void $ runDriver driver $ do
-        res <- tag @'QueryAndMempool @ReadStore $ get storeKey IntStoreKey
+        res <- tag @'QueryAndMempool @ReadStore $ get store IntStoreKey
         liftIO (res `shouldBe` Just 1)
 
       void $ runDriver driver $ do
-        res <- tag @'Consensus @ReadStore $ get storeKey IntStoreKey
+        res <- tag @'Consensus @ReadStore $ get store IntStoreKey
         liftIO (res `shouldBe` Just 1)
 
 
@@ -169,8 +169,8 @@ instance RawKey IntStoreKey where
 instance IsKey IntStoreKey "int_store" where
     type Value IntStoreKey "int_store" = IntStore
 
-storeKey :: StoreKey "int_store"
-storeKey = StoreKey "int_store"
+store :: Store "int_store"
+store = makeStore $ KeyRoot "int_store"
 
 type IAVLEffs =
   StoreEffs :& [Reader IAVLVersions, Reader GrpcClient, Error AppError, Resource, Embed IO]

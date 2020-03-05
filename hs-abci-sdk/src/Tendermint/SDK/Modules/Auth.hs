@@ -10,7 +10,7 @@ module Tendermint.SDK.Modules.Auth
 import           Polysemy                           (Members)
 import           Tendermint.SDK.Application.Module  (Module (..), ModuleEffs)
 import           Tendermint.SDK.BaseApp             (EmptyTxServer (..))
-import           Tendermint.SDK.Modules.Auth.Keeper hiding (storeKey)
+import           Tendermint.SDK.Modules.Auth.Keeper hiding (accountsMap)
 import           Tendermint.SDK.Modules.Auth.Query
 import           Tendermint.SDK.Modules.Auth.Types
 

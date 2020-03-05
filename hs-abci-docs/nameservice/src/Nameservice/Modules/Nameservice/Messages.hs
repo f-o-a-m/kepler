@@ -1,38 +1,33 @@
 module Nameservice.Modules.Nameservice.Messages
-  ( SetName(..)
-  , BuyName(..)
+  ( SetNameMsg(..)
+  , BuyNameMsg(..)
+  , DeleteNameMsg(..)
+  , FaucetAccountMsg(..)
   , BuyNameMessage(..)
-  , DeleteName(..)
-  , FaucetAccount(..)
   ) where
 
-import           Data.Bifunctor                        (bimap, first)
-import           Data.Foldable                         (sequenceA_)
-import           Data.String.Conversions               (cs)
-import           Data.Text                             (Text)
-import           Data.Validation                       (Validation (..))
-import           Data.Word                             (Word64)
-import           GHC.Generics                          (Generic)
-import           Nameservice.Modules.Nameservice.Types (Name (..))
-import           Proto3.Suite                          (Message, Named,
-                                                        fromByteString,
-                                                        toLazyByteString)
-import           Tendermint.SDK.Codec                  (HasCodec (..))
-import           Tendermint.SDK.Modules.Auth           (Amount (..),
-                                                        CoinId (..))
-import           Tendermint.SDK.Modules.Bank           ()
-import           Tendermint.SDK.Types.Address          (Address (..))
-import           Tendermint.SDK.Types.Message          (HasMessageType (..),
-                                                        Msg (..),
-                                                        ValidateMessage (..),
-                                                        coerceProto3Error,
-                                                        formatMessageParseError,
-                                                        isAuthorCheck,
-                                                        nonEmptyCheck)
+import           Data.Bifunctor               (bimap, first)
+import           Data.Foldable                (sequenceA_)
+import           Data.String.Conversions      (cs)
+import           Data.Text                    (Text)
+import           Data.Validation              (Validation (..))
+import           Data.Word                    (Word64)
+import           GHC.Generics                 (Generic)
+import           Proto3.Suite                 (Message, Named, fromByteString,
+                                               toLazyByteString)
+import           Tendermint.SDK.Codec         (HasCodec (..))
+import           Tendermint.SDK.Modules.Auth  (Amount (..), CoinId (..))
+import           Tendermint.SDK.Modules.Bank  ()
+import           Tendermint.SDK.Types.Address (Address (..))
+import           Tendermint.SDK.Types.Message (HasMessageType (..), Msg (..),
+                                               ValidateMessage (..),
+                                               coerceProto3Error,
+                                               formatMessageParseError,
+                                               isAuthorCheck, nonEmptyCheck)
 
 -- @NOTE: .proto genration will use these type names as is
 -- only field names stripped of prefixes during generation
-data FaucetAccount = FaucetAccount
+data FaucetAccountMsg = FaucetAccountMsg
   { faucetAccountTo     :: Address
   , faucetAccountCoinId :: CoinId
   , faucetAccountAmount :: Amount
@@ -46,11 +41,11 @@ data FaucetAccountMessage = FaucetAccountMessage
 instance Message FaucetAccountMessage
 instance Named FaucetAccountMessage
 
-instance HasMessageType FaucetAccount where
+instance HasMessageType FaucetAccountMsg where
   messageType _ = "FaucetAccount"
 
-instance HasCodec FaucetAccount where
-  encode FaucetAccount {..} =
+instance HasCodec FaucetAccountMsg where
+  encode FaucetAccountMsg {..} =
     let faucetAccountMessaage = FaucetAccountMessage
           { faucetAccountMessageTo = faucetAccountTo
           , faucetAccountMessageCoinId = unCoinId faucetAccountCoinId
@@ -58,7 +53,7 @@ instance HasCodec FaucetAccount where
           }
     in cs . toLazyByteString $ faucetAccountMessaage
   decode =
-    let toFaucetAccount FaucetAccountMessage {..} = FaucetAccount
+    let toFaucetAccount FaucetAccountMessage {..} = FaucetAccountMsg
           { faucetAccountTo = faucetAccountMessageTo
           , faucetAccountCoinId = CoinId faucetAccountMessageCoinId
           , faucetAccountAmount = Amount faucetAccountMessageAmount
@@ -66,87 +61,85 @@ instance HasCodec FaucetAccount where
     in bimap (formatMessageParseError . coerceProto3Error) toFaucetAccount
        . fromByteString @FaucetAccountMessage
 
-instance ValidateMessage FaucetAccount where
+instance ValidateMessage FaucetAccountMsg where
   validateMessage _ = Success ()
 
 --------------------------------------------------------------------------------
 
-data SetName = SetName
-  { setNameName  :: Name
+data SetNameMsg = SetNameMsg
+  { setNameName  :: Text
   , setNameOwner :: Address
   , setNameValue :: Text
   } deriving (Eq, Show, Generic)
 
-instance Message SetName
-instance Named SetName
+instance Message SetNameMsg
+instance Named SetNameMsg
 
-instance HasMessageType SetName where
+instance HasMessageType SetNameMsg where
   messageType _ = "SetName"
 
-instance HasCodec SetName where
+instance HasCodec SetNameMsg where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
 -- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg
-instance ValidateMessage SetName where
+instance ValidateMessage SetNameMsg where
   validateMessage msg@Msg{..} =
-    let SetName{setNameName, setNameValue} = msgData
-        Name name = setNameName
+    let SetNameMsg{setNameName, setNameValue} = msgData
     in sequenceA_
-        [ nonEmptyCheck "Name" name
+        [ nonEmptyCheck "Name" setNameName
         , nonEmptyCheck "Value" setNameValue
         , isAuthorCheck "Owner" msg setNameOwner
         ]
 
 --------------------------------------------------------------------------------
 
-data DeleteName = DeleteName
+data DeleteNameMsg = DeleteNameMsg
   { deleteNameOwner :: Address
-  , deleteNameName  :: Name
+  , deleteNameName  :: Text
   } deriving (Eq, Show, Generic)
 
-instance Message DeleteName
-instance Named DeleteName
+instance Message DeleteNameMsg
+instance Named DeleteNameMsg
 
-instance HasMessageType DeleteName where
+instance HasMessageType DeleteNameMsg where
   messageType _ = "DeleteName"
 
-instance HasCodec DeleteName where
+instance HasCodec DeleteNameMsg where
   encode = cs . toLazyByteString
   decode = first (formatMessageParseError . coerceProto3Error) . fromByteString
 
-instance ValidateMessage DeleteName where
+instance ValidateMessage DeleteNameMsg where
   validateMessage msg@Msg{..} =
-    let DeleteName{deleteNameName} = msgData
-        Name name = deleteNameName
+    let DeleteNameMsg{deleteNameName} = msgData
     in sequenceA_
-       [ nonEmptyCheck "Name" name
+       [ nonEmptyCheck "Name" deleteNameName
        , isAuthorCheck "Owner" msg deleteNameOwner
        ]
 
 --------------------------------------------------------------------------------
 
-data BuyName = BuyName
+data BuyNameMsg = BuyNameMsg
   { buyNameBid   :: Amount
-  , buyNameName  :: Name
+  , buyNameName  :: Text
   , buyNameValue :: Text
   , buyNameBuyer :: Address
   } deriving (Eq, Show)
 
 data BuyNameMessage = BuyNameMessage
   { buyNameMessageBid   :: Word64
-  , buyNameMessageName  :: Name
+  , buyNameMessageName  :: Text
   , buyNameMessageValue :: Text
   , buyNameMessageBuyer :: Address
   } deriving (Eq, Show, Generic)
 instance Message BuyNameMessage
 instance Named BuyNameMessage
 
-instance HasMessageType BuyName where
+instance HasMessageType BuyNameMsg where
   messageType _ = "BuyName"
 
-instance HasCodec BuyName where
-  encode BuyName {..} =
+instance HasCodec BuyNameMsg where
+  encode BuyNameMsg {..} =
     let buyNameMessage = BuyNameMessage
           { buyNameMessageBid = unAmount buyNameBid
           , buyNameMessageName = buyNameName
@@ -155,7 +148,7 @@ instance HasCodec BuyName where
           }
     in cs . toLazyByteString $ buyNameMessage
   decode =
-    let toBuyName BuyNameMessage {..} = BuyName
+    let toBuyName BuyNameMessage {..} = BuyNameMsg
           { buyNameBid = Amount buyNameMessageBid
           , buyNameName = buyNameMessageName
           , buyNameValue = buyNameMessageValue
@@ -164,12 +157,11 @@ instance HasCodec BuyName where
     in bimap (formatMessageParseError . coerceProto3Error) toBuyName
        . fromByteString @BuyNameMessage
 
-instance ValidateMessage BuyName where
+instance ValidateMessage BuyNameMsg where
   validateMessage msg@Msg{..} =
-    let BuyName{buyNameName, buyNameValue} = msgData
-        Name name = buyNameName
+    let BuyNameMsg{buyNameName, buyNameValue} = msgData
     in sequenceA_
-        [ nonEmptyCheck "Name" name
+        [ nonEmptyCheck "Name" buyNameName
         , nonEmptyCheck "Value" buyNameValue
         , isAuthorCheck "Owner" msg buyNameBuyer
         ]

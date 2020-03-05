@@ -72,7 +72,7 @@ txResultAppError = lens g s
 -- | These errors originate from the SDK itself. The "sdk" namespace is reserved
 -- | for this error type and should not be used in modules or applications.
 data SDKError =
-    InternalError
+    InternalError Text
   -- ^ Something went wrong and we have no idea what.
   | ParseError Text
   -- ^ Parsing errors for SDK specific types, e.g. 'RawTransaction' or 'Msg', etc.
@@ -82,7 +82,7 @@ data SDKError =
   | MessageValidation [Text]
   | SignatureRecoveryError Text
   | NonceException Word64 Word64
-  | RawStoreInvalidOperation Text
+  | StoreError Text
   | GrpcError Text
   | UnknownAccountError Address
   deriving (Show)
@@ -96,10 +96,10 @@ throwSDKError
 throwSDKError = throw . makeAppError
 
 instance IsAppError SDKError where
-  makeAppError InternalError = AppError
+  makeAppError (InternalError msg) = AppError
     { appErrorCode = 1
     , appErrorCodespace = "sdk"
-    , appErrorMessage = "Internal Error"
+    , appErrorMessage = "Internal Error: " <> msg
     }
 
   makeAppError (ParseError msg) = AppError
@@ -139,10 +139,10 @@ instance IsAppError SDKError where
          " but got " <> (cs . show $ toInteger found) <> "."
     }
 
-  makeAppError (RawStoreInvalidOperation operation) = AppError
+  makeAppError (StoreError msg) = AppError
     { appErrorCode = 8
     , appErrorCodespace = "sdk"
-    , appErrorMessage = "Unsupported RawStore operation: `" <> operation <> "`"
+    , appErrorMessage = "Store Error: " <> msg
     }
 
   makeAppError (GrpcError msg) = AppError

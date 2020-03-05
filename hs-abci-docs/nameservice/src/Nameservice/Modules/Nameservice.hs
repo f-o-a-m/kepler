@@ -6,6 +6,7 @@ module Nameservice.Modules.Nameservice
   , nameserviceModule
   , module           Nameservice.Modules.Nameservice.Keeper
   , module           Nameservice.Modules.Nameservice.Messages
+  , module           Nameservice.Modules.Nameservice.Store
   , module           Nameservice.Modules.Nameservice.Query
   , module           Nameservice.Modules.Nameservice.Router
   , module           Nameservice.Modules.Nameservice.Types
@@ -14,10 +15,11 @@ module Nameservice.Modules.Nameservice
   ) where
 
 import           Data.Proxy
-import           Nameservice.Modules.Nameservice.Keeper   hiding (storeKey)
+import           Nameservice.Modules.Nameservice.Keeper
 import           Nameservice.Modules.Nameservice.Messages
 import           Nameservice.Modules.Nameservice.Query
 import           Nameservice.Modules.Nameservice.Router
+import           Nameservice.Modules.Nameservice.Store    (Name (..))
 import           Nameservice.Modules.Nameservice.Types
 import           Polysemy                                 (Members)
 import           Tendermint.SDK.Application               (Module (..),

@@ -2,7 +2,8 @@ module Tendermint.SDK.BaseApp.Query
   ( serveQueryApplication
   -- * Re-Exports
   , HasQueryRouter(..)
-  , StoreQueryHandlers(..)
+  , StoreLeaf
+  , storeQueryHandler
   , QueryEffs
   , module Tendermint.SDK.BaseApp.Query.Types
   ) where
@@ -16,7 +17,7 @@ import           Tendermint.SDK.BaseApp.Errors         (makeAppError,
                                                         queryAppError)
 import           Tendermint.SDK.BaseApp.Query.Effect   (QueryEffs)
 import           Tendermint.SDK.BaseApp.Query.Router   (HasQueryRouter (..))
-import           Tendermint.SDK.BaseApp.Query.Store    (StoreQueryHandlers (..))
+import           Tendermint.SDK.BaseApp.Query.Store
 import           Tendermint.SDK.BaseApp.Query.Types
 import           Tendermint.SDK.BaseApp.Router.Delayed (emptyDelayed)
 import           Tendermint.SDK.BaseApp.Router.Router  (runRouter)

@@ -1,11 +1,7 @@
 module SimpleStorage.Modules.SimpleStorage.Types where
 
-import           Control.Lens            (iso)
-import           Crypto.Hash             (SHA256 (..), hashWith)
 import qualified Data.Aeson              as A
 import           Data.Bifunctor          (first)
-import           Data.ByteArray          (convert)
-import           Data.ByteString         (ByteString)
 import           Data.Int                (Int32)
 import qualified Data.Serialize          as Serialize
 import qualified Data.Serialize.Text     ()
@@ -14,29 +10,13 @@ import           GHC.Generics            (Generic)
 import qualified Tendermint.SDK.BaseApp  as BaseApp
 import           Tendermint.SDK.Codec    (HasCodec (..))
 
-data SimpleStorageNamespace
+type SimpleStorageName = "simple_storage"
 
 newtype Count = Count Int32 deriving (Eq, Show, A.ToJSON, A.FromJSON, Serialize.Serialize)
-
-data CountKey = CountKey
 
 instance HasCodec Count where
     encode = Serialize.encode
     decode = first cs . Serialize.decode
-
-instance BaseApp.RawKey CountKey where
-    rawKey = iso (\_ -> cs countKey) (const CountKey)
-      where
-        countKey :: ByteString
-        countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
-
-instance BaseApp.IsKey CountKey SimpleStorageNamespace where
-    type Value CountKey SimpleStorageNamespace = Count
-
-instance BaseApp.FromQueryData CountKey
-
-instance BaseApp.Queryable Count where
-  type Name Count = "count"
 
 --------------------------------------------------------------------------------
 -- Events
@@ -57,4 +37,3 @@ instance BaseApp.ToEvent CountSet
 
 instance BaseApp.Select CountSet
 
-type SimpleStorageName = "simple_storage"

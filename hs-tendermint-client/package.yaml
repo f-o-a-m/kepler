@@ -75,6 +75,5 @@ tests:
       - lens-aeson
       - lens
       - text
-      - unordered-containers
       - string-conversions
       - hs-abci-sdk

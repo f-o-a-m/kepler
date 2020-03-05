@@ -21,8 +21,8 @@ import           Servant.API.Modifiers                (FoldLenient,
                                                        unfoldRequestArgument)
 import           Tendermint.SDK.BaseApp.Query.Effect  (QueryEffs, runQuery)
 import           Tendermint.SDK.BaseApp.Query.Types   (EmptyQueryServer (..),
-                                                       FromQueryData (..), Leaf,
-                                                       QA, QueryArgs (..),
+                                                       Leaf, QA, QueryArgs (..),
+                                                       QueryData (..),
                                                        QueryRequest (..),
                                                        QueryResult (..))
 import qualified Tendermint.SDK.BaseApp.Router        as R
@@ -104,7 +104,7 @@ instance (FromHttpApiData a, HasQueryRouter sublayout r) => HasQueryRouter (Capt
               )
   hoistQueryRouter _ pr nat f = hoistQueryRouter (Proxy @sublayout) pr nat . f
 
-instance (FromQueryData a, HasQueryRouter sublayout r) => HasQueryRouter (QA a :> sublayout) r where
+instance (QueryData a, HasQueryRouter sublayout r) => HasQueryRouter (QA a :> sublayout) r where
 
   type RouteQ (QA a :> sublayout) r = QueryArgs a -> RouteQ sublayout r
 

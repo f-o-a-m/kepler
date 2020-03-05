@@ -116,9 +116,13 @@ library:
   - Tendermint.SDK.BaseApp.Router.Types
   - Tendermint.SDK.BaseApp.Router.Router
   - Tendermint.SDK.BaseApp.Store
+  - Tendermint.SDK.BaseApp.Store.Array
   - Tendermint.SDK.BaseApp.Store.IAVLStore
+  - Tendermint.SDK.BaseApp.Store.List
+  - Tendermint.SDK.BaseApp.Store.Map
   - Tendermint.SDK.BaseApp.Store.MemoryStore
   - Tendermint.SDK.BaseApp.Store.RawStore
+  - Tendermint.SDK.BaseApp.Store.Var
   - Tendermint.SDK.BaseApp.Transaction
   - Tendermint.SDK.BaseApp.Transaction.AnteHandler
   - Tendermint.SDK.BaseApp.Transaction.Cache
@@ -159,6 +163,10 @@ tests:
     - Tendermint.SDK.Test.GasSpec
     - Tendermint.SDK.Test.MetricsSpec
     - Tendermint.SDK.Test.SimpleStorage
+    - Tendermint.SDK.Test.ArraySpec
+    - Tendermint.SDK.Test.ListSpec
+    - Tendermint.SDK.Test.MapSpec
+    - Tendermint.SDK.Test.VarSpec
     - Tendermint.SDK.Test.QuerySpec
 
     ghc-options:

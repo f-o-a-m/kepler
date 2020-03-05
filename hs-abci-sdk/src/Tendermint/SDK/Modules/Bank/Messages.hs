@@ -16,71 +16,71 @@ import           Tendermint.SDK.Types.Address (Address, addressFromBytes,
 import           Tendermint.SDK.Types.Message (HasMessageType (..),
                                                ValidateMessage (..))
 
-data Transfer = Transfer
+data TransferMsg = TransferMsg
   { transferTo     :: Address
   , transferFrom   :: Address
   , transferCoinId :: CoinId
   , transferAmount :: Amount
   } deriving (Eq, Show, Generic)
 
-instance Wrapped Transfer where
-  type Unwrapped Transfer = B.Transfer
+instance Wrapped TransferMsg where
+  type Unwrapped TransferMsg = B.Transfer
 
   _Wrapped' = iso t f
    where
-    t Transfer {..} =
+    t TransferMsg {..} =
       P.defMessage
         & B.to .~ addressToBytes transferTo
         & B.from .~ addressToBytes transferFrom
         & B.cid .~ unCoinId transferCoinId
         & B.amount .~ unAmount transferAmount
-    f message = Transfer
+    f message = TransferMsg
       { transferTo = addressFromBytes $ message ^. B.to
       , transferFrom = addressFromBytes $ message ^. B.from
       , transferCoinId = CoinId $ message ^. B.cid
       , transferAmount = Amount $ message ^. B.amount
       }
 
-instance HasMessageType Transfer where
-  messageType _ = "Transfer"
+instance HasMessageType TransferMsg where
+  messageType _ = "TransferMsg"
 
-instance HasCodec Transfer where
+instance HasCodec TransferMsg where
   encode = P.encodeMessage . view _Wrapped'
   decode = bimap cs (view $ from _Wrapped') . P.decodeMessage
 
-instance ValidateMessage Transfer where
+instance ValidateMessage TransferMsg where
   validateMessage _ = Success ()
 
 --------------------------------------------------------------------------------
 
-data Burn = Burn
+data BurnMsg = BurnMsg
   { burnAddress :: Address
   , burnCoinId  :: CoinId
   , burnAmount  :: Amount
   } deriving (Eq, Show, Generic)
 
-instance Wrapped Burn where
-  type Unwrapped Burn = B.Burn
+instance Wrapped BurnMsg where
+  type Unwrapped BurnMsg = B.Burn
 
   _Wrapped' = iso t f
    where
-    t Burn {..} =
+    t BurnMsg {..} =
       P.defMessage
         & B.address .~ addressToBytes burnAddress
         & B.cid .~ unCoinId burnCoinId
         & B.amount .~ unAmount burnAmount
-    f message = Burn
+    f message = BurnMsg
       { burnAddress = addressFromBytes $ message ^. B.address
       , burnCoinId = CoinId $ message ^. B.cid
       , burnAmount = Amount $ message ^. B.amount
       }
 
-instance HasMessageType Burn where
-  messageType _ = "Burn"
+instance HasMessageType BurnMsg where
+  messageType _ = "BurnMsg"
 
-instance HasCodec Burn where
+instance HasCodec BurnMsg where
   encode = P.encodeMessage . view _Wrapped'
   decode = bimap cs (view $ from _Wrapped') . P.decodeMessage
 
-instance ValidateMessage Burn where
+instance ValidateMessage BurnMsg where
   validateMessage _ = Success ()

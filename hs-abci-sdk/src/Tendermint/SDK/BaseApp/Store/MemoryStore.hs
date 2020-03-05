@@ -7,6 +7,8 @@ module Tendermint.SDK.BaseApp.Store.MemoryStore
   , initDB
   -- * Eval
   , evalStoreEffs
+  , evalRead
+  , evalWrite
   ) where
 
 
@@ -32,7 +34,7 @@ import           Tendermint.SDK.BaseApp.Store.RawStore (CommitBlock (..),
                                                         Transaction (..),
                                                         Version (..),
                                                         WriteStore (..),
-                                                        makeRawKey)
+                                                        makeKeyBytes)
 import           Tendermint.SDK.Types.Effects          ((:&))
 
 
@@ -61,10 +63,10 @@ evalWrite
 evalWrite DB{dbLatest} m =
   interpret
     (\case
-      StorePut k v -> do
-        liftIO . modifyIORef dbLatest $ AT.insert (makeRawKey k) v
+      StorePut k v ->
+        liftIO . modifyIORef dbLatest $ AT.insert (makeKeyBytes k) v
       StoreDelete k ->
-        liftIO . modifyIORef dbLatest $ AT.delete (makeRawKey k)
+        liftIO . modifyIORef dbLatest $ AT.delete (makeKeyBytes k)
     ) m
 
 evalRead
@@ -80,10 +82,10 @@ evalRead DB{dbCommitted,dbLatest} iavlVersion m = do
         case version of
           Latest -> do
             tree <- liftIO $ readIORef dbLatest
-            pure $ AT.lookup (makeRawKey k) tree
+            pure $ AT.lookup (makeKeyBytes k) tree
           Version v -> do
             tree <- liftIO $ readIORef dbCommitted
-            pure (AT.lookup v tree >>= AT.lookup (makeRawKey k))
+            pure (AT.lookup v tree >>= AT.lookup (makeKeyBytes k))
           Genesis -> pure Nothing
       StoreProve _ -> pure Nothing
     ) m
@@ -160,8 +162,8 @@ getRootHash db@DB{dbCommitted} = do
   case mcv of
     Nothing -> pure ""
     Just v -> do
-      cs <- readIORef dbCommitted
-      case AT.lookup v cs of
+      c <- readIORef dbCommitted
+      case AT.lookup v c of
         Nothing -> pure ""
         Just tree ->
           let AuthTreeHash hash = AT.merkleHash tree
