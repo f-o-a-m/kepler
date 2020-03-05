@@ -10,6 +10,8 @@ title: Nameservice - Keeper
 
 ## Tutorial.Nameservice.Keeper
 
+In this section, we will make use of the `Store` types defined in `Nameservice.Modules.Nameservice.Store`. For an overview on how this is setup, see the `Storage` chapter in the `Foundations` section of the tutorial.
+
 ~~~ haskell
 {-# LANGUAGE TemplateHaskell #-}
 module Tutorial.Nameservice.Keeper where
