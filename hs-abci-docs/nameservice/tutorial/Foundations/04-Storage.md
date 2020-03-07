@@ -4,15 +4,15 @@ title: Foundations - Storage
 
 # Database
 
-ABCI application depend on some kind of merkelized storage in order the achieve consensus on valid a application state. The SDK has two database options to interpret `StoreEffs`, an in-memory [avl-auth](https://github.com/oscoin/avl-auth) option as well as a persisted [iavl](https://github.com/tendermint/iavl) option.
+ABCI applications depend on some kind of merkelized storage in order to achieve consensus on a valid application state. The SDK has two database options to interpret `StoreEffs`, an in-memory [avl-auth](https://github.com/oscoin/avl-auth) option as well as a persisted [iavl](https://github.com/tendermint/iavl) option.
 
 # Stores
 
 The most convenient way to partition a key-value store is by heavy use of prefixes -- for example, if you want to separate each module's keyspace, you can use prefix all of the keys that it manages by the module's unique name. If you want to partition storage within a module, say for a list or mapping, you can again use prefixes to create a unique keyspace.
 
-The definition of a `Store` is a unique keyspace. Implementation wise, it is effectively a list of prefixes to concatonate when creating keys. There are currently 6 ways of creating Stores:
+The definition of a `Store` is a unique keyspace. Implementation wise, it is effectively a list of prefixes to concatenate when creating keys. There are currently 6 ways of creating Stores:
 
-1. From a `KeyRoot`, which is basically defines a top level Store.
+1. From a `KeyRoot`, which basically defines a top level Store.
 2. Using the `nestStore` function to mount one Store in another.
 3. By creating a `Var`, which creates a keyspace with exactly one key.
 4. By creating an `Array`, which creates a keyspace whose keys are type `Word64`.
