@@ -32,16 +32,24 @@ dependencies:
 - exceptions
 - data-default-class
 
+
 library:
   source-dirs: src
   dependencies:
     - aeson-casing
+    - conduit
     - hs-abci-types
     - http-client
     - http-conduit
+    - lens
+    - lens-aeson
     - mtl
     - random
+    - stm
+    - stm-conduit
+    - string-conversions
     - text
+    - transformers
     - websockets
     - wuss
   ghc-options:
@@ -69,10 +77,10 @@ tests:
     - -with-rtsopts=-N
     dependencies:
       - aeson-pretty
+      - conduit
       - hs-abci-types
       - hs-tendermint-client
       - hspec
-      - lens-aeson
       - lens
       - text
       - string-conversions

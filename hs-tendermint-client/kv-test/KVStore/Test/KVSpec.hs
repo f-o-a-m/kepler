@@ -4,12 +4,10 @@ import           Control.Concurrent                   (forkIO)
 import           Control.Concurrent.MVar              (MVar, modifyMVar_,
                                                        newMVar)
 import           Control.Lens                         (to, (^.))
-import           Control.Lens.Fold                    ((^?))
 import           Control.Monad                        (void)
 import           Control.Monad.Catch                  (try)
 import qualified Data.Aeson                           as A
 import           Data.Aeson.Encode.Pretty             (encodePretty)
-import qualified Data.Aeson.Lens                      as A
 import           Data.ByteArray.Base64String          (Base64String)
 import qualified Data.ByteArray.Base64String          as Base64
 import qualified Data.ByteArray.HexString             as Hex
@@ -17,6 +15,9 @@ import           Data.ByteString                      (ByteString)
 import           Data.Default.Class                   (def)
 import           Data.Either                          (isRight)
 --import           Data.HashSet                         (difference, fromList)
+import           Control.Monad.IO.Class               (liftIO)
+import           Data.Conduit                         (awaitForever, runConduit,
+                                                       (.|))
 import           Data.String.Conversions              (cs)
 import           Data.Text                            (Text)
 import           GHC.Generics                         (Generic)
@@ -141,28 +142,18 @@ testInit = do
   pure $ TestEnv expectedEventsMVar resultEventsMVar []
 
 addEventToCheck :: ToEvent a => TestEnv -> a -> IO ()
-addEventToCheck (TestEnv mvexpected mvres ses) ev = do
+addEventToCheck (TestEnv mvexpected _ ses) ev = do
   modifyMVar_ mvexpected $ \es -> pure $ es <> [A.toJSON . toEvent $ ev]
   let evType = eventType (toEvent ev)
   if evType`elem` ses
     then pure ()
-    else startNewListener evType
+    else void $ startNewListener evType
  where
   startNewListener evType =
     let subReq = RPC.RequestSubscribe ("tm.event = 'Tx' AND " <> evType <> " EXISTS")
-        forkTendermintM = void . forkIO . void . runRPC
-    in forkTendermintM $ RPC.subscribe subReq (handler evType)
-  handler evType res = case res ^? txEvents of
-    Nothing -> pure ()
-    Just v -> case A.fromJSON v of
-      A.Error _ -> error ("Failed to parse\n" <> cs (A.encode v) )
-      A.Success evs ->
-        let filterFn v' = evType == eventType v'
-            filteredEvs = filter filterFn evs
-        in modifyMVar_ mvres $ \es -> pure $ es <> map A.toJSON filteredEvs
-  txEvents = A.key "result"
-           . A.key "data"
-           . A.key "value"
-           . A.key "TxResult"
-           . A.key "result"
-           . A.key "events"
+        eventPrinter = awaitForever $ \a ->
+          let msg = cs  . A.encode $ a
+              prefix = "Printing in Conduit: "
+          in liftIO . putStrLn  $ prefix <> msg
+        forkTendermintM = forkIO . runRPC .  runConduit
+    in forkTendermintM $ RPC.subscribe subReq .| eventPrinter

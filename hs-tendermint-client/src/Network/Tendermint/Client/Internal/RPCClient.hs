@@ -136,10 +136,14 @@ remoteWS method input handler = do
         msg = WS.Binary $ Aeson.encode rpcRequest
     WS.sendDataMessage c msg
     void . forever $ do
-        message <- WS.receiveData c >>= decodeRPCResponse
+        bs <- WS.receiveData c
+        message <- decodeRPCResponse bs
         handler message
   decodeRPCResponse bs = case Aeson.eitherDecodeStrict bs of
-    Left err       -> throwM $ ParsingException err
+    Left err       -> do
+      print bs
+      throwM $ ParsingException err
+
     Right response -> pure response
 
 
