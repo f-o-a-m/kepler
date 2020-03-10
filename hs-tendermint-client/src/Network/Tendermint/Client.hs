@@ -258,9 +258,6 @@ data TxResultEvent a = TxEvent
   , txEventEvents      :: a
   } deriving (Generic)
 
-instance ToJSON a => ToJSON (TxResultEvent a) where
-  toJSON = genericToJSON $ defaultRPCOptions "txEvent"
-
 instance FromJSON (TxResultEvent [FieldTypes.Event]) where
   parseJSON val = do
     let mtxRes = val ^? AL.key "result"
