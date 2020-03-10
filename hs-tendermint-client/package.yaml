@@ -83,5 +83,6 @@ tests:
       - hspec
       - lens
       - text
+      - random
       - string-conversions
       - hs-abci-sdk

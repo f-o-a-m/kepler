@@ -4,25 +4,25 @@ import           Control.Concurrent                   (forkIO)
 import           Control.Concurrent.MVar              (MVar, modifyMVar_,
                                                        newMVar)
 import           Control.Lens                         (to, (^.))
-import           Control.Monad                        (void)
+import           Control.Monad                        (replicateM, void)
 import           Control.Monad.Catch                  (try)
+import           Control.Monad.IO.Class               (liftIO)
 import qualified Data.Aeson                           as A
 import           Data.Aeson.Encode.Pretty             (encodePretty)
 import           Data.ByteArray.Base64String          (Base64String)
 import qualified Data.ByteArray.Base64String          as Base64
 import qualified Data.ByteArray.HexString             as Hex
 import           Data.ByteString                      (ByteString)
-import           Data.Default.Class                   (def)
-import           Data.Either                          (isRight)
---import           Data.HashSet                         (difference, fromList)
-import           Control.Monad.IO.Class               (liftIO)
 import           Data.Conduit                         (awaitForever, runConduit,
                                                        (.|))
+import           Data.Default.Class                   (def)
+import           Data.Either                          (isRight)
 import           Data.String.Conversions              (cs)
 import           Data.Text                            (Text)
 import           GHC.Generics                         (Generic)
 import qualified Network.ABCI.Types.Messages.Response as Response
 import qualified Network.Tendermint.Client            as RPC
+import           System.Random                        (randomIO)
 import           Tendermint.SDK.BaseApp.Events        (Event (..), ToEvent (..))
 import           Test.Hspec
 
@@ -46,15 +46,17 @@ spec = do
         result `shouldSatisfy` isRight
 
       it "Can submit a async tx and the response code is 0 (success)" $ \tenv -> do
-        let asyncTxReq = RPC.RequestBroadcastTxAsync { RPC.requestBroadcastTxAsyncTx = encodeTx "abcd" }
-        addEventToCheck tenv $ mkAppEvent "abcd"
+        a <- fmap cs . replicateM 10 $ randomIO @Char
+        let asyncTxReq = RPC.RequestBroadcastTxAsync { RPC.requestBroadcastTxAsyncTx = encodeTx a }
+        addEventToCheck tenv $ mkAppEvent (cs a)
         -- async returns nothing
         resp <- runRPC $ RPC.broadcastTxAsync asyncTxReq
         RPC.resultBroadcastTxCode resp `shouldBe` 0
 
       it "Can submit a sync tx and the response code is 0 (success)" $ \tenv -> do
-        let txReq = RPC.RequestBroadcastTxSync { RPC.requestBroadcastTxSyncTx = encodeTx "efgh" }
-        addEventToCheck tenv $ mkAppEvent "efgh"
+        a <- fmap cs . replicateM 10 $ randomIO @Char
+        let txReq = RPC.RequestBroadcastTxSync { RPC.requestBroadcastTxSyncTx = encodeTx a }
+        addEventToCheck tenv $ mkAppEvent (cs a)
         -- sync only returns a CheckTx
         resp <- runRPC $ RPC.broadcastTxSync txReq
         RPC.resultBroadcastTxCode resp `shouldBe` 0
@@ -62,8 +64,9 @@ spec = do
       it "Can submit a commit tx, make sure the response code is 0 (success), and get the result(s)" $ \tenv -> do
         -- /broadcast_tx_commit
         -- set name key
-        let broadcastTxReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeTx "name=satoshi" }
+        a <- fmap cs . replicateM 10 $ randomIO @Char
         addEventToCheck tenv $ mkAppEvent "name"
+        let broadcastTxReq = RPC.RequestBroadcastTxCommit { RPC.requestBroadcastTxCommitTx = encodeTx $ "name=" <> a }
         broadcastResp <- runRPC $ RPC.broadcastTxCommit broadcastTxReq
         let deliverResp = RPC.resultBroadcastTxCommitDeliverTx broadcastResp
             deliverRespCode = deliverResp ^. Response._deliverTxCode
@@ -81,8 +84,8 @@ spec = do
           RPC.abciQuery queryReqWProof
         let foundName = queryResp ^. Response._queryValue . to decodeName
             foundNameWProof = queryRespWProof ^. Response._queryValue . to decodeName
-        foundName `shouldBe` "satoshi"
-        foundNameWProof `shouldBe` "satoshi"
+        foundName `shouldBe` a
+        foundNameWProof `shouldBe` a
         -- check with /tx endpoint (w+w/o proof)
         let hash = RPC.resultBroadcastTxCommitHash $ broadcastResp
             -- convert hex to base64

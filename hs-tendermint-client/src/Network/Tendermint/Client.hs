@@ -32,7 +32,6 @@ import           Data.Conduit                                 (ConduitT)
 import           Data.Conduit.TQueue                          (sourceTQueue)
 import           Data.Default.Class                           (Default (..))
 import           Data.Int                                     (Int64)
-import           Data.String.Conversions                      (cs)
 import           Data.Text                                    (Text)
 import           Data.Word                                    (Word32)
 import           GHC.Generics                                 (Generic)
@@ -290,16 +289,10 @@ subscribe req = do
   let handler (val :: Aeson.Value) =
         let isEmptyResult = val ^? AL.key "result" == Just (Aeson.Object mempty)
         in if isEmptyResult
-             then do
-               putStrLn "Got Empty Result"
-               pure ()
+             then pure ()
              else case Aeson.eitherDecode . Aeson.encode $ val of
-               Left err -> do
-                 putStrLn . cs . Aeson.encode $ val
-                 throwM (RPC.ParsingException err)
-               Right a -> do
-                 putStrLn "Got NonEmpty Result"
-                 atomically $ writeTQueue queue a
+               Left err -> throwM (RPC.ParsingException err)
+               Right a  -> atomically $ writeTQueue queue a
   lift $ RPC.remoteWS (RPC.MethodName "subscribe") req handler
   sourceTQueue queue
 
