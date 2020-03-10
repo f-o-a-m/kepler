@@ -82,7 +82,8 @@ tests:
       - hs-tendermint-client
       - hspec
       - lens
+      - lens-aeson
       - text
       - random
       - string-conversions
-      - hs-abci-sdk
+      - unordered-containers
