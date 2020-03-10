@@ -7,7 +7,7 @@ title: Tutorial
 We're going to build an example application that mirrors the `golang` [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) example application called [Nameservice](https://github.com/cosmos/sdk-tutorials/tree/master/nameservice). There is also a tutorial for that application which you can find [here](https://tutorials.cosmos.network/nameservice/tutorial/00-intro.html) for comparison.
 
 ## Application Specification
-The Nameservice application is a simple marketplace for a name resolution service. Let us say that a `Name` resolves to type called `Whois` where 
+The Nameservice application is a simple marketplace for a name resolution service. Let us say that a `Name` resolves to type called `Whois` where
 
 ~~~ haskell ignore
 data Whois = Whois
@@ -41,17 +41,18 @@ If you would like to start with something simpler, you can view the tutorial for
 
 This tutorial should teach you:
 1. How to construct application specific modules.
-2. How to enable a module to receive application specific transactions. 
+2. How to enable a module to receive application specific transactions.
 3. How to compose modules and wire up an application.
 4. How to add event logging, console logging, and other effects to module.
 4. How to use the type system to control the capabilities of a module.
 
-The SDK makes heavy use of the effects system brought to haskell by the [polysemy](https://hackage.haskell.org/package/polysemy-1.2.3.0) library. We're not going to explain how this library works here, there are several existing tutorials that do this already. Suffice it to say that polysemy encourages the application developer to develop modules that have well defined roles and scopes, and to prohibit certain modules from interfering with the roles and scopes of other modules unless explicitly allowed by the type system. 
+The SDK makes heavy use of the effects system brought to haskell by the [polysemy](https://hackage.haskell.org/package/polysemy-1.2.3.0) library. We're not going to explain how this library works here, there are several existing tutorials that do this already. Suffice it to say that polysemy encourages the application developer to develop modules that have well defined roles and scopes, and to prohibit certain modules from interfering with the roles and scopes of other modules unless explicitly allowed by the type system.
 
 It is also allows the application developer to construct modules without much regard for how they will plug into the SDK, leaving that job to the SDK itself.
 
-(This tutorial is integrated as a literate haskell file, meaning that the following is necessary to ensure it compiles.) 
+<!--
 ~~~ haskell
 main :: IO ()
 main = pure ()
 ~~~
+-->
