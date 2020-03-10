@@ -47,7 +47,6 @@ library:
     - random
     - stm
     - stm-conduit
-    - string-conversions
     - text
     - transformers
     - websockets
@@ -82,7 +81,6 @@ tests:
       - hs-tendermint-client
       - hspec
       - lens
-      - lens-aeson
       - text
       - random
       - string-conversions
