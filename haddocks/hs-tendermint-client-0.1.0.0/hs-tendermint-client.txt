@@ -57,7 +57,7 @@ Config :: Request -> (Request -> IO ()) -> (Response -> IO ()) -> ByteString -> 
 
 -- | Whether to use TLS or not
 [tlsEnabled] :: Config -> Bool
-remoteWS :: (MonadIO m, MonadReader Config m, FromJSON output, ToJSON input) => MethodName -> input -> (output -> IO ()) -> m ()
+remoteWS :: (FromJSON output, ToJSON input) => Config -> MethodName -> input -> (output -> IO ()) -> IO ()
 remote :: (MonadIO m, MonadReader Config m, FromJSON output, ToJSON input) => MethodName -> input -> m output
 instance Data.Aeson.Types.ToJSON.ToJSON Network.Tendermint.Client.Internal.RPCClient.MethodName
 instance GHC.Show.Show Network.Tendermint.Client.Internal.RPCClient.MethodName
@@ -134,6 +134,11 @@ ResultSubscribe :: ResultSubscribe
 newtype RequestSubscribe
 RequestSubscribe :: Text -> RequestSubscribe
 [requestSubscribeQuery] :: RequestSubscribe -> Text
+data TxResultEvent a
+TxEvent :: WrappedVal Int64 -> Int64 -> a -> TxResultEvent a
+[txEventBlockHeight] :: TxResultEvent a -> WrappedVal Int64
+[txEventTxIndex] :: TxResultEvent a -> Int64
+[txEventEvents] :: TxResultEvent a -> a
 data ResultABCIInfo
 ResultABCIInfo :: Info -> ResultABCIInfo
 [resultABCIInfoResponse] :: ResultABCIInfo -> Info
@@ -222,7 +227,7 @@ abciInfo :: TendermintM ResultABCIInfo
 
 -- | invokes <a>/subscribe</a> rpc call
 --   <a>https://github.com/tendermint/tendermint/blob/master/rpc/core/events.go#L17</a>
-subscribe :: RequestSubscribe -> (Value -> IO ()) -> TendermintM ResultSubscribe
+subscribe :: RequestSubscribe -> ConduitT () (TxResultEvent [Event]) (ResourceT TendermintM) ()
 defaultRPCOptions :: String -> Options
 
 -- | JSON-RPC client config
@@ -309,6 +314,7 @@ instance GHC.Classes.Eq Network.Tendermint.Client.ResultSubscribe
 instance GHC.Generics.Generic Network.Tendermint.Client.RequestSubscribe
 instance GHC.Show.Show Network.Tendermint.Client.RequestSubscribe
 instance GHC.Classes.Eq Network.Tendermint.Client.RequestSubscribe
+instance GHC.Generics.Generic (Network.Tendermint.Client.TxResultEvent a)
 instance GHC.Generics.Generic Network.Tendermint.Client.ResultABCIInfo
 instance GHC.Show.Show Network.Tendermint.Client.ResultABCIInfo
 instance GHC.Classes.Eq Network.Tendermint.Client.ResultABCIInfo
@@ -345,6 +351,7 @@ instance Data.Aeson.Types.FromJSON.FromJSON Network.Tendermint.Client.BlockMeta
 instance Data.Aeson.Types.FromJSON.FromJSON Network.Tendermint.Client.ResultBroadcastTx
 instance Data.Aeson.Types.FromJSON.FromJSON Network.Tendermint.Client.ResultSubscribe
 instance Data.Aeson.Types.ToJSON.ToJSON Network.Tendermint.Client.RequestSubscribe
+instance Data.Aeson.Types.FromJSON.FromJSON (Network.Tendermint.Client.TxResultEvent [Network.ABCI.Types.Messages.FieldTypes.Event])
 instance Data.Aeson.Types.FromJSON.FromJSON Network.Tendermint.Client.ResultABCIInfo
 instance Data.Aeson.Types.FromJSON.FromJSON Network.Tendermint.Client.ResultHealth
 instance Data.Aeson.Types.FromJSON.FromJSON Network.Tendermint.Client.ResultBroadcastTxCommit
