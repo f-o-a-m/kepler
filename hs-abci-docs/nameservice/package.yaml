@@ -193,6 +193,7 @@ tests:
     - aeson
     - mtl
     - nameservice
+    - resourcet
     - servant
     - text
     - unordered-containers

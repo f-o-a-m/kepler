@@ -6,6 +6,7 @@ import           Control.Concurrent.MVar                (MVar, modifyMVar_,
 import           Control.Monad                          (forM_, void)
 import           Control.Monad.IO.Class                 (liftIO)
 import           Control.Monad.Reader                   (ReaderT, runReaderT)
+import           Control.Monad.Trans.Resource           (runResourceT)
 import qualified Data.Aeson                             as A
 import           Data.Conduit                           (awaitForever,
                                                          runConduit, (.|))
@@ -45,7 +46,6 @@ import           Tendermint.Utils.ClientUtils           (assertQuery, assertTx,
 import           Tendermint.Utils.Events                (FromEvent (..))
 import           Tendermint.Utils.User                  (makeSignerFromUser,
                                                          makeUser)
-
 import           Test.Hspec
 
 
@@ -512,5 +512,5 @@ addEventToCheck (TestEnv mvexpected mvseen mveventTypes) ev  = do
         eventStorer = awaitForever $ \as ->
           liftIO $ modifyMVar_ mvseen $ \es -> pure $
             RPC.txEventEvents as <> es
-        forkTendermintM = forkIO . RPC.runTendermintM rpcConfig .  runConduit
+        forkTendermintM = forkIO . RPC.runTendermintM rpcConfig . runResourceT .  runConduit
     in forkTendermintM $ RPC.subscribe subReq .| eventStorer

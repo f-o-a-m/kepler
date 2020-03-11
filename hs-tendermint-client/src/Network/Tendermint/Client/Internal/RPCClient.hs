@@ -1,9 +1,8 @@
 module Network.Tendermint.Client.Internal.RPCClient where
 
 import           Control.Applicative    ((<|>))
-import           Control.Concurrent     (forkIO)
 import           Control.Exception      (Exception)
-import           Control.Monad          (forever, void)
+import           Control.Monad          (forever)
 import           Control.Monad.Catch    (throwM)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Control.Monad.Reader   (MonadReader, ask)
@@ -110,28 +109,25 @@ data Config = Config
   }
 
 remoteWS ::
-  ( MonadIO m
-  , MonadReader Config m
-  , FromJSON output
+  ( FromJSON output
   , ToJSON input
   )
-  => MethodName
+  => Config
+  -> MethodName
   -> input
   -> (output -> IO ())
-  -> m ()
-{-# INLINE remoteWS #-}
-remoteWS method input handler = do
-  Config {..} <- ask
+  -> IO ()
+remoteWS Config{..} method input handler = do
   let host = BS.unpack cHost
       port = fromInteger $ toInteger cPort
       tlsPort = fromInteger $ toInteger port
       path = "/websocket"
-  void . liftIO . forkIO $ if tlsEnabled
+  if tlsEnabled
     then runSecureClient host tlsPort path ws
     else WS.runClient host port path ws
  where
   ws c = do
-    rid <- abs <$> liftIO randomIO
+    rid <- abs <$> randomIO
     let rpcParams = Aeson.toJSON input
         rpcRequest = Request method rid rpcParams
         msg = WS.Binary $ Aeson.encode rpcRequest
@@ -142,7 +138,6 @@ remoteWS method input handler = do
         handler message
   decodeRPCResponse bs = case Aeson.eitherDecodeStrict bs of
     Left err       -> throwM $ ParsingException err
-
     Right response -> pure response
 
 

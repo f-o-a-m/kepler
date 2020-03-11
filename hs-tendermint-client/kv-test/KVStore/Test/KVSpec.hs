@@ -7,6 +7,7 @@ import           Control.Lens                           ((^.))
 import           Control.Monad                          (replicateM)
 import           Control.Monad.Catch                    (try)
 import           Control.Monad.IO.Class                 (liftIO)
+import           Control.Monad.Trans.Resource           (runResourceT)
 import qualified Data.Aeson                             as A
 import           Data.Aeson.Encode.Pretty               (encodePretty)
 import           Data.ByteArray.Base64String            (Base64String)
@@ -158,5 +159,5 @@ addEventToCheck (TestEnv mvexpected mvseen mveventTypes) ev  = do
         eventStorer = awaitForever $ \as ->
           liftIO $ modifyMVar_ mvseen $ \es -> pure $
             RPC.txEventEvents as <> es
-        forkTendermintM = forkIO . runRPC .  runConduit
+        forkTendermintM = forkIO . runRPC . runResourceT .  runConduit
     in forkTendermintM $ RPC.subscribe subReq .| eventStorer

@@ -8,6 +8,8 @@ module Network.Tendermint.Client
   )
 where
 
+import           Control.Concurrent                           (forkIO,
+                                                               killThread)
 import           Control.Concurrent.STM.TQueue                (newTQueueIO,
                                                                writeTQueue)
 import           Control.Lens                                 ((^?))
@@ -15,8 +17,9 @@ import           Control.Monad.Catch                          (throwM)
 import           Control.Monad.IO.Class                       (liftIO)
 import           Control.Monad.Reader                         (ReaderT,
                                                                runReaderT)
+import           Control.Monad.Reader                         (ask)
 import           Control.Monad.STM                            (atomically)
-import           Control.Monad.Trans                          (lift)
+import           Control.Monad.Trans.Resource                 (ResourceT)
 import           Data.Aeson                                   (FromJSON (..),
                                                                ToJSON (..),
                                                                genericParseJSON,
@@ -28,7 +31,8 @@ import qualified Data.Aeson.Lens                              as AL
 import qualified Data.ByteArray.Base64String                  as Base64
 import           Data.ByteArray.HexString                     (HexString)
 import           Data.ByteString                              (ByteString)
-import           Data.Conduit                                 (ConduitT)
+import           Data.Conduit                                 (ConduitT,
+                                                               bracketP)
 import           Data.Conduit.TQueue                          (sourceTQueue)
 import           Data.Default.Class                           (Default (..))
 import           Data.Int                                     (Int64)
@@ -280,7 +284,7 @@ instance FromJSON (TxResultEvent [FieldTypes.Event]) where
 -- https://github.com/tendermint/tendermint/blob/master/rpc/core/events.go#L17
 subscribe
   :: RequestSubscribe
-  -> ConduitT () (TxResultEvent [FieldTypes.Event]) TendermintM ()
+  -> ConduitT () (TxResultEvent [FieldTypes.Event]) (ResourceT TendermintM) ()
 subscribe req = do
   queue <- liftIO newTQueueIO
   let handler (val :: Aeson.Value) =
@@ -290,8 +294,11 @@ subscribe req = do
              else case Aeson.eitherDecode . Aeson.encode $ val of
                Left err -> throwM (RPC.ParsingException err)
                Right a  -> atomically $ writeTQueue queue a
-  lift $ RPC.remoteWS (RPC.MethodName "subscribe") req handler
-  sourceTQueue queue
+  cfg <- ask
+  bracketP
+    (forkIO $ RPC.remoteWS cfg (RPC.MethodName "subscribe") req handler)
+    killThread
+    (const $ sourceTQueue queue)
 
 newtype RequestSubscribe = RequestSubscribe
   { requestSubscribeQuery   :: Text
