@@ -93,7 +93,7 @@ deploy-nameservice-test: install ## run the nameservice docker network for testi
 # Tests
 #####################
 
-test-kv-store: install ## Run the test suite for the client interface
+test-kv-store: ## Run the test suite for the client interface
 	stack test hs-tendermint-client
 
 test-simple-storage: install ## Run the test suite for the simple-storage example application

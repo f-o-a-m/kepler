@@ -1,50 +1,51 @@
 module Nameservice.Test.E2ESpec (spec) where
 
-import           Control.Concurrent                (forkIO)
-import           Control.Concurrent.MVar           (MVar, modifyMVar_, newMVar,
-                                                    readMVar)
-import           Control.Lens                      ((^?))
-import           Control.Monad                     (forM_, void)
-import           Control.Monad.Reader              (ReaderT, runReaderT)
-import qualified Data.Aeson                        as A
-import           Data.Aeson.Lens                   (key)
-import           Data.Default.Class                (def)
-import           Data.HashSet                      (fromList)
+import           Control.Concurrent                     (forkIO)
+import           Control.Concurrent.MVar                (MVar, modifyMVar_,
+                                                         newMVar, readMVar)
+import           Control.Monad                          (forM_, void)
+import           Control.Monad.IO.Class                 (liftIO)
+import           Control.Monad.Reader                   (ReaderT, runReaderT)
+import           Control.Monad.Trans.Resource           (runResourceT)
+import qualified Data.Aeson                             as A
+import           Data.Conduit                           (awaitForever,
+                                                         runConduit, (.|))
+import           Data.Default.Class                     (def)
+import           Data.HashSet                           (fromList)
 import           Data.Proxy
-import           Data.String.Conversions           (cs)
-import           Data.Text                         (Text)
+import           Data.Text                              (Text)
 import           Nameservice.Application
-import qualified Nameservice.Modules.Nameservice   as N
-import           Nameservice.Test.EventOrphans     ()
-import qualified Network.Tendermint.Client         as RPC
-import           Servant.API                       ((:<|>) (..))
-import qualified Tendermint.SDK.Application.Module as M
-import           Tendermint.SDK.BaseApp.Errors     (AppError (..))
-import           Tendermint.SDK.BaseApp.Events     (Event (..), ToEvent (..))
-import           Tendermint.SDK.BaseApp.Query      (QueryArgs (..),
-                                                    QueryResult (..),
-                                                    defaultQueryArgs)
-import qualified Tendermint.SDK.Modules.Auth       as Auth
-import qualified Tendermint.SDK.Modules.Bank       as B
-import           Tendermint.SDK.Types.Address      (Address)
-import           Tendermint.Utils.Client           (ClientConfig (..),
-                                                    EmptyTxClient (..),
-                                                    HasQueryClient (..),
-                                                    HasTxClient (..),
-                                                    QueryClientResponse (..),
-                                                    Signer (..),
-                                                    TxClientResponse (..),
-                                                    TxOpts (..),
-                                                    defaultClientTxOpts)
-import           Tendermint.Utils.ClientUtils      (assertQuery, assertTx,
-                                                    deliverTxEvents,
-                                                    ensureQueryResponseCode,
-                                                    ensureResponseCodes,
-                                                    rpcConfig)
-import           Tendermint.Utils.Events           (FromEvent (..))
-import           Tendermint.Utils.User             (makeSignerFromUser,
-                                                    makeUser)
-
+import qualified Nameservice.Modules.Nameservice        as N
+import           Nameservice.Test.EventOrphans          ()
+import qualified Network.ABCI.Types.Messages.FieldTypes as FT
+import qualified Network.Tendermint.Client              as RPC
+import           Servant.API                            ((:<|>) (..))
+import qualified Tendermint.SDK.Application.Module      as M
+import           Tendermint.SDK.BaseApp.Errors          (AppError (..))
+import           Tendermint.SDK.BaseApp.Events          (ToEvent (..))
+import           Tendermint.SDK.BaseApp.Query           (QueryArgs (..),
+                                                         QueryResult (..),
+                                                         defaultQueryArgs)
+import qualified Tendermint.SDK.Modules.Auth            as Auth
+import qualified Tendermint.SDK.Modules.Bank            as B
+import           Tendermint.SDK.Types.Address           (Address)
+import           Tendermint.Utils.Client                (ClientConfig (..),
+                                                         EmptyTxClient (..),
+                                                         HasQueryClient (..),
+                                                         HasTxClient (..),
+                                                         QueryClientResponse (..),
+                                                         Signer (..),
+                                                         TxClientResponse (..),
+                                                         TxOpts (..),
+                                                         defaultClientTxOpts)
+import           Tendermint.Utils.ClientUtils           (assertQuery, assertTx,
+                                                         deliverTxEvents,
+                                                         ensureQueryResponseCode,
+                                                         ensureResponseCodes,
+                                                         rpcConfig)
+import           Tendermint.Utils.Events                (FromEvent (..))
+import           Tendermint.Utils.User                  (makeSignerFromUser,
+                                                         makeUser)
 import           Test.Hspec
 
 
@@ -358,7 +359,7 @@ spec = do
     it "Can monitor all events" $ \(TestEnv mvex mvres _) -> do
       expected <- readMVar mvex
       res <- readMVar mvres
-      fromList expected `shouldBe` fromList res
+      fromList (map A.toJSON expected) `shouldBe` fromList (map A.toJSON res)
 
 
 faucetUser
@@ -486,38 +487,30 @@ faucet
       txApiDP = Proxy
 
 -- Test Init
-data TestEnv = TestEnv (MVar [A.Value]) (MVar [A.Value]) [Text]
+data TestEnv = TestEnv (MVar [FT.Event]) (MVar [FT.Event]) (MVar [Text])
 
 testInit :: Auth.Amount -> IO TestEnv
 testInit faucetAmount = do
   forM_ [user1, user2] $ faucetUser faucetAmount
-  expectedEventsMVar <- newMVar []
-  resultEventsMVar <- newMVar []
-  pure $ TestEnv expectedEventsMVar resultEventsMVar []
+  TestEnv <$> newMVar [] <*> newMVar [] <*> newMVar []
+
 
 addEventToCheck :: ToEvent a => TestEnv -> a -> IO ()
-addEventToCheck (TestEnv mvexpected mvres ses) ev = do
-  modifyMVar_ mvexpected $ \es -> pure $ es <> [A.toJSON . toEvent $ ev]
-  let evType = eventType (toEvent ev)
+addEventToCheck (TestEnv mvexpected mvseen mveventTypes) ev  = do
+  let appEv = toEvent ev
+  modifyMVar_ mvexpected $ pure . (appEv :)
+  ses <- readMVar mveventTypes
+  let evType = FT.eventType appEv
   if evType`elem` ses
     then pure ()
-    else startNewListener evType
+    else do
+      _ <- startNewListener evType
+      modifyMVar_ mveventTypes $ pure . (evType :)
  where
   startNewListener evType =
     let subReq = RPC.RequestSubscribe ("tm.event = 'Tx' AND " <> evType <> " EXISTS")
-        forkTendermintM = void . forkIO . void . RPC.runTendermintM rpcConfig
-    in forkTendermintM $ RPC.subscribe subReq (handler evType)
-  handler evType res = case res ^? txEvents of
-    Nothing -> pure ()
-    Just v -> case A.fromJSON v of
-      A.Error _ -> error ("Failed to parse\n" <> cs (A.encode v) )
-      A.Success evs ->
-        let filterFn v' = evType == eventType v'
-            filteredEvs = filter filterFn evs
-        in modifyMVar_ mvres $ \es -> pure $ es <> map A.toJSON filteredEvs
-  txEvents = key "result"
-           . key "data"
-           . key "value"
-           . key "TxResult"
-           . key "result"
-           . key "events"
+        eventStorer = awaitForever $ \as ->
+          liftIO $ modifyMVar_ mvseen $ \es -> pure $
+            RPC.txEventEvents as <> es
+        forkTendermintM = forkIO . RPC.runTendermintM rpcConfig . runResourceT .  runConduit
+    in forkTendermintM $ RPC.subscribe subReq .| eventStorer

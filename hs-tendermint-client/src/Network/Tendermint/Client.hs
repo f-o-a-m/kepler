@@ -8,8 +8,17 @@ module Network.Tendermint.Client
   )
 where
 
-import           Control.Monad.Reader                         (ReaderT,
+import           Control.Concurrent                           (forkIO,
+                                                               killThread)
+import           Control.Concurrent.STM.TQueue                (newTQueueIO,
+                                                               writeTQueue)
+import           Control.Lens                                 ((^?))
+import           Control.Monad.Catch                          (throwM)
+import           Control.Monad.IO.Class                       (liftIO)
+import           Control.Monad.Reader                         (ReaderT, ask,
                                                                runReaderT)
+import           Control.Monad.STM                            (atomically)
+import           Control.Monad.Trans.Resource                 (ResourceT)
 import           Data.Aeson                                   (FromJSON (..),
                                                                ToJSON (..),
                                                                genericParseJSON,
@@ -17,9 +26,13 @@ import           Data.Aeson                                   (FromJSON (..),
 import qualified Data.Aeson                                   as Aeson
 import           Data.Aeson.Casing                            (aesonDrop,
                                                                snakeCase)
+import qualified Data.Aeson.Lens                              as AL
 import qualified Data.ByteArray.Base64String                  as Base64
 import           Data.ByteArray.HexString                     (HexString)
 import           Data.ByteString                              (ByteString)
+import           Data.Conduit                                 (ConduitT,
+                                                               bracketP)
+import           Data.Conduit.TQueue                          (sourceTQueue)
 import           Data.Default.Class                           (Default (..))
 import           Data.Int                                     (Int64)
 import           Data.Text                                    (Text)
@@ -242,13 +255,49 @@ instance FromJSON ResultABCIInfo where
 -- Subscribe
 --------------------------------------------------------------------------------
 
+data TxResultEvent a = TxEvent
+  { txEventBlockHeight :: FieldTypes.WrappedVal Int64
+  , txEventTxIndex     :: Int64
+  , txEventEvents      :: a
+  } deriving (Generic)
+
+instance FromJSON (TxResultEvent [FieldTypes.Event]) where
+  parseJSON val = do
+    let mtxRes = val ^? AL.key "result"
+                      . AL.key "data"
+                      . AL.key "value"
+                      . AL.key "TxResult"
+                      . AL._Object
+    txRes <- maybe (fail "key not found: result.data.value.TxResult") pure mtxRes
+    height <- txRes Aeson..: "height"
+    idx <- txRes Aeson..: "index"
+    res' <- txRes Aeson..: "result"
+    es <- res' Aeson..: "events"
+    pure TxEvent
+      { txEventBlockHeight = height
+      , txEventTxIndex = idx
+      , txEventEvents = es
+      }
+
 -- | invokes [/subscribe](https://tendermint.com/rpc/#subscribe) rpc call
 -- https://github.com/tendermint/tendermint/blob/master/rpc/core/events.go#L17
-subscribe :: RequestSubscribe -> (Aeson.Value -> IO ()) -> TendermintM ResultSubscribe
-subscribe req handler = do
-  RPC.remoteWS (RPC.MethodName "subscribe") req handler
-  pure ResultSubscribe
-
+subscribe
+  :: RequestSubscribe
+  -> ConduitT () (TxResultEvent [FieldTypes.Event]) (ResourceT TendermintM) ()
+subscribe req = do
+  queue <- liftIO newTQueueIO
+  let handler (val :: Aeson.Value) =
+        let isEmptyResult = val ^? AL.key "result" == Just (Aeson.Object mempty)
+        in if isEmptyResult
+             then pure ()
+             else case Aeson.eitherDecode . Aeson.encode $ val of
+               Left err -> throwM (RPC.ParsingException err)
+               Right a  -> atomically $ writeTQueue queue a
+  cfg <- ask
+  bracketP
+    (forkIO $ RPC.remoteWS cfg (RPC.MethodName "subscribe") req handler)
+    killThread
+    (const $ sourceTQueue queue)
 
 newtype RequestSubscribe = RequestSubscribe
   { requestSubscribeQuery   :: Text

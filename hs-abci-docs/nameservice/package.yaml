@@ -183,17 +183,17 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - base >= 4.7 && < 5
+    - conduit
     - data-default-class
     - hs-abci-sdk
     - hs-abci-test-utils
+    - hs-abci-types
     - hs-tendermint-client
     - hspec
     - aeson
     - mtl
     - nameservice
+    - resourcet
     - servant
     - text
     - unordered-containers
-    - lens-aeson
-    - lens
-    - string-conversions
