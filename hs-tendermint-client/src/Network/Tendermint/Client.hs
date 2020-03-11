@@ -15,9 +15,8 @@ import           Control.Concurrent.STM.TQueue                (newTQueueIO,
 import           Control.Lens                                 ((^?))
 import           Control.Monad.Catch                          (throwM)
 import           Control.Monad.IO.Class                       (liftIO)
-import           Control.Monad.Reader                         (ReaderT,
+import           Control.Monad.Reader                         (ReaderT, ask,
                                                                runReaderT)
-import           Control.Monad.Reader                         (ask)
 import           Control.Monad.STM                            (atomically)
 import           Control.Monad.Trans.Resource                 (ResourceT)
 import           Data.Aeson                                   (FromJSON (..),
