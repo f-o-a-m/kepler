@@ -26,7 +26,7 @@ These effects are:
 
 1. `Metrics` - creates and manages custom counters and timers.
 2. `Logger` - allows for structured logging with log levels.
-3. `Resource` - allows for bracketing and resource management in the presence of exeptions.
+3. `Resource` - allows for bracketing and resource management in the presence of exceptions.
 4. `Error AppError` -- allows for errors of type `AppError` to be thrown or caught.
 
 The SDK does not make any assumptions about how `BaseEffs` will be interpreted at runtime, it only assumes that the developer might want use one of the provided core effects systems to interpret them. For example, the standard `CoreEffs` uses a prometheus metrics server to interpret the `Metrics` effect while `PureCoreEffs` just ignores the effect entirely. 
@@ -87,12 +87,12 @@ type StoreEffs =
   ]
 ~~~
 
- They are used to interpret `TxEffects` depending on what context you're in, e.g. while executing a `delierTx` versus `checkTx` message, or a `query`. Some effects are tagged with a promoted value of type `Scope`, i.e. `'Consensus` and `'QueryAndMempool`. This is because your application will keep multiple connections to the database that are used in different situations. For example, since writing to the state at a previous blocktimes is impossible, we disallow writing to the database in such instances.
+They are used to interpret `TxEffects` depending on what context you're in, e.g. while executing a `delierTx` versus `checkTx` message, or a `query`. Some effects are tagged with a promoted value of type `Scope`, i.e. `'Consensus` and `'QueryAndMempool`. This is because your application will keep multiple connections to the database that are used in different situations. For example, since writing to the state at a previous blocktime is impossible, we disallow writing to the database in such instances.
 
 
 # Effects Type Synonyms
 
-There are a few  effects lists that appear so frequently at different points in the SDK that they deserve synonyms:
+There are a few effects lists that appear so frequently at different points in the SDK that they deserve synonyms:
 
 ## Effs
 
