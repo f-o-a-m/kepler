@@ -23,9 +23,8 @@ In order to build with stack you will need this. On MacOS you can use brew:
 On linux:
 
 ```
-> sudo add-apt-repository ppa:tah83/secp256k1
 > sudo apt-get update
-> sudo apt-get install libsecp256k1
+> sudo apt-get install libsecp256k1-0
 ```
 
 #### style
