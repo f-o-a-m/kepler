@@ -124,7 +124,7 @@ instance HasCodec Whois where
     in bimap (cs . show) toWhois . fromByteString @WhoisMessage
 ~~~
 
-Finally we can register `(Name, Whois)` with the module's store with the `IsKey` class, which tells how to associate a key type with a value type within the scope of given module, where the scope is represented by the modules name as a type level string. There is an optional prefixing function for the key in this context in order to avoid collisions in the database. This would be useful for example if you were using multiple newtyped `Address` types as keys in the same module.
+Finally we can register `(Name, Whois)` with the module's store with the `IsKey` class, which tells how to associate a key type with a value type within the scope of a given module, where the scope is represented by the modules name as a type level string. There is an optional prefixing function for the key in this context in order to avoid collisions in the database. This would be useful for example if you were using multiple newtyped `Address` types as keys in the same module.
 
 ~~~ haskell ignore
 class RawKey k => IsKey k ns where
@@ -135,7 +135,7 @@ class RawKey k => IsKey k ns where
   prefixWith _ _ = ""
 ~~~
 
-For the case of the `Name -> Whois` mapping, the `IsKey` instance looked like looks like this:
+For the case of the `Name -> Whois` mapping, the `IsKey` instance looks like this:
 
 ~~~ haskell
 data NameserviceNamespace
@@ -144,7 +144,7 @@ instance BA.IsKey Name NameserviceNamespace where
   type Value Name NameserviceNamespace = Whois
 ~~~
 
-At is point, you can use the database operations exported by `Tendermint.SDK.BaseApp.Store` such as `put`/`set`/`delete` for key value pairs of type `(Name, Whois)`.
+At this point, you can use the database operations exported by `Tendermint.SDK.BaseApp.Store` such as `put`/`set`/`delete` for key value pairs of type `(Name, Whois)`.
 
 ### Query Types
 
