@@ -107,7 +107,7 @@ instance HasCodec BuyNameMsg where
        . fromByteString @BuyNameMessage
 ~~~
 
-As `protobuf` is a schemaless format, parsing is sometimes ambiguous if two types are the same up to field names, or one is a subset of the other. For this reason we use the type class `HasTypedMessage`
+As `protobuf` is a schemaless format, parsing is sometimes ambiguous if two types are the same up to field names, or one is a subset of the other. For this reason we use the type class `HasMessageType`
 
 ~~~ haskell ignore
 class HasMessageType msg where
@@ -150,7 +150,7 @@ class ValidateMessage msg where
   validateMessage :: Msg msg -> Validation [MessageSemanticError] ()
 ~~~
 
-We're using the applicative functor [`Data.Validation.Validation`](https://hackage.haskell.org/package/validation-1.1/docs/Data-Validation.html#t:Validation) to perform valdiation because it is capable of reporting all errors at once, rather than the first that occurs as in ther case with something like `Either`.
+We're using the applicative functor [`Data.Validation.Validation`](https://hackage.haskell.org/package/validation-1.1/docs/Data-Validation.html#t:Validation) to perform valdiation because it is capable of reporting all errors at once, rather than the first that occurs as in the case with something like `Either`.
 
 Here's what the `isAuthor` check looks like, that was described above:
 

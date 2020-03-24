@@ -56,7 +56,7 @@ getWhois :: Name -> NameserviceKeeper m (Maybe Whois)
 
 ### Evaluating Module Effects
 
-Like we said before, all transactions must ultimately compile to the set of effects belonging to `TxEffs` and `BaseEffs`. In particular this means that we must interpret `NameserviceEffs` into more basic effects. To do this we follow the general pattern of first interpreting `NameserviceKeeper` effects, then finally interpreting `Error NameserviceError` in terms of `Error AppError`. Let's focus on the `DeleteName` summand of `NameserviceKeeper`. We can write an interpreting function as follows:
+Like we said before, all transactions must ultimately compile to the set of effects belonging to `TxEffs` and `BaseEffs`. In particular this means that we must interpret `NameserviceEffs` into more basic effects. To do this we follow the general pattern of first interpreting `NameserviceKeeper` effects, then finally interpreting `Error NameserviceError` in terms of `Error AppError`. Let's focus on the `DeleteName` sub-command of `NameserviceKeeper`. We can write an interpreting function as follows:
 
 ~~~ haskell
 deleteNameF
