@@ -80,14 +80,19 @@ test-iavl-client: ## test the iavl client library basic operation (requires grpc
 #####################
 
 deploy-simple-storage-docker: install ## run the simple storage docker network
-	docker-compose -f hs-abci-docs/simple-storage/docker-compose.yaml up --build
+	docker-compose -f hs-abci-docs/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e up -d
+
+deploy-simple-storage-docker-down: ## remove the simple storage docker network
+	docker-compose -f hs-abci-docs/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e down -v
 
 deploy-nameservice: install ## run the nameservice docker network with elk stack for logging
 	docker-compose -f hs-abci-docs/nameservice/docker-compose.yaml up --build
 
 deploy-nameservice-test: install ## run the nameservice docker network for testing
-	docker-compose -f hs-abci-docs/nameservice/docker-compose-test.yaml up --build
+	docker-compose -f hs-abci-docs/nameservice/docker-compose-test.yaml -p test-hs-abci-examples-nameservice-e2e up -d
 
+deploy-nameservice-test-down: ## remove the nameservice docker network
+	docker-compose -f hs-abci-docs/nameservice/docker-compose-test.yaml -p test-hs-abci-examples-nameservice-e2e down -v --rmi local
 
 #####################
 # Tests
