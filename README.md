@@ -2,6 +2,9 @@
 
 [![Build Status](https://travis-ci.com/f-o-a-m/kepler.svg?branch=master)](https://travis-ci.com/f-o-a-m/kepler)
 
+## Docs
+Although the documentation for this project is hosted on github as well, always use the [hosted docs](https://kepler.dev/) for the best experience.
+
 ## Introduction
 This is the official repository for the Haskell implementation of the ABCI server and
 SDK for developing applications backed by the Tendermint replication engine. You can
