@@ -11,4 +11,4 @@ To understand how to build a simple application using this library, see the lite
 
 ## Build
 
-See [installation instructions](https://github.com/f-o-a-m/kepler/blob/master/INSTALL.md)
+See [installation instructions](https://github.com/f-o-a-m/kepler/blob/master/hs-abci-docs/doc/0020-Installation.md)
