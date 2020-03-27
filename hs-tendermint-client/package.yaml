@@ -1,19 +1,12 @@
 name:                hs-tendermint-client
 version:             0.1.0.0
-github:              "f-o-a-m/hs-abci/hs-tendermint-client"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2019 Author name here"
+github:              "f-o-a-m/kepler/hs-tendermint-client"
+license:             Apache
+author:              "Martin Allen"
+maintainer:          "martin@foam.spacem"
+copyright:           "2020 FOAM"
 
-# Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
-
-# To avoid duplicated efforts in documentation and dealing with the
-# complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-tendermint-client#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-tendermind-client/README.md>
 
 default-extensions:
 - NamedFieldPuns
@@ -32,31 +25,42 @@ default-extensions:
 - OverloadedStrings
 - GeneralizedNewtypeDeriving
 
-
 dependencies:
 - aeson
-- aeson-casing
 - base >= 4.7 && < 5
-- base16-bytestring
 - bytestring
-- data-default-class
 - exceptions
-- hs-abci-types
-- http-client
-- http-conduit
-- memory
-- mtl
-- random
-- text
-- time
+- data-default-class
+
 
 library:
   source-dirs: src
+  dependencies:
+    - aeson-casing
+    - conduit
+    - hs-abci-types
+    - http-client
+    - http-conduit
+    - lens
+    - lens-aeson
+    - mtl
+    - random
+    - resourcet
+    - stm
+    - stm-conduit
+    - text
+    - websockets
+    - wuss
   ghc-options:
   - -Werror
   - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-record-updates
+  - -Wredundant-constraints
   exposed-modules:
   - Network.Tendermint.Client
+  - Network.Tendermint.Client.Internal.RPCClient
 
 tests:
   hs-tendermint-client-kv:
@@ -71,12 +75,14 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-      - aeson
       - aeson-pretty
-      - binary
+      - conduit
       - hs-abci-types
       - hs-tendermint-client
       - hspec
       - lens
-      - QuickCheck
+      - text
+      - random
+      - resourcet
       - string-conversions
+      - unordered-containers

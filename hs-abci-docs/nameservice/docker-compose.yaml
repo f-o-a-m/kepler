@@ -1,0 +1,69 @@
+version: '3.7'
+services:
+  tendermint-init:
+    image: tendermint/tendermint:v0.32.8
+    command: init
+    volumes:
+        - tendermint-storage:/tendermint
+  tendermint:
+    depends_on:
+      - tendermint-init
+      - nameservice
+    image: tendermint/tendermint:v0.32.8
+    command: node --rpc.laddr=tcp://0.0.0.0:26657 --proxy_app=tcp://nameservice:26658
+    volumes:
+      - tendermint-storage:/tendermint
+    restart: always
+    ports:
+      - "26656-26657:26656-26657"
+  nameservice:
+    entrypoint: /usr/local/bin/nameservice
+    build:
+      context: ../../.
+      dockerfile: Dockerfile
+    image: hs-abci:test
+    environment:
+     - ES_HOST=elk
+     - ES_PORT=9200
+     - STATS_PORT=5555
+     - IAVL_HOST=iavl
+     - IAVL_port=8090
+    restart: always
+    depends_on:
+      - elk
+      - iavl
+    ports:
+      - "26658"
+      - "5555:5555"
+  datadog:
+    image: datadog/agent:latest
+    depends_on:
+      - nameservice
+    restart: always
+    environment:
+     - DD_API_KEY=${DD_API_KEY}
+     - IAVL_HOST=iavl
+     - IAVL_PORT=8090
+    volumes:
+     - /proc/:/host/proc/:ro
+     - ./conf.d/openmetrics.d:/etc/datadog-agent/conf.d/openmetrics.d
+  elk:
+    image: sebp/elk:683
+    ports:
+      - "5601:5601"
+      - "9200:9200"
+      - "5044:5044"
+    expose:
+      - "9200"
+      - "5601"
+  iavl:
+    image: foamspace/iavl:latest
+    command: /iavlserver  -db-name "test" -datadir "."  -grpc-endpoint "0.0.0.0:8090"  -gateway-endpoint "0.0.0.0:8091"
+    ports: 
+     - "8090-8091:8091-8091"
+    expose: 
+     - "8090"
+     - "8091"
+    
+volumes:
+  tendermint-storage:

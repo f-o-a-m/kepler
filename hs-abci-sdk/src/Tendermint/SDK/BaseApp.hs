@@ -1,83 +1,109 @@
-{-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
+module Tendermint.SDK.BaseApp
+  ( -- * BaseApp
+    BaseEffs
+  , defaultCompileToCore
+  , defaultCompileToPureCore
+  , BaseAppEffs
+  , (:&)
 
-module Tendermint.SDK.BaseApp where
+  -- * Core Effects
+  , CoreEffs
+  , Context(..)
+  , contextLogConfig
+  , contextPrometheusEnv
+  , contextVersions
+  , makeContext
+  , runCoreEffs
 
-import           Control.Lens                 (over, view)
-import qualified Katip                        as K
-import           Polysemy                     (Embed, Member, Members, Sem,
-                                               runM)
-import           Polysemy.Output              (Output)
-import           Polysemy.Reader              (Reader, asks, local, runReader)
-import           Polysemy.Resource            (Resource, resourceToIO)
-import           Tendermint.SDK.AuthTreeStore (AuthTreeDriver,
-                                               initAuthTreeDriver,
-                                               interpretAuthTreeStore)
-import           Tendermint.SDK.Events        (Event, EventBuffer,
-                                               evalWithBuffer, newEventBuffer)
-import           Tendermint.SDK.Logger        (Logger)
-import qualified Tendermint.SDK.Logger.Katip  as KL
-import           Tendermint.SDK.Store         (RawStore)
+  -- * Pure Effects
+  , PureCoreEffs
+  , PureContext(..)
+  , pureContextLogConfig
+  , pureContextVersions
+  , pureContextDB
+  , makePureContext
+  , runPureCoreEffs
 
-type HasBaseApp r =
-  ( Member Logger r
-  , Member RawStore r
-  , Member (Output Event) r
-  , Member Resource r
-  )
+  -- * Store
+  , ReadStore
+  , WriteStore
+  , RawKey(..)
+  , StoreKey(..)
+  , IsKey(..)
+  , Store
+  , KeyRoot(..)
+  , makeStore
+  , put
+  , get
+  , delete
 
-data Context = Context
-  { contextLogConfig      :: KL.LogConfig
-  , contextEventBuffer    :: EventBuffer
-  , contextAuthTreeDriver :: AuthTreeDriver
-  }
+  -- * Query Routes
+  , Leaf
+  , QA
+  , StoreLeaf
 
-type CoreEff =
-  '[ Reader KL.LogConfig
-   , Embed IO
-   ]
+  -- * Errors
+  , AppError(..)
+  , IsAppError(..)
 
-type BaseApp =
-  (  Output Event
-  ': RawStore
-  ': Logger
-  ': Resource
-  ': Reader EventBuffer
-  ': CoreEff
-  )
+  -- * Events
+  , Event(..)
+  , ToEvent(..)
+  , ContextEvent(..)
+  , emit
+  , logEvent
 
-instance (Members CoreEff r) => K.Katip (Sem r)  where
-  getLogEnv = asks $ view KL.logEnv
-  localLogEnv f m = local (over KL.logEnv f) m
+  -- * Gas
+  , GasMeter
+  , withGas
 
-instance (Members CoreEff r) => K.KatipContext (Sem r) where
-  getKatipContext = asks $ view KL.logContext
-  localKatipContext f m = local (over KL.logContext f) m
-  getKatipNamespace = asks $ view KL.logNamespace
-  localKatipNamespace f m = local (over KL.logNamespace f) m
+  -- * Logger
+  , Logger
+  , Tendermint.SDK.BaseApp.Logger.log
+  , LogSelect(..)
+  , addContext
+  , Severity(..)
+  , Select(..)
+  , Verbosity(..)
 
+  -- * Metrics
+  , Metrics
+  , incCount
+  , withTimer
+  , CountName(..)
+  , HistogramName(..)
 
-makeContext :: KL.LogConfig -> IO Context
-makeContext logCfg = do
-  authTreeD <- initAuthTreeDriver
-  eb <- newEventBuffer
-  pure $ Context
-    { contextLogConfig = logCfg
-    , contextEventBuffer = eb
-    , contextAuthTreeDriver = authTreeD
-    }
+  -- * Transaction
+  , AnteHandler
+  , RoutingTx(..)
+  , RouteTx
+  , RouteContext(..)
+  , Return
+  , (:~>)
+  , TypedMessage
+  , TxEffs
+  , EmptyTxServer(..)
+  , DefaultCheckTx(..)
+  , VoidReturn
 
--- NOTE: Do we need this step? I think so because of the logger.
--- You don't want to run against a fresh katip context every time.
-eval
-  :: Context
-  -> Sem BaseApp a
-  -> IO a
-eval Context{..} action =
-  runM .
-  runReader contextLogConfig .
-  runReader contextEventBuffer .
-  resourceToIO .
-  KL.evalKatip .
-  interpretAuthTreeStore contextAuthTreeDriver .
-  evalWithBuffer $ action
+  -- * Query
+  , QueryEffs
+  , QueryData(..)
+  , RouteQ
+  , QueryResult(..)
+  , storeQueryHandler
+  , EmptyQueryServer(..)
+  , RouterError(ResourceNotFound)
+  ) where
+
+import           Tendermint.SDK.BaseApp.Effects
+import           Tendermint.SDK.BaseApp.Errors
+import           Tendermint.SDK.BaseApp.Events
+import           Tendermint.SDK.BaseApp.Gas
+import           Tendermint.SDK.BaseApp.Logger
+import           Tendermint.SDK.BaseApp.Metrics
+import           Tendermint.SDK.BaseApp.Query
+import           Tendermint.SDK.BaseApp.Router      (RouterError (ResourceNotFound))
+import           Tendermint.SDK.BaseApp.Store
+import           Tendermint.SDK.BaseApp.Transaction
+import           Tendermint.SDK.Types.Effects       ((:&))

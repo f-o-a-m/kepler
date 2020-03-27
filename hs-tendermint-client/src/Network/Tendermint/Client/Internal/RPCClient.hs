@@ -2,16 +2,21 @@ module Network.Tendermint.Client.Internal.RPCClient where
 
 import           Control.Applicative    ((<|>))
 import           Control.Exception      (Exception)
-import           Control.Monad.Catch    (MonadThrow, throwM)
+import           Control.Monad          (forever)
+import           Control.Monad.Catch    (throwM)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Control.Monad.Reader   (MonadReader, ask)
 import           Data.Aeson             (FromJSON (..), Result (..),
                                          ToJSON (..), Value (..), fromJSON,
                                          (.:), (.:?), (.=))
 import qualified Data.Aeson             as Aeson
+import           Data.ByteString        (ByteString)
+import qualified Data.ByteString.Char8  as BS
 import           Data.Text              (Text, unpack)
 import qualified Network.HTTP.Simple    as HTTP
+import qualified Network.WebSockets     as WS
 import           System.Random          (randomIO)
+import           Wuss                   (runSecureClient)
 
 -- | JSON-RPC request.
 data Request = Request
@@ -95,11 +100,50 @@ data Config = Config
   -- ^ An acion to perform before sending the 'HTTP.Request'
   , withResponse     :: Response -> IO ()
   -- ^ An acion to perform before handling the 'HTTP.Response'
+  , cHost            :: ByteString
+  -- ^ The host for client to connect
+  , cPort            :: Int
+  -- ^ Port for client to use
+  , tlsEnabled       :: Bool
+  -- ^ Whether to use TLS or not
   }
+
+remoteWS ::
+  ( FromJSON output
+  , ToJSON input
+  )
+  => Config
+  -> MethodName
+  -> input
+  -> (output -> IO ())
+  -> IO ()
+remoteWS Config{..} method input handler = do
+  let host = BS.unpack cHost
+      port = fromInteger $ toInteger cPort
+      tlsPort = fromInteger $ toInteger port
+      path = "/websocket"
+  if tlsEnabled
+    then runSecureClient host tlsPort path ws
+    else WS.runClient host port path ws
+ where
+  ws c = do
+    rid <- abs <$> randomIO
+    let rpcParams = Aeson.toJSON input
+        rpcRequest = Request method rid rpcParams
+        msg = WS.Binary $ Aeson.encode rpcRequest
+    WS.sendDataMessage c msg
+    forever  $ do
+        bs <- WS.receiveData c
+        message <- decodeRPCResponse bs
+        handler message
+  decodeRPCResponse bs = case Aeson.eitherDecodeStrict bs of
+    Left err       -> throwM $ ParsingException err
+    Right response -> pure response
+
+
 
 remote ::
   ( MonadIO m
-  , MonadThrow m
   , MonadReader Config m
   , FromJSON output
   , ToJSON input
@@ -110,7 +154,7 @@ remote ::
 {-# INLINE remote #-}
 remote method input = do
   rid <- abs <$> liftIO randomIO
-  Config baseHTTPRequest withReq withResp <- ask
+  Config baseHTTPRequest withReq withResp _ _ _ <- ask
   let req = Request method rid (toJSON input)
       httpReq = HTTP.setRequestBodyJSON req
               $ HTTP.setRequestHeaders [("Content-Type", "application/json")]

@@ -1,0 +1,15 @@
+syntax = "proto3";
+package Transaction;
+
+message RawTransaction {
+  TypedMessage data = 1;
+  int64 gas = 2;
+  bytes signature = 3;
+  string route = 4;
+  uint64 nonce = 5; 
+}
+
+message TypedMessage {
+  string type = 1;
+  bytes data = 2;
+}

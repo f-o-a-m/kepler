@@ -1,0 +1,74 @@
+name:                hs-abci-test-utils
+version:             0.1.0.0
+github:              "f-o-a-m/kepler/hs-abci-test-utils"
+license:             Apache
+author:              "Martin Allen"
+maintainer:          "martin@foam.space"
+copyright:           "2020 Martin Allen"
+
+extra-source-files:
+- README.md
+
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-abci-test-utils/README.md>
+
+default-extensions:
+  - DataKinds
+  - DefaultSignatures
+  - DeriveGeneric
+  - FlexibleInstances
+  - MultiParamTypeClasses
+  - NamedFieldPuns
+  - OverloadedStrings
+  - TypeApplications
+  - TypeFamilies
+  - RecordWildCards
+  - ScopedTypeVariables
+  - TypeOperators
+  - FlexibleContexts
+  - GeneralizedNewtypeDeriving
+
+library:
+  source-dirs: src
+  ghc-options:
+  - -Werror
+  - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
+  dependencies:
+    - aeson
+    - aeson-pretty
+    - base >= 4.7 && < 5
+    - bytestring
+    - cryptonite
+    - http-api-data
+    - lens
+    - mtl
+    - secp256k1-haskell
+    - servant
+    - string-conversions
+    - text
+    - hs-abci-types
+    - hs-abci-sdk
+    - hs-tendermint-client
+
+tests:
+  hs-abci-test-utils-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -Werror
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - aeson
+    - base >= 4.7 && < 5
+    - hs-abci-sdk
+    - hs-abci-test-utils
+    - hspec
+    - hspec-core
+    - text
+    - string-conversions

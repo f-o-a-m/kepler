@@ -1,0 +1,10 @@
+## This is configured to work with the docker network, if you want to run in a
+## different setting you will need to change 'prometheus_url'.
+init_config:
+
+instances:
+  - prometheus_url: http://nameservice:5555/metrics
+    ## namespace option prefixes all metric names in datadog
+    namespace: nameservice
+    ## metrics names used in the nameservice app
+    metrics: ["*"]

@@ -1,0 +1,199 @@
+name:                nameservice
+version:             0.1.0.0
+github:              "f-o-a-m/kepler/hs-abci-docs/nameservice"
+license:             Apache
+author:              "Martin Allen"
+maintainer:          "martin@foam.space"
+copyright:           "2020 Martin Allen"
+
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-abci-docs/nameservice/README.md>
+
+extra-source-files:
+- README.md
+
+default-extensions:
+  - DeriveGeneric
+  - NamedFieldPuns
+  - RecordWildCards
+  - RankNTypes
+  - TypeFamilies
+  - FlexibleContexts
+  - DataKinds
+  - TypeApplications
+  - OverloadedStrings
+  - PolyKinds
+  - GeneralizedNewtypeDeriving
+  - ScopedTypeVariables
+  - TupleSections
+  - LambdaCase
+  - GADTs
+  - TypeOperators
+  - FlexibleInstances
+  - MultiParamTypeClasses
+  - DefaultSignatures
+  - FunctionalDependencies
+  - TypeFamilyDependencies
+  - DeriveFunctor
+  - StandaloneDeriving
+  - ConstraintKinds
+
+library:
+  source-dirs: src
+  dependencies:
+    - aeson
+    - aeson-casing
+    - base >= 4.7 && < 5
+    - bloodhound
+    - errors
+    - hs-abci-extra
+    - hs-abci-server
+    - hs-abci-sdk
+    - hs-abci-types
+    - http-client
+    - katip
+    - katip-elasticsearch
+    - lens
+    - polysemy
+    - polysemy-plugin
+    - proto3-suite
+    - servant
+    - string-conversions
+    - text
+    - validation
+  ghc-options:
+  - -fplugin=Polysemy.Plugin
+  - -Werror
+  - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
+  exposed-modules:
+  - Nameservice.Application
+  - Nameservice.Config
+  - Nameservice.Aeson
+  - Nameservice.Server
+  - Nameservice.Modules.Nameservice
+  - Nameservice.Modules.Nameservice.Messages
+  - Nameservice.Modules.Nameservice.Types
+  - Nameservice.Modules.Nameservice.Store
+  - Nameservice.Modules.Nameservice.Keeper
+  - Nameservice.Modules.Nameservice.Query
+  - Nameservice.Modules.Nameservice.Router
+
+executables:
+  nameservice:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - hs-abci-sdk
+    - katip
+    - lens
+    - nameservice
+
+  gen-protos-exe:
+    main:                Main.hs
+    source-dirs:         protogen
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - aeson-casing
+    - base
+    - bytestring
+    - hs-abci-sdk
+    - nameservice
+    - pretty
+    - proto3-suite
+    - proto3-wire
+
+  interact:
+    main:                Main.hs
+    source-dirs:         interact
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Werror
+    - -Wall
+    dependencies:
+    - async
+    - base
+    - data-default-class
+    - faker
+    - mtl
+    - nameservice
+    - hs-abci-sdk
+    - hs-abci-test-utils
+    - hs-tendermint-client
+    - random-strings
+    - servant
+    - string-conversions
+    - text
+
+tests:
+  tutorial:
+    main:                README.lhs
+    source-dirs:         tutorial
+    other-modules:
+    - Tutorial.Nameservice.Application
+    - Tutorial.Nameservice.Keeper
+    - Tutorial.Nameservice.Message
+    - Tutorial.Nameservice.Module
+    - Tutorial.Nameservice.Query
+    - Tutorial.Nameservice.Types
+    - Tutorial.Nameservice.Testing
+    ghc-options: -Wall -pgmL markdown-unlit
+    dependencies:
+    - aeson
+    - base
+    - data-default-class
+    - hs-abci-sdk
+    - hs-abci-server
+    - hs-abci-test-utils
+    - hs-tendermint-client
+    - lens
+    - markdown-unlit
+    - mtl
+    - nameservice
+    - polysemy
+    - polysemy-plugin
+    - proto3-suite
+    - servant
+    - string-conversions
+    - text
+  nameservice-test:
+    main:                Spec.hs
+    source-dirs:         test
+    other-modules:
+    - Nameservice.Test.E2ESpec
+    - Nameservice.Test.EventOrphans
+    ghc-options:
+    - -Werror
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base >= 4.7 && < 5
+    - conduit
+    - data-default-class
+    - hs-abci-sdk
+    - hs-abci-test-utils
+    - hs-abci-types
+    - hs-tendermint-client
+    - hspec
+    - aeson
+    - mtl
+    - nameservice
+    - resourcet
+    - servant
+    - text
+    - unordered-containers

@@ -1,12 +1,12 @@
 name:                hs-abci-server
 version:             0.1.0.0
-github:              "f-o-a-m/hs-abci/hs-abci-server"
+github:              "f-o-a-m/kepler/hs-abci-server"
 license:             Apache
 author:              "Martin Allen"
 maintainer:          "martin@foam.space"
-copyright:           "2019 Martin Allen"
+copyright:           "2020 Martin Allen"
 
-description:         Please see the README on GitHub at <https://github.com/f-o-a-m/hs-abci/hs-abci-server#readme>
+description:         Please see the README on GitHub at <https://github.com/f-o-a-m/kepler/blob/master/hs-abci-server/README.md>
 
 default-extensions:
 - NamedFieldPuns
@@ -24,32 +24,33 @@ default-extensions:
 - OverloadedStrings
 - MultiParamTypeClasses
 - FunctionalDependencies
-
-
-dependencies:
-- base >= 4.7 && < 5
-- aeson
-- aeson-casing
-- base16-bytestring
-- bytestring
-- conduit
-- conduit-extra
-- data-default-class
-- lens
-- memory
-- proto-lens
-- proto-lens-runtime
-- string-conversions
-- text
-- template-haskell
-- time
-- hs-abci-types
+- TypeApplications
 
 library:
   source-dirs: src
   ghc-options:
   - -Werror
   - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
+  dependencies:
+    - aeson
+    - base >= 4.7 && < 5
+    - bytestring
+    - base16-bytestring
+    - conduit
+    - conduit-extra
+    - cryptonite
+    - data-default-class
+    - hs-abci-types
+    - lens
+    - memory
+    - proto-lens
+    - string-conversions
+    - text
+
   exposed-modules:
   - Network.ABCI.Server
   - Network.ABCI.Server.App
@@ -70,13 +71,11 @@ tests:
 
 
     dependencies:
-      - generic-arbitrary
+      - base >= 4.7 && < 5
+      - bytestring
       - hs-abci-server
       - hspec
       - hspec-core
       - hspec-discover
       - binary
-      - lens-labels
-      - proto-lens-arbitrary
       - QuickCheck
-      - quickcheck-instances

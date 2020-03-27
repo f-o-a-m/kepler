@@ -1,6 +1,8 @@
 .stack-work/
 *.cabal
 *~
+.ci-bins/
+*.dump-hi
 
 # nix
 result-*
