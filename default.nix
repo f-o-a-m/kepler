@@ -131,13 +131,13 @@ let
       super.haskellPackages.override (old: {
         overrides = pkgs.lib.foldr pkgs.lib.composeExtensions (_: _: {}) [
           overrides
-          (self: super: {
-            avl-auth = pkgs.haskell.lib.dontCheck super.avl-auth;  # https://github.com/haskell-haskey/xxhash-ffi/issues/2
-            bloodhound = pkgs.haskell.lib.doJailbreak (pkgs.haskell.lib.unmarkBroken super.bloodhound); # tight bounds
-            katip-elasticsearch = pkgs.haskell.lib.dontCheck (pkgs.haskell.lib.unmarkBroken super.katip-elasticsearch); # needs elastic-search for tests
-            proto3-suite = pkgs.haskell.lib.dontCheck super.proto3-suite; # needs old 'tasty'
+          (self: super: with pkgs.haskell.lib; {
+            avl-auth = dontCheck super.avl-auth;  # https://github.com/haskell-haskey/xxhash-ffi/issues/2
+            bloodhound = doJailbreak (unmarkBroken super.bloodhound); # tight bounds
+            katip-elasticsearch = dontCheck (unmarkBroken super.katip-elasticsearch); # needs elastic-search for tests
+            proto3-suite = dontCheck super.proto3-suite; # needs old 'tasty'
 
-            hs-tendermint-client = pkgs.haskell.lib.dontCheck super.hs-tendermint-client; # last test fails frequently
+            hs-tendermint-client = dontCheck super.hs-tendermint-client; # last test fails frequently
             hs-iavl-client = keplerTests super.hs-iavl-client { runIavl = true; };
             hs-abci-sdk = keplerTests super.hs-abci-sdk { runIavl = true; };
             simple-storage = keplerTests super.simple-storage {
@@ -145,7 +145,7 @@ let
               runABCI = "IAVL_HOST=localhost IAVL_PORT=8090 dist/build/simple-storage/simple-storage";
               runTendermint= "tcp://localhost:26658";
             };
-            nameservice = pkgs.haskell.lib.dontCheck super.nameservice; # TODO
+            nameservice = dontCheck super.nameservice; # TODO
           }
         )
       ];
