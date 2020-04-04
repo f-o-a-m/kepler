@@ -127,6 +127,8 @@ let
     });
 
   overlay = self: super: {
+    inherit iavl tendermint;
+
     haskellPackages =
       super.haskellPackages.override (old: {
         overrides = pkgs.lib.foldr pkgs.lib.composeExtensions (old.overrides or (_: _: {})) [
