@@ -4,7 +4,7 @@ let
     name = "release-19.09";
     url = https://github.com/nixos/nixpkgs/archive/64a3ccb852d4f34abb015503affd845ef03cc0d9.tar.gz;
     sha256 = "0jigsyxlwl5hmsls4bqib0rva41biki6mwnswgmigwq41v6q7k94";
-  }) { inherit config; };
+  }) { inherit overlays; };
 
   iavl = pkgs.callPackage ./iavl.nix {};
   tendermint = pkgs.callPackage ./tendermint.nix {};
@@ -102,7 +102,7 @@ let
     in
       builtins.mapAttrs (name: pkg: pkg.overrideAttrs (addBuildInputs (extra-build-inputs.${name} or []))) allOverrides;
 
-  keplerTests = pkg: { runIavl ? false, runABCI ? null, runTendermint ? null}: pkgs.lib.overrideDerivation pkg (drv:
+  keplerTests = pkg: { runIavl ? false, runABCI ? null, runTendermint ? null }: pkgs.lib.overrideDerivation pkg (drv:
     let
       iavlScript = ''
         ${iavl}/bin/iavlserver -db-name "test" -datadir "." -grpc-endpoint "0.0.0.0:8090" -gateway-endpoint "0.0.0.0:8091" &
@@ -126,9 +126,9 @@ let
       ];
     });
 
-  config = {
-    packageOverrides = pkgs: {
-      haskellPackages = pkgs.haskellPackages.override {
+  overlay = self: super: {
+    haskellPackages =
+      super.haskellPackages.override (old: {
         overrides = pkgs.lib.foldr pkgs.lib.composeExtensions (_: _: {}) [
           overrides
           (self: super: {
@@ -146,14 +146,16 @@ let
               runTendermint= "tcp://localhost:26658";
             };
             nameservice = pkgs.haskell.lib.dontCheck super.nameservice; # TODO
-          })
-        ];
-      };
-    };
+          }
+        )
+      ];
+    });
   };
 
+  overlays = [overlay];
+
 in {
-  inherit pkgs overrides;
+  inherit pkgs overlays;
 
   packages = {
     inherit (pkgs.haskellPackages)
