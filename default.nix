@@ -129,7 +129,7 @@ let
   overlay = self: super: {
     haskellPackages =
       super.haskellPackages.override (old: {
-        overrides = pkgs.lib.foldr pkgs.lib.composeExtensions (_: _: {}) [
+        overrides = pkgs.lib.foldr pkgs.lib.composeExtensions (old.overrides or (_: _: {})) [
           overrides
           (self: super: with pkgs.haskell.lib; {
             avl-auth = dontCheck super.avl-auth;  # https://github.com/haskell-haskey/xxhash-ffi/issues/2
