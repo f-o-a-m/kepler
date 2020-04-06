@@ -503,7 +503,7 @@ If you would like to start with something simpler, you can view the tutorial for
 <li>How to use the type system to control the capabilities of a module.</li>
 </ol>
 <p>The SDK makes heavy use of the effects system brought to haskell by the <a href="https://hackage.haskell.org/package/polysemy-1.2.3.0">polysemy</a> library. We&#39;re not going to explain how this library works here, there are several existing tutorials that do this already. Suffice it to say that polysemy encourages the application developer to develop modules that have well defined roles and scopes, and to prohibit certain modules from interfering with the roles and scopes of other modules unless explicitly allowed by the type system.</p>
-<p>It is also allows the application developer to construct modules without much regard for how they will plug into the SDK, leaving that job to the SDK itself.</p>
+<p>It also allows the application developer to construct modules without much regard for how they will plug into the SDK, leaving that job to the SDK itself.</p>
 <!--
 ```haskell
 main :: IO ()

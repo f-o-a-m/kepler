@@ -556,7 +556,7 @@ instance HasCodec BuyNameMsg where
     in bimap (formatMessageParseError . coerceProto3Error) toBuyName
        . fromByteString @BuyNameMessage
 </code></pre>
-<p>As <code>protobuf</code> is a schemaless format, parsing is sometimes ambiguous if two types are the same up to field names, or one is a subset of the other. For this reason we use the type class <code>HasTypedMessage</code></p>
+<p>As <code>protobuf</code> is a schemaless format, parsing is sometimes ambiguous if two types are the same up to field names, or one is a subset of the other. For this reason we use the type class <code>HasMessageType</code></p>
 <pre class="haskell"><code>class HasMessageType msg where
   messageType :: Proxy msg -&gt; Text
 </code></pre>
@@ -588,7 +588,7 @@ instance HasMessageType BuyNameMsg where
 class ValidateMessage msg where
   validateMessage :: Msg msg -&gt; Validation [MessageSemanticError] ()
 </code></pre>
-<p>We&#39;re using the applicative functor <a href="https://hackage.haskell.org/package/validation-1.1/docs/Data-Validation.html#t:Validation"><code>Data.Validation.Validation</code></a> to perform valdiation because it is capable of reporting all errors at once, rather than the first that occurs as in ther case with something like <code>Either</code>.</p>
+<p>We&#39;re using the applicative functor <a href="https://hackage.haskell.org/package/validation-1.1/docs/Data-Validation.html#t:Validation"><code>Data.Validation.Validation</code></a> to perform valdiation because it is capable of reporting all errors at once, rather than the first that occurs as in the case with something like <code>Either</code>.</p>
 <p>Here&#39;s what the <code>isAuthor</code> check looks like, that was described above:</p>
 <pre class="haskell"><code>isAuthorCheck
   :: Text

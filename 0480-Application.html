@@ -538,7 +538,7 @@ handlersContext = HandlersContext
 <pre class="haskell"><code>app :: App (Sem CoreEffs)
 app = makeApp handlersContext 
 </code></pre>
-<p>Since the ABCI server requires you to pass a value of type <code>App IO</code>, we have one more transformation to perform to get replace the <code>Sem CoreEffs</code> in our app. We can simple use the <code>createIOApp</code> function:</p>
+<p>Since the ABCI server requires you to pass a value of type <code>App IO</code>, we have one more transformation to perform to get the <code>Sem CoreEffs</code> in our app. We can simple use the <code>createIOApp</code> function:</p>
 <pre class="haskell"><code>makeIOApp :: Context -&gt; App IO
 makeIOApp ctx = createIOApp (runCoreEffs ctx) app
 </code></pre>

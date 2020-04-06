@@ -504,7 +504,7 @@ setName :: SetNameMsg -&gt; NameserviceKeeper m ()
 getWhois :: Name -&gt; NameserviceKeeper m (Maybe Whois)
 </code></pre>
 <h3>Evaluating Module Effects</h3>
-<p>Like we said before, all transactions must ultimately compile to the set of effects belonging to <code>TxEffs</code> and <code>BaseEffs</code>. In particular this means that we must interpret <code>NameserviceEffs</code> into more basic effects. To do this we follow the general pattern of first interpreting <code>NameserviceKeeper</code> effects, then finally interpreting <code>Error NameserviceError</code> in terms of <code>Error AppError</code>. Let&#39;s focus on the <code>DeleteName</code> summand of <code>NameserviceKeeper</code>. We can write an interpreting function as follows:</p>
+<p>Like we said before, all transactions must ultimately compile to the set of effects belonging to <code>TxEffs</code> and <code>BaseEffs</code>. In particular this means that we must interpret <code>NameserviceEffs</code> into more basic effects. To do this we follow the general pattern of first interpreting <code>NameserviceKeeper</code> effects, then finally interpreting <code>Error NameserviceError</code> in terms of <code>Error AppError</code>. Let&#39;s focus on the <code>DeleteName</code> sub-command of <code>NameserviceKeeper</code>. We can write an interpreting function as follows:</p>
 <pre class="haskell"><code>deleteNameF
   :: Members BA.TxEffs r
   =&gt; Members BA.BaseEffs r

@@ -512,7 +512,7 @@ defaultCheckTxHandler(RoutingTx Tx{txMsg}) =
 <li>The message accepted by the router has a <code>ValidateMessage</code> instance</li>
 <li>The return type in the serve type is <code>Return ()</code></li>
 </ol>
-<p>To generate a server for which every transaction has these properties, we used the <code>defaultCheckTx</code> type class method on the <code>MessageApi</code> type. This will generate a server of type <code>VoidReturn MessageApi</code>, which has the exact same shape as <code>MessageApi</code> just will all the return values changed to <code>Return ()</code>. In this paricular case all handlers for <code>MessageApi</code> already return <code>()</code>, so we have <code>MessageApi ~ VoidReturn MessageApi</code> and there&#39;s no need to use the <code>VoidReturn</code> family in the module type.</p>
+<p>To generate a server for which every transaction has these properties, we used the <code>defaultCheckTx</code> type class method on the <code>MessageApi</code> type. This will generate a server of type <code>VoidReturn MessageApi</code>, which has the exact same shape as <code>MessageApi</code> just with all the return values changed to <code>Return ()</code>. In this paricular case all handlers for <code>MessageApi</code> already return <code>()</code>, so we have <code>MessageApi ~ VoidReturn MessageApi</code> and there&#39;s no need to use the <code>VoidReturn</code> family in the module type.</p>
 <p>Note the constraint on <code>r</code> in the Module&#39;s type using the constraint-valued type family <code>ModuleEffs</code>. In this case it evaluates to the following equivalent set of constraints:</p>
 <pre class="haskell"><code>...
   ModuleEffs Nameservice r 
