@@ -102,7 +102,7 @@ app :: App (Sem CoreEffs)
 app = makeApp handlersContext 
 ~~~
 
-Since the ABCI server requires you to pass a value of type `App IO`, we have one more transformation to perform to get replace the `Sem CoreEffs` in our app. We can simple use the `createIOApp` function:
+Since the ABCI server requires you to pass a value of type `App IO`, we have one more transformation to perform to get the `Sem CoreEffs` in our app. We can simple use the `createIOApp` function:
 
 ~~~ haskell
 makeIOApp :: Context -> App IO

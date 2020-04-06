@@ -56,7 +56,7 @@ Note that this checker can be used to implement any transaction for which
 1. The message accepted by the router has a `ValidateMessage` instance
 2. The return type in the serve type is `Return ()`
 
-To generate a server for which every transaction has these properties, we used the `defaultCheckTx` type class method on the `MessageApi` type. This will generate a server of type `VoidReturn MessageApi`, which has the exact same shape as `MessageApi` just will all the return values changed to `Return ()`. In this paricular case all handlers for `MessageApi` already return `()`, so we have `MessageApi ~ VoidReturn MessageApi` and there's no need to use the `VoidReturn` family in the module type.
+To generate a server for which every transaction has these properties, we used the `defaultCheckTx` type class method on the `MessageApi` type. This will generate a server of type `VoidReturn MessageApi`, which has the exact same shape as `MessageApi` just with all the return values changed to `Return ()`. In this paricular case all handlers for `MessageApi` already return `()`, so we have `MessageApi ~ VoidReturn MessageApi` and there's no need to use the `VoidReturn` family in the module type.
 
 Note the constraint on `r` in the Module's type using the constraint-valued type family `ModuleEffs`. In this case it evaluates to the following equivalent set of constraints:
 

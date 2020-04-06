@@ -12,7 +12,7 @@ The `Nameservice` application has support for either scribe -- it will use Elast
 
 The docker network includes an `elk` image (Elasticsearch, Logstash, Kibana) for persisting and querying logs. You can read more about this stack [here](https://www.elastic.co/what-is/elk-stack). In summary `elk` is a powerful solution for hosting searchable structured logs. 
 
-When logging to Elasticsearch, you can use the Kibana dashboard for creating queries and visualizations. We will cover the basics here. If you have already launched the docker network, you can view the Kibana dashboard by going to http://localhost:5601/app/kibana. You should see something like
+When logging to Elasticsearch, you can use the Kibana dashboard for creating queries and visualizations. We will cover the basics here. If you have already launched the [docker network](TODO: Where is the instructions for this?), you can view the Kibana dashboard by going to http://localhost:5601/app/kibana. You should see something like
 
 <img src="https://raw.githubusercontent.com/f-o-a-m/kepler/master/hs-abci-docs/nameservice/images/kibana_welcome_screen.png" width="50%"/>
 
