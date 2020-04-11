@@ -6,7 +6,7 @@ title: Nameservice - Application
 
 ## From Modules to App
 
-The `App` type in `Network.ABCI.Server` is defined as 
+The `App` type in `Network.ABCI.Server` is defined as
 
 ~~~ haskell ignore
 newtype App m = App
@@ -28,7 +28,7 @@ where
 - `alg` is the signature schema you would like to use for authentication (e.g. Secp256k1)
 - `ms` is the type level list of modules
 - `r` is the global effects list for the application
-- `core` is the set of core effects that are used to interpet `BaseApp` to `IO`.
+- `core` is the set of core effects that are used to interpret `BaseApp` to `IO`.
 - `Effs` is a type family that gathers the effect dependencies for `ms` in the appropriate order.
 
 We should say a few words on this `compileToCore` field. The application developer has to, at the end of the day, specify how the entire effects system for the application will be interpreted to `IO`. Luckily most of these decisions are abstracted away, but the one that remains is dealing with `BaseApp core`. The sdk provides two default methods for two different types of `core`:
@@ -99,7 +99,7 @@ Finally we're able to define our application that runs in the `CoreEffs` context
 
 ~~~ haskell
 app :: App (Sem CoreEffs)
-app = makeApp handlersContext 
+app = makeApp handlersContext
 ~~~
 
 Since the ABCI server requires you to pass a value of type `App IO`, we have one more transformation to perform to get the `Sem CoreEffs` in our app. We can simple use the `createIOApp` function:

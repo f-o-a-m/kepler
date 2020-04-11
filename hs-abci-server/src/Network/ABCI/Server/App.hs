@@ -50,7 +50,7 @@ import           Data.ProtoLens.Prism                 (( # ))
 import qualified Proto.Types                          as PT
 import qualified Proto.Types_Fields                   as PT
 
--- | Used to parametrize Request and Respone types
+-- | Used to parametrize Request and Response types
 data MessageType
   = MTEcho
   | MTFlush

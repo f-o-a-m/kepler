@@ -4,7 +4,7 @@ title: Nameservice - Overview
 
 # Overview
 
-This section is where we sketch the definition of the Nameservice module and application. It's to everyones benefit if module structures follow a similar file heirachy as the Nameservice module, or any module found in the SDK. In the case of Nameservice this roughly translates to 
+This section is where we sketch the definition of the Nameservice module and application. It's to everyone's benefit if module structures follow a similar file hierarchy as the Nameservice module, or any module found in the SDK. In the case of Nameservice this roughly translates to
 
 ```
 ├── Nameservice
@@ -26,4 +26,4 @@ The contents of these modules are roughly as follows:
 - `Nameservice.Router` - Defines the transaction router for the module.
 - `Namervice` Defines the module itself and re-exports any types or utils necessary for using this module as a dependency.
 
-The reason why we suggest this is that each of these haskell modules is buiding up one of the core components of our defition of a module, and it provides a nice logical split between these pieces.
+The reason why we suggest this is that each of these haskell modules is buiding up one of the core components of our definition of a module, and it provides a nice logical split between these pieces.

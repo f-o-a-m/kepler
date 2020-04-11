@@ -27,9 +27,9 @@ These effects are:
 1. `Metrics` - creates and manages custom counters and timers.
 2. `Logger` - allows for structured logging with log levels.
 3. `Resource` - allows for bracketing and resource management in the presence of exceptions.
-4. `Error AppError` -- allows for errors of type `AppError` to be thrown or caught.
+4. `Error AppError` - allows for errors of type `AppError` to be thrown or caught.
 
-The SDK does not make any assumptions about how `BaseEffs` will be interpreted at runtime, it only assumes that the developer might want use one of the provided core effects systems to interpret them. For example, the standard `CoreEffs` uses a prometheus metrics server to interpret the `Metrics` effect while `PureCoreEffs` just ignores the effect entirely. 
+The SDK does not make any assumptions about how `BaseEffs` will be interpreted at runtime, it only assumes that the developer might want use one of the provided core effects systems to interpret them. For example, the standard `CoreEffs` uses a prometheus metrics server to interpret the `Metrics` effect while `PureCoreEffs` just ignores the effect entirely.
 
 ## TxEffs
 
@@ -57,10 +57,10 @@ where
 
 ## QueryEffs
 
-`QueryEffs` are used to interpret queries and are defined as 
+`QueryEffs` are used to interpret queries and are defined as
 
 ~~~ haskell ignore
-type QueryEffs = 
+type QueryEffs =
   [ ReadStore
   , Error AppError
   ]
@@ -95,7 +95,7 @@ There are a few effects lists that appear so frequently at different points in t
 
 ## Effs
 
-`Effs` is technically a type family coming from the class `Tendermint.SDK.Application.Module.Eval`. It is used to enumerate all the effects that would be needed in order to run an application defined by a `ModuleList`. 
+`Effs` is technically a type family coming from the class `Tendermint.SDK.Application.Module.Eval`. It is used to enumerate all the effects that would be needed in order to run an application defined by a `ModuleList`.
 
 ## BaseAppEffs
 
