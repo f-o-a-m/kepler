@@ -27,7 +27,7 @@ balance :: Tendermint.SDK.Types.Address -> Integer
 
 This means that in the scope of the `Bank` module, the database utlity `get` function applied to a value of type `Address` will result in a value of type `Integer`. If the `Bank` module would like to store another mapping whose keys have type `Tendermint.SDK.Types.Address`, you must use a newtype instead. Otherwise you will get a compiler error.
 
-At the same time, you are free to define another mapping from `k -> v` in the scope of a different module. For example, you can have both the `balance` mapping described above, as well a mapping
+At the same time, you are free to define another mapping from `k -> v` in the scope of a different module. For example, you can have both the `balance` mapping described above, as well as a mapping
 
 ~~~ haskell ignore
 owner :: Tendermint.SDK.Types.Address -> Account
@@ -148,7 +148,7 @@ At this point, you can use the database operations exported by `Tendermint.SDK.B
 
 ### Query Types
 
-The [`cosmos-sdk`](https://github.com/cosmos/cosmos-sdk) assumes that you use `url` formatted queries with some possible query params. For example, to query a `Whois` value based on a `Name`, you might submit a `query` message with the route `nameservice/whois` and supply a value of type `Name` to specify as the `data` field. Our SDK makes the same assumption for compatability reasons.
+The [`cosmos-sdk`](https://github.com/cosmos/cosmos-sdk) assumes that you use `url` formatted queries with some possible query params. For example, to query a `Whois` value based on a `Name`, you might submit a `query` message with the route `nameservice/whois` and supply a value of type `Name` to specify as the `data` field. Our SDK makes the same assumption for compatibility reasons.
 
 ### Error Types
 

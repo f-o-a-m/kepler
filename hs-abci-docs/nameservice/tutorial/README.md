@@ -24,7 +24,7 @@ This means that users can buy and sell entries in a shared mapping of type `Name
 
 The application consists of three modules:
 1. `Auth` - Manages accounts for users, things like nonces and token balances.
-2. `Token` - Allows users manage their tokens, things like transfering or burning.
+2. `Token` - Allows users to manage their tokens, things like transfering or burning.
 3. `Nameservice` - Controls the shared `Name -> Value` mapping described above.
 
 ## How to Read this Tutorial

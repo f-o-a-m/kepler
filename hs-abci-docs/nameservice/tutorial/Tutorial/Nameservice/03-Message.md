@@ -9,11 +9,11 @@ title: Nameservice - Message
 Each module is ultimately a small state machine used for processing messages. Each module must define what messages it accepts, if any. Like many other types found in the SDK, this message class must implement the `HasCodec` class. We recommend using a protobuf serialization format for messages using either the `proto3-suite` or `proto-lens` libraries, though in theory you could use anything (e.g. `JSON`).
 
 ### `proto3-suite`
-The advantages of using the `proto3-suite` library are that it has support for generics and that you can generate a `.proto` file from your haskell code for export to other applications. This is particularly useful when prototyping or when you have control over the message specification. 
+The advantages of using the `proto3-suite` library are that it has support for generics and that you can generate a `.proto` file from your haskell code for export to other applications. This is particularly useful when prototyping or when you have control over the message specification.
 The disadvantage is that `proto3-suite` doesn't act as a `protoc` plugin, and instead uses it's own protobuf parser. This means that you do not have access to the full protobuf specs when parsing `.proto` files.
 
 ### `proto-lens`
-The advantages of using `proto-lens` are that it can parse and generate types for pretty much any `.proto` file. 
+The advantages of using `proto-lens` are that it can parse and generate types for pretty much any `.proto` file.
 The disadvantage is that the generated code is a bit strange, and may require you to create wrapper types to avoid depending directly on the generated code. An additional disadvantage is that you cannot generate `.proto` files from haskell code.
 
 All in all, neither is really difficult to work with, and depending on what stage you're at in development you might chose one over the other.
@@ -42,7 +42,7 @@ import Tendermint.SDK.Codec (HasCodec(..))
 
 ### Message Definitions
 
-For the puroposes of the tutorial, we will use the `proto3-suite` for the message codecs. For `BuyName`, an intermediary datatype, `BuyNameMessage` is used to support encoding for `Amount`:
+For the purposes of the tutorial, we will use the `proto3-suite` for the message codecs. For `BuyName`, an intermediary datatype, `BuyNameMessage` is used to support encoding for `Amount`:
 
 
 ~~~ haskell
@@ -131,7 +131,7 @@ instance HasMessageType BuyNameMsg where
 
 ## Message Validation
 
-Message validation is an important part of the transaction life cycle. When a `checkTx` message comes in, Tendermint is asking whether a transaction bytestring from the mempool is potentially runnable. At the very least this means that 
+Message validation is an important part of the transaction life cycle. When a `checkTx` message comes in, Tendermint is asking whether a transaction bytestring from the mempool is potentially runnable. At the very least this means that
 
 1. The transaction parses to a known message
 2. The message passes basic signature authentication, if any is required.
@@ -161,14 +161,14 @@ isAuthorCheck
   -> (msg -> Address)
   -> V.Validation [MessageSemanticError] ()
 isAuthorCheck fieldName Msg{msgAuthor, msgData} getAuthor
-  | getAuthor msgData /= msgAuthor = 
+  | getAuthor msgData /= msgAuthor =
       _Failure # [PermissionError $ fieldName <> " must be message author."]
   | otherwise = Success ()
 ~~~
 
 It is also possible to run dynamic checks on the transaction, i.e. checks that need to query state in order to succeed or fail. We will say more on this later.
 
-Here are the validation instances for our message types, which use some of the combinators defined in the SDK 
+Here are the validation instances for our message types, which use some of the combinators defined in the SDK
 
 ~~~ haskell
 instance ValidateMessage SetNameMsg where
