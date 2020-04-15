@@ -478,7 +478,7 @@ footer
 </code></pre>
 <p>(We&#39;ll properly introduce the module <code>Bank</code> later in the walkthrough.)</p>
 <p>This means that in the scope of the <code>Bank</code> module, the database utlity <code>get</code> function applied to a value of type <code>Address</code> will result in a value of type <code>Integer</code>. If the <code>Bank</code> module would like to store another mapping whose keys have type <code>Tendermint.SDK.Types.Address</code>, you must use a newtype instead. Otherwise you will get a compiler error.</p>
-<p>At the same time, you are free to define another mapping from <code>k -&gt; v</code> in the scope of a different module. For example, you can have both the <code>balance</code> mapping described above, as well a mapping</p>
+<p>At the same time, you are free to define another mapping from <code>k -&gt; v</code> in the scope of a different module. For example, you can have both the <code>balance</code> mapping described above, as well as a mapping</p>
 <pre class="haskell"><code>owner :: Tendermint.SDK.Types.Address -&gt; Account
 </code></pre>
 <p>in the <code>Auth</code> module.</p>
@@ -567,7 +567,7 @@ instance BA.IsKey Name NameserviceNamespace where
 </code></pre>
 <p>At this point, you can use the database operations exported by <code>Tendermint.SDK.BaseApp.Store</code> such as <code>put</code>/<code>set</code>/<code>delete</code> for key value pairs of type <code>(Name, Whois)</code>.</p>
 <h3>Query Types</h3>
-<p>The <a href="https://github.com/cosmos/cosmos-sdk"><code>cosmos-sdk</code></a> assumes that you use <code>url</code> formatted queries with some possible query params. For example, to query a <code>Whois</code> value based on a <code>Name</code>, you might submit a <code>query</code> message with the route <code>nameservice/whois</code> and supply a value of type <code>Name</code> to specify as the <code>data</code> field. Our SDK makes the same assumption for compatability reasons.</p>
+<p>The <a href="https://github.com/cosmos/cosmos-sdk"><code>cosmos-sdk</code></a> assumes that you use <code>url</code> formatted queries with some possible query params. For example, to query a <code>Whois</code> value based on a <code>Name</code>, you might submit a <code>query</code> message with the route <code>nameservice/whois</code> and supply a value of type <code>Name</code> to specify as the <code>data</code> field. Our SDK makes the same assumption for compatibility reasons.</p>
 <h3>Error Types</h3>
 <p>You might want to define a module specific error type that has a <code>throw</code>/<code>catch</code> interface. This error type should be accessible by any other dependent modules, and any uncaught error should eventually be converted into some kind of generic application error understandable by Tendermint.</p>
 <p>There is a simple way to do this using the <code>IsAppError</code> typeclass</p>

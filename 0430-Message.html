@@ -495,7 +495,7 @@ import Tendermint.SDK.Modules.Bank ()
 import Tendermint.SDK.Codec (HasCodec(..))
 </code></pre>
 <h3>Message Definitions</h3>
-<p>For the puroposes of the tutorial, we will use the <code>proto3-suite</code> for the message codecs. For <code>BuyName</code>, an intermediary datatype, <code>BuyNameMessage</code> is used to support encoding for <code>Amount</code>:</p>
+<p>For the purposes of the tutorial, we will use the <code>proto3-suite</code> for the message codecs. For <code>BuyName</code>, an intermediary datatype, <code>BuyNameMessage</code> is used to support encoding for <code>Amount</code>:</p>
 <pre class="haskell"><code>data SetNameMsg = SetNameMsg
   { setNameName  :: Text
   , setNameOwner :: Address
@@ -596,7 +596,7 @@ class ValidateMessage msg where
   -&gt; (msg -&gt; Address)
   -&gt; V.Validation [MessageSemanticError] ()
 isAuthorCheck fieldName Msg{msgAuthor, msgData} getAuthor
-  | getAuthor msgData /= msgAuthor = 
+  | getAuthor msgData /= msgAuthor =
       _Failure # [PermissionError $ fieldName &lt;&gt; &quot; must be message author.&quot;]
   | otherwise = Success ()
 </code></pre>

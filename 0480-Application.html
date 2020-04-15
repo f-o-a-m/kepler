@@ -484,7 +484,7 @@ footer
 <li><code>alg</code> is the signature schema you would like to use for authentication (e.g. Secp256k1)</li>
 <li><code>ms</code> is the type level list of modules</li>
 <li><code>r</code> is the global effects list for the application</li>
-<li><code>core</code> is the set of core effects that are used to interpet <code>BaseApp</code> to <code>IO</code>.</li>
+<li><code>core</code> is the set of core effects that are used to interpret <code>BaseApp</code> to <code>IO</code>.</li>
 <li><code>Effs</code> is a type family that gathers the effect dependencies for <code>ms</code> in the appropriate order.</li>
 </ul>
 <p>We should say a few words on this <code>compileToCore</code> field. The application developer has to, at the end of the day, specify how the entire effects system for the application will be interpreted to <code>IO</code>. Luckily most of these decisions are abstracted away, but the one that remains is dealing with <code>BaseApp core</code>. The sdk provides two default methods for two different types of <code>core</code>:</p>
@@ -536,7 +536,7 @@ handlersContext = HandlersContext
 </code></pre>
 <p>Finally we&#39;re able to define our application that runs in the <code>CoreEffs</code> context defined in the SDK:</p>
 <pre class="haskell"><code>app :: App (Sem CoreEffs)
-app = makeApp handlersContext 
+app = makeApp handlersContext
 </code></pre>
 <p>Since the ABCI server requires you to pass a value of type <code>App IO</code>, we have one more transformation to perform to get the <code>Sem CoreEffs</code> in our app. We can simple use the <code>createIOApp</code> function:</p>
 <pre class="haskell"><code>makeIOApp :: Context -&gt; App IO

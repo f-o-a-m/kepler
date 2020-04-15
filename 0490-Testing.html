@@ -519,7 +519,7 @@ getWhois :&lt;|&gt; getBalance :&lt;|&gt; getAccount =
 <pre class="haskell"><code>getWhois&#39; :: QueryArgs N.Name -&gt; IO (QueryClientResponse N.Whois)
 getWhois&#39; = RPC.runTendermintM rpcConfig . getWhois
 </code></pre>
-<p>Similarly we can generate a client for sending transactions as well. This is slightly tricker because of the <code>nonce</code> problem, exlpained in the following chain of reasoning:</p>
+<p>Similarly we can generate a client for sending transactions as well. This is slightly tricker because of the <code>nonce</code> problem, explained in the following chain of reasoning:</p>
 <ol>
 <li>In order to submit a valid transaction, we need to provide the correct nonce value for the transaction author, which is an ever increasing sequence of natural numbers.</li>
 <li>In order to get the current nonce value for a transaction author, we need to query the accounts module for their current nonce value.</li>

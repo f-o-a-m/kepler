@@ -483,7 +483,7 @@ are defined as:</p>
 <li><code>Metrics</code> - creates and manages custom counters and timers.</li>
 <li><code>Logger</code> - allows for structured logging with log levels.</li>
 <li><code>Resource</code> - allows for bracketing and resource management in the presence of exceptions.</li>
-<li><code>Error AppError</code> -- allows for errors of type <code>AppError</code> to be thrown or caught.</li>
+<li><code>Error AppError</code> - allows for errors of type <code>AppError</code> to be thrown or caught.</li>
 </ol>
 <p>The SDK does not make any assumptions about how <code>BaseEffs</code> will be interpreted at runtime, it only assumes that the developer might want use one of the provided core effects systems to interpret them. For example, the standard <code>CoreEffs</code> uses a prometheus metrics server to interpret the <code>Metrics</code> effect while <code>PureCoreEffs</code> just ignores the effect entirely.</p>
 <h2>TxEffs</h2>
@@ -507,7 +507,7 @@ are defined as:</p>
 <p><code>TxEffs</code> effects are available any time during transactions and are interpreted at the time of transaction routing. It&#39;s worth noting that the interpreters take care of finalizing writes to the database when it&#39;s appropriate (i.e. during a <code>deliverTx</code> message) and not otherwise (e.g. during a <code>checkTx</code> message).</p>
 <h2>QueryEffs</h2>
 <p><code>QueryEffs</code> are used to interpret queries and are defined as</p>
-<pre class="haskell"><code>type QueryEffs = 
+<pre class="haskell"><code>type QueryEffs =
   [ ReadStore
   , Error AppError
   ]

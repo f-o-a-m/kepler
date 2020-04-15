@@ -500,7 +500,7 @@ type family DependencyEffs (ms :: [Component]) :: EffectRow where
 <li><code>moduleTxDeliverer</code> specifies how the module processes transactions in order to update the application state during <code>deliverTx</code> messages.</li>
 <li><code>moduleTxChecker</code> is used during <code>checkTx</code> messages to check if a transaction in the mempool is a valid transaction.</li>
 <li><code>moduleQuerier</code> is responsible for handling queries for application state from the <code>query</code> message.</li>
-<li><code>moduleEval</code> is the natural transformation that specifies how to interpet the <code>Module</code> in terms of <code>BaseApp</code>.</li>
+<li><code>moduleEval</code> is the natural transformation that specifies how to interpret the <code>Module</code> in terms of <code>BaseApp</code>.</li>
 </ul>
 <p>If you have ever used the <code>servant</code> library for specifying rest apis, then the type families <code>T.RouteTx</code> and <code>Q.RouteQ</code> may look familiar to you, they play a similar role as <code>ServerT</code>.</p>
 <p>Note that in the event that a <code>Module</code> is <em>abstract</em>, meaning it doesn&#39;t have any messages to respond to, then we have <code>msg ~ Void</code>.</p>
@@ -508,8 +508,8 @@ type family DependencyEffs (ms :: [Component]) :: EffectRow where
 <p><code>Module</code>s are meant to be composed to create larger applications. We will see examples of this with the <code>Nameservice</code> application. The way to do this is easy, as the <code>ModuleList</code> data type allows you to simply combine them in a heterogeneous list:</p>
 <pre class="haskell"><code>data ModuleList (ms :: [Component]) r where
     NilModules :: Modules &#39;[] r
-    (:+) :: Module name check deliver query es r 
-         -&gt; Modules ms r 
+    (:+) :: Module name check deliver query es r
+         -&gt; Modules ms r
          -&gt; Modules (Module name check deliver query es &#39;: ms) r
 </code></pre>
 <p>When you are ready to create your application, you simply specify a value of type <code>ModuleList</code> and some other configuration data, and the SDK will create an <code>App</code> for you.</p>

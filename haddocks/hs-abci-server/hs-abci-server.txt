@@ -45,7 +45,7 @@ withProto :: (forall (t :: MessageType). Request t -> a) -> Request'Value -> a
 --   author should feel free to modify this.
 type Middleware m = App m -> App m
 
--- | Used to parametrize Request and Respone types
+-- | Used to parametrize Request and Response types
 data MessageType
 MTEcho :: MessageType
 MTFlush :: MessageType
