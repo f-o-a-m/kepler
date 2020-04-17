@@ -10,15 +10,15 @@ let
   tendermint = pkgs.callPackage ./tendermint.nix {};
 
   packages = {
-    hs-abci-extra = ./hs-abci-extra;
-    hs-abci-sdk = ./hs-abci-sdk;
-    hs-abci-server = ./hs-abci-server;
-    hs-abci-test-utils = ./hs-abci-test-utils;
-    hs-abci-types = ./hs-abci-types;
-    hs-iavl-client = ./hs-iavl-client;
-    hs-tendermint-client = ./hs-tendermint-client;
-    nameservice = ./hs-abci-docs/nameservice;
-    simple-storage = ./hs-abci-docs/simple-storage;
+    hs-abci-extra = ../hs-abci-extra;
+    hs-abci-sdk = ../hs-abci-sdk;
+    hs-abci-server = ../hs-abci-server;
+    hs-abci-test-utils = ../hs-abci-test-utils;
+    hs-abci-types = ../hs-abci-types;
+    hs-iavl-client = ../hs-iavl-client;
+    hs-tendermint-client = ../hs-tendermint-client;
+    nameservice = ../hs-abci-docs/nameservice;
+    simple-storage = ../hs-abci-docs/simple-storage;
   };
 
   repos = {
