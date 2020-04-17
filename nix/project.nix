@@ -6,6 +6,14 @@ let
     sha256 = "0jigsyxlwl5hmsls4bqib0rva41biki6mwnswgmigwq41v6q7k94";
   }) { inherit overlays; };
 
+  gitignore = pkgs.fetchFromGitHub {
+    owner = "hercules-ci";
+    repo = "gitignore";
+    rev = "f9e996052b5af4032fe6150bba4a6fe4f7b9d698";
+    sha256 = "0jrh5ghisaqdd0vldbywags20m2cxpkbbk5jjjmwaw0gr8nhsafv";
+  };
+  gitignoreSource = (import gitignore {}).gitignoreSource;
+
   iavl = pkgs.callPackage ./iavl.nix {};
   tendermint = pkgs.callPackage ./tendermint.nix {};
 
@@ -89,7 +97,7 @@ let
   };
 
   localOverrides = self: super:
-    builtins.mapAttrs (name: path: (self.callCabal2nix name path {})) packages;
+    builtins.mapAttrs (name: path: (self.callCabal2nix name (gitignoreSource path) {})) packages;
 
   repoOverrides = self: super:
     builtins.mapAttrs (name: path: (self.callCabal2nix name path {})) repoPackages;
