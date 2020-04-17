@@ -10,5 +10,5 @@ with nixpkgs;
 haskell.lib.buildStackProject {
   inherit ghc;
   name = "hs-abci";
-  buildInputs = [ git hlint protobuf haskellPackages.stylish-haskell zlib ];
+  buildInputs = [ git hlint protobuf secp256k1 haskellPackages.stylish-haskell zlib ];
 }
