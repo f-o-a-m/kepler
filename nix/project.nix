@@ -156,11 +156,17 @@ let
 
   overlays = [overlay];
 
-in {
+in rec {
   inherit pkgs overlays;
 
-  packages = {
-    inherit (pkgs.haskellPackages)
+  buildInputs = {
+    inherit (pkgs) iavl protobuf tendermint;
+    inherit (pkgs.haskellPackages) cabal-install ghcid hlint stack stylish-haskell weeder;
+  };
+
+  keplerPackages = keplerPackages' pkgs.haskellPackages;
+  keplerPackages' = p: with p; {
+    inherit
       hs-abci-extra
       hs-abci-sdk
       hs-abci-server
