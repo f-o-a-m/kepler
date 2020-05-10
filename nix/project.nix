@@ -110,7 +110,10 @@ let
     in
       builtins.mapAttrs (name: pkg: pkg.overrideAttrs (addBuildInputs (extra-build-inputs.${name} or []))) allOverrides;
 
-  keplerTests = pkg: { runIavl ? false, runABCI ? null, runTendermint ? null }: pkgs.lib.overrideDerivation pkg (drv:
+  # TODO: figure out why running tests on mac causes builds to hang _after_ running the tests
+  keplerTests = pkg: args: if pkgs.stdenv.isDarwin then pkgs.haskell.lib.dontCheck pkg else keplerTests' pkg args;
+
+  keplerTests' = pkg: { runIavl ? false, runABCI ? null, runTendermint ? null }: pkgs.lib.overrideDerivation pkg (drv:
     let
       iavlScript = ''
         ${iavl}/bin/iavlserver -db-name "test" -datadir "." -grpc-endpoint "0.0.0.0:8090" -gateway-endpoint "0.0.0.0:8091" &
