@@ -80,6 +80,7 @@ library:
     - servant
     - string-conversions
     - text
+    - template-haskell
     - time
     - validation
   ghc-options:
@@ -122,6 +123,7 @@ library:
   - Tendermint.SDK.BaseApp.Store.Map
   - Tendermint.SDK.BaseApp.Store.MemoryStore
   - Tendermint.SDK.BaseApp.Store.RawStore
+  - Tendermint.SDK.BaseApp.Store.TH
   - Tendermint.SDK.BaseApp.Store.Var
   - Tendermint.SDK.BaseApp.Transaction
   - Tendermint.SDK.BaseApp.Transaction.AnteHandler
