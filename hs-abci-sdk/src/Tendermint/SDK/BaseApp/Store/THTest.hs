@@ -2,7 +2,7 @@
 
 module Tendermint.SDK.BaseApp.Store.THTest where
 
-import Tendermint.SDK.BaseApp.Store.TH
+import           Tendermint.SDK.BaseApp.Store.TH
 
 {-
 data CountKey = CountKey
@@ -20,4 +20,4 @@ data Nameserver
 
 data Count = Count String
 
-$(makeVarType ''Nameserver ''Count "count")
+$(makeRootKey ''Nameserver ''Count "count")

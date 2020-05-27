@@ -2,7 +2,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Tendermint.SDK.BaseApp.Store.TH
-  ( makeVarType
+  ( makeRootKey
   ) where
 
 
@@ -12,22 +12,22 @@ import           Data.ByteArray                        (convert)
 import           Data.ByteString                       (ByteString)
 import           Data.String.Conversions               (cs)
 import           Language.Haskell.TH
-import           Tendermint.SDK.BaseApp.Store.RawStore (RawKey (..), IsKey(..))
-import           Tendermint.SDK.BaseApp.Store.Var as V
+import           Tendermint.SDK.BaseApp.Store.RawStore (IsKey (..), RawKey (..))
+import           Tendermint.SDK.BaseApp.Store.Var      as V
 
 
-makeVarType 
+makeRootKey
   :: Name
   -- ^ Namespace
   -> Name
   -- ^ Type
-  -> String 
+  -> String
   -- ^ key
   -> Q [Dec]
-makeVarType namespaceName typeName key = do
+makeRootKey namespaceName typeName key = do
   let dataDecl = DataD [] keyTypeName [] Nothing [NormalC keyTypeName []] []
   rawKeyInst <- instanceD (pure []) (conT ''RawKey `appT` conT keyTypeName) [funD 'rawKey [genRawKeyClause]]
-  isKeyInst <- instanceD (pure []) (conT ''IsKey `appT` conT keyTypeName `appT` conT namespaceName) 
+  isKeyInst <- instanceD (pure []) (conT ''IsKey `appT` conT keyTypeName `appT` conT namespaceName)
     [tySynInstD ''Value $ tySynEqn [conT keyTypeName, conT namespaceName] (conT ''Var `appT` conT typeName)]
   pure [dataDecl, rawKeyInst, isKeyInst]
   where
