@@ -16,4 +16,8 @@ instance BaseApp.RawKey CountKey where
 
 -}
 
-$(makeVarType "Nameserver" "Count" "count")
+data Nameserver
+
+data Count = Count String
+
+$(makeVarType ''Nameserver ''Count "count")

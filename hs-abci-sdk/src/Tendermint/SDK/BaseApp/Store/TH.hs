@@ -17,23 +17,21 @@ import           Tendermint.SDK.BaseApp.Store.Var as V
 
 
 makeVarType 
-  :: String
+  :: Name
   -- ^ Namespace
-  -> String 
+  -> Name
   -- ^ Type
   -> String 
   -- ^ key
   -> Q [Dec]
-makeVarType namespace _type key = do
+makeVarType namespaceName typeName key = do
   let dataDecl = DataD [] keyTypeName [] Nothing [NormalC keyTypeName []] []
   rawKeyInst <- instanceD (pure []) (conT ''RawKey `appT` conT keyTypeName) [funD 'rawKey [genRawKeyClause]]
-  isKeyInst <- instanceD (pure []) (conT ''IsKey `appT` conT keyTypeName) 
-    [tySynD ''Value [PlainTV keyTypeName, PlainTV namespaceName] (conT ''Var `appT` conT typeName)]
+  isKeyInst <- instanceD (pure []) (conT ''IsKey `appT` conT keyTypeName `appT` conT namespaceName) 
+    [tySynInstD ''Value $ tySynEqn [conT keyTypeName, conT namespaceName] (conT ''Var `appT` conT typeName)]
   pure [dataDecl, rawKeyInst, isKeyInst]
   where
-      typeName = mkName _type
-      namespaceName = mkName namespace
-      keyTypeName = mkName $ _type ++ "Key"
+      keyTypeName = mkName $ nameBase typeName ++ "Key"
       keyBytes = cs @ByteString @String . convert . hashWith SHA256 . cs @String @ByteString $ key
       genRawKeyClause = do
           body <- [| iso (const $ cs @String @ByteString $(litE $ StringL keyBytes)) (const $(conE keyTypeName)) |]
