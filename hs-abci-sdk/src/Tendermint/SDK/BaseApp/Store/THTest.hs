@@ -1,7 +1,9 @@
+{-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Tendermint.SDK.BaseApp.Store.THTest where
 
+import           Tendermint.SDK.BaseApp.Store.RawStore
 import           Tendermint.SDK.BaseApp.Store.TH
 
 {-
@@ -18,6 +20,11 @@ instance BaseApp.RawKey CountKey where
 
 data Nameserver
 
-data Count = Count String
+nameserverStore :: Store Nameserver
+nameserverStore =  makeStore $ KeyRoot "nameserver"
 
-$(makeRootKey ''Nameserver ''Count "count")
+data Count = Count Int
+
+
+
+$(makeSubStore 'nameserverStore "countVar" [t| Var Count|] "count" )
