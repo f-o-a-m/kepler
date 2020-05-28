@@ -83,7 +83,7 @@ deploy-simple-storage-docker: install ## run the simple storage docker network
 	docker-compose -f hs-abci-docs/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e up -d
 
 deploy-simple-storage-docker-down: ## remove the simple storage docker network
-	docker-compose -f hs-abci-docs/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e down -v
+	docker-compose -f hs-abci-docs/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e down -v --rmi local
 
 deploy-nameservice: install ## run the nameservice docker network with elk stack for logging
 	docker-compose -f hs-abci-docs/nameservice/docker-compose.yaml up --build
