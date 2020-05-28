@@ -12,34 +12,35 @@ module Tendermint.SDK.Test.SimpleStorage
   , Count(..)
   ) where
 
-import           Control.Lens                       ((^.))
-import           Data.Bifunctor                     (first)
-import qualified Data.ByteArray.Base64String        as Base64
-import           Data.Int                           (Int32)
+import           Control.Lens                          ((^.))
+import           Data.Bifunctor                        (first)
+import qualified Data.ByteArray.Base64String           as Base64
+import           Data.Int                              (Int32)
 import           Data.Proxy
-import qualified Data.Serialize                     as Serialize
-import           Data.Serialize.Text                ()
-import           Data.String.Conversions            (cs)
-import           Data.Validation                    (Validation (..))
-import           Data.Word                          (Word64)
-import           GHC.Generics                       (Generic)
-import           GHC.TypeLits                       (symbolVal)
+import qualified Data.Serialize                        as Serialize
+import           Data.Serialize.Text                   ()
+import           Data.String.Conversions               (cs)
+import           Data.Validation                       (Validation (..))
+import           Data.Word                             (Word64)
+import           GHC.Generics                          (Generic)
+import           GHC.TypeLits                          (symbolVal)
 import           Polysemy
-import           Polysemy.Error                     (Error, catch, throw)
+import           Polysemy.Error                        (Error, catch, throw)
 import           Servant.API
-import           Tendermint.SDK.Application         (Module (..), ModuleEffs)
-import qualified Tendermint.SDK.BaseApp             as BA
-import qualified Tendermint.SDK.BaseApp.Store.Array as A
-import qualified Tendermint.SDK.BaseApp.Store.Map   as M
-import           Tendermint.SDK.BaseApp.Store.TH    (makeSubStore)
-import qualified Tendermint.SDK.BaseApp.Store.Var   as V
-import           Tendermint.SDK.Codec               (HasCodec (..))
-import qualified Tendermint.SDK.Modules.Bank        as B
-import           Tendermint.SDK.Types.Address       (Address)
-import           Tendermint.SDK.Types.Message       (HasMessageType (..),
-                                                     Msg (..),
-                                                     ValidateMessage (..))
-import           Tendermint.SDK.Types.Transaction   (Tx (..))
+import           Tendermint.SDK.Application            (Module (..), ModuleEffs)
+import qualified Tendermint.SDK.BaseApp                as BA
+import qualified Tendermint.SDK.BaseApp.Store.Array    as A
+import qualified Tendermint.SDK.BaseApp.Store.Map      as M
+import           Tendermint.SDK.BaseApp.Store.TH       (makeSubStore)
+import qualified Tendermint.SDK.BaseApp.Store.Var      as V
+import           Tendermint.SDK.Codec                  (HasCodec (..))
+import qualified Tendermint.SDK.Modules.Bank           as B
+import qualified Tendermint.SDK.Test.SimpleStorageKeys as Keys
+import           Tendermint.SDK.Types.Address          (Address)
+import           Tendermint.SDK.Types.Message          (HasMessageType (..),
+                                                        Msg (..),
+                                                        ValidateMessage (..))
+import           Tendermint.SDK.Types.Transaction      (Tx (..))
 
 
 --------------------------------------------------------------------------------
@@ -117,15 +118,13 @@ data SimpleStorageNamespace
 store :: BA.Store SimpleStorageNamespace
 store = BA.makeStore $ BA.KeyRoot (cs . symbolVal $ Proxy @SimpleStorageName)
 
-$(makeSubStore 'store "countVar" [t| V.Var Count |] "count")
+$(makeSubStore 'store "countVar" [t| V.Var Count |] Keys.countKey)
 
 instance BA.QueryData CountVarKey
 
+$(makeSubStore 'store "paidMap" [t| M.Map Address AmountPaid |] Keys.paidKey)
 
-$(makeSubStore 'store "paidMap" [t| M.Map Address AmountPaid |] "paid")
-
-
-$(makeSubStore 'store "countsList" [t| A.Array Count|] "counts")
+$(makeSubStore 'store "countsList" [t| A.Array Count|] Keys.paidKey)
 --------------------------------------------------------------------------------
 
 type SimpleStorageEffs = '[SimpleStorageKeeper]

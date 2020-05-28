@@ -12,8 +12,6 @@ module Tendermint.SDK.BaseApp.Store.TH
 
 
 import           Control.Lens                          (iso)
-import           Crypto.Hash                           (SHA256 (..), hashWith)
-import           Data.ByteArray                        (convert)
 import           Data.ByteString                       (ByteString)
 import           Data.String.Conversions               (cs)
 import           Language.Haskell.TH
@@ -31,23 +29,29 @@ makeSubStore
   -- ^ substoreName
   -> TypeQ
   -- ^ store type
-  -> String
+  -> ByteString
   -- ^ key
   -> Q [Dec]
 makeSubStore storeName substoreName t key = do
-  namespaceName <- getStoreNamespace storeName
-  keyType <- parseKeyType <$> t
-  let keyTypeName = mkKeyName keyType
-      keyBytes = cs @ByteString @String . convert . hashWith SHA256 . cs @String @ByteString $ key
-      dataDecl = DataD [] keyTypeName [] Nothing [NormalC keyTypeName []] []
-      genRawKeyClause = do
-          body <- [| iso (const $ cs @String @ByteString $(litE $ StringL keyBytes)) (const $(conE keyTypeName)) |]
-          pure $ Clause [] (NormalB body) []
-  rawKeyInst <- instanceD (pure []) (conT ''RawKey `appT` conT keyTypeName) [funD 'rawKey [genRawKeyClause]]
-  isKeyInst <- instanceD (pure []) (conT ''IsKey `appT` conT keyTypeName `appT` conT namespaceName)
-    [tySynInstD ''Value $ tySynEqn [conT keyTypeName, conT namespaceName] t]
-  storeDecl <- storeDec storeName substoreName =<< t
-  pure $ [dataDecl, rawKeyInst, isKeyInst] <> storeDecl
+    namespaceName <- getStoreNamespace
+    keyType <- parseKeyType <$> t
+    let keyTypeName = mkKeyName keyType
+    dataDecl <- mkDataDecl keyTypeName
+    rawKeyInst <- mkRawKeyInstance key keyTypeName
+    isKeyInst <- mkIsKeyInstance namespaceName keyTypeName t
+    storeDecl <- mkSubStoreDecl storeName substoreName t
+    pure $ [dataDecl, rawKeyInst, isKeyInst] <> storeDecl
+  where
+    getStoreNamespace  = do
+      info <- reify storeName
+      case info of
+        VarI _ _t _ -> case _t of
+          AppT (ConT n) (ConT m) ->
+            if nameBase n == "Store"
+              then pure m
+              else error "Unable to find Store Namespace, make sure store is of type (Store ns)"
+          _ -> error "Unable to find Store Namespace, make sure store is of type (Store ns)"
+        _ -> error "Unable to find Store Namespace, make sure store is of type (Store ns)"
 
 data KeyType =
     Var Name
@@ -74,31 +78,47 @@ mkKeyName = mkName . \case
   List n -> nameBase n <> "ListKey"
   Map n m -> nameBase n <> nameBase m <> "MapKey"
 
-getStoreNamespace
+
+mkDataDecl :: Name -> Q Dec
+mkDataDecl keyTypeName =
+  dataD (pure []) keyTypeName [] Nothing [normalC keyTypeName []] []
+
+mkRawKeyInstance :: ByteString -> Name -> Q Dec
+mkRawKeyInstance keyBytes keyTypeName =
+  let keyBytesStr = cs keyBytes
+      genRawKeyClause = do
+        body <- [| iso (const $ cs @String @ByteString $(litE $ StringL keyBytesStr)) (const $(conE keyTypeName)) |]
+        pure $ Clause [] (NormalB body) []
+  in instanceD (pure []) (conT ''RawKey `appT` conT keyTypeName) [funD 'rawKey [genRawKeyClause]]
+
+mkIsKeyInstance
   :: Name
-  -> Q Name
-getStoreNamespace storeName = do
-  info <- reify storeName
-  case info of
-    VarI _ t _ -> case t of
-      AppT (ConT n) (ConT m) ->
-        if nameBase n == "Store"
-          then pure m
-          else error "Unable to find Store Namespace, make sure store is of type (Store ns)"
-      _ -> error "Unable to find Store Namespace, make sure store is of type (Store ns)"
-    _ -> error "Unable to find Store Namespace, make sure store is of type (Store ns)"
+  -- Namespace name
+  -> Name
+  -- KeyType name
+  -> TypeQ
+  -- store type
+  -> Q Dec
+mkIsKeyInstance namespaceName keyTypeName t =
+  instanceD (pure []) (conT ''IsKey `appT` conT keyTypeName `appT` conT namespaceName)
+    [tySynInstD ''Value $ tySynEqn [conT keyTypeName, conT namespaceName] t]
 
 
-storeDec :: Name -> String -> Type -> Q [Dec]
-storeDec store substoreName t = do
-  let sig = SigD (mkName substoreName) t
-  val <- valD (varP $ mkName substoreName) (NormalB <$> storeBody) []
+
+mkSubStoreDecl
+  :: Name
+  -> String
+  -> TypeQ
+  -> Q [Dec]
+mkSubStoreDecl store substoreName t = do
+  kt <- parseKeyType <$> t
+  let keyName = mkKeyName kt
+      storeBody = case kt of
+        Var _   -> [| makeVar $(conE keyName) $(varE store) |]
+        List _  -> [| makeList $(conE keyName) $(varE store) |]
+        Array _ -> [| makeArray $(conE keyName) $(varE store) |]
+        Map _ _ -> [| makeMap $(conE keyName) $(varE store) |]
+  sig <- sigD (mkName substoreName) t
+  val <- valD (varP $ mkName substoreName) (normalB storeBody) []
   pure [sig,val]
-  where
-    kt = parseKeyType t
-    keyName = mkKeyName kt
-    storeBody = case kt of
-      Var _   -> [| makeVar $(conE keyName) $(varE store) |]
-      List _  -> [| makeList $(conE keyName) $(varE store) |]
-      Array _ -> [| makeArray $(conE keyName) $(varE store) |]
-      Map _ _ -> [| makeMap $(conE keyName) $(varE store) |]
+
