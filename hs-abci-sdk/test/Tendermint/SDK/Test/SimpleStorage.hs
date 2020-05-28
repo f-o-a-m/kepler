@@ -124,7 +124,7 @@ instance BA.QueryData CountVarKey
 
 $(makeSubStore 'store "paidMap" [t| M.Map Address AmountPaid |] Keys.paidKey)
 
-$(makeSubStore 'store "countsList" [t| A.Array Count|] Keys.paidKey)
+$(makeSubStore 'store "countsList" [t| A.Array Count|] Keys.countsKey)
 --------------------------------------------------------------------------------
 
 type SimpleStorageEffs = '[SimpleStorageKeeper]
