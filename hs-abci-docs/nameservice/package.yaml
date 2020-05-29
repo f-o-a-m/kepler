@@ -44,6 +44,7 @@ library:
     - aeson-casing
     - base >= 4.7 && < 5
     - bloodhound
+    - bytestring
     - errors
     - hs-abci-extra
     - hs-abci-server
@@ -77,6 +78,7 @@ library:
   - Nameservice.Modules.Nameservice
   - Nameservice.Modules.Nameservice.Messages
   - Nameservice.Modules.Nameservice.Types
+  - Nameservice.Modules.Nameservice.Keys
   - Nameservice.Modules.Nameservice.Store
   - Nameservice.Modules.Nameservice.Keeper
   - Nameservice.Modules.Nameservice.Query

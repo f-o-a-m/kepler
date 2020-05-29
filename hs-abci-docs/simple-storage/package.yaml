@@ -84,6 +84,7 @@ library:
   - SimpleStorage.Config
   - SimpleStorage.Modules.SimpleStorage
   - SimpleStorage.Modules.SimpleStorage.Types
+  - SimpleStorage.Modules.SimpleStorage.Keys
   - SimpleStorage.Modules.SimpleStorage.Message
   - SimpleStorage.Modules.SimpleStorage.Keeper
   - SimpleStorage.Modules.SimpleStorage.Router
