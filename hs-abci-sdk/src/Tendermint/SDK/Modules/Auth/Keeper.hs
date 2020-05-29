@@ -11,17 +11,28 @@ module Tendermint.SDK.Modules.Auth.Keeper
   , accountsMap
   ) where
 
-import           Control.Lens                      (iso)
 import           Polysemy
 import           Polysemy.Error                    (Error, mapError, throw)
-import           Tendermint.SDK.BaseApp            (AppError, IsKey (..),
-                                                    KeyRoot (..), RawKey (..),
+import           Tendermint.SDK.BaseApp            (AppError, KeyRoot (..),
                                                     ReadStore, Store,
                                                     WriteStore, makeAppError,
                                                     makeStore)
 import qualified Tendermint.SDK.BaseApp.Store.Map  as M
+import           Tendermint.SDK.BaseApp.Store.TH   (makeSubStore)
+import           Tendermint.SDK.Modules.Auth.Keys  (accountsKey)
 import           Tendermint.SDK.Modules.Auth.Types
 import           Tendermint.SDK.Types.Address      (Address)
+
+--------------------------------------------------------------------------------
+
+data AuthNamespace
+
+store :: Store AuthNamespace
+store = makeStore $ KeyRoot "auth"
+
+$(makeSubStore 'store "accountsMap" [t| M.Map Address Account|] accountsKey)
+
+--------------------------------------------------------------------------------
 
 data Accounts m a where
   CreateAccount :: Address -> Accounts m Account
@@ -47,24 +58,6 @@ eval = mapError makeAppError . evalAuth
           UpdateAccount addr f -> updateAccountF addr f
           GetAccount addr -> getAccountF addr
         )
-
---------------------------------------------------------------------------------
-
-data AuthNamespace
-
-store :: Store AuthNamespace
-store = makeStore $ KeyRoot "auth"
-
-data AccountsMapKey = AccountsMapKey
-
-instance RawKey AccountsMapKey where
-    rawKey = iso (const "accounts") (const AccountsMapKey)
-
-instance IsKey AccountsMapKey AuthNamespace where
-  type Value AccountsMapKey AuthNamespace = M.Map Address Account
-
-accountsMap :: M.Map Address Account
-accountsMap = M.makeMap AccountsMapKey store
 
 createAccountF
   :: Members [ReadStore, WriteStore, Error AppError, Error AuthError] r
