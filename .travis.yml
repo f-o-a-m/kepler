@@ -74,12 +74,14 @@ jobs:
     - echo "Test simple-storage"
     - make docker-test-prebake
     - make deploy-simple-storage-docker
+    - timeout 30 sh -c 'until nc -z 127.0.0.1 26657; do echo "waiting for tendermint to be ready"; sleep 1; done'
     - make test-simple-storage
     - make deploy-simple-storage-docker-down
 
     - echo "Test nameservice"
     - make docker-test-prebake
     - make deploy-nameservice-test
+    - timeout 30 sh -c 'until nc -z 127.0.0.1 26657; do echo "waiting for tendermint to be ready"; sleep 1; done'
     - make test-nameservice
     - make deploy-nameservice-test-down
 
