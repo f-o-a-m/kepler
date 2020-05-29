@@ -66,10 +66,10 @@ jobs:
     - make test-iavl-client
     - docker rm -f iavl
 
-    - echo "Test Tendermint Client"
-    - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client up -d
-    - make test-kv-store
-    - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client down -v --rmi local
+      #    - echo "Test Tendermint Client"
+      #    - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client up -d
+      #    - make test-kv-store
+      #    - docker-compose -f hs-tendermint-client/docker-compose.yaml -p test-hs-tendermint-client down -v --rmi local
 
     - echo "Test simple-storage"
     - make docker-test-prebake
