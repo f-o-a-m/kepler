@@ -75,7 +75,7 @@ jobs:
     - make docker-test-prebake
     - make deploy-simple-storage-docker
     - timeout 30 sh -c 'until nc -z localhost 26657; do echo "waiting for tendermint to be ready"; sleep 1; done'
-    - sh -c 'curl -X GET "http://localhost:26657/health" -H "accept: application/json"'
+    - curl http://localhost:26657/health -H "accept: application/json"
     - make test-simple-storage
     - make deploy-simple-storage-docker-down
 
