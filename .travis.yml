@@ -83,6 +83,7 @@ jobs:
     - make docker-test-prebake
     - make deploy-nameservice-test
     - timeout 30 sh -c 'until nc -z 127.0.0.1 26657; do echo "waiting for tendermint to be ready"; sleep 1; done'
+    - timeout 30 sh -c 'curl "localhost:26657/health"'
     - make test-nameservice
     - make deploy-nameservice-test-down
 
