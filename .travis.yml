@@ -74,16 +74,16 @@ jobs:
     - echo "Test simple-storage"
     - make docker-test-prebake
     - make deploy-simple-storage-docker
-    - timeout 5 sh -c 'until curl http://localhost:26657/health; do echo "waiting for tendermint to be ready"; sleep 1; done'
-    - sh -c 'docker-compose logs test-hs-abci-examples-simple-storage-e2e'
+      #- timeout 5 sh -c 'until curl http://localhost:26657/health; do echo "waiting for tendermint to be ready"; sleep 1; done'
+      #- sh -c 'docker-compose logs test-hs-abci-examples-simple-storage-e2e'
     - make test-simple-storage
     - make deploy-simple-storage-docker-down
 
     - echo "Test nameservice"
     - make docker-test-prebake
     - make deploy-nameservice-test
-    - timeout 5 sh -c 'until curl http://localhost:26657/health; do echo "waiting for tendermint to be ready"; sleep 1; done'
-    - sh -c 'docker-compose logs test-hs-abci-examples-nameservice-e2e'
+      # - timeout 5 sh -c 'until curl http://localhost:26657/health; do echo "waiting for tendermint to be ready"; sleep 1; done'
+      # - sh -c 'docker-compose logs test-hs-abci-examples-nameservice-e2e'
     - make test-nameservice
     - make deploy-nameservice-test-down
 
