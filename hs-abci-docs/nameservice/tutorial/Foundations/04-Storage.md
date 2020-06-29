@@ -46,14 +46,17 @@ store :: Store AuthNamespace
 store = makeStore $ KeyRoot "auth"
 ~~~
 
+In order to make the actual mapping in storage, we can either (1) write it by hand or (2) use a convenient template haskell splice which takes care of this boilerplate for us. These two methods are equivalent.
 
-We then need to make a new keyspace for our accounts mapping, which looks like
+## Option 1: By Hand
+
+In order to do this by hand, we need to make a new keyspace for our accounts mapping, which looks like
 
 ~~~ haskell ignore
 data AccountsMapKey = AccountsMapKey
 
 instance RawKey AccountsMapKey where
-    rawKey = iso (const "accounts") (const AccountsMapKey)
+    rawKey = iso (const "accountsMap") (const AccountsMapKey)
 
 instance IsKey AccountsMapKey AuthNamespace where
   type Value AccountsMapKey AuthNamespace = Map Address Account
@@ -68,10 +71,29 @@ accountsMap :: Map Address Account
 accountsMap = makeMap AccountsMapKey store
 ~~~
 
-This both creates the mapping and mounts it inside of our module level store. The effect of this is that if you wanted to query the underlying raw key-value store for the account associated to the address `0xdeadbeef`, then the actual key looks something like
+This both creates the mapping and mounts it inside of our module level store.
+
+
+
+## Option 2: Using the Template Haskell splice
+
+If you want to use the template haskell splice (as is done in the SDK and example applications), you can simply write
 
 ~~~ haskell ignore
-encodeUtf8 "auth" <> encodeUtf8 "accounts" <> bytesFromHex "0xdeafbeef"
+$(makeSubStore 'store "accountsMap" [t| Map Address Account|] accountsKey)
+~~~
+
+This does the following:
+1. Makes a substore rooted at the `store :: Store AuthNamespace` defined above, and names this value `accountsMap`.
+2. Annotates `accountsMap` with type `Map Address Account`.
+3. Creates a singleton type `AccountsMapKey` which is the key to access this map directly. This key has is effectively a prefix "accountsMap".
+
+## Querying the store
+
+If you wanted to query the underlying raw key-value store for the account associated to the address `0xdeadbeef`, then the actual key looks something like
+
+~~~ haskell ignore
+encodeUtf8 "auth" <> encodeUtf8 "accountsMap" <> bytesFromHex "0xdeafbeef"
 ~~~
 
 While writing apps inside the SDK you do not need to worry about the explicit prefixing since everything is taken care of for you. However, if you are querying for state via an ABCI `query` message, the `key` field that is returned in the response will contain this full path. In the above example, if you wanted to recover the address from the key, you would need to know the prefixes that were applied.
