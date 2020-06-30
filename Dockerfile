@@ -1,4 +1,4 @@
-FROM haskell:8
+FROM haskell:8-stretch
 
 RUN apt-get update && apt-get install --assume-yes protobuf-compiler libsecp256k1-dev
 

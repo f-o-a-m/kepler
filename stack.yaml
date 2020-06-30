@@ -52,3 +52,4 @@ explicit-setup-deps:
   hs-abci-server: true
 
 ghc-options: {"$locals": -ddump-to-file -ddump-hi}
+allow-different-user: true

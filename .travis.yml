@@ -73,15 +73,19 @@ jobs:
 
     - echo "Test simple-storage"
     - make docker-test-prebake
-    - docker-compose -f hs-abci-docs/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e up -d
+    - make deploy-simple-storage-docker
+      #- timeout 5 sh -c 'until curl http://localhost:26657/health; do echo "waiting for tendermint to be ready"; sleep 1; done'
+      #- sh -c 'docker-compose logs test-hs-abci-examples-simple-storage-e2e'
     - make test-simple-storage
-    - docker-compose -f hs-abci-docs/simple-storage/docker-compose.yaml -p test-hs-abci-examples-simple-storage-e2e down -v --rmi local
+    - make deploy-simple-storage-docker-down
 
     - echo "Test nameservice"
     - make docker-test-prebake
-    - docker-compose -f hs-abci-docs/nameservice/docker-compose-test.yaml -p test-hs-abci-examples-nameservice-e2e up -d
+    - make deploy-nameservice-test
+      # - timeout 5 sh -c 'until curl http://localhost:26657/health; do echo "waiting for tendermint to be ready"; sleep 1; done'
+      # - sh -c 'docker-compose logs test-hs-abci-examples-nameservice-e2e'
     - make test-nameservice
-    - docker-compose -f hs-abci-docs/nameservice/docker-compose-test.yaml -p test-hs-abci-examples-nameservice-e2e down -v --rmi local
+    - make deploy-nameservice-test-down
 
   - stage: publish website
     script:

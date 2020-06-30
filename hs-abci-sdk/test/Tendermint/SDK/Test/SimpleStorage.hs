@@ -1,3 +1,4 @@
+{-# LANGUAGE QuasiQuotes     #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -fno-warn-unused-top-binds #-}
 
@@ -11,36 +12,35 @@ module Tendermint.SDK.Test.SimpleStorage
   , Count(..)
   ) where
 
-import           Control.Lens                       (iso, (^.))
-import           Crypto.Hash                        (SHA256 (..), hashWith)
-import           Data.Bifunctor                     (first)
-import           Data.ByteArray                     (convert)
-import qualified Data.ByteArray.Base64String        as Base64
-import           Data.ByteString                    (ByteString)
-import           Data.Int                           (Int32)
+import           Control.Lens                          ((^.))
+import           Data.Bifunctor                        (first)
+import qualified Data.ByteArray.Base64String           as Base64
+import           Data.Int                              (Int32)
 import           Data.Proxy
-import qualified Data.Serialize                     as Serialize
-import           Data.Serialize.Text                ()
-import           Data.String.Conversions            (cs)
-import           Data.Validation                    (Validation (..))
-import           Data.Word                          (Word64)
-import           GHC.Generics                       (Generic)
-import           GHC.TypeLits                       (symbolVal)
+import qualified Data.Serialize                        as Serialize
+import           Data.Serialize.Text                   ()
+import           Data.String.Conversions               (cs)
+import           Data.Validation                       (Validation (..))
+import           Data.Word                             (Word64)
+import           GHC.Generics                          (Generic)
+import           GHC.TypeLits                          (symbolVal)
 import           Polysemy
-import           Polysemy.Error                     (Error, catch, throw)
+import           Polysemy.Error                        (Error, catch, throw)
 import           Servant.API
-import           Tendermint.SDK.Application         (Module (..), ModuleEffs)
-import qualified Tendermint.SDK.BaseApp             as BA
-import qualified Tendermint.SDK.BaseApp.Store.Array as A
-import qualified Tendermint.SDK.BaseApp.Store.Map   as M
-import qualified Tendermint.SDK.BaseApp.Store.Var   as V
-import           Tendermint.SDK.Codec               (HasCodec (..))
-import qualified Tendermint.SDK.Modules.Bank        as B
-import           Tendermint.SDK.Types.Address       (Address)
-import           Tendermint.SDK.Types.Message       (HasMessageType (..),
-                                                     Msg (..),
-                                                     ValidateMessage (..))
-import           Tendermint.SDK.Types.Transaction   (Tx (..))
+import           Tendermint.SDK.Application            (Module (..), ModuleEffs)
+import qualified Tendermint.SDK.BaseApp                as BA
+import qualified Tendermint.SDK.BaseApp.Store.Array    as A
+import qualified Tendermint.SDK.BaseApp.Store.Map      as M
+import           Tendermint.SDK.BaseApp.Store.TH       (makeSubStore)
+import qualified Tendermint.SDK.BaseApp.Store.Var      as V
+import           Tendermint.SDK.Codec                  (HasCodec (..))
+import qualified Tendermint.SDK.Modules.Bank           as B
+import qualified Tendermint.SDK.Test.SimpleStorageKeys as Keys
+import           Tendermint.SDK.Types.Address          (Address)
+import           Tendermint.SDK.Types.Message          (HasMessageType (..),
+                                                        Msg (..),
+                                                        ValidateMessage (..))
+import           Tendermint.SDK.Types.Transaction      (Tx (..))
 
 
 --------------------------------------------------------------------------------
@@ -118,52 +118,13 @@ data SimpleStorageNamespace
 store :: BA.Store SimpleStorageNamespace
 store = BA.makeStore $ BA.KeyRoot (cs . symbolVal $ Proxy @SimpleStorageName)
 
-data CountKey = CountKey
+$(makeSubStore 'store "countVar" [t| V.Var Count |] Keys.countKey)
 
-instance BA.RawKey CountKey where
-    rawKey = iso (\_ -> cs countKey) (const CountKey)
-      where
-        countKey :: ByteString
-        countKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("count" :: String)
+instance BA.QueryData CountVarKey
 
-instance BA.IsKey CountKey SimpleStorageNamespace where
-    type Value CountKey SimpleStorageNamespace = V.Var Count
+$(makeSubStore 'store "paidMap" [t| M.Map Address AmountPaid |] Keys.paidKey)
 
-countVar :: V.Var Count
-countVar = V.makeVar CountKey store
-
-instance BA.QueryData CountKey
-
-data PaidKey = PaidKey
-
-instance BA.RawKey PaidKey where
-    rawKey = iso (const paidKey) (const PaidKey)
-      where
-        paidKey :: ByteString
-        paidKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("paid" :: String)
-
-instance BA.IsKey PaidKey SimpleStorageNamespace where
-    type Value PaidKey SimpleStorageNamespace = M.Map Address AmountPaid
-
-paidMap :: M.Map Address AmountPaid
-paidMap = M.makeMap PaidKey store
-
--- | Counts
-
-data CountsKey = CountsKey
-
-instance BA.RawKey CountsKey where
-    rawKey = iso (\_ -> cs countsKey) (const CountsKey)
-      where
-        countsKey :: ByteString
-        countsKey = convert . hashWith SHA256 . cs @_ @ByteString $ ("counts" :: String)
-
-instance BA.IsKey CountsKey SimpleStorageNamespace where
-  type Value CountsKey SimpleStorageNamespace = A.Array Count
-
-countsList :: A.Array Count
-countsList = A.makeArray CountsKey store
-
+$(makeSubStore 'store "countsList" [t| A.Array Count|] Keys.countsKey)
 --------------------------------------------------------------------------------
 
 type SimpleStorageEffs = '[SimpleStorageKeeper]
@@ -272,7 +233,7 @@ getMultipliedCount subtractor multiplier = do
     Just c -> pure $ BA.QueryResult
       { queryResultData = m * c - s
       , queryResultIndex = 0
-      , queryResultKey = Base64.fromBytes $ CountKey ^. BA.rawKey
+      , queryResultKey = Base64.fromBytes $ CountVarKey ^. BA.rawKey
       , queryResultProof  = Nothing
       , queryResultHeight = 0
       }

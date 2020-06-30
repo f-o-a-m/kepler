@@ -1,3 +1,6 @@
+{-# LANGUAGE QuasiQuotes     #-}
+{-# LANGUAGE TemplateHaskell #-}
+
 module Nameservice.Modules.Nameservice.Store
   ( Name(..)
   , whoisMap
@@ -9,9 +12,11 @@ import           Data.Proxy
 import           Data.String.Conversions               (cs)
 import           Data.Text                             (Text)
 import           GHC.TypeLits                          (symbolVal)
+import           Nameservice.Modules.Nameservice.Keys  (whoisMapKey)
 import           Nameservice.Modules.Nameservice.Types
 import qualified Tendermint.SDK.BaseApp                as BaseApp
 import qualified Tendermint.SDK.BaseApp.Store.Map      as M
+import           Tendermint.SDK.BaseApp.Store.TH       (makeSubStore)
 
 data NameserviceNamespace
 
@@ -26,13 +31,4 @@ instance BaseApp.RawKey Name where
 
 instance BaseApp.QueryData Name
 
-data WhoisMapKey = WhoisMapKey
-
-instance BaseApp.RawKey WhoisMapKey where
-    rawKey = iso (const "whoisMap") (const WhoisMapKey)
-
-instance BaseApp.IsKey WhoisMapKey NameserviceNamespace where
-  type Value WhoisMapKey NameserviceNamespace = M.Map Name Whois
-
-whoisMap :: M.Map Name Whois
-whoisMap = M.makeMap WhoisMapKey store
+$(makeSubStore 'store "whoisMap" [t| M.Map Name Whois|] whoisMapKey)

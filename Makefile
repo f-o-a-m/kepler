@@ -66,7 +66,7 @@ build-site: ## Build the tintin site
 #####################
 
 install: ## Runs stack install to compile library and counter example app
-	stack install
+	stack install --allow-different-user
 
 test-libraries: install ## Run the haskell test suite for all haskell libraries
 	stack test hs-abci-types hs-abci-server hs-abci-sdk hs-abci-test-utils
