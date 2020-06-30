@@ -19,6 +19,9 @@ baseAppContext :: Lens' AppConfig Context
 prometheusServerThreadId :: Lens' AppConfig (IORef (Maybe ThreadId))
 makeAppConfig :: IO AppConfig
 
+module Nameservice.Modules.Nameservice.Keys
+whoisMapKey :: ByteString
+
 module Nameservice.Modules.Nameservice.Messages
 data SetNameMsg
 SetNameMsg :: Text -> Address -> Text -> SetNameMsg
@@ -165,12 +168,12 @@ newtype Name
 Name :: Text -> Name
 [unName] :: Name -> Text
 whoisMap :: Map Name Whois
+instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey Nameservice.Modules.Nameservice.Store.NameWhoisMapKey
+instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey Nameservice.Modules.Nameservice.Store.NameWhoisMapKey Nameservice.Modules.Nameservice.Store.NameserviceNamespace
 instance Data.Aeson.Types.FromJSON.FromJSON Nameservice.Modules.Nameservice.Store.Name
 instance Data.Aeson.Types.ToJSON.ToJSON Nameservice.Modules.Nameservice.Store.Name
 instance GHC.Show.Show Nameservice.Modules.Nameservice.Store.Name
 instance GHC.Classes.Eq Nameservice.Modules.Nameservice.Store.Name
-instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey Nameservice.Modules.Nameservice.Store.WhoisMapKey
-instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey Nameservice.Modules.Nameservice.Store.WhoisMapKey Nameservice.Modules.Nameservice.Store.NameserviceNamespace
 instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey Nameservice.Modules.Nameservice.Store.Name
 instance Tendermint.SDK.BaseApp.Query.Types.QueryData Nameservice.Modules.Nameservice.Store.Name
 
@@ -189,11 +192,11 @@ data NameserviceKeeper m a
 [SetName] :: SetNameMsg -> NameserviceKeeper m ()
 [GetWhois] :: Name -> NameserviceKeeper m (Maybe Whois)
 nameserviceCoinId :: CoinId
-setName :: forall r_a1bTJ. MemberWithError NameserviceKeeper r_a1bTJ => SetNameMsg -> Sem r_a1bTJ ()
-deleteName :: forall r_a1bTH. MemberWithError NameserviceKeeper r_a1bTH => DeleteNameMsg -> Sem r_a1bTH ()
-buyName :: forall r_a1bTF. MemberWithError NameserviceKeeper r_a1bTF => BuyNameMsg -> Sem r_a1bTF ()
-faucetAccount :: forall r_a1bTD. MemberWithError NameserviceKeeper r_a1bTD => FaucetAccountMsg -> Sem r_a1bTD ()
-getWhois :: forall r_a1bTL. MemberWithError NameserviceKeeper r_a1bTL => Name -> Sem r_a1bTL (Maybe Whois)
+setName :: forall r_a1c1A. MemberWithError NameserviceKeeper r_a1c1A => SetNameMsg -> Sem r_a1c1A ()
+deleteName :: forall r_a1c1y. MemberWithError NameserviceKeeper r_a1c1y => DeleteNameMsg -> Sem r_a1c1y ()
+buyName :: forall r_a1c1w. MemberWithError NameserviceKeeper r_a1c1w => BuyNameMsg -> Sem r_a1c1w ()
+faucetAccount :: forall r_a1c1u. MemberWithError NameserviceKeeper r_a1c1u => FaucetAccountMsg -> Sem r_a1c1u ()
+getWhois :: forall r_a1c1C. MemberWithError NameserviceKeeper r_a1c1C => Name -> Sem r_a1c1C (Maybe Whois)
 eval :: Members TxEffs r => Members BankEffs r => Members BaseEffs r => forall a. Sem (NameserviceKeeper : (Error NameserviceError : r)) a -> Sem r a
 
 module Nameservice.Modules.Nameservice.Router

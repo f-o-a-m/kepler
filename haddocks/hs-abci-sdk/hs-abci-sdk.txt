@@ -607,29 +607,29 @@ QueryAndMempool :: Scope
 data ReadStore m a
 [StoreGet] :: StoreKey -> ReadStore m (Maybe ByteString)
 [StoreProve] :: StoreKey -> ReadStore m (Maybe ByteString)
-storeGet :: forall r_a1de6. MemberWithError ReadStore r_a1de6 => StoreKey -> Sem r_a1de6 (Maybe ByteString)
+storeGet :: forall r_a1dfM. MemberWithError ReadStore r_a1dfM => StoreKey -> Sem r_a1dfM (Maybe ByteString)
 get :: forall k r ns. IsKey k ns => HasCodec (Value k ns) => Members [ReadStore, Error AppError] r => Store ns -> k -> Sem r (Maybe (Value k ns))
 prove :: forall k ns r. IsKey k ns => Member ReadStore r => Store ns -> k -> Sem r (Maybe ByteString)
 data WriteStore m a
 [StorePut] :: StoreKey -> ByteString -> WriteStore m ()
 [StoreDelete] :: StoreKey -> WriteStore m ()
 put :: forall k r ns. IsKey k ns => HasCodec (Value k ns) => Member WriteStore r => Store ns -> k -> Value k ns -> Sem r ()
-storePut :: forall r_a1dhS. MemberWithError WriteStore r_a1dhS => StoreKey -> ByteString -> Sem r_a1dhS ()
+storePut :: forall r_a1djy. MemberWithError WriteStore r_a1djy => StoreKey -> ByteString -> Sem r_a1djy ()
 delete :: forall k ns r. IsKey k ns => Member WriteStore r => Store ns -> k -> Sem r ()
-storeDelete :: forall r_a1dhV. MemberWithError WriteStore r_a1dhV => StoreKey -> Sem r_a1dhV ()
+storeDelete :: forall r_a1djB. MemberWithError WriteStore r_a1djB => StoreKey -> Sem r_a1djB ()
 
 -- | Consensus Effects
 data CommitBlock m a
 [CommitBlock] :: CommitBlock m Base64String
-commitBlock :: forall r_a1drj. MemberWithError CommitBlock r_a1drj => Sem r_a1drj Base64String
+commitBlock :: forall r_a1dsZ. MemberWithError CommitBlock r_a1dsZ => Sem r_a1dsZ Base64String
 data Transaction m a
 [BeginTransaction] :: Transaction m ()
 [Rollback] :: Transaction m ()
 [Commit] :: Transaction m CommitResponse
-beginTransaction :: forall r_a1dw5. MemberWithError Transaction r_a1dw5 => Sem r_a1dw5 ()
+beginTransaction :: forall r_a1dxL. MemberWithError Transaction r_a1dxL => Sem r_a1dxL ()
 withSandbox :: forall r a. Members [Transaction, Resource, Error AppError] r => Sem r a -> Sem r a
 withTransaction :: forall r a. Members [Transaction, Resource, Error AppError] r => Sem r a -> Sem r (a, CommitResponse)
-commit :: forall r_a1dw7. MemberWithError Transaction r_a1dw7 => Sem r_a1dw7 CommitResponse
+commit :: forall r_a1dxN. MemberWithError Transaction r_a1dxN => Sem r_a1dxN CommitResponse
 
 -- | Keys
 class RawKey k
@@ -835,6 +835,33 @@ instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey Tendermint.SDK.BaseApp.Stor
 instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey Tendermint.SDK.BaseApp.Store.Array.Idx
 instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey Tendermint.SDK.BaseApp.Store.Array.Idx (Tendermint.SDK.BaseApp.Store.Array.Array a)
 
+module Tendermint.SDK.BaseApp.Store.TH
+makeSubStore :: Name -> String -> TypeQ -> ByteString -> Q [Dec]
+class RawKey k => IsKey k ns where {
+    type family Value k ns :: *;
+}
+prefix :: IsKey k ns => Proxy k -> Proxy ns -> ByteString
+prefix :: IsKey k ns => Proxy k -> Proxy ns -> ByteString
+
+-- | Keys
+class RawKey k
+rawKey :: RawKey k => Iso' k ByteString
+data Var (a :: *)
+makeVar :: IsKey k ns => Value k ns ~ Var a => k -> Store ns -> Value k ns
+
+-- | A 'Array a' is an appendable list whose elements can be accessed | by
+--   their index. You can also delete from the list, in which case
+--   accessing | that index will result in a <a>Nothing</a>.
+data Array (a :: *)
+
+-- | Smart constuctor to make sure we're making a <a>Array</a> from | the
+--   appropriate key type.
+makeArray :: IsKey k ns => Value k ns ~ Array a => k -> Store ns -> Value k ns
+data List (a :: *)
+makeList :: IsKey key ns => Value key ns ~ List a => key -> Store ns -> Value key ns
+data Map (k :: *) (v :: *)
+makeMap :: IsKey key ns => Value key ns ~ Map k v => key -> Store ns -> Value key ns
+
 module Tendermint.SDK.BaseApp.Router.Types
 type Application m req res = req -> m (RouteResult res)
 data RouterError
@@ -998,7 +1025,7 @@ data GasMeter m a
 newtype GasAmount
 GasAmount :: Int64 -> GasAmount
 [unGasAmount] :: GasAmount -> Int64
-withGas :: forall r_a1Itn a_a1IiS. MemberWithError GasMeter r_a1Itn => GasAmount -> Sem r_a1Itn a_a1IiS -> Sem r_a1Itn a_a1IiS
+withGas :: forall r_a1KEI a_a1Kud. MemberWithError GasMeter r_a1KEI => GasAmount -> Sem r_a1KEI a_a1Kud -> Sem r_a1KEI a_a1Kud
 eval :: Members [Error AppError, State GasAmount] r => Sem (GasMeter : r) a -> Sem r a
 doNothing :: forall r. forall a. Sem (GasMeter : r) a -> Sem r a
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Gas.GasAmount
@@ -1243,7 +1270,7 @@ ContextEvent :: t -> ContextEvent t
 emit :: ToEvent e => Member (Output Event) r => e -> Sem r ()
 logEvent :: forall e r. (ToJSON e, ToEvent e, Select e) => Member Logger r => e -> Sem r ()
 data GasMeter m a
-withGas :: forall r_a1Itn a_a1IiS. MemberWithError GasMeter r_a1Itn => GasAmount -> Sem r_a1Itn a_a1IiS -> Sem r_a1Itn a_a1IiS
+withGas :: forall r_a1KEI a_a1Kud. MemberWithError GasMeter r_a1KEI => GasAmount -> Sem r_a1KEI a_a1Kud -> Sem r_a1KEI a_a1Kud
 
 -- | Effect allowing for console logging.
 data Logger m a
@@ -1368,9 +1395,9 @@ data Accounts m a
 [UpdateAccount] :: Address -> (Account -> Account) -> Accounts m ()
 [GetAccount] :: Address -> Accounts m (Maybe Account)
 type AuthEffs = '[Accounts, Error AuthError]
-createAccount :: forall r_a1SIQ. MemberWithError Accounts r_a1SIQ => Address -> Sem r_a1SIQ Account
-updateAccount :: forall r_a1SIS. MemberWithError Accounts r_a1SIS => Address -> (Account -> Account) -> Sem r_a1SIS ()
-getAccount :: forall r_a1SIV. MemberWithError Accounts r_a1SIV => Address -> Sem r_a1SIV (Maybe Account)
+createAccount :: forall r_a1UWx. MemberWithError Accounts r_a1UWx => Address -> Sem r_a1UWx Account
+updateAccount :: forall r_a1UWz. MemberWithError Accounts r_a1UWz => Address -> (Account -> Account) -> Sem r_a1UWz ()
+getAccount :: forall r_a1UWC. MemberWithError Accounts r_a1UWC => Address -> Sem r_a1UWC (Maybe Account)
 eval :: Members [ReadStore, WriteStore, Error AppError] r => Sem (Accounts : (Error AuthError : r)) a -> Sem r a
 
 -- | Query API
@@ -1399,88 +1426,6 @@ coinAesonOptions :: Options
 -- | Used as a unique identifier for an account.
 newtype Address
 Address :: HexString -> Address
-
-module Tendermint.SDK.Modules.Bank.Types
-data TransferEvent
-TransferEvent :: CoinId -> Amount -> Address -> Address -> TransferEvent
-[transferEventCoinId] :: TransferEvent -> CoinId
-[transferEventAmount] :: TransferEvent -> Amount
-[transferEventTo] :: TransferEvent -> Address
-[transferEventFrom] :: TransferEvent -> Address
-data BankError
-InsufficientFunds :: Text -> BankError
-type BankName = "bank"
-transferEventAesonOptions :: Options
-newtype Amount
-Amount :: Word64 -> Amount
-[unAmount] :: Amount -> Word64
-data Coin
-Coin :: CoinId -> Amount -> Coin
-[coinId] :: Coin -> CoinId
-[coinAmount] :: Coin -> Amount
-newtype CoinId
-CoinId :: Text -> CoinId
-[unCoinId] :: CoinId -> Text
-instance GHC.Generics.Generic Tendermint.SDK.Modules.Bank.Types.TransferEvent
-instance GHC.Show.Show Tendermint.SDK.Modules.Bank.Types.TransferEvent
-instance GHC.Classes.Eq Tendermint.SDK.Modules.Bank.Types.TransferEvent
-instance Data.Aeson.Types.ToJSON.ToJSON Tendermint.SDK.Modules.Bank.Types.TransferEvent
-instance Data.Aeson.Types.FromJSON.FromJSON Tendermint.SDK.Modules.Bank.Types.TransferEvent
-instance Tendermint.SDK.BaseApp.Events.ToEvent Tendermint.SDK.Modules.Bank.Types.TransferEvent
-instance Tendermint.SDK.BaseApp.Logger.Select Tendermint.SDK.Modules.Bank.Types.TransferEvent
-instance Tendermint.SDK.BaseApp.Errors.IsAppError Tendermint.SDK.Modules.Bank.Types.BankError
-
-module Tendermint.SDK.Modules.Bank.Messages
-data TransferMsg
-TransferMsg :: Address -> Address -> CoinId -> Amount -> TransferMsg
-[transferTo] :: TransferMsg -> Address
-[transferFrom] :: TransferMsg -> Address
-[transferCoinId] :: TransferMsg -> CoinId
-[transferAmount] :: TransferMsg -> Amount
-data BurnMsg
-BurnMsg :: Address -> CoinId -> Amount -> BurnMsg
-[burnAddress] :: BurnMsg -> Address
-[burnCoinId] :: BurnMsg -> CoinId
-[burnAmount] :: BurnMsg -> Amount
-instance GHC.Generics.Generic Tendermint.SDK.Modules.Bank.Messages.BurnMsg
-instance GHC.Show.Show Tendermint.SDK.Modules.Bank.Messages.BurnMsg
-instance GHC.Classes.Eq Tendermint.SDK.Modules.Bank.Messages.BurnMsg
-instance GHC.Generics.Generic Tendermint.SDK.Modules.Bank.Messages.TransferMsg
-instance GHC.Show.Show Tendermint.SDK.Modules.Bank.Messages.TransferMsg
-instance GHC.Classes.Eq Tendermint.SDK.Modules.Bank.Messages.TransferMsg
-instance Control.Lens.Wrapped.Wrapped Tendermint.SDK.Modules.Bank.Messages.BurnMsg
-instance Tendermint.SDK.Types.Message.HasMessageType Tendermint.SDK.Modules.Bank.Messages.BurnMsg
-instance Tendermint.SDK.Codec.HasCodec Tendermint.SDK.Modules.Bank.Messages.BurnMsg
-instance Tendermint.SDK.Types.Message.ValidateMessage Tendermint.SDK.Modules.Bank.Messages.BurnMsg
-instance Control.Lens.Wrapped.Wrapped Tendermint.SDK.Modules.Bank.Messages.TransferMsg
-instance Tendermint.SDK.Types.Message.HasMessageType Tendermint.SDK.Modules.Bank.Messages.TransferMsg
-instance Tendermint.SDK.Codec.HasCodec Tendermint.SDK.Modules.Bank.Messages.TransferMsg
-instance Tendermint.SDK.Types.Message.ValidateMessage Tendermint.SDK.Modules.Bank.Messages.TransferMsg
-
-module Tendermint.SDK.Modules.Bank.Keeper
-type BankEffs = '[BankKeeper, Error BankError]
-data BankKeeper m a
-[GetBalance] :: Address -> CoinId -> BankKeeper m Coin
-[Transfer] :: Address -> Coin -> Address -> BankKeeper m ()
-[Burn] :: Address -> Coin -> BankKeeper m ()
-[Mint] :: Address -> Coin -> BankKeeper m ()
-getBalance :: forall r_a1YPI. MemberWithError BankKeeper r_a1YPI => Address -> CoinId -> Sem r_a1YPI Coin
-transfer :: forall r_a1YPL. MemberWithError BankKeeper r_a1YPL => Address -> Coin -> Address -> Sem r_a1YPL ()
-burn :: forall r_a1YPP. MemberWithError BankKeeper r_a1YPP => Address -> Coin -> Sem r_a1YPP ()
-mint :: forall r_a1YPS. MemberWithError BankKeeper r_a1YPS => Address -> Coin -> Sem r_a1YPS ()
-eval :: Members [Logger, Output Event, Error AppError] r => Members AuthEffs r => forall a. Sem (BankKeeper : (Error BankError : r)) a -> Sem r a
-
-module Tendermint.SDK.Modules.Bank.Router
-type MessageApi = TypedMessage BurnMsg :~> Return () :<|> TypedMessage TransferMsg :~> Return ()
-messageHandlers :: Members BankEffs r => RouteTx MessageApi r
-
-module Tendermint.SDK.Modules.Bank.Query
-
--- | Query Api
-type GetAddressCoinBalance = "balance" :> QA Address :> QueryParam' '[Required, Strict] "coin_id" CoinId :> Leaf Coin
-getAddressCoinBalance :: Member BankKeeper r => QueryArgs Address -> CoinId -> Sem r (QueryResult Coin)
-type QueryApi = GetAddressCoinBalance
-querier :: forall r. Member BankKeeper r => RouteQ QueryApi r
 
 module Tendermint.SDK.Application.App
 createIOApp :: forall r. (forall a. Sem r a -> IO a) -> App (Sem r) -> App IO
@@ -1531,3 +1476,53 @@ makeApp :: forall alg ms core. RecoverableSignatureSchema alg => Message alg ~ D
 module Tendermint.SDK.Modules.Bank
 type Bank = Module BankName MessageApi MessageApi QueryApi BankEffs '[Auth]
 bankModule :: Members (ModuleEffs Bank) r => Bank r
+type BankEffs = '[BankKeeper, Error BankError]
+data BankKeeper m a
+[GetBalance] :: Address -> CoinId -> BankKeeper m Coin
+[Transfer] :: Address -> Coin -> Address -> BankKeeper m ()
+[Burn] :: Address -> Coin -> BankKeeper m ()
+[Mint] :: Address -> Coin -> BankKeeper m ()
+getBalance :: forall r_a211z. MemberWithError BankKeeper r_a211z => Address -> CoinId -> Sem r_a211z Coin
+transfer :: forall r_a211C. MemberWithError BankKeeper r_a211C => Address -> Coin -> Address -> Sem r_a211C ()
+burn :: forall r_a211G. MemberWithError BankKeeper r_a211G => Address -> Coin -> Sem r_a211G ()
+mint :: forall r_a211J. MemberWithError BankKeeper r_a211J => Address -> Coin -> Sem r_a211J ()
+eval :: Members [Logger, Output Event, Error AppError] r => Members AuthEffs r => forall a. Sem (BankKeeper : (Error BankError : r)) a -> Sem r a
+data TransferMsg
+TransferMsg :: Address -> Address -> CoinId -> Amount -> TransferMsg
+[transferTo] :: TransferMsg -> Address
+[transferFrom] :: TransferMsg -> Address
+[transferCoinId] :: TransferMsg -> CoinId
+[transferAmount] :: TransferMsg -> Amount
+data BurnMsg
+BurnMsg :: Address -> CoinId -> Amount -> BurnMsg
+[burnAddress] :: BurnMsg -> Address
+[burnCoinId] :: BurnMsg -> CoinId
+[burnAmount] :: BurnMsg -> Amount
+
+-- | Query Api
+type GetAddressCoinBalance = "balance" :> QA Address :> QueryParam' '[Required, Strict] "coin_id" CoinId :> Leaf Coin
+getAddressCoinBalance :: Member BankKeeper r => QueryArgs Address -> CoinId -> Sem r (QueryResult Coin)
+type QueryApi = GetAddressCoinBalance
+querier :: forall r. Member BankKeeper r => RouteQ QueryApi r
+type MessageApi = TypedMessage BurnMsg :~> Return () :<|> TypedMessage TransferMsg :~> Return ()
+messageHandlers :: Members BankEffs r => RouteTx MessageApi r
+data TransferEvent
+TransferEvent :: CoinId -> Amount -> Address -> Address -> TransferEvent
+[transferEventCoinId] :: TransferEvent -> CoinId
+[transferEventAmount] :: TransferEvent -> Amount
+[transferEventTo] :: TransferEvent -> Address
+[transferEventFrom] :: TransferEvent -> Address
+data BankError
+InsufficientFunds :: Text -> BankError
+type BankName = "bank"
+transferEventAesonOptions :: Options
+newtype Amount
+Amount :: Word64 -> Amount
+[unAmount] :: Amount -> Word64
+data Coin
+Coin :: CoinId -> Amount -> Coin
+[coinId] :: Coin -> CoinId
+[coinAmount] :: Coin -> Amount
+newtype CoinId
+CoinId :: Text -> CoinId
+[unCoinId] :: CoinId -> Text

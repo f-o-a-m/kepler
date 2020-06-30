@@ -496,11 +496,13 @@ class RawKey k =&gt; IsKey k ns where
 store :: Store AuthNamespace
 store = makeStore $ KeyRoot &quot;auth&quot;
 </code></pre>
-<p>We then need to make a new keyspace for our accounts mapping, which looks like</p>
+<p>In order to make the actual mapping in storage, we can either (1) write it by hand or (2) use a convenient template haskell splice which takes care of this boilerplate for us. These two methods are equivalent.</p>
+<h2>Option 1: By Hand</h2>
+<p>In order to do this by hand, we need to make a new keyspace for our accounts mapping, which looks like</p>
 <pre class="haskell"><code>data AccountsMapKey = AccountsMapKey
 
 instance RawKey AccountsMapKey where
-    rawKey = iso (const &quot;accounts&quot;) (const AccountsMapKey)
+    rawKey = iso (const &quot;accountsMap&quot;) (const AccountsMapKey)
 
 instance IsKey AccountsMapKey AuthNamespace where
   type Value AccountsMapKey AuthNamespace = Map Address Account
@@ -510,8 +512,20 @@ instance IsKey AccountsMapKey AuthNamespace where
 <pre class="haskell"><code>accountsMap :: Map Address Account
 accountsMap = makeMap AccountsMapKey store
 </code></pre>
-<p>This both creates the mapping and mounts it inside of our module level store. The effect of this is that if you wanted to query the underlying raw key-value store for the account associated to the address <code>0xdeadbeef</code>, then the actual key looks something like</p>
-<pre class="haskell"><code>encodeUtf8 &quot;auth&quot; &lt;&gt; encodeUtf8 &quot;accounts&quot; &lt;&gt; bytesFromHex &quot;0xdeafbeef&quot;
+<p>This both creates the mapping and mounts it inside of our module level store.</p>
+<h2>Option 2: Using the Template Haskell splice</h2>
+<p>If you want to use the template haskell splice (as is done in the SDK and example applications), you can simply write</p>
+<pre class="haskell"><code>$(makeSubStore &#39;store &quot;accountsMap&quot; [t| Map Address Account|] accountsKey)
+</code></pre>
+<p>This does the following:</p>
+<ol>
+<li>Makes a substore rooted at the <code>store :: Store AuthNamespace</code> defined above, and names this value <code>accountsMap</code>.</li>
+<li>Annotates <code>accountsMap</code> with type <code>Map Address Account</code>.</li>
+<li>Creates a singleton type <code>AccountsMapKey</code> which is the key to access this map directly. This key has is effectively a prefix &quot;accountsMap&quot;.</li>
+</ol>
+<h2>Querying the store</h2>
+<p>If you wanted to query the underlying raw key-value store for the account associated to the address <code>0xdeadbeef</code>, then the actual key looks something like</p>
+<pre class="haskell"><code>encodeUtf8 &quot;auth&quot; &lt;&gt; encodeUtf8 &quot;accountsMap&quot; &lt;&gt; bytesFromHex &quot;0xdeafbeef&quot;
 </code></pre>
 <p>While writing apps inside the SDK you do not need to worry about the explicit prefixing since everything is taken care of for you. However, if you are querying for state via an ABCI <code>query</code> message, the <code>key</code> field that is returned in the response will contain this full path. In the above example, if you wanted to recover the address from the key, you would need to know the prefixes that were applied.</p>
 </div></div></div></div></div></section><div class="tintin-doc-footer clear-fix"><div class="row next-prev"><div class="col-md-4 offset-md-4"><a href="0330-Modules.html">&lt; Previous: Foundations - Module</a></div><div class="col-md-4 ml-auto"><a href="0400-Tutorial.html">Next: Tutorial &gt;</a></div></div><div class="float-right"><div style="float: left" class="d-inline"><p class>Site generated with </p></div><a style="float: left" href="https://theam.github.io/tintin"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/logo.svg" class="filter-gray"></a><div class="clear-fix float-right"><span style="float:left">&mdash; &copy; 2018 </span><a href="http://theam.io" class="float:left"><img src="http://theam.io/logo_theam.png" class="footer-theam"></a></div></div></div></div><script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/haskell.min.js"></script><script src="https://cdn.rawgit.com/icons8/bower-webicon/v0.10.7/jquery-webicon.min.js"></script><script>hljs.initHighlightingOnLoad()</script><script>$(function () {$("#menu-toggle").click(function(e) {e.preventDefault();$("#wrapper").toggleClass("toggled");$("#menu-toggle img").toggleClass("rotateIn rotateOut");})});</script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/contrib/auto-render.min.js"></script><script>renderMathInElement(document.body);</script></body></html>

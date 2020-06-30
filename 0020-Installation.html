@@ -487,6 +487,55 @@ footer
 <h3>Commands</h3>
 <p>There is a <code>Makefile</code> for this project where you can find all of the options for building, testing etc. The <code>Makefile</code>
 is documented and there is a help menu which you can access via the commands <code>make</code> or <code>make help</code>.</p>
+<h3>Step-by-step instructions</h3>
+<p>Assuming you have all the prerequisites installed, type <code>make help</code> to get a result like this:</p>
+<pre><code>build-docs-local               Build the haddocks documentation for just this project (no dependencies)
+build-site                     Build the tintin site
+deploy-nameservice             run the nameservice docker network with elk stack for logging
+deploy-nameservice-test-down   remove the nameservice docker network
+deploy-nameservice-test        run the nameservice docker network for testing
+deploy-simple-storage-docker-down remove the simple storage docker network
+deploy-simple-storage-docker   run the simple storage docker network
+help                           Ask for help!
+hlint                          Run hlint on all haskell projects
+install                        Runs stack install to compile library and counter example app
+interact-nameservice           Run nameservice interaction script
+stylish                        Run stylish-haskell over all haskell projects
+test-iavl-client               test the iavl client library basic operation (requires grpc service running on port 8090)
+test-kv-store                  Run the test suite for the client interface
+test-libraries                 Run the haskell test suite for all haskell libraries
+test-nameservice               Run the test suite for the nameservice example application
+test-simple-storage            Run the test suite for the simple-storage example application
+test-tutorial                  Make sure the tutorial builds
+weeder                         look for unused packages and functions
+</code></pre>
+<p>We&#39;ll start by running</p>
+<pre class="sh"><code>&gt; make install
+</code></pre>
+<p>If you run this for the first time, you&#39;ll see a lot of output from <code>stack</code> building all the libraries and their dependencies. Although it can take a long time, it will only happen once, unless you modify the app or the library.</p>
+<p>Now, let&#39;s say we want to run the <code>simple-storage</code> sample app. We&#39;ll run</p>
+<pre class="sh"><code>&gt; make deploy-simple-storage-docker
+</code></pre>
+<p>You&#39;ll also see the docker image being built for the first time. This will also take some time. Eventually you&#39;ll see something like</p>
+<pre><code>Starting test-hs-abci-examples-simple-storage-e2e_tendermint-init_1 ... done
+Starting test-hs-abci-examples-simple-storage-e2e_simple-storage_1  ... done
+Starting test-hs-abci-examples-simple-storage-e2e_iavl_1            ... done
+Starting test-hs-abci-examples-simple-storage-e2e_tendermint_1      ... done
+</code></pre>
+<p>Now we can run the test</p>
+<pre class="sh"><code>&gt; make test-simple-storage
+...
+Finished in 0.2366 seconds
+3 examples, 0 failures
+</code></pre>
+<p>Clean up the docker environment by running</p>
+<pre class="sh"><code>&gt; make deploy-simple-storage-docker-down
+</code></pre>
+<p>We can run the nameservice tests by running</p>
+<pre class="sh"><code>&gt; make deploy-nameservice-test
+&gt; make test-nameservice
+&gt; make deploy-nameservice-test-down
+</code></pre>
 <h2>Protobuf Files and Generated Modules</h2>
 <p>The protobuf files are all in the <code>/protos</code> directory, and we use a custom setup in order
 to generate the corresponding <code>Proto.*</code> Haskell modules. If you want to view all of these
@@ -505,4 +554,19 @@ If it&#39;s not covered by either of these but you think it&#39;s really importa
 </code></pre>
 <p>This does not build and link documentation for dependencies, useful mostly for testing
 documentation formatting.</p>
+<h2>Including <code>kepler</code> in your project</h2>
+<p>If you&#39;re using <code>stack</code> you may create a new project using <code>stack init</code></p>
+<p>Then, in your <code>stack.yaml</code> file, add the following lines:</p>
+<pre class="yaml"><code>extra-deps:
+  - git: https://github.com/f-o-a-m/hs-abci/
+    commit: 3b13a569bcc77dcdec154552175f69bf4ea8b8ca
+    subdirs:
+      - hs-abci-extra
+      - hs-abci-sdk
+      - hs-abci-server
+      - hs-abci-test-utils
+      - hs-abci-types
+      - hs-tendermint-client
+</code></pre>
+<p>but replace the <code>3b13a</code> with whatever is the latest hash for the master branch at the time of you reading this.</p>
 </div></div></div></div></div></section><div class="tintin-doc-footer clear-fix"><div class="row next-prev"><div class="col-md-4 offset-md-4"><a href="0010-Overview.html">&lt; Previous: Overview</a></div><div class="col-md-4 ml-auto"><a href="0310-Overview.html">Next: Foundations - Overview &gt;</a></div></div><div class="float-right"><div style="float: left" class="d-inline"><p class>Site generated with </p></div><a style="float: left" href="https://theam.github.io/tintin"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/logo.svg" class="filter-gray"></a><div class="clear-fix float-right"><span style="float:left">&mdash; &copy; 2018 </span><a href="http://theam.io" class="float:left"><img src="http://theam.io/logo_theam.png" class="footer-theam"></a></div></div></div></div><script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/haskell.min.js"></script><script src="https://cdn.rawgit.com/icons8/bower-webicon/v0.10.7/jquery-webicon.min.js"></script><script>hljs.initHighlightingOnLoad()</script><script>$(function () {$("#menu-toggle").click(function(e) {e.preventDefault();$("#wrapper").toggleClass("toggled");$("#menu-toggle img").toggleClass("rotateIn rotateOut");})});</script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/contrib/auto-render.min.js"></script><script>renderMathInElement(document.body);</script></body></html>

@@ -35,6 +35,9 @@ AppConfig :: Context -> AppConfig
 baseAppContext :: Iso' AppConfig Context
 makeAppConfig :: IO AppConfig
 
+module SimpleStorage.Modules.SimpleStorage.Keys
+countKey :: ByteString
+
 module SimpleStorage.Modules.SimpleStorage.Message
 data UpdateCountTx
 UpdateCountTx :: Text -> Int32 -> UpdateCountTx
@@ -73,13 +76,13 @@ type SimpleStorageEffs = '[SimpleStorageKeeper]
 data SimpleStorageKeeper m a
 [UpdateCount] :: Count -> SimpleStorageKeeper m ()
 [GetCount] :: SimpleStorageKeeper m (Maybe Count)
-updateCount :: forall r_aSAw. MemberWithError SimpleStorageKeeper r_aSAw => Count -> Sem r_aSAw ()
-getCount :: forall r_aSAy. MemberWithError SimpleStorageKeeper r_aSAy => Sem r_aSAy (Maybe Count)
+updateCount :: forall r_aSZW. MemberWithError SimpleStorageKeeper r_aSZW => Count -> Sem r_aSZW ()
+getCount :: forall r_aSZY. MemberWithError SimpleStorageKeeper r_aSZY => Sem r_aSZY (Maybe Count)
 eval :: forall r. Members TxEffs r => Members BaseEffs r => forall a. Sem (SimpleStorageKeeper : r) a -> Sem r a
 countVar :: Var Count
-instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey SimpleStorage.Modules.SimpleStorage.Keeper.CountKey
-instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey SimpleStorage.Modules.SimpleStorage.Keeper.CountKey SimpleStorage.Modules.SimpleStorage.Keeper.SimpleStorageNamespace
-instance Tendermint.SDK.BaseApp.Query.Types.QueryData SimpleStorage.Modules.SimpleStorage.Keeper.CountKey
+instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey SimpleStorage.Modules.SimpleStorage.Keeper.CountVarKey
+instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey SimpleStorage.Modules.SimpleStorage.Keeper.CountVarKey SimpleStorage.Modules.SimpleStorage.Keeper.SimpleStorageNamespace
+instance Tendermint.SDK.BaseApp.Query.Types.QueryData SimpleStorage.Modules.SimpleStorage.Keeper.CountVarKey
 
 module SimpleStorage.Modules.SimpleStorage.Router
 type MessageApi = TypedMessage UpdateCountTx :~> Return ()
@@ -96,8 +99,8 @@ data SimpleStorageKeeper m a
 [UpdateCount] :: Count -> SimpleStorageKeeper m ()
 [GetCount] :: SimpleStorageKeeper m (Maybe Count)
 type SimpleStorageEffs = '[SimpleStorageKeeper]
-updateCount :: forall r_aSAw. MemberWithError SimpleStorageKeeper r_aSAw => Count -> Sem r_aSAw ()
-getCount :: forall r_aSAy. MemberWithError SimpleStorageKeeper r_aSAy => Sem r_aSAy (Maybe Count)
+updateCount :: forall r_aSZW. MemberWithError SimpleStorageKeeper r_aSZW => Count -> Sem r_aSZW ()
+getCount :: forall r_aSZY. MemberWithError SimpleStorageKeeper r_aSZY => Sem r_aSZY (Maybe Count)
 eval :: forall r. Members TxEffs r => Members BaseEffs r => forall a. Sem (SimpleStorageKeeper : r) a -> Sem r a
 
 module SimpleStorage.Application
