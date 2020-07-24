@@ -67,7 +67,6 @@ library:
   - Network.ABCI.Types.Messages.FieldTypes
   other-modules:
   - Data.Time.Calendar.Private
-  - Data.Time.Orphans
   generated-exposed-modules:
   - Proto.Types
   - Proto.Types_Fields

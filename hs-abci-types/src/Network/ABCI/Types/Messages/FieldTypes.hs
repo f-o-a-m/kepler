@@ -33,7 +33,6 @@ import           Data.Time.Clock                                         (DiffTi
                                                                           picosecondsToDiffTime)
 import           Data.Time.Format                                        (defaultTimeLocale,
                                                                           parseTimeOrError)
-import           Data.Time.Orphans                                       ()
 import           Data.Word                                               (Word64)
 import           GHC.Generics                                            (Generic)
 import           Network.ABCI.Types.Messages.Common                      (defaultABCIOptions)

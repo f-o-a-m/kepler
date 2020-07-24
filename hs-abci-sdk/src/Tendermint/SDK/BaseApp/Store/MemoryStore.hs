@@ -122,7 +122,7 @@ evalCommitBlock db DBVersions{..} = do
     (\case
       CommitBlock -> liftIO $ do
         mv <- getVersion db
-        writeIORef committed $ maybe Genesis Version
+        writeIORef committed $ maybe Genesis Version mv
         root <- getRootHash db
         pure . Base64.fromBytes $ root
     )
