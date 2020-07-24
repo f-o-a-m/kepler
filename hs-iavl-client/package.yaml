@@ -59,8 +59,13 @@ library:
   - Proto.Iavl.Api
   - Proto.Iavl.Api_Fields
   - Proto.Google.Api.Http
+  - Proto.Google.Api.Http_Fields
   - Proto.Google.Protobuf.Empty
+  - Proto.Google.Protobuf.Empty_Fields
+  - Proto.Google.Protobuf.Descriptor
+  - Proto.Google.Protobuf.Descriptor_Fields
   - Proto.Google.Api.Annotations
+  - Proto.Google.Api.Annotations_Fields
 
 tests:
   hs-iavl-client-test:

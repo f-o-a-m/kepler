@@ -43,7 +43,6 @@ library:
     - aeson
     - aeson-casing
     - base >= 4.7 && < 5
-    - bloodhound
     - bytestring
     - errors
     - hs-abci-extra
@@ -52,7 +51,6 @@ library:
     - hs-abci-types
     - http-client
     - katip
-    - katip-elasticsearch
     - lens
     - polysemy
     - polysemy-plugin

@@ -15,7 +15,6 @@ import           Control.Lens                              (makeLenses, (&),
 import           Data.IORef                                (IORef, newIORef)
 import           Data.Maybe                                (fromMaybe)
 import           Data.String.Conversions                   (cs)
-import qualified Database.V5.Bloodhound                    as BH
 import qualified Katip                                     as K
 import qualified Katip.Scribes.ElasticSearch               as ES
 import qualified Network.HTTP.Client                       as Client
@@ -105,10 +104,4 @@ makeKatipScribe kcfg LogLevel{..} le = case kcfg of
   Console -> do
     handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem severity) verbosity
     K.registerScribe "stdout" handleScribe K.defaultScribeSettings le
-  ES {host, port} -> do
-    mgr <- Client.newManager Client.defaultManagerSettings
-    let serverAddress = "http://" <> host <> ":" <> port
-        bloodhoundEnv = BH.mkBHEnv (BH.Server $ cs serverAddress) mgr
-    esScribe <- ES.mkEsScribe ES.defaultEsScribeCfgV5 bloodhoundEnv (BH.IndexName "nameservice")
-      (BH.MappingName "application-logs") (K.permitItem severity) verbosity
-    K.registerScribe "es" esScribe K.defaultScribeSettings le
+  ES _ -> error "ES Logging is not available due to dependency issues with Bloodhound ES client"
