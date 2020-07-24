@@ -1,5 +1,5 @@
 # https://www.stackage.org/lts-13.27
-resolver: lts-15.1
+resolver: lts-15.10
 
 nix:
   #enabled: bool # defaults to true on nixos, false everywhere else
