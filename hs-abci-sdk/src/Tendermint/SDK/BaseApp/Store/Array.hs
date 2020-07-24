@@ -28,13 +28,14 @@ import           Tendermint.SDK.BaseApp.Errors         (AppError,
                                                         throwSDKError)
 import           Tendermint.SDK.BaseApp.Store.RawStore as S
 import           Tendermint.SDK.Codec                  (HasCodec (..))
+import Data.Kind (Type)
 
 
 
 -- | A 'Array a' is an appendable list whose elements can be accessed
 -- | by their index. You can also delete from the list, in which case accessing
 -- | that index will result in a `Nothing`.
-data Array (a :: *) = Array
+data Array (a :: Type) = Array
   { arrayStore :: S.Store (Array a) }
 
 -- | Represents an index into a list

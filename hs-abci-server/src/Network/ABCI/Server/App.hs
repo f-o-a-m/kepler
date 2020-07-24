@@ -27,6 +27,7 @@ import           Data.Aeson.Types                     (Parser)
 import           Data.Bifunctor                       (first)
 import qualified Data.ByteString                      as BS
 import           Data.Function                        ((&))
+import           Data.Kind                            (Type)
 import qualified Data.ProtoLens                       as PL
 import           Data.ProtoLens.Encoding.Bytes        (getVarInt, putVarInt,
                                                        runBuilder, runParser,
@@ -34,7 +35,6 @@ import           Data.ProtoLens.Encoding.Bytes        (getVarInt, putVarInt,
                                                        wordToSignedInt64)
 import           Data.String.Conversions              (cs)
 import           Data.Text                            (Text)
-import           Data.Traversable                     (traverse)
 import           Network.ABCI.Server.App.DecodeError  (DecodeError)
 import qualified Network.ABCI.Server.App.DecodeError  as DecodeError
 import qualified Network.ABCI.Types.Messages.Request  as Request
@@ -129,7 +129,7 @@ reqResToJSON' msgType message = object
 -- * Mempool Connection, sends only: CheckTx and Flush requests
 -- * Consensus Connection, InitChain,: BeginBlock, DeliverTx, EndBlock and  Commit requests
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/proxy/app_conn.go#L11-L41
-data Request (m :: MessageType) :: * where
+data Request (m :: MessageType) :: Type where
   -- Info/Query Connection
   RequestEcho :: Request.Echo -> Request 'MTEcho
   RequestInfo :: Request.Info -> Request 'MTInfo
@@ -211,7 +211,7 @@ withProto f value = case value of
 -- Response
 --------------------------------------------------------------------------------
 
-data Response (m :: MessageType) :: * where
+data Response (m :: MessageType) :: Type where
   ResponseEcho :: Response.Echo -> Response 'MTEcho
   ResponseFlush :: Response.Flush -> Response 'MTFlush
   ResponseInfo :: Response.Info -> Response 'MTInfo

@@ -16,8 +16,9 @@ import           Tendermint.SDK.BaseApp.Errors         (AppError,
                                                         throwSDKError)
 import qualified Tendermint.SDK.BaseApp.Store.RawStore as S
 import           Tendermint.SDK.Codec                  (HasCodec (..))
+import Data.Kind (Type)
 
-data Var (a :: *) = Var
+data Var (a :: Type) = Var
   { varStore :: S.Store (Var a) }
 
 instance S.IsKey () (Var a) where

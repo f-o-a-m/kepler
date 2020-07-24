@@ -8,6 +8,7 @@ module Tendermint.Utils.TxClient.Class
   , defaultClientTxOpts
   ) where
 
+import Data.Kind (Type)
 import           Control.Monad.IO.Class             (liftIO)
 import           Control.Monad.Reader               (ReaderT, ask)
 import qualified Data.ByteArray.Base64String        as Base64
@@ -56,7 +57,7 @@ defaultClientTxOpts = ClientTxOpts "" 0
 
 class HasTxClient m layoutC layoutD where
 
-    type ClientT (m :: * -> *) layoutC layoutD :: *
+    type ClientT (m :: Type -> Type) layoutC layoutD :: Type
     genClientT :: Proxy m -> Proxy layoutC -> Proxy layoutD -> ClientTxOpts -> ClientT m layoutC layoutD
 
 instance (HasTxClient m a c, HasTxClient m b d) => HasTxClient m (a :<|> b) (c :<|> d) where

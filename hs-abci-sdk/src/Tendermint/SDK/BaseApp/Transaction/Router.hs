@@ -28,11 +28,11 @@ import           Tendermint.SDK.Types.Effects                   ((:&))
 import           Tendermint.SDK.Types.Message                   (HasMessageType (..),
                                                                  Msg (..))
 import           Tendermint.SDK.Types.TxResult                  (TxResult)
-
+import Data.Kind (Type)
 --------------------------------------------------------------------------------
 
 class HasTxRouter layout (r :: EffectRow) (scope :: Scope) where
-  type RouteTx layout (s :: EffectRow) :: *
+  type RouteTx layout (s :: EffectRow) :: Type
   routeTx
         :: Proxy layout
         -> Proxy r

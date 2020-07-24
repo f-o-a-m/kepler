@@ -48,6 +48,7 @@ extra-deps:
     subdirs:
       - http2-client-grpc
       - http2-grpc-types
+      - http2-grpc-proto-lens/
 
 explicit-setup-deps:
   hs-abci-server: true

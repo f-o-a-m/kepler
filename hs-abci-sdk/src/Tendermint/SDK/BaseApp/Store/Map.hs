@@ -17,8 +17,9 @@ import           Prelude                               hiding (lookup)
 import           Tendermint.SDK.BaseApp.Errors         (AppError)
 import qualified Tendermint.SDK.BaseApp.Store.RawStore as S
 import           Tendermint.SDK.Codec                  (HasCodec (..))
+import Data.Kind (Type)
 
-data Map (k :: *) (v :: *) = Map
+data Map (k :: Type) (v :: Type) = Map
   { mapStore :: S.Store (Map k v)
   }
 

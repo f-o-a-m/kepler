@@ -30,8 +30,9 @@ import           Tendermint.SDK.BaseApp.Errors         (AppError,
 import qualified Tendermint.SDK.BaseApp.Store.Map      as M
 import qualified Tendermint.SDK.BaseApp.Store.RawStore as S
 import           Tendermint.SDK.Codec                  (HasCodec (..))
+import Data.Kind (Type)
 
-data List (a :: *) = List
+data List (a :: Type) = List
   { listStore :: S.Store (List a)
   }
 

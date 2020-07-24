@@ -35,7 +35,7 @@ type family DependencyEffs (ms :: [Component]) :: EffectRow where
   DependencyEffs (Module _ _ _ _ es deps ': rest) = es :& DependencyEffs rest
   DependencyEffs _ = TypeError ('Text "DependencyEffs is a partial function defined only on partially applied Modules")
 
-data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow) = Module
+data Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow) = Module
   { moduleTxChecker :: T.RouteTx check r
   , moduleTxDeliverer :: T.RouteTx deliver r
   , moduleQuerier :: Q.RouteQ query r
@@ -61,9 +61,9 @@ data Application check deliver query r s = Application
   }
 
 class ToApplication ms r where
-  type ApplicationC ms :: *
-  type ApplicationD ms :: *
-  type ApplicationQ ms :: *
+  type ApplicationC ms :: Type
+  type ApplicationD ms :: Type
+  type ApplicationQ ms :: Type
 
   toApplication :: ModuleList ms r -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) r r
 

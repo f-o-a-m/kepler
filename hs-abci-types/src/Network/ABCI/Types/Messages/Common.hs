@@ -3,13 +3,13 @@ module Network.ABCI.Types.Messages.Common
   , makeABCILenses
   ) where
 
-import           Control.Lens               ((&), (.~))
-import           Control.Lens.TH            (DefName (TopName), lensField,
-                                             lensRules, makeLensesWith)
-import           Data.Aeson                 (Options)
-import           Data.Aeson.Casing          (aesonDrop, snakeCase)
+import           Control.Lens        ((&), (.~))
+import           Control.Lens.TH     (DefName (TopName), lensField, lensRules,
+                                      makeLensesWith)
+import           Data.Aeson          (Options)
+import           Data.Aeson.Casing   (aesonDrop, snakeCase)
 import           Language.Haskell.TH
-import           Language.Haskell.TH.Syntax (Name, nameBase)
+--import           Language.Haskell.TH.Syntax (Name, nameBase)
 
 
 defaultABCIOptions :: String -> Options

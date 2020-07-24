@@ -1,27 +1,25 @@
 module Network.ABCI.Test.Types.MessagesSpec (spec) where
 
-import           Control.Lens                                    (Iso', from,
-                                                                  set, to,
-                                                                  traverse,
-                                                                  (%~), (&),
-                                                                  (^.), _Just)
-import           Control.Lens.Wrapped                            (Wrapped (..),
-                                                                  _Unwrapped')
-import           Data.ProtoLens.Arbitrary                        (ArbitraryMessage (..))
-import           Data.ProtoLens.Field                            (HasField)
-import           Data.ProtoLens.Message                          (Message (..))
-import           Data.Proxy                                      (Proxy (..))
-import           Network.ABCI.Test.Types.Messages.Instances      ()
-import qualified Network.ABCI.Types.Messages.FieldTypes          as FT
-import qualified Network.ABCI.Types.Messages.Request             as Request
-import qualified Network.ABCI.Types.Messages.Response            as Response
-import qualified Proto.Types                                     as PT
-import qualified Proto.Types_Fields                              as PT
-import qualified Proto.Vendored.Google.Protobuf.Timestamp        as T
-import qualified Proto.Vendored.Google.Protobuf.Timestamp_Fields as T
+import           Control.Lens                               (Iso', from, set,
+                                                             to, (%~), (&),
+                                                             (^.), _Just)
+import           Control.Lens.Wrapped                       (Wrapped (..),
+                                                             _Unwrapped')
+import           Data.ProtoLens.Arbitrary                   (ArbitraryMessage (..))
+import           Data.ProtoLens.Field                       (HasField)
+import           Data.ProtoLens.Message                     (Message (..))
+import           Data.Proxy                                 (Proxy (..))
+import           Network.ABCI.Test.Types.Messages.Instances ()
+import qualified Network.ABCI.Types.Messages.FieldTypes     as FT
+import qualified Network.ABCI.Types.Messages.Request        as Request
+import qualified Network.ABCI.Types.Messages.Response       as Response
+import qualified Proto.Google.Protobuf.Timestamp            as T
+import qualified Proto.Google.Protobuf.Timestamp_Fields     as T
+import qualified Proto.Types                                as PT
+import qualified Proto.Types_Fields                         as PT
 import           Test.Hspec
-import           Test.QuickCheck                                 (Arbitrary,
-                                                                  property)
+import           Test.QuickCheck                            (Arbitrary,
+                                                             property)
 
 --------------------------------------------------------------------------------
 -- Helpers to check instances

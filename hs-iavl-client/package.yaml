@@ -48,6 +48,7 @@ library:
   dependencies:
     - base >= 4.7 && < 5
     - http2-client
+    - http2-grpc-proto-lens
     - http2-client-grpc
     - proto-lens
     - proto-lens-runtime

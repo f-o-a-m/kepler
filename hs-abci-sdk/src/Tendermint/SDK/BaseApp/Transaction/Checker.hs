@@ -14,6 +14,7 @@ import           Tendermint.SDK.BaseApp.Errors            (AppError,
                                                            throwSDKError)
 import           Tendermint.SDK.BaseApp.Transaction.Types
 import           Tendermint.SDK.Types.Message             (ValidateMessage (..), formatMessageSemanticError)
+import Data.Kind (Type)
 
 defaultCheckTxHandler
   :: Member (Error AppError) r
@@ -26,13 +27,13 @@ defaultCheckTxHandler(RoutingTx Tx{txMsg}) =
       throwSDKError . MessageValidation . map formatMessageSemanticError $ err
     V.Success _ -> pure ()
 
-type family VoidReturn (api :: *) :: * where
+type family VoidReturn (api :: Type) :: Type where
   VoidReturn (a :<|> b) = VoidReturn a :<|> VoidReturn b
   VoidReturn (path :> a) = path :> VoidReturn a
   VoidReturn (TypedMessage msg :~> Return a) = TypedMessage msg :~> Return ()
 
 class DefaultCheckTx api (r :: EffectRow) where
-    type DefaultCheckTxT api r :: *
+    type DefaultCheckTxT api r :: Type
     defaultCheckTx :: Proxy api -> Proxy r -> DefaultCheckTxT api r
 
 instance (DefaultCheckTx a r, DefaultCheckTx b r) => DefaultCheckTx (a :<|> b) r where

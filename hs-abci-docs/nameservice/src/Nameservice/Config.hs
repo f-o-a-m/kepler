@@ -16,8 +16,6 @@ import           Data.IORef                                (IORef, newIORef)
 import           Data.Maybe                                (fromMaybe)
 import           Data.String.Conversions                   (cs)
 import qualified Katip                                     as K
-import qualified Katip.Scribes.ElasticSearch               as ES
-import qualified Network.HTTP.Client                       as Client
 import           System.Environment
 import           System.IO                                 (stdout)
 import qualified Tendermint.SDK.BaseApp                    as BaseApp
@@ -25,7 +23,6 @@ import           Tendermint.SDK.BaseApp.Logger.Katip       as KL
 import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus as P
 import           Tendermint.SDK.BaseApp.Store.IAVLStore    (GrpcConfig (..),
                                                             initIAVLVersions)
-import           Text.Read                                 (read)
 
 
 data AppConfig = AppConfig
@@ -86,7 +83,9 @@ makeLogLevel = do
       | otherwise = Nothing
 
 
-data KatipConfig = ES {host :: String, port :: String} | Console
+data KatipConfig =
+    ES String String  -- host, port
+  | Console
 
 makeLoggingConfig :: IO KatipConfig
 makeLoggingConfig = do
@@ -104,4 +103,4 @@ makeKatipScribe kcfg LogLevel{..} le = case kcfg of
   Console -> do
     handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem severity) verbosity
     K.registerScribe "stdout" handleScribe K.defaultScribeSettings le
-  ES _ -> error "ES Logging is not available due to dependency issues with Bloodhound ES client"
+  ES _ _ -> error "ES Logging is not available due to dependency issues with Bloodhound ES client"
