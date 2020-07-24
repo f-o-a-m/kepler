@@ -15,6 +15,7 @@ module Tendermint.SDK.BaseApp.Store.Array
 import           Control.Lens                          (iso, (^.))
 import qualified Data.ByteArray.HexString              as Hex
 import qualified Data.ByteString                       as BS
+import           Data.Kind                             (Type)
 import           Data.Maybe                            (fromMaybe)
 import           Data.String.Conversions               (cs)
 import           Data.Word                             (Word64)
@@ -28,7 +29,6 @@ import           Tendermint.SDK.BaseApp.Errors         (AppError,
                                                         throwSDKError)
 import           Tendermint.SDK.BaseApp.Store.RawStore as S
 import           Tendermint.SDK.Codec                  (HasCodec (..))
-import Data.Kind (Type)
 
 
 

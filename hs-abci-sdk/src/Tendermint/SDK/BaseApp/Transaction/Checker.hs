@@ -3,6 +3,7 @@ module Tendermint.SDK.BaseApp.Transaction.Checker
   , VoidReturn
   ) where
 
+import           Data.Kind                                (Type)
 import           Data.Proxy
 import qualified Data.Validation                          as V
 import           Polysemy                                 (EffectRow, Member,
@@ -14,7 +15,6 @@ import           Tendermint.SDK.BaseApp.Errors            (AppError,
                                                            throwSDKError)
 import           Tendermint.SDK.BaseApp.Transaction.Types
 import           Tendermint.SDK.Types.Message             (ValidateMessage (..), formatMessageSemanticError)
-import Data.Kind (Type)
 
 defaultCheckTxHandler
   :: Member (Error AppError) r

@@ -9,6 +9,7 @@ module Tendermint.SDK.BaseApp.Store.Var
   ) where
 
 import           Control.Lens                          ((^.))
+import           Data.Kind                             (Type)
 import           Polysemy                              (Member, Members, Sem)
 import           Polysemy.Error                        (Error)
 import           Tendermint.SDK.BaseApp.Errors         (AppError,
@@ -16,7 +17,6 @@ import           Tendermint.SDK.BaseApp.Errors         (AppError,
                                                         throwSDKError)
 import qualified Tendermint.SDK.BaseApp.Store.RawStore as S
 import           Tendermint.SDK.Codec                  (HasCodec (..))
-import Data.Kind (Type)
 
 data Var (a :: Type) = Var
   { varStore :: S.Store (Var a) }

@@ -6,6 +6,7 @@ import           Control.Monad.Reader                   (ReaderT)
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteArray.HexString               as Hex
 import           Data.ByteString                        (ByteString)
+import           Data.Kind                              (Type)
 import           Data.Proxy
 import           Data.String.Conversions                (cs)
 import           Data.Text                              (Text, intercalate)
@@ -28,7 +29,6 @@ import qualified Tendermint.SDK.BaseApp.Store.Map       as M
 import qualified Tendermint.SDK.BaseApp.Store.Var       as V
 import           Tendermint.SDK.Codec                   (HasCodec (decode))
 import           Tendermint.Utils.QueryClient.Types
-import Data.Kind (Type)
 
 class Monad m => RunQueryClient m where
     -- | How to make a request.

@@ -16,11 +16,11 @@ module Tendermint.SDK.BaseApp.Query.Types
 
   ) where
 
-import Data.Kind (Type)
 import           Control.Lens                           (from, lens, to, (^.))
 import           Data.ByteArray.Base64String            (Base64String,
                                                          fromBytes, toBytes)
 import           Data.Int                               (Int64)
+import           Data.Kind                              (Type)
 import           Data.Text                              (Text, breakOn, uncons)
 import           Data.Word                              (Word64)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof, WrappedVal (..))

@@ -90,7 +90,7 @@ data KatipConfig =
 makeLoggingConfig :: IO KatipConfig
 makeLoggingConfig = do
   mEsConfig <- runMaybeT $
-    ES <$> (MaybeT $ lookupEnv "ES_HOST") <*> (MaybeT $ lookupEnv "ES_PORT")
+    ES <$> MaybeT (lookupEnv "ES_HOST") <*> MaybeT (lookupEnv "ES_PORT")
   pure $ fromMaybe Console mEsConfig
 
 -- makes a log environment for console logs / ES logs

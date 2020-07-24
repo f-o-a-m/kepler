@@ -8,10 +8,10 @@ module Tendermint.Utils.TxClient.Class
   , defaultClientTxOpts
   ) where
 
-import Data.Kind (Type)
 import           Control.Monad.IO.Class             (liftIO)
 import           Control.Monad.Reader               (ReaderT, ask)
 import qualified Data.ByteArray.Base64String        as Base64
+import           Data.Kind                          (Type)
 import           Data.Proxy
 import           Data.String.Conversions            (cs)
 import           Data.Text                          (Text)
