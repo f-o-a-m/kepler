@@ -49,7 +49,6 @@ library:
     - hs-abci-server
     - hs-abci-sdk
     - hs-abci-types
-    - http-client
     - katip
     - lens
     - polysemy
