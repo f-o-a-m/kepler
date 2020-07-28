@@ -101,7 +101,7 @@ mkIsKeyInstance
   -> Q Dec
 mkIsKeyInstance namespaceName keyTypeName t =
   instanceD (pure []) (conT ''IsKey `appT` conT keyTypeName `appT` conT namespaceName)
-    [tySynInstD ''Value $ tySynEqn [conT keyTypeName, conT namespaceName] t]
+    [tySynInstD $ tySynEqn Nothing (conT ''Value `appT` conT keyTypeName `appT` conT namespaceName) t]
 
 
 

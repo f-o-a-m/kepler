@@ -3,7 +3,7 @@ module SimpleStorage.Modules.SimpleStorage.Message
   )where
 
 import           Control.Lens                        (from, iso, view, (&),
-                                                      (.~), (^.), _Wrapped')
+                                                      (.~), (^.))
 import           Control.Lens.Wrapped                (Wrapped (..))
 import           Data.Bifunctor                      (bimap)
 import           Data.Int                            (Int32)

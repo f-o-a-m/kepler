@@ -1,65 +1,49 @@
 module Network.ABCI.Types.Messages.FieldTypes where
 
-import           Control.Lens
-                                                                                   (iso,
-                                                                                   traverse,
-                                                                                   (&),
-                                                                                   (.~),
-                                                                                   (^.),
-                                                                                   (^..),
-                                                                                   (^?),
-                                                                                   _Just)
-import           Control.Lens.Wrapped
-                                                                                   (Wrapped (..),
-                                                                                   _Unwrapped')
-import           Data.Aeson
-                                                                                   (FromJSON (..),
-                                                                                   ToJSON (..),
-                                                                                   Value (..),
-                                                                                   genericParseJSON,
-                                                                                   genericToJSON,
-                                                                                   withObject,
-                                                                                   (.!=),
-                                                                                   (.:),
-                                                                                   (.:?))
-import           Data.ByteArray.Base64String
-                                                                                   (Base64String)
-import qualified Data.ByteArray.Base64String                                      as Base64
-import           Data.ByteArray.HexString
-                                                                                   (HexString)
-import qualified Data.ByteArray.HexString                                         as Hex
-import           Data.Int
-                                                                                   (Int32,
-                                                                                   Int64)
-import           Data.ProtoLens.Message
-                                                                                   (Message (defMessage))
-import           Data.Text
-                                                                                   (Text,
-                                                                                   pack,
-                                                                                   unpack)
-import           Data.Time.Clock
-                                                                                   (DiffTime,
-                                                                                   diffTimeToPicoseconds,
-                                                                                   picosecondsToDiffTime)
-import           Data.Time.Format
-                                                                                   (defaultTimeLocale,
-                                                                                   parseTimeOrError)
-import           Data.Time.Orphans
-                                                                                   ()
-import           Data.Word
-                                                                                   (Word64)
-import           GHC.Generics
-                                                                                   (Generic)
-import           Network.ABCI.Types.Messages.Common
-                                                                                   (defaultABCIOptions)
-import qualified Proto.Types                                                      as PT
-import qualified Proto.Types_Fields                                               as PT
-import qualified Proto.Vendored.Google.Protobuf.Timestamp                         as T
-import qualified Proto.Vendored.Google.Protobuf.Timestamp_Fields                  as T
-import qualified Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle        as MT
-import qualified Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields as MT
-import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types           as CT
-import qualified Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields    as CT
+import           Control.Lens                                            (iso,
+                                                                          (&),
+                                                                          (.~),
+                                                                          (^.),
+                                                                          (^..),
+                                                                          (^?),
+                                                                          _Just)
+import           Control.Lens.Wrapped                                    (Wrapped (..),
+                                                                          _Unwrapped')
+import           Data.Aeson                                              (FromJSON (..),
+                                                                          ToJSON (..),
+                                                                          Value (..),
+                                                                          genericParseJSON,
+                                                                          genericToJSON,
+                                                                          withObject,
+                                                                          (.!=),
+                                                                          (.:),
+                                                                          (.:?))
+import           Data.ByteArray.Base64String                             (Base64String)
+import qualified Data.ByteArray.Base64String                             as Base64
+import           Data.ByteArray.HexString                                (HexString)
+import qualified Data.ByteArray.HexString                                as Hex
+import           Data.Int                                                (Int32,
+                                                                          Int64)
+import           Data.ProtoLens.Message                                  (Message (defMessage))
+import           Data.Text                                               (Text,
+                                                                          pack,
+                                                                          unpack)
+import           Data.Time.Clock                                         (DiffTime,
+                                                                          diffTimeToPicoseconds,
+                                                                          picosecondsToDiffTime)
+import           Data.Time.Format                                        (defaultTimeLocale,
+                                                                          parseTimeOrError)
+import           Data.Word                                               (Word64)
+import           GHC.Generics                                            (Generic)
+import           Network.ABCI.Types.Messages.Common                      (defaultABCIOptions)
+import qualified Proto.Google.Protobuf.Timestamp                         as T
+import qualified Proto.Google.Protobuf.Timestamp_Fields                  as T
+import qualified Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle        as MT
+import qualified Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields as MT
+import qualified Proto.Tendermint.Tendermint.Libs.Common.Types           as CT
+import qualified Proto.Tendermint.Tendermint.Libs.Common.Types_Fields    as CT
+import qualified Proto.Types                                             as PT
+import qualified Proto.Types_Fields                                      as PT
 
 newtype WrappedVal a = WrappedVal { unWrappedVal :: a } deriving (Eq, Show, Generic)
 

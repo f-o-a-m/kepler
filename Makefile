@@ -44,6 +44,7 @@ stylish: ## Run stylish-haskell over all haskell projects
 	./hs-abci-test-utils \
 	./hs-abci-server \
 	./hs-iavl-client \
+	-not -path "*/.stack-work/*" \
 	-name "*.hs" | xargs stack exec stylish-haskell -- -c ./.stylish_haskell.yaml -i
 
 ###################

@@ -15,6 +15,7 @@ import           Data.ByteArray                         (convert)
 import qualified Data.ByteArray.Base64String            as Base64
 import qualified Data.ByteString                        as B
 import qualified Data.ByteString.Short                  as Short
+import           Data.Kind                              (Type)
 import           Data.Maybe                             (fromMaybe)
 import           Data.Proxy
 import           Data.Text                              (Text)
@@ -28,10 +29,10 @@ class MakeDigest a where
 
 -- | Defines the types and methods for the signature schema parameterized by 'alg'.
 class SignatureSchema alg where
-    type PubKey alg :: *
-    type PrivateKey alg :: *
-    type Signature alg :: *
-    type Message alg :: *
+    type PubKey alg :: Type
+    type PrivateKey alg :: Type
+    type Signature alg :: Type
+    type Message alg :: Type
 
     algorithm :: Proxy alg -> Text
     sign :: Proxy alg -> PrivateKey alg -> Message alg -> Signature alg
@@ -44,7 +45,7 @@ class SignatureSchema alg where
 
 -- | Class allowing for signing and recovering signatures for messages.
 class SignatureSchema alg => RecoverableSignatureSchema alg where
-    type RecoverableSignature alg :: *
+    type RecoverableSignature alg :: Type
 
     signRecoverableMessage :: Proxy alg -> PrivateKey alg -> Message alg -> RecoverableSignature alg
     recover :: Proxy alg -> RecoverableSignature alg -> Message alg -> Maybe (PubKey alg)

@@ -70,7 +70,6 @@ library:
     - mtl
     - polysemy
     - polysemy-plugin
-    - polysemy-zoo
     - prometheus
     - proto-lens
     - proto-lens-runtime
@@ -194,7 +193,6 @@ tests:
       - memory
       - polysemy
       - polysemy-plugin
-      - polysemy-zoo
       - prometheus
       - secp256k1-haskell
       - servant

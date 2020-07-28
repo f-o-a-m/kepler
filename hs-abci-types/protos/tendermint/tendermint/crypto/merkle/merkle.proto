@@ -3,7 +3,7 @@ package merkle;
 
 // For more information on gogo.proto, see:
 // https://github.com/gogo/protobuf/blob/master/extensions.md
-import "vendored/gogo/protobuf/gogoproto/gogo.proto";
+import "gogo/protobuf/gogoproto/gogo.proto";
 
 option (gogoproto.marshaler_all) = true;
 option (gogoproto.unmarshaler_all) = true;

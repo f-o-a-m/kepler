@@ -9,8 +9,6 @@ import           Data.ByteArray          (ByteArray, ByteArrayAccess, convert)
 import           Data.ByteArray.Encoding (Base (Base64), convertFromBase,
                                           convertToBase)
 import           Data.ByteString         (ByteString)
-import           Data.Monoid             (Monoid)
-import           Data.Semigroup          (Semigroup)
 import           Data.String             (IsString (..))
 import           Data.Text               (Text)
 import           Data.Text.Encoding      (decodeUtf8, encodeUtf8)

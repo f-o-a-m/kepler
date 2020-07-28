@@ -41,7 +41,7 @@ jobs:
     if: branch = master
     script:
     - echo "test formatting"
-    - travis_wait 120 stack --skip-ghc-check install hlint-2.1.26 stylish-haskell-0.9.4.3 weeder-1.0.8
+    - travis_wait 120 stack --skip-ghc-check install hlint-2.2.11 stylish-haskell-0.10.0.0 weeder-1.0.8
     - make stylish && git diff-index --quiet HEAD
     - make hlint
     - make weeder
