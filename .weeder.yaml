@@ -15,25 +15,28 @@
       - module:
         - Proto.Types
         - Proto.Types_Fields
-        - Proto.Vendored.Google.Protobuf.Timestamp
-        - Proto.Vendored.Google.Protobuf.Timestamp_Fields
-        - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle
-        - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
-        - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types
-        - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields
+        - Proto.Google.Protobuf.Timestamp
+        - Proto.Google.Protobuf.Timestamp_Fields
+        - Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle
+        - Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
+        - Proto.Tendermint.Tendermint.Libs.Common.Types
+        - Proto.Tendermint.Tendermint.Libs.Common.Types_Fields
     - message:
       - name: Module not compiled
       - module:
         - Proto.Types
         - Proto.Types_Fields
-        - Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo
-        - Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo_Fields
-        - Proto.Vendored.Google.Protobuf.Timestamp
-        - Proto.Vendored.Google.Protobuf.Timestamp_Fields
-        - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle
-        - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
-        - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types
-        - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields
+        - Proto.Gogo.Protobuf.Gogoproto.Gogo
+        - Proto.Gogo.Protobuf.Gogoproto.Gogo_Fields
+        - Proto.Google.Protobuf.Timestamp
+        - Proto.Google.Protobuf.Timestamp_Fields
+        - Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle
+        - Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
+        - Proto.Tendermint.Tendermint.Libs.Common.Types
+        - Proto.Tendermint.Tendermint.Libs.Common.Types_Fields
+        - Proto.Google.Protobuf.Descriptor
+        - Proto.Google.Protobuf.Descriptor_Fields
+
     - message:
       - name: Redundant build-depends entry
       - depends: proto-lens-runtime
@@ -61,10 +64,15 @@
       - name: Module not compiled
       - module:
         - Proto.Google.Api.Annotations
+        - Proto.Google.Api.Annotations_Fields
         - Proto.Google.Api.Http
+        - Proto.Google.Api.Http_Fields
         - Proto.Google.Protobuf.Empty
+        - Proto.Google.Protobuf.Empty_Fields
         - Proto.Iavl.Api
         - Proto.Iavl.Api_Fields
+        - Proto.Google.Protobuf.Descriptor
+        - Proto.Google.Protobuf.Descriptor_Fields
     - message:
       - name: Redundant build-depends entry
       - depends: proto-lens-runtime
