@@ -65,20 +65,19 @@ library:
   - Network.ABCI.Types.Messages.Request
   - Network.ABCI.Types.Messages.Response
   - Network.ABCI.Types.Messages.FieldTypes
-  other-modules:
-  - Data.Time.Calendar.Private
-  - Data.Time.Orphans
   generated-exposed-modules:
   - Proto.Types
   - Proto.Types_Fields
-  - Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo
-  - Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo_Fields
-  - Proto.Vendored.Google.Protobuf.Timestamp
-  - Proto.Vendored.Google.Protobuf.Timestamp_Fields
-  - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle
-  - Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
-  - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types
-  - Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields
+  - Proto.Gogo.Protobuf.Gogoproto.Gogo
+  - Proto.Gogo.Protobuf.Gogoproto.Gogo_Fields
+  - Proto.Google.Protobuf.Descriptor
+  - Proto.Google.Protobuf.Descriptor_Fields
+  - Proto.Google.Protobuf.Timestamp
+  - Proto.Google.Protobuf.Timestamp_Fields
+  - Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle
+  - Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
+  - Proto.Tendermint.Tendermint.Libs.Common.Types
+  - Proto.Tendermint.Tendermint.Libs.Common.Types_Fields
 
 tests:
   hs-abci-types-test:

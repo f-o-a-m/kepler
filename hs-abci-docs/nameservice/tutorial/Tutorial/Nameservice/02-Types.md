@@ -27,7 +27,7 @@ balance :: Tendermint.SDK.Types.Address -> Integer
 
 This means that in the scope of the `Bank` module, the database utlity `get` function applied to a value of type `Address` will result in a value of type `Integer`. If the `Bank` module would like to store another mapping whose keys have type `Tendermint.SDK.Types.Address`, you must use a newtype instead. Otherwise you will get a compiler error.
 
-At the same time, you are free to define another mapping from `k -> v'` in the scope of a different module. For example, you can have both the `balance` mapping described above, as well a mapping
+At the same time, you are free to define another mapping from `k -> v` in the scope of a different module. For example, you can have both the `balance` mapping described above, as well as a mapping
 
 ~~~ haskell ignore
 owner :: Tendermint.SDK.Types.Address -> Account
@@ -124,7 +124,7 @@ instance HasCodec Whois where
     in bimap (cs . show) toWhois . fromByteString @WhoisMessage
 ~~~
 
-Finally we can register `(Name, Whois)` with the module's store with the `IsKey` class, which tells how to associate a key type with a value type within the scope of given module, where the scope is represented by the modules name as a type level string. There is an optional prefixing function for the key in this context in order to avoid collisions in the database. This would be useful for example if you were using multiple newtyped `Address` types as keys in the same module.
+Finally we can register `(Name, Whois)` with the module's store with the `IsKey` class, which tells how to associate a key type with a value type within the scope of a given module, where the scope is represented by the modules name as a type level string. There is an optional prefixing function for the key in this context in order to avoid collisions in the database. This would be useful for example if you were using multiple newtyped `Address` types as keys in the same module.
 
 ~~~ haskell ignore
 class RawKey k => IsKey k ns where
@@ -135,7 +135,7 @@ class RawKey k => IsKey k ns where
   prefixWith _ _ = ""
 ~~~
 
-For the case of the `Name -> Whois` mapping, the `IsKey` instance looked like looks like this:
+For the case of the `Name -> Whois` mapping, the `IsKey` instance looks like this:
 
 ~~~ haskell
 data NameserviceNamespace
@@ -144,11 +144,11 @@ instance BA.IsKey Name NameserviceNamespace where
   type Value Name NameserviceNamespace = Whois
 ~~~
 
-At is point, you can use the database operations exported by `Tendermint.SDK.BaseApp.Store` such as `put`/`set`/`delete` for key value pairs of type `(Name, Whois)`.
+At this point, you can use the database operations exported by `Tendermint.SDK.BaseApp.Store` such as `put`/`set`/`delete` for key value pairs of type `(Name, Whois)`.
 
 ### Query Types
 
-The [`cosmos-sdk`](https://github.com/cosmos/cosmos-sdk) assumes that you use `url` formatted queries with some possible query params. For example, to query a `Whois` value based on a `Name`, you might submit a `query` message with the route `nameservice/whois` and supply a value of type `Name` to specify as the `data` field. Our SDK makes the same assumption for compatability reasons.
+The [`cosmos-sdk`](https://github.com/cosmos/cosmos-sdk) assumes that you use `url` formatted queries with some possible query params. For example, to query a `Whois` value based on a `Name`, you might submit a `query` message with the route `nameservice/whois` and supply a value of type `Name` to specify as the `data` field. Our SDK makes the same assumption for compatibility reasons.
 
 ### Error Types
 

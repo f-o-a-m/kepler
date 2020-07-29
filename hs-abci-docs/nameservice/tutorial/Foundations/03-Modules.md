@@ -43,10 +43,10 @@ Let's take a look at the type parameters
 
 Below that line we see the fields for the `Module` data type, where
 
-  - `moduleTxDeliverer` specifies how the module processes transactions in order to update the application state during `deliverTx` messages. 
+  - `moduleTxDeliverer` specifies how the module processes transactions in order to update the application state during `deliverTx` messages.
   - `moduleTxChecker` is used during `checkTx` messages to check if a transaction in the mempool is a valid transaction.
   - `moduleQuerier` is responsible for handling queries for application state from the `query` message.
-  - `moduleEval` is the natural transformation that specifies how to interpet the `Module` in terms of `BaseApp`.
+  - `moduleEval` is the natural transformation that specifies how to interpret the `Module` in terms of `BaseApp`.
 
 If you have ever used the `servant` library for specifying rest apis, then the type families `T.RouteTx` and `Q.RouteQ` may look familiar to you, they play a similar role as `ServerT`.
 
@@ -59,8 +59,8 @@ Note that in the event that a `Module` is _abstract_, meaning it doesn't have an
 ~~~ haskell ignore
 data ModuleList (ms :: [Component]) r where
     NilModules :: Modules '[] r
-    (:+) :: Module name check deliver query es r 
-         -> Modules ms r 
+    (:+) :: Module name check deliver query es r
+         -> Modules ms r
          -> Modules (Module name check deliver query es ': ms) r
 ~~~
 

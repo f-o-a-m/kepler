@@ -70,7 +70,6 @@ library:
     - mtl
     - polysemy
     - polysemy-plugin
-    - polysemy-zoo
     - prometheus
     - proto-lens
     - proto-lens-runtime
@@ -80,6 +79,7 @@ library:
     - servant
     - string-conversions
     - text
+    - template-haskell
     - time
     - validation
   ghc-options:
@@ -122,6 +122,7 @@ library:
   - Tendermint.SDK.BaseApp.Store.Map
   - Tendermint.SDK.BaseApp.Store.MemoryStore
   - Tendermint.SDK.BaseApp.Store.RawStore
+  - Tendermint.SDK.BaseApp.Store.TH
   - Tendermint.SDK.BaseApp.Store.Var
   - Tendermint.SDK.BaseApp.Transaction
   - Tendermint.SDK.BaseApp.Transaction.AnteHandler
@@ -134,11 +135,6 @@ library:
   - Tendermint.SDK.Crypto
   - Tendermint.SDK.Modules.Auth
   - Tendermint.SDK.Modules.Bank
-  - Tendermint.SDK.Modules.Bank.Messages
-  - Tendermint.SDK.Modules.Bank.Types
-  - Tendermint.SDK.Modules.Bank.Keeper
-  - Tendermint.SDK.Modules.Bank.Query
-  - Tendermint.SDK.Modules.Bank.Router
   - Tendermint.SDK.Types.Address
   - Tendermint.SDK.Types.Effects
   - Tendermint.SDK.Types.Message
@@ -163,11 +159,13 @@ tests:
     - Tendermint.SDK.Test.GasSpec
     - Tendermint.SDK.Test.MetricsSpec
     - Tendermint.SDK.Test.SimpleStorage
+    - Tendermint.SDK.Test.SimpleStorageKeys
     - Tendermint.SDK.Test.ArraySpec
     - Tendermint.SDK.Test.ListSpec
     - Tendermint.SDK.Test.MapSpec
     - Tendermint.SDK.Test.VarSpec
     - Tendermint.SDK.Test.QuerySpec
+
 
     ghc-options:
     - -fplugin=Polysemy.Plugin
@@ -195,7 +193,6 @@ tests:
       - memory
       - polysemy
       - polysemy-plugin
-      - polysemy-zoo
       - prometheus
       - secp256k1-haskell
       - servant

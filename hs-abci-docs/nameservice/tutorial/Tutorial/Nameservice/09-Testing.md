@@ -70,7 +70,7 @@ getWhois' :: QueryArgs N.Name -> IO (QueryClientResponse N.Whois)
 getWhois' = RPC.runTendermintM rpcConfig . getWhois
 ~~~
 
-Similarly we can generate a client for sending transactions as well. This is slightly tricker because of the `nonce` problem, exlpained in the following chain of reasoning:
+Similarly we can generate a client for sending transactions as well. This is slightly tricker because of the `nonce` problem, explained in the following chain of reasoning:
 
 1. In order to submit a valid transaction, we need to provide the correct nonce value for the transaction author, which is an ever increasing sequence of natural numbers.
 2. In order to get the current nonce value for a transaction author, we need to query the accounts module for their current nonce value.
@@ -110,7 +110,7 @@ txClientConfig =
 ~~~
 
 
-Once we have defined our monad capable of querying nonces, we can then generate the transaction client using this monad as our context. 
+Once we have defined our monad capable of querying nonces, we can then generate the transaction client using this monad as our context.
 
 ~~~ haskell
 

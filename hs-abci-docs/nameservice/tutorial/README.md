@@ -24,7 +24,7 @@ This means that users can buy and sell entries in a shared mapping of type `Name
 
 The application consists of three modules:
 1. `Auth` - Manages accounts for users, things like nonces and token balances.
-2. `Token` - Allows users manage their tokens, things like transfering or burning.
+2. `Token` - Allows users to manage their tokens, things like transfering or burning.
 3. `Nameservice` - Controls the shared `Name -> Value` mapping described above.
 
 ## How to Read this Tutorial
@@ -48,7 +48,7 @@ This tutorial should teach you:
 
 The SDK makes heavy use of the effects system brought to haskell by the [polysemy](https://hackage.haskell.org/package/polysemy-1.2.3.0) library. We're not going to explain how this library works here, there are several existing tutorials that do this already. Suffice it to say that polysemy encourages the application developer to develop modules that have well defined roles and scopes, and to prohibit certain modules from interfering with the roles and scopes of other modules unless explicitly allowed by the type system.
 
-It is also allows the application developer to construct modules without much regard for how they will plug into the SDK, leaving that job to the SDK itself.
+It also allows the application developer to construct modules without much regard for how they will plug into the SDK, leaving that job to the SDK itself.
 
 <!--
 ~~~ haskell

@@ -2,9 +2,8 @@
 
 module Network.ABCI.Types.Messages.Request where
 
-import           Control.Lens                           (iso, traverse, (&),
-                                                         (.~), (^.), (^..),
-                                                         (^?), _Just)
+import           Control.Lens                           (iso, (&), (.~), (^.),
+                                                         (^..), (^?), _Just)
 import           Control.Lens.Wrapped                   (Wrapped (..),
                                                          _Unwrapped')
 import           Data.Aeson                             (FromJSON (..),

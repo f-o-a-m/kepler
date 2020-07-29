@@ -1,7 +1,7 @@
 # This creates the same image as the regular Dockerfile, but assumes that the binaries
 # were compiled into a .ci-bins/ folder in the same directory as this one. This is
 # substantially faster than building inside Docker, but only works on Linux systems.
-FROM haskell:8
+FROM haskell:8-stretch
 
 RUN apt-get update && apt-get install --assume-yes protobuf-compiler libsecp256k1-dev
 

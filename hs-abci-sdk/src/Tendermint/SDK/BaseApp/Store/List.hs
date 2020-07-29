@@ -18,6 +18,7 @@ import           Control.Lens                          (from, iso, to, view,
                                                         (^.))
 import           Control.Monad                         (when)
 import qualified Data.ByteArray.HexString              as Hex
+import           Data.Kind                             (Type)
 import           Data.String.Conversions               (cs)
 import           Data.Word                             (Word64)
 import           Polysemy                              (Members, Sem)
@@ -31,7 +32,7 @@ import qualified Tendermint.SDK.BaseApp.Store.Map      as M
 import qualified Tendermint.SDK.BaseApp.Store.RawStore as S
 import           Tendermint.SDK.Codec                  (HasCodec (..))
 
-data List (a :: *) = List
+data List (a :: Type) = List
   { listStore :: S.Store (List a)
   }
 

@@ -6,6 +6,7 @@ module Tendermint.SDK.BaseApp.Transaction.Router
 
 import           Control.Monad.IO.Class                         (liftIO)
 import           Data.ByteString                                (ByteString)
+import           Data.Kind                                      (Type)
 import           Data.Monoid
 import           Data.Proxy
 import           Data.String.Conversions                        (cs)
@@ -28,11 +29,10 @@ import           Tendermint.SDK.Types.Effects                   ((:&))
 import           Tendermint.SDK.Types.Message                   (HasMessageType (..),
                                                                  Msg (..))
 import           Tendermint.SDK.Types.TxResult                  (TxResult)
-
 --------------------------------------------------------------------------------
 
 class HasTxRouter layout (r :: EffectRow) (scope :: Scope) where
-  type RouteTx layout (s :: EffectRow) :: *
+  type RouteTx layout (s :: EffectRow) :: Type
   routeTx
         :: Proxy layout
         -> Proxy r

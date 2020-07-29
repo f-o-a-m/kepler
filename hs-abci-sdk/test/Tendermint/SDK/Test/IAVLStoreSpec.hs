@@ -52,7 +52,7 @@ spec' :: Members [Error AppError, Embed IO, Resource] r => Members StoreEffs r =
 spec' (Proxy :: Proxy r) = do
 
     it "can fail to query an empty AuthTreeStore" $ \(driver :: Driver r) -> do
-      Right mv <- runDriver driver $ tag @'QueryAndMempool $
+      Right mv <- runDriver driver $ tag @'QueryAndMempool @ReadStore $
         get store IntStoreKey
       mv `shouldBe` Nothing
 

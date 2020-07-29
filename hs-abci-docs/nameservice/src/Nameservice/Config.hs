@@ -15,10 +15,7 @@ import           Control.Lens                              (makeLenses, (&),
 import           Data.IORef                                (IORef, newIORef)
 import           Data.Maybe                                (fromMaybe)
 import           Data.String.Conversions                   (cs)
-import qualified Database.V5.Bloodhound                    as BH
 import qualified Katip                                     as K
-import qualified Katip.Scribes.ElasticSearch               as ES
-import qualified Network.HTTP.Client                       as Client
 import           System.Environment
 import           System.IO                                 (stdout)
 import qualified Tendermint.SDK.BaseApp                    as BaseApp
@@ -26,7 +23,6 @@ import           Tendermint.SDK.BaseApp.Logger.Katip       as KL
 import qualified Tendermint.SDK.BaseApp.Metrics.Prometheus as P
 import           Tendermint.SDK.BaseApp.Store.IAVLStore    (GrpcConfig (..),
                                                             initIAVLVersions)
-import           Text.Read                                 (read)
 
 
 data AppConfig = AppConfig
@@ -87,12 +83,14 @@ makeLogLevel = do
       | otherwise = Nothing
 
 
-data KatipConfig = ES {host :: String, port :: String} | Console
+data KatipConfig =
+    ES String String  -- host, port
+  | Console
 
 makeLoggingConfig :: IO KatipConfig
 makeLoggingConfig = do
   mEsConfig <- runMaybeT $
-    ES <$> (MaybeT $ lookupEnv "ES_HOST") <*> (MaybeT $ lookupEnv "ES_PORT")
+    ES <$> MaybeT (lookupEnv "ES_HOST") <*> MaybeT (lookupEnv "ES_PORT")
   pure $ fromMaybe Console mEsConfig
 
 -- makes a log environment for console logs / ES logs
@@ -105,10 +103,4 @@ makeKatipScribe kcfg LogLevel{..} le = case kcfg of
   Console -> do
     handleScribe <- K.mkHandleScribe K.ColorIfTerminal stdout (K.permitItem severity) verbosity
     K.registerScribe "stdout" handleScribe K.defaultScribeSettings le
-  ES {host, port} -> do
-    mgr <- Client.newManager Client.defaultManagerSettings
-    let serverAddress = "http://" <> host <> ":" <> port
-        bloodhoundEnv = BH.mkBHEnv (BH.Server $ cs serverAddress) mgr
-    esScribe <- ES.mkEsScribe ES.defaultEsScribeCfgV5 bloodhoundEnv (BH.IndexName "nameservice")
-      (BH.MappingName "application-logs") (K.permitItem severity) verbosity
-    K.registerScribe "es" esScribe K.defaultScribeSettings le
+  ES _ _ -> error "ES Logging is not available due to dependency issues with Bloodhound ES client"
