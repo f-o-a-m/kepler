@@ -1,6 +1,6 @@
 name:                hs-abci-types
 version:             0.1.0.0
-github:              "f-o-a-m/kepler//hs-abci-types"
+github:              "f-o-a-m/kepler/hs-abci-types"
 license:             Apache
 author:              "Martin Allen"
 maintainer:          "martin@foam.space"
