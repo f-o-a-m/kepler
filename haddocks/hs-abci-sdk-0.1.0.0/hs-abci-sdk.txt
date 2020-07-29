@@ -189,13 +189,13 @@ module Tendermint.SDK.BaseApp.Logger
 data Logger m a
 [Log] :: Severity -> Text -> Logger m ()
 [AddContext] :: (Select x, ToJSON x) => x -> m a -> Logger m a
-log :: forall r_aCqy. MemberWithError Logger r_aCqy => Severity -> Text -> Sem r_aCqy ()
+log :: forall r_aEAs. MemberWithError Logger r_aEAs => Severity -> Text -> Sem r_aEAs ()
 
 -- | Class for selecting object keys for contextual logging
 class Select a
 select :: Select a => Verbosity -> a -> LogSelect
 select :: Select a => Verbosity -> a -> LogSelect
-addContext :: forall r_aCqB x_XB4x a_aB4y. (MemberWithError Logger r_aCqB, Select x_XB4x, ToJSON x_XB4x) => x_XB4x -> Sem r_aCqB a_aB4y -> Sem r_aCqB a_aB4y
+addContext :: forall r_aEAv x_XDgl a_aDgm. (MemberWithError Logger r_aEAv, Select x_XDgl, ToJSON x_XDgl) => x_XDgl -> Sem r_aEAv a_aDgm -> Sem r_aEAv a_aDgm
 data LogSelect
 All :: LogSelect
 Some :: [Text] -> LogSelect
@@ -252,8 +252,8 @@ data Metrics m a
 
 -- | Times an action and records it in a histogram
 [WithTimer] :: HistogramName -> m a -> Metrics m a
-withTimer :: forall r_aM7d a_aLYZ. MemberWithError Metrics r_aM7d => HistogramName -> Sem r_aM7d a_aLYZ -> Sem r_aM7d a_aLYZ
-incCount :: forall r_aM7b. MemberWithError Metrics r_aM7b => CountName -> Sem r_aM7b ()
+withTimer :: forall r_aNv6 a_aNnf. MemberWithError Metrics r_aNv6 => HistogramName -> Sem r_aNv6 a_aNnf -> Sem r_aNv6 a_aNnf
+incCount :: forall r_aNv4. MemberWithError Metrics r_aNv4 => CountName -> Sem r_aNv4 ()
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Metrics.HistogramName
 instance GHC.Classes.Eq Tendermint.SDK.BaseApp.Metrics.HistogramName
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Metrics.CountName
@@ -376,10 +376,10 @@ makeDigest :: MakeDigest a => a -> Digest SHA256
 -- | Defines the types and methods for the signature schema parameterized
 --   by <tt>alg</tt>.
 class SignatureSchema alg where {
-    type family PubKey alg :: *;
-    type family PrivateKey alg :: *;
-    type family Signature alg :: *;
-    type family Message alg :: *;
+    type family PubKey alg :: Type;
+    type family PrivateKey alg :: Type;
+    type family Signature alg :: Type;
+    type family Message alg :: Type;
 }
 algorithm :: SignatureSchema alg => Proxy alg -> Text
 sign :: SignatureSchema alg => Proxy alg -> PrivateKey alg -> Message alg -> Signature alg
@@ -391,7 +391,7 @@ addressFromPubKey :: SignatureSchema alg => Proxy alg -> PubKey alg -> Address
 
 -- | Class allowing for signing and recovering signatures for messages.
 class SignatureSchema alg => RecoverableSignatureSchema alg where {
-    type family RecoverableSignature alg :: *;
+    type family RecoverableSignature alg :: Type;
 }
 signRecoverableMessage :: RecoverableSignatureSchema alg => Proxy alg -> PrivateKey alg -> Message alg -> RecoverableSignature alg
 recover :: RecoverableSignatureSchema alg => Proxy alg -> RecoverableSignature alg -> Message alg -> Maybe (PubKey alg)
@@ -596,7 +596,7 @@ instance Tendermint.SDK.BaseApp.Errors.IsAppError Tendermint.SDK.BaseApp.Errors.
 instance GHC.Exception.Type.Exception Tendermint.SDK.BaseApp.Errors.AppError
 
 module Tendermint.SDK.BaseApp.Store.RawStore
-type StoreEffs = [Tagged  'Consensus ReadStore, Tagged  'QueryAndMempool ReadStore, Tagged  'Consensus WriteStore, Transaction, CommitBlock]
+type StoreEffs = [Tagged 'Consensus ReadStore, Tagged 'QueryAndMempool ReadStore, Tagged 'Consensus WriteStore, Transaction, CommitBlock]
 
 -- | Store Effects
 data Scope
@@ -607,35 +607,35 @@ QueryAndMempool :: Scope
 data ReadStore m a
 [StoreGet] :: StoreKey -> ReadStore m (Maybe ByteString)
 [StoreProve] :: StoreKey -> ReadStore m (Maybe ByteString)
-storeGet :: forall r_a1dfM. MemberWithError ReadStore r_a1dfM => StoreKey -> Sem r_a1dfM (Maybe ByteString)
+storeGet :: forall r_a1eYQ. MemberWithError ReadStore r_a1eYQ => StoreKey -> Sem r_a1eYQ (Maybe ByteString)
 get :: forall k r ns. IsKey k ns => HasCodec (Value k ns) => Members [ReadStore, Error AppError] r => Store ns -> k -> Sem r (Maybe (Value k ns))
 prove :: forall k ns r. IsKey k ns => Member ReadStore r => Store ns -> k -> Sem r (Maybe ByteString)
 data WriteStore m a
 [StorePut] :: StoreKey -> ByteString -> WriteStore m ()
 [StoreDelete] :: StoreKey -> WriteStore m ()
 put :: forall k r ns. IsKey k ns => HasCodec (Value k ns) => Member WriteStore r => Store ns -> k -> Value k ns -> Sem r ()
-storePut :: forall r_a1djy. MemberWithError WriteStore r_a1djy => StoreKey -> ByteString -> Sem r_a1djy ()
+storePut :: forall r_a1f2n. MemberWithError WriteStore r_a1f2n => StoreKey -> ByteString -> Sem r_a1f2n ()
 delete :: forall k ns r. IsKey k ns => Member WriteStore r => Store ns -> k -> Sem r ()
-storeDelete :: forall r_a1djB. MemberWithError WriteStore r_a1djB => StoreKey -> Sem r_a1djB ()
+storeDelete :: forall r_a1f2q. MemberWithError WriteStore r_a1f2q => StoreKey -> Sem r_a1f2q ()
 
 -- | Consensus Effects
 data CommitBlock m a
 [CommitBlock] :: CommitBlock m Base64String
-commitBlock :: forall r_a1dsZ. MemberWithError CommitBlock r_a1dsZ => Sem r_a1dsZ Base64String
+commitBlock :: forall r_a1fba. MemberWithError CommitBlock r_a1fba => Sem r_a1fba Base64String
 data Transaction m a
 [BeginTransaction] :: Transaction m ()
 [Rollback] :: Transaction m ()
 [Commit] :: Transaction m CommitResponse
-beginTransaction :: forall r_a1dxL. MemberWithError Transaction r_a1dxL => Sem r_a1dxL ()
+beginTransaction :: forall r_a1ffI. MemberWithError Transaction r_a1ffI => Sem r_a1ffI ()
 withSandbox :: forall r a. Members [Transaction, Resource, Error AppError] r => Sem r a -> Sem r a
 withTransaction :: forall r a. Members [Transaction, Resource, Error AppError] r => Sem r a -> Sem r (a, CommitResponse)
-commit :: forall r_a1dxN. MemberWithError Transaction r_a1dxN => Sem r_a1dxN CommitResponse
+commit :: forall r_a1ffK. MemberWithError Transaction r_a1ffK => Sem r_a1ffK CommitResponse
 
 -- | Keys
 class RawKey k
 rawKey :: RawKey k => Iso' k ByteString
 class RawKey k => IsKey k ns where {
-    type family Value k ns :: *;
+    type family Value k ns :: Type;
 }
 prefix :: IsKey k ns => Proxy k -> Proxy ns -> ByteString
 prefix :: IsKey k ns => Proxy k -> Proxy ns -> ByteString
@@ -677,7 +677,7 @@ instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey ()
 module Tendermint.SDK.BaseApp.Transaction.Cache
 data Cache
 emptyCache :: Cache
-writeCache :: Member (Tagged  'Consensus WriteStore) r => Cache -> Sem r ()
+writeCache :: Member (Tagged 'Consensus WriteStore) r => Cache -> Sem r ()
 data Deleted
 Deleted :: Deleted
 put :: StoreKey -> ByteString -> Cache -> Cache
@@ -687,7 +687,7 @@ instance GHC.Show.Show Tendermint.SDK.BaseApp.Transaction.Cache.Cache
 instance GHC.Classes.Eq Tendermint.SDK.BaseApp.Transaction.Cache.Cache
 
 module Tendermint.SDK.BaseApp.Store.Var
-data Var (a :: *)
+data Var (a :: Type)
 makeVar :: IsKey k ns => Value k ns ~ Var a => k -> Store ns -> Value k ns
 makeFullStoreKey :: Var a -> StoreKey
 takeVar :: Members [ReadStore, Error AppError] r => HasCodec a => Var a -> Sem r (Maybe a)
@@ -712,7 +712,7 @@ instance Crypto.Data.Auth.Tree.Class.MerkleHash Tendermint.SDK.BaseApp.Store.Mem
 module Tendermint.SDK.BaseApp.Store
 
 module Tendermint.SDK.BaseApp.Store.Map
-data Map (k :: *) (v :: *)
+data Map (k :: Type) (v :: Type)
 makeMap :: IsKey key ns => Value key ns ~ Map k v => key -> Store ns -> Value key ns
 makeFullStoreKey :: RawKey k => Map k v -> k -> StoreKey
 insert :: Member WriteStore r => RawKey k => HasCodec v => k -> v -> Map k v -> Sem r ()
@@ -722,7 +722,7 @@ update :: Members [Error AppError, ReadStore, WriteStore] r => RawKey k => HasCo
 instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey k => Tendermint.SDK.BaseApp.Store.RawStore.IsKey k (Tendermint.SDK.BaseApp.Store.Map.Map k v)
 
 module Tendermint.SDK.BaseApp.Store.List
-data List (a :: *)
+data List (a :: Type)
 makeList :: IsKey key ns => Value key ns ~ List a => key -> Store ns -> Value key ns
 makeFullStoreKey :: List a -> Word64 -> StoreKey
 append :: Members [Error AppError, ReadStore, WriteStore] r => HasCodec a => a -> List a -> Sem r ()
@@ -800,7 +800,7 @@ module Tendermint.SDK.BaseApp.Store.Array
 -- | A 'Array a' is an appendable list whose elements can be accessed | by
 --   their index. You can also delete from the list, in which case
 --   accessing | that index will result in a <a>Nothing</a>.
-data Array (a :: *)
+data Array (a :: Type)
 
 -- | Smart constuctor to make sure we're making a <a>Array</a> from | the
 --   appropriate key type.
@@ -838,7 +838,7 @@ instance Tendermint.SDK.BaseApp.Store.RawStore.IsKey Tendermint.SDK.BaseApp.Stor
 module Tendermint.SDK.BaseApp.Store.TH
 makeSubStore :: Name -> String -> TypeQ -> ByteString -> Q [Dec]
 class RawKey k => IsKey k ns where {
-    type family Value k ns :: *;
+    type family Value k ns :: Type;
 }
 prefix :: IsKey k ns => Proxy k -> Proxy ns -> ByteString
 prefix :: IsKey k ns => Proxy k -> Proxy ns -> ByteString
@@ -846,20 +846,20 @@ prefix :: IsKey k ns => Proxy k -> Proxy ns -> ByteString
 -- | Keys
 class RawKey k
 rawKey :: RawKey k => Iso' k ByteString
-data Var (a :: *)
+data Var (a :: Type)
 makeVar :: IsKey k ns => Value k ns ~ Var a => k -> Store ns -> Value k ns
 
 -- | A 'Array a' is an appendable list whose elements can be accessed | by
 --   their index. You can also delete from the list, in which case
 --   accessing | that index will result in a <a>Nothing</a>.
-data Array (a :: *)
+data Array (a :: Type)
 
 -- | Smart constuctor to make sure we're making a <a>Array</a> from | the
 --   appropriate key type.
 makeArray :: IsKey k ns => Value k ns ~ Array a => k -> Store ns -> Value k ns
-data List (a :: *)
+data List (a :: Type)
 makeList :: IsKey key ns => Value key ns ~ List a => key -> Store ns -> Value key ns
-data Map (k :: *) (v :: *)
+data Map (k :: Type) (v :: Type)
 makeMap :: IsKey key ns => Value key ns ~ Map k v => key -> Store ns -> Value key ns
 
 module Tendermint.SDK.BaseApp.Router.Types
@@ -919,8 +919,8 @@ instance GHC.Base.Functor m => GHC.Base.Functor (Tendermint.SDK.BaseApp.Router.D
 instance GHC.Base.Functor m => GHC.Base.Functor (Tendermint.SDK.BaseApp.Router.Delayed.Delayed m env req)
 
 module Tendermint.SDK.BaseApp.Query.Types
-data Leaf (a :: *)
-data QA (a :: *)
+data Leaf (a :: Type)
+data QA (a :: Type)
 data EmptyQueryServer
 EmptyQueryServer :: EmptyQueryServer
 
@@ -974,13 +974,13 @@ module Tendermint.SDK.BaseApp.Query.Router
 class HasQueryRouter layout r where {
     
     -- | A routeQ handler.
-    type family RouteQ layout r :: *;
+    type family RouteQ layout r :: Type;
 }
 
 -- | Transform a routeQ handler into a <tt>Router</tt>.
 routeQ :: HasQueryRouter layout r => Proxy layout -> Proxy r -> Delayed (Sem r) env QueryRequest (RouteQ layout (QueryEffs :& r)) -> Router env r QueryRequest Query
 hoistQueryRouter :: HasQueryRouter layout r => Proxy layout -> Proxy r -> (forall a. Sem s a -> Sem s' a) -> RouteQ layout s -> RouteQ layout s'
-methodRouter :: HasCodec a => Member (Tagged  'QueryAndMempool ReadStore) r => Delayed (Sem r) env req (Sem (QueryEffs :& r) (QueryResult a)) -> Router env r req Query
+methodRouter :: HasCodec a => Member (Tagged 'QueryAndMempool ReadStore) r => Delayed (Sem r) env req (Sem (QueryEffs :& r) (QueryResult a)) -> Router env r req Query
 instance (Tendermint.SDK.BaseApp.Query.Router.HasQueryRouter a r, Tendermint.SDK.BaseApp.Query.Router.HasQueryRouter b r) => Tendermint.SDK.BaseApp.Query.Router.HasQueryRouter (a Servant.API.Alternative.:<|> b) r
 instance (Tendermint.SDK.BaseApp.Query.Router.HasQueryRouter sublayout r, GHC.TypeLits.KnownSymbol path) => Tendermint.SDK.BaseApp.Query.Router.HasQueryRouter (path Servant.API.Sub.:> sublayout) r
 instance (Tendermint.SDK.BaseApp.Query.Router.HasQueryRouter sublayout r, GHC.TypeLits.KnownSymbol sym, Web.Internal.HttpApiData.FromHttpApiData a, Data.Singletons.Bool.SBoolI (Servant.API.Modifiers.FoldRequired mods), Data.Singletons.Bool.SBoolI (Servant.API.Modifiers.FoldLenient mods)) => Tendermint.SDK.BaseApp.Query.Router.HasQueryRouter (Servant.API.QueryParam.QueryParam' mods sym a Servant.API.Sub.:> sublayout) r
@@ -1009,7 +1009,7 @@ serveQueryApplication :: HasQueryRouter layout r => Proxy layout -> Proxy r -> R
 class HasQueryRouter layout r where {
     
     -- | A routeQ handler.
-    type family RouteQ layout r :: *;
+    type family RouteQ layout r :: Type;
 }
 
 -- | Transform a routeQ handler into a <tt>Router</tt>.
@@ -1025,7 +1025,7 @@ data GasMeter m a
 newtype GasAmount
 GasAmount :: Int64 -> GasAmount
 [unGasAmount] :: GasAmount -> Int64
-withGas :: forall r_a1KEI a_a1Kud. MemberWithError GasMeter r_a1KEI => GasAmount -> Sem r_a1KEI a_a1Kud -> Sem r_a1KEI a_a1Kud
+withGas :: forall r_a1LOt a_a1LEA. MemberWithError GasMeter r_a1LOt => GasAmount -> Sem r_a1LOt a_a1LEA -> Sem r_a1LOt a_a1LEA
 eval :: Members [Error AppError, State GasAmount] r => Sem (GasMeter : r) a -> Sem r a
 doNothing :: forall r. forall a. Sem (GasMeter : r) a -> Sem r a
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Gas.GasAmount
@@ -1067,10 +1067,10 @@ instance Tendermint.SDK.BaseApp.Router.Types.HasPath (Tendermint.SDK.BaseApp.Tra
 
 module Tendermint.SDK.BaseApp.Transaction.Checker
 class DefaultCheckTx api (r :: EffectRow) where {
-    type family DefaultCheckTxT api r :: *;
+    type family DefaultCheckTxT api r :: Type;
 }
 defaultCheckTx :: DefaultCheckTx api r => Proxy api -> Proxy r -> DefaultCheckTxT api r
-type family VoidReturn (api :: *) :: *
+type family VoidReturn (api :: Type) :: Type
 instance (Tendermint.SDK.BaseApp.Transaction.Checker.DefaultCheckTx a r, Tendermint.SDK.BaseApp.Transaction.Checker.DefaultCheckTx b r) => Tendermint.SDK.BaseApp.Transaction.Checker.DefaultCheckTx (a Servant.API.Alternative.:<|> b) r
 instance forall k rest (r :: Polysemy.Internal.Kind.EffectRow) (path :: k). Tendermint.SDK.BaseApp.Transaction.Checker.DefaultCheckTx rest r => Tendermint.SDK.BaseApp.Transaction.Checker.DefaultCheckTx (path Servant.API.Sub.:> rest) r
 instance forall k (r :: [(* -> *) -> * -> *]) msg (a :: k). (Polysemy.Internal.Union.Member (Polysemy.Error.Error Tendermint.SDK.BaseApp.Errors.AppError) r, Tendermint.SDK.Types.Message.ValidateMessage msg) => Tendermint.SDK.BaseApp.Transaction.Checker.DefaultCheckTx (Tendermint.SDK.BaseApp.Transaction.Types.TypedMessage msg Tendermint.SDK.BaseApp.Transaction.Types.:~> Tendermint.SDK.BaseApp.Transaction.Types.Return a) r
@@ -1087,7 +1087,7 @@ evalReadOnly :: forall r. forall a. Sem (TxEffs :& r) a -> Sem (ReadStore : (Err
 
 module Tendermint.SDK.BaseApp.Transaction.Router
 class HasTxRouter layout (r :: EffectRow) (scope :: Scope) where {
-    type family RouteTx layout (s :: EffectRow) :: *;
+    type family RouteTx layout (s :: EffectRow) :: Type;
 }
 routeTx :: HasTxRouter layout r scope => Proxy layout -> Proxy r -> Proxy scope -> Delayed (Sem r) env (RoutingTx ByteString) (RouteTx layout (TxEffs :& r)) -> Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
 applyAnteHandler :: HasTxRouter layout r scope => Proxy layout -> Proxy r -> Proxy scope -> AnteHandler r -> RouteTx layout r -> RouteTx layout r
@@ -1101,17 +1101,17 @@ instance Tendermint.SDK.BaseApp.Transaction.Router.HasTxRouter Tendermint.SDK.Ba
 module Tendermint.SDK.BaseApp.Transaction
 serveTxApplication :: HasTxRouter layout r scope => Proxy layout -> Proxy r -> Proxy scope -> RouteTx layout (TxEffs :& r) -> TransactionApplication (Sem r)
 class HasTxRouter layout (r :: EffectRow) (scope :: Scope) where {
-    type family RouteTx layout (s :: EffectRow) :: *;
+    type family RouteTx layout (s :: EffectRow) :: Type;
 }
 routeTx :: HasTxRouter layout r scope => Proxy layout -> Proxy r -> Proxy scope -> Delayed (Sem r) env (RoutingTx ByteString) (RouteTx layout (TxEffs :& r)) -> Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
 applyAnteHandler :: HasTxRouter layout r scope => Proxy layout -> Proxy r -> Proxy scope -> AnteHandler r -> RouteTx layout r -> RouteTx layout r
 hoistTxRouter :: HasTxRouter layout r scope => Proxy layout -> Proxy r -> Proxy scope -> (forall a. Sem s a -> Sem s' a) -> RouteTx layout s -> RouteTx layout s'
 emptyTxServer :: RouteTx EmptyTxServer r
 class DefaultCheckTx api (r :: EffectRow) where {
-    type family DefaultCheckTxT api r :: *;
+    type family DefaultCheckTxT api r :: Type;
 }
 defaultCheckTx :: DefaultCheckTx api r => Proxy api -> Proxy r -> DefaultCheckTxT api r
-type family VoidReturn (api :: *) :: *
+type family VoidReturn (api :: Type) :: Type
 type TxEffs = [Output Event, GasMeter, WriteStore, ReadStore, Error AppError]
 evalReadOnly :: forall r. forall a. Sem (TxEffs :& r) a -> Sem (ReadStore : (Error AppError : r)) a
 type AnteHandler r = forall msg a. (Endo (RoutingTx msg -> Sem r a))
@@ -1220,7 +1220,7 @@ StoreKey :: [ByteString] -> ByteString -> StoreKey
 [skPathFromRoot] :: StoreKey -> [ByteString]
 [skKey] :: StoreKey -> ByteString
 class RawKey k => IsKey k ns where {
-    type family Value k ns :: *;
+    type family Value k ns :: Type;
 }
 prefix :: IsKey k ns => Proxy k -> Proxy ns -> ByteString
 prefix :: IsKey k ns => Proxy k -> Proxy ns -> ByteString
@@ -1233,8 +1233,8 @@ makeStore :: KeyRoot ns -> Store ns
 put :: forall k r ns. IsKey k ns => HasCodec (Value k ns) => Member WriteStore r => Store ns -> k -> Value k ns -> Sem r ()
 get :: forall k r ns. IsKey k ns => HasCodec (Value k ns) => Members [ReadStore, Error AppError] r => Store ns -> k -> Sem r (Maybe (Value k ns))
 delete :: forall k ns r. IsKey k ns => Member WriteStore r => Store ns -> k -> Sem r ()
-data Leaf (a :: *)
-data QA (a :: *)
+data Leaf (a :: Type)
+data QA (a :: Type)
 data StoreLeaf a
 
 -- | This type represents a common error response for the query, checkTx, |
@@ -1270,15 +1270,15 @@ ContextEvent :: t -> ContextEvent t
 emit :: ToEvent e => Member (Output Event) r => e -> Sem r ()
 logEvent :: forall e r. (ToJSON e, ToEvent e, Select e) => Member Logger r => e -> Sem r ()
 data GasMeter m a
-withGas :: forall r_a1KEI a_a1Kud. MemberWithError GasMeter r_a1KEI => GasAmount -> Sem r_a1KEI a_a1Kud -> Sem r_a1KEI a_a1Kud
+withGas :: forall r_a1LOt a_a1LEA. MemberWithError GasMeter r_a1LOt => GasAmount -> Sem r_a1LOt a_a1LEA -> Sem r_a1LOt a_a1LEA
 
 -- | Effect allowing for console logging.
 data Logger m a
-log :: forall r_aCqy. MemberWithError Logger r_aCqy => Severity -> Text -> Sem r_aCqy ()
+log :: forall r_aEAs. MemberWithError Logger r_aEAs => Severity -> Text -> Sem r_aEAs ()
 data LogSelect
 All :: LogSelect
 Some :: [Text] -> LogSelect
-addContext :: forall r_aCqB x_XB4x a_aB4y. (MemberWithError Logger r_aCqB, Select x_XB4x, ToJSON x_XB4x) => x_XB4x -> Sem r_aCqB a_aB4y -> Sem r_aCqB a_aB4y
+addContext :: forall r_aEAv x_XDgl a_aDgm. (MemberWithError Logger r_aEAv, Select x_XDgl, ToJSON x_XDgl) => x_XDgl -> Sem r_aEAv a_aDgm -> Sem r_aEAv a_aDgm
 data Severity
 Debug :: Severity
 Info :: Severity
@@ -1296,8 +1296,8 @@ V1 :: Verbosity
 V2 :: Verbosity
 V3 :: Verbosity
 data Metrics m a
-incCount :: forall r_aM7b. MemberWithError Metrics r_aM7b => CountName -> Sem r_aM7b ()
-withTimer :: forall r_aM7d a_aLYZ. MemberWithError Metrics r_aM7d => HistogramName -> Sem r_aM7d a_aLYZ -> Sem r_aM7d a_aLYZ
+incCount :: forall r_aNv4. MemberWithError Metrics r_aNv4 => CountName -> Sem r_aNv4 ()
+withTimer :: forall r_aNv6 a_aNnf. MemberWithError Metrics r_aNv6 => HistogramName -> Sem r_aNv6 a_aNnf -> Sem r_aNv6 a_aNnf
 data CountName
 CountName :: Text -> [(Text, Text)] -> CountName
 [countName] :: CountName -> Text
@@ -1310,7 +1310,7 @@ HistogramName :: Text -> [(Text, Text)] -> [Double] -> HistogramName
 type AnteHandler r = forall msg a. (Endo (RoutingTx msg -> Sem r a))
 data RoutingTx msg
 [RoutingTx] :: Tx alg msg -> RoutingTx msg
-type family RouteTx layout (s :: EffectRow) :: *
+type family RouteTx layout (s :: EffectRow) :: Type
 data RouteContext
 CheckTx :: RouteContext
 DeliverTx :: RouteContext
@@ -1321,10 +1321,10 @@ type TxEffs = [Output Event, GasMeter, WriteStore, ReadStore, Error AppError]
 data EmptyTxServer
 EmptyTxServer :: EmptyTxServer
 class DefaultCheckTx api (r :: EffectRow) where {
-    type family DefaultCheckTxT api r :: *;
+    type family DefaultCheckTxT api r :: Type;
 }
 defaultCheckTx :: DefaultCheckTx api r => Proxy api -> Proxy r -> DefaultCheckTxT api r
-type family VoidReturn (api :: *) :: *
+type family VoidReturn (api :: Type) :: Type
 type QueryEffs = '[ReadStore, Error AppError]
 
 -- | This class is used to parse the 'data' field of the query request
@@ -1337,7 +1337,7 @@ fromQueryData :: (QueryData a, RawKey a) => Base64String -> Either String a
 toQueryData :: (QueryData a, RawKey a) => a -> Base64String
 
 -- | A routeQ handler.
-type family RouteQ layout r :: *
+type family RouteQ layout r :: Type
 data QueryResult a
 QueryResult :: a -> Int64 -> Base64String -> Maybe Proof -> Int64 -> QueryResult a
 [queryResultData] :: QueryResult a -> a
@@ -1352,12 +1352,12 @@ data RouterError
 ResourceNotFound :: RouterError
 
 module Tendermint.SDK.Application.Module
-data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow)
-Module :: RouteTx check r -> RouteTx deliver r -> RouteQ query r -> (forall s. (Members TxEffs s, Members BaseEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a) -> Module
-[moduleTxChecker] :: Module -> RouteTx check r
-[moduleTxDeliverer] :: Module -> RouteTx deliver r
-[moduleQuerier] :: Module -> RouteQ query r
-[moduleEval] :: Module -> forall s. (Members TxEffs s, Members BaseEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a
+data Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow)
+Module :: RouteTx check r -> RouteTx deliver r -> RouteQ query r -> (forall s. (Members TxEffs s, Members BaseEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a) -> Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow)
+[moduleTxChecker] :: Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow) -> RouteTx check r
+[moduleTxDeliverer] :: Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow) -> RouteTx deliver r
+[moduleQuerier] :: Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow) -> RouteQ query r
+[moduleEval] :: Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow) -> forall s. (Members TxEffs s, Members BaseEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a
 type Component = EffectRow -> Type
 type family ModuleEffs (m :: Component) :: EffectRow
 data ModuleList (ms :: [Component]) r
@@ -1370,19 +1370,19 @@ Application :: RouteTx check r -> RouteTx deliver r -> RouteQ query s -> Applica
 [applicationTxDeliverer] :: Application check deliver query r s -> RouteTx deliver r
 [applicationQuerier] :: Application check deliver query r s -> RouteQ query s
 class ToApplication ms r where {
-    type family ApplicationC ms :: *;
-    type family ApplicationD ms :: *;
-    type family ApplicationQ ms :: *;
+    type family ApplicationC ms :: Type;
+    type family ApplicationD ms :: Type;
+    type family ApplicationQ ms :: Type;
 }
 toApplication :: ToApplication ms r => ModuleList ms r -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) r r
-hoistApplication :: HasTxRouter check r  'QueryAndMempool => HasTxRouter deliver r  'Consensus => HasQueryRouter query s => (forall a. Sem r a -> Sem r' a) -> (forall a. Sem s a -> Sem s' a) -> Application check deliver query r s -> Application check deliver query r' s'
+hoistApplication :: HasTxRouter check r 'QueryAndMempool => HasTxRouter deliver r 'Consensus => HasQueryRouter query s => (forall a. Sem r a -> Sem r' a) -> (forall a. Sem s a -> Sem s' a) -> Application check deliver query r s -> Application check deliver query r' s'
 class Eval ms (core :: EffectRow) where {
     type family Effs ms core :: EffectRow;
 }
 eval :: Eval ms core => proxy core -> ModuleList ms r -> forall a. Sem (Effs ms core) a -> Sem (TxEffs :& BaseAppEffs core) a
-makeApplication :: Eval ms core => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core)  'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core)  'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => Proxy core -> AnteHandler (Effs ms core) -> ModuleList ms (Effs ms core) -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (TxEffs :& BaseAppEffs core) (QueryEffs :& BaseAppEffs core)
-applyAnteHandler :: HasTxRouter check r  'QueryAndMempool => HasTxRouter deliver r  'Consensus => AnteHandler r -> Application check deliver query r s -> Application check deliver query r s
-instance (Tendermint.SDK.Application.Module.DependencyEffs deps Data.Type.Equality.~ '[]) => Tendermint.SDK.Application.Module.Eval '[Tendermint.SDK.Application.Module.Module name check deliver query es deps] core
+makeApplication :: Eval ms core => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => Proxy core -> AnteHandler (Effs ms core) -> ModuleList ms (Effs ms core) -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (TxEffs :& BaseAppEffs core) (QueryEffs :& BaseAppEffs core)
+applyAnteHandler :: HasTxRouter check r 'QueryAndMempool => HasTxRouter deliver r 'Consensus => AnteHandler r -> Application check deliver query r s -> Application check deliver query r s
+instance (Tendermint.SDK.Application.Module.DependencyEffs deps GHC.Types.~ '[]) => Tendermint.SDK.Application.Module.Eval '[Tendermint.SDK.Application.Module.Module name check deliver query es deps] core
 instance (Polysemy.Internal.Members (Tendermint.SDK.Application.Module.DependencyEffs deps) (Tendermint.SDK.Application.Module.Effs (m' : ms) s), Polysemy.Internal.Members Tendermint.SDK.BaseApp.Transaction.Effect.TxEffs (Tendermint.SDK.Application.Module.Effs (m' : ms) s), Polysemy.Internal.Members Tendermint.SDK.BaseApp.Effects.BaseEffs.BaseEffs (Tendermint.SDK.Application.Module.Effs (m' : ms) s), Tendermint.SDK.Application.Module.Eval (m' : ms) s) => Tendermint.SDK.Application.Module.Eval (Tendermint.SDK.Application.Module.Module name check deliver query es deps : m' : ms) s
 instance Tendermint.SDK.Application.Module.ToApplication '[Tendermint.SDK.Application.Module.Module name check deliver query es deps] r
 instance Tendermint.SDK.Application.Module.ToApplication (m' : ms) r => Tendermint.SDK.Application.Module.ToApplication (Tendermint.SDK.Application.Module.Module name check deliver query es deps : m' : ms) r
@@ -1395,9 +1395,9 @@ data Accounts m a
 [UpdateAccount] :: Address -> (Account -> Account) -> Accounts m ()
 [GetAccount] :: Address -> Accounts m (Maybe Account)
 type AuthEffs = '[Accounts, Error AuthError]
-createAccount :: forall r_a1UWx. MemberWithError Accounts r_a1UWx => Address -> Sem r_a1UWx Account
-updateAccount :: forall r_a1UWz. MemberWithError Accounts r_a1UWz => Address -> (Account -> Account) -> Sem r_a1UWz ()
-getAccount :: forall r_a1UWC. MemberWithError Accounts r_a1UWC => Address -> Sem r_a1UWC (Maybe Account)
+createAccount :: forall r_a1VpT. MemberWithError Accounts r_a1VpT => Address -> Sem r_a1VpT Account
+updateAccount :: forall r_a1VpV. MemberWithError Accounts r_a1VpV => Address -> (Account -> Account) -> Sem r_a1VpV ()
+getAccount :: forall r_a1VpY. MemberWithError Accounts r_a1VpY => Address -> Sem r_a1VpY (Maybe Account)
 eval :: Members [ReadStore, WriteStore, Error AppError] r => Sem (Accounts : (Error AuthError : r)) a -> Sem r a
 
 -- | Query API
@@ -1444,19 +1444,19 @@ HandlersContext :: Proxy alg -> ModuleList ms (Effs ms core) -> AnteHandler (Eff
 [modules] :: HandlersContext alg ms core -> ModuleList ms (Effs ms core)
 [anteHandler] :: HandlersContext alg ms core -> AnteHandler (Effs ms core)
 [compileToCore] :: HandlersContext alg ms core -> forall a. Sem (BaseAppEffs core) a -> Sem core a
-makeApp :: forall alg ms core. RecoverableSignatureSchema alg => Message alg ~ Digest SHA256 => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core)  'QueryAndMempool => HasTxRouter (ApplicationC ms) (BaseAppEffs core)  'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core)  'Consensus => HasTxRouter (ApplicationD ms) (BaseAppEffs core)  'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => HasQueryRouter (ApplicationQ ms) (BaseAppEffs core) => Eval ms core => HandlersContext alg ms core -> App (Sem core)
+makeApp :: forall alg ms core. RecoverableSignatureSchema alg => Message alg ~ Digest SHA256 => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool => HasTxRouter (ApplicationC ms) (BaseAppEffs core) 'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus => HasTxRouter (ApplicationD ms) (BaseAppEffs core) 'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => HasQueryRouter (ApplicationQ ms) (BaseAppEffs core) => Eval ms core => HandlersContext alg ms core -> App (Sem core)
 
 module Tendermint.SDK.Application
 data ModuleList (ms :: [Component]) r
 [NilModules] :: ModuleList '[] r
 [:+] :: Module name check deliver query es deps r -> ModuleList ms r -> ModuleList (Module name check deliver query es deps : ms) r
 infixr 5 :+
-data Module (name :: Symbol) (check :: *) (deliver :: *) (query :: *) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow)
-Module :: RouteTx check r -> RouteTx deliver r -> RouteQ query r -> (forall s. (Members TxEffs s, Members BaseEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a) -> Module
-[moduleTxChecker] :: Module -> RouteTx check r
-[moduleTxDeliverer] :: Module -> RouteTx deliver r
-[moduleQuerier] :: Module -> RouteQ query r
-[moduleEval] :: Module -> forall s. (Members TxEffs s, Members BaseEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a
+data Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow)
+Module :: RouteTx check r -> RouteTx deliver r -> RouteQ query r -> (forall s. (Members TxEffs s, Members BaseEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a) -> Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow)
+[moduleTxChecker] :: Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow) -> RouteTx check r
+[moduleTxDeliverer] :: Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow) -> RouteTx deliver r
+[moduleQuerier] :: Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow) -> RouteQ query r
+[moduleEval] :: Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow) -> forall s. (Members TxEffs s, Members BaseEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a
 type Component = EffectRow -> Type
 class Eval ms (core :: EffectRow) where {
     type family Effs ms core :: EffectRow;
@@ -1471,7 +1471,7 @@ HandlersContext :: Proxy alg -> ModuleList ms (Effs ms core) -> AnteHandler (Eff
 [compileToCore] :: HandlersContext alg ms core -> forall a. Sem (BaseAppEffs core) a -> Sem core a
 baseAppAnteHandler :: Members AuthEffs r => Member (Error AppError) r => AnteHandler r
 createIOApp :: forall r. (forall a. Sem r a -> IO a) -> App (Sem r) -> App IO
-makeApp :: forall alg ms core. RecoverableSignatureSchema alg => Message alg ~ Digest SHA256 => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core)  'QueryAndMempool => HasTxRouter (ApplicationC ms) (BaseAppEffs core)  'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core)  'Consensus => HasTxRouter (ApplicationD ms) (BaseAppEffs core)  'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => HasQueryRouter (ApplicationQ ms) (BaseAppEffs core) => Eval ms core => HandlersContext alg ms core -> App (Sem core)
+makeApp :: forall alg ms core. RecoverableSignatureSchema alg => Message alg ~ Digest SHA256 => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool => HasTxRouter (ApplicationC ms) (BaseAppEffs core) 'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus => HasTxRouter (ApplicationD ms) (BaseAppEffs core) 'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => HasQueryRouter (ApplicationQ ms) (BaseAppEffs core) => Eval ms core => HandlersContext alg ms core -> App (Sem core)
 
 module Tendermint.SDK.Modules.Bank
 type Bank = Module BankName MessageApi MessageApi QueryApi BankEffs '[Auth]
@@ -1482,10 +1482,10 @@ data BankKeeper m a
 [Transfer] :: Address -> Coin -> Address -> BankKeeper m ()
 [Burn] :: Address -> Coin -> BankKeeper m ()
 [Mint] :: Address -> Coin -> BankKeeper m ()
-getBalance :: forall r_a211z. MemberWithError BankKeeper r_a211z => Address -> CoinId -> Sem r_a211z Coin
-transfer :: forall r_a211C. MemberWithError BankKeeper r_a211C => Address -> Coin -> Address -> Sem r_a211C ()
-burn :: forall r_a211G. MemberWithError BankKeeper r_a211G => Address -> Coin -> Sem r_a211G ()
-mint :: forall r_a211J. MemberWithError BankKeeper r_a211J => Address -> Coin -> Sem r_a211J ()
+getBalance :: forall r_a21aM. MemberWithError BankKeeper r_a21aM => Address -> CoinId -> Sem r_a21aM Coin
+transfer :: forall r_a21aP. MemberWithError BankKeeper r_a21aP => Address -> Coin -> Address -> Sem r_a21aP ()
+burn :: forall r_a21aT. MemberWithError BankKeeper r_a21aT => Address -> Coin -> Sem r_a21aT ()
+mint :: forall r_a21aW. MemberWithError BankKeeper r_a21aW => Address -> Coin -> Sem r_a21aW ()
 eval :: Members [Logger, Output Event, Error AppError] r => Members AuthEffs r => forall a. Sem (BankKeeper : (Error BankError : r)) a -> Sem r a
 data TransferMsg
 TransferMsg :: Address -> Address -> CoinId -> Amount -> TransferMsg

@@ -1,122 +1,305 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Network.ABCI.Server.Middleware.Logger</span><span>
-</span><a name="line-2"></a><span>    </span><span class="hs-special">(</span><span> </span><span class="hs-comment">-- * Custom Loggers</span><span>
-</span><a name="line-3"></a><span>      </span><a href="Network.ABCI.Server.Middleware.Logger.html#mkLogger"><span class="hs-identifier hs-var">mkLogger</span></a><span>
-</span><a name="line-4"></a><span>    </span><span class="hs-special">,</span><span> </span><a href="Network.ABCI.Server.Middleware.Logger.html#mkLoggerM"><span class="hs-identifier hs-var">mkLoggerM</span></a><span>
-</span><a name="line-5"></a><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-6"></a><span>
-</span><a name="line-7"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Monad.IO.Class</span><span>    </span><span class="hs-special">(</span><span class="hs-identifier hs-type">MonadIO</span><span class="hs-special">)</span><span>
-</span><a name="line-8"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Monad.Trans.Class</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">lift</span><span class="hs-special">)</span><span>
-</span><a name="line-9"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.Aeson</span><span>                </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">A</span><span>
-</span><a name="line-10"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.ByteArray.HexString</span><span>  </span><span class="hs-special">(</span><span class="hs-identifier hs-type">HexString</span><span class="hs-special">)</span><span>
-</span><a name="line-11"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.String</span><span>               </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fromString</span><span class="hs-special">)</span><span>
-</span><a name="line-12"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Katip</span><span>
-</span><a name="line-13"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Network.ABCI.Server.App</span><span>   </span><span class="hs-special">(</span><span class="hs-identifier hs-type">App</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">MessageType</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Middleware</span><span class="hs-special">,</span><span>
-</span><a name="line-14"></a><span>                                            </span><span class="hs-identifier hs-type">Request</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Response</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-15"></a><span>                                            </span><span class="hs-identifier hs-var">demoteRequestType</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">hashRequest</span><span class="hs-special">,</span><span>
-</span><a name="line-16"></a><span>                                            </span><span class="hs-identifier hs-var">msgTypeKey</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">transformApp</span><span class="hs-special">)</span><span>
-</span><a name="line-17"></a><span>
-</span><a name="line-18"></a><span class="hs-comment">---------------------------------------------------------------------------</span><span>
-</span><a name="line-19"></a><span class="hs-comment">-- Types</span><span>
-</span><a name="line-20"></a><span class="hs-comment">---------------------------------------------------------------------------</span><span>
-</span><a name="line-21"></a><span class="hs-comment">-- | Loggable newtype wrapper</span><span>
-</span><a name="line-22"></a><span class="hs-keyword">newtype</span><span> </span><a name="Loggable"><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier">Loggable</span></a></a><span> </span><a name="local-6989586621679096139"><a href="#local-6989586621679096139"><span class="hs-identifier">a</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="Loggable"><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier">Loggable</span></a></a><span> </span><a href="#local-6989586621679096139"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-23"></a><span>
-</span><a name="line-24"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">ToObject</span><span> </span><span class="hs-special">(</span><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-type">Loggable</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Request</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679097132"><span class="hs-identifier hs-type">t</span></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">MessageType</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-25"></a><span>  </span><a name="local-8214565720323797381"><span class="hs-identifier">toObject</span></a><span> </span><span class="hs-special">(</span><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-var">Loggable</span></a><span> </span><a name="local-6989586621679097133"><a href="#local-6989586621679097133"><span class="hs-identifier">v</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="hs-identifier hs-var">A.toJSON</span><span> </span><a href="#local-6989586621679097133"><span class="hs-identifier hs-var">v</span></a><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-26"></a><span>      </span><span class="hs-identifier hs-var">A.Object</span><span> </span><a name="local-6989586621679097134"><a href="#local-6989586621679097134"><span class="hs-identifier">o</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="#local-6989586621679097134"><span class="hs-identifier hs-var">o</span></a><span>
-</span><a name="line-27"></a><span>      </span><span class="hs-identifier">_</span><span>          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">error</span><span> </span><span class="hs-string">&quot;Contract violation: `toJSON` of any `Request t` must result with json object&quot;</span><span>
-</span><a name="line-28"></a><span>
-</span><a name="line-29"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">LogItem</span><span> </span><span class="hs-special">(</span><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-type">Loggable</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Request</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679097131"><span class="hs-identifier hs-type">t</span></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">MessageType</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-30"></a><span>  </span><a name="local-8214565720323797349"><span class="hs-identifier">payloadKeys</span></a><span> </span><span class="hs-identifier hs-var">V3</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">AllKeys</span><span>
-</span><a name="line-31"></a><span>  </span><span class="hs-identifier">payloadKeys</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">SomeKeys</span><span> </span><span class="hs-special">[</span><span class="hs-string">&quot;type&quot;</span><span class="hs-special">]</span><span>
-</span><a name="line-32"></a><span>
-</span><a name="line-33"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">ToObject</span><span> </span><span class="hs-special">(</span><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-type">Loggable</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Response</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679097114"><span class="hs-identifier hs-type">t</span></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">MessageType</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-34"></a><span>  </span><a name="local-8214565720323797381"><span class="hs-identifier">toObject</span></a><span> </span><span class="hs-special">(</span><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-var">Loggable</span></a><span> </span><a name="local-6989586621679097115"><a href="#local-6989586621679097115"><span class="hs-identifier">v</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="hs-identifier hs-var">A.toJSON</span><span> </span><a href="#local-6989586621679097115"><span class="hs-identifier hs-var">v</span></a><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-35"></a><span>      </span><span class="hs-identifier hs-var">A.Object</span><span> </span><a name="local-6989586621679097116"><a href="#local-6989586621679097116"><span class="hs-identifier">o</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="#local-6989586621679097116"><span class="hs-identifier hs-var">o</span></a><span>
-</span><a name="line-36"></a><span>      </span><span class="hs-identifier">_</span><span>          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">error</span><span> </span><span class="hs-string">&quot;Contract violation: `toJSON` of any `Response t` must result with json object&quot;</span><span>
-</span><a name="line-37"></a><span>
-</span><a name="line-38"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">LogItem</span><span> </span><span class="hs-special">(</span><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-type">Loggable</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Response</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679097113"><span class="hs-identifier hs-type">t</span></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">MessageType</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-39"></a><span>  </span><a name="local-8214565720323797349"><span class="hs-identifier">payloadKeys</span></a><span> </span><span class="hs-identifier hs-var">V3</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">AllKeys</span><span>
-</span><a name="line-40"></a><span>  </span><span class="hs-identifier">payloadKeys</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">SomeKeys</span><span> </span><span class="hs-special">[</span><span class="hs-string">&quot;type&quot;</span><span class="hs-special">]</span><span>
-</span><a name="line-41"></a><span>
-</span><a name="line-42"></a><span class="hs-comment">---------------------------------------------------------------------------</span><span>
-</span><a name="line-43"></a><span class="hs-comment">-- mkLogger</span><span>
-</span><a name="line-44"></a><span class="hs-comment">---------------------------------------------------------------------------</span><span>
-</span><a name="line-45"></a><span class="hs-comment">-- | Logger middleware for ABCI messages with custom 'Katip.LogEnv'</span><span>
-</span><a name="line-46"></a><span class="hs-comment">-- and 'Katip.Namespace'. This method makes it easy use various scribes such as</span><span>
-</span><a name="line-47"></a><span class="hs-comment">-- &lt;http://hackage.haskell.org/package/katip-elasticsearch-0.5.1.1/docs/Katip-Scribes-ElasticSearch.html elastic-search&gt;.</span><span>
-</span><a name="line-48"></a><span class="hs-identifier">mkLogger</span><span>
-</span><a name="line-49"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">MonadIO</span><span> </span><a href="#local-6989586621679097140"><span class="hs-identifier hs-type">m</span></a><span>
-</span><a name="line-50"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-identifier hs-type">LogEnv</span><span>
-</span><a name="line-51"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Namespace</span><span>
-</span><a name="line-52"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Middleware</span><span> </span><a href="#local-6989586621679097140"><span class="hs-identifier hs-type">m</span></a><span>
-</span><a name="line-53"></a><a name="mkLogger"><a href="Network.ABCI.Server.Middleware.Logger.html#mkLogger"><span class="hs-identifier">mkLogger</span></a></a><span> </span><a name="local-6989586621679097141"><a href="#local-6989586621679097141"><span class="hs-identifier">le</span></a></a><span> </span><a name="local-6989586621679097142"><a href="#local-6989586621679097142"><span class="hs-identifier">ns</span></a></a><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-54"></a><span>  </span><span class="hs-identifier hs-var">transformApp</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">runKatipContextT</span><span> </span><a href="#local-6989586621679097141"><span class="hs-identifier hs-var">le</span></a><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><a href="#local-6989586621679097142"><span class="hs-identifier hs-var">ns</span></a><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Network.ABCI.Server.Middleware.Logger.html#mkLoggerM"><span class="hs-identifier hs-var">mkLoggerM</span></a><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">transformApp</span><span> </span><span class="hs-identifier hs-var">lift</span><span>
-</span><a name="line-55"></a><span>
-</span><a name="line-56"></a><span class="hs-comment">---------------------------------------------------------------------------</span><span>
-</span><a name="line-57"></a><span class="hs-comment">-- mkLoggerM</span><span>
-</span><a name="line-58"></a><span class="hs-comment">---------------------------------------------------------------------------</span><span>
-</span><a name="line-59"></a><span class="hs-comment">-- | Logger middleware for ABCI messages in app with KatipContext.</span><span>
-</span><a name="line-60"></a><span class="hs-comment">-- Great for `App m` with a `KatipContext` instance.</span><span>
-</span><a name="line-61"></a><span class="hs-identifier">mkLoggerM</span><span>
-</span><a name="line-62"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">KatipContext</span><span> </span><a href="#local-6989586621679097139"><span class="hs-identifier hs-type">m</span></a><span>
-</span><a name="line-63"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-identifier hs-type">Middleware</span><span> </span><a href="#local-6989586621679097139"><span class="hs-identifier hs-type">m</span></a><span>
-</span><a name="line-64"></a><a name="mkLoggerM"><a href="Network.ABCI.Server.Middleware.Logger.html#mkLoggerM"><span class="hs-identifier">mkLoggerM</span></a></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">App</span><span> </span><a name="local-6989586621679097143"><a href="#local-6989586621679097143"><span class="hs-identifier">app</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">App</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-glyph">\</span><span> </span><a name="local-6989586621679097144"><a href="#local-6989586621679097144"><span class="hs-identifier">req</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-65"></a><span>  </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679097145"><a href="#local-6989586621679097145"><span class="hs-identifier">globalContext</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier hs-var">GlobalMessageContext</span></a><span>
-</span><a name="line-66"></a><span>        </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">messageHash</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">hashRequest</span><span> </span><a href="#local-6989586621679097144"><span class="hs-identifier hs-var">req</span></a><span>
-</span><a name="line-67"></a><span>        </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">messageType</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">demoteRequestType</span><span> </span><a href="#local-6989586621679097144"><span class="hs-identifier hs-var">req</span></a><span>
-</span><a name="line-68"></a><span>        </span><span class="hs-special">}</span><span>
-</span><a name="line-69"></a><span>  </span><span class="hs-identifier hs-var">katipAddContext</span><span> </span><a href="#local-6989586621679097145"><span class="hs-identifier hs-var">globalContext</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-70"></a><span>    </span><span class="hs-identifier hs-var">katipAddNamespace</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fromString</span><span> </span><span class="hs-string">&quot;server&quot;</span><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">$</span><span>
-</span><a name="line-71"></a><span>      </span><a href="Network.ABCI.Server.Middleware.Logger.html#logRequest"><span class="hs-identifier hs-var">logRequest</span></a><span> </span><a href="#local-6989586621679097144"><span class="hs-identifier hs-var">req</span></a><span>
-</span><a name="line-72"></a><span>    </span><a name="local-6989586621679097146"><a href="#local-6989586621679097146"><span class="hs-identifier">resp</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">katipAddNamespace</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fromString</span><span> </span><span class="hs-string">&quot;application&quot;</span><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">$</span><span>
-</span><a name="line-73"></a><span>      </span><a href="#local-6989586621679097143"><span class="hs-identifier hs-var">app</span></a><span> </span><a href="#local-6989586621679097144"><span class="hs-identifier hs-var">req</span></a><span>
-</span><a name="line-74"></a><span>    </span><span class="hs-identifier hs-var">katipAddNamespace</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fromString</span><span> </span><span class="hs-string">&quot;server&quot;</span><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">$</span><span>
-</span><a name="line-75"></a><span>      </span><a href="Network.ABCI.Server.Middleware.Logger.html#logResponse"><span class="hs-identifier hs-var">logResponse</span></a><span> </span><a href="#local-6989586621679097146"><span class="hs-identifier hs-var">resp</span></a><span>
-</span><a name="line-76"></a><span>    </span><span class="hs-identifier hs-var">return</span><span> </span><a href="#local-6989586621679097146"><span class="hs-identifier hs-var">resp</span></a><span>
-</span><a name="line-77"></a><span>
-</span><a name="line-78"></a><span class="hs-comment">---------------------------------------------------------------------------</span><span>
-</span><a name="line-79"></a><span class="hs-comment">-- Common</span><span>
-</span><a name="line-80"></a><span class="hs-comment">---------------------------------------------------------------------------</span><span>
-</span><a name="line-81"></a><span>
-</span><a name="line-82"></a><span class="hs-keyword">data</span><span> </span><a name="GlobalMessageContext"><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier">GlobalMessageContext</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="GlobalMessageContext"><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier">GlobalMessageContext</span></a></a><span>
-</span><a name="line-83"></a><span>  </span><span class="hs-special">{</span><span> </span><a name="messageHash"><a href="Network.ABCI.Server.Middleware.Logger.html#messageHash"><span class="hs-identifier">messageHash</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">HexString</span><span>
-</span><a name="line-84"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="messageType"><a href="Network.ABCI.Server.Middleware.Logger.html#messageType"><span class="hs-identifier">messageType</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">MessageType</span><span>
-</span><a name="line-85"></a><span>  </span><span class="hs-special">}</span><span>
-</span><a name="line-86"></a><span>
-</span><a name="line-87"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">A.ToJSON</span><span> </span><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier hs-type">GlobalMessageContext</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-88"></a><span>  </span><a name="local-8214565720323796892"><span class="hs-identifier">toJSON</span></a><span> </span><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier hs-var">GlobalMessageContext</span></a><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-89"></a><span>    </span><span class="hs-identifier hs-var">A.object</span><span> </span><span class="hs-special">[</span><span> </span><span class="hs-string">&quot;message_type&quot;</span><span> </span><span class="hs-operator hs-var">A..=</span><span> </span><span class="hs-identifier hs-var">msgTypeKey</span><span> </span><a href="#local-6989586621679096141"><span class="hs-identifier hs-var">messageType</span></a><span>
-</span><a name="line-90"></a><span>             </span><span class="hs-special">,</span><span> </span><span class="hs-string">&quot;message_hash&quot;</span><span> </span><span class="hs-operator hs-var">A..=</span><span> </span><a href="#local-6989586621679096140"><span class="hs-identifier hs-var">messageHash</span></a><span>
-</span><a name="line-91"></a><span>             </span><span class="hs-special">]</span><span>
-</span><a name="line-92"></a><span>
-</span><a name="line-93"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">ToObject</span><span> </span><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier hs-type">GlobalMessageContext</span></a><span>
-</span><a name="line-94"></a><span>
-</span><a name="line-95"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">LogItem</span><span> </span><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier hs-type">GlobalMessageContext</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-96"></a><span>    </span><a name="local-8214565720323797349"><span class="hs-identifier">payloadKeys</span></a><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">AllKeys</span><span>
-</span><a name="line-97"></a><span>
-</span><a name="line-98"></a><span class="hs-comment">-- | Request logger function.</span><span>
-</span><a name="line-99"></a><span class="hs-identifier">logRequest</span><span>
-</span><a name="line-100"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">KatipContext</span><span> </span><a href="#local-6989586621679097137"><span class="hs-identifier hs-type">m</span></a><span>
-</span><a name="line-101"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-identifier hs-type">Request</span><span> </span><a href="#local-6989586621679097138"><span class="hs-identifier hs-type">t</span></a><span>
-</span><a name="line-102"></a><span>  </span><span class="hs-glyph">-&gt;</span><span>  </span><a href="#local-6989586621679097137"><span class="hs-identifier hs-type">m</span></a><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><a name="line-103"></a><a name="logRequest"><a href="Network.ABCI.Server.Middleware.Logger.html#logRequest"><span class="hs-identifier">logRequest</span></a></a><span> </span><a name="local-6989586621679097147"><a href="#local-6989586621679097147"><span class="hs-identifier">req</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">katipAddContext</span><span> </span><span class="hs-special">(</span><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-var">Loggable</span></a><span> </span><a href="#local-6989586621679097147"><span class="hs-identifier hs-var">req</span></a><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">$</span><span>
-</span><a name="line-104"></a><span>  </span><span class="hs-identifier hs-var">logFM</span><span> </span><a href="#local-6989586621679097148"><span class="hs-identifier hs-var">logLevel</span></a><span> </span><span class="hs-string">&quot;Request Received&quot;</span><span>
-</span><a name="line-105"></a><span>  </span><span class="hs-keyword">where</span><span>
-</span><a name="line-106"></a><span>    </span><a name="local-6989586621679097148"><a href="#local-6989586621679097148"><span class="hs-identifier">logLevel</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><a href="#local-6989586621679097147"><span class="hs-identifier hs-var">req</span></a><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-107"></a><span>      </span><span class="hs-identifier hs-var">RequestFlush</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">DebugS</span><span>
-</span><a name="line-108"></a><span>      </span><span class="hs-identifier hs-var">RequestEcho</span><span> </span><span class="hs-identifier">_</span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">DebugS</span><span>
-</span><a name="line-109"></a><span>      </span><span class="hs-identifier">_</span><span>              </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">InfoS</span><span>
-</span><a name="line-110"></a><span>
-</span><a name="line-111"></a><span class="hs-identifier">logResponse</span><span>
-</span><a name="line-112"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">KatipContext</span><span> </span><a href="#local-6989586621679097135"><span class="hs-identifier hs-type">m</span></a><span>
-</span><a name="line-113"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-identifier hs-type">Response</span><span> </span><a href="#local-6989586621679097136"><span class="hs-identifier hs-type">t</span></a><span>
-</span><a name="line-114"></a><span>  </span><span class="hs-glyph">-&gt;</span><span>  </span><a href="#local-6989586621679097135"><span class="hs-identifier hs-type">m</span></a><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><a name="line-115"></a><a name="logResponse"><a href="Network.ABCI.Server.Middleware.Logger.html#logResponse"><span class="hs-identifier">logResponse</span></a></a><span> </span><a name="local-6989586621679097149"><a href="#local-6989586621679097149"><span class="hs-identifier">resp</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">katipAddContext</span><span> </span><span class="hs-special">(</span><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-var">Loggable</span></a><span> </span><a href="#local-6989586621679097149"><span class="hs-identifier hs-var">resp</span></a><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">$</span><span>
-</span><a name="line-116"></a><span>  </span><span class="hs-identifier hs-var">logFM</span><span> </span><a href="#local-6989586621679097150"><span class="hs-identifier hs-var">logLevel</span></a><span> </span><span class="hs-string">&quot;Response Sent&quot;</span><span>
-</span><a name="line-117"></a><span>  </span><span class="hs-keyword">where</span><span>
-</span><a name="line-118"></a><span>    </span><a name="local-6989586621679097150"><a href="#local-6989586621679097150"><span class="hs-identifier">logLevel</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><a href="#local-6989586621679097149"><span class="hs-identifier hs-var">resp</span></a><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-119"></a><span>      </span><span class="hs-identifier hs-var">ResponseFlush</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">DebugS</span><span>
-</span><a name="line-120"></a><span>      </span><span class="hs-identifier hs-var">ResponseEcho</span><span> </span><span class="hs-identifier">_</span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">DebugS</span><span>
-</span><a name="line-121"></a><span>      </span><span class="hs-identifier">_</span><span>               </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">InfoS</span><span>
-</span><a name="line-122"></a></pre></body></html>
+</span><span id="line-2"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Custom Loggers</span></span><span>
+</span><span id="line-3"></span><span>      </span><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#mkLogger"><span class="hs-identifier">mkLogger</span></a></span><span>
+</span><span id="line-4"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#mkLoggerM"><span class="hs-identifier">mkLoggerM</span></a></span><span>
+</span><span id="line-5"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Monad.IO.Class</span></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">MonadIO</span></span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Monad.Trans.Class</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">lift</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Aeson</span></span><span>                </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">A</span></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.ByteArray.HexString</span></span><span>  </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">HexString</span></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.String</span></span><span>               </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">fromString</span></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Katip</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Network.ABCI.Server.App</span></span><span>   </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">App</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">MessageType</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">Middleware</span></span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>                                            </span><span class="annot"><span class="hs-identifier">Request</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">Response</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-15"></span><span>                                            </span><span class="annot"><span class="hs-identifier">demoteRequestType</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">hashRequest</span></span><span class="hs-special">,</span><span>
+</span><span id="line-16"></span><span>                                            </span><span class="annot"><span class="hs-identifier">msgTypeKey</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">transformApp</span></span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span class="hs-comment">---------------------------------------------------------------------------</span><span>
+</span><span id="line-19"></span><span class="hs-comment">-- Types</span><span>
+</span><span id="line-20"></span><span class="hs-comment">---------------------------------------------------------------------------</span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- | Loggable newtype wrapper</span><span>
+</span><span id="line-22"></span><span class="hs-keyword">newtype</span><span> </span><span id="Loggable"><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-var">Loggable</span></a></span></span><span> </span><span id="local-6989586621679121116"><span class="annot"><a href="#local-6989586621679121116"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Loggable"><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-var">Loggable</span></a></span></span><span> </span><span class="annot"><a href="#local-6989586621679121116"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span id="local-6989586621679121101"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ToObject</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-type">Loggable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Request</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679121101"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MessageType</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-25"></span><span>  </span><span id="local-6989586621679121098"><span class="annot"><span class="annottext">toObject :: Loggable (Request t) -&gt; Object
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">toObject</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-type">Loggable</span></a></span><span> </span><span id="local-6989586621679121096"><span class="annot"><span class="annottext">v :: Request t
+</span><a href="#local-6989586621679121096"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Request t -&gt; Value
+forall a. ToJSON a =&gt; a -&gt; Value
+</span><span class="hs-identifier hs-var">A.toJSON</span></span><span> </span><span class="annot"><span class="annottext">Request t
+</span><a href="#local-6989586621679121096"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-26"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">A.Object</span></span><span> </span><span id="local-6989586621679121093"><span class="annot"><span class="annottext">o :: Object
+</span><a href="#local-6989586621679121093"><span class="hs-identifier hs-var">o</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Object
+</span><a href="#local-6989586621679121093"><span class="hs-identifier hs-var">o</span></a></span><span>
+</span><span id="line-27"></span><span>      </span><span class="hs-identifier">_</span><span>          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Object
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Contract violation: `toJSON` of any `Request t` must result with json object&quot;</span></span></span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span id="local-6989586621679121091"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LogItem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-type">Loggable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Request</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679121091"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MessageType</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-30"></span><span>  </span><span id="local-6989586621679121087"><span class="annot"><span class="annottext">payloadKeys :: Verbosity -&gt; Loggable (Request t) -&gt; PayloadSelection
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">payloadKeys</span></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">V3</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PayloadSelection
+</span><span class="hs-identifier hs-var">AllKeys</span></span><span>
+</span><span id="line-31"></span><span>  </span><span class="annot"><span class="hs-identifier hs-var">payloadKeys</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; PayloadSelection
+</span><span class="hs-identifier hs-var">SomeKeys</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-string">&quot;type&quot;</span></span><span class="hs-special">]</span></span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span id="local-6989586621679121082"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ToObject</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-type">Loggable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Response</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679121082"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MessageType</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-34"></span><span>  </span><span id="local-6989586621679121080"><span class="annot"><span class="annottext">toObject :: Loggable (Response t) -&gt; Object
+</span><a href="#local-6989586621679121080"><span class="hs-identifier hs-var hs-var hs-var hs-var">toObject</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-type">Loggable</span></a></span><span> </span><span id="local-6989586621679121079"><span class="annot"><span class="annottext">v :: Response t
+</span><a href="#local-6989586621679121079"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Response t -&gt; Value
+forall a. ToJSON a =&gt; a -&gt; Value
+</span><span class="hs-identifier hs-var">A.toJSON</span></span><span> </span><span class="annot"><span class="annottext">Response t
+</span><a href="#local-6989586621679121079"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-35"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">A.Object</span></span><span> </span><span id="local-6989586621679121078"><span class="annot"><span class="annottext">o :: Object
+</span><a href="#local-6989586621679121078"><span class="hs-identifier hs-var">o</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Object
+</span><a href="#local-6989586621679121078"><span class="hs-identifier hs-var">o</span></a></span><span>
+</span><span id="line-36"></span><span>      </span><span class="hs-identifier">_</span><span>          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Object
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Contract violation: `toJSON` of any `Response t` must result with json object&quot;</span></span></span><span>
+</span><span id="line-37"></span><span>
+</span><span id="line-38"></span><span id="local-6989586621679121077"><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LogItem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-type">Loggable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Response</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679121077"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MessageType</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-39"></span><span>  </span><span id="local-6989586621679121074"><span class="annot"><span class="annottext">payloadKeys :: Verbosity -&gt; Loggable (Response t) -&gt; PayloadSelection
+</span><a href="#local-6989586621679121074"><span class="hs-identifier hs-var hs-var hs-var hs-var">payloadKeys</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">V3</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PayloadSelection
+</span><span class="hs-identifier hs-var">AllKeys</span></span><span>
+</span><span id="line-40"></span><span>  </span><span class="annot"><span class="hs-identifier hs-var">payloadKeys</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; PayloadSelection
+</span><span class="hs-identifier hs-var">SomeKeys</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-string">&quot;type&quot;</span></span><span class="hs-special">]</span></span><span>
+</span><span id="line-41"></span><span>
+</span><span id="line-42"></span><span class="hs-comment">---------------------------------------------------------------------------</span><span>
+</span><span id="line-43"></span><span class="hs-comment">-- mkLogger</span><span>
+</span><span id="line-44"></span><span class="hs-comment">---------------------------------------------------------------------------</span><span>
+</span><span id="line-45"></span><span class="hs-comment">-- | Logger middleware for ABCI messages with custom 'Katip.LogEnv'</span><span>
+</span><span id="line-46"></span><span class="hs-comment">-- and 'Katip.Namespace'. This method makes it easy use various scribes such as</span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- &lt;http://hackage.haskell.org/package/katip-elasticsearch-0.5.1.1/docs/Katip-Scribes-ElasticSearch.html elastic-search&gt;.</span><span>
+</span><span id="line-48"></span><span id="local-6989586621679121073"><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#mkLogger"><span class="hs-identifier hs-type">mkLogger</span></a></span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadIO</span></span><span> </span><span class="annot"><a href="#local-6989586621679121073"><span class="hs-identifier hs-type">m</span></a></span><span>
+</span><span id="line-50"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LogEnv</span></span><span>
+</span><span id="line-51"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Namespace</span></span><span>
+</span><span id="line-52"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Middleware</span></span><span> </span><span class="annot"><a href="#local-6989586621679121073"><span class="hs-identifier hs-type">m</span></a></span></span><span>
+</span><span id="line-53"></span><span id="mkLogger"><span class="annot"><span class="annottext">mkLogger :: LogEnv -&gt; Namespace -&gt; Middleware m
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#mkLogger"><span class="hs-identifier hs-var hs-var">mkLogger</span></a></span></span><span> </span><span id="local-6989586621679121072"><span class="annot"><span class="annottext">le :: LogEnv
+</span><a href="#local-6989586621679121072"><span class="hs-identifier hs-var">le</span></a></span></span><span> </span><span id="local-6989586621679121071"><span class="annot"><span class="annottext">ns :: Namespace
+</span><a href="#local-6989586621679121071"><span class="hs-identifier hs-var">ns</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-54"></span><span>  </span><span class="annot"><span class="annottext">(forall (t :: MessageType).
+ KatipContextT m (Response t) -&gt; m (Response t))
+-&gt; App (KatipContextT m) -&gt; App m
+forall (m :: * -&gt; *) (g :: * -&gt; *).
+(forall (t :: MessageType). m (Response t) -&gt; g (Response t))
+-&gt; App m -&gt; App g
+</span><span class="hs-identifier hs-var">transformApp</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">LogEnv
+-&gt; ()
+-&gt; Namespace
+-&gt; KatipContextT m (Response t)
+-&gt; m (Response t)
+forall c (m :: * -&gt; *) a.
+LogItem c =&gt;
+LogEnv -&gt; c -&gt; Namespace -&gt; KatipContextT m a -&gt; m a
+</span><span class="hs-identifier hs-var">runKatipContextT</span></span><span> </span><span class="annot"><span class="annottext">LogEnv
+</span><a href="#local-6989586621679121072"><span class="hs-identifier hs-var">le</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Namespace
+</span><a href="#local-6989586621679121071"><span class="hs-identifier hs-var">ns</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(App (KatipContextT m) -&gt; App m)
+-&gt; (App m -&gt; App (KatipContextT m)) -&gt; Middleware m
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Middleware (KatipContextT m)
+forall (m :: * -&gt; *). KatipContext m =&gt; Middleware m
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#mkLoggerM"><span class="hs-identifier hs-var">mkLoggerM</span></a></span><span> </span><span class="annot"><span class="annottext">Middleware (KatipContextT m)
+-&gt; (App m -&gt; App (KatipContextT m))
+-&gt; App m
+-&gt; App (KatipContextT m)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(forall (t :: MessageType).
+ m (Response t) -&gt; KatipContextT m (Response t))
+-&gt; App m -&gt; App (KatipContextT m)
+forall (m :: * -&gt; *) (g :: * -&gt; *).
+(forall (t :: MessageType). m (Response t) -&gt; g (Response t))
+-&gt; App m -&gt; App g
+</span><span class="hs-identifier hs-var">transformApp</span></span><span> </span><span class="annot"><span class="annottext">forall (t :: MessageType).
+m (Response t) -&gt; KatipContextT m (Response t)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) a.
+(MonadTrans t, Monad m) =&gt;
+m a -&gt; t m a
+</span><span class="hs-identifier hs-var">lift</span></span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span class="hs-comment">---------------------------------------------------------------------------</span><span>
+</span><span id="line-57"></span><span class="hs-comment">-- mkLoggerM</span><span>
+</span><span id="line-58"></span><span class="hs-comment">---------------------------------------------------------------------------</span><span>
+</span><span id="line-59"></span><span class="hs-comment">-- | Logger middleware for ABCI messages in app with KatipContext.</span><span>
+</span><span id="line-60"></span><span class="hs-comment">-- Great for `App m` with a `KatipContext` instance.</span><span>
+</span><span id="line-61"></span><span id="local-6989586621679121152"><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#mkLoggerM"><span class="hs-identifier hs-type">mkLoggerM</span></a></span><span>
+</span><span id="line-62"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">KatipContext</span></span><span> </span><span class="annot"><a href="#local-6989586621679121152"><span class="hs-identifier hs-type">m</span></a></span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Middleware</span></span><span> </span><span class="annot"><a href="#local-6989586621679121152"><span class="hs-identifier hs-type">m</span></a></span></span><span>
+</span><span id="line-64"></span><span id="mkLoggerM"><span class="annot"><span class="annottext">mkLoggerM :: Middleware m
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#mkLoggerM"><span class="hs-identifier hs-var hs-var">mkLoggerM</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">App</span></span><span> </span><span id="local-6989586621679121067"><span class="annot"><span class="annottext">app :: forall (t :: MessageType). Request t -&gt; m (Response t)
+</span><a href="#local-6989586621679121067"><span class="hs-identifier hs-var">app</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(forall (t :: MessageType). Request t -&gt; m (Response t)) -&gt; App m
+forall (m :: * -&gt; *).
+(forall (t :: MessageType). Request t -&gt; m (Response t)) -&gt; App m
+</span><span class="hs-identifier hs-var">App</span></span><span> </span><span class="annot"><span class="annottext">((forall (t :: MessageType). Request t -&gt; m (Response t)) -&gt; App m)
+-&gt; (forall (t :: MessageType). Request t -&gt; m (Response t))
+-&gt; App m
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span> </span><span id="local-6989586621679121066"><span class="annot"><span class="annottext">req :: Request t
+</span><a href="#local-6989586621679121066"><span class="hs-identifier hs-var">req</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-65"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121065"><span class="annot"><span class="annottext">globalContext :: GlobalMessageContext
+</span><a href="#local-6989586621679121065"><span class="hs-identifier hs-var hs-var">globalContext</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">GlobalMessageContext :: HexString -&gt; MessageType -&gt; GlobalMessageContext
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier hs-type hs-type">GlobalMessageContext</span></a></span><span>
+</span><span id="line-66"></span><span>        </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">messageHash :: HexString
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#messageHash"><span class="hs-identifier hs-var">messageHash</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Request t -&gt; HexString
+forall (t :: MessageType). Request t -&gt; HexString
+</span><span class="hs-identifier hs-var">hashRequest</span></span><span> </span><span class="annot"><span class="annottext">Request t
+</span><a href="#local-6989586621679121066"><span class="hs-identifier hs-var">req</span></a></span><span>
+</span><span id="line-67"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">messageType :: MessageType
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#messageType"><span class="hs-identifier hs-var">messageType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Request t -&gt; MessageType
+forall (t :: MessageType). Request t -&gt; MessageType
+</span><span class="hs-identifier hs-var">demoteRequestType</span></span><span> </span><span class="annot"><span class="annottext">Request t
+</span><a href="#local-6989586621679121066"><span class="hs-identifier hs-var">req</span></a></span><span>
+</span><span id="line-68"></span><span>        </span><span class="hs-special">}</span><span>
+</span><span id="line-69"></span><span>  </span><span class="annot"><span class="annottext">GlobalMessageContext -&gt; m (Response t) -&gt; m (Response t)
+forall i (m :: * -&gt; *) a.
+(LogItem i, KatipContext m) =&gt;
+i -&gt; m a -&gt; m a
+</span><span class="hs-identifier hs-var">katipAddContext</span></span><span> </span><span class="annot"><span class="annottext">GlobalMessageContext
+</span><a href="#local-6989586621679121065"><span class="hs-identifier hs-var">globalContext</span></a></span><span> </span><span class="annot"><span class="annottext">(m (Response t) -&gt; m (Response t))
+-&gt; m (Response t) -&gt; m (Response t)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-70"></span><span>    </span><span class="annot"><span class="annottext">Namespace -&gt; m () -&gt; m ()
+forall (m :: * -&gt; *) a. KatipContext m =&gt; Namespace -&gt; m a -&gt; m a
+</span><span class="hs-identifier hs-var">katipAddNamespace</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Char] -&gt; Namespace
+forall a. IsString a =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">fromString</span></span><span> </span><span class="annot"><span class="hs-string">&quot;server&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(m () -&gt; m ()) -&gt; m () -&gt; m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-71"></span><span>      </span><span class="annot"><span class="annottext">Request t -&gt; m ()
+forall (m :: * -&gt; *) (t :: MessageType).
+KatipContext m =&gt;
+Request t -&gt; m ()
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#logRequest"><span class="hs-identifier hs-var">logRequest</span></a></span><span> </span><span class="annot"><span class="annottext">Request t
+</span><a href="#local-6989586621679121066"><span class="hs-identifier hs-var">req</span></a></span><span>
+</span><span id="line-72"></span><span>    </span><span id="local-6989586621679121057"><span class="annot"><span class="annottext">Response t
+</span><a href="#local-6989586621679121057"><span class="hs-identifier hs-var">resp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Namespace -&gt; m (Response t) -&gt; m (Response t)
+forall (m :: * -&gt; *) a. KatipContext m =&gt; Namespace -&gt; m a -&gt; m a
+</span><span class="hs-identifier hs-var">katipAddNamespace</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Char] -&gt; Namespace
+forall a. IsString a =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">fromString</span></span><span> </span><span class="annot"><span class="hs-string">&quot;application&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(m (Response t) -&gt; m (Response t))
+-&gt; m (Response t) -&gt; m (Response t)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-73"></span><span>      </span><span class="annot"><span class="annottext">Request t -&gt; m (Response t)
+forall (t :: MessageType). Request t -&gt; m (Response t)
+</span><a href="#local-6989586621679121067"><span class="hs-identifier hs-var">app</span></a></span><span> </span><span class="annot"><span class="annottext">Request t
+</span><a href="#local-6989586621679121066"><span class="hs-identifier hs-var">req</span></a></span><span>
+</span><span id="line-74"></span><span>    </span><span class="annot"><span class="annottext">Namespace -&gt; m () -&gt; m ()
+forall (m :: * -&gt; *) a. KatipContext m =&gt; Namespace -&gt; m a -&gt; m a
+</span><span class="hs-identifier hs-var">katipAddNamespace</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Char] -&gt; Namespace
+forall a. IsString a =&gt; [Char] -&gt; a
+</span><span class="hs-identifier hs-var">fromString</span></span><span> </span><span class="annot"><span class="hs-string">&quot;server&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(m () -&gt; m ()) -&gt; m () -&gt; m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-75"></span><span>      </span><span class="annot"><span class="annottext">Response t -&gt; m ()
+forall (m :: * -&gt; *) (t :: MessageType).
+KatipContext m =&gt;
+Response t -&gt; m ()
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#logResponse"><span class="hs-identifier hs-var">logResponse</span></a></span><span> </span><span class="annot"><span class="annottext">Response t
+</span><a href="#local-6989586621679121057"><span class="hs-identifier hs-var">resp</span></a></span><span>
+</span><span id="line-76"></span><span>    </span><span class="annot"><span class="annottext">Response t -&gt; m (Response t)
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">Response t
+</span><a href="#local-6989586621679121057"><span class="hs-identifier hs-var">resp</span></a></span><span>
+</span><span id="line-77"></span><span>
+</span><span id="line-78"></span><span class="hs-comment">---------------------------------------------------------------------------</span><span>
+</span><span id="line-79"></span><span class="hs-comment">-- Common</span><span>
+</span><span id="line-80"></span><span class="hs-comment">---------------------------------------------------------------------------</span><span>
+</span><span id="line-81"></span><span>
+</span><span id="line-82"></span><span class="hs-keyword">data</span><span> </span><span id="GlobalMessageContext"><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier hs-var">GlobalMessageContext</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="GlobalMessageContext"><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier hs-var">GlobalMessageContext</span></a></span></span><span>
+</span><span id="line-83"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="messageHash"><span class="annot"><span class="annottext">GlobalMessageContext -&gt; HexString
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#messageHash"><span class="hs-identifier hs-var hs-var">messageHash</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HexString</span></span><span>
+</span><span id="line-84"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="messageType"><span class="annot"><span class="annottext">GlobalMessageContext -&gt; MessageType
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#messageType"><span class="hs-identifier hs-var hs-var">messageType</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MessageType</span></span><span>
+</span><span id="line-85"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-86"></span><span>
+</span><span id="line-87"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679121049"><span id="local-6989586621679121051"><span id="local-6989586621679121053"><span class="annot"><span class="hs-identifier hs-type">A.ToJSON</span></span><span> </span><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier hs-type">GlobalMessageContext</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-88"></span><span>  </span><span id="local-6989586621679121047"><span class="annot"><span class="annottext">toJSON :: GlobalMessageContext -&gt; Value
+</span><a href="#local-6989586621679121047"><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></a></span></span><span> </span><span id="local-6989586621679121045"><span id="local-6989586621679121046"><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier hs-type">GlobalMessageContext</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-89"></span><span>    </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
+</span><span class="hs-identifier hs-var">A.object</span></span><span> </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="hs-string">&quot;message_type&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; [Char] -&gt; Pair
+forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
+</span><span class="hs-operator hs-var">A..=</span></span><span> </span><span class="annot"><span class="annottext">MessageType -&gt; [Char]
+</span><span class="hs-identifier hs-var">msgTypeKey</span></span><span> </span><span class="annot"><span class="annottext">MessageType
+</span><a href="#local-6989586621679121045"><span class="hs-identifier hs-var">messageType</span></a></span><span>
+</span><span id="line-90"></span><span>             </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;message_hash&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; HexString -&gt; Pair
+forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
+</span><span class="hs-operator hs-var">A..=</span></span><span> </span><span class="annot"><span class="annottext">HexString
+</span><a href="#local-6989586621679121046"><span class="hs-identifier hs-var">messageHash</span></a></span><span>
+</span><span id="line-91"></span><span>             </span><span class="hs-special">]</span><span>
+</span><span id="line-92"></span><span>
+</span><span id="line-93"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679121041"><span class="annot"><span class="hs-identifier hs-type">ToObject</span></span><span> </span><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier hs-type">GlobalMessageContext</span></a></span></span><span>
+</span><span id="line-94"></span><span>
+</span><span id="line-95"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LogItem</span></span><span> </span><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#GlobalMessageContext"><span class="hs-identifier hs-type">GlobalMessageContext</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-96"></span><span>    </span><span id="local-6989586621679121038"><span class="annot"><span class="annottext">payloadKeys :: Verbosity -&gt; GlobalMessageContext -&gt; PayloadSelection
+</span><a href="#local-6989586621679121038"><span class="hs-identifier hs-var hs-var hs-var hs-var">payloadKeys</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PayloadSelection
+</span><span class="hs-identifier hs-var">AllKeys</span></span><span>
+</span><span id="line-97"></span><span>
+</span><span id="line-98"></span><span class="hs-comment">-- | Request logger function.</span><span>
+</span><span id="line-99"></span><span id="local-6989586621679121128"><span id="local-6989586621679121129"><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#logRequest"><span class="hs-identifier hs-type">logRequest</span></a></span><span>
+</span><span id="line-100"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">KatipContext</span></span><span> </span><span class="annot"><a href="#local-6989586621679121129"><span class="hs-identifier hs-type">m</span></a></span><span>
+</span><span id="line-101"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Request</span></span><span> </span><span class="annot"><a href="#local-6989586621679121128"><span class="hs-identifier hs-type">t</span></a></span><span>
+</span><span id="line-102"></span><span>  </span><span class="hs-glyph">-&gt;</span><span>  </span><span class="annot"><a href="#local-6989586621679121129"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-103"></span><span id="logRequest"><span class="annot"><span class="annottext">logRequest :: Request t -&gt; m ()
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#logRequest"><span class="hs-identifier hs-var hs-var">logRequest</span></a></span></span><span> </span><span id="local-6989586621679121037"><span class="annot"><span class="annottext">req :: Request t
+</span><a href="#local-6989586621679121037"><span class="hs-identifier hs-var">req</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Loggable (Request t) -&gt; m () -&gt; m ()
+forall i (m :: * -&gt; *) a.
+(LogItem i, KatipContext m) =&gt;
+i -&gt; m a -&gt; m a
+</span><span class="hs-identifier hs-var">katipAddContext</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Request t -&gt; Loggable (Request t)
+forall a. a -&gt; Loggable a
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-var">Loggable</span></a></span><span> </span><span class="annot"><span class="annottext">Request t
+</span><a href="#local-6989586621679121037"><span class="hs-identifier hs-var">req</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(m () -&gt; m ()) -&gt; m () -&gt; m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-104"></span><span>  </span><span class="annot"><span class="annottext">Severity -&gt; LogStr -&gt; m ()
+forall (m :: * -&gt; *).
+(Applicative m, KatipContext m) =&gt;
+Severity -&gt; LogStr -&gt; m ()
+</span><span class="hs-identifier hs-var">logFM</span></span><span> </span><span class="annot"><span class="annottext">Severity
+</span><a href="#local-6989586621679121035"><span class="hs-identifier hs-var">logLevel</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;Request Received&quot;</span></span><span>
+</span><span id="line-105"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-106"></span><span>    </span><span id="local-6989586621679121035"><span class="annot"><span class="annottext">logLevel :: Severity
+</span><a href="#local-6989586621679121035"><span class="hs-identifier hs-var hs-var">logLevel</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Request t
+</span><a href="#local-6989586621679121037"><span class="hs-identifier hs-var">req</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-107"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">RequestFlush</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Severity
+</span><span class="hs-identifier hs-var">DebugS</span></span><span>
+</span><span id="line-108"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">RequestEcho</span></span><span> </span><span class="hs-identifier">_</span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Severity
+</span><span class="hs-identifier hs-var">DebugS</span></span><span>
+</span><span id="line-109"></span><span>      </span><span class="hs-identifier">_</span><span>              </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Severity
+</span><span class="hs-identifier hs-var">InfoS</span></span><span>
+</span><span id="line-110"></span><span>
+</span><span id="line-111"></span><span id="local-6989586621679121126"><span id="local-6989586621679121127"><span class="annot"><a href="Network.ABCI.Server.Middleware.Logger.html#logResponse"><span class="hs-identifier hs-type">logResponse</span></a></span><span>
+</span><span id="line-112"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">KatipContext</span></span><span> </span><span class="annot"><a href="#local-6989586621679121127"><span class="hs-identifier hs-type">m</span></a></span><span>
+</span><span id="line-113"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Response</span></span><span> </span><span class="annot"><a href="#local-6989586621679121126"><span class="hs-identifier hs-type">t</span></a></span><span>
+</span><span id="line-114"></span><span>  </span><span class="hs-glyph">-&gt;</span><span>  </span><span class="annot"><a href="#local-6989586621679121127"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-115"></span><span id="logResponse"><span class="annot"><span class="annottext">logResponse :: Response t -&gt; m ()
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#logResponse"><span class="hs-identifier hs-var hs-var">logResponse</span></a></span></span><span> </span><span id="local-6989586621679121030"><span class="annot"><span class="annottext">resp :: Response t
+</span><a href="#local-6989586621679121030"><span class="hs-identifier hs-var">resp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Loggable (Response t) -&gt; m () -&gt; m ()
+forall i (m :: * -&gt; *) a.
+(LogItem i, KatipContext m) =&gt;
+i -&gt; m a -&gt; m a
+</span><span class="hs-identifier hs-var">katipAddContext</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Response t -&gt; Loggable (Response t)
+forall a. a -&gt; Loggable a
+</span><a href="Network.ABCI.Server.Middleware.Logger.html#Loggable"><span class="hs-identifier hs-var">Loggable</span></a></span><span> </span><span class="annot"><span class="annottext">Response t
+</span><a href="#local-6989586621679121030"><span class="hs-identifier hs-var">resp</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(m () -&gt; m ()) -&gt; m () -&gt; m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-116"></span><span>  </span><span class="annot"><span class="annottext">Severity -&gt; LogStr -&gt; m ()
+forall (m :: * -&gt; *).
+(Applicative m, KatipContext m) =&gt;
+Severity -&gt; LogStr -&gt; m ()
+</span><span class="hs-identifier hs-var">logFM</span></span><span> </span><span class="annot"><span class="annottext">Severity
+</span><a href="#local-6989586621679121029"><span class="hs-identifier hs-var">logLevel</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;Response Sent&quot;</span></span><span>
+</span><span id="line-117"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-118"></span><span>    </span><span id="local-6989586621679121029"><span class="annot"><span class="annottext">logLevel :: Severity
+</span><a href="#local-6989586621679121029"><span class="hs-identifier hs-var hs-var">logLevel</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Response t
+</span><a href="#local-6989586621679121030"><span class="hs-identifier hs-var">resp</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-119"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">ResponseFlush</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Severity
+</span><span class="hs-identifier hs-var">DebugS</span></span><span>
+</span><span id="line-120"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">ResponseEcho</span></span><span> </span><span class="hs-identifier">_</span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Severity
+</span><span class="hs-identifier hs-var">DebugS</span></span><span>
+</span><span id="line-121"></span><span>      </span><span class="hs-identifier">_</span><span>               </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Severity
+</span><span class="hs-identifier hs-var">InfoS</span></span><span>
+</span><span id="line-122"></span></pre></body></html>

@@ -1,38 +1,95 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Database.IAVL.RPC.Types</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-2"></a><span>
-</span><a name="line-3"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Exception</span><span>           </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Exception</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">throwIO</span><span class="hs-special">)</span><span>
-</span><a name="line-4"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Text</span><span>                   </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Text</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">pack</span><span class="hs-special">)</span><span>
-</span><a name="line-5"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Network.GRPC.Client</span><span>         </span><span class="hs-special">(</span><span class="hs-identifier hs-var">uncompressed</span><span class="hs-special">)</span><span>
-</span><a name="line-6"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Network.GRPC.Client.Helpers</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">GrpcClient</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">GrpcClientConfig</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-7"></a><span>                                              </span><span class="hs-identifier hs-var">grpcClientConfigSimple</span><span class="hs-special">,</span><span>
-</span><a name="line-8"></a><span>                                              </span><span class="hs-identifier hs-var">setupGrpcClient</span><span class="hs-special">)</span><span>
-</span><a name="line-9"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Network.HTTP2.Client</span><span>        </span><span class="hs-special">(</span><span class="hs-identifier hs-var">runClientIO</span><span class="hs-special">)</span><span>
-</span><a name="line-10"></a><span>
-</span><a name="line-11"></a><span>
-</span><a name="line-12"></a><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
-</span><a name="line-13"></a><span class="hs-comment">-- | GRPCClientError</span><span>
-</span><a name="line-14"></a><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
-</span><a name="line-15"></a><span class="hs-comment">-- | This type represents error with the GRPC Client</span><span>
-</span><a name="line-16"></a><span class="hs-keyword">data</span><span> </span><a name="GRPCClientError"><a href="Database.IAVL.RPC.Types.html#GRPCClientError"><span class="hs-identifier">GRPCClientError</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="ClientSetupError"><a href="Database.IAVL.RPC.Types.html#ClientSetupError"><span class="hs-identifier">ClientSetupError</span></a></a><span> </span><span class="hs-identifier hs-type">Text</span><span>
-</span><a name="line-17"></a><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-identifier hs-type">Show</span><span>
-</span><a name="line-18"></a><span>
-</span><a name="line-19"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">Exception</span><span> </span><a href="Database.IAVL.RPC.Types.html#GRPCClientError"><span class="hs-identifier hs-type">GRPCClientError</span></a><span>
-</span><a name="line-20"></a><span>
-</span><a name="line-21"></a><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
-</span><a name="line-22"></a><span class="hs-comment">-- | initGrpcClient</span><span>
-</span><a name="line-23"></a><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
-</span><a name="line-24"></a><span>
-</span><a name="line-25"></a><span class="hs-keyword">data</span><span> </span><a name="GrpcConfig"><a href="Database.IAVL.RPC.Types.html#GrpcConfig"><span class="hs-identifier">GrpcConfig</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="GrpcConfig"><a href="Database.IAVL.RPC.Types.html#GrpcConfig"><span class="hs-identifier">GrpcConfig</span></a></a><span>
-</span><a name="line-26"></a><span>  </span><span class="hs-special">{</span><span> </span><a name="grpcHost"><a href="Database.IAVL.RPC.Types.html#grpcHost"><span class="hs-identifier">grpcHost</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">String</span><span>
-</span><a name="line-27"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="grpcPort"><a href="Database.IAVL.RPC.Types.html#grpcPort"><span class="hs-identifier">grpcPort</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Integer</span><span>
-</span><a name="line-28"></a><span>  </span><span class="hs-special">}</span><span>
-</span><a name="line-29"></a><span>
-</span><a name="line-30"></a><span class="hs-comment">-- | Initialize the GRPC Client</span><span>
-</span><a name="line-31"></a><span class="hs-identifier">initGrpcClient</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="Database.IAVL.RPC.Types.html#GrpcConfig"><span class="hs-identifier hs-type">GrpcConfig</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><span class="hs-identifier hs-type">GrpcClient</span><span>
-</span><a name="line-32"></a><a name="initGrpcClient"><a href="Database.IAVL.RPC.Types.html#initGrpcClient"><span class="hs-identifier">initGrpcClient</span></a></a><span> </span><span class="hs-special">(</span><a href="Database.IAVL.RPC.Types.html#GrpcConfig"><span class="hs-identifier hs-var">GrpcConfig</span></a><span> </span><a name="local-6989586621679039577"><a href="#local-6989586621679039577"><span class="hs-identifier">host</span></a></a><span> </span><a name="local-6989586621679039578"><a href="#local-6989586621679039578"><span class="hs-identifier">port</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-33"></a><span class="hs-comment">-- usually 0.0.0.0:8090</span><span>
-</span><a name="line-34"></a><span>  </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679039579"><a href="#local-6989586621679039579"><span class="hs-identifier">grpcClient</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">grpcClientConfigSimple</span><span> </span><a href="#local-6989586621679039577"><span class="hs-identifier hs-var">host</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fromInteger</span><span> </span><a href="#local-6989586621679039578"><span class="hs-identifier hs-var">port</span></a><span class="hs-special">)</span><span> </span><span class="hs-identifier hs-var">False</span><span>
-</span><a name="line-35"></a><span>  </span><span class="hs-keyword">in</span><span>  </span><span class="hs-identifier hs-var">runClientIO</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">setupGrpcClient</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679039579"><span class="hs-identifier hs-var">grpcClient</span></a><span class="hs-special">{</span><span class="hs-identifier">_grpcClientConfigCompression</span><span class="hs-glyph">=</span><span class="hs-identifier hs-var">uncompressed</span><span class="hs-special">}</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">&gt;&gt;=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
-</span><a name="line-36"></a><span>        </span><span class="hs-identifier hs-var">Right</span><span> </span><a name="local-6989586621679040028"><a href="#local-6989586621679040028"><span class="hs-identifier">gc</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><a href="#local-6989586621679040028"><span class="hs-identifier hs-var">gc</span></a><span>
-</span><a name="line-37"></a><span>        </span><span class="hs-identifier hs-var">Left</span><span> </span><a name="local-6989586621679040029"><a href="#local-6989586621679040029"><span class="hs-identifier">err</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">throwIO</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Database.IAVL.RPC.Types.html#ClientSetupError"><span class="hs-identifier hs-var">ClientSetupError</span></a><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">pack</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">show</span><span> </span><a href="#local-6989586621679040029"><span class="hs-identifier hs-var">err</span></a><span>
-</span><a name="line-38"></a></pre></body></html>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Exception</span></span><span>           </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Exception</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">throwIO</span></span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span>                   </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">pack</span></span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Network.GRPC.Client</span></span><span>         </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">uncompressed</span></span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Network.GRPC.Client.Helpers</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">GrpcClient</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">GrpcClientConfig</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>                                              </span><span class="annot"><span class="hs-identifier">grpcClientConfigSimple</span></span><span class="hs-special">,</span><span>
+</span><span id="line-8"></span><span>                                              </span><span class="annot"><span class="hs-identifier">setupGrpcClient</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Network.HTTP2.Client</span></span><span>        </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">runClientIO</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-13"></span><span class="hs-comment">-- | GRPCClientError</span><span>
+</span><span id="line-14"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-15"></span><span class="hs-comment">-- | This type represents error with the GRPC Client</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">data</span><span> </span><span id="GRPCClientError"><span class="annot"><a href="Database.IAVL.RPC.Types.html#GRPCClientError"><span class="hs-identifier hs-var">GRPCClientError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="ClientSetupError"><span class="annot"><a href="Database.IAVL.RPC.Types.html#ClientSetupError"><span class="hs-identifier hs-var">ClientSetupError</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679227972"><span id="local-6989586621679227974"><span id="local-6989586621679227976"><span class="annot"><span class="annottext">Int -&gt; GRPCClientError -&gt; ShowS
+[GRPCClientError] -&gt; ShowS
+GRPCClientError -&gt; String
+(Int -&gt; GRPCClientError -&gt; ShowS)
+-&gt; (GRPCClientError -&gt; String)
+-&gt; ([GRPCClientError] -&gt; ShowS)
+-&gt; Show GRPCClientError
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [GRPCClientError] -&gt; ShowS
+$cshowList :: [GRPCClientError] -&gt; ShowS
+show :: GRPCClientError -&gt; String
+$cshow :: GRPCClientError -&gt; String
+showsPrec :: Int -&gt; GRPCClientError -&gt; ShowS
+$cshowsPrec :: Int -&gt; GRPCClientError -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679227963"><span id="local-6989586621679227965"><span id="local-6989586621679227967"><span class="annot"><span class="hs-identifier hs-type">Exception</span></span><span> </span><span class="annot"><a href="Database.IAVL.RPC.Types.html#GRPCClientError"><span class="hs-identifier hs-type">GRPCClientError</span></a></span></span></span></span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- | initGrpcClient</span><span>
+</span><span id="line-23"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-24"></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">data</span><span> </span><span id="GrpcConfig"><span class="annot"><a href="Database.IAVL.RPC.Types.html#GrpcConfig"><span class="hs-identifier hs-var">GrpcConfig</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="GrpcConfig"><span class="annot"><a href="Database.IAVL.RPC.Types.html#GrpcConfig"><span class="hs-identifier hs-var">GrpcConfig</span></a></span></span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="grpcHost"><span class="annot"><span class="annottext">GrpcConfig -&gt; String
+</span><a href="Database.IAVL.RPC.Types.html#grpcHost"><span class="hs-identifier hs-var hs-var">grpcHost</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="grpcPort"><span class="annot"><span class="annottext">GrpcConfig -&gt; Integer
+</span><a href="Database.IAVL.RPC.Types.html#grpcPort"><span class="hs-identifier hs-var hs-var">grpcPort</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Integer</span></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-comment">-- | Initialize the GRPC Client</span><span>
+</span><span id="line-31"></span><span class="annot"><a href="Database.IAVL.RPC.Types.html#initGrpcClient"><span class="hs-identifier hs-type">initGrpcClient</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Database.IAVL.RPC.Types.html#GrpcConfig"><span class="hs-identifier hs-type">GrpcConfig</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">GrpcClient</span></span><span>
+</span><span id="line-32"></span><span id="initGrpcClient"><span class="annot"><span class="annottext">initGrpcClient :: GrpcConfig -&gt; IO GrpcClient
+</span><a href="Database.IAVL.RPC.Types.html#initGrpcClient"><span class="hs-identifier hs-var hs-var">initGrpcClient</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Database.IAVL.RPC.Types.html#GrpcConfig"><span class="hs-identifier hs-type">GrpcConfig</span></a></span><span> </span><span id="local-6989586621679227957"><span class="annot"><span class="annottext">host :: String
+</span><a href="#local-6989586621679227957"><span class="hs-identifier hs-var">host</span></a></span></span><span> </span><span id="local-6989586621679227956"><span class="annot"><span class="annottext">port :: Integer
+</span><a href="#local-6989586621679227956"><span class="hs-identifier hs-var">port</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- usually 0.0.0.0:8090</span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679227955"><span class="annot"><span class="annottext">grpcClient :: GrpcClientConfig
+</span><a href="#local-6989586621679227955"><span class="hs-identifier hs-var hs-var">grpcClient</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; PortNumber -&gt; UseTlsOrNot -&gt; GrpcClientConfig
+</span><span class="hs-identifier hs-var">grpcClientConfigSimple</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679227957"><span class="hs-identifier hs-var">host</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Integer -&gt; PortNumber
+forall a. Num a =&gt; Integer -&gt; a
+</span><span class="hs-identifier hs-var">fromInteger</span></span><span> </span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679227956"><span class="hs-identifier hs-var">port</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">UseTlsOrNot
+</span><span class="hs-identifier hs-var">False</span></span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-keyword">in</span><span>  </span><span class="annot"><span class="annottext">ClientIO GrpcClient -&gt; IO (Either ClientError GrpcClient)
+forall a. ClientIO a -&gt; IO (Either ClientError a)
+</span><span class="hs-identifier hs-var">runClientIO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">GrpcClientConfig -&gt; ClientIO GrpcClient
+</span><span class="hs-identifier hs-var">setupGrpcClient</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">GrpcClientConfig
+</span><a href="#local-6989586621679227955"><span class="hs-identifier hs-var">grpcClient</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">_grpcClientConfigCompression :: Compression
+</span><span class="hs-identifier hs-var">_grpcClientConfigCompression</span></span><span class="hs-glyph">=</span><span class="annot"><span class="annottext">Compression
+</span><span class="hs-identifier hs-var">uncompressed</span></span><span class="hs-special">}</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">IO (Either ClientError GrpcClient)
+-&gt; (Either ClientError GrpcClient -&gt; IO GrpcClient)
+-&gt; IO GrpcClient
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-36"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679227953"><span class="annot"><span class="annottext">gc :: GrpcClient
+</span><a href="#local-6989586621679227953"><span class="hs-identifier hs-var">gc</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">GrpcClient -&gt; IO GrpcClient
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679227953"><span class="hs-identifier hs-var">gc</span></a></span><span>
+</span><span id="line-37"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679227952"><span class="annot"><span class="annottext">err :: ClientError
+</span><a href="#local-6989586621679227952"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">GRPCClientError -&gt; IO GrpcClient
+forall e a. Exception e =&gt; e -&gt; IO a
+</span><span class="hs-identifier hs-var">throwIO</span></span><span> </span><span class="annot"><span class="annottext">(GRPCClientError -&gt; IO GrpcClient)
+-&gt; (String -&gt; GRPCClientError) -&gt; String -&gt; IO GrpcClient
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; GRPCClientError
+</span><a href="Database.IAVL.RPC.Types.html#ClientSetupError"><span class="hs-identifier hs-var">ClientSetupError</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; GRPCClientError)
+-&gt; (String -&gt; Text) -&gt; String -&gt; GRPCClientError
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><span class="hs-identifier hs-var">pack</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; IO GrpcClient) -&gt; String -&gt; IO GrpcClient
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ClientError -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">ClientError
+</span><a href="#local-6989586621679227952"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-38"></span></pre></body></html>

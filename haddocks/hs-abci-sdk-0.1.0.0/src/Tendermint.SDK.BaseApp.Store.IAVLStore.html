@@ -1,159 +1,967 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.IAVLStore</span><span>
-</span><a name="line-2"></a><span>  </span><span class="hs-special">(</span><span>
-</span><a name="line-3"></a><span>  </span><span class="hs-comment">-- * Environment</span><span>
-</span><a name="line-4"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVLVersions</span></a><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
-</span><a name="line-5"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#initIAVLVersions"><span class="hs-identifier hs-var">initIAVLVersions</span></a><span>
-</span><a name="line-6"></a><span>  </span><span class="hs-comment">-- * Eval</span><span>
-</span><a name="line-7"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalStoreEffs"><span class="hs-identifier hs-var">evalStoreEffs</span></a><span>
-</span><a name="line-8"></a><span>  </span><span class="hs-comment">-- * Re-Exports</span><span>
-</span><a name="line-9"></a><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">GrpcClient</span><span>
-</span><a name="line-10"></a><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">GrpcConfig</span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
-</span><a name="line-11"></a><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">initGrpcClient</span><span>
-</span><a name="line-12"></a><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-13"></a><span>
-</span><a name="line-14"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Lens</span><span>                          </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-operator hs-var">&amp;</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="hs-special">(</span><span class="hs-operator hs-var">.~</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="hs-special">(</span><span class="hs-operator hs-var">^.</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-15"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Monad</span><span>                         </span><span class="hs-special">(</span><span class="hs-identifier hs-var">void</span><span class="hs-special">)</span><span>
-</span><a name="line-16"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Monad.IO.Class</span><span>
-</span><a name="line-17"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.ByteArray.Base64String</span><span>           </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fromBytes</span><span class="hs-special">)</span><span>
-</span><a name="line-18"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.IORef</span><span>                            </span><span class="hs-special">(</span><span class="hs-identifier hs-type">IORef</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">newIORef</span><span class="hs-special">,</span><span>
-</span><a name="line-19"></a><span>                                                        </span><span class="hs-identifier hs-var">readIORef</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">writeIORef</span><span class="hs-special">)</span><span>
-</span><a name="line-20"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.ProtoLens.Message</span><span>                </span><span class="hs-special">(</span><span class="hs-identifier hs-var">defMessage</span><span class="hs-special">)</span><span>
-</span><a name="line-21"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Text</span><span>                             </span><span class="hs-special">(</span><span class="hs-identifier hs-var">pack</span><span class="hs-special">)</span><span>
-</span><a name="line-22"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Database.IAVL.RPC</span><span>                     </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">IAVL</span><span>
-</span><a name="line-23"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Database.IAVL.RPC.Types</span><span>               </span><span class="hs-special">(</span><span class="hs-identifier hs-type">GrpcConfig</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-24"></a><span>                                                        </span><span class="hs-identifier hs-var">initGrpcClient</span><span class="hs-special">)</span><span>
-</span><a name="line-25"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Network.GRPC.Client</span><span>                   </span><span class="hs-special">(</span><span class="hs-identifier hs-type">RawReply</span><span class="hs-special">)</span><span>
-</span><a name="line-26"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Network.GRPC.Client.Helpers</span><span>           </span><span class="hs-special">(</span><span class="hs-identifier hs-type">GrpcClient</span><span class="hs-special">)</span><span>
-</span><a name="line-27"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Network.HTTP2.Client</span><span>                  </span><span class="hs-special">(</span><span class="hs-identifier hs-type">ClientIO</span><span class="hs-special">,</span><span>
-</span><a name="line-28"></a><span>                                                        </span><span class="hs-identifier hs-type">TooMuchConcurrency</span><span class="hs-special">,</span><span>
-</span><a name="line-29"></a><span>                                                        </span><span class="hs-identifier hs-var">runClientIO</span><span class="hs-special">)</span><span>
-</span><a name="line-30"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy</span><span>                              </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Embed</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Member</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Members</span><span class="hs-special">,</span><span>
-</span><a name="line-31"></a><span>                                                        </span><span class="hs-identifier hs-type">Sem</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">interpret</span><span class="hs-special">)</span><span>
-</span><a name="line-32"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy.Error</span><span>                        </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Error</span><span class="hs-special">)</span><span>
-</span><a name="line-33"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy.Reader</span><span>                       </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Reader</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">ask</span><span class="hs-special">)</span><span>
-</span><a name="line-34"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy.Tagged</span><span>                       </span><span class="hs-special">(</span><span class="hs-identifier hs-var">untag</span><span class="hs-special">)</span><span>
-</span><a name="line-35"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Proto.Iavl.Api_Fields</span><span>                 </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Api</span><span>
-</span><a name="line-36"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Errors.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Errors</span></a><span>         </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Errors.html#SDKError"><span class="hs-identifier hs-type">SDKError</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-37"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.RawStore</span></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#CommitBlock"><span class="hs-identifier hs-type">CommitBlock</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-38"></a><span>                                                        </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#CommitResponse"><span class="hs-identifier hs-type">CommitResponse</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-39"></a><span>                                                        </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-40"></a><span>                                                        </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreEffs"><span class="hs-identifier hs-type">StoreEffs</span></a><span class="hs-special">,</span><span>
-</span><a name="line-41"></a><span>                                                        </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Transaction"><span class="hs-identifier hs-type">Transaction</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-42"></a><span>                                                        </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-type">Version</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-43"></a><span>                                                        </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#WriteStore"><span class="hs-identifier hs-type">WriteStore</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-44"></a><span>                                                        </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a><span class="hs-special">)</span><span>
-</span><a name="line-45"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.Types.Effects.html"><span class="hs-identifier">Tendermint.SDK.Types.Effects</span></a><span>          </span><span class="hs-special">(</span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-46"></a><span>
-</span><a name="line-47"></a><span class="hs-keyword">data</span><span> </span><a name="IAVLVersions"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier">IAVLVersions</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="IAVLVersions"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier">IAVLVersions</span></a></a><span>
-</span><a name="line-48"></a><span>  </span><span class="hs-special">{</span><span> </span><a name="latest"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#latest"><span class="hs-identifier">latest</span></a></a><span>    </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">IORef</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-type">Version</span></a><span>
-</span><a name="line-49"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="committed"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#committed"><span class="hs-identifier">committed</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">IORef</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-type">Version</span></a><span>
-</span><a name="line-50"></a><span>  </span><span class="hs-special">}</span><span>
-</span><a name="line-51"></a><span>
-</span><a name="line-52"></a><span class="hs-identifier">initIAVLVersions</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVLVersions</span></a><span>
-</span><a name="line-53"></a><a name="initIAVLVersions"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#initIAVLVersions"><span class="hs-identifier">initIAVLVersions</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-var">IAVLVersions</span></a><span> </span><span class="hs-operator hs-var">&lt;$&gt;</span><span> </span><span class="hs-identifier hs-var">newIORef</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Latest"><span class="hs-identifier hs-var">Latest</span></a><span> </span><span class="hs-operator hs-var">&lt;*&gt;</span><span> </span><span class="hs-identifier hs-var">newIORef</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Genesis"><span class="hs-identifier hs-var">Genesis</span></a><span>
-</span><a name="line-54"></a><span>
-</span><a name="line-55"></a><span class="hs-identifier">evalWrite</span><span>
-</span><a name="line-56"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Member</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Embed</span><span> </span><span class="hs-identifier hs-type">IO</span><span class="hs-special">)</span><span> </span><a href="#local-6989586621679350639"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-57"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-identifier hs-type">GrpcClient</span><span>
-</span><a name="line-58"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><a name="local-6989586621679350640"><a href="#local-6989586621679350640"><span class="hs-identifier">a</span></a></a><span class="hs-operator">.</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">WriteStore</span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><a href="#local-6989586621679350639"><span class="hs-identifier hs-type">r</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679350640"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="#local-6989586621679350639"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679350640"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-59"></a><a name="evalWrite"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalWrite"><span class="hs-identifier">evalWrite</span></a></a><span> </span><a name="local-6989586621679350641"><a href="#local-6989586621679350641"><span class="hs-identifier">gc</span></a></a><span> </span><a name="local-6989586621679350642"><a href="#local-6989586621679350642"><span class="hs-identifier">m</span></a></a><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-60"></a><span>  </span><span class="hs-identifier hs-var">interpret</span><span>
-</span><a name="line-61"></a><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
-</span><a name="line-62"></a><span>      </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StorePut"><span class="hs-identifier hs-var">StorePut</span></a><span> </span><a name="local-6989586621679350643"><a href="#local-6989586621679350643"><span class="hs-identifier">k</span></a></a><span> </span><a name="local-6989586621679350644"><a href="#local-6989586621679350644"><span class="hs-identifier">v</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-63"></a><span>        </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679350645"><a href="#local-6989586621679350645"><span class="hs-identifier">setReq</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">defMessage</span><span> </span><span class="hs-operator hs-var">&amp;</span><span> </span><span class="hs-identifier hs-var">Api.key</span><span> </span><span class="hs-operator hs-var">.~</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a><span> </span><a href="#local-6989586621679350643"><span class="hs-identifier hs-var">k</span></a><span>
-</span><a name="line-64"></a><span>                                </span><span class="hs-operator hs-var">&amp;</span><span> </span><span class="hs-identifier hs-var">Api.value</span><span> </span><span class="hs-operator hs-var">.~</span><span> </span><a href="#local-6989586621679350644"><span class="hs-identifier hs-var">v</span></a><span>
-</span><a name="line-65"></a><span>        </span><span class="hs-identifier hs-var">void</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">IAVL.set</span><span> </span><a href="#local-6989586621679350641"><span class="hs-identifier hs-var">gc</span></a><span> </span><a href="#local-6989586621679350645"><span class="hs-identifier hs-var">setReq</span></a><span>
-</span><a name="line-66"></a><span>      </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreDelete"><span class="hs-identifier hs-var">StoreDelete</span></a><span> </span><a name="local-6989586621679350646"><a href="#local-6989586621679350646"><span class="hs-identifier">k</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><a name="line-67"></a><span>        </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679350647"><a href="#local-6989586621679350647"><span class="hs-identifier">remReq</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">defMessage</span><span> </span><span class="hs-operator hs-var">&amp;</span><span> </span><span class="hs-identifier hs-var">Api.key</span><span> </span><span class="hs-operator hs-var">.~</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a><span> </span><a href="#local-6989586621679350646"><span class="hs-identifier hs-var">k</span></a><span>
-</span><a name="line-68"></a><span>        </span><span class="hs-keyword">in</span><span> </span><span class="hs-identifier hs-var">void</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">IAVL.remove</span><span> </span><a href="#local-6989586621679350641"><span class="hs-identifier hs-var">gc</span></a><span> </span><a href="#local-6989586621679350647"><span class="hs-identifier hs-var">remReq</span></a><span>
-</span><a name="line-69"></a><span>    </span><span class="hs-special">)</span><span> </span><a href="#local-6989586621679350642"><span class="hs-identifier hs-var">m</span></a><span>
-</span><a name="line-70"></a><span>
-</span><a name="line-71"></a><span class="hs-identifier">evalRead</span><span>
-</span><a name="line-72"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Member</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Embed</span><span> </span><span class="hs-identifier hs-type">IO</span><span class="hs-special">)</span><span> </span><a href="#local-6989586621679350637"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-73"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-identifier hs-type">GrpcClient</span><span>
-</span><a name="line-74"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IORef</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-type">Version</span></a><span>
-</span><a name="line-75"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><a name="local-6989586621679350638"><a href="#local-6989586621679350638"><span class="hs-identifier">a</span></a></a><span class="hs-operator">.</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">ReadStore</span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><a href="#local-6989586621679350637"><span class="hs-identifier hs-type">r</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679350638"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="#local-6989586621679350637"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679350638"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-76"></a><a name="evalRead"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalRead"><span class="hs-identifier">evalRead</span></a></a><span> </span><a name="local-6989586621679350648"><a href="#local-6989586621679350648"><span class="hs-identifier">gc</span></a></a><span> </span><a name="local-6989586621679350649"><a href="#local-6989586621679350649"><span class="hs-identifier">iavlVersion</span></a></a><span> </span><a name="local-6989586621679350650"><a href="#local-6989586621679350650"><span class="hs-identifier">m</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-77"></a><span>  </span><span class="hs-identifier hs-var">interpret</span><span>
-</span><a name="line-78"></a><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
-</span><a name="line-79"></a><span>      </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreGet"><span class="hs-identifier hs-var">StoreGet</span></a><span> </span><a name="local-6989586621679350651"><a href="#local-6989586621679350651"><span class="hs-identifier">k</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-80"></a><span>        </span><a name="local-6989586621679350652"><a href="#local-6989586621679350652"><span class="hs-identifier">version</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">readIORef</span><span> </span><a href="#local-6989586621679350649"><span class="hs-identifier hs-var">iavlVersion</span></a><span>
-</span><a name="line-81"></a><span>        </span><span class="hs-keyword">case</span><span> </span><a href="#local-6989586621679350652"><span class="hs-identifier hs-var">version</span></a><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-82"></a><span>          </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Latest"><span class="hs-identifier hs-var">Latest</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-83"></a><span>            </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679350653"><a href="#local-6989586621679350653"><span class="hs-identifier">getReq</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">defMessage</span><span> </span><span class="hs-operator hs-var">&amp;</span><span> </span><span class="hs-identifier hs-var">Api.key</span><span> </span><span class="hs-operator hs-var">.~</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a><span> </span><a href="#local-6989586621679350651"><span class="hs-identifier hs-var">k</span></a><span>
-</span><a name="line-84"></a><span>            </span><a name="local-6989586621679350654"><a href="#local-6989586621679350654"><span class="hs-identifier">res</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">IAVL.get</span><span> </span><a href="#local-6989586621679350648"><span class="hs-identifier hs-var">gc</span></a><span> </span><a href="#local-6989586621679350653"><span class="hs-identifier hs-var">getReq</span></a><span>
-</span><a name="line-85"></a><span>            </span><span class="hs-keyword">case</span><span> </span><a href="#local-6989586621679350654"><span class="hs-identifier hs-var">res</span></a><span> </span><span class="hs-operator hs-var">^.</span><span> </span><span class="hs-identifier hs-var">Api.value</span><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-86"></a><span>              </span><span class="hs-string">&quot;&quot;</span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-identifier hs-var">Nothing</span><span>
-</span><a name="line-87"></a><span>              </span><a name="local-6989586621679350655"><a href="#local-6989586621679350655"><span class="hs-identifier">val</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">Just</span><span> </span><a href="#local-6989586621679350655"><span class="hs-identifier hs-var">val</span></a><span>
-</span><a name="line-88"></a><span>          </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-var">Version</span></a><span> </span><a name="local-6989586621679350656"><a href="#local-6989586621679350656"><span class="hs-identifier">v</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-89"></a><span>            </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679350657"><a href="#local-6989586621679350657"><span class="hs-identifier">getVerReq</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">defMessage</span><span> </span><span class="hs-operator hs-var">&amp;</span><span> </span><span class="hs-identifier hs-var">Api.key</span><span> </span><span class="hs-operator hs-var">.~</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a><span> </span><a href="#local-6989586621679350651"><span class="hs-identifier hs-var">k</span></a><span>
-</span><a name="line-90"></a><span>                                       </span><span class="hs-operator hs-var">&amp;</span><span> </span><span class="hs-identifier hs-var">Api.version</span><span> </span><span class="hs-operator hs-var">.~</span><span> </span><span class="hs-identifier hs-var">fromInteger</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">toInteger</span><span> </span><a href="#local-6989586621679350656"><span class="hs-identifier hs-var">v</span></a><span class="hs-special">)</span><span>
-</span><a name="line-91"></a><span>            </span><a name="local-6989586621679350658"><a href="#local-6989586621679350658"><span class="hs-identifier">res</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">IAVL.getVersioned</span><span> </span><a href="#local-6989586621679350648"><span class="hs-identifier hs-var">gc</span></a><span> </span><a href="#local-6989586621679350657"><span class="hs-identifier hs-var">getVerReq</span></a><span>
-</span><a name="line-92"></a><span>            </span><span class="hs-keyword">case</span><span> </span><a href="#local-6989586621679350658"><span class="hs-identifier hs-var">res</span></a><span> </span><span class="hs-operator hs-var">^.</span><span> </span><span class="hs-identifier hs-var">Api.value</span><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-93"></a><span>              </span><span class="hs-string">&quot;&quot;</span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-identifier hs-var">Nothing</span><span>
-</span><a name="line-94"></a><span>              </span><a name="local-6989586621679350659"><a href="#local-6989586621679350659"><span class="hs-identifier">val</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">Just</span><span> </span><a href="#local-6989586621679350659"><span class="hs-identifier hs-var">val</span></a><span>
-</span><a name="line-95"></a><span>          </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Genesis"><span class="hs-identifier hs-var">Genesis</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-identifier hs-var">Nothing</span><span>
-</span><a name="line-96"></a><span>      </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreProve"><span class="hs-identifier hs-var">StoreProve</span></a><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-identifier hs-var">Nothing</span><span>
-</span><a name="line-97"></a><span>    </span><span class="hs-special">)</span><span> </span><a href="#local-6989586621679350650"><span class="hs-identifier hs-var">m</span></a><span>
-</span><a name="line-98"></a><span>
-</span><a name="line-99"></a><span class="hs-identifier">evalTransaction</span><span>
-</span><a name="line-100"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Members</span><span> </span><span class="hs-special">[</span><span class="hs-identifier hs-type">Embed</span><span> </span><span class="hs-identifier hs-type">IO</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Error</span><span> </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a><span class="hs-special">]</span><span> </span><a href="#local-6989586621679350635"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-101"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-identifier hs-type">GrpcClient</span><span>
-</span><a name="line-102"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><a name="local-6989586621679350636"><a href="#local-6989586621679350636"><span class="hs-identifier">a</span></a></a><span class="hs-operator">.</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Transaction</span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><a href="#local-6989586621679350635"><span class="hs-identifier hs-type">r</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679350636"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="#local-6989586621679350635"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679350636"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-103"></a><a name="evalTransaction"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalTransaction"><span class="hs-identifier">evalTransaction</span></a></a><span> </span><a name="local-6989586621679350660"><a href="#local-6989586621679350660"><span class="hs-identifier">gc</span></a></a><span> </span><a name="local-6989586621679350661"><a href="#local-6989586621679350661"><span class="hs-identifier">m</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-104"></a><span>  </span><span class="hs-identifier hs-var">interpret</span><span>
-</span><a name="line-105"></a><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
-</span><a name="line-106"></a><span>      </span><span class="hs-comment">-- NOTICE :: Currently unnecessary with the DB commit/version implementation.</span><span>
-</span><a name="line-107"></a><span>      </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#BeginTransaction"><span class="hs-identifier hs-var">BeginTransaction</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><a name="line-108"></a><span>      </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Rollback"><span class="hs-identifier hs-var">Rollback</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">void</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">IAVL.rollback</span><span> </span><a href="#local-6989586621679350660"><span class="hs-identifier hs-var">gc</span></a><span>
-</span><a name="line-109"></a><span>      </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Commit"><span class="hs-identifier hs-var">Commit</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-110"></a><span>        </span><a name="local-6989586621679350662"><a href="#local-6989586621679350662"><span class="hs-identifier">resp</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">IAVL.saveVersion</span><span> </span><a href="#local-6989586621679350660"><span class="hs-identifier hs-var">gc</span></a><span>
-</span><a name="line-111"></a><span>        </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#CommitResponse"><span class="hs-identifier hs-var">CommitResponse</span></a><span>
-</span><a name="line-112"></a><span>          </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">rootHash</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">fromBytes</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679350662"><span class="hs-identifier hs-var">resp</span></a><span> </span><span class="hs-operator hs-var">^.</span><span> </span><span class="hs-identifier hs-var">Api.rootHash</span><span class="hs-special">)</span><span>
-</span><a name="line-113"></a><span>          </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">newVersion</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">fromInteger</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">toInteger</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="#local-6989586621679350662"><span class="hs-identifier hs-var">resp</span></a><span> </span><span class="hs-operator hs-var">^.</span><span> </span><span class="hs-identifier hs-var">Api.version</span><span>
-</span><a name="line-114"></a><span>          </span><span class="hs-special">}</span><span>
-</span><a name="line-115"></a><span>    </span><span class="hs-special">)</span><span> </span><a href="#local-6989586621679350661"><span class="hs-identifier hs-var">m</span></a><span>
-</span><a name="line-116"></a><span>
-</span><a name="line-117"></a><span class="hs-identifier">evalCommitBlock</span><span>
-</span><a name="line-118"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Members</span><span> </span><span class="hs-special">[</span><span class="hs-identifier hs-type">Embed</span><span> </span><span class="hs-identifier hs-type">IO</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Error</span><span> </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a><span class="hs-special">]</span><span> </span><a href="#local-6989586621679350633"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-119"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-identifier hs-type">GrpcClient</span><span>
-</span><a name="line-120"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVLVersions</span></a><span>
-</span><a name="line-121"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><a name="local-6989586621679350634"><a href="#local-6989586621679350634"><span class="hs-identifier">a</span></a></a><span class="hs-operator">.</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">CommitBlock</span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><a href="#local-6989586621679350633"><span class="hs-identifier hs-type">r</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679350634"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="#local-6989586621679350633"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679350634"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-122"></a><a name="evalCommitBlock"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalCommitBlock"><span class="hs-identifier">evalCommitBlock</span></a></a><span> </span><a name="local-6989586621679350663"><a href="#local-6989586621679350663"><span class="hs-identifier">gc</span></a></a><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-var">IAVLVersions</span></a><span class="hs-special">{</span><a name="local-6989586621679350664"><a href="#local-6989586621679350664"><span class="hs-identifier">committed</span></a></a><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-123"></a><span>  </span><span class="hs-identifier hs-var">interpret</span><span>
-</span><a name="line-124"></a><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
-</span><a name="line-125"></a><span>      </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#CommitBlock"><span class="hs-identifier hs-var">CommitBlock</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-126"></a><span>        </span><a name="local-6989586621679350665"><a href="#local-6989586621679350665"><span class="hs-identifier">versionResp</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">IAVL.version</span><span> </span><a href="#local-6989586621679350663"><span class="hs-identifier hs-var">gc</span></a><span>
-</span><a name="line-127"></a><span>        </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679350666"><a href="#local-6989586621679350666"><span class="hs-identifier">version</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-var">Version</span></a><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">fromInteger</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">toInteger</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="#local-6989586621679350665"><span class="hs-identifier hs-var">versionResp</span></a><span> </span><span class="hs-operator hs-var">^.</span><span> </span><span class="hs-identifier hs-var">Api.version</span><span>
-</span><a name="line-128"></a><span>        </span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">writeIORef</span><span> </span><a href="#local-6989586621679350664"><span class="hs-identifier hs-var">committed</span></a><span> </span><a href="#local-6989586621679350666"><span class="hs-identifier hs-var">version</span></a><span>
-</span><a name="line-129"></a><span>        </span><a name="local-6989586621679350667"><a href="#local-6989586621679350667"><span class="hs-identifier">hashResp</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">IAVL.hash</span><span> </span><a href="#local-6989586621679350663"><span class="hs-identifier hs-var">gc</span></a><span>
-</span><a name="line-130"></a><span>        </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">fromBytes</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="#local-6989586621679350667"><span class="hs-identifier hs-var">hashResp</span></a><span> </span><span class="hs-operator hs-var">^.</span><span> </span><span class="hs-identifier hs-var">Api.rootHash</span><span>
-</span><a name="line-131"></a><span>    </span><span class="hs-special">)</span><span>
-</span><a name="line-132"></a><span>
-</span><a name="line-133"></a><span class="hs-identifier">evalStoreEffs</span><span>
-</span><a name="line-134"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Members</span><span> </span><span class="hs-special">[</span><span class="hs-identifier hs-type">Embed</span><span> </span><span class="hs-identifier hs-type">IO</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Reader</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVLVersions</span></a><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Error</span><span> </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Reader</span><span> </span><span class="hs-identifier hs-type">GrpcClient</span><span class="hs-special">]</span><span> </span><a href="#local-6989586621679350631"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-135"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><a name="local-6989586621679350632"><a href="#local-6989586621679350632"><span class="hs-identifier">a</span></a></a><span class="hs-operator">.</span><span>
-</span><a name="line-136"></a><span>     </span><span class="hs-identifier hs-type">Sem</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-identifier hs-type">StoreEffs</span></a><span> </span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a><span> </span><a href="#local-6989586621679350631"><span class="hs-identifier hs-type">r</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679350632"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-137"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="#local-6989586621679350631"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679350632"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-138"></a><a name="evalStoreEffs"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalStoreEffs"><span class="hs-identifier">evalStoreEffs</span></a></a><span> </span><a name="local-6989586621679350668"><a href="#local-6989586621679350668"><span class="hs-identifier">action</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-139"></a><span>  </span><a name="local-6989586621679350669"><a href="#local-6989586621679350669"><span class="hs-identifier">vs</span></a></a><span class="hs-glyph">@</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-var">IAVLVersions</span></a><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">ask</span><span>
-</span><a name="line-140"></a><span>  </span><a name="local-6989586621679350672"><a href="#local-6989586621679350672"><span class="hs-identifier">grpc</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">ask</span><span>
-</span><a name="line-141"></a><span>  </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalCommitBlock"><span class="hs-identifier hs-var">evalCommitBlock</span></a><span> </span><a href="#local-6989586621679350672"><span class="hs-identifier hs-var">grpc</span></a><span> </span><a href="#local-6989586621679350669"><span class="hs-identifier hs-var">vs</span></a><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-142"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalTransaction"><span class="hs-identifier hs-var">evalTransaction</span></a><span> </span><a href="#local-6989586621679350672"><span class="hs-identifier hs-var">grpc</span></a><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-143"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalWrite"><span class="hs-identifier hs-var">evalWrite</span></a><span> </span><a href="#local-6989586621679350672"><span class="hs-identifier hs-var">grpc</span></a><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-144"></a><span>    </span><span class="hs-identifier hs-var">untag</span><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-145"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalRead"><span class="hs-identifier hs-var">evalRead</span></a><span> </span><a href="#local-6989586621679350672"><span class="hs-identifier hs-var">grpc</span></a><span> </span><a href="#local-6989586621679350671"><span class="hs-identifier hs-var">committed</span></a><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-146"></a><span>    </span><span class="hs-identifier hs-var">untag</span><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-147"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalRead"><span class="hs-identifier hs-var">evalRead</span></a><span> </span><a href="#local-6989586621679350672"><span class="hs-identifier hs-var">grpc</span></a><span> </span><a href="#local-6989586621679350670"><span class="hs-identifier hs-var">latest</span></a><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-148"></a><span>    </span><span class="hs-identifier hs-var">untag</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="#local-6989586621679350668"><span class="hs-identifier hs-var">action</span></a><span>
-</span><a name="line-149"></a><span>
-</span><a name="line-150"></a><span class="hs-identifier">runGrpc</span><span>
-</span><a name="line-151"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">ClientIO</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Either</span><span> </span><span class="hs-identifier hs-type">TooMuchConcurrency</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">RawReply</span><span> </span><a href="#local-6989586621679350558"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-152"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><a href="#local-6989586621679350558"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-153"></a><a name="runGrpc"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier">runGrpc</span></a></a><span> </span><a name="local-6989586621679350673"><a href="#local-6989586621679350673"><span class="hs-identifier">f</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">runClientIO</span><span> </span><a href="#local-6989586621679350673"><span class="hs-identifier hs-var">f</span></a><span> </span><span class="hs-operator hs-var">&gt;&gt;=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
-</span><a name="line-154"></a><span>  </span><span class="hs-identifier hs-var">Right</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Right</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Right</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">_</span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">Right</span><span> </span><a name="local-6989586621679350674"><a href="#local-6989586621679350674"><span class="hs-identifier">res</span></a></a><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-operator hs-var">$</span><span>  </span><a href="#local-6989586621679350674"><span class="hs-identifier hs-var">res</span></a><span>
-</span><a name="line-155"></a><span>  </span><span class="hs-identifier hs-var">Right</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Right</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Right</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">_</span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">Left</span><span> </span><a name="local-6989586621679350675"><a href="#local-6989586621679350675"><span class="hs-identifier">err</span></a></a><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">error</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">show</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="Tendermint.SDK.BaseApp.Errors.html#GrpcError"><span class="hs-identifier hs-var">GrpcError</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">pack</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">show</span><span> </span><a href="#local-6989586621679350675"><span class="hs-identifier hs-var">err</span></a><span class="hs-special">)</span><span>
-</span><a name="line-156"></a><span>  </span><span class="hs-identifier hs-var">Right</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Right</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Left</span><span> </span><a name="local-6989586621679350676"><a href="#local-6989586621679350676"><span class="hs-identifier">err</span></a></a><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">error</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">show</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="Tendermint.SDK.BaseApp.Errors.html#GrpcError"><span class="hs-identifier hs-var">GrpcError</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">pack</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">show</span><span> </span><a href="#local-6989586621679350676"><span class="hs-identifier hs-var">err</span></a><span class="hs-special">)</span><span>
-</span><a name="line-157"></a><span>  </span><span class="hs-identifier hs-var">Right</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Left</span><span> </span><a name="local-6989586621679350677"><a href="#local-6989586621679350677"><span class="hs-identifier">err</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">error</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">show</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="Tendermint.SDK.BaseApp.Errors.html#GrpcError"><span class="hs-identifier hs-var">GrpcError</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">pack</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">show</span><span> </span><a href="#local-6989586621679350677"><span class="hs-identifier hs-var">err</span></a><span class="hs-special">)</span><span>
-</span><a name="line-158"></a><span>  </span><span class="hs-identifier hs-var">Left</span><span> </span><a name="local-6989586621679350678"><a href="#local-6989586621679350678"><span class="hs-identifier">err</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">error</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">show</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="Tendermint.SDK.BaseApp.Errors.html#GrpcError"><span class="hs-identifier hs-var">GrpcError</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">pack</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">show</span><span> </span><a href="#local-6989586621679350678"><span class="hs-identifier hs-var">err</span></a><span class="hs-special">)</span><span>
-</span><a name="line-159"></a></pre></body></html>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span>
+</span><span id="line-3"></span><span>  </span><span class="annot"><span class="hs-comment">-- * Environment</span></span><span>
+</span><span id="line-4"></span><span>    </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier">IAVLVersions</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#initIAVLVersions"><span class="hs-identifier">initIAVLVersions</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="annot"><span class="hs-comment">-- * Eval</span></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalStoreEffs"><span class="hs-identifier">evalStoreEffs</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="annot"><span class="hs-comment">-- * Re-Exports</span></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">GrpcClient</span></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">GrpcConfig</span></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">initGrpcClient</span></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Lens</span></span><span>                          </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">(&amp;)</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-operator">(.~)</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-operator">(^.)</span></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Monad</span></span><span>                         </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">void</span></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Monad.IO.Class</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.ByteArray.Base64String</span></span><span>           </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">fromBytes</span></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.IORef</span></span><span>                            </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">IORef</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">newIORef</span></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>                                                        </span><span class="annot"><span class="hs-identifier">readIORef</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">writeIORef</span></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Message</span></span><span>                </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">defMessage</span></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span>                             </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">pack</span></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Database.IAVL.RPC</span></span><span>                     </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">IAVL</span></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Database.IAVL.RPC.Types</span></span><span>               </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">GrpcConfig</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-24"></span><span>                                                        </span><span class="annot"><span class="hs-identifier">initGrpcClient</span></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Network.GRPC.Client</span></span><span>                   </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">RawReply</span></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Network.GRPC.Client.Helpers</span></span><span>           </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">GrpcClient</span></span><span class="hs-special">)</span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Network.HTTP2.Client</span></span><span>                  </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">ClientIO</span></span><span class="hs-special">,</span><span>
+</span><span id="line-28"></span><span>                                                        </span><span class="annot"><span class="hs-identifier">TooMuchConcurrency</span></span><span class="hs-special">,</span><span>
+</span><span id="line-29"></span><span>                                                        </span><span class="annot"><span class="hs-identifier">runClientIO</span></span><span class="hs-special">)</span><span>
+</span><span id="line-30"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy</span></span><span>                              </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Embed</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">Member</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">Members</span></span><span class="hs-special">,</span><span>
+</span><span id="line-31"></span><span>                                                        </span><span class="annot"><span class="hs-identifier">Sem</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">interpret</span></span><span class="hs-special">)</span><span>
+</span><span id="line-32"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy.Error</span></span><span>                        </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Error</span></span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy.Reader</span></span><span>                       </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Reader</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">ask</span></span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy.Tagged</span></span><span>                       </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">untag</span></span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Proto.Iavl.Api_Fields</span></span><span>                 </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Api</span></span><span>
+</span><span id="line-36"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Errors</span></a></span><span>         </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier">AppError</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#SDKError"><span class="hs-identifier">SDKError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-37"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.RawStore</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#CommitBlock"><span class="hs-identifier">CommitBlock</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-38"></span><span>                                                        </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#CommitResponse"><span class="hs-identifier">CommitResponse</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-39"></span><span>                                                        </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier">ReadStore</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-40"></span><span>                                                        </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreEffs"><span class="hs-identifier">StoreEffs</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-41"></span><span>                                                        </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Transaction"><span class="hs-identifier">Transaction</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-42"></span><span>                                                        </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier">Version</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-43"></span><span>                                                        </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#WriteStore"><span class="hs-identifier">WriteStore</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-44"></span><span>                                                        </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier">makeKeyBytes</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-45"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html"><span class="hs-identifier">Tendermint.SDK.Types.Effects</span></a></span><span>          </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator">(:&amp;)</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span><span>
+</span><span id="line-47"></span><span class="hs-keyword">data</span><span> </span><span id="IAVLVersions"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-var">IAVLVersions</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="IAVLVersions"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-var">IAVLVersions</span></a></span></span><span>
+</span><span id="line-48"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="latest"><span class="annot"><span class="annottext">IAVLVersions -&gt; IORef Version
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#latest"><span class="hs-identifier hs-var hs-var">latest</span></a></span></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IORef</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-type">Version</span></a></span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="committed"><span class="annot"><span class="annottext">IAVLVersions -&gt; IORef Version
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#committed"><span class="hs-identifier hs-var hs-var">committed</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IORef</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-type">Version</span></a></span><span>
+</span><span id="line-50"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-51"></span><span>
+</span><span id="line-52"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#initIAVLVersions"><span class="hs-identifier hs-type">initIAVLVersions</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVLVersions</span></a></span><span>
+</span><span id="line-53"></span><span id="initIAVLVersions"><span class="annot"><span class="annottext">initIAVLVersions :: IO IAVLVersions
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#initIAVLVersions"><span class="hs-identifier hs-var hs-var">initIAVLVersions</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IORef Version -&gt; IORef Version -&gt; IAVLVersions
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-var">IAVLVersions</span></a></span><span> </span><span class="annot"><span class="annottext">(IORef Version -&gt; IORef Version -&gt; IAVLVersions)
+-&gt; IO (IORef Version) -&gt; IO (IORef Version -&gt; IAVLVersions)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Version -&gt; IO (IORef Version)
+forall a. a -&gt; IO (IORef a)
+</span><span class="hs-identifier hs-var">newIORef</span></span><span> </span><span class="annot"><span class="annottext">Version
+</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Latest"><span class="hs-identifier hs-var">Latest</span></a></span><span> </span><span class="annot"><span class="annottext">IO (IORef Version -&gt; IAVLVersions)
+-&gt; IO (IORef Version) -&gt; IO IAVLVersions
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">Version -&gt; IO (IORef Version)
+forall a. a -&gt; IO (IORef a)
+</span><span class="hs-identifier hs-var">newIORef</span></span><span> </span><span class="annot"><span class="annottext">Version
+</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Genesis"><span class="hs-identifier hs-var">Genesis</span></a></span><span>
+</span><span id="line-54"></span><span>
+</span><span id="line-55"></span><span id="local-6989586621679550066"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalWrite"><span class="hs-identifier hs-type">evalWrite</span></a></span><span>
+</span><span id="line-56"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679550066"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-57"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">GrpcClient</span></span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679550175"><span class="annot"><a href="#local-6989586621679550175"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#WriteStore"><span class="hs-identifier hs-type">WriteStore</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679550066"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679550175"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679550066"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679550175"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-59"></span><span id="evalWrite"><span class="annot"><span class="annottext">evalWrite :: GrpcClient -&gt; forall a. Sem (WriteStore : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalWrite"><span class="hs-identifier hs-var hs-var">evalWrite</span></a></span></span><span> </span><span id="local-6989586621679550018"><span class="annot"><span class="annottext">gc :: GrpcClient
+</span><a href="#local-6989586621679550018"><span class="hs-identifier hs-var">gc</span></a></span></span><span> </span><span id="local-6989586621679550017"><span class="annot"><span class="annottext">m :: Sem (WriteStore : r) a
+</span><a href="#local-6989586621679550017"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-60"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). WriteStore m x -&gt; Sem r x)
+-&gt; Sem (WriteStore : r) a -&gt; Sem r a
+forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+FirstOrder e &quot;interpret&quot; =&gt;
+(forall x (m :: * -&gt; *). e m x -&gt; Sem r x)
+-&gt; Sem (e : r) a -&gt; Sem r a
+</span><span class="hs-identifier hs-var">interpret</span></span><span>
+</span><span id="line-61"></span><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-62"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StorePut"><span class="hs-identifier hs-type">StorePut</span></a></span><span> </span><span id="local-6989586621679550015"><span class="annot"><a href="#local-6989586621679550015"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679550014"><span class="annot"><a href="#local-6989586621679550014"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-63"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679550013"><span class="annot"><span class="annottext">setReq :: SetRequest
+</span><a href="#local-6989586621679550013"><span class="hs-identifier hs-var hs-var">setReq</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SetRequest
+forall msg. Message msg =&gt; msg
+</span><span class="hs-identifier hs-var">defMessage</span></span><span> </span><span class="annot"><span class="annottext">SetRequest -&gt; (SetRequest -&gt; SetRequest) -&gt; SetRequest
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity SetRequest ByteString
+forall (f :: * -&gt; *) s a.
+(Functor f, HasField s &quot;key&quot; a) =&gt;
+LensLike' f s a
+</span><span class="hs-identifier hs-var">Api.key</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity SetRequest ByteString
+-&gt; ByteString -&gt; SetRequest -&gt; SetRequest
+forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
+</span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; ByteString
+</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey
+</span><a href="#local-6989586621679550015"><span class="hs-identifier hs-var">k</span></a></span><span>
+</span><span id="line-64"></span><span>                                </span><span class="annot"><span class="annottext">SetRequest -&gt; (SetRequest -&gt; SetRequest) -&gt; SetRequest
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity SetRequest ByteString
+forall (f :: * -&gt; *) s a.
+(Functor f, HasField s &quot;value&quot; a) =&gt;
+LensLike' f s a
+</span><span class="hs-identifier hs-var">Api.value</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity SetRequest ByteString
+-&gt; ByteString -&gt; SetRequest -&gt; SetRequest
+forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
+</span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679550014"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><span id="line-65"></span><span>        </span><span class="annot"><span class="annottext">Sem r SetResponse -&gt; Sem r ()
+forall (f :: * -&gt; *) a. Functor f =&gt; f a -&gt; f ()
+</span><span class="hs-identifier hs-var">void</span></span><span> </span><span class="annot"><span class="annottext">(Sem r SetResponse -&gt; Sem r ())
+-&gt; (ClientIO (Either TooMuchConcurrency (RawReply SetResponse))
+    -&gt; Sem r SetResponse)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply SetResponse))
+-&gt; Sem r ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">IO SetResponse -&gt; Sem r SetResponse
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO SetResponse -&gt; Sem r SetResponse)
+-&gt; (ClientIO (Either TooMuchConcurrency (RawReply SetResponse))
+    -&gt; IO SetResponse)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply SetResponse))
+-&gt; Sem r SetResponse
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ClientIO (Either TooMuchConcurrency (RawReply SetResponse))
+-&gt; IO SetResponse
+forall a. ClientIO (Either TooMuchConcurrency (RawReply a)) -&gt; IO a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a></span><span> </span><span class="annot"><span class="annottext">(ClientIO (Either TooMuchConcurrency (RawReply SetResponse))
+ -&gt; Sem r x)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply SetResponse))
+-&gt; Sem r x
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; SetRequest
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply SetResponse))
+</span><span class="hs-identifier hs-var">IAVL.set</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679550018"><span class="hs-identifier hs-var">gc</span></a></span><span> </span><span class="annot"><span class="annottext">SetRequest
+</span><a href="#local-6989586621679550013"><span class="hs-identifier hs-var">setReq</span></a></span><span>
+</span><span id="line-66"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreDelete"><span class="hs-identifier hs-type">StoreDelete</span></a></span><span> </span><span id="local-6989586621679550005"><span class="annot"><a href="#local-6989586621679550005"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-67"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679550004"><span class="annot"><span class="annottext">remReq :: RemoveRequest
+</span><a href="#local-6989586621679550004"><span class="hs-identifier hs-var hs-var">remReq</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RemoveRequest
+forall msg. Message msg =&gt; msg
+</span><span class="hs-identifier hs-var">defMessage</span></span><span> </span><span class="annot"><span class="annottext">RemoveRequest -&gt; (RemoveRequest -&gt; RemoveRequest) -&gt; RemoveRequest
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity RemoveRequest ByteString
+forall (f :: * -&gt; *) s a.
+(Functor f, HasField s &quot;key&quot; a) =&gt;
+LensLike' f s a
+</span><span class="hs-identifier hs-var">Api.key</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity RemoveRequest ByteString
+-&gt; ByteString -&gt; RemoveRequest -&gt; RemoveRequest
+forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
+</span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; ByteString
+</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey
+</span><a href="#local-6989586621679550005"><span class="hs-identifier hs-var">k</span></a></span><span>
+</span><span id="line-68"></span><span>        </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Sem r RemoveResponse -&gt; Sem r ()
+forall (f :: * -&gt; *) a. Functor f =&gt; f a -&gt; f ()
+</span><span class="hs-identifier hs-var">void</span></span><span> </span><span class="annot"><span class="annottext">(Sem r RemoveResponse -&gt; Sem r ())
+-&gt; (ClientIO (Either TooMuchConcurrency (RawReply RemoveResponse))
+    -&gt; Sem r RemoveResponse)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply RemoveResponse))
+-&gt; Sem r ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">IO RemoveResponse -&gt; Sem r RemoveResponse
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO RemoveResponse -&gt; Sem r RemoveResponse)
+-&gt; (ClientIO (Either TooMuchConcurrency (RawReply RemoveResponse))
+    -&gt; IO RemoveResponse)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply RemoveResponse))
+-&gt; Sem r RemoveResponse
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ClientIO (Either TooMuchConcurrency (RawReply RemoveResponse))
+-&gt; IO RemoveResponse
+forall a. ClientIO (Either TooMuchConcurrency (RawReply a)) -&gt; IO a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a></span><span> </span><span class="annot"><span class="annottext">(ClientIO (Either TooMuchConcurrency (RawReply RemoveResponse))
+ -&gt; Sem r x)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply RemoveResponse))
+-&gt; Sem r x
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; RemoveRequest
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply RemoveResponse))
+</span><span class="hs-identifier hs-var">IAVL.remove</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679550018"><span class="hs-identifier hs-var">gc</span></a></span><span> </span><span class="annot"><span class="annottext">RemoveRequest
+</span><a href="#local-6989586621679550004"><span class="hs-identifier hs-var">remReq</span></a></span><span>
+</span><span id="line-69"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Sem (WriteStore : r) a
+</span><a href="#local-6989586621679550017"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-70"></span><span>
+</span><span id="line-71"></span><span id="local-6989586621679550059"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalRead"><span class="hs-identifier hs-type">evalRead</span></a></span><span>
+</span><span id="line-72"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679550059"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-73"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">GrpcClient</span></span><span>
+</span><span id="line-74"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IORef</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-type">Version</span></a></span><span>
+</span><span id="line-75"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679550124"><span class="annot"><a href="#local-6989586621679550124"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679550059"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679550124"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679550059"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679550124"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-76"></span><span id="evalRead"><span class="annot"><span class="annottext">evalRead :: GrpcClient
+-&gt; IORef Version -&gt; forall a. Sem (ReadStore : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalRead"><span class="hs-identifier hs-var hs-var">evalRead</span></a></span></span><span> </span><span id="local-6989586621679550001"><span class="annot"><span class="annottext">gc :: GrpcClient
+</span><a href="#local-6989586621679550001"><span class="hs-identifier hs-var">gc</span></a></span></span><span> </span><span id="local-6989586621679550000"><span class="annot"><span class="annottext">iavlVersion :: IORef Version
+</span><a href="#local-6989586621679550000"><span class="hs-identifier hs-var">iavlVersion</span></a></span></span><span> </span><span id="local-6989586621679549999"><span class="annot"><span class="annottext">m :: Sem (ReadStore : r) a
+</span><a href="#local-6989586621679549999"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-77"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). ReadStore m x -&gt; Sem r x)
+-&gt; Sem (ReadStore : r) a -&gt; Sem r a
+forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+FirstOrder e &quot;interpret&quot; =&gt;
+(forall x (m :: * -&gt; *). e m x -&gt; Sem r x)
+-&gt; Sem (e : r) a -&gt; Sem r a
+</span><span class="hs-identifier hs-var">interpret</span></span><span>
+</span><span id="line-78"></span><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-79"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreGet"><span class="hs-identifier hs-type">StoreGet</span></a></span><span> </span><span id="local-6989586621679549997"><span class="annot"><a href="#local-6989586621679549997"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-80"></span><span>        </span><span id="local-6989586621679549996"><span class="annot"><span class="annottext">Version
+</span><a href="#local-6989586621679549996"><span class="hs-identifier hs-var">version</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Version -&gt; Sem r Version
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO Version -&gt; Sem r Version) -&gt; IO Version -&gt; Sem r Version
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">IORef Version -&gt; IO Version
+forall a. IORef a -&gt; IO a
+</span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef Version
+</span><a href="#local-6989586621679550000"><span class="hs-identifier hs-var">iavlVersion</span></a></span><span>
+</span><span id="line-81"></span><span>        </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Version
+</span><a href="#local-6989586621679549996"><span class="hs-identifier hs-var">version</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-82"></span><span>          </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Latest"><span class="hs-identifier hs-type">Latest</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-83"></span><span>            </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679549995"><span class="annot"><span class="annottext">getReq :: GetRequest
+</span><a href="#local-6989586621679549995"><span class="hs-identifier hs-var hs-var">getReq</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">GetRequest
+forall msg. Message msg =&gt; msg
+</span><span class="hs-identifier hs-var">defMessage</span></span><span> </span><span class="annot"><span class="annottext">GetRequest -&gt; (GetRequest -&gt; GetRequest) -&gt; GetRequest
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity GetRequest ByteString
+forall (f :: * -&gt; *) s a.
+(Functor f, HasField s &quot;key&quot; a) =&gt;
+LensLike' f s a
+</span><span class="hs-identifier hs-var">Api.key</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity GetRequest ByteString
+-&gt; ByteString -&gt; GetRequest -&gt; GetRequest
+forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
+</span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; ByteString
+</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey
+</span><a href="#local-6989586621679549997"><span class="hs-identifier hs-var">k</span></a></span><span>
+</span><span id="line-84"></span><span>            </span><span id="local-6989586621679549994"><span class="annot"><span class="annottext">GetResponse
+</span><a href="#local-6989586621679549994"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO GetResponse -&gt; Sem r GetResponse
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO GetResponse -&gt; Sem r GetResponse)
+-&gt; (ClientIO (Either TooMuchConcurrency (RawReply GetResponse))
+    -&gt; IO GetResponse)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply GetResponse))
+-&gt; Sem r GetResponse
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ClientIO (Either TooMuchConcurrency (RawReply GetResponse))
+-&gt; IO GetResponse
+forall a. ClientIO (Either TooMuchConcurrency (RawReply a)) -&gt; IO a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a></span><span> </span><span class="annot"><span class="annottext">(ClientIO (Either TooMuchConcurrency (RawReply GetResponse))
+ -&gt; Sem r GetResponse)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply GetResponse))
+-&gt; Sem r GetResponse
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; GetRequest
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply GetResponse))
+</span><span class="hs-identifier hs-var">IAVL.get</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679550001"><span class="hs-identifier hs-var">gc</span></a></span><span> </span><span class="annot"><span class="annottext">GetRequest
+</span><a href="#local-6989586621679549995"><span class="hs-identifier hs-var">getReq</span></a></span><span>
+</span><span id="line-85"></span><span>            </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">GetResponse
+</span><a href="#local-6989586621679549994"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="annot"><span class="annottext">GetResponse
+-&gt; Getting ByteString GetResponse ByteString -&gt; ByteString
+forall s a. s -&gt; Getting a s a -&gt; a
+</span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting ByteString GetResponse ByteString
+forall (f :: * -&gt; *) s a.
+(Functor f, HasField s &quot;value&quot; a) =&gt;
+LensLike' f s a
+</span><span class="hs-identifier hs-var">Api.value</span></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-86"></span><span>              </span><span class="hs-string">&quot;&quot;</span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r (Maybe ByteString)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Maybe ByteString
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-87"></span><span>              </span><span id="local-6989586621679549992"><span class="annot"><span class="annottext">val :: ByteString
+</span><a href="#local-6989586621679549992"><span class="hs-identifier hs-var">val</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r x
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Maybe ByteString -&gt; Sem r x) -&gt; Maybe ByteString -&gt; Sem r x
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Maybe ByteString
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679549992"><span class="hs-identifier hs-var">val</span></a></span><span>
+</span><span id="line-88"></span><span>          </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-type">Version</span></a></span><span> </span><span id="local-6989586621679549990"><span class="annot"><span class="annottext">v :: Natural
+</span><a href="#local-6989586621679549990"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-89"></span><span>            </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679549989"><span class="annot"><span class="annottext">getVerReq :: GetVersionedRequest
+</span><a href="#local-6989586621679549989"><span class="hs-identifier hs-var hs-var">getVerReq</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">GetVersionedRequest
+forall msg. Message msg =&gt; msg
+</span><span class="hs-identifier hs-var">defMessage</span></span><span> </span><span class="annot"><span class="annottext">GetVersionedRequest
+-&gt; (GetVersionedRequest -&gt; GetVersionedRequest)
+-&gt; GetVersionedRequest
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity GetVersionedRequest ByteString
+forall (f :: * -&gt; *) s a.
+(Functor f, HasField s &quot;key&quot; a) =&gt;
+LensLike' f s a
+</span><span class="hs-identifier hs-var">Api.key</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity GetVersionedRequest ByteString
+-&gt; ByteString -&gt; GetVersionedRequest -&gt; GetVersionedRequest
+forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
+</span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; ByteString
+</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey
+</span><a href="#local-6989586621679549997"><span class="hs-identifier hs-var">k</span></a></span><span>
+</span><span id="line-90"></span><span>                                       </span><span class="annot"><span class="annottext">GetVersionedRequest
+-&gt; (GetVersionedRequest -&gt; GetVersionedRequest)
+-&gt; GetVersionedRequest
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity GetVersionedRequest Int64
+forall (f :: * -&gt; *) s a.
+(Functor f, HasField s &quot;version&quot; a) =&gt;
+LensLike' f s a
+</span><span class="hs-identifier hs-var">Api.version</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity GetVersionedRequest Int64
+-&gt; Int64 -&gt; GetVersionedRequest -&gt; GetVersionedRequest
+forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
+</span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int64
+forall a. Num a =&gt; Integer -&gt; a
+</span><span class="hs-identifier hs-var">fromInteger</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Natural -&gt; Integer
+forall a. Integral a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">toInteger</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679549990"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-91"></span><span>            </span><span id="local-6989586621679549987"><span class="annot"><span class="annottext">GetResponse
+</span><a href="#local-6989586621679549987"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO GetResponse -&gt; Sem r GetResponse
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO GetResponse -&gt; Sem r GetResponse)
+-&gt; (ClientIO (Either TooMuchConcurrency (RawReply GetResponse))
+    -&gt; IO GetResponse)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply GetResponse))
+-&gt; Sem r GetResponse
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ClientIO (Either TooMuchConcurrency (RawReply GetResponse))
+-&gt; IO GetResponse
+forall a. ClientIO (Either TooMuchConcurrency (RawReply a)) -&gt; IO a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a></span><span> </span><span class="annot"><span class="annottext">(ClientIO (Either TooMuchConcurrency (RawReply GetResponse))
+ -&gt; Sem r GetResponse)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply GetResponse))
+-&gt; Sem r GetResponse
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; GetVersionedRequest
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply GetResponse))
+</span><span class="hs-identifier hs-var">IAVL.getVersioned</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679550001"><span class="hs-identifier hs-var">gc</span></a></span><span> </span><span class="annot"><span class="annottext">GetVersionedRequest
+</span><a href="#local-6989586621679549989"><span class="hs-identifier hs-var">getVerReq</span></a></span><span>
+</span><span id="line-92"></span><span>            </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">GetResponse
+</span><a href="#local-6989586621679549987"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="annot"><span class="annottext">GetResponse
+-&gt; Getting ByteString GetResponse ByteString -&gt; ByteString
+forall s a. s -&gt; Getting a s a -&gt; a
+</span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting ByteString GetResponse ByteString
+forall (f :: * -&gt; *) s a.
+(Functor f, HasField s &quot;value&quot; a) =&gt;
+LensLike' f s a
+</span><span class="hs-identifier hs-var">Api.value</span></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-93"></span><span>              </span><span class="hs-string">&quot;&quot;</span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r (Maybe ByteString)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Maybe ByteString
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-94"></span><span>              </span><span id="local-6989586621679549985"><span class="annot"><span class="annottext">val :: ByteString
+</span><a href="#local-6989586621679549985"><span class="hs-identifier hs-var">val</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r x
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Maybe ByteString -&gt; Sem r x) -&gt; Maybe ByteString -&gt; Sem r x
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Maybe ByteString
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679549985"><span class="hs-identifier hs-var">val</span></a></span><span>
+</span><span id="line-95"></span><span>          </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Genesis"><span class="hs-identifier hs-type">Genesis</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r (Maybe ByteString)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Maybe ByteString
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-96"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreProve"><span class="hs-identifier hs-type">StoreProve</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r (Maybe ByteString)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Maybe ByteString
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-97"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Sem (ReadStore : r) a
+</span><a href="#local-6989586621679549999"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-98"></span><span>
+</span><span id="line-99"></span><span id="local-6989586621679550067"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalTransaction"><span class="hs-identifier hs-type">evalTransaction</span></a></span><span>
+</span><span id="line-100"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679550067"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-101"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">GrpcClient</span></span><span>
+</span><span id="line-102"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679550105"><span class="annot"><a href="#local-6989586621679550105"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Transaction"><span class="hs-identifier hs-type">Transaction</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679550067"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679550105"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679550067"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679550105"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-103"></span><span id="evalTransaction"><span class="annot"><span class="annottext">evalTransaction :: GrpcClient -&gt; forall a. Sem (Transaction : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalTransaction"><span class="hs-identifier hs-var hs-var">evalTransaction</span></a></span></span><span> </span><span id="local-6989586621679549982"><span class="annot"><span class="annottext">gc :: GrpcClient
+</span><a href="#local-6989586621679549982"><span class="hs-identifier hs-var">gc</span></a></span></span><span> </span><span id="local-6989586621679549981"><span class="annot"><span class="annottext">m :: Sem (Transaction : r) a
+</span><a href="#local-6989586621679549981"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-104"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). Transaction m x -&gt; Sem r x)
+-&gt; Sem (Transaction : r) a -&gt; Sem r a
+forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+FirstOrder e &quot;interpret&quot; =&gt;
+(forall x (m :: * -&gt; *). e m x -&gt; Sem r x)
+-&gt; Sem (e : r) a -&gt; Sem r a
+</span><span class="hs-identifier hs-var">interpret</span></span><span>
+</span><span id="line-105"></span><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-106"></span><span>      </span><span class="hs-comment">-- NOTICE :: Currently unnecessary with the DB commit/version implementation.</span><span>
+</span><span id="line-107"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#BeginTransaction"><span class="hs-identifier hs-type">BeginTransaction</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; Sem r ()
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-108"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Rollback"><span class="hs-identifier hs-type">Rollback</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Sem r Empty -&gt; Sem r ()
+forall (f :: * -&gt; *) a. Functor f =&gt; f a -&gt; f ()
+</span><span class="hs-identifier hs-var">void</span></span><span> </span><span class="annot"><span class="annottext">(Sem r Empty -&gt; Sem r ())
+-&gt; (ClientIO (Either TooMuchConcurrency (RawReply Empty))
+    -&gt; Sem r Empty)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply Empty))
+-&gt; Sem r ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">IO Empty -&gt; Sem r Empty
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO Empty -&gt; Sem r Empty)
+-&gt; (ClientIO (Either TooMuchConcurrency (RawReply Empty))
+    -&gt; IO Empty)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply Empty))
+-&gt; Sem r Empty
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ClientIO (Either TooMuchConcurrency (RawReply Empty)) -&gt; IO Empty
+forall a. ClientIO (Either TooMuchConcurrency (RawReply a)) -&gt; IO a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a></span><span> </span><span class="annot"><span class="annottext">(ClientIO (Either TooMuchConcurrency (RawReply Empty)) -&gt; Sem r x)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply Empty)) -&gt; Sem r x
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient -&gt; ClientIO (Either TooMuchConcurrency (RawReply Empty))
+</span><span class="hs-identifier hs-var">IAVL.rollback</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679549982"><span class="hs-identifier hs-var">gc</span></a></span><span>
+</span><span id="line-109"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Commit"><span class="hs-identifier hs-type">Commit</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-110"></span><span>        </span><span id="local-6989586621679549976"><span class="annot"><span class="annottext">SaveVersionResponse
+</span><a href="#local-6989586621679549976"><span class="hs-identifier hs-var">resp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO SaveVersionResponse -&gt; Sem r SaveVersionResponse
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO SaveVersionResponse -&gt; Sem r SaveVersionResponse)
+-&gt; (ClientIO
+      (Either TooMuchConcurrency (RawReply SaveVersionResponse))
+    -&gt; IO SaveVersionResponse)
+-&gt; ClientIO
+     (Either TooMuchConcurrency (RawReply SaveVersionResponse))
+-&gt; Sem r SaveVersionResponse
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ClientIO (Either TooMuchConcurrency (RawReply SaveVersionResponse))
+-&gt; IO SaveVersionResponse
+forall a. ClientIO (Either TooMuchConcurrency (RawReply a)) -&gt; IO a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a></span><span> </span><span class="annot"><span class="annottext">(ClientIO
+   (Either TooMuchConcurrency (RawReply SaveVersionResponse))
+ -&gt; Sem r SaveVersionResponse)
+-&gt; ClientIO
+     (Either TooMuchConcurrency (RawReply SaveVersionResponse))
+-&gt; Sem r SaveVersionResponse
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; ClientIO
+     (Either TooMuchConcurrency (RawReply SaveVersionResponse))
+</span><span class="hs-identifier hs-var">IAVL.saveVersion</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679549982"><span class="hs-identifier hs-var">gc</span></a></span><span>
+</span><span id="line-111"></span><span>        </span><span class="annot"><span class="annottext">CommitResponse -&gt; Sem r x
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(CommitResponse -&gt; Sem r x) -&gt; CommitResponse -&gt; Sem r x
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">CommitResponse :: Base64String -&gt; Natural -&gt; CommitResponse
+</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#CommitResponse"><span class="hs-identifier hs-type hs-type">CommitResponse</span></a></span><span>
+</span><span id="line-112"></span><span>          </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">rootHash :: Base64String
+</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#rootHash"><span class="hs-identifier hs-var">rootHash</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Base64String
+forall ba. ByteArrayAccess ba =&gt; ba -&gt; Base64String
+</span><span class="hs-identifier hs-var">fromBytes</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SaveVersionResponse
+</span><a href="#local-6989586621679549976"><span class="hs-identifier hs-var">resp</span></a></span><span> </span><span class="annot"><span class="annottext">SaveVersionResponse
+-&gt; Getting ByteString SaveVersionResponse ByteString -&gt; ByteString
+forall s a. s -&gt; Getting a s a -&gt; a
+</span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting ByteString SaveVersionResponse ByteString
+forall (f :: * -&gt; *) s a.
+(Functor f, HasField s &quot;rootHash&quot; a) =&gt;
+LensLike' f s a
+</span><span class="hs-identifier hs-var">Api.rootHash</span></span><span class="hs-special">)</span><span>
+</span><span id="line-113"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">newVersion :: Natural
+</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#newVersion"><span class="hs-identifier hs-var">newVersion</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Natural
+forall a. Num a =&gt; Integer -&gt; a
+</span><span class="hs-identifier hs-var">fromInteger</span></span><span> </span><span class="annot"><span class="annottext">(Integer -&gt; Natural) -&gt; (Int64 -&gt; Integer) -&gt; Int64 -&gt; Natural
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; Integer
+forall a. Integral a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">toInteger</span></span><span> </span><span class="annot"><span class="annottext">(Int64 -&gt; Natural) -&gt; Int64 -&gt; Natural
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">SaveVersionResponse
+</span><a href="#local-6989586621679549976"><span class="hs-identifier hs-var">resp</span></a></span><span> </span><span class="annot"><span class="annottext">SaveVersionResponse
+-&gt; Getting Int64 SaveVersionResponse Int64 -&gt; Int64
+forall s a. s -&gt; Getting a s a -&gt; a
+</span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Int64 SaveVersionResponse Int64
+forall (f :: * -&gt; *) s a.
+(Functor f, HasField s &quot;version&quot; a) =&gt;
+LensLike' f s a
+</span><span class="hs-identifier hs-var">Api.version</span></span><span>
+</span><span id="line-114"></span><span>          </span><span class="hs-special">}</span><span>
+</span><span id="line-115"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Sem (Transaction : r) a
+</span><a href="#local-6989586621679549981"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-116"></span><span>
+</span><span id="line-117"></span><span id="local-6989586621679550073"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalCommitBlock"><span class="hs-identifier hs-type">evalCommitBlock</span></a></span><span>
+</span><span id="line-118"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679550073"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-119"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">GrpcClient</span></span><span>
+</span><span id="line-120"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVLVersions</span></a></span><span>
+</span><span id="line-121"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679550091"><span class="annot"><a href="#local-6989586621679550091"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#CommitBlock"><span class="hs-identifier hs-type">CommitBlock</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679550073"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679550091"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679550073"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679550091"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-122"></span><span id="evalCommitBlock"><span class="annot"><span class="annottext">evalCommitBlock :: GrpcClient
+-&gt; IAVLVersions -&gt; forall a. Sem (CommitBlock : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalCommitBlock"><span class="hs-identifier hs-var hs-var">evalCommitBlock</span></a></span></span><span> </span><span id="local-6989586621679549968"><span class="annot"><span class="annottext">gc :: GrpcClient
+</span><a href="#local-6989586621679549968"><span class="hs-identifier hs-var">gc</span></a></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVLVersions</span></a></span><span class="hs-special">{</span><span id="local-6989586621679549967"><span class="annot"><span class="annottext">IORef Version
+committed :: IORef Version
+committed :: IAVLVersions -&gt; IORef Version
+</span><a href="#local-6989586621679549967"><span class="hs-identifier hs-var hs-var">committed</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-123"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). CommitBlock m x -&gt; Sem r x)
+-&gt; Sem (CommitBlock : r) a -&gt; Sem r a
+forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+FirstOrder e &quot;interpret&quot; =&gt;
+(forall x (m :: * -&gt; *). e m x -&gt; Sem r x)
+-&gt; Sem (e : r) a -&gt; Sem r a
+</span><span class="hs-identifier hs-var">interpret</span></span><span>
+</span><span id="line-124"></span><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-125"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#CommitBlock"><span class="hs-identifier hs-type">CommitBlock</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-126"></span><span>        </span><span id="local-6989586621679549965"><span class="annot"><span class="annottext">VersionResponse
+</span><a href="#local-6989586621679549965"><span class="hs-identifier hs-var">versionResp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO VersionResponse -&gt; Sem r VersionResponse
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO VersionResponse -&gt; Sem r VersionResponse)
+-&gt; (ClientIO (Either TooMuchConcurrency (RawReply VersionResponse))
+    -&gt; IO VersionResponse)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply VersionResponse))
+-&gt; Sem r VersionResponse
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ClientIO (Either TooMuchConcurrency (RawReply VersionResponse))
+-&gt; IO VersionResponse
+forall a. ClientIO (Either TooMuchConcurrency (RawReply a)) -&gt; IO a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a></span><span> </span><span class="annot"><span class="annottext">(ClientIO (Either TooMuchConcurrency (RawReply VersionResponse))
+ -&gt; Sem r VersionResponse)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply VersionResponse))
+-&gt; Sem r VersionResponse
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply VersionResponse))
+</span><span class="hs-identifier hs-var">IAVL.version</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679549968"><span class="hs-identifier hs-var">gc</span></a></span><span>
+</span><span id="line-127"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679549963"><span class="annot"><span class="annottext">version :: Version
+</span><a href="#local-6989586621679549963"><span class="hs-identifier hs-var hs-var">version</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Version
+</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-var">Version</span></a></span><span> </span><span class="annot"><span class="annottext">(Natural -&gt; Version) -&gt; (Int64 -&gt; Natural) -&gt; Int64 -&gt; Version
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Natural
+forall a. Num a =&gt; Integer -&gt; a
+</span><span class="hs-identifier hs-var">fromInteger</span></span><span> </span><span class="annot"><span class="annottext">(Integer -&gt; Natural) -&gt; (Int64 -&gt; Integer) -&gt; Int64 -&gt; Natural
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; Integer
+forall a. Integral a =&gt; a -&gt; Integer
+</span><span class="hs-identifier hs-var">toInteger</span></span><span> </span><span class="annot"><span class="annottext">(Int64 -&gt; Version) -&gt; Int64 -&gt; Version
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">VersionResponse
+</span><a href="#local-6989586621679549965"><span class="hs-identifier hs-var">versionResp</span></a></span><span> </span><span class="annot"><span class="annottext">VersionResponse -&gt; Getting Int64 VersionResponse Int64 -&gt; Int64
+forall s a. s -&gt; Getting a s a -&gt; a
+</span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Int64 VersionResponse Int64
+forall (f :: * -&gt; *) s a.
+(Functor f, HasField s &quot;version&quot; a) =&gt;
+LensLike' f s a
+</span><span class="hs-identifier hs-var">Api.version</span></span><span>
+</span><span id="line-128"></span><span>        </span><span class="annot"><span class="annottext">IO () -&gt; Sem r ()
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Sem r ()) -&gt; IO () -&gt; Sem r ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">IORef Version -&gt; Version -&gt; IO ()
+forall a. IORef a -&gt; a -&gt; IO ()
+</span><span class="hs-identifier hs-var">writeIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef Version
+</span><a href="#local-6989586621679549967"><span class="hs-identifier hs-var">committed</span></a></span><span> </span><span class="annot"><span class="annottext">Version
+</span><a href="#local-6989586621679549963"><span class="hs-identifier hs-var">version</span></a></span><span>
+</span><span id="line-129"></span><span>        </span><span id="local-6989586621679549962"><span class="annot"><span class="annottext">HashResponse
+</span><a href="#local-6989586621679549962"><span class="hs-identifier hs-var">hashResp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO HashResponse -&gt; Sem r HashResponse
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO HashResponse -&gt; Sem r HashResponse)
+-&gt; (ClientIO (Either TooMuchConcurrency (RawReply HashResponse))
+    -&gt; IO HashResponse)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply HashResponse))
+-&gt; Sem r HashResponse
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ClientIO (Either TooMuchConcurrency (RawReply HashResponse))
+-&gt; IO HashResponse
+forall a. ClientIO (Either TooMuchConcurrency (RawReply a)) -&gt; IO a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var">runGrpc</span></a></span><span> </span><span class="annot"><span class="annottext">(ClientIO (Either TooMuchConcurrency (RawReply HashResponse))
+ -&gt; Sem r HashResponse)
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply HashResponse))
+-&gt; Sem r HashResponse
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; ClientIO (Either TooMuchConcurrency (RawReply HashResponse))
+</span><span class="hs-identifier hs-var">IAVL.hash</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679549968"><span class="hs-identifier hs-var">gc</span></a></span><span>
+</span><span id="line-130"></span><span>        </span><span class="annot"><span class="annottext">Base64String -&gt; Sem r Base64String
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Base64String -&gt; Sem r Base64String)
+-&gt; (ByteString -&gt; Base64String) -&gt; ByteString -&gt; Sem r Base64String
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Base64String
+forall ba. ByteArrayAccess ba =&gt; ba -&gt; Base64String
+</span><span class="hs-identifier hs-var">fromBytes</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Sem r x) -&gt; ByteString -&gt; Sem r x
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">HashResponse
+</span><a href="#local-6989586621679549962"><span class="hs-identifier hs-var">hashResp</span></a></span><span> </span><span class="annot"><span class="annottext">HashResponse
+-&gt; Getting ByteString HashResponse ByteString -&gt; ByteString
+forall s a. s -&gt; Getting a s a -&gt; a
+</span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting ByteString HashResponse ByteString
+forall (f :: * -&gt; *) s a.
+(Functor f, HasField s &quot;rootHash&quot; a) =&gt;
+LensLike' f s a
+</span><span class="hs-identifier hs-var">Api.rootHash</span></span><span>
+</span><span id="line-131"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-132"></span><span>
+</span><span id="line-133"></span><span id="local-6989586621679549960"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalStoreEffs"><span class="hs-identifier hs-type">evalStoreEffs</span></a></span><span>
+</span><span id="line-134"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVLVersions</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">GrpcClient</span></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679549960"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-135"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679550082"><span class="annot"><a href="#local-6989586621679550082"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span>
+</span><span id="line-136"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreEffs"><span class="hs-identifier hs-type">StoreEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679549960"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679550082"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-137"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679549960"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679550082"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-138"></span><span id="evalStoreEffs"><span class="annot"><span class="annottext">evalStoreEffs :: forall a. Sem (StoreEffs :&amp; r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalStoreEffs"><span class="hs-identifier hs-var hs-var">evalStoreEffs</span></a></span></span><span> </span><span id="local-6989586621679549959"><span class="annot"><span class="annottext">action :: Sem (StoreEffs :&amp; r) a
+</span><a href="#local-6989586621679549959"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-139"></span><span>  </span><span id="local-6989586621679549958"><span class="annot"><span class="annottext">vs :: IAVLVersions
+</span><a href="#local-6989586621679549958"><span class="hs-identifier hs-var">vs</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679549956"><span id="local-6989586621679549957"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVLVersions</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem r IAVLVersions
+forall i (r :: [(* -&gt; *) -&gt; * -&gt; *]).
+MemberWithError (Reader i) r =&gt;
+Sem r i
+</span><span class="hs-identifier hs-var">ask</span></span><span>
+</span><span id="line-140"></span><span>  </span><span id="local-6989586621679549955"><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679549955"><span class="hs-identifier hs-var">grpc</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem r GrpcClient
+forall i (r :: [(* -&gt; *) -&gt; * -&gt; *]).
+MemberWithError (Reader i) r =&gt;
+Sem r i
+</span><span class="hs-identifier hs-var">ask</span></span><span>
+</span><span id="line-141"></span><span>  </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; IAVLVersions -&gt; forall a. Sem (CommitBlock : r) a -&gt; Sem r a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]).
+Members '[Embed IO, Error AppError] r =&gt;
+GrpcClient
+-&gt; IAVLVersions -&gt; forall a. Sem (CommitBlock : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalCommitBlock"><span class="hs-identifier hs-var">evalCommitBlock</span></a></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679549955"><span class="hs-identifier hs-var">grpc</span></a></span><span> </span><span class="annot"><span class="annottext">IAVLVersions
+</span><a href="#local-6989586621679549958"><span class="hs-identifier hs-var">vs</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (CommitBlock : r) a -&gt; Sem r a)
+-&gt; (Sem
+      (Tagged 'Consensus ReadStore
+         : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+         : Transaction : CommitBlock : r)
+      a
+    -&gt; Sem (CommitBlock : r) a)
+-&gt; Sem
+     (Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : r)
+     a
+-&gt; Sem r a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-142"></span><span>    </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; forall a.
+   Sem (Transaction : CommitBlock : r) a -&gt; Sem (CommitBlock : r) a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]).
+Members '[Embed IO, Error AppError] r =&gt;
+GrpcClient -&gt; forall a. Sem (Transaction : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalTransaction"><span class="hs-identifier hs-var">evalTransaction</span></a></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679549955"><span class="hs-identifier hs-var">grpc</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (Transaction : CommitBlock : r) a -&gt; Sem (CommitBlock : r) a)
+-&gt; (Sem
+      (Tagged 'Consensus ReadStore
+         : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+         : Transaction : CommitBlock : r)
+      a
+    -&gt; Sem (Transaction : CommitBlock : r) a)
+-&gt; Sem
+     (Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : r)
+     a
+-&gt; Sem (CommitBlock : r) a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-143"></span><span>    </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; forall a.
+   Sem (WriteStore : Transaction : CommitBlock : r) a
+   -&gt; Sem (Transaction : CommitBlock : r) a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]).
+Member (Embed IO) r =&gt;
+GrpcClient -&gt; forall a. Sem (WriteStore : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalWrite"><span class="hs-identifier hs-var">evalWrite</span></a></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679549955"><span class="hs-identifier hs-var">grpc</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (WriteStore : Transaction : CommitBlock : r) a
+ -&gt; Sem (Transaction : CommitBlock : r) a)
+-&gt; (Sem
+      (Tagged 'Consensus ReadStore
+         : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+         : Transaction : CommitBlock : r)
+      a
+    -&gt; Sem (WriteStore : Transaction : CommitBlock : r) a)
+-&gt; Sem
+     (Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : r)
+     a
+-&gt; Sem (Transaction : CommitBlock : r) a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-144"></span><span>    </span><span class="annot"><span class="annottext">Sem
+  (Tagged 'Consensus WriteStore : Transaction : CommitBlock : r) a
+-&gt; Sem (WriteStore : Transaction : CommitBlock : r) a
+forall k1 (k2 :: k1) (e :: (* -&gt; *) -&gt; * -&gt; *)
+       (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Sem (Tagged k2 e : r) a -&gt; Sem (e : r) a
+</span><span class="hs-identifier hs-var">untag</span></span><span> </span><span class="annot"><span class="annottext">(Sem
+   (Tagged 'Consensus WriteStore : Transaction : CommitBlock : r) a
+ -&gt; Sem (WriteStore : Transaction : CommitBlock : r) a)
+-&gt; (Sem
+      (Tagged 'Consensus ReadStore
+         : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+         : Transaction : CommitBlock : r)
+      a
+    -&gt; Sem
+         (Tagged 'Consensus WriteStore : Transaction : CommitBlock : r) a)
+-&gt; Sem
+     (Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : r)
+     a
+-&gt; Sem (WriteStore : Transaction : CommitBlock : r) a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-145"></span><span>    </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; IORef Version
+-&gt; forall a.
+   Sem
+     (ReadStore
+        : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
+     a
+   -&gt; Sem
+        (Tagged 'Consensus WriteStore : Transaction : CommitBlock : r) a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]).
+Member (Embed IO) r =&gt;
+GrpcClient
+-&gt; IORef Version -&gt; forall a. Sem (ReadStore : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalRead"><span class="hs-identifier hs-var">evalRead</span></a></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679549955"><span class="hs-identifier hs-var">grpc</span></a></span><span> </span><span class="annot"><span class="annottext">IORef Version
+</span><a href="#local-6989586621679549956"><span class="hs-identifier hs-var">committed</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem
+   (ReadStore
+      : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
+   a
+ -&gt; Sem
+      (Tagged 'Consensus WriteStore : Transaction : CommitBlock : r) a)
+-&gt; (Sem
+      (Tagged 'Consensus ReadStore
+         : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+         : Transaction : CommitBlock : r)
+      a
+    -&gt; Sem
+         (ReadStore
+            : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
+         a)
+-&gt; Sem
+     (Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : r)
+     a
+-&gt; Sem
+     (Tagged 'Consensus WriteStore : Transaction : CommitBlock : r) a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-146"></span><span>    </span><span class="annot"><span class="annottext">Sem
+  (Tagged 'QueryAndMempool ReadStore
+     : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
+  a
+-&gt; Sem
+     (ReadStore
+        : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
+     a
+forall k1 (k2 :: k1) (e :: (* -&gt; *) -&gt; * -&gt; *)
+       (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Sem (Tagged k2 e : r) a -&gt; Sem (e : r) a
+</span><span class="hs-identifier hs-var">untag</span></span><span> </span><span class="annot"><span class="annottext">(Sem
+   (Tagged 'QueryAndMempool ReadStore
+      : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
+   a
+ -&gt; Sem
+      (ReadStore
+         : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
+      a)
+-&gt; (Sem
+      (Tagged 'Consensus ReadStore
+         : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+         : Transaction : CommitBlock : r)
+      a
+    -&gt; Sem
+         (Tagged 'QueryAndMempool ReadStore
+            : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
+         a)
+-&gt; Sem
+     (Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : r)
+     a
+-&gt; Sem
+     (ReadStore
+        : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
+     a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-147"></span><span>    </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; IORef Version
+-&gt; forall a.
+   Sem
+     (ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : r)
+     a
+   -&gt; Sem
+        (Tagged 'QueryAndMempool ReadStore
+           : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
+        a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]).
+Member (Embed IO) r =&gt;
+GrpcClient
+-&gt; IORef Version -&gt; forall a. Sem (ReadStore : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalRead"><span class="hs-identifier hs-var">evalRead</span></a></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679549955"><span class="hs-identifier hs-var">grpc</span></a></span><span> </span><span class="annot"><span class="annottext">IORef Version
+</span><a href="#local-6989586621679549957"><span class="hs-identifier hs-var">latest</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem
+   (ReadStore
+      : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+      : Transaction : CommitBlock : r)
+   a
+ -&gt; Sem
+      (Tagged 'QueryAndMempool ReadStore
+         : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
+      a)
+-&gt; (Sem
+      (Tagged 'Consensus ReadStore
+         : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+         : Transaction : CommitBlock : r)
+      a
+    -&gt; Sem
+         (ReadStore
+            : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+            : Transaction : CommitBlock : r)
+         a)
+-&gt; Sem
+     (Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : r)
+     a
+-&gt; Sem
+     (Tagged 'QueryAndMempool ReadStore
+        : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
+     a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-148"></span><span>    </span><span class="annot"><span class="annottext">Sem
+  (Tagged 'Consensus ReadStore
+     : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+     : Transaction : CommitBlock : r)
+  a
+-&gt; Sem
+     (ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : r)
+     a
+forall k1 (k2 :: k1) (e :: (* -&gt; *) -&gt; * -&gt; *)
+       (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Sem (Tagged k2 e : r) a -&gt; Sem (e : r) a
+</span><span class="hs-identifier hs-var">untag</span></span><span> </span><span class="annot"><span class="annottext">(Sem
+   (Tagged 'Consensus ReadStore
+      : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+      : Transaction : CommitBlock : r)
+   a
+ -&gt; Sem r a)
+-&gt; Sem
+     (Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : r)
+     a
+-&gt; Sem r a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Sem
+  (Tagged 'Consensus ReadStore
+     : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+     : Transaction : CommitBlock : r)
+  a
+Sem (StoreEffs :&amp; r) a
+</span><a href="#local-6989586621679549959"><span class="hs-identifier hs-var">action</span></a></span><span>
+</span><span id="line-149"></span><span>
+</span><span id="line-150"></span><span id="local-6989586621679550132"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-type">runGrpc</span></a></span><span>
+</span><span id="line-151"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ClientIO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">TooMuchConcurrency</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">RawReply</span></span><span> </span><span class="annot"><a href="#local-6989586621679550132"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-152"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="#local-6989586621679550132"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-153"></span><span id="runGrpc"><span class="annot"><span class="annottext">runGrpc :: ClientIO (Either TooMuchConcurrency (RawReply a)) -&gt; IO a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#runGrpc"><span class="hs-identifier hs-var hs-var">runGrpc</span></a></span></span><span> </span><span id="local-6989586621679549954"><span class="annot"><span class="annottext">f :: ClientIO (Either TooMuchConcurrency (RawReply a))
+</span><a href="#local-6989586621679549954"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ClientIO (Either TooMuchConcurrency (RawReply a))
+-&gt; IO (Either ClientError (Either TooMuchConcurrency (RawReply a)))
+forall a. ClientIO a -&gt; IO (Either ClientError a)
+</span><span class="hs-identifier hs-var">runClientIO</span></span><span> </span><span class="annot"><span class="annottext">ClientIO (Either TooMuchConcurrency (RawReply a))
+</span><a href="#local-6989586621679549954"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either ClientError (Either TooMuchConcurrency (RawReply a)))
+-&gt; (Either ClientError (Either TooMuchConcurrency (RawReply a))
+    -&gt; IO a)
+-&gt; IO a
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-154"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span class="hs-identifier">_</span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679549953"><span class="annot"><span class="annottext">res :: a
+</span><a href="#local-6989586621679549953"><span class="hs-identifier hs-var">res</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(a -&gt; IO a) -&gt; a -&gt; IO a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>  </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679549953"><span class="hs-identifier hs-var">res</span></a></span><span>
+</span><span id="line-155"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span class="hs-identifier">_</span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679549952"><span class="annot"><span class="annottext">err :: String
+</span><a href="#local-6989586621679549952"><span class="hs-identifier hs-var">err</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO a
+forall a. HasCallStack =&gt; String -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; IO a) -&gt; (SDKError -&gt; String) -&gt; SDKError -&gt; IO a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">SDKError -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">(SDKError -&gt; IO a) -&gt; SDKError -&gt; IO a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; SDKError
+</span><a href="Tendermint.SDK.BaseApp.Errors.html#GrpcError"><span class="hs-identifier hs-var">GrpcError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Text
+</span><span class="hs-identifier hs-var">pack</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; String -&gt; Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679549952"><span class="hs-identifier hs-var">err</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-156"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679549948"><span class="annot"><span class="annottext">err :: ErrorCode
+</span><a href="#local-6989586621679549948"><span class="hs-identifier hs-var">err</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO a
+forall a. HasCallStack =&gt; String -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; IO a) -&gt; (SDKError -&gt; String) -&gt; SDKError -&gt; IO a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">SDKError -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">(SDKError -&gt; IO a) -&gt; SDKError -&gt; IO a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; SDKError
+</span><a href="Tendermint.SDK.BaseApp.Errors.html#GrpcError"><span class="hs-identifier hs-var">GrpcError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Text
+</span><span class="hs-identifier hs-var">pack</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; String -&gt; Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ErrorCode -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">ErrorCode
+</span><a href="#local-6989586621679549948"><span class="hs-identifier hs-var">err</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-157"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679549947"><span class="annot"><span class="annottext">err :: TooMuchConcurrency
+</span><a href="#local-6989586621679549947"><span class="hs-identifier hs-var">err</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO a
+forall a. HasCallStack =&gt; String -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; IO a) -&gt; (SDKError -&gt; String) -&gt; SDKError -&gt; IO a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">SDKError -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">(SDKError -&gt; IO a) -&gt; SDKError -&gt; IO a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; SDKError
+</span><a href="Tendermint.SDK.BaseApp.Errors.html#GrpcError"><span class="hs-identifier hs-var">GrpcError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Text
+</span><span class="hs-identifier hs-var">pack</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; String -&gt; Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">TooMuchConcurrency -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">TooMuchConcurrency
+</span><a href="#local-6989586621679549947"><span class="hs-identifier hs-var">err</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-158"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679549946"><span class="annot"><span class="annottext">err :: ClientError
+</span><a href="#local-6989586621679549946"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO a
+forall a. HasCallStack =&gt; String -&gt; a
+</span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; IO a) -&gt; (SDKError -&gt; String) -&gt; SDKError -&gt; IO a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">SDKError -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">(SDKError -&gt; IO a) -&gt; SDKError -&gt; IO a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; SDKError
+</span><a href="Tendermint.SDK.BaseApp.Errors.html#GrpcError"><span class="hs-identifier hs-var">GrpcError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Text
+</span><span class="hs-identifier hs-var">pack</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; String -&gt; Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ClientError -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">ClientError
+</span><a href="#local-6989586621679549946"><span class="hs-identifier hs-var">err</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-159"></span></pre></body></html>

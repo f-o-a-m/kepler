@@ -1,109 +1,233 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">{- This file was auto-generated from google/protobuf/empty.proto by the proto-lens-protoc program. -}</span><span>
-</span><a name="line-2"></a><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables, DataKinds, TypeFamilies,
-  UndecidableInstances, GeneralizedNewtypeDeriving,
-  MultiParamTypeClasses, FlexibleContexts, FlexibleInstances,
-  PatternSynonyms, MagicHash, NoImplicitPrelude, DataKinds,
-  BangPatterns, TypeApplications #-}</span><span>
-</span><a name="line-7"></a><span class="hs-pragma">{-# OPTIONS_GHC -fno-warn-unused-imports#-}</span><span>
-</span><a name="line-8"></a><span class="hs-pragma">{-# OPTIONS_GHC -fno-warn-duplicate-exports#-}</span><span>
-</span><a name="line-9"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Proto.Google.Protobuf.Empty</span><span> </span><span class="hs-special">(</span><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-type">Empty</span></a><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-10"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Control.DeepSeq</span><span>
-</span><a name="line-11"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Control.DeepSeq</span><span>
-</span><a name="line-12"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Prism</span><span>
-</span><a name="line-13"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Prism</span><span>
-</span><a name="line-14"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Prelude</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Prelude</span><span>
-</span><a name="line-15"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Int</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Int</span><span>
-</span><a name="line-16"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Monoid</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Monoid</span><span>
-</span><a name="line-17"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Word</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Word</span><span>
-</span><a name="line-18"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens</span><span>
-</span><a name="line-19"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens</span><span>
-</span><a name="line-20"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span>
-</span><a name="line-21"></a><span>       </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Bytes</span><span>
-</span><a name="line-22"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Encoding.Bytes</span><span>
-</span><a name="line-23"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span>
-</span><a name="line-24"></a><span>       </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Growing</span><span>
-</span><a name="line-25"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Encoding.Growing</span><span>
-</span><a name="line-26"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span>
-</span><a name="line-27"></a><span>       </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Parser.Unsafe</span><span>
-</span><a name="line-28"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Encoding.Parser.Unsafe</span><span>
-</span><a name="line-29"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span>
-</span><a name="line-30"></a><span>       </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Wire</span><span>
-</span><a name="line-31"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Encoding.Wire</span><span>
-</span><a name="line-32"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Field</span><span>
-</span><a name="line-33"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Field</span><span>
-</span><a name="line-34"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Message.Enum</span><span>
-</span><a name="line-35"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Message.Enum</span><span>
-</span><a name="line-36"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span>
-</span><a name="line-37"></a><span>       </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Service.Types</span><span>
-</span><a name="line-38"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Service.Types</span><span>
-</span><a name="line-39"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Lens.Family2</span><span>
-</span><a name="line-40"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Lens.Family2</span><span>
-</span><a name="line-41"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Lens.Family2.Unchecked</span><span>
-</span><a name="line-42"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Lens.Family2.Unchecked</span><span>
-</span><a name="line-43"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Text</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Text</span><span>
-</span><a name="line-44"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Map</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Map</span><span>
-</span><a name="line-45"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ByteString</span><span>
-</span><a name="line-46"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ByteString</span><span>
-</span><a name="line-47"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ByteString.Char8</span><span>
-</span><a name="line-48"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ByteString.Char8</span><span>
-</span><a name="line-49"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Text.Encoding</span><span>
-</span><a name="line-50"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Text.Encoding</span><span>
-</span><a name="line-51"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Vector</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Vector</span><span>
-</span><a name="line-52"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Vector.Generic</span><span>
-</span><a name="line-53"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Vector.Generic</span><span>
-</span><a name="line-54"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Vector.Unboxed</span><span>
-</span><a name="line-55"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Vector.Unboxed</span><span>
-</span><a name="line-56"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Text.Read</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Text.Read</span><span>
-</span><a name="line-57"></a><span>
-</span><a name="line-58"></a><span class="hs-comment">{- | Fields :
-
- -}</span><span>
-</span><a name="line-61"></a><span class="hs-keyword">data</span><span> </span><a name="Empty"><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier">Empty</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="Empty"><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier">Empty</span></a></a><span class="hs-special">{</span><a name="_Empty%27_unknownFields"><a href="Proto.Google.Protobuf.Empty.html#_Empty%27_unknownFields"><span class="hs-identifier">_Empty'_unknownFields</span></a></a><span> </span><span class="hs-glyph">::</span><span>
-</span><a name="line-62"></a><span>                   </span><span class="hs-glyph">!</span><span class="hs-identifier hs-type">Data.ProtoLens.FieldSet</span><span class="hs-special">}</span><span>
-</span><a name="line-63"></a><span>               </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Prelude.Eq</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Prelude.Ord</span><span class="hs-special">)</span><span>
-</span><a name="line-64"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">Prelude.Show</span><span> </span><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-type">Empty</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-65"></a><span>        </span><a name="local-8214565720323790324"><span class="hs-identifier">showsPrec</span></a><span> </span><span class="hs-identifier">_</span><span> </span><a name="local-6989586621679104976"><a href="#local-6989586621679104976"><span class="hs-identifier">__x</span></a></a><span> </span><a name="local-6989586621679104977"><a href="#local-6989586621679104977"><span class="hs-identifier">__s</span></a></a><span>
-</span><a name="line-66"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Prelude.showChar</span><span> </span><span class="hs-char">'{'</span><span>
-</span><a name="line-67"></a><span>              </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Prelude.showString</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.showMessageShort</span><span> </span><a href="#local-6989586621679104976"><span class="hs-identifier hs-var">__x</span></a><span class="hs-special">)</span><span>
-</span><a name="line-68"></a><span>                 </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Prelude.showChar</span><span> </span><span class="hs-char">'}'</span><span> </span><a href="#local-6989586621679104977"><span class="hs-identifier hs-var">__s</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-69"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">Data.ProtoLens.Message</span><span> </span><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-type">Empty</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-70"></a><span>        </span><a name="local-8214565720323827414"><span class="hs-identifier">messageName</span></a><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Data.Text.pack</span><span> </span><span class="hs-string">&quot;google.protobuf.Empty&quot;</span><span>
-</span><a name="line-71"></a><span>        </span><a name="local-8214565720323827412"><span class="hs-identifier">fieldsByTag</span></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span class="hs-keyword">in</span><span> </span><span class="hs-identifier hs-var">Data.Map.fromList</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
-</span><a name="line-72"></a><span>        </span><a name="local-8214565720323827416"><span class="hs-identifier">unknownFields</span></a><span>
-</span><a name="line-73"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Lens.Family2.Unchecked.lens</span><span> </span><span class="hs-identifier">_Empty'_unknownFields</span><span>
-</span><a name="line-74"></a><span>              </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><a name="local-6989586621679104964"><a href="#local-6989586621679104964"><span class="hs-identifier">x__</span></a></a><span> </span><a name="local-6989586621679104965"><a href="#local-6989586621679104965"><span class="hs-identifier">y__</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="#local-6989586621679104964"><span class="hs-identifier hs-var">x__</span></a><span class="hs-special">{</span><span class="hs-identifier">_Empty'_unknownFields</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679104965"><span class="hs-identifier hs-var">y__</span></a><span class="hs-special">}</span><span class="hs-special">)</span><span>
-</span><a name="line-75"></a><span>        </span><a name="local-8214565720323827411"><span class="hs-identifier">defMessage</span></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-var">Empty</span></a><span class="hs-special">{</span><span class="hs-identifier">_Empty'_unknownFields</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span class="hs-special">}</span><span>
-</span><a name="line-76"></a><span>        </span><a name="local-8214565720323827415"><span class="hs-identifier">parseMessage</span></a><span>
-</span><a name="line-77"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span class="hs-identifier">loop</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-type">Empty</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Data.ProtoLens.Encoding.Bytes.Parser</span><span> </span><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-type">Empty</span></a><span>
-</span><a name="line-78"></a><span>                </span><a name="local-6989586621679104966"><a href="#local-6989586621679104966"><span class="hs-identifier">loop</span></a></a><span> </span><a name="local-6989586621679104967"><a href="#local-6989586621679104967"><span class="hs-identifier">x</span></a></a><span>
-</span><a name="line-79"></a><span>                  </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span> </span><a name="local-6989586621679104968"><a href="#local-6989586621679104968"><span class="hs-identifier">end</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.atEnd</span><span>
-</span><a name="line-80"></a><span>                       </span><span class="hs-keyword">if</span><span> </span><a href="#local-6989586621679104968"><span class="hs-identifier hs-var">end</span></a><span> </span><span class="hs-keyword">then</span><span>
-</span><a name="line-81"></a><span>                         </span><span class="hs-keyword">do</span><span> </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679104969"><a href="#local-6989586621679104969"><span class="hs-identifier">missing</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-keyword">in</span><span>
-</span><a name="line-82"></a><span>                              </span><span class="hs-keyword">if</span><span> </span><span class="hs-identifier hs-var">Prelude.null</span><span> </span><a href="#local-6989586621679104969"><span class="hs-identifier hs-var">missing</span></a><span> </span><span class="hs-keyword">then</span><span> </span><span class="hs-identifier hs-var">Prelude.return</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">else</span><span>
-</span><a name="line-83"></a><span>                                </span><span class="hs-identifier hs-var">Prelude.fail</span><span>
-</span><a name="line-84"></a><span>                                  </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-string">&quot;Missing required fields: &quot;</span><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">Prelude.++</span><span>
-</span><a name="line-85"></a><span>                                     </span><span class="hs-identifier hs-var">Prelude.show</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679104969"><span class="hs-identifier hs-var">missing</span></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">[</span><span class="hs-identifier hs-type">Prelude.String</span><span class="hs-special">]</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-86"></a><span>                            </span><span class="hs-identifier hs-var">Prelude.return</span><span>
-</span><a name="line-87"></a><span>                              </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Lens.Family2.over</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.unknownFields</span><span>
-</span><a name="line-88"></a><span>                                 </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span class="hs-glyph">!</span><a name="local-6989586621679104970"><a href="#local-6989586621679104970"><span class="hs-identifier">t</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">Prelude.reverse</span><span> </span><a href="#local-6989586621679104970"><span class="hs-identifier hs-var">t</span></a><span class="hs-special">)</span><span>
-</span><a name="line-89"></a><span>                                 </span><a href="#local-6989586621679104967"><span class="hs-identifier hs-var">x</span></a><span class="hs-special">)</span><span>
-</span><a name="line-90"></a><span>                         </span><span class="hs-keyword">else</span><span>
-</span><a name="line-91"></a><span>                         </span><span class="hs-keyword">do</span><span> </span><a name="local-6989586621679104971"><a href="#local-6989586621679104971"><span class="hs-identifier">tag</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.getVarInt</span><span>
-</span><a name="line-92"></a><span>                            </span><span class="hs-keyword">case</span><span> </span><a href="#local-6989586621679104971"><span class="hs-identifier hs-var">tag</span></a><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-93"></a><span>                                </span><a name="local-6989586621679104972"><a href="#local-6989586621679104972"><span class="hs-identifier">wire</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span> </span><span class="hs-glyph">!</span><a name="local-6989586621679104973"><a href="#local-6989586621679104973"><span class="hs-identifier">y</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Wire.parseTaggedValueFromWire</span><span>
-</span><a name="line-94"></a><span>                                                   </span><a href="#local-6989586621679104972"><span class="hs-identifier hs-var">wire</span></a><span>
-</span><a name="line-95"></a><span>                                           </span><a href="#local-6989586621679104966"><span class="hs-identifier hs-var">loop</span></a><span>
-</span><a name="line-96"></a><span>                                             </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Lens.Family2.over</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.unknownFields</span><span>
-</span><a name="line-97"></a><span>                                                </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span class="hs-glyph">!</span><a name="local-6989586621679104974"><a href="#local-6989586621679104974"><span class="hs-identifier">t</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">:</span><span class="hs-special">)</span><span> </span><a href="#local-6989586621679104973"><span class="hs-identifier hs-var">y</span></a><span> </span><a href="#local-6989586621679104974"><span class="hs-identifier hs-var">t</span></a><span class="hs-special">)</span><span>
-</span><a name="line-98"></a><span>                                                </span><a href="#local-6989586621679104967"><span class="hs-identifier hs-var">x</span></a><span class="hs-special">)</span><span>
-</span><a name="line-99"></a><span>              </span><span class="hs-keyword">in</span><span>
-</span><a name="line-100"></a><span>              </span><span class="hs-special">(</span><span class="hs-keyword">do</span><span> </span><a href="#local-6989586621679104966"><span class="hs-identifier hs-var">loop</span></a><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.defMessage</span><span class="hs-special">)</span><span>
-</span><a name="line-101"></a><span>                </span><span class="hs-operator hs-var">Data.ProtoLens.Encoding.Bytes.&lt;?&gt;</span><span> </span><span class="hs-string">&quot;Empty&quot;</span><span>
-</span><a name="line-102"></a><span>        </span><a name="local-8214565720323827410"><span class="hs-identifier">buildMessage</span></a><span>
-</span><a name="line-103"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><a name="local-6989586621679104975"><a href="#local-6989586621679104975"><span class="hs-identifier">_x</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><a name="line-104"></a><span>               </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Wire.buildFieldSet</span><span>
-</span><a name="line-105"></a><span>                 </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Lens.Family2.view</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.unknownFields</span><span> </span><a href="#local-6989586621679104975"><span class="hs-identifier hs-var">_x</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-106"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">Control.DeepSeq.NFData</span><span> </span><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-type">Empty</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-107"></a><span>        </span><a name="local-8214565720323791341"><span class="hs-identifier">rnf</span></a><span>
-</span><a name="line-108"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><a name="local-6989586621679104963"><a href="#local-6989586621679104963"><span class="hs-identifier">x__</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><a name="line-109"></a><span>               </span><span class="hs-identifier hs-var">Control.DeepSeq.deepseq</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">_Empty'_unknownFields</span><span> </span><a href="#local-6989586621679104963"><span class="hs-identifier hs-var">x__</span></a><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span></pre></body></html>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables, DataKinds, TypeFamilies, UndecidableInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses, FlexibleContexts, FlexibleInstances, PatternSynonyms, MagicHash, NoImplicitPrelude, DataKinds, BangPatterns, TypeApplications#-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# OPTIONS_GHC -Wno-unused-imports#-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# OPTIONS_GHC -Wno-duplicate-exports#-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# OPTIONS_GHC -Wno-dodgy-exports#-}</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Proto.Google.Protobuf.Empty</span><span> </span><span class="hs-special">(</span><span>
+</span><span id="line-7"></span><span>        </span><span class="annot"><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier">Empty</span></a></span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Control.DeepSeq</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Prism</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Prism</span></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Prelude</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Prelude</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Int</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Int</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Monoid</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Monoid</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Word</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Word</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Bytes</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Encoding.Bytes</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Growing</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Encoding.Growing</span></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Parser.Unsafe</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Encoding.Parser.Unsafe</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Wire</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Encoding.Wire</span></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Field</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Field</span></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Message.Enum</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Message.Enum</span></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Service.Types</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Service.Types</span></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Lens.Family2</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Lens.Family2</span></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Lens.Family2.Unchecked</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Lens.Family2.Unchecked</span></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Map</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Map</span></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ByteString</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString</span></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ByteString.Char8</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Char8</span></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Text.Encoding</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text.Encoding</span></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Vector</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Vector</span></span><span>
+</span><span id="line-31"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Vector.Generic</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Vector.Generic</span></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Vector.Unboxed</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Vector.Unboxed</span></span><span>
+</span><span id="line-33"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Text.Read</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text.Read</span></span><span>
+</span><span id="line-34"></span><span class="hs-comment">{- | Fields :
+      -}</span><span>
+</span><span id="line-36"></span><span class="hs-keyword">data</span><span> </span><span id="Empty"><span class="annot"><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-var">Empty</span></a></span></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="Empty%27_constructor"><span class="annot"><a href="Proto.Google.Protobuf.Empty.html#Empty%27_constructor"><span class="hs-identifier hs-var">Empty'_constructor</span></a></span></span><span> </span><span class="hs-special">{</span><span id="_Empty%27_unknownFields"><span class="annot"><span class="annottext">Empty -&gt; FieldSet
+</span><a href="Proto.Google.Protobuf.Empty.html#_Empty%27_unknownFields"><span class="hs-identifier hs-var hs-var">_Empty'_unknownFields</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Data.ProtoLens.FieldSet</span></span><span class="hs-special">}</span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679235028"><span id="local-6989586621679235030"><span class="annot"><span class="annottext">Empty -&gt; Empty -&gt; Bool
+(Empty -&gt; Empty -&gt; Bool) -&gt; (Empty -&gt; Empty -&gt; Bool) -&gt; Eq Empty
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: Empty -&gt; Empty -&gt; Bool
+$c/= :: Empty -&gt; Empty -&gt; Bool
+== :: Empty -&gt; Empty -&gt; Bool
+$c== :: Empty -&gt; Empty -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Prelude.Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679235012"><span id="local-6989586621679235014"><span id="local-6989586621679235016"><span id="local-6989586621679235018"><span id="local-6989586621679235020"><span id="local-6989586621679235022"><span id="local-6989586621679235024"><span class="annot"><span class="annottext">Eq Empty
+Eq Empty =&gt;
+(Empty -&gt; Empty -&gt; Ordering)
+-&gt; (Empty -&gt; Empty -&gt; Bool)
+-&gt; (Empty -&gt; Empty -&gt; Bool)
+-&gt; (Empty -&gt; Empty -&gt; Bool)
+-&gt; (Empty -&gt; Empty -&gt; Bool)
+-&gt; (Empty -&gt; Empty -&gt; Empty)
+-&gt; (Empty -&gt; Empty -&gt; Empty)
+-&gt; Ord Empty
+Empty -&gt; Empty -&gt; Bool
+Empty -&gt; Empty -&gt; Ordering
+Empty -&gt; Empty -&gt; Empty
+forall a.
+Eq a =&gt;
+(a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+min :: Empty -&gt; Empty -&gt; Empty
+$cmin :: Empty -&gt; Empty -&gt; Empty
+max :: Empty -&gt; Empty -&gt; Empty
+$cmax :: Empty -&gt; Empty -&gt; Empty
+&gt;= :: Empty -&gt; Empty -&gt; Bool
+$c&gt;= :: Empty -&gt; Empty -&gt; Bool
+&gt; :: Empty -&gt; Empty -&gt; Bool
+$c&gt; :: Empty -&gt; Empty -&gt; Bool
+&lt;= :: Empty -&gt; Empty -&gt; Bool
+$c&lt;= :: Empty -&gt; Empty -&gt; Bool
+&lt; :: Empty -&gt; Empty -&gt; Bool
+$c&lt; :: Empty -&gt; Empty -&gt; Bool
+compare :: Empty -&gt; Empty -&gt; Ordering
+$ccompare :: Empty -&gt; Empty -&gt; Ordering
+$cp1Ord :: Eq Empty
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Prelude.Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-39"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679235006"><span id="local-6989586621679235008"><span class="annot"><span class="hs-identifier hs-type">Prelude.Show</span></span><span> </span><span class="annot"><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-type">Empty</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-40"></span><span>  </span><span id="local-6989586621679235004"><span class="annot"><span class="annottext">showsPrec :: Int -&gt; Empty -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">showsPrec</span></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679235002"><span class="annot"><span class="annottext">__x :: Empty
+</span><a href="#local-6989586621679235002"><span class="hs-identifier hs-var">__x</span></a></span></span><span> </span><span id="local-6989586621679235001"><span class="annot"><span class="annottext">__s :: String
+</span><a href="#local-6989586621679235001"><span class="hs-identifier hs-var">__s</span></a></span></span><span>
+</span><span id="line-41"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Char -&gt; ShowS
+</span><span class="hs-identifier hs-var">Prelude.showChar</span></span><span>
+</span><span id="line-42"></span><span>        </span><span class="annot"><span class="hs-char">'{'</span></span><span>
+</span><span id="line-43"></span><span>        </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; ShowS
+</span><span class="hs-identifier hs-var">Prelude.showString</span></span><span>
+</span><span id="line-44"></span><span>           </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Empty -&gt; String
+forall msg. Message msg =&gt; msg -&gt; String
+</span><span class="hs-identifier hs-var">Data.ProtoLens.showMessageShort</span></span><span> </span><span class="annot"><span class="annottext">Empty
+</span><a href="#local-6989586621679235002"><span class="hs-identifier hs-var">__x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Char -&gt; ShowS
+</span><span class="hs-identifier hs-var">Prelude.showChar</span></span><span> </span><span class="annot"><span class="hs-char">'}'</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679235001"><span class="hs-identifier hs-var">__s</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-45"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679234993"><span class="annot"><span class="hs-identifier hs-type">Data.ProtoLens.Message</span></span><span> </span><span class="annot"><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-type">Empty</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-46"></span><span>  </span><span id="local-6989586621679234988"><span class="annot"><span class="annottext">messageName :: Proxy Empty -&gt; Text
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">messageName</span></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><span class="hs-identifier hs-var">Data.Text.pack</span></span><span> </span><span class="annot"><span class="hs-string">&quot;google.protobuf.Empty&quot;</span></span><span>
+</span><span id="line-47"></span><span>  </span><span id="local-6989586621679234985"><span class="annot"><span class="annottext">fieldsByTag :: Map Tag (FieldDescriptor Empty)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fieldsByTag</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[(Tag, FieldDescriptor Empty)] -&gt; Map Tag (FieldDescriptor Empty)
+forall k a. Ord k =&gt; [(k, a)] -&gt; Map k a
+</span><span class="hs-identifier hs-var">Data.Map.fromList</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-48"></span><span>  </span><span id="local-6989586621679234982"><span class="annot"><span class="annottext">unknownFields :: LensLike' f Empty FieldSet
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unknownFields</span></span></span><span>
+</span><span id="line-49"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Empty -&gt; FieldSet)
+-&gt; (Empty -&gt; FieldSet -&gt; Empty) -&gt; Lens' Empty FieldSet
+forall s a b t. (s -&gt; a) -&gt; (s -&gt; b -&gt; t) -&gt; Lens s t a b
+</span><span class="hs-identifier hs-var">Lens.Family2.Unchecked.lens</span></span><span>
+</span><span id="line-50"></span><span>        </span><span class="annot"><span class="annottext">Empty -&gt; FieldSet
+</span><a href="Proto.Google.Protobuf.Empty.html#_Empty%27_unknownFields"><span class="hs-identifier hs-var hs-var">_Empty'_unknownFields</span></a></span><span>
+</span><span id="line-51"></span><span>        </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span id="local-6989586621679234979"><span class="annot"><span class="annottext">x__ :: Empty
+</span><a href="#local-6989586621679234979"><span class="hs-identifier hs-var">x__</span></a></span></span><span> </span><span id="local-6989586621679234978"><span class="annot"><span class="annottext">y__ :: FieldSet
+</span><a href="#local-6989586621679234978"><span class="hs-identifier hs-var">y__</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Empty
+</span><a href="#local-6989586621679234979"><span class="hs-identifier hs-var">x__</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">_Empty'_unknownFields :: FieldSet
+</span><a href="Proto.Google.Protobuf.Empty.html#_Empty%27_unknownFields"><span class="hs-identifier hs-var">_Empty'_unknownFields</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FieldSet
+</span><a href="#local-6989586621679234978"><span class="hs-identifier hs-var">y__</span></a></span><span class="hs-special">}</span><span class="hs-special">)</span><span>
+</span><span id="line-52"></span><span>  </span><span id="local-6989586621679234977"><span class="annot"><span class="annottext">defMessage :: Empty
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">defMessage</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">$WEmpty'_constructor :: FieldSet -&gt; Empty
+</span><a href="Proto.Google.Protobuf.Empty.html#%24WEmpty%27_constructor"><span class="hs-identifier hs-type hs-type">Empty'_constructor</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">_Empty'_unknownFields :: FieldSet
+</span><a href="Proto.Google.Protobuf.Empty.html#_Empty%27_unknownFields"><span class="hs-identifier hs-var">_Empty'_unknownFields</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">}</span><span>
+</span><span id="line-53"></span><span>  </span><span id="local-6989586621679234974"><span class="annot"><span class="annottext">parseMessage :: Parser Empty
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">parseMessage</span></span></span><span>
+</span><span id="line-54"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span>
+</span><span id="line-55"></span><span>        </span><span class="annot"><a href="#local-6989586621679234972"><span class="hs-identifier hs-type">loop</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-type">Empty</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Data.ProtoLens.Encoding.Bytes.Parser</span></span><span> </span><span class="annot"><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-type">Empty</span></a></span><span>
+</span><span id="line-56"></span><span>        </span><span id="local-6989586621679234972"><span class="annot"><span class="annottext">loop :: Empty -&gt; Parser Empty
+</span><a href="#local-6989586621679234972"><span class="hs-identifier hs-var hs-var">loop</span></a></span></span><span> </span><span id="local-6989586621679234971"><span class="annot"><span class="annottext">x :: Empty
+</span><a href="#local-6989586621679234971"><span class="hs-identifier hs-var">x</span></a></span></span><span>
+</span><span id="line-57"></span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span> </span><span id="local-6989586621679234970"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679234970"><span class="hs-identifier hs-var">end</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser Bool
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.atEnd</span></span><span>
+</span><span id="line-58"></span><span>               </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679234970"><span class="hs-identifier hs-var">end</span></a></span><span> </span><span class="hs-keyword">then</span><span>
+</span><span id="line-59"></span><span>                   </span><span class="hs-keyword">do</span><span> </span><span class="hs-special">(</span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679234968"><span class="annot"><span class="annottext">missing :: [a]
+</span><a href="#local-6989586621679234968"><span class="hs-identifier hs-var hs-var">missing</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-60"></span><span>                       </span><span class="hs-keyword">in</span><span>
+</span><span id="line-61"></span><span>                         </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">[Any] -&gt; Bool
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Bool
+</span><span class="hs-identifier hs-var">Prelude.null</span></span><span> </span><span class="annot"><span class="annottext">[Any]
+forall a. [a]
+</span><a href="#local-6989586621679234968"><span class="hs-identifier hs-var">missing</span></a></span><span> </span><span class="hs-keyword">then</span><span>
+</span><span id="line-62"></span><span>                             </span><span class="annot"><span class="annottext">() -&gt; Parser ()
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">Prelude.return</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-63"></span><span>                         </span><span class="hs-keyword">else</span><span>
+</span><span id="line-64"></span><span>                             </span><span class="annot"><span class="annottext">String -&gt; Parser ()
+forall (m :: * -&gt; *) a. MonadFail m =&gt; String -&gt; m a
+</span><span class="hs-identifier hs-var">Prelude.fail</span></span><span>
+</span><span id="line-65"></span><span>                               </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">(Prelude.++)</span></span><span>
+</span><span id="line-66"></span><span>                                  </span><span class="annot"><span class="hs-string">&quot;Missing required fields: &quot;</span></span><span>
+</span><span id="line-67"></span><span>                                  </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">Prelude.show</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[String]
+forall a. [a]
+</span><a href="#local-6989586621679234968"><span class="hs-identifier hs-var">missing</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Prelude.String</span></span><span class="hs-special">]</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-68"></span><span>                      </span><span class="annot"><span class="annottext">Empty -&gt; Parser Empty
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">Prelude.return</span></span><span>
+</span><span id="line-69"></span><span>                        </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Setter Empty Empty FieldSet FieldSet
+-&gt; (FieldSet -&gt; FieldSet) -&gt; Empty -&gt; Empty
+forall s t a b. Setter s t a b -&gt; (a -&gt; b) -&gt; s -&gt; t
+</span><span class="hs-identifier hs-var">Lens.Family2.over</span></span><span>
+</span><span id="line-70"></span><span>                           </span><span class="annot"><span class="annottext">forall msg. Message msg =&gt; Lens' msg FieldSet
+Setter Empty Empty FieldSet FieldSet
+</span><span class="hs-identifier hs-var">Data.ProtoLens.unknownFields</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679234964"><span class="annot"><span class="annottext">FieldSet
+</span><a href="#local-6989586621679234964"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">FieldSet -&gt; FieldSet
+forall a. [a] -&gt; [a]
+</span><span class="hs-identifier hs-var">Prelude.reverse</span></span><span> </span><span class="annot"><span class="annottext">FieldSet
+</span><a href="#local-6989586621679234964"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Empty
+</span><a href="#local-6989586621679234971"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-71"></span><span>               </span><span class="hs-keyword">else</span><span>
+</span><span id="line-72"></span><span>                   </span><span class="hs-keyword">do</span><span> </span><span id="local-6989586621679234962"><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679234962"><span class="hs-identifier hs-var">tag</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser Word64
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.getVarInt</span></span><span>
+</span><span id="line-73"></span><span>                      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679234962"><span class="hs-identifier hs-var">tag</span></a></span><span> </span><span class="hs-keyword">of</span><span> </span><span class="hs-special">{</span><span>
+</span><span id="line-74"></span><span>                        </span><span id="local-6989586621679234960"><span class="annot"><span class="annottext">wire :: Word64
+</span><a href="#local-6989586621679234960"><span class="hs-identifier hs-var">wire</span></a></span></span><span>
+</span><span id="line-75"></span><span>                          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679234959"><span class="annot"><span class="annottext">TaggedValue
+</span><a href="#local-6989586621679234959"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Parser TaggedValue
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Wire.parseTaggedValueFromWire</span></span><span>
+</span><span id="line-76"></span><span>                                        </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679234960"><span class="hs-identifier hs-var">wire</span></a></span><span>
+</span><span id="line-77"></span><span>                                </span><span class="annot"><span class="annottext">Empty -&gt; Parser Empty
+</span><a href="#local-6989586621679234972"><span class="hs-identifier hs-var">loop</span></a></span><span>
+</span><span id="line-78"></span><span>                                  </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Setter Empty Empty FieldSet FieldSet
+-&gt; (FieldSet -&gt; FieldSet) -&gt; Empty -&gt; Empty
+forall s t a b. Setter s t a b -&gt; (a -&gt; b) -&gt; s -&gt; t
+</span><span class="hs-identifier hs-var">Lens.Family2.over</span></span><span>
+</span><span id="line-79"></span><span>                                     </span><span class="annot"><span class="annottext">forall msg. Message msg =&gt; Lens' msg FieldSet
+Setter Empty Empty FieldSet FieldSet
+</span><span class="hs-identifier hs-var">Data.ProtoLens.unknownFields</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679234957"><span class="annot"><span class="annottext">FieldSet
+</span><a href="#local-6989586621679234957"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">:</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TaggedValue
+</span><a href="#local-6989586621679234959"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">FieldSet
+</span><a href="#local-6989586621679234957"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Empty
+</span><a href="#local-6989586621679234971"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">}</span><span>
+</span><span id="line-80"></span><span>      </span><span class="hs-keyword">in</span><span>
+</span><span id="line-81"></span><span>        </span><span class="annot"><span class="annottext">Parser Empty -&gt; String -&gt; Parser Empty
+forall a. Parser a -&gt; String -&gt; Parser a
+</span><span class="hs-operator hs-var">(Data.ProtoLens.Encoding.Bytes.&lt;?&gt;)</span></span><span>
+</span><span id="line-82"></span><span>          </span><span class="hs-special">(</span><span class="hs-keyword">do</span><span> </span><span class="annot"><span class="annottext">Empty -&gt; Parser Empty
+</span><a href="#local-6989586621679234972"><span class="hs-identifier hs-var">loop</span></a></span><span> </span><span class="annot"><span class="annottext">Empty
+forall msg. Message msg =&gt; msg
+</span><span class="hs-identifier hs-var">Data.ProtoLens.defMessage</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-string">&quot;Empty&quot;</span></span><span>
+</span><span id="line-83"></span><span>  </span><span id="local-6989586621679234955"><span class="annot"><span class="annottext">buildMessage :: Empty -&gt; Builder
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">buildMessage</span></span></span><span>
+</span><span id="line-84"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span> </span><span id="local-6989586621679234953"><span class="annot"><span class="annottext">_x :: Empty
+</span><a href="#local-6989586621679234953"><span class="hs-identifier hs-var">_x</span></a></span></span><span>
+</span><span id="line-85"></span><span>        </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">FieldSet -&gt; Builder
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Wire.buildFieldSet</span></span><span>
+</span><span id="line-86"></span><span>             </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FoldLike FieldSet Empty Empty FieldSet FieldSet
+-&gt; Empty -&gt; FieldSet
+forall a s t b. FoldLike a s t a b -&gt; s -&gt; a
+</span><span class="hs-identifier hs-var">Lens.Family2.view</span></span><span> </span><span class="annot"><span class="annottext">FoldLike FieldSet Empty Empty FieldSet FieldSet
+forall msg. Message msg =&gt; Lens' msg FieldSet
+</span><span class="hs-identifier hs-var">Data.ProtoLens.unknownFields</span></span><span> </span><span class="annot"><span class="annottext">Empty
+</span><a href="#local-6989586621679234953"><span class="hs-identifier hs-var">_x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Control.DeepSeq.NFData</span></span><span> </span><span class="annot"><a href="Proto.Google.Protobuf.Empty.html#Empty"><span class="hs-identifier hs-type">Empty</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-88"></span><span>  </span><span id="local-6989586621679234948"><span class="annot"><span class="annottext">rnf :: Empty -&gt; ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span>
+</span><span id="line-89"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span> </span><span id="local-6989586621679234946"><span class="annot"><span class="annottext">x__ :: Empty
+</span><a href="#local-6989586621679234946"><span class="hs-identifier hs-var">x__</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">FieldSet -&gt; () -&gt; ()
+forall a b. NFData a =&gt; a -&gt; b -&gt; b
+</span><span class="hs-identifier hs-var">Control.DeepSeq.deepseq</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Empty -&gt; FieldSet
+</span><a href="Proto.Google.Protobuf.Empty.html#_Empty%27_unknownFields"><span class="hs-identifier hs-var hs-var">_Empty'_unknownFields</span></a></span><span> </span><span class="annot"><span class="annottext">Empty
+</span><a href="#local-6989586621679234946"><span class="hs-identifier hs-var">x__</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></pre></body></html>

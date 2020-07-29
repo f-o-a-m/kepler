@@ -1,49 +1,212 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# OPTIONS_GHC -fno-warn-orphans #-}</span><span>
-</span><a name="line-2"></a><span>
-</span><a name="line-3"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.Types.Address</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-4"></a><span>
-</span><a name="line-5"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Crypto.Secp256k1</span><span>         </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Crypto</span><span>
-</span><a name="line-6"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.Aeson</span><span>               </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">A</span><span>
-</span><a name="line-7"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ByteArray.HexString</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Hex</span><span>
-</span><a name="line-8"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.ByteString</span><span>          </span><span class="hs-special">(</span><span class="hs-identifier hs-type">ByteString</span><span class="hs-special">)</span><span>
-</span><a name="line-9"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.String</span><span>              </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fromString</span><span class="hs-special">)</span><span>
-</span><a name="line-10"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Text</span><span>                </span><span class="hs-special">(</span><span class="hs-identifier hs-var">unpack</span><span class="hs-special">)</span><span>
-</span><a name="line-11"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">GHC.Generics</span><span>             </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Generic</span><span class="hs-special">)</span><span>
-</span><a name="line-12"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Proto3.Suite</span><span>             </span><span class="hs-special">(</span><span class="hs-identifier hs-type">HasDefault</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">MessageField</span><span class="hs-special">,</span><span>
-</span><a name="line-13"></a><span>                                           </span><span class="hs-identifier hs-type">Primitive</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-14"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Proto3.Suite.DotProto</span><span>    </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">DotProto</span><span>
-</span><a name="line-15"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Proto3.Wire.Decode</span><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Decode</span><span>
-</span><a name="line-16"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Proto3.Wire.Encode</span><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Encode</span><span>
-</span><a name="line-17"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.Codec.html"><span class="hs-identifier">Tendermint.SDK.Codec</span></a><span>     </span><span class="hs-special">(</span><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-18"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Web.HttpApiData</span><span>          </span><span class="hs-special">(</span><span class="hs-identifier hs-type">FromHttpApiData</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-19"></a><span>                                           </span><span class="hs-identifier hs-type">ToHttpApiData</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-20"></a><span>
-</span><a name="line-21"></a><span class="hs-comment">-- | Used as a unique identifier for an account.</span><span>
-</span><a name="line-22"></a><span class="hs-keyword">newtype</span><span> </span><a name="Address"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier">Address</span></a></a><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-23"></a><span>    </span><a name="Address"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier">Address</span></a></a><span> </span><span class="hs-identifier hs-type">Hex.HexString</span><span>
-</span><a name="line-24"></a><span>    </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Eq</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Show</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Generic</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Ord</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">A.ToJSON</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">A.FromJSON</span><span class="hs-special">)</span><span>
-</span><a name="line-25"></a><span>
-</span><a name="line-26"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">Primitive</span><span> </span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-27"></a><span>  </span><a name="local-8214565720324009983"><span class="hs-identifier">encodePrimitive</span></a><span> </span><a name="local-6989586621679246833"><a href="#local-6989586621679246833"><span class="hs-identifier">n</span></a></a><span> </span><a name="local-6989586621679246834"><a href="#local-6989586621679246834"><span class="hs-identifier">a</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Encode.byteString</span><span> </span><a href="#local-6989586621679246833"><span class="hs-identifier hs-var">n</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="Tendermint.SDK.Types.Address.html#addressToBytes"><span class="hs-identifier hs-var">addressToBytes</span></a><span> </span><a href="#local-6989586621679246834"><span class="hs-identifier hs-var">a</span></a><span>
-</span><a name="line-28"></a><span>  </span><a name="local-8214565720324009982"><span class="hs-identifier">decodePrimitive</span></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.Types.Address.html#addressFromBytes"><span class="hs-identifier hs-var">addressFromBytes</span></a><span> </span><span class="hs-operator hs-var">&lt;$&gt;</span><span> </span><span class="hs-identifier hs-var">Decode.byteString</span><span>
-</span><a name="line-29"></a><span>  </span><a name="local-8214565720324009984"><span class="hs-identifier">primType</span></a><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">DotProto.Bytes</span><span>
-</span><a name="line-30"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">HasDefault</span><span> </span><span class="hs-identifier hs-type">Hex.HexString</span><span>
-</span><a name="line-31"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">HasDefault</span><span> </span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a><span>
-</span><a name="line-32"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">MessageField</span><span> </span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a><span>
-</span><a name="line-33"></a><span class="hs-keyword">instance</span><span> </span><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a><span> </span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-34"></a><span>  </span><a name="local-8214565720323986530"><a href="Tendermint.SDK.Codec.html#decode"><span class="hs-identifier">decode</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Right</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.Types.Address.html#addressFromBytes"><span class="hs-identifier hs-var">addressFromBytes</span></a><span>
-</span><a name="line-35"></a><span>  </span><a name="local-8214565720323986529"><a href="Tendermint.SDK.Codec.html#encode"><span class="hs-identifier">encode</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.Types.Address.html#addressToBytes"><span class="hs-identifier hs-var">addressToBytes</span></a><span>
-</span><a name="line-36"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">ToHttpApiData</span><span> </span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-37"></a><span>  </span><a name="local-8214565720324010804"><span class="hs-identifier">toQueryParam</span></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-var">Address</span></a><span> </span><a name="local-6989586621679246832"><a href="#local-6989586621679246832"><span class="hs-identifier">aHex</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Hex.format</span><span> </span><a href="#local-6989586621679246832"><span class="hs-identifier hs-var">aHex</span></a><span>
-</span><a name="line-38"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">FromHttpApiData</span><span> </span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-39"></a><span>  </span><a name="local-8214565720324010796"><span class="hs-identifier">parseQueryParam</span></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Right</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-var">Address</span></a><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">fromString</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">unpack</span><span>
-</span><a name="line-40"></a><span>
-</span><a name="line-41"></a><span class="hs-identifier">addressToBytes</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">ByteString</span><span>
-</span><a name="line-42"></a><a name="addressToBytes"><a href="Tendermint.SDK.Types.Address.html#addressToBytes"><span class="hs-identifier">addressToBytes</span></a></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-var">Address</span></a><span> </span><a name="local-6989586621679248761"><a href="#local-6989586621679248761"><span class="hs-identifier">addrHex</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Hex.toBytes</span><span> </span><a href="#local-6989586621679248761"><span class="hs-identifier hs-var">addrHex</span></a><span>
-</span><a name="line-43"></a><span>
-</span><a name="line-44"></a><span class="hs-identifier">addressFromBytes</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">ByteString</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a><span>
-</span><a name="line-45"></a><a name="addressFromBytes"><a href="Tendermint.SDK.Types.Address.html#addressFromBytes"><span class="hs-identifier">addressFromBytes</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-var">Address</span></a><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">Hex.fromBytes</span><span>
-</span><a name="line-46"></a><span>
-</span><a name="line-47"></a><span class="hs-identifier">pubKeyToAddress</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Crypto.PubKey</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a><span>
-</span><a name="line-48"></a><a name="pubKeyToAddress"><a href="Tendermint.SDK.Types.Address.html#pubKeyToAddress"><span class="hs-identifier">pubKeyToAddress</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.Types.Address.html#addressFromBytes"><span class="hs-identifier hs-var">addressFromBytes</span></a><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">Crypto.exportPubKey</span><span> </span><span class="hs-identifier hs-var">False</span><span>
-</span><a name="line-49"></a></pre></body></html>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.Types.Address</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Crypto.Secp256k1</span></span><span>         </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Crypto</span></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Aeson</span></span><span>               </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">A</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteArray.HexString</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Hex</span></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.ByteString</span></span><span>          </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">ByteString</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.String</span></span><span>              </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">fromString</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span>                </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">unpack</span></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">GHC.Generics</span></span><span>             </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Proto3.Suite</span></span><span>             </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">HasDefault</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">MessageField</span></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>                                           </span><span class="annot"><span class="hs-identifier">Primitive</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Proto3.Suite.DotProto</span></span><span>    </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">DotProto</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Proto3.Wire.Decode</span></span><span>       </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Decode</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Proto3.Wire.Encode</span></span><span>       </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Encode</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.Codec.html"><span class="hs-identifier">Tendermint.SDK.Codec</span></a></span><span>     </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier">HasCodec</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Web.HttpApiData</span></span><span>          </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">FromHttpApiData</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>                                           </span><span class="annot"><span class="hs-identifier">ToHttpApiData</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- | Used as a unique identifier for an account.</span><span>
+</span><span id="line-22"></span><span id="local-6989586621679547517"><span id="local-6989586621679547518"></span></span><span class="hs-keyword">newtype</span><span> </span><span id="Address"><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-var">Address</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-23"></span><span>    </span><span id="Address"><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-var">Address</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Hex.HexString</span></span><span>
+</span><span id="line-24"></span><span>    </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679547512"><span id="local-6989586621679547514"><span class="annot"><span class="annottext">Address -&gt; Address -&gt; Bool
+(Address -&gt; Address -&gt; Bool)
+-&gt; (Address -&gt; Address -&gt; Bool) -&gt; Eq Address
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: Address -&gt; Address -&gt; Bool
+$c/= :: Address -&gt; Address -&gt; Bool
+== :: Address -&gt; Address -&gt; Bool
+$c== :: Address -&gt; Address -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679547505"><span id="local-6989586621679547507"><span id="local-6989586621679547509"><span class="annot"><span class="annottext">Int -&gt; Address -&gt; ShowS
+[Address] -&gt; ShowS
+Address -&gt; String
+(Int -&gt; Address -&gt; ShowS)
+-&gt; (Address -&gt; String) -&gt; ([Address] -&gt; ShowS) -&gt; Show Address
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [Address] -&gt; ShowS
+$cshowList :: [Address] -&gt; ShowS
+show :: Address -&gt; String
+$cshow :: Address -&gt; String
+showsPrec :: Int -&gt; Address -&gt; ShowS
+$cshowsPrec :: Int -&gt; Address -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. Address -&gt; Rep Address x)
+-&gt; (forall x. Rep Address x -&gt; Address) -&gt; Generic Address
+forall x. Rep Address x -&gt; Address
+forall x. Address -&gt; Rep Address x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cto :: forall x. Rep Address x -&gt; Address
+$cfrom :: forall x. Address -&gt; Rep Address x
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679547486"><span id="local-6989586621679547488"><span id="local-6989586621679547490"><span id="local-6989586621679547492"><span id="local-6989586621679547494"><span id="local-6989586621679547496"><span id="local-6989586621679547498"><span class="annot"><span class="annottext">Eq Address
+Eq Address =&gt;
+(Address -&gt; Address -&gt; Ordering)
+-&gt; (Address -&gt; Address -&gt; Bool)
+-&gt; (Address -&gt; Address -&gt; Bool)
+-&gt; (Address -&gt; Address -&gt; Bool)
+-&gt; (Address -&gt; Address -&gt; Bool)
+-&gt; (Address -&gt; Address -&gt; Address)
+-&gt; (Address -&gt; Address -&gt; Address)
+-&gt; Ord Address
+Address -&gt; Address -&gt; Bool
+Address -&gt; Address -&gt; Ordering
+Address -&gt; Address -&gt; Address
+forall a.
+Eq a =&gt;
+(a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+min :: Address -&gt; Address -&gt; Address
+$cmin :: Address -&gt; Address -&gt; Address
+max :: Address -&gt; Address -&gt; Address
+$cmax :: Address -&gt; Address -&gt; Address
+&gt;= :: Address -&gt; Address -&gt; Bool
+$c&gt;= :: Address -&gt; Address -&gt; Bool
+&gt; :: Address -&gt; Address -&gt; Bool
+$c&gt; :: Address -&gt; Address -&gt; Bool
+&lt;= :: Address -&gt; Address -&gt; Bool
+$c&lt;= :: Address -&gt; Address -&gt; Bool
+&lt; :: Address -&gt; Address -&gt; Bool
+$c&lt; :: Address -&gt; Address -&gt; Bool
+compare :: Address -&gt; Address -&gt; Ordering
+$ccompare :: Address -&gt; Address -&gt; Ordering
+$cp1Ord :: Eq Address
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679547477"><span id="local-6989586621679547479"><span id="local-6989586621679547481"><span id="local-6989586621679547483"><span class="annot"><span class="annottext">[Address] -&gt; Encoding
+[Address] -&gt; Value
+Address -&gt; Encoding
+Address -&gt; Value
+(Address -&gt; Value)
+-&gt; (Address -&gt; Encoding)
+-&gt; ([Address] -&gt; Value)
+-&gt; ([Address] -&gt; Encoding)
+-&gt; ToJSON Address
+forall a.
+(a -&gt; Value)
+-&gt; (a -&gt; Encoding)
+-&gt; ([a] -&gt; Value)
+-&gt; ([a] -&gt; Encoding)
+-&gt; ToJSON a
+toEncodingList :: [Address] -&gt; Encoding
+$ctoEncodingList :: [Address] -&gt; Encoding
+toJSONList :: [Address] -&gt; Value
+$ctoJSONList :: [Address] -&gt; Value
+toEncoding :: Address -&gt; Encoding
+$ctoEncoding :: Address -&gt; Encoding
+toJSON :: Address -&gt; Value
+$ctoJSON :: Address -&gt; Value
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">A.ToJSON</span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679547472"><span id="local-6989586621679547474"><span class="annot"><span class="annottext">Value -&gt; Parser [Address]
+Value -&gt; Parser Address
+(Value -&gt; Parser Address)
+-&gt; (Value -&gt; Parser [Address]) -&gt; FromJSON Address
+forall a.
+(Value -&gt; Parser a) -&gt; (Value -&gt; Parser [a]) -&gt; FromJSON a
+parseJSONList :: Value -&gt; Parser [Address]
+$cparseJSONList :: Value -&gt; Parser [Address]
+parseJSON :: Value -&gt; Parser Address
+$cparseJSON :: Value -&gt; Parser Address
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">A.FromJSON</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Primitive</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-27"></span><span>  </span><span id="local-6989586621679547466"><span class="annot"><span class="annottext">encodePrimitive :: FieldNumber -&gt; Address -&gt; MessageBuilder
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">encodePrimitive</span></span></span><span> </span><span id="local-6989586621679547464"><span class="annot"><span class="annottext">n :: FieldNumber
+</span><a href="#local-6989586621679547464"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679547463"><span class="annot"><span class="annottext">a :: Address
+</span><a href="#local-6989586621679547463"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FieldNumber -&gt; ByteString -&gt; MessageBuilder
+</span><span class="hs-identifier hs-var">Encode.byteString</span></span><span> </span><span class="annot"><span class="annottext">FieldNumber
+</span><a href="#local-6989586621679547464"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; MessageBuilder) -&gt; ByteString -&gt; MessageBuilder
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Address -&gt; ByteString
+</span><a href="Tendermint.SDK.Types.Address.html#addressToBytes"><span class="hs-identifier hs-var">addressToBytes</span></a></span><span> </span><span class="annot"><span class="annottext">Address
+</span><a href="#local-6989586621679547463"><span class="hs-identifier hs-var">a</span></a></span><span>
+</span><span id="line-28"></span><span>  </span><span id="local-6989586621679547460"><span class="annot"><span class="annottext">decodePrimitive :: Parser RawPrimitive Address
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">decodePrimitive</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Address
+</span><a href="Tendermint.SDK.Types.Address.html#addressFromBytes"><span class="hs-identifier hs-var">addressFromBytes</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Address)
+-&gt; Parser RawPrimitive ByteString -&gt; Parser RawPrimitive Address
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Parser RawPrimitive ByteString
+</span><span class="hs-identifier hs-var">Decode.byteString</span></span><span>
+</span><span id="line-29"></span><span>  </span><span id="local-6989586621679547455"><span class="annot"><span class="annottext">primType :: Proxy# Address -&gt; DotProtoPrimType
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">primType</span></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DotProtoPrimType
+</span><span class="hs-identifier hs-var">DotProto.Bytes</span></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679547449"><span id="local-6989586621679547451"><span class="annot"><span class="hs-identifier hs-type">HasDefault</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Hex.HexString</span></span></span></span><span>
+</span><span id="line-31"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679547444"><span id="local-6989586621679547446"><span class="annot"><span class="hs-identifier hs-type">HasDefault</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span></span></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679547438"><span id="local-6989586621679547440"><span id="local-6989586621679547442"><span class="annot"><span class="hs-identifier hs-type">MessageField</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span></span></span></span><span>
+</span><span id="line-33"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-34"></span><span>  </span><span id="local-6989586621679547433"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Address
+</span><a href="Tendermint.SDK.Codec.html#decode"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Address -&gt; Either Text Address
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(Address -&gt; Either Text Address)
+-&gt; (ByteString -&gt; Address) -&gt; ByteString -&gt; Either Text Address
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Address
+</span><a href="Tendermint.SDK.Types.Address.html#addressFromBytes"><span class="hs-identifier hs-var">addressFromBytes</span></a></span><span>
+</span><span id="line-35"></span><span>  </span><span id="local-6989586621679547430"><span class="annot"><span class="annottext">encode :: Address -&gt; ByteString
+</span><a href="Tendermint.SDK.Codec.html#encode"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Address -&gt; ByteString
+</span><a href="Tendermint.SDK.Types.Address.html#addressToBytes"><span class="hs-identifier hs-var">addressToBytes</span></a></span><span>
+</span><span id="line-36"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679547423"><span id="local-6989586621679547425"><span id="local-6989586621679547427"><span class="annot"><span class="hs-identifier hs-type">ToHttpApiData</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-37"></span><span>  </span><span id="local-6989586621679547420"><span class="annot"><span class="annottext">toQueryParam :: Address -&gt; Text
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">toQueryParam</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span><span> </span><span id="local-6989586621679547418"><span class="annot"><span class="annottext">aHex :: HexString
+</span><a href="#local-6989586621679547418"><span class="hs-identifier hs-var">aHex</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HexString -&gt; Text
+</span><span class="hs-identifier hs-var">Hex.format</span></span><span> </span><span class="annot"><span class="annottext">HexString
+</span><a href="#local-6989586621679547418"><span class="hs-identifier hs-var">aHex</span></a></span><span>
+</span><span id="line-38"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679547413"><span id="local-6989586621679547415"><span class="annot"><span class="hs-identifier hs-type">FromHttpApiData</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-39"></span><span>  </span><span id="local-6989586621679547410"><span class="annot"><span class="annottext">parseQueryParam :: Text -&gt; Either Text Address
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">parseQueryParam</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Address -&gt; Either Text Address
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(Address -&gt; Either Text Address)
+-&gt; (Text -&gt; Address) -&gt; Text -&gt; Either Text Address
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">HexString -&gt; Address
+</span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-var">Address</span></a></span><span> </span><span class="annot"><span class="annottext">(HexString -&gt; Address) -&gt; (Text -&gt; HexString) -&gt; Text -&gt; Address
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; HexString
+forall a. IsString a =&gt; String -&gt; a
+</span><span class="hs-identifier hs-var">fromString</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; HexString) -&gt; (Text -&gt; String) -&gt; Text -&gt; HexString
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; String
+</span><span class="hs-identifier hs-var">unpack</span></span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#addressToBytes"><span class="hs-identifier hs-type">addressToBytes</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span>
+</span><span id="line-42"></span><span id="addressToBytes"><span class="annot"><span class="annottext">addressToBytes :: Address -&gt; ByteString
+</span><a href="Tendermint.SDK.Types.Address.html#addressToBytes"><span class="hs-identifier hs-var hs-var">addressToBytes</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span><span> </span><span id="local-6989586621679547408"><span class="annot"><span class="annottext">addrHex :: HexString
+</span><a href="#local-6989586621679547408"><span class="hs-identifier hs-var">addrHex</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HexString -&gt; ByteString
+forall ba. ByteArray ba =&gt; HexString -&gt; ba
+</span><span class="hs-identifier hs-var">Hex.toBytes</span></span><span> </span><span class="annot"><span class="annottext">HexString
+</span><a href="#local-6989586621679547408"><span class="hs-identifier hs-var">addrHex</span></a></span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#addressFromBytes"><span class="hs-identifier hs-type">addressFromBytes</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span><span>
+</span><span id="line-45"></span><span id="addressFromBytes"><span class="annot"><span class="annottext">addressFromBytes :: ByteString -&gt; Address
+</span><a href="Tendermint.SDK.Types.Address.html#addressFromBytes"><span class="hs-identifier hs-var hs-var">addressFromBytes</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HexString -&gt; Address
+</span><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-var">Address</span></a></span><span> </span><span class="annot"><span class="annottext">(HexString -&gt; Address)
+-&gt; (ByteString -&gt; HexString) -&gt; ByteString -&gt; Address
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; HexString
+forall ba. ByteArrayAccess ba =&gt; ba -&gt; HexString
+</span><span class="hs-identifier hs-var">Hex.fromBytes</span></span><span>
+</span><span id="line-46"></span><span>
+</span><span id="line-47"></span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#pubKeyToAddress"><span class="hs-identifier hs-type">pubKeyToAddress</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Crypto.PubKey</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span><span>
+</span><span id="line-48"></span><span id="pubKeyToAddress"><span class="annot"><span class="annottext">pubKeyToAddress :: PubKey -&gt; Address
+</span><a href="Tendermint.SDK.Types.Address.html#pubKeyToAddress"><span class="hs-identifier hs-var hs-var">pubKeyToAddress</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Address
+</span><a href="Tendermint.SDK.Types.Address.html#addressFromBytes"><span class="hs-identifier hs-var">addressFromBytes</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Address)
+-&gt; (PubKey -&gt; ByteString) -&gt; PubKey -&gt; Address
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; PubKey -&gt; ByteString
+</span><span class="hs-identifier hs-var">Crypto.exportPubKey</span></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">False</span></span><span>
+</span><span id="line-49"></span></pre></body></html>

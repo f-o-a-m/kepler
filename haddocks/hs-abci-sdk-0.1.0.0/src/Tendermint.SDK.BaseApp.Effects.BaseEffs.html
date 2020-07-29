@@ -1,57 +1,178 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.BaseEffs</span><span>
-</span><a name="line-2"></a><span>  </span><span class="hs-special">(</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#BaseEffs"><span class="hs-identifier hs-type">BaseEffs</span></a><span>
-</span><a name="line-3"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffs"><span class="hs-identifier hs-var">evalBaseEffs</span></a><span>
-</span><a name="line-4"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffsPure"><span class="hs-identifier hs-var">evalBaseEffsPure</span></a><span>
-</span><a name="line-5"></a><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-6"></a><span>
-</span><a name="line-7"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Exception</span><span>                         </span><span class="hs-special">(</span><span class="hs-identifier hs-var">throwIO</span><span class="hs-special">)</span><span>
-</span><a name="line-8"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Monad.IO.Class</span><span>                    </span><span class="hs-special">(</span><span class="hs-identifier hs-var">liftIO</span><span class="hs-special">)</span><span>
-</span><a name="line-9"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy</span><span>                                  </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Embed</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Members</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Sem</span><span class="hs-special">)</span><span>
-</span><a name="line-10"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy.Error</span><span>                            </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Error</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">runError</span><span class="hs-special">)</span><span>
-</span><a name="line-11"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy.Reader</span><span>                           </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Reader</span><span class="hs-special">)</span><span>
-</span><a name="line-12"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy.Resource</span><span>                         </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Resource</span><span class="hs-special">,</span><span>
-</span><a name="line-13"></a><span>                                                            </span><span class="hs-identifier hs-var">resourceToIO</span><span class="hs-special">)</span><span>
-</span><a name="line-14"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Errors.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Errors</span></a><span>             </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a><span class="hs-special">)</span><span>
-</span><a name="line-15"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Logger.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Logger</span></a><span>             </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Logger.html#Logger"><span class="hs-identifier hs-type">Logger</span></a><span class="hs-special">)</span><span>
-</span><a name="line-16"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Logger.Katip</span></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">KL</span><span>
-</span><a name="line-17"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Metrics.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Metrics</span></a><span>            </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a><span class="hs-special">)</span><span>
-</span><a name="line-18"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Metrics.Prometheus</span></a><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Prometheus</span><span>
-</span><a name="line-19"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.Types.Effects.html"><span class="hs-identifier">Tendermint.SDK.Types.Effects</span></a><span>              </span><span class="hs-special">(</span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-20"></a><span>
-</span><a name="line-21"></a><span class="hs-comment">-- | Concrete row of effects for the BaseApp. Note that because there does</span><span>
-</span><a name="line-22"></a><span class="hs-comment">-- | not exist an interpreter for an untagged 'RawStore', you must scope</span><span>
-</span><a name="line-23"></a><span class="hs-comment">-- | these effects before they can be interpreted.</span><span>
-</span><a name="line-24"></a><span class="hs-keyword">type</span><span> </span><a name="BaseEffs"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#BaseEffs"><span class="hs-identifier">BaseEffs</span></a></a><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-25"></a><span>  </span><span class="hs-special">[</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a><span>
-</span><a name="line-26"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Logger.html#Logger"><span class="hs-identifier hs-type">Logger</span></a><span>
-</span><a name="line-27"></a><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Resource</span><span>
-</span><a name="line-28"></a><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Error</span><span> </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a><span>
-</span><a name="line-29"></a><span>  </span><span class="hs-special">]</span><span>
-</span><a name="line-30"></a><span>
-</span><a name="line-31"></a><span class="hs-comment">-- | An intermediary interpeter, bringing 'BaseApp' down to 'CoreEff'.</span><span>
-</span><a name="line-32"></a><span class="hs-identifier">evalBaseEffs</span><span>
-</span><a name="line-33"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Members</span><span> </span><span class="hs-special">[</span><span class="hs-identifier hs-type">Embed</span><span> </span><span class="hs-identifier hs-type">IO</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Reader</span><span> </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type">KL.LogConfig</span></a><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Reader</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Maybe</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-type">Prometheus.PrometheusEnv</span></a><span class="hs-special">)</span><span class="hs-special">]</span><span> </span><a href="#local-6989586621679445192"><span class="hs-identifier hs-type">core</span></a><span>
-</span><a name="line-34"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><a name="local-6989586621679445193"><a href="#local-6989586621679445193"><span class="hs-identifier">a</span></a></a><span class="hs-operator">.</span><span>
-</span><a name="line-35"></a><span>     </span><span class="hs-identifier hs-type">Sem</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-identifier hs-type">BaseEffs</span></a><span> </span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a><span> </span><a href="#local-6989586621679445192"><span class="hs-identifier hs-type">core</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679445193"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-36"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="#local-6989586621679445192"><span class="hs-identifier hs-type">core</span></a><span> </span><a href="#local-6989586621679445193"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-37"></a><a name="evalBaseEffs"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffs"><span class="hs-identifier">evalBaseEffs</span></a></a><span> </span><a name="local-6989586621679445194"><a href="#local-6989586621679445194"><span class="hs-identifier">action</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-38"></a><span>  </span><a name="local-6989586621679445195"><a href="#local-6989586621679445195"><span class="hs-identifier">eRes</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">runError</span><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-39"></a><span>    </span><span class="hs-identifier hs-var">resourceToIO</span><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-40"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#evalKatip"><span class="hs-identifier hs-var">KL.evalKatip</span></a><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-41"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalWithMetrics"><span class="hs-identifier hs-var">Prometheus.evalWithMetrics</span></a><span> </span><span class="hs-operator hs-var">$</span><span>
-</span><a name="line-42"></a><span>    </span><a href="#local-6989586621679445194"><span class="hs-identifier hs-var">action</span></a><span>
-</span><a name="line-43"></a><span>  </span><span class="hs-identifier hs-var">either</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">throwIO</span><span class="hs-special">)</span><span> </span><span class="hs-identifier hs-var">return</span><span> </span><a href="#local-6989586621679445195"><span class="hs-identifier hs-var">eRes</span></a><span>
-</span><a name="line-44"></a><span>
-</span><a name="line-45"></a><span class="hs-identifier">evalBaseEffsPure</span><span>
-</span><a name="line-46"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Members</span><span> </span><span class="hs-special">[</span><span class="hs-identifier hs-type">Embed</span><span> </span><span class="hs-identifier hs-type">IO</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Reader</span><span> </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type">KL.LogConfig</span></a><span class="hs-special">]</span><span> </span><a href="#local-6989586621679445190"><span class="hs-identifier hs-type">core</span></a><span>
-</span><a name="line-47"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><a name="local-6989586621679445191"><a href="#local-6989586621679445191"><span class="hs-identifier">a</span></a></a><span class="hs-operator">.</span><span>
-</span><a name="line-48"></a><span>     </span><span class="hs-identifier hs-type">Sem</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-identifier hs-type">BaseEffs</span></a><span> </span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a><span> </span><a href="#local-6989586621679445190"><span class="hs-identifier hs-type">core</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679445191"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-49"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="#local-6989586621679445190"><span class="hs-identifier hs-type">core</span></a><span> </span><a href="#local-6989586621679445191"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-50"></a><a name="evalBaseEffsPure"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffsPure"><span class="hs-identifier">evalBaseEffsPure</span></a></a><span> </span><a name="local-6989586621679445196"><a href="#local-6989586621679445196"><span class="hs-identifier">action</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-51"></a><span>  </span><a name="local-6989586621679445197"><a href="#local-6989586621679445197"><span class="hs-identifier">eRes</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">runError</span><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-52"></a><span>    </span><span class="hs-identifier hs-var">resourceToIO</span><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-53"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#evalKatip"><span class="hs-identifier hs-var">KL.evalKatip</span></a><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-54"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalNothing"><span class="hs-identifier hs-var">Prometheus.evalNothing</span></a><span> </span><span class="hs-operator hs-var">$</span><span>
-</span><a name="line-55"></a><span>    </span><a href="#local-6989586621679445196"><span class="hs-identifier hs-var">action</span></a><span>
-</span><a name="line-56"></a><span>  </span><span class="hs-identifier hs-var">either</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">throwIO</span><span class="hs-special">)</span><span> </span><span class="hs-identifier hs-var">return</span><span> </span><a href="#local-6989586621679445197"><span class="hs-identifier hs-var">eRes</span></a><span>
-</span><a name="line-57"></a></pre></body></html>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#BaseEffs"><span class="hs-identifier">BaseEffs</span></a></span><span>
+</span><span id="line-3"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffs"><span class="hs-identifier">evalBaseEffs</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffsPure"><span class="hs-identifier">evalBaseEffsPure</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Exception</span></span><span>                         </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">throwIO</span></span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Monad.IO.Class</span></span><span>                    </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">liftIO</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy</span></span><span>                                  </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Embed</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">Members</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">Sem</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy.Error</span></span><span>                            </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Error</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">runError</span></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy.Reader</span></span><span>                           </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Reader</span></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy.Resource</span></span><span>                         </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Resource</span></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>                                                            </span><span class="annot"><span class="hs-identifier">resourceToIO</span></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Errors</span></a></span><span>             </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier">AppError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Logger</span></a></span><span>             </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.html#Logger"><span class="hs-identifier">Logger</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Logger.Katip</span></a></span><span>       </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">KL</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Metrics</span></a></span><span>            </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier">Metrics</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Metrics.Prometheus</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Prometheus</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html"><span class="hs-identifier">Tendermint.SDK.Types.Effects</span></a></span><span>              </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator">(:&amp;)</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- | Concrete row of effects for the BaseApp. Note that because there does</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- | not exist an interpreter for an untagged 'RawStore', you must scope</span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- | these effects before they can be interpreted.</span><span>
+</span><span id="line-24"></span><span class="hs-keyword">type</span><span> </span><span id="BaseEffs"><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#BaseEffs"><span class="hs-identifier hs-var">BaseEffs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-special">[</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a></span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.html#Logger"><span class="hs-identifier hs-type">Logger</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Resource</span></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-special">]</span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- | An intermediary interpeter, bringing 'BaseApp' down to 'CoreEff'.</span><span>
+</span><span id="line-32"></span><span id="local-6989586621679553402"><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffs"><span class="hs-identifier hs-type">evalBaseEffs</span></a></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type">KL.LogConfig</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-type">Prometheus.PrometheusEnv</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679553402"><span class="hs-identifier hs-type">core</span></a></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679553453"><span class="annot"><a href="#local-6989586621679553453"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span>
+</span><span id="line-35"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#BaseEffs"><span class="hs-identifier hs-type">BaseEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553402"><span class="hs-identifier hs-type">core</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553453"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679553402"><span class="hs-identifier hs-type">core</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553453"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-37"></span><span id="evalBaseEffs"><span class="annot"><span class="annottext">evalBaseEffs :: forall a. Sem (BaseEffs :&amp; core) a -&gt; Sem core a
+</span><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffs"><span class="hs-identifier hs-var hs-var">evalBaseEffs</span></a></span></span><span> </span><span id="local-6989586621679553400"><span class="annot"><span class="annottext">action :: Sem (BaseEffs :&amp; core) a
+</span><a href="#local-6989586621679553400"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-38"></span><span>  </span><span id="local-6989586621679553399"><span class="annot"><span class="annottext">Either AppError a
+</span><a href="#local-6989586621679553399"><span class="hs-identifier hs-var">eRes</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem (Error AppError : core) a -&gt; Sem core (Either AppError a)
+forall e (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Sem (Error e : r) a -&gt; Sem r (Either e a)
+</span><span class="hs-identifier hs-var">runError</span></span><span> </span><span class="annot"><span class="annottext">(Sem (Error AppError : core) a -&gt; Sem core (Either AppError a))
+-&gt; (Sem (Metrics : Logger : Resource : Error AppError : core) a
+    -&gt; Sem (Error AppError : core) a)
+-&gt; Sem (Metrics : Logger : Resource : Error AppError : core) a
+-&gt; Sem core (Either AppError a)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><span class="annottext">Sem (Resource : Error AppError : core) a
+-&gt; Sem (Error AppError : core) a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Member (Embed IO) r =&gt;
+Sem (Resource : r) a -&gt; Sem r a
+</span><span class="hs-identifier hs-var">resourceToIO</span></span><span> </span><span class="annot"><span class="annottext">(Sem (Resource : Error AppError : core) a
+ -&gt; Sem (Error AppError : core) a)
+-&gt; (Sem (Metrics : Logger : Resource : Error AppError : core) a
+    -&gt; Sem (Resource : Error AppError : core) a)
+-&gt; Sem (Metrics : Logger : Resource : Error AppError : core) a
+-&gt; Sem (Error AppError : core) a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><span class="annottext">Sem (Logger : Resource : Error AppError : core) a
+-&gt; Sem (Resource : Error AppError : core) a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+KatipContext (Sem r) =&gt;
+Sem (Logger : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#evalKatip"><span class="hs-identifier hs-var">KL.evalKatip</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (Logger : Resource : Error AppError : core) a
+ -&gt; Sem (Resource : Error AppError : core) a)
+-&gt; (Sem (Metrics : Logger : Resource : Error AppError : core) a
+    -&gt; Sem (Logger : Resource : Error AppError : core) a)
+-&gt; Sem (Metrics : Logger : Resource : Error AppError : core) a
+-&gt; Sem (Resource : Error AppError : core) a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><span class="annottext">Sem (Metrics : Logger : Resource : Error AppError : core) a
+-&gt; Sem (Logger : Resource : Error AppError : core) a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+(Member (Embed IO) r, Member (Reader (Maybe PrometheusEnv)) r) =&gt;
+Sem (Metrics : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalWithMetrics"><span class="hs-identifier hs-var">Prometheus.evalWithMetrics</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (Metrics : Logger : Resource : Error AppError : core) a
+ -&gt; Sem core (Either AppError a))
+-&gt; Sem (Metrics : Logger : Resource : Error AppError : core) a
+-&gt; Sem core (Either AppError a)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-42"></span><span>    </span><span class="annot"><span class="annottext">Sem (Metrics : Logger : Resource : Error AppError : core) a
+Sem (BaseEffs :&amp; core) a
+</span><a href="#local-6989586621679553400"><span class="hs-identifier hs-var">action</span></a></span><span>
+</span><span id="line-43"></span><span>  </span><span class="annot"><span class="annottext">(AppError -&gt; Sem core a)
+-&gt; (a -&gt; Sem core a) -&gt; Either AppError a -&gt; Sem core a
+forall a c b. (a -&gt; c) -&gt; (b -&gt; c) -&gt; Either a b -&gt; c
+</span><span class="hs-identifier hs-var">either</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">IO a -&gt; Sem core a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO a -&gt; Sem core a)
+-&gt; (AppError -&gt; IO a) -&gt; AppError -&gt; Sem core a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">AppError -&gt; IO a
+forall e a. Exception e =&gt; e -&gt; IO a
+</span><span class="hs-identifier hs-var">throwIO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">a -&gt; Sem core a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">Either AppError a
+</span><a href="#local-6989586621679553399"><span class="hs-identifier hs-var">eRes</span></a></span><span>
+</span><span id="line-44"></span><span>
+</span><span id="line-45"></span><span id="local-6989586621679553394"><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffsPure"><span class="hs-identifier hs-type">evalBaseEffsPure</span></a></span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type">KL.LogConfig</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679553394"><span class="hs-identifier hs-type">core</span></a></span><span>
+</span><span id="line-47"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679553413"><span class="annot"><a href="#local-6989586621679553413"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span>
+</span><span id="line-48"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#BaseEffs"><span class="hs-identifier hs-type">BaseEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553394"><span class="hs-identifier hs-type">core</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553413"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679553394"><span class="hs-identifier hs-type">core</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553413"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-50"></span><span id="evalBaseEffsPure"><span class="annot"><span class="annottext">evalBaseEffsPure :: forall a. Sem (BaseEffs :&amp; core) a -&gt; Sem core a
+</span><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffsPure"><span class="hs-identifier hs-var hs-var">evalBaseEffsPure</span></a></span></span><span> </span><span id="local-6989586621679553393"><span class="annot"><span class="annottext">action :: Sem (BaseEffs :&amp; core) a
+</span><a href="#local-6989586621679553393"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-51"></span><span>  </span><span id="local-6989586621679553392"><span class="annot"><span class="annottext">Either AppError a
+</span><a href="#local-6989586621679553392"><span class="hs-identifier hs-var">eRes</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem (Error AppError : core) a -&gt; Sem core (Either AppError a)
+forall e (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Sem (Error e : r) a -&gt; Sem r (Either e a)
+</span><span class="hs-identifier hs-var">runError</span></span><span> </span><span class="annot"><span class="annottext">(Sem (Error AppError : core) a -&gt; Sem core (Either AppError a))
+-&gt; (Sem (Metrics : Logger : Resource : Error AppError : core) a
+    -&gt; Sem (Error AppError : core) a)
+-&gt; Sem (Metrics : Logger : Resource : Error AppError : core) a
+-&gt; Sem core (Either AppError a)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><span class="annottext">Sem (Resource : Error AppError : core) a
+-&gt; Sem (Error AppError : core) a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Member (Embed IO) r =&gt;
+Sem (Resource : r) a -&gt; Sem r a
+</span><span class="hs-identifier hs-var">resourceToIO</span></span><span> </span><span class="annot"><span class="annottext">(Sem (Resource : Error AppError : core) a
+ -&gt; Sem (Error AppError : core) a)
+-&gt; (Sem (Metrics : Logger : Resource : Error AppError : core) a
+    -&gt; Sem (Resource : Error AppError : core) a)
+-&gt; Sem (Metrics : Logger : Resource : Error AppError : core) a
+-&gt; Sem (Error AppError : core) a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-53"></span><span>    </span><span class="annot"><span class="annottext">Sem (Logger : Resource : Error AppError : core) a
+-&gt; Sem (Resource : Error AppError : core) a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+KatipContext (Sem r) =&gt;
+Sem (Logger : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#evalKatip"><span class="hs-identifier hs-var">KL.evalKatip</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (Logger : Resource : Error AppError : core) a
+ -&gt; Sem (Resource : Error AppError : core) a)
+-&gt; (Sem (Metrics : Logger : Resource : Error AppError : core) a
+    -&gt; Sem (Logger : Resource : Error AppError : core) a)
+-&gt; Sem (Metrics : Logger : Resource : Error AppError : core) a
+-&gt; Sem (Resource : Error AppError : core) a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><span class="annottext">Sem (Metrics : Logger : Resource : Error AppError : core) a
+-&gt; Sem (Logger : Resource : Error AppError : core) a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Sem (Metrics : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalNothing"><span class="hs-identifier hs-var">Prometheus.evalNothing</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (Metrics : Logger : Resource : Error AppError : core) a
+ -&gt; Sem core (Either AppError a))
+-&gt; Sem (Metrics : Logger : Resource : Error AppError : core) a
+-&gt; Sem core (Either AppError a)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-55"></span><span>    </span><span class="annot"><span class="annottext">Sem (Metrics : Logger : Resource : Error AppError : core) a
+Sem (BaseEffs :&amp; core) a
+</span><a href="#local-6989586621679553393"><span class="hs-identifier hs-var">action</span></a></span><span>
+</span><span id="line-56"></span><span>  </span><span class="annot"><span class="annottext">(AppError -&gt; Sem core a)
+-&gt; (a -&gt; Sem core a) -&gt; Either AppError a -&gt; Sem core a
+forall a c b. (a -&gt; c) -&gt; (b -&gt; c) -&gt; Either a b -&gt; c
+</span><span class="hs-identifier hs-var">either</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">IO a -&gt; Sem core a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO a -&gt; Sem core a)
+-&gt; (AppError -&gt; IO a) -&gt; AppError -&gt; Sem core a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">AppError -&gt; IO a
+forall e a. Exception e =&gt; e -&gt; IO a
+</span><span class="hs-identifier hs-var">throwIO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">a -&gt; Sem core a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">Either AppError a
+</span><a href="#local-6989586621679553392"><span class="hs-identifier hs-var">eRes</span></a></span><span>
+</span><span id="line-57"></span></pre></body></html>

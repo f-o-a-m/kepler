@@ -1,46 +1,175 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Nameservice.Server</span><span> </span><span class="hs-special">(</span><a href="Nameservice.Server.html#makeAndServeApplication"><span class="hs-identifier hs-var">makeAndServeApplication</span></a><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-2"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Lens</span><span>                              </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-operator hs-var">^?</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">_Just</span><span class="hs-special">)</span><span>
-</span><a name="line-3"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Foldable</span><span>                             </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fold</span><span class="hs-special">)</span><span>
-</span><a name="line-4"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.IORef</span><span>                                </span><span class="hs-special">(</span><span class="hs-identifier hs-var">writeIORef</span><span class="hs-special">)</span><span>
-</span><a name="line-5"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Monoid</span><span>                               </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Endo</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-6"></a><span class="hs-keyword">import</span><span>           </span><a href="Nameservice.Application.html"><span class="hs-identifier">Nameservice.Application</span></a><span>                   </span><span class="hs-special">(</span><a href="Nameservice.Application.html#handlersContext"><span class="hs-identifier hs-var">handlersContext</span></a><span class="hs-special">)</span><span>
-</span><a name="line-7"></a><span class="hs-keyword">import</span><span>           </span><a href="Nameservice.Config.html"><span class="hs-identifier">Nameservice.Config</span></a><span>                        </span><span class="hs-special">(</span><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier hs-type">AppConfig</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-8"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Network.ABCI.Server</span><span>                       </span><span class="hs-special">(</span><span class="hs-identifier hs-var">serveApp</span><span class="hs-special">)</span><span>
-</span><a name="line-9"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Network.ABCI.Server.App</span><span>                   </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Middleware</span><span class="hs-special">)</span><span>
-</span><a name="line-10"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Network.ABCI.Server.Middleware.Logger</span><span>     </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Logger</span><span>
-</span><a name="line-11"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Network.ABCI.Server.Middleware.Metrics</span><span>    </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Met</span><span>
-</span><a name="line-12"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy</span><span>                                  </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Sem</span><span class="hs-special">)</span><span>
-</span><a name="line-13"></a><span>
-</span><a name="line-14"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Tendermint.SDK.Application</span><span>                </span><span class="hs-special">(</span><span class="hs-identifier hs-var">createIOApp</span><span class="hs-special">,</span><span>
-</span><a name="line-15"></a><span>                                                            </span><span class="hs-identifier hs-var">makeApp</span><span class="hs-special">)</span><span>
-</span><a name="line-16"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Tendermint.SDK.BaseApp</span><span>                    </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Context</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-17"></a><span>                                                            </span><span class="hs-identifier hs-type">CoreEffs</span><span class="hs-special">,</span><span>
-</span><a name="line-18"></a><span>                                                            </span><span class="hs-identifier hs-var">contextPrometheusEnv</span><span class="hs-special">,</span><span>
-</span><a name="line-19"></a><span>                                                            </span><span class="hs-identifier hs-var">runCoreEffs</span><span class="hs-special">)</span><span>
-</span><a name="line-20"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Tendermint.SDK.BaseApp.Metrics.Prometheus</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">envMetricsState</span><span class="hs-special">,</span><span>
-</span><a name="line-21"></a><span>                                                            </span><span class="hs-identifier hs-var">forkMetricsServer</span><span class="hs-special">,</span><span>
-</span><a name="line-22"></a><span>                                                            </span><span class="hs-identifier hs-var">metricsRegistry</span><span class="hs-special">)</span><span>
-</span><a name="line-23"></a><span>
-</span><a name="line-24"></a><span class="hs-identifier">makeAndServeApplication</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier hs-type">AppConfig</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><a name="line-25"></a><a name="makeAndServeApplication"><a href="Nameservice.Server.html#makeAndServeApplication"><span class="hs-identifier">makeAndServeApplication</span></a></a><span> </span><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier hs-var">AppConfig</span></a><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-26"></a><span>  </span><span class="hs-identifier hs-var">putStrLn</span><span> </span><span class="hs-string">&quot;Starting ABCI application...&quot;</span><span>
-</span><a name="line-27"></a><span>  </span><span class="hs-keyword">case</span><span> </span><span class="hs-identifier">_contextPrometheusEnv</span><span> </span><a href="#local-6989586621679314245"><span class="hs-identifier hs-var">_baseAppContext</span></a><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-28"></a><span>    </span><span class="hs-identifier hs-var">Nothing</span><span>            </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><a name="line-29"></a><span>    </span><span class="hs-identifier hs-var">Just</span><span> </span><a name="local-6989586621679314247"><a href="#local-6989586621679314247"><span class="hs-identifier">prometheusEnv</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-30"></a><span>      </span><a name="local-6989586621679314248"><a href="#local-6989586621679314248"><span class="hs-identifier">prometheusThreadId</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">forkMetricsServer</span><span> </span><a href="#local-6989586621679314247"><span class="hs-identifier hs-var">prometheusEnv</span></a><span>
-</span><a name="line-31"></a><span>      </span><span class="hs-identifier hs-var">writeIORef</span><span> </span><a href="#local-6989586621679314246"><span class="hs-identifier hs-var">_prometheusServerThreadId</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Just</span><span> </span><a href="#local-6989586621679314248"><span class="hs-identifier hs-var">prometheusThreadId</span></a><span class="hs-special">)</span><span>
-</span><a name="line-32"></a><span>  </span><a name="local-6989586621679314429"><a href="#local-6989586621679314429"><span class="hs-identifier">metricsMiddleware</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span>
-</span><a name="line-33"></a><span>    </span><span class="hs-keyword">case</span><span> </span><a href="#local-6989586621679314245"><span class="hs-identifier hs-var">_baseAppContext</span></a><span> </span><span class="hs-operator hs-var">^?</span><span> </span><span class="hs-identifier hs-var">contextPrometheusEnv</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">_Just</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">envMetricsState</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">metricsRegistry</span><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-34"></a><span>      </span><span class="hs-identifier hs-var">Nothing</span><span>       </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-identifier hs-var">id</span><span>
-</span><a name="line-35"></a><span>      </span><span class="hs-identifier hs-var">Just</span><span> </span><a name="local-6989586621679314428"><a href="#local-6989586621679314428"><span class="hs-identifier">registry</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">Met.mkMetricsMiddleware</span><span> </span><span class="hs-identifier hs-var">Met.defaultBuckets</span><span> </span><a href="#local-6989586621679314428"><span class="hs-identifier hs-var">registry</span></a><span>
-</span><a name="line-36"></a><span>
-</span><a name="line-37"></a><span>  </span><span class="hs-keyword">let</span><span> </span><span class="hs-identifier">nat</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><a name="local-6989586621679314433"><a href="#local-6989586621679314433"><span class="hs-identifier">a</span></a></a><span class="hs-operator">.</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><span class="hs-identifier hs-type">CoreEffs</span><span> </span><a href="#local-6989586621679314433"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><a href="#local-6989586621679314433"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-38"></a><span>      </span><a name="local-6989586621679314430"><a href="#local-6989586621679314430"><span class="hs-identifier">nat</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">runCoreEffs</span><span> </span><a href="#local-6989586621679314245"><span class="hs-identifier hs-var">_baseAppContext</span></a><span>
-</span><a name="line-39"></a><span>      </span><a name="local-6989586621679314431"><a href="#local-6989586621679314431"><span class="hs-identifier">application</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">makeApp</span><span> </span><a href="Nameservice.Application.html#handlersContext"><span class="hs-identifier hs-var">handlersContext</span></a><span>
-</span><a name="line-40"></a><span>      </span><span class="hs-identifier">middleware</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Middleware</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Sem</span><span> </span><span class="hs-identifier hs-type">CoreEffs</span><span class="hs-special">)</span><span>
-</span><a name="line-41"></a><span>      </span><a name="local-6989586621679314432"><a href="#local-6989586621679314432"><span class="hs-identifier">middleware</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">appEndo</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">fold</span><span> </span><span class="hs-operator hs-var">$</span><span>
-</span><a name="line-42"></a><span>          </span><span class="hs-special">[</span><span> </span><span class="hs-identifier hs-var">Endo</span><span> </span><span class="hs-identifier hs-var">Logger.mkLoggerM</span><span>
-</span><a name="line-43"></a><span>          </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">Endo</span><span> </span><a href="#local-6989586621679314429"><span class="hs-identifier hs-var">metricsMiddleware</span></a><span>
-</span><a name="line-44"></a><span>          </span><span class="hs-special">]</span><span>
-</span><a name="line-45"></a><span>  </span><span class="hs-identifier hs-var">serveApp</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">createIOApp</span><span> </span><a href="#local-6989586621679314430"><span class="hs-identifier hs-var">nat</span></a><span> </span><span class="hs-special">(</span><a href="#local-6989586621679314432"><span class="hs-identifier hs-var">middleware</span></a><span> </span><a href="#local-6989586621679314431"><span class="hs-identifier hs-var">application</span></a><span class="hs-special">)</span><span>
-</span><a name="line-46"></a></pre></body></html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Nameservice.Server</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Nameservice.Server.html#makeAndServeApplication"><span class="hs-identifier">makeAndServeApplication</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-2"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Lens</span></span><span>                              </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">(^?)</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">_Just</span></span><span class="hs-special">)</span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Foldable</span></span><span>                             </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">fold</span></span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.IORef</span></span><span>                                </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">writeIORef</span></span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Monoid</span></span><span>                               </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Endo</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Nameservice.Application.html"><span class="hs-identifier">Nameservice.Application</span></a></span><span>                   </span><span class="hs-special">(</span><span class="annot"><a href="Nameservice.Application.html#handlersContext"><span class="hs-identifier">handlersContext</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Nameservice.Config.html"><span class="hs-identifier">Nameservice.Config</span></a></span><span>                        </span><span class="hs-special">(</span><span class="annot"><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier">AppConfig</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Network.ABCI.Server</span></span><span>                       </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">serveApp</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Network.ABCI.Server.App</span></span><span>                   </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Middleware</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Network.ABCI.Server.Middleware.Logger</span></span><span>     </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Logger</span></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Network.ABCI.Server.Middleware.Metrics</span></span><span>    </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Met</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy</span></span><span>                                  </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Sem</span></span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Tendermint.SDK.Application</span></span><span>                </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">createIOApp</span></span><span class="hs-special">,</span><span>
+</span><span id="line-15"></span><span>                                                            </span><span class="annot"><span class="hs-identifier">makeApp</span></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Tendermint.SDK.BaseApp</span></span><span>                    </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Context</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-17"></span><span>                                                            </span><span class="annot"><span class="hs-identifier">CoreEffs</span></span><span class="hs-special">,</span><span>
+</span><span id="line-18"></span><span>                                                            </span><span class="annot"><span class="hs-identifier">contextPrometheusEnv</span></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>                                                            </span><span class="annot"><span class="hs-identifier">runCoreEffs</span></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Tendermint.SDK.BaseApp.Metrics.Prometheus</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">envMetricsState</span></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>                                                            </span><span class="annot"><span class="hs-identifier">forkMetricsServer</span></span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>                                                            </span><span class="annot"><span class="hs-identifier">metricsRegistry</span></span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="annot"><a href="Nameservice.Server.html#makeAndServeApplication"><span class="hs-identifier hs-type">makeAndServeApplication</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier hs-type">AppConfig</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span id="makeAndServeApplication"><span class="annot"><span class="annottext">makeAndServeApplication :: AppConfig -&gt; IO ()
+</span><a href="Nameservice.Server.html#makeAndServeApplication"><span class="hs-identifier hs-var hs-var">makeAndServeApplication</span></a></span></span><span> </span><span id="local-6989586621679355374"><span id="local-6989586621679355375"><span class="annot"><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier hs-type">AppConfig</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-26"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Starting ABCI application...&quot;</span></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Context -&gt; Maybe PrometheusEnv
+</span><span class="hs-identifier hs-var hs-var">_contextPrometheusEnv</span></span><span> </span><span class="annot"><span class="annottext">Context
+</span><a href="#local-6989586621679355375"><span class="hs-identifier hs-var">_baseAppContext</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-28"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span>            </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; IO ()
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679355368"><span class="annot"><span class="annottext">prometheusEnv :: PrometheusEnv
+</span><a href="#local-6989586621679355368"><span class="hs-identifier hs-var">prometheusEnv</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-30"></span><span>      </span><span id="local-6989586621679355367"><span class="annot"><span class="annottext">ThreadId
+</span><a href="#local-6989586621679355367"><span class="hs-identifier hs-var">prometheusThreadId</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">PrometheusEnv -&gt; IO ThreadId
+forall (m :: * -&gt; *). MonadIO m =&gt; PrometheusEnv -&gt; m ThreadId
+</span><span class="hs-identifier hs-var">forkMetricsServer</span></span><span> </span><span class="annot"><span class="annottext">PrometheusEnv
+</span><a href="#local-6989586621679355368"><span class="hs-identifier hs-var">prometheusEnv</span></a></span><span>
+</span><span id="line-31"></span><span>      </span><span class="annot"><span class="annottext">IORef (Maybe ThreadId) -&gt; Maybe ThreadId -&gt; IO ()
+forall a. IORef a -&gt; a -&gt; IO ()
+</span><span class="hs-identifier hs-var">writeIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Maybe ThreadId)
+</span><a href="#local-6989586621679355374"><span class="hs-identifier hs-var">_prometheusServerThreadId</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ThreadId -&gt; Maybe ThreadId
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">ThreadId
+</span><a href="#local-6989586621679355367"><span class="hs-identifier hs-var">prometheusThreadId</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-32"></span><span>  </span><span id="local-6989586621679355366"><span class="annot"><span class="annottext">App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
+</span><a href="#local-6989586621679355366"><span class="hs-identifier hs-var">metricsMiddleware</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-33"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Context
+</span><a href="#local-6989586621679355375"><span class="hs-identifier hs-var">_baseAppContext</span></a></span><span> </span><span class="annot"><span class="annottext">Context
+-&gt; Getting (First Registry) Context Registry -&gt; Maybe Registry
+forall s a. s -&gt; Getting (First a) s a -&gt; Maybe a
+</span><span class="hs-operator hs-var">^?</span></span><span> </span><span class="annot"><span class="annottext">(Maybe PrometheusEnv
+ -&gt; Const (First Registry) (Maybe PrometheusEnv))
+-&gt; Context -&gt; Const (First Registry) Context
+Lens' Context (Maybe PrometheusEnv)
+</span><span class="hs-identifier hs-var">contextPrometheusEnv</span></span><span> </span><span class="annot"><span class="annottext">((Maybe PrometheusEnv
+  -&gt; Const (First Registry) (Maybe PrometheusEnv))
+ -&gt; Context -&gt; Const (First Registry) Context)
+-&gt; ((Registry -&gt; Const (First Registry) Registry)
+    -&gt; Maybe PrometheusEnv
+    -&gt; Const (First Registry) (Maybe PrometheusEnv))
+-&gt; Getting (First Registry) Context Registry
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(PrometheusEnv -&gt; Const (First Registry) PrometheusEnv)
+-&gt; Maybe PrometheusEnv
+-&gt; Const (First Registry) (Maybe PrometheusEnv)
+forall a b. Prism (Maybe a) (Maybe b) a b
+</span><span class="hs-identifier hs-var">_Just</span></span><span> </span><span class="annot"><span class="annottext">((PrometheusEnv -&gt; Const (First Registry) PrometheusEnv)
+ -&gt; Maybe PrometheusEnv
+ -&gt; Const (First Registry) (Maybe PrometheusEnv))
+-&gt; ((Registry -&gt; Const (First Registry) Registry)
+    -&gt; PrometheusEnv -&gt; Const (First Registry) PrometheusEnv)
+-&gt; (Registry -&gt; Const (First Registry) Registry)
+-&gt; Maybe PrometheusEnv
+-&gt; Const (First Registry) (Maybe PrometheusEnv)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(MetricsState -&gt; Const (First Registry) MetricsState)
+-&gt; PrometheusEnv -&gt; Const (First Registry) PrometheusEnv
+Lens' PrometheusEnv MetricsState
+</span><span class="hs-identifier hs-var">envMetricsState</span></span><span> </span><span class="annot"><span class="annottext">((MetricsState -&gt; Const (First Registry) MetricsState)
+ -&gt; PrometheusEnv -&gt; Const (First Registry) PrometheusEnv)
+-&gt; ((Registry -&gt; Const (First Registry) Registry)
+    -&gt; MetricsState -&gt; Const (First Registry) MetricsState)
+-&gt; (Registry -&gt; Const (First Registry) Registry)
+-&gt; PrometheusEnv
+-&gt; Const (First Registry) PrometheusEnv
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(Registry -&gt; Const (First Registry) Registry)
+-&gt; MetricsState -&gt; Const (First Registry) MetricsState
+Lens' MetricsState Registry
+</span><span class="hs-identifier hs-var">metricsRegistry</span></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-34"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span>       </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(App (Sem CoreEffs) -&gt; App (Sem CoreEffs))
+-&gt; IO (App (Sem CoreEffs) -&gt; App (Sem CoreEffs))
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
+forall a. a -&gt; a
+</span><span class="hs-identifier hs-var">id</span></span><span>
+</span><span id="line-35"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679355363"><span class="annot"><span class="annottext">registry :: Registry
+</span><a href="#local-6989586621679355363"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[UpperBound]
+-&gt; Registry -&gt; IO (App (Sem CoreEffs) -&gt; App (Sem CoreEffs))
+forall (m :: * -&gt; *).
+MonadIO m =&gt;
+[UpperBound] -&gt; Registry -&gt; IO (Middleware m)
+</span><span class="hs-identifier hs-var">Met.mkMetricsMiddleware</span></span><span> </span><span class="annot"><span class="annottext">[UpperBound]
+</span><span class="hs-identifier hs-var">Met.defaultBuckets</span></span><span> </span><span class="annot"><span class="annottext">Registry
+</span><a href="#local-6989586621679355363"><span class="hs-identifier hs-var">registry</span></a></span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="#local-6989586621679355360"><span class="hs-identifier hs-type">nat</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679355359"><span class="annot"><a href="#local-6989586621679355359"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">CoreEffs</span></span><span> </span><span class="annot"><a href="#local-6989586621679355359"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="#local-6989586621679355359"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-38"></span><span>      </span><span id="local-6989586621679355360"><span class="annot"><span class="annottext">nat :: Sem CoreEffs a -&gt; IO a
+</span><a href="#local-6989586621679355360"><span class="hs-identifier hs-var hs-var">nat</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Context -&gt; forall a. Sem CoreEffs a -&gt; IO a
+</span><span class="hs-identifier hs-var">runCoreEffs</span></span><span> </span><span class="annot"><span class="annottext">Context
+</span><a href="#local-6989586621679355375"><span class="hs-identifier hs-var">_baseAppContext</span></a></span><span>
+</span><span id="line-39"></span><span>      </span><span id="local-6989586621679355358"><span class="annot"><span class="annottext">application :: App (Sem CoreEffs)
+</span><a href="#local-6989586621679355358"><span class="hs-identifier hs-var hs-var">application</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HandlersContext Secp256k1 NameserviceModules CoreEffs
+-&gt; App (Sem CoreEffs)
+forall k (alg :: k) (ms :: [Component]) (core :: EffectRow).
+(RecoverableSignatureSchema alg, Message alg ~ Digest SHA256,
+ ToApplication ms (Effs ms core),
+ HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool,
+ HasTxRouter (ApplicationC ms) (BaseAppEffs core) 'QueryAndMempool,
+ HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus,
+ HasTxRouter (ApplicationD ms) (BaseAppEffs core) 'Consensus,
+ HasQueryRouter (ApplicationQ ms) (Effs ms core),
+ HasQueryRouter (ApplicationQ ms) (BaseAppEffs core),
+ Eval ms core) =&gt;
+HandlersContext alg ms core -&gt; App (Sem core)
+</span><span class="hs-identifier hs-var">makeApp</span></span><span> </span><span class="annot"><span class="annottext">HandlersContext Secp256k1 NameserviceModules CoreEffs
+</span><a href="Nameservice.Application.html#handlersContext"><span class="hs-identifier hs-var">handlersContext</span></a></span><span>
+</span><span id="line-40"></span><span>      </span><span class="annot"><a href="#local-6989586621679355357"><span class="hs-identifier hs-type">middleware</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Middleware</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">CoreEffs</span></span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span>      </span><span id="local-6989586621679355357"><span class="annot"><span class="annottext">middleware :: App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
+</span><a href="#local-6989586621679355357"><span class="hs-identifier hs-var hs-var">middleware</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Endo (App (Sem CoreEffs))
+-&gt; App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
+forall a. Endo a -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var hs-var">appEndo</span></span><span> </span><span class="annot"><span class="annottext">(Endo (App (Sem CoreEffs))
+ -&gt; App (Sem CoreEffs) -&gt; App (Sem CoreEffs))
+-&gt; ([Endo (App (Sem CoreEffs))] -&gt; Endo (App (Sem CoreEffs)))
+-&gt; [Endo (App (Sem CoreEffs))]
+-&gt; App (Sem CoreEffs)
+-&gt; App (Sem CoreEffs)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">[Endo (App (Sem CoreEffs))] -&gt; Endo (App (Sem CoreEffs))
+forall (t :: * -&gt; *) m. (Foldable t, Monoid m) =&gt; t m -&gt; m
+</span><span class="hs-identifier hs-var">fold</span></span><span> </span><span class="annot"><span class="annottext">([Endo (App (Sem CoreEffs))]
+ -&gt; App (Sem CoreEffs) -&gt; App (Sem CoreEffs))
+-&gt; [Endo (App (Sem CoreEffs))]
+-&gt; App (Sem CoreEffs)
+-&gt; App (Sem CoreEffs)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-42"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">(App (Sem CoreEffs) -&gt; App (Sem CoreEffs))
+-&gt; Endo (App (Sem CoreEffs))
+forall a. (a -&gt; a) -&gt; Endo a
+</span><span class="hs-identifier hs-var">Endo</span></span><span> </span><span class="annot"><span class="annottext">App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
+forall (m :: * -&gt; *). KatipContext m =&gt; Middleware m
+</span><span class="hs-identifier hs-var">Logger.mkLoggerM</span></span><span>
+</span><span id="line-43"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(App (Sem CoreEffs) -&gt; App (Sem CoreEffs))
+-&gt; Endo (App (Sem CoreEffs))
+forall a. (a -&gt; a) -&gt; Endo a
+</span><span class="hs-identifier hs-var">Endo</span></span><span> </span><span class="annot"><span class="annottext">App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
+</span><a href="#local-6989586621679355366"><span class="hs-identifier hs-var">metricsMiddleware</span></a></span><span>
+</span><span id="line-44"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-45"></span><span>  </span><span class="annot"><span class="annottext">App IO -&gt; IO ()
+</span><span class="hs-identifier hs-var">serveApp</span></span><span> </span><span class="annot"><span class="annottext">(App IO -&gt; IO ()) -&gt; App IO -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(forall a. Sem CoreEffs a -&gt; IO a) -&gt; App (Sem CoreEffs) -&gt; App IO
+forall (r :: EffectRow).
+(forall a. Sem r a -&gt; IO a) -&gt; App (Sem r) -&gt; App IO
+</span><span class="hs-identifier hs-var">createIOApp</span></span><span> </span><span class="annot"><span class="annottext">forall a. Sem CoreEffs a -&gt; IO a
+</span><a href="#local-6989586621679355360"><span class="hs-identifier hs-var">nat</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
+</span><a href="#local-6989586621679355357"><span class="hs-identifier hs-var">middleware</span></a></span><span> </span><span class="annot"><span class="annottext">App (Sem CoreEffs)
+</span><a href="#local-6989586621679355358"><span class="hs-identifier hs-var">application</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span></pre></body></html>

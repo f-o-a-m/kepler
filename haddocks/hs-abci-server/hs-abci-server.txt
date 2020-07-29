@@ -60,31 +60,31 @@ MTEndBlock :: MessageType
 MTCommit :: MessageType
 demoteRequestType :: forall (t :: MessageType). Request t -> MessageType
 msgTypeKey :: MessageType -> String
-data Request (m :: MessageType) :: *
-[RequestEcho] :: Echo -> Request  'MTEcho
-[RequestInfo] :: Info -> Request  'MTInfo
-[RequestSetOption] :: SetOption -> Request  'MTSetOption
-[RequestQuery] :: Query -> Request  'MTQuery
-[RequestCheckTx] :: CheckTx -> Request  'MTCheckTx
-[RequestFlush] :: Flush -> Request  'MTFlush
-[RequestInitChain] :: InitChain -> Request  'MTInitChain
-[RequestBeginBlock] :: BeginBlock -> Request  'MTBeginBlock
-[RequestDeliverTx] :: DeliverTx -> Request  'MTDeliverTx
-[RequestEndBlock] :: EndBlock -> Request  'MTEndBlock
-[RequestCommit] :: Commit -> Request  'MTCommit
+data Request (m :: MessageType) :: Type
+[RequestEcho] :: Echo -> Request 'MTEcho
+[RequestInfo] :: Info -> Request 'MTInfo
+[RequestSetOption] :: SetOption -> Request 'MTSetOption
+[RequestQuery] :: Query -> Request 'MTQuery
+[RequestCheckTx] :: CheckTx -> Request 'MTCheckTx
+[RequestFlush] :: Flush -> Request 'MTFlush
+[RequestInitChain] :: InitChain -> Request 'MTInitChain
+[RequestBeginBlock] :: BeginBlock -> Request 'MTBeginBlock
+[RequestDeliverTx] :: DeliverTx -> Request 'MTDeliverTx
+[RequestEndBlock] :: EndBlock -> Request 'MTEndBlock
+[RequestCommit] :: Commit -> Request 'MTCommit
 hashRequest :: forall (t :: MessageType). Request t -> HexString
-data Response (m :: MessageType) :: *
-[ResponseEcho] :: Echo -> Response  'MTEcho
-[ResponseFlush] :: Flush -> Response  'MTFlush
-[ResponseInfo] :: Info -> Response  'MTInfo
-[ResponseSetOption] :: SetOption -> Response  'MTSetOption
-[ResponseInitChain] :: InitChain -> Response  'MTInitChain
-[ResponseQuery] :: Query -> Response  'MTQuery
-[ResponseBeginBlock] :: BeginBlock -> Response  'MTBeginBlock
-[ResponseCheckTx] :: CheckTx -> Response  'MTCheckTx
-[ResponseDeliverTx] :: DeliverTx -> Response  'MTDeliverTx
-[ResponseEndBlock] :: EndBlock -> Response  'MTEndBlock
-[ResponseCommit] :: Commit -> Response  'MTCommit
+data Response (m :: MessageType) :: Type
+[ResponseEcho] :: Echo -> Response 'MTEcho
+[ResponseFlush] :: Flush -> Response 'MTFlush
+[ResponseInfo] :: Info -> Response 'MTInfo
+[ResponseSetOption] :: SetOption -> Response 'MTSetOption
+[ResponseInitChain] :: InitChain -> Response 'MTInitChain
+[ResponseQuery] :: Query -> Response 'MTQuery
+[ResponseBeginBlock] :: BeginBlock -> Response 'MTBeginBlock
+[ResponseCheckTx] :: CheckTx -> Response 'MTCheckTx
+[ResponseDeliverTx] :: DeliverTx -> Response 'MTDeliverTx
+[ResponseEndBlock] :: EndBlock -> Response 'MTEndBlock
+[ResponseCommit] :: Commit -> Response 'MTCommit
 [ResponseException] :: forall (m :: MessageType). Exception -> Response m
 
 -- | ByteString which contains multiple length prefixed ByteStrings

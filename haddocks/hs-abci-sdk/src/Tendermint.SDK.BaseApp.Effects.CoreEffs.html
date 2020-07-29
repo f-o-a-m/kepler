@@ -1,83 +1,228 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE TemplateHaskell #-}</span><span>
-</span><a name="line-2"></a><span>
-</span><a name="line-3"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.CoreEffs</span><span>
-</span><a name="line-4"></a><span>  </span><span class="hs-special">(</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#CoreEffs"><span class="hs-identifier hs-type">CoreEffs</span></a><span>
-</span><a name="line-5"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier hs-type">Context</span></a><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
-</span><a name="line-6"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#contextLogConfig"><span class="hs-identifier hs-var">contextLogConfig</span></a><span>
-</span><a name="line-7"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#contextPrometheusEnv"><span class="hs-identifier hs-var">contextPrometheusEnv</span></a><span>
-</span><a name="line-8"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#contextVersions"><span class="hs-identifier hs-var">contextVersions</span></a><span>
-</span><a name="line-9"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#contextGrpcClient"><span class="hs-identifier hs-var">contextGrpcClient</span></a><span>
-</span><a name="line-10"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#makeContext"><span class="hs-identifier hs-var">makeContext</span></a><span>
-</span><a name="line-11"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#runCoreEffs"><span class="hs-identifier hs-var">runCoreEffs</span></a><span>
-</span><a name="line-12"></a><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-13"></a><span>
-</span><a name="line-14"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Lens</span><span>                              </span><span class="hs-special">(</span><span class="hs-identifier hs-var">makeLenses</span><span class="hs-special">)</span><span>
-</span><a name="line-15"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Text</span><span>                                 </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Text</span><span class="hs-special">)</span><span>
-</span><a name="line-16"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Katip</span><span>                                     </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">K</span><span>
-</span><a name="line-17"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy</span><span>                                  </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Embed</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Sem</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">runM</span><span class="hs-special">)</span><span>
-</span><a name="line-18"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy.Reader</span><span>                           </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Reader</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">runReader</span><span class="hs-special">)</span><span>
-</span><a name="line-19"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Logger.Katip</span></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">KL</span><span>
-</span><a name="line-20"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Metrics.Prometheus</span></a><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">P</span><span>
-</span><a name="line-21"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.IAVLStore</span></a><span>    </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">IAVL</span><span>
-</span><a name="line-22"></a><span>
-</span><a name="line-23"></a><span class="hs-comment">-- | CoreEffs is one level below BaseAppEffs, and provides one possible</span><span>
-</span><a name="line-24"></a><span class="hs-comment">-- | interpretation for its effects to IO.</span><span>
-</span><a name="line-25"></a><span class="hs-keyword">type</span><span> </span><a name="CoreEffs"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#CoreEffs"><span class="hs-identifier">CoreEffs</span></a></a><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-26"></a><span>  </span><span class="hs-special">'</span><span class="hs-special">[</span><span> </span><span class="hs-identifier hs-type">Reader</span><span> </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type">KL.LogConfig</span></a><span>
-</span><a name="line-27"></a><span>   </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Reader</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Maybe</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-type">P.PrometheusEnv</span></a><span class="hs-special">)</span><span>
-</span><a name="line-28"></a><span>   </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Reader</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVL.IAVLVersions</span></a><span>
-</span><a name="line-29"></a><span>   </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Reader</span><span> </span><span class="hs-identifier hs-type">IAVL.GrpcClient</span><span>
-</span><a name="line-30"></a><span>   </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Embed</span><span> </span><span class="hs-identifier hs-type">IO</span><span>
-</span><a name="line-31"></a><span>   </span><span class="hs-special">]</span><span>
-</span><a name="line-32"></a><span>
-</span><a name="line-33"></a><span class="hs-comment">-- | 'Context' is the environment required to run 'CoreEffs' to 'IO'</span><span>
-</span><a name="line-34"></a><span class="hs-keyword">data</span><span> </span><a name="Context"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier">Context</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="Context"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier">Context</span></a></a><span>
-</span><a name="line-35"></a><span>  </span><span class="hs-special">{</span><span> </span><a name="_contextLogConfig"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#_contextLogConfig"><span class="hs-identifier">_contextLogConfig</span></a></a><span>     </span><span class="hs-glyph">::</span><span> </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type">KL.LogConfig</span></a><span>
-</span><a name="line-36"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="_contextPrometheusEnv"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#_contextPrometheusEnv"><span class="hs-identifier">_contextPrometheusEnv</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Maybe</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-type">P.PrometheusEnv</span></a><span>
-</span><a name="line-37"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="_contextGrpcClient"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#_contextGrpcClient"><span class="hs-identifier">_contextGrpcClient</span></a></a><span>    </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">IAVL.GrpcClient</span><span>
-</span><a name="line-38"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="_contextVersions"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#_contextVersions"><span class="hs-identifier">_contextVersions</span></a></a><span>      </span><span class="hs-glyph">::</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVL.IAVLVersions</span></a><span>
-</span><a name="line-39"></a><span>  </span><span class="hs-special">}</span><span>
-</span><a name="line-40"></a><span>
-</span><a name="line-41"></a><span class="hs-identifier hs-var">makeLenses</span><span> </span><span class="hs-special">''</span><span class="hs-identifier hs-var">Context</span><span>
-</span><a name="line-42"></a><span>
-</span><a name="line-43"></a><span class="hs-identifier">makeContext</span><span>
-</span><a name="line-44"></a><span>  </span><span class="hs-glyph">::</span><span> </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#InitialLogNamespace"><span class="hs-identifier hs-type">KL.InitialLogNamespace</span></a><span>
-</span><a name="line-45"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Maybe</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsScrapingConfig"><span class="hs-identifier hs-type">P.MetricsScrapingConfig</span></a><span>
-</span><a name="line-46"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVL.IAVLVersions</span></a><span>
-</span><a name="line-47"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IAVL.GrpcConfig</span><span>
-</span><a name="line-48"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier hs-type">Context</span></a><span>
-</span><a name="line-49"></a><a name="makeContext"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#makeContext"><span class="hs-identifier">makeContext</span></a></a><span> </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#InitialLogNamespace"><span class="hs-identifier hs-var">KL.InitialLogNamespace</span></a><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span><span> </span><a name="local-6989586621679362057"><a href="#local-6989586621679362057"><span class="hs-identifier">scrapingCfg</span></a></a><span> </span><a name="local-6989586621679362058"><a href="#local-6989586621679362058"><span class="hs-identifier">versions</span></a></a><span> </span><a name="local-6989586621679362059"><a href="#local-6989586621679362059"><span class="hs-identifier">rpcConf</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-50"></a><span>  </span><a name="local-6989586621679362067"><a href="#local-6989586621679362067"><span class="hs-identifier">metCfg</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><a href="#local-6989586621679362057"><span class="hs-identifier hs-var">scrapingCfg</span></a><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-51"></a><span>        </span><span class="hs-identifier hs-var">Nothing</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-identifier hs-var">Nothing</span><span>
-</span><a name="line-52"></a><span>        </span><span class="hs-identifier hs-var">Just</span><span> </span><a name="local-6989586621679362065"><a href="#local-6989586621679362065"><span class="hs-identifier">scfg</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#emptyState"><span class="hs-identifier hs-var">P.emptyState</span></a><span> </span><span class="hs-operator hs-var">&gt;&gt;=</span><span> </span><span class="hs-glyph">\</span><a name="local-6989586621679362066"><a href="#local-6989586621679362066"><span class="hs-identifier">es</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><a name="line-53"></a><span>          </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">Just</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-var">P.PrometheusEnv</span></a><span> </span><a href="#local-6989586621679362066"><span class="hs-identifier hs-var">es</span></a><span> </span><a href="#local-6989586621679362065"><span class="hs-identifier hs-var">scfg</span></a><span>
-</span><a name="line-54"></a><span>  </span><a name="local-6989586621679362068"><a href="#local-6989586621679362068"><span class="hs-identifier">logCfg</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><a href="#local-6989586621679362060"><span class="hs-identifier hs-var">mkLogConfig</span></a><span> </span><a href="#local-6989586621679362055"><span class="hs-identifier hs-var">_initialLogEnvironment</span></a><span> </span><a href="#local-6989586621679362056"><span class="hs-identifier hs-var">_initialLogProcessName</span></a><span>
-</span><a name="line-55"></a><span>  </span><a name="local-6989586621679362069"><a href="#local-6989586621679362069"><span class="hs-identifier">grpc</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">IAVL.initGrpcClient</span><span> </span><a href="#local-6989586621679362059"><span class="hs-identifier hs-var">rpcConf</span></a><span>
-</span><a name="line-56"></a><span>  </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier hs-var">Context</span></a><span>
-</span><a name="line-57"></a><span>    </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">_contextLogConfig</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679362068"><span class="hs-identifier hs-var">logCfg</span></a><span>
-</span><a name="line-58"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_contextPrometheusEnv</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679362067"><span class="hs-identifier hs-var">metCfg</span></a><span>
-</span><a name="line-59"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_contextVersions</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679362058"><span class="hs-identifier hs-var">versions</span></a><span>
-</span><a name="line-60"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_contextGrpcClient</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679362069"><span class="hs-identifier hs-var">grpc</span></a><span>
-</span><a name="line-61"></a><span>    </span><span class="hs-special">}</span><span>
-</span><a name="line-62"></a><span>    </span><span class="hs-keyword">where</span><span>
-</span><a name="line-63"></a><span>      </span><span class="hs-identifier">mkLogConfig</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Text</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Text</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type">KL.LogConfig</span></a><span>
-</span><a name="line-64"></a><span>      </span><a name="local-6989586621679362060"><a href="#local-6989586621679362060"><span class="hs-identifier">mkLogConfig</span></a></a><span> </span><a name="local-6989586621679362061"><a href="#local-6989586621679362061"><span class="hs-identifier">env</span></a></a><span> </span><a name="local-6989586621679362062"><a href="#local-6989586621679362062"><span class="hs-identifier">pName</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-65"></a><span>        </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679362063"><a href="#local-6989586621679362063"><span class="hs-identifier">mkLogEnv</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">K.initLogEnv</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">K.Namespace</span><span> </span><span class="hs-special">[</span><a href="#local-6989586621679362062"><span class="hs-identifier hs-var">pName</span></a><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">K.Environment</span><span> </span><a href="#local-6989586621679362061"><span class="hs-identifier hs-var">env</span></a><span class="hs-special">)</span><span>
-</span><a name="line-66"></a><span>        </span><a name="local-6989586621679362064"><a href="#local-6989586621679362064"><span class="hs-identifier">le</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><a href="#local-6989586621679362063"><span class="hs-identifier hs-var">mkLogEnv</span></a><span>
-</span><a name="line-67"></a><span>        </span><span class="hs-identifier hs-var">return</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-var">KL.LogConfig</span></a><span>
-</span><a name="line-68"></a><span>          </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">_logNamespace</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">mempty</span><span>
-</span><a name="line-69"></a><span>          </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_logContext</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">mempty</span><span>
-</span><a name="line-70"></a><span>          </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_logEnv</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679362064"><span class="hs-identifier hs-var">le</span></a><span>
-</span><a name="line-71"></a><span>          </span><span class="hs-special">}</span><span>
-</span><a name="line-72"></a><span>
-</span><a name="line-73"></a><span class="hs-comment">-- | The standard interpeter for 'CoreEffs'.</span><span>
-</span><a name="line-74"></a><span class="hs-identifier">runCoreEffs</span><span>
-</span><a name="line-75"></a><span>  </span><span class="hs-glyph">::</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier hs-type">Context</span></a><span>
-</span><a name="line-76"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><a name="local-6989586621679362054"><a href="#local-6989586621679362054"><span class="hs-identifier">a</span></a></a><span class="hs-operator">.</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#CoreEffs"><span class="hs-identifier hs-type">CoreEffs</span></a><span> </span><a href="#local-6989586621679362054"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><a href="#local-6989586621679362054"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-77"></a><a name="runCoreEffs"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#runCoreEffs"><span class="hs-identifier">runCoreEffs</span></a></a><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier hs-var">Context</span></a><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-78"></a><span>  </span><span class="hs-identifier hs-var">runM</span><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-79"></a><span>    </span><span class="hs-identifier hs-var">runReader</span><span> </span><a href="#local-6989586621679362072"><span class="hs-identifier hs-var">_contextGrpcClient</span></a><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-80"></a><span>    </span><span class="hs-identifier hs-var">runReader</span><span> </span><a href="#local-6989586621679362073"><span class="hs-identifier hs-var">_contextVersions</span></a><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-81"></a><span>    </span><span class="hs-identifier hs-var">runReader</span><span> </span><a href="#local-6989586621679362071"><span class="hs-identifier hs-var">_contextPrometheusEnv</span></a><span> </span><span class="hs-operator hs-var">.</span><span>
-</span><a name="line-82"></a><span>    </span><span class="hs-identifier hs-var">runReader</span><span> </span><a href="#local-6989586621679362070"><span class="hs-identifier hs-var">_contextLogConfig</span></a><span>
-</span><a name="line-83"></a></pre></body></html>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.CoreEffs</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#CoreEffs"><span class="hs-identifier">CoreEffs</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier">Context</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#contextLogConfig"><span class="hs-identifier">contextLogConfig</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#contextPrometheusEnv"><span class="hs-identifier">contextPrometheusEnv</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#contextVersions"><span class="hs-identifier">contextVersions</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#contextGrpcClient"><span class="hs-identifier">contextGrpcClient</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#makeContext"><span class="hs-identifier">makeContext</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#runCoreEffs"><span class="hs-identifier">runCoreEffs</span></a></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Lens</span></span><span>                              </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">makeLenses</span></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span>                                 </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Katip</span></span><span>                                     </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">K</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy</span></span><span>                                  </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Embed</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">Sem</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">runM</span></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy.Reader</span></span><span>                           </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Reader</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">runReader</span></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Logger.Katip</span></a></span><span>       </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">KL</span></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Metrics.Prometheus</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">P</span></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.IAVLStore</span></a></span><span>    </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">IAVL</span></span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- | CoreEffs is one level below BaseAppEffs, and provides one possible</span><span>
+</span><span id="line-24"></span><span class="hs-comment">-- | interpretation for its effects to IO.</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">type</span><span> </span><span id="CoreEffs"><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#CoreEffs"><span class="hs-identifier hs-var">CoreEffs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-special">'</span><span class="hs-special">[</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type">KL.LogConfig</span></a></span><span>
+</span><span id="line-27"></span><span>   </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-type">P.PrometheusEnv</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>   </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVL.IAVLVersions</span></a></span><span>
+</span><span id="line-29"></span><span>   </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IAVL.GrpcClient</span></span><span>
+</span><span id="line-30"></span><span>   </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span>
+</span><span id="line-31"></span><span>   </span><span class="hs-special">]</span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- | 'Context' is the environment required to run 'CoreEffs' to 'IO'</span><span>
+</span><span id="line-34"></span><span class="hs-keyword">data</span><span> </span><span id="Context"><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier hs-var">Context</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Context"><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier hs-var">Context</span></a></span></span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="_contextLogConfig"><span class="annot"><span class="annottext">Context -&gt; LogConfig
+</span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#_contextLogConfig"><span class="hs-identifier hs-var hs-var">_contextLogConfig</span></a></span></span><span>     </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type">KL.LogConfig</span></a></span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_contextPrometheusEnv"><span class="annot"><span class="annottext">Context -&gt; Maybe PrometheusEnv
+</span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#_contextPrometheusEnv"><span class="hs-identifier hs-var hs-var">_contextPrometheusEnv</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-type">P.PrometheusEnv</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_contextGrpcClient"><span class="annot"><span class="annottext">Context -&gt; GrpcClient
+</span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#_contextGrpcClient"><span class="hs-identifier hs-var hs-var">_contextGrpcClient</span></a></span></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IAVL.GrpcClient</span></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_contextVersions"><span class="annot"><span class="annottext">Context -&gt; IAVLVersions
+</span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#_contextVersions"><span class="hs-identifier hs-var hs-var">_contextVersions</span></a></span></span><span>      </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVL.IAVLVersions</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span id="contextGrpcClient"><span id="contextVersions"><span id="contextPrometheusEnv"><span id="contextLogConfig"><span class="hs-identifier">makeLenses</span><span> </span><span class="hs-special">''</span><span class="hs-identifier">Context</span></span></span></span></span><span>
+</span><span id="line-42"></span><span>
+</span><span id="line-43"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#makeContext"><span class="hs-identifier hs-type">makeContext</span></a></span><span>
+</span><span id="line-44"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#InitialLogNamespace"><span class="hs-identifier hs-type">KL.InitialLogNamespace</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsScrapingConfig"><span class="hs-identifier hs-type">P.MetricsScrapingConfig</span></a></span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#IAVLVersions"><span class="hs-identifier hs-type">IAVL.IAVLVersions</span></a></span><span>
+</span><span id="line-47"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IAVL.GrpcConfig</span></span><span>
+</span><span id="line-48"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier hs-type">Context</span></a></span><span>
+</span><span id="line-49"></span><span id="makeContext"><span class="annot"><span class="annottext">makeContext :: InitialLogNamespace
+-&gt; Maybe MetricsScrapingConfig
+-&gt; IAVLVersions
+-&gt; GrpcConfig
+-&gt; IO Context
+</span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#makeContext"><span class="hs-identifier hs-var hs-var">makeContext</span></a></span></span><span> </span><span id="local-6989586621679550222"><span id="local-6989586621679550223"><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#InitialLogNamespace"><span class="hs-identifier hs-type">KL.InitialLogNamespace</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span id="local-6989586621679550218"><span class="annot"><span class="annottext">scrapingCfg :: Maybe MetricsScrapingConfig
+</span><a href="#local-6989586621679550218"><span class="hs-identifier hs-var">scrapingCfg</span></a></span></span><span> </span><span id="local-6989586621679550217"><span class="annot"><span class="annottext">versions :: IAVLVersions
+</span><a href="#local-6989586621679550217"><span class="hs-identifier hs-var">versions</span></a></span></span><span> </span><span id="local-6989586621679550216"><span class="annot"><span class="annottext">rpcConf :: GrpcConfig
+</span><a href="#local-6989586621679550216"><span class="hs-identifier hs-var">rpcConf</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-50"></span><span>  </span><span id="local-6989586621679550215"><span class="annot"><span class="annottext">Maybe PrometheusEnv
+</span><a href="#local-6989586621679550215"><span class="hs-identifier hs-var">metCfg</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe MetricsScrapingConfig
+</span><a href="#local-6989586621679550218"><span class="hs-identifier hs-var">scrapingCfg</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-51"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe PrometheusEnv -&gt; IO (Maybe PrometheusEnv)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Maybe PrometheusEnv
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-52"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679550214"><span class="annot"><span class="annottext">scfg :: MetricsScrapingConfig
+</span><a href="#local-6989586621679550214"><span class="hs-identifier hs-var">scfg</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO MetricsState
+</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#emptyState"><span class="hs-identifier hs-var">P.emptyState</span></a></span><span> </span><span class="annot"><span class="annottext">IO MetricsState
+-&gt; (MetricsState -&gt; IO (Maybe PrometheusEnv))
+-&gt; IO (Maybe PrometheusEnv)
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679550212"><span class="annot"><span class="annottext">es :: MetricsState
+</span><a href="#local-6989586621679550212"><span class="hs-identifier hs-var">es</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-53"></span><span>          </span><span class="annot"><span class="annottext">Maybe PrometheusEnv -&gt; IO (Maybe PrometheusEnv)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Maybe PrometheusEnv -&gt; IO (Maybe PrometheusEnv))
+-&gt; (PrometheusEnv -&gt; Maybe PrometheusEnv)
+-&gt; PrometheusEnv
+-&gt; IO (Maybe PrometheusEnv)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">PrometheusEnv -&gt; Maybe PrometheusEnv
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">(PrometheusEnv -&gt; IO (Maybe PrometheusEnv))
+-&gt; PrometheusEnv -&gt; IO (Maybe PrometheusEnv)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">MetricsState -&gt; MetricsScrapingConfig -&gt; PrometheusEnv
+</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-var">P.PrometheusEnv</span></a></span><span> </span><span class="annot"><span class="annottext">MetricsState
+</span><a href="#local-6989586621679550212"><span class="hs-identifier hs-var">es</span></a></span><span> </span><span class="annot"><span class="annottext">MetricsScrapingConfig
+</span><a href="#local-6989586621679550214"><span class="hs-identifier hs-var">scfg</span></a></span><span>
+</span><span id="line-54"></span><span>  </span><span id="local-6989586621679550209"><span class="annot"><span class="annottext">LogConfig
+</span><a href="#local-6989586621679550209"><span class="hs-identifier hs-var">logCfg</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; IO LogConfig
+</span><a href="#local-6989586621679550208"><span class="hs-identifier hs-var">mkLogConfig</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679550223"><span class="hs-identifier hs-var">_initialLogEnvironment</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679550222"><span class="hs-identifier hs-var">_initialLogProcessName</span></a></span><span>
+</span><span id="line-55"></span><span>  </span><span id="local-6989586621679550207"><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679550207"><span class="hs-identifier hs-var">grpc</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">GrpcConfig -&gt; IO GrpcClient
+</span><span class="hs-identifier hs-var">IAVL.initGrpcClient</span></span><span> </span><span class="annot"><span class="annottext">GrpcConfig
+</span><a href="#local-6989586621679550216"><span class="hs-identifier hs-var">rpcConf</span></a></span><span>
+</span><span id="line-56"></span><span>  </span><span class="annot"><span class="annottext">Context -&gt; IO Context
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Context -&gt; IO Context) -&gt; Context -&gt; IO Context
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Context :: LogConfig
+-&gt; Maybe PrometheusEnv -&gt; GrpcClient -&gt; IAVLVersions -&gt; Context
+</span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier hs-type hs-type">Context</span></a></span><span>
+</span><span id="line-57"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">_contextLogConfig :: LogConfig
+</span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#_contextLogConfig"><span class="hs-identifier hs-var">_contextLogConfig</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LogConfig
+</span><a href="#local-6989586621679550209"><span class="hs-identifier hs-var">logCfg</span></a></span><span>
+</span><span id="line-58"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_contextPrometheusEnv :: Maybe PrometheusEnv
+</span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#_contextPrometheusEnv"><span class="hs-identifier hs-var">_contextPrometheusEnv</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe PrometheusEnv
+</span><a href="#local-6989586621679550215"><span class="hs-identifier hs-var">metCfg</span></a></span><span>
+</span><span id="line-59"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_contextVersions :: IAVLVersions
+</span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#_contextVersions"><span class="hs-identifier hs-var">_contextVersions</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IAVLVersions
+</span><a href="#local-6989586621679550217"><span class="hs-identifier hs-var">versions</span></a></span><span>
+</span><span id="line-60"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_contextGrpcClient :: GrpcClient
+</span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#_contextGrpcClient"><span class="hs-identifier hs-var">_contextGrpcClient</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679550207"><span class="hs-identifier hs-var">grpc</span></a></span><span>
+</span><span id="line-61"></span><span>    </span><span class="hs-special">}</span><span>
+</span><span id="line-62"></span><span>    </span><span class="hs-keyword">where</span><span>
+</span><span id="line-63"></span><span>      </span><span class="annot"><a href="#local-6989586621679550208"><span class="hs-identifier hs-type">mkLogConfig</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type">KL.LogConfig</span></a></span><span>
+</span><span id="line-64"></span><span>      </span><span id="local-6989586621679550208"><span class="annot"><span class="annottext">mkLogConfig :: Text -&gt; Text -&gt; IO LogConfig
+</span><a href="#local-6989586621679550208"><span class="hs-identifier hs-var hs-var">mkLogConfig</span></a></span></span><span> </span><span id="local-6989586621679550204"><span class="annot"><span class="annottext">env :: Text
+</span><a href="#local-6989586621679550204"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679550203"><span class="annot"><span class="annottext">pName :: Text
+</span><a href="#local-6989586621679550203"><span class="hs-identifier hs-var">pName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-65"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679550202"><span class="annot"><span class="annottext">mkLogEnv :: IO LogEnv
+</span><a href="#local-6989586621679550202"><span class="hs-identifier hs-var hs-var">mkLogEnv</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Namespace -&gt; Environment -&gt; IO LogEnv
+</span><span class="hs-identifier hs-var">K.initLogEnv</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Text] -&gt; Namespace
+</span><span class="hs-identifier hs-var">K.Namespace</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679550203"><span class="hs-identifier hs-var">pName</span></a></span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Environment
+</span><span class="hs-identifier hs-var">K.Environment</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679550204"><span class="hs-identifier hs-var">env</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-66"></span><span>        </span><span id="local-6989586621679550198"><span class="annot"><span class="annottext">LogEnv
+</span><a href="#local-6989586621679550198"><span class="hs-identifier hs-var">le</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO LogEnv
+</span><a href="#local-6989586621679550202"><span class="hs-identifier hs-var">mkLogEnv</span></a></span><span>
+</span><span id="line-67"></span><span>        </span><span class="annot"><span class="annottext">LogConfig -&gt; IO LogConfig
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(LogConfig -&gt; IO LogConfig) -&gt; LogConfig -&gt; IO LogConfig
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">LogConfig :: Namespace -&gt; LogContexts -&gt; LogEnv -&gt; LogConfig
+</span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type hs-type">KL.LogConfig</span></a></span><span>
+</span><span id="line-68"></span><span>          </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">_logNamespace :: Namespace
+</span><a href="#local-6989586621679550195"><span class="hs-identifier hs-var">_logNamespace</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Namespace
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span>
+</span><span id="line-69"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_logContext :: LogContexts
+</span><a href="#local-6989586621679550194"><span class="hs-identifier hs-var">_logContext</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LogContexts
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span>
+</span><span id="line-70"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_logEnv :: LogEnv
+</span><a href="#local-6989586621679550193"><span class="hs-identifier hs-var">_logEnv</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LogEnv
+</span><a href="#local-6989586621679550198"><span class="hs-identifier hs-var">le</span></a></span><span>
+</span><span id="line-71"></span><span>          </span><span class="hs-special">}</span><span>
+</span><span id="line-72"></span><span>
+</span><span id="line-73"></span><span class="hs-comment">-- | The standard interpeter for 'CoreEffs'.</span><span>
+</span><span id="line-74"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#runCoreEffs"><span class="hs-identifier hs-type">runCoreEffs</span></a></span><span>
+</span><span id="line-75"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier hs-type">Context</span></a></span><span>
+</span><span id="line-76"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679550247"><span class="annot"><a href="#local-6989586621679550247"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#CoreEffs"><span class="hs-identifier hs-type">CoreEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679550247"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="#local-6989586621679550247"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-77"></span><span id="runCoreEffs"><span class="annot"><span class="annottext">runCoreEffs :: Context -&gt; forall a. Sem CoreEffs a -&gt; IO a
+</span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#runCoreEffs"><span class="hs-identifier hs-var hs-var">runCoreEffs</span></a></span></span><span> </span><span id="local-6989586621679550189"><span id="local-6989586621679550190"><span id="local-6989586621679550191"><span id="local-6989586621679550192"><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#Context"><span class="hs-identifier hs-type">Context</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-78"></span><span>  </span><span class="annot"><span class="annottext">Sem '[Embed IO] a -&gt; IO a
+forall (m :: * -&gt; *) a. Monad m =&gt; Sem '[Embed m] a -&gt; m a
+</span><span class="hs-identifier hs-var">runM</span></span><span> </span><span class="annot"><span class="annottext">(Sem '[Embed IO] a -&gt; IO a)
+-&gt; (Sem CoreEffs a -&gt; Sem '[Embed IO] a) -&gt; Sem CoreEffs a -&gt; IO a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-79"></span><span>    </span><span class="annot"><span class="annottext">GrpcClient
+-&gt; Sem '[Reader GrpcClient, Embed IO] a -&gt; Sem '[Embed IO] a
+forall i (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+i -&gt; Sem (Reader i : r) a -&gt; Sem r a
+</span><span class="hs-identifier hs-var">runReader</span></span><span> </span><span class="annot"><span class="annottext">GrpcClient
+</span><a href="#local-6989586621679550190"><span class="hs-identifier hs-var">_contextGrpcClient</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem '[Reader GrpcClient, Embed IO] a -&gt; Sem '[Embed IO] a)
+-&gt; (Sem CoreEffs a -&gt; Sem '[Reader GrpcClient, Embed IO] a)
+-&gt; Sem CoreEffs a
+-&gt; Sem '[Embed IO] a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-80"></span><span>    </span><span class="annot"><span class="annottext">IAVLVersions
+-&gt; Sem '[Reader IAVLVersions, Reader GrpcClient, Embed IO] a
+-&gt; Sem '[Reader GrpcClient, Embed IO] a
+forall i (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+i -&gt; Sem (Reader i : r) a -&gt; Sem r a
+</span><span class="hs-identifier hs-var">runReader</span></span><span> </span><span class="annot"><span class="annottext">IAVLVersions
+</span><a href="#local-6989586621679550189"><span class="hs-identifier hs-var">_contextVersions</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem '[Reader IAVLVersions, Reader GrpcClient, Embed IO] a
+ -&gt; Sem '[Reader GrpcClient, Embed IO] a)
+-&gt; (Sem CoreEffs a
+    -&gt; Sem '[Reader IAVLVersions, Reader GrpcClient, Embed IO] a)
+-&gt; Sem CoreEffs a
+-&gt; Sem '[Reader GrpcClient, Embed IO] a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-81"></span><span>    </span><span class="annot"><span class="annottext">Maybe PrometheusEnv
+-&gt; Sem
+     '[Reader (Maybe PrometheusEnv), Reader IAVLVersions,
+       Reader GrpcClient, Embed IO]
+     a
+-&gt; Sem '[Reader IAVLVersions, Reader GrpcClient, Embed IO] a
+forall i (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+i -&gt; Sem (Reader i : r) a -&gt; Sem r a
+</span><span class="hs-identifier hs-var">runReader</span></span><span> </span><span class="annot"><span class="annottext">Maybe PrometheusEnv
+</span><a href="#local-6989586621679550191"><span class="hs-identifier hs-var">_contextPrometheusEnv</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem
+   '[Reader (Maybe PrometheusEnv), Reader IAVLVersions,
+     Reader GrpcClient, Embed IO]
+   a
+ -&gt; Sem '[Reader IAVLVersions, Reader GrpcClient, Embed IO] a)
+-&gt; (Sem CoreEffs a
+    -&gt; Sem
+         '[Reader (Maybe PrometheusEnv), Reader IAVLVersions,
+           Reader GrpcClient, Embed IO]
+         a)
+-&gt; Sem CoreEffs a
+-&gt; Sem '[Reader IAVLVersions, Reader GrpcClient, Embed IO] a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-82"></span><span>    </span><span class="annot"><span class="annottext">LogConfig
+-&gt; Sem CoreEffs a
+-&gt; Sem
+     '[Reader (Maybe PrometheusEnv), Reader IAVLVersions,
+       Reader GrpcClient, Embed IO]
+     a
+forall i (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+i -&gt; Sem (Reader i : r) a -&gt; Sem r a
+</span><span class="hs-identifier hs-var">runReader</span></span><span> </span><span class="annot"><span class="annottext">LogConfig
+</span><a href="#local-6989586621679550192"><span class="hs-identifier hs-var">_contextLogConfig</span></a></span><span>
+</span><span id="line-83"></span></pre></body></html>

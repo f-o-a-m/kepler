@@ -14,6 +14,16 @@ body
   overflow-x  : hidden;
 }
 
+body a
+{
+  color : rgba(142,133,168,77.0);
+}
+
+body a:hover
+{
+  color : rgba(110,98,144,26.0);
+}
+
 h1
 {
   font-family : "Lora", sans-serif;
@@ -67,18 +77,23 @@ blockquote
 {
   margin-top    : 5rem;
   margin-bottom : 5rem;
+  text-align    : center;
+}
+
+#header-container img
+{
+  max-height : 7rem;
 }
 
 .cover-heading
 {
   font-size     : 800%;
-  max-height    : 6rem;
   margin-bottom : 1.56299rem;
 }
 
 .cover-container
 {
-  background-color : rgba(255,255,255,0.0);
+  background-color : #5e5184;
 }
 
 .watermark
@@ -95,6 +110,7 @@ blockquote
 {
   margin-top : 3rem;
   font-size  : 1.953rem;
+  color      : #ffffff;
 }
 
 .vertical-auto
@@ -185,32 +201,18 @@ blockquote
   display         : block;
   text-decoration : none;
   font-weight     : bold;
+  color           : rgba(190,185,205,153.0);
 }
 
-
-.sidebar-nav li .tintin-fg-disabled:hover
+.sidebar-nav li a:hover
 {
-  mix-blend-mode  : normal;
-  -webkit-filter  : invert(0%);
-  -moz-filter     : invert(0%);
-  -ms-filter      : invert(0%);
-  -o-filter       : invert(0%);
-  filter          : invert(0%);
   text-decoration : none;
-  color           : #000000;
+  color           : rgba(206,202,218,178.0);
 }
 
-
-.sidebar-nav li .tintin-fg-active:hover
+.sidebar-nav li .tintin-fg-active
 {
-  mix-blend-mode  : normal;
-  -webkit-filter  : invert(0%);
-  -moz-filter     : invert(0%);
-  -ms-filter      : invert(0%);
-  -o-filter       : invert(0%);
-  filter          : invert(0%);
-  text-decoration : none;
-  color           : #ffffff;
+  color : #ffffff;
 }
 
 #menu-toggle
@@ -241,40 +243,21 @@ blockquote
   width       : 1.5rem;
 }
 
-.tintin-doc-topbar a img
-{
-  -webkit-filter : invert(70%);
-  -moz-filter    : invert(70%);
-  -ms-filter     : invert(70%);
-  -o-filter      : invert(70%);
-  filter         : invert(70%);
-}
-
 .filter-gray
 {
-  position       : relative;
-  bottom         : 3px;
-  margin-left    : 0.25rem;
-  margin-right   : 1rem;
-  height         : 1rem;
-  -webkit-filter : brightness(0.75);
-  -moz-filter    : brightness(0.75);
-  -ms-filter     : brightness(0.75);
-  -o-filter      : brightness(0.75);
-  filter         : brightness(0.75);
+  position     : relative;
+  bottom       : 3px;
+  margin-left  : 0.25rem;
+  margin-right : 1rem;
+  height       : 1rem;
 }
 
 .footer-theam
 {
-  position       : relative;
-  bottom         : 1px;
-  margin-left    : -0.25rem;
-  height         : 1.75rem;
-  -webkit-filter : invert(75%);
-  -moz-filter    : invert(75%);
-  -ms-filter     : invert(75%);
-  -o-filter      : invert(75%);
-  filter         : invert(75%);
+  position    : relative;
+  bottom      : 1px;
+  margin-left : -0.25rem;
+  height      : 1.75rem;
 }
 
 .tintin-doc-footer
@@ -315,7 +298,7 @@ blockquote
 .tintin-navbar
 {
   font-weight      : bold;
-  background-color : rgba(255,255,255,0.15);
+  background-color : rgba(126,115,156,51.0);
 }
 
 .tintin-navbar .left-part
@@ -337,54 +320,30 @@ blockquote
 
 .tintin-navbar ul li a
 {
-  color          : #000000;
-  -webkit-filter : invert(35%);
-  -moz-filter    : invert(35%);
-  -ms-filter     : invert(35%);
-  -o-filter      : invert(35%);
-  filter         : invert(35%);
-  mix-blend-mode : difference;
+  color : rgba(190,185,205,153.0);
 }
 
 .tintin-navbar ul li a:hover
 {
-  mix-blend-mode  : normal;
-  -webkit-filter  : invert(0%);
-  -moz-filter     : invert(0%);
-  -ms-filter      : invert(0%);
-  -o-filter       : invert(0%);
-  filter          : invert(0%);
   text-decoration : none;
-  color           : #000000;
+  color           : rgba(206,202,218,178.0);
 }
 
 
 .tintin-navbar .tintin-navbar-active a
 {
-  mix-blend-mode : normal;
-  -webkit-filter : invert(0%);
-  -moz-filter    : invert(0%);
-  -ms-filter     : invert(0%);
-  -o-filter      : invert(0%);
-  filter         : invert(0%);
-  color          : #ffffff;
+  color : #ffffff;
 }
 
 .tintin-navbar .tintin-navbar-active a:hover
 {
-  mix-blend-mode  : normal;
-  -webkit-filter  : invert(0%);
-  -moz-filter     : invert(0%);
-  -ms-filter      : invert(0%);
-  -o-filter       : invert(0%);
-  filter          : invert(0%);
   text-decoration : none;
-  color           : #ffffff;
+  color           : rgba(204,204,204,51.0);
 }
 
 .tintin-bg-70
 {
-  background-color : rgba(255,255,255,0.15);
+  background-color : rgba(126,115,156,51.0);
 }
 
 .tintin-bg-custom
@@ -404,23 +363,44 @@ blockquote
 
 .tintin-fg-disabled
 {
-  color          : #000000;
-  -webkit-filter : invert(35%);
-  -moz-filter    : invert(35%);
-  -ms-filter     : invert(35%);
-  -o-filter      : invert(35%);
-  filter         : invert(35%);
-  mix-blend-mode : difference;
+  color : #000000;
 }
 
 footer
 {
-  position       : relative;
-  bottom         : 0px;
-  left           : 0px;
-  width          : 100%;
-  padding-top    : 30px;
-  padding-bottom : 30px;
+  position         : relative;
+  bottom           : 0px;
+  left             : 0px;
+  width            : 100%;
+  padding-top      : 30px;
+  padding-bottom   : 30px;
+  color            : #ffffff;
+  background-color : rgba(126,115,156,51.0);
+  text-align       : center;
+}
+
+footer a
+{
+  color : rgba(190,185,205,153.0);
+}
+
+footer a:hover
+{
+  text-decoration : none;
+  color           : rgba(206,202,218,178.0);
+}
+
+footer .author
+{
+  margin-top : 1.19999em;
+  font-size  : 1.19999em;
+}
+
+footer .site-generated-message
+{
+  font-size     : 0.8em;
+  margin-top    : 3em;
+  margin-bottom : 3em;
 }
 
 .container
@@ -572,4 +552,4 @@ eval = mapError BaseApp.makeAppError . evalNameservice
         )
 
 </code></pre>
-</div></div></div></div></div></section><div class="tintin-doc-footer clear-fix"><div class="row next-prev"><div class="col-md-4 offset-md-4"><a href="0430-Message.html">&lt; Previous: Nameservice - Message</a></div><div class="col-md-4 ml-auto"><a href="0450-Query.html">Next: Nameservice - Query &gt;</a></div></div><div class="float-right"><div style="float: left" class="d-inline"><p class>Site generated with </p></div><a style="float: left" href="https://theam.github.io/tintin"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/logo.svg" class="filter-gray"></a><div class="clear-fix float-right"><span style="float:left">&mdash; &copy; 2018 </span><a href="http://theam.io" class="float:left"><img src="http://theam.io/logo_theam.png" class="footer-theam"></a></div></div></div></div><script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/haskell.min.js"></script><script src="https://cdn.rawgit.com/icons8/bower-webicon/v0.10.7/jquery-webicon.min.js"></script><script>hljs.initHighlightingOnLoad()</script><script>$(function () {$("#menu-toggle").click(function(e) {e.preventDefault();$("#wrapper").toggleClass("toggled");$("#menu-toggle img").toggleClass("rotateIn rotateOut");})});</script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/contrib/auto-render.min.js"></script><script>renderMathInElement(document.body);</script></body></html>
+</div></div></div></div></div></section><div class="tintin-doc-footer clear-fix"><div class="row next-prev"><div class="col-md-4 offset-md-4"><a href="0430-Message.html">&lt; Previous: Nameservice - Message</a></div><div class="col-md-4 ml-auto"><a href="0450-Query.html">Next: Nameservice - Query &gt;</a></div></div><footer><div class="container"><div class="row"><div class="col"><p class="author">Developed by <a href="https://foam.space" target="blank">f-o-a-m</a></p><p class="site-generated-message">Site generated with <a href="https://theam.github.io/tintin" class="tintin-logo"><img src="https://s3-eu-west-1.amazonaws.com/worldwideapps/assets/logo.svg" class="filter-gray"></a><span>&mdash; &copy; 2019 </span><a href="https://www.theagilemonkeys.com">The Agile Monkeys</a></p></div></div></div></footer></div></div><script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script><script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/haskell.min.js"></script><script src="https://cdn.rawgit.com/icons8/bower-webicon/v0.10.7/jquery-webicon.min.js"></script><script>hljs.initHighlightingOnLoad()</script><script>$(function () {$("#menu-toggle").click(function(e) {e.preventDefault();$("#wrapper").toggleClass("toggled");$("#menu-toggle img").toggleClass("rotateIn rotateOut");})});</script><script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/contrib/auto-render.min.js"></script><script>renderMathInElement(document.body);</script></body></html>

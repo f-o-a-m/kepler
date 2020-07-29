@@ -1,35 +1,107 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects</span><span>
-</span><a name="line-2"></a><span>  </span><span class="hs-special">(</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.html#BaseAppEffs"><span class="hs-identifier hs-type">BaseAppEffs</span></a><span>
-</span><a name="line-3"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.html#defaultCompileToCore"><span class="hs-identifier hs-var">defaultCompileToCore</span></a><span>
-</span><a name="line-4"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.html#defaultCompileToPureCore"><span class="hs-identifier hs-var">defaultCompileToPureCore</span></a><span>
-</span><a name="line-5"></a><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-keyword">module</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.BaseEffs</span></a><span>
-</span><a name="line-6"></a><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-keyword">module</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.CoreEffs</span></a><span>
-</span><a name="line-7"></a><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-keyword">module</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.PureCoreEffs</span></a><span>
-</span><a name="line-8"></a><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-9"></a><span>
-</span><a name="line-10"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy</span><span>                                    </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Sem</span><span class="hs-special">)</span><span>
-</span><a name="line-11"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.BaseEffs</span></a><span>
-</span><a name="line-12"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.CoreEffs</span></a><span>
-</span><a name="line-13"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.PureCoreEffs</span></a><span>
-</span><a name="line-14"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Store.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store</span></a><span>                </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreEffs"><span class="hs-identifier hs-type">StoreEffs</span></a><span class="hs-special">)</span><span>
-</span><a name="line-15"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.IAVLStore</span></a><span>      </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">IAVL</span><span>
-</span><a name="line-16"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.MemoryStore</span></a><span>    </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Memory</span><span>
-</span><a name="line-17"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.Types.Effects.html"><span class="hs-identifier">Tendermint.SDK.Types.Effects</span></a><span>                </span><span class="hs-special">(</span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-18"></a><span>
-</span><a name="line-19"></a><span>
-</span><a name="line-20"></a><span>
-</span><a name="line-21"></a><span>
-</span><a name="line-22"></a><span class="hs-keyword">type</span><span> </span><a name="BaseAppEffs"><a href="Tendermint.SDK.BaseApp.Effects.html#BaseAppEffs"><span class="hs-identifier">BaseAppEffs</span></a></a><span> </span><a name="local-6989586621679447862"><a href="#local-6989586621679447862"><span class="hs-identifier">core</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-identifier hs-type">StoreEffs</span></a><span> </span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a><span> </span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-identifier hs-type">BaseEffs</span></a><span> </span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a><span> </span><a href="#local-6989586621679447862"><span class="hs-identifier hs-type">core</span></a><span>
-</span><a name="line-23"></a><span>
-</span><a name="line-24"></a><span class="hs-identifier">defaultCompileToCore</span><span>
-</span><a name="line-25"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><a name="local-6989586621679447864"><a href="#local-6989586621679447864"><span class="hs-identifier">a</span></a></a><span class="hs-operator">.</span><span>
-</span><a name="line-26"></a><span>     </span><span class="hs-identifier hs-type">Sem</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Effects.html#BaseAppEffs"><span class="hs-identifier hs-type">BaseAppEffs</span></a><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#CoreEffs"><span class="hs-identifier hs-type">CoreEffs</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679447864"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-27"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#CoreEffs"><span class="hs-identifier hs-type">CoreEffs</span></a><span> </span><a href="#local-6989586621679447864"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-28"></a><a name="defaultCompileToCore"><a href="Tendermint.SDK.BaseApp.Effects.html#defaultCompileToCore"><span class="hs-identifier">defaultCompileToCore</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffs"><span class="hs-identifier hs-var">evalBaseEffs</span></a><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalStoreEffs"><span class="hs-identifier hs-var">IAVL.evalStoreEffs</span></a><span>
-</span><a name="line-29"></a><span>
-</span><a name="line-30"></a><span class="hs-identifier">defaultCompileToPureCore</span><span>
-</span><a name="line-31"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><a name="local-6989586621679447863"><a href="#local-6989586621679447863"><span class="hs-identifier">a</span></a></a><span class="hs-operator">.</span><span>
-</span><a name="line-32"></a><span>     </span><span class="hs-identifier hs-type">Sem</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Effects.html#BaseAppEffs"><span class="hs-identifier hs-type">BaseAppEffs</span></a><span> </span><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#PureCoreEffs"><span class="hs-identifier hs-type">PureCoreEffs</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679447863"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-33"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#PureCoreEffs"><span class="hs-identifier hs-type">PureCoreEffs</span></a><span> </span><a href="#local-6989586621679447863"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-34"></a><a name="defaultCompileToPureCore"><a href="Tendermint.SDK.BaseApp.Effects.html#defaultCompileToPureCore"><span class="hs-identifier">defaultCompileToPureCore</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffsPure"><span class="hs-identifier hs-var">evalBaseEffsPure</span></a><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalStoreEffs"><span class="hs-identifier hs-var">Memory.evalStoreEffs</span></a><span>
-</span><a name="line-35"></a></pre></body></html>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.html#BaseAppEffs"><span class="hs-identifier">BaseAppEffs</span></a></span><span>
+</span><span id="line-3"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.html#defaultCompileToCore"><span class="hs-identifier">defaultCompileToCore</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.html#defaultCompileToPureCore"><span class="hs-identifier">defaultCompileToPureCore</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.BaseEffs</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.CoreEffs</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.PureCoreEffs</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy</span></span><span>                                    </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Sem</span></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.BaseEffs</span></a></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.CoreEffs</span></a></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Effects.PureCoreEffs</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store</span></a></span><span>                </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreEffs"><span class="hs-identifier">StoreEffs</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.IAVLStore</span></a></span><span>      </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">IAVL</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.MemoryStore</span></a></span><span>    </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Memory</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html"><span class="hs-identifier">Tendermint.SDK.Types.Effects</span></a></span><span>                </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator">(:&amp;)</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">type</span><span> </span><span id="BaseAppEffs"><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.html#BaseAppEffs"><span class="hs-identifier hs-var">BaseAppEffs</span></a></span></span><span> </span><span id="local-6989586621679553486"><span class="annot"><a href="#local-6989586621679553486"><span class="hs-identifier hs-type">core</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreEffs"><span class="hs-identifier hs-type">StoreEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#BaseEffs"><span class="hs-identifier hs-type">BaseEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553486"><span class="hs-identifier hs-type">core</span></a></span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.html#defaultCompileToCore"><span class="hs-identifier hs-type">defaultCompileToCore</span></a></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679553485"><span class="annot"><a href="#local-6989586621679553485"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span>
+</span><span id="line-26"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.html#BaseAppEffs"><span class="hs-identifier hs-type">BaseAppEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#CoreEffs"><span class="hs-identifier hs-type">CoreEffs</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553485"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.CoreEffs.html#CoreEffs"><span class="hs-identifier hs-type">CoreEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553485"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-28"></span><span id="defaultCompileToCore"><span class="annot"><span class="annottext">defaultCompileToCore :: Sem (BaseAppEffs CoreEffs) a -&gt; Sem CoreEffs a
+</span><a href="Tendermint.SDK.BaseApp.Effects.html#defaultCompileToCore"><span class="hs-identifier hs-var hs-var">defaultCompileToCore</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Sem (Metrics : Logger : Resource : Error AppError : CoreEffs) a
+-&gt; Sem CoreEffs a
+forall (core :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Members
+  '[Embed IO, Reader LogConfig, Reader (Maybe PrometheusEnv)] core =&gt;
+Sem (BaseEffs :&amp; core) a -&gt; Sem core a
+</span><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffs"><span class="hs-identifier hs-var">evalBaseEffs</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (Metrics : Logger : Resource : Error AppError : CoreEffs) a
+ -&gt; Sem CoreEffs a)
+-&gt; (Sem
+      (Tagged 'Consensus ReadStore
+         : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+         : Transaction : CommitBlock : Metrics : Logger : Resource
+         : Error AppError : CoreEffs)
+      a
+    -&gt; Sem (Metrics : Logger : Resource : Error AppError : CoreEffs) a)
+-&gt; Sem
+     (Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : Metrics : Logger : Resource
+        : Error AppError : CoreEffs)
+     a
+-&gt; Sem CoreEffs a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Sem
+  (Tagged 'Consensus ReadStore
+     : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+     : Transaction : CommitBlock : Metrics : Logger : Resource
+     : Error AppError : CoreEffs)
+  a
+-&gt; Sem (Metrics : Logger : Resource : Error AppError : CoreEffs) a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Members
+  '[Embed IO, Reader IAVLVersions, Error AppError, Reader GrpcClient]
+  r =&gt;
+Sem (StoreEffs :&amp; r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Store.IAVLStore.html#evalStoreEffs"><span class="hs-identifier hs-var">IAVL.evalStoreEffs</span></a></span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.html#defaultCompileToPureCore"><span class="hs-identifier hs-type">defaultCompileToPureCore</span></a></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679553481"><span class="annot"><a href="#local-6989586621679553481"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span>
+</span><span id="line-32"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.html#BaseAppEffs"><span class="hs-identifier hs-type">BaseAppEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#PureCoreEffs"><span class="hs-identifier hs-type">PureCoreEffs</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553481"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#PureCoreEffs"><span class="hs-identifier hs-type">PureCoreEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553481"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-34"></span><span id="defaultCompileToPureCore"><span class="annot"><span class="annottext">defaultCompileToPureCore :: Sem (BaseAppEffs PureCoreEffs) a -&gt; Sem PureCoreEffs a
+</span><a href="Tendermint.SDK.BaseApp.Effects.html#defaultCompileToPureCore"><span class="hs-identifier hs-var hs-var">defaultCompileToPureCore</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Sem (Metrics : Logger : Resource : Error AppError : PureCoreEffs) a
+-&gt; Sem PureCoreEffs a
+forall (core :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Members '[Embed IO, Reader LogConfig] core =&gt;
+Sem (BaseEffs :&amp; core) a -&gt; Sem core a
+</span><a href="Tendermint.SDK.BaseApp.Effects.BaseEffs.html#evalBaseEffsPure"><span class="hs-identifier hs-var">evalBaseEffsPure</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem
+   (Metrics : Logger : Resource : Error AppError : PureCoreEffs) a
+ -&gt; Sem PureCoreEffs a)
+-&gt; (Sem
+      (Tagged 'Consensus ReadStore
+         : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+         : Transaction : CommitBlock : Metrics : Logger : Resource
+         : Error AppError : PureCoreEffs)
+      a
+    -&gt; Sem
+         (Metrics : Logger : Resource : Error AppError : PureCoreEffs) a)
+-&gt; Sem
+     (Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : Metrics : Logger : Resource
+        : Error AppError : PureCoreEffs)
+     a
+-&gt; Sem PureCoreEffs a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Sem
+  (Tagged 'Consensus ReadStore
+     : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+     : Transaction : CommitBlock : Metrics : Logger : Resource
+     : Error AppError : PureCoreEffs)
+  a
+-&gt; Sem
+     (Metrics : Logger : Resource : Error AppError : PureCoreEffs) a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Members '[Embed IO, Reader DBVersions, Reader DB] r =&gt;
+Sem (StoreEffs :&amp; r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalStoreEffs"><span class="hs-identifier hs-var">Memory.evalStoreEffs</span></a></span><span>
+</span><span id="line-35"></span></pre></body></html>

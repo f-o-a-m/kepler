@@ -1,40 +1,141 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">SimpleStorage.Modules.SimpleStorage.Types</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-2"></a><span>
-</span><a name="line-3"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.Aeson</span><span>              </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">A</span><span>
-</span><a name="line-4"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Bifunctor</span><span>          </span><span class="hs-special">(</span><span class="hs-identifier hs-var">first</span><span class="hs-special">)</span><span>
-</span><a name="line-5"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Int</span><span>                </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Int32</span><span class="hs-special">)</span><span>
-</span><a name="line-6"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.Serialize</span><span>          </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Serialize</span><span>
-</span><a name="line-7"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.Serialize.Text</span><span>     </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><a name="line-8"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.String.Conversions</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">cs</span><span class="hs-special">)</span><span>
-</span><a name="line-9"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">GHC.Generics</span><span>            </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Generic</span><span class="hs-special">)</span><span>
-</span><a name="line-10"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp</span><span>  </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">BaseApp</span><span>
-</span><a name="line-11"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Tendermint.SDK.Codec</span><span>    </span><span class="hs-special">(</span><span class="hs-identifier hs-type">HasCodec</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-12"></a><span>
-</span><a name="line-13"></a><span class="hs-keyword">type</span><span> </span><a name="SimpleStorageName"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#SimpleStorageName"><span class="hs-identifier">SimpleStorageName</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-string">&quot;simple_storage&quot;</span><span>
-</span><a name="line-14"></a><span>
-</span><a name="line-15"></a><span class="hs-keyword">newtype</span><span> </span><a name="Count"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier">Count</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="Count"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier">Count</span></a></a><span> </span><span class="hs-identifier hs-type">Int32</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Eq</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Show</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">A.ToJSON</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">A.FromJSON</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Serialize.Serialize</span><span class="hs-special">)</span><span>
-</span><a name="line-16"></a><span>
-</span><a name="line-17"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">HasCodec</span><span> </span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier hs-type">Count</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-18"></a><span>    </span><a name="local-8214565720323816077"><span class="hs-identifier">encode</span></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Serialize.encode</span><span>
-</span><a name="line-19"></a><span>    </span><a name="local-8214565720323816076"><span class="hs-identifier">decode</span></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">first</span><span> </span><span class="hs-identifier hs-var">cs</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">Serialize.decode</span><span>
-</span><a name="line-20"></a><span>
-</span><a name="line-21"></a><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
-</span><a name="line-22"></a><span class="hs-comment">-- Events</span><span>
-</span><a name="line-23"></a><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
-</span><a name="line-24"></a><span>
-</span><a name="line-25"></a><span class="hs-keyword">data</span><span> </span><a name="CountSet"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier">CountSet</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="CountSet"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier">CountSet</span></a></a><span> </span><span class="hs-special">{</span><span> </span><a name="newCount"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#newCount"><span class="hs-identifier">newCount</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier hs-type">Count</span></a><span> </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-identifier hs-type">Generic</span><span>
-</span><a name="line-26"></a><span>
-</span><a name="line-27"></a><span class="hs-identifier">countSetOptions</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">A.Options</span><span>
-</span><a name="line-28"></a><a name="countSetOptions"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#countSetOptions"><span class="hs-identifier">countSetOptions</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">A.defaultOptions</span><span>
-</span><a name="line-29"></a><span>
-</span><a name="line-30"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">A.ToJSON</span><span> </span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-31"></a><span>  </span><a name="local-8214565720323874607"><span class="hs-identifier">toJSON</span></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">A.genericToJSON</span><span> </span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#countSetOptions"><span class="hs-identifier hs-var">countSetOptions</span></a><span>
-</span><a name="line-32"></a><span>
-</span><a name="line-33"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">A.FromJSON</span><span> </span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-34"></a><span>  </span><a name="local-8214565720323949274"><span class="hs-identifier">parseJSON</span></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">A.genericParseJSON</span><span> </span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#countSetOptions"><span class="hs-identifier hs-var">countSetOptions</span></a><span>
-</span><a name="line-35"></a><span>
-</span><a name="line-36"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">BaseApp.ToEvent</span><span> </span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a><span>
-</span><a name="line-37"></a><span>
-</span><a name="line-38"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">BaseApp.Select</span><span> </span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a><span>
-</span><a name="line-39"></a><span>
-</span><a name="line-40"></a></pre></body></html>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Aeson</span></span><span>              </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">A</span></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Bifunctor</span></span><span>          </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">first</span></span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Int</span></span><span>                </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Int32</span></span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Serialize</span></span><span>          </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Serialize</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Serialize.Text</span></span><span>     </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.String.Conversions</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">cs</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">GHC.Generics</span></span><span>            </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Tendermint.SDK.BaseApp</span></span><span>  </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BaseApp</span></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Tendermint.SDK.Codec</span></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">HasCodec</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">type</span><span> </span><span id="SimpleStorageName"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#SimpleStorageName"><span class="hs-identifier hs-var">SimpleStorageName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;simple_storage&quot;</span></span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">newtype</span><span> </span><span id="Count"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier hs-var">Count</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Count"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier hs-var">Count</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int32</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679293026"><span id="local-6989586621679293028"><span class="annot"><span class="annottext">Count -&gt; Count -&gt; Bool
+(Count -&gt; Count -&gt; Bool) -&gt; (Count -&gt; Count -&gt; Bool) -&gt; Eq Count
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: Count -&gt; Count -&gt; Bool
+$c/= :: Count -&gt; Count -&gt; Bool
+== :: Count -&gt; Count -&gt; Bool
+$c== :: Count -&gt; Count -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293019"><span id="local-6989586621679293021"><span id="local-6989586621679293023"><span class="annot"><span class="annottext">Int -&gt; Count -&gt; ShowS
+[Count] -&gt; ShowS
+Count -&gt; String
+(Int -&gt; Count -&gt; ShowS)
+-&gt; (Count -&gt; String) -&gt; ([Count] -&gt; ShowS) -&gt; Show Count
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [Count] -&gt; ShowS
+$cshowList :: [Count] -&gt; ShowS
+show :: Count -&gt; String
+$cshow :: Count -&gt; String
+showsPrec :: Int -&gt; Count -&gt; ShowS
+$cshowsPrec :: Int -&gt; Count -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293010"><span id="local-6989586621679293012"><span id="local-6989586621679293014"><span id="local-6989586621679293016"><span class="annot"><span class="annottext">[Count] -&gt; Value
+[Count] -&gt; Encoding
+Count -&gt; Value
+Count -&gt; Encoding
+(Count -&gt; Value)
+-&gt; (Count -&gt; Encoding)
+-&gt; ([Count] -&gt; Value)
+-&gt; ([Count] -&gt; Encoding)
+-&gt; ToJSON Count
+forall a.
+(a -&gt; Value)
+-&gt; (a -&gt; Encoding)
+-&gt; ([a] -&gt; Value)
+-&gt; ([a] -&gt; Encoding)
+-&gt; ToJSON a
+toEncodingList :: [Count] -&gt; Encoding
+$ctoEncodingList :: [Count] -&gt; Encoding
+toJSONList :: [Count] -&gt; Value
+$ctoJSONList :: [Count] -&gt; Value
+toEncoding :: Count -&gt; Encoding
+$ctoEncoding :: Count -&gt; Encoding
+toJSON :: Count -&gt; Value
+$ctoJSON :: Count -&gt; Value
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">A.ToJSON</span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293005"><span id="local-6989586621679293007"><span class="annot"><span class="annottext">Value -&gt; Parser [Count]
+Value -&gt; Parser Count
+(Value -&gt; Parser Count)
+-&gt; (Value -&gt; Parser [Count]) -&gt; FromJSON Count
+forall a.
+(Value -&gt; Parser a) -&gt; (Value -&gt; Parser [a]) -&gt; FromJSON a
+parseJSONList :: Value -&gt; Parser [Count]
+$cparseJSONList :: Value -&gt; Parser [Count]
+parseJSON :: Value -&gt; Parser Count
+$cparseJSON :: Value -&gt; Parser Count
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">A.FromJSON</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293000"><span id="local-6989586621679293002"><span class="annot"><span class="annottext">Get Count
+Putter Count
+Putter Count -&gt; Get Count -&gt; Serialize Count
+forall t. Putter t -&gt; Get t -&gt; Serialize t
+get :: Get Count
+$cget :: Get Count
+put :: Putter Count
+$cput :: Putter Count
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Serialize.Serialize</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCodec</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier hs-type">Count</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-18"></span><span>    </span><span id="local-6989586621679292995"><span class="annot"><span class="annottext">encode :: Count -&gt; ByteString
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Count -&gt; ByteString
+forall a. Serialize a =&gt; a -&gt; ByteString
+</span><span class="hs-identifier hs-var">Serialize.encode</span></span><span>
+</span><span id="line-19"></span><span>    </span><span id="local-6989586621679292992"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Count
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; Either String Count -&gt; Either Text Count
+forall (p :: * -&gt; * -&gt; *) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><span class="hs-identifier hs-var">first</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+forall a b. ConvertibleStrings a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">cs</span></span><span> </span><span class="annot"><span class="annottext">(Either String Count -&gt; Either Text Count)
+-&gt; (ByteString -&gt; Either String Count)
+-&gt; ByteString
+-&gt; Either Text Count
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either String Count
+forall a. Serialize a =&gt; ByteString -&gt; Either String a
+</span><span class="hs-identifier hs-var">Serialize.decode</span></span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- Events</span><span>
+</span><span id="line-23"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-24"></span><span>
+</span><span id="line-25"></span><span id="local-6989586621679292987"><span id="local-6989586621679292988"></span></span><span class="hs-keyword">data</span><span> </span><span id="CountSet"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-var">CountSet</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="CountSet"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-var">CountSet</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="newCount"><span class="annot"><span class="annottext">CountSet -&gt; Count
+</span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#newCount"><span class="hs-identifier hs-var hs-var">newCount</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier hs-type">Count</span></a></span><span> </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="annottext">(forall x. CountSet -&gt; Rep CountSet x)
+-&gt; (forall x. Rep CountSet x -&gt; CountSet) -&gt; Generic CountSet
+forall x. Rep CountSet x -&gt; CountSet
+forall x. CountSet -&gt; Rep CountSet x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cto :: forall x. Rep CountSet x -&gt; CountSet
+$cfrom :: forall x. CountSet -&gt; Rep CountSet x
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#countSetOptions"><span class="hs-identifier hs-type">countSetOptions</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">A.Options</span></span><span>
+</span><span id="line-28"></span><span id="countSetOptions"><span class="annot"><span class="annottext">countSetOptions :: Options
+</span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#countSetOptions"><span class="hs-identifier hs-var hs-var">countSetOptions</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Options
+</span><span class="hs-identifier hs-var">A.defaultOptions</span></span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679292973"><span id="local-6989586621679292975"><span id="local-6989586621679292977"><span class="annot"><span class="hs-identifier hs-type">A.ToJSON</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-31"></span><span>  </span><span id="local-6989586621679292972"><span class="annot"><span class="annottext">toJSON :: CountSet -&gt; Value
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Options -&gt; CountSet -&gt; Value
+forall a.
+(Generic a, GToJSON Value Zero (Rep a)) =&gt;
+Options -&gt; a -&gt; Value
+</span><span class="hs-identifier hs-var">A.genericToJSON</span></span><span> </span><span class="annot"><span class="annottext">Options
+</span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#countSetOptions"><span class="hs-identifier hs-var">countSetOptions</span></a></span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679292967"><span class="annot"><span class="hs-identifier hs-type">A.FromJSON</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-34"></span><span>  </span><span id="local-6989586621679292966"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser CountSet
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">parseJSON</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Options -&gt; Value -&gt; Parser CountSet
+forall a.
+(Generic a, GFromJSON Zero (Rep a)) =&gt;
+Options -&gt; Value -&gt; Parser a
+</span><span class="hs-identifier hs-var">A.genericParseJSON</span></span><span> </span><span class="annot"><span class="annottext">Options
+</span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#countSetOptions"><span class="hs-identifier hs-var">countSetOptions</span></a></span><span>
+</span><span id="line-35"></span><span>
+</span><span id="line-36"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679292962"><span class="annot"><span class="hs-identifier hs-type">BaseApp.ToEvent</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a></span></span><span>
+</span><span id="line-37"></span><span>
+</span><span id="line-38"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679292959"><span class="annot"><span class="hs-identifier hs-type">BaseApp.Select</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a></span></span><span>
+</span><span id="line-39"></span><span>
+</span><span id="line-40"></span></pre></body></html>

@@ -1,34 +1,159 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">SimpleStorage.Application</span><span>
-</span><a name="line-2"></a><span>  </span><span class="hs-special">(</span><span> </span><a href="SimpleStorage.Application.html#SimpleStorageModules"><span class="hs-identifier hs-type">SimpleStorageModules</span></a><span>
-</span><a name="line-3"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="SimpleStorage.Application.html#handlersContext"><span class="hs-identifier hs-var">handlersContext</span></a><span>
-</span><a name="line-4"></a><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-5"></a><span>
-</span><a name="line-6"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Proxy</span><span>
-</span><a name="line-7"></a><span class="hs-keyword">import</span><span>           </span><a href="SimpleStorage.Modules.SimpleStorage.html"><span class="hs-identifier">SimpleStorage.Modules.SimpleStorage</span></a><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">SimpleStorage</span><span>
-</span><a name="line-8"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Tendermint.SDK.Application</span><span>          </span><span class="hs-special">(</span><span class="hs-identifier hs-type">HandlersContext</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-9"></a><span>                                                      </span><span class="hs-identifier hs-type">ModuleList</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-10"></a><span>                                                      </span><span class="hs-identifier hs-var">baseAppAnteHandler</span><span class="hs-special">)</span><span>
-</span><a name="line-11"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp</span><span>              </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">BA</span><span>
-</span><a name="line-12"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Tendermint.SDK.Crypto</span><span>               </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Secp256k1</span><span class="hs-special">)</span><span>
-</span><a name="line-13"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Tendermint.SDK.Modules.Auth</span><span>         </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">A</span><span>
-</span><a name="line-14"></a><span>
-</span><a name="line-15"></a><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
-</span><a name="line-16"></a><span>
-</span><a name="line-17"></a><span class="hs-keyword">type</span><span> </span><a name="SimpleStorageModules"><a href="SimpleStorage.Application.html#SimpleStorageModules"><span class="hs-identifier">SimpleStorageModules</span></a></a><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-18"></a><span>  </span><span class="hs-special">'</span><span class="hs-special">[</span><span> </span><a href="SimpleStorage.Modules.SimpleStorage.html#SimpleStorage"><span class="hs-identifier hs-type">SimpleStorage.SimpleStorage</span></a><span>
-</span><a name="line-19"></a><span>   </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">A.Auth</span><span>
-</span><a name="line-20"></a><span>   </span><span class="hs-special">]</span><span>
-</span><a name="line-21"></a><span>
-</span><a name="line-22"></a><span class="hs-identifier">handlersContext</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">HandlersContext</span><span> </span><span class="hs-identifier hs-type">Secp256k1</span><span> </span><a href="SimpleStorage.Application.html#SimpleStorageModules"><span class="hs-identifier hs-type">SimpleStorageModules</span></a><span> </span><span class="hs-identifier hs-type">BA.CoreEffs</span><span>
-</span><a name="line-23"></a><a name="handlersContext"><a href="SimpleStorage.Application.html#handlersContext"><span class="hs-identifier">handlersContext</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">HandlersContext</span><span>
-</span><a name="line-24"></a><span>  </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">signatureAlgP</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">@</span><span class="hs-identifier hs-type">Secp256k1</span><span>
-</span><a name="line-25"></a><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">modules</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679227201"><span class="hs-identifier hs-var">simpleStorageModules</span></a><span>
-</span><a name="line-26"></a><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">compileToCore</span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">BA.defaultCompileToCore</span><span>
-</span><a name="line-27"></a><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">anteHandler</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">baseAppAnteHandler</span><span>
-</span><a name="line-28"></a><span>  </span><span class="hs-special">}</span><span>
-</span><a name="line-29"></a><span>  </span><span class="hs-keyword">where</span><span>
-</span><a name="line-30"></a><span>  </span><a name="local-6989586621679227201"><a href="#local-6989586621679227201"><span class="hs-identifier">simpleStorageModules</span></a></a><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-31"></a><span>       </span><a href="SimpleStorage.Modules.SimpleStorage.html#simpleStorageModule"><span class="hs-identifier hs-var">SimpleStorage.simpleStorageModule</span></a><span>
-</span><a name="line-32"></a><span>    </span><span class="hs-operator hs-var">:+</span><span> </span><span class="hs-identifier hs-var">A.authModule</span><span>
-</span><a name="line-33"></a><span>    </span><span class="hs-operator hs-var">:+</span><span> </span><span class="hs-identifier hs-var">NilModules</span><span>
-</span><a name="line-34"></a></pre></body></html>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="SimpleStorage.Application.html#SimpleStorageModules"><span class="hs-identifier">SimpleStorageModules</span></a></span><span>
+</span><span id="line-3"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="SimpleStorage.Application.html#handlersContext"><span class="hs-identifier">handlersContext</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Proxy</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.html"><span class="hs-identifier">SimpleStorage.Modules.SimpleStorage</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">SimpleStorage</span></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Tendermint.SDK.Application</span></span><span>          </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">HandlersContext</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-9"></span><span>                                                      </span><span class="annot"><span class="hs-identifier">ModuleList</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>                                                      </span><span class="annot"><span class="hs-identifier">baseAppAnteHandler</span></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Tendermint.SDK.BaseApp</span></span><span>              </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BA</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Tendermint.SDK.Crypto</span></span><span>               </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Secp256k1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Tendermint.SDK.Modules.Auth</span></span><span>         </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">A</span></span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">type</span><span> </span><span id="SimpleStorageModules"><span class="annot"><a href="SimpleStorage.Application.html#SimpleStorageModules"><span class="hs-identifier hs-var">SimpleStorageModules</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">'</span><span class="hs-special">[</span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.html#SimpleStorage"><span class="hs-identifier hs-type">SimpleStorage.SimpleStorage</span></a></span><span>
+</span><span id="line-19"></span><span>   </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">A.Auth</span></span><span>
+</span><span id="line-20"></span><span>   </span><span class="hs-special">]</span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span class="annot"><a href="SimpleStorage.Application.html#handlersContext"><span class="hs-identifier hs-type">handlersContext</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HandlersContext</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Secp256k1</span></span><span> </span><span class="annot"><a href="SimpleStorage.Application.html#SimpleStorageModules"><span class="hs-identifier hs-type">SimpleStorageModules</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">BA.CoreEffs</span></span><span>
+</span><span id="line-23"></span><span id="handlersContext"><span class="annot"><span class="annottext">handlersContext :: HandlersContext Secp256k1 SimpleStorageModules CoreEffs
+</span><a href="SimpleStorage.Application.html#handlersContext"><span class="hs-identifier hs-var hs-var">handlersContext</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HandlersContext :: forall k (alg :: k) (ms :: [Component]) (core :: EffectRow).
+Proxy alg
+-&gt; ModuleList ms (Effs ms core)
+-&gt; AnteHandler (Effs ms core)
+-&gt; (forall a. Sem (BaseAppEffs core) a -&gt; Sem core a)
+-&gt; HandlersContext alg ms core
+</span><span class="hs-identifier hs-type hs-type">HandlersContext</span></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">signatureAlgP :: Proxy Secp256k1
+</span><span class="hs-identifier hs-var">signatureAlgP</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy Secp256k1
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><span class="hs-identifier hs-type">Secp256k1</span></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">modules :: ModuleList
+  SimpleStorageModules (Effs SimpleStorageModules CoreEffs)
+</span><span class="hs-identifier hs-var">modules</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ModuleList
+  SimpleStorageModules
+  (SimpleStorageKeeper
+     : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
+     : ReadStore : Error AppError : Tagged 'Consensus ReadStore
+     : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+     : Transaction : CommitBlock : Metrics : Logger : Resource
+     : Error AppError : CoreEffs)
+ModuleList
+  SimpleStorageModules (Effs SimpleStorageModules CoreEffs)
+</span><a href="#local-6989586621679293334"><span class="hs-identifier hs-var">simpleStorageModules</span></a></span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">compileToCore :: forall a. Sem (BaseAppEffs CoreEffs) a -&gt; Sem CoreEffs a
+</span><span class="hs-identifier hs-var">compileToCore</span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall a. Sem (BaseAppEffs CoreEffs) a -&gt; Sem CoreEffs a
+</span><span class="hs-identifier hs-var">BA.defaultCompileToCore</span></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">anteHandler :: AnteHandler (Effs SimpleStorageModules CoreEffs)
+</span><span class="hs-identifier hs-var">anteHandler</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall (r :: EffectRow).
+(Members AuthEffs r, Member (Error AppError) r) =&gt;
+AnteHandler r
+AnteHandler (Effs SimpleStorageModules CoreEffs)
+</span><span class="hs-identifier hs-var">baseAppAnteHandler</span></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-30"></span><span>  </span><span id="local-6989586621679293334"><span class="annot"><span class="annottext">simpleStorageModules :: ModuleList
+  SimpleStorageModules
+  (SimpleStorageKeeper
+     : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
+     : ReadStore : Error AppError : Tagged 'Consensus ReadStore
+     : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+     : Transaction : CommitBlock : Metrics : Logger : Resource
+     : Error AppError : CoreEffs)
+</span><a href="#local-6989586621679293334"><span class="hs-identifier hs-var hs-var">simpleStorageModules</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-31"></span><span>       </span><span class="annot"><span class="annottext">SimpleStorage
+  (SimpleStorageKeeper
+     : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
+     : ReadStore : Error AppError : Tagged 'Consensus ReadStore
+     : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+     : Transaction : CommitBlock : Metrics : Logger : Resource
+     : Error AppError : CoreEffs)
+forall (r :: EffectRow).
+Members (ModuleEffs SimpleStorage) r =&gt;
+SimpleStorage r
+</span><a href="SimpleStorage.Modules.SimpleStorage.html#simpleStorageModule"><span class="hs-identifier hs-var">SimpleStorage.simpleStorageModule</span></a></span><span>
+</span><span id="line-32"></span><span>    </span><span class="annot"><span class="annottext">SimpleStorage
+  (SimpleStorageKeeper
+     : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
+     : ReadStore : Error AppError : Tagged 'Consensus ReadStore
+     : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+     : Transaction : CommitBlock : Metrics : Logger : Resource
+     : Error AppError : CoreEffs)
+-&gt; ModuleList
+     '[Module AuthName EmptyTxServer EmptyTxServer Api AuthEffs '[]]
+     (SimpleStorageKeeper
+        : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
+        : ReadStore : Error AppError : Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : Metrics : Logger : Resource
+        : Error AppError : CoreEffs)
+-&gt; ModuleList
+     SimpleStorageModules
+     (SimpleStorageKeeper
+        : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
+        : ReadStore : Error AppError : Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : Metrics : Logger : Resource
+        : Error AppError : CoreEffs)
+forall (name :: Symbol) check deliver query (es :: EffectRow)
+       (deps :: [Component]) (r :: EffectRow) (ms1 :: [Component]).
+Module name check deliver query es deps r
+-&gt; ModuleList ms1 r
+-&gt; ModuleList (Module name check deliver query es deps : ms1) r
+</span><span class="hs-operator hs-var">:+</span></span><span> </span><span class="annot"><span class="annottext">Auth
+  (SimpleStorageKeeper
+     : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
+     : ReadStore : Error AppError : Tagged 'Consensus ReadStore
+     : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+     : Transaction : CommitBlock : Metrics : Logger : Resource
+     : Error AppError : CoreEffs)
+forall (r :: EffectRow).
+Members
+  (ModuleEffs
+     (Module AuthName EmptyTxServer EmptyTxServer Api AuthEffs '[]))
+  r =&gt;
+Auth r
+</span><span class="hs-identifier hs-var">A.authModule</span></span><span>
+</span><span id="line-33"></span><span>    </span><span class="annot"><span class="annottext">Auth
+  (SimpleStorageKeeper
+     : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
+     : ReadStore : Error AppError : Tagged 'Consensus ReadStore
+     : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+     : Transaction : CommitBlock : Metrics : Logger : Resource
+     : Error AppError : CoreEffs)
+-&gt; ModuleList
+     '[]
+     (SimpleStorageKeeper
+        : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
+        : ReadStore : Error AppError : Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : Metrics : Logger : Resource
+        : Error AppError : CoreEffs)
+-&gt; ModuleList
+     '[Module AuthName EmptyTxServer EmptyTxServer Api AuthEffs '[]]
+     (SimpleStorageKeeper
+        : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
+        : ReadStore : Error AppError : Tagged 'Consensus ReadStore
+        : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+        : Transaction : CommitBlock : Metrics : Logger : Resource
+        : Error AppError : CoreEffs)
+forall (name :: Symbol) check deliver query (es :: EffectRow)
+       (deps :: [Component]) (r :: EffectRow) (ms1 :: [Component]).
+Module name check deliver query es deps r
+-&gt; ModuleList ms1 r
+-&gt; ModuleList (Module name check deliver query es deps : ms1) r
+</span><span class="hs-operator hs-var">:+</span></span><span> </span><span class="annot"><span class="annottext">ModuleList
+  '[]
+  (SimpleStorageKeeper
+     : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
+     : ReadStore : Error AppError : Tagged 'Consensus ReadStore
+     : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
+     : Transaction : CommitBlock : Metrics : Logger : Resource
+     : Error AppError : CoreEffs)
+forall (r :: EffectRow). ModuleList '[] r
+</span><span class="hs-identifier hs-var">NilModules</span></span><span>
+</span><span id="line-34"></span></pre></body></html>

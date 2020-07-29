@@ -82,11 +82,1300 @@ module Network.ABCI.Types.Messages.Common
 defaultABCIOptions :: String -> Options
 makeABCILenses :: Name -> DecsQ
 
-module Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo
+module Proto.Google.Protobuf.Descriptor
 
-module Proto.Vendored.Gogo.Protobuf.Gogoproto.Gogo_Fields
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>name</a> <tt>:: Lens' DescriptorProto Data.Text.Text</tt></li>
+--   <li><a>maybe'name</a> <tt>:: Lens' DescriptorProto (Prelude.Maybe
+--   Data.Text.Text)</tt></li>
+--   <li><a>field</a> <tt>:: Lens' DescriptorProto
+--   [FieldDescriptorProto]</tt></li>
+--   <li><a>vec'field</a> <tt>:: Lens' DescriptorProto (Data.Vector.Vector
+--   FieldDescriptorProto)</tt></li>
+--   <li><a>extension</a> <tt>:: Lens' DescriptorProto
+--   [FieldDescriptorProto]</tt></li>
+--   <li><a>vec'extension</a> <tt>:: Lens' DescriptorProto
+--   (Data.Vector.Vector FieldDescriptorProto)</tt></li>
+--   <li><a>nestedType</a> <tt>:: Lens' DescriptorProto
+--   [DescriptorProto]</tt></li>
+--   <li><a>vec'nestedType</a> <tt>:: Lens' DescriptorProto
+--   (Data.Vector.Vector DescriptorProto)</tt></li>
+--   <li><a>enumType</a> <tt>:: Lens' DescriptorProto
+--   [EnumDescriptorProto]</tt></li>
+--   <li><a>vec'enumType</a> <tt>:: Lens' DescriptorProto
+--   (Data.Vector.Vector EnumDescriptorProto)</tt></li>
+--   <li><a>extensionRange</a> <tt>:: Lens' DescriptorProto
+--   [DescriptorProto'ExtensionRange]</tt></li>
+--   <li><a>vec'extensionRange</a> <tt>:: Lens' DescriptorProto
+--   (Data.Vector.Vector DescriptorProto'ExtensionRange)</tt></li>
+--   <li><a>oneofDecl</a> <tt>:: Lens' DescriptorProto
+--   [OneofDescriptorProto]</tt></li>
+--   <li><a>vec'oneofDecl</a> <tt>:: Lens' DescriptorProto
+--   (Data.Vector.Vector OneofDescriptorProto)</tt></li>
+--   <li><a>options</a> <tt>:: Lens' DescriptorProto
+--   MessageOptions</tt></li>
+--   <li><a>maybe'options</a> <tt>:: Lens' DescriptorProto (Prelude.Maybe
+--   MessageOptions)</tt></li>
+--   <li><a>reservedRange</a> <tt>:: Lens' DescriptorProto
+--   [DescriptorProto'ReservedRange]</tt></li>
+--   <li><a>vec'reservedRange</a> <tt>:: Lens' DescriptorProto
+--   (Data.Vector.Vector DescriptorProto'ReservedRange)</tt></li>
+--   <li><a>reservedName</a> <tt>:: Lens' DescriptorProto
+--   [Data.Text.Text]</tt></li>
+--   <li><a>vec'reservedName</a> <tt>:: Lens' DescriptorProto
+--   (Data.Vector.Vector Data.Text.Text)</tt></li>
+--   </ul>
+data DescriptorProto
 
-module Proto.Vendored.Google.Protobuf.Timestamp
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>start</a> <tt>:: Lens' DescriptorProto'ExtensionRange
+--   Data.Int.Int32</tt></li>
+--   <li><a>maybe'start</a> <tt>:: Lens' DescriptorProto'ExtensionRange
+--   (Prelude.Maybe Data.Int.Int32)</tt></li>
+--   <li><a>end</a> <tt>:: Lens' DescriptorProto'ExtensionRange
+--   Data.Int.Int32</tt></li>
+--   <li><a>maybe'end</a> <tt>:: Lens' DescriptorProto'ExtensionRange
+--   (Prelude.Maybe Data.Int.Int32)</tt></li>
+--   <li><a>options</a> <tt>:: Lens' DescriptorProto'ExtensionRange
+--   ExtensionRangeOptions</tt></li>
+--   <li><a>maybe'options</a> <tt>:: Lens' DescriptorProto'ExtensionRange
+--   (Prelude.Maybe ExtensionRangeOptions)</tt></li>
+--   </ul>
+data DescriptorProto'ExtensionRange
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>start</a> <tt>:: Lens' DescriptorProto'ReservedRange
+--   Data.Int.Int32</tt></li>
+--   <li><a>maybe'start</a> <tt>:: Lens' DescriptorProto'ReservedRange
+--   (Prelude.Maybe Data.Int.Int32)</tt></li>
+--   <li><a>end</a> <tt>:: Lens' DescriptorProto'ReservedRange
+--   Data.Int.Int32</tt></li>
+--   <li><a>maybe'end</a> <tt>:: Lens' DescriptorProto'ReservedRange
+--   (Prelude.Maybe Data.Int.Int32)</tt></li>
+--   </ul>
+data DescriptorProto'ReservedRange
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>name</a> <tt>:: Lens' EnumDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'name</a> <tt>:: Lens' EnumDescriptorProto (Prelude.Maybe
+--   Data.Text.Text)</tt></li>
+--   <li><a>value</a> <tt>:: Lens' EnumDescriptorProto
+--   [EnumValueDescriptorProto]</tt></li>
+--   <li><a>vec'value</a> <tt>:: Lens' EnumDescriptorProto
+--   (Data.Vector.Vector EnumValueDescriptorProto)</tt></li>
+--   <li><a>options</a> <tt>:: Lens' EnumDescriptorProto
+--   EnumOptions</tt></li>
+--   <li><a>maybe'options</a> <tt>:: Lens' EnumDescriptorProto
+--   (Prelude.Maybe EnumOptions)</tt></li>
+--   <li><a>reservedRange</a> <tt>:: Lens' EnumDescriptorProto
+--   [EnumDescriptorProto'EnumReservedRange]</tt></li>
+--   <li><a>vec'reservedRange</a> <tt>:: Lens' EnumDescriptorProto
+--   (Data.Vector.Vector EnumDescriptorProto'EnumReservedRange)</tt></li>
+--   <li><a>reservedName</a> <tt>:: Lens' EnumDescriptorProto
+--   [Data.Text.Text]</tt></li>
+--   <li><a>vec'reservedName</a> <tt>:: Lens' EnumDescriptorProto
+--   (Data.Vector.Vector Data.Text.Text)</tt></li>
+--   </ul>
+data EnumDescriptorProto
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>start</a> <tt>:: Lens' EnumDescriptorProto'EnumReservedRange
+--   Data.Int.Int32</tt></li>
+--   <li><a>maybe'start</a> <tt>:: Lens'
+--   EnumDescriptorProto'EnumReservedRange (Prelude.Maybe
+--   Data.Int.Int32)</tt></li>
+--   <li><a>end</a> <tt>:: Lens' EnumDescriptorProto'EnumReservedRange
+--   Data.Int.Int32</tt></li>
+--   <li><a>maybe'end</a> <tt>:: Lens'
+--   EnumDescriptorProto'EnumReservedRange (Prelude.Maybe
+--   Data.Int.Int32)</tt></li>
+--   </ul>
+data EnumDescriptorProto'EnumReservedRange
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>allowAlias</a> <tt>:: Lens' EnumOptions Prelude.Bool</tt></li>
+--   <li><a>maybe'allowAlias</a> <tt>:: Lens' EnumOptions (Prelude.Maybe
+--   Prelude.Bool)</tt></li>
+--   <li><a>deprecated</a> <tt>:: Lens' EnumOptions Prelude.Bool</tt></li>
+--   <li><a>maybe'deprecated</a> <tt>:: Lens' EnumOptions (Prelude.Maybe
+--   Prelude.Bool)</tt></li>
+--   <li><a>uninterpretedOption</a> <tt>:: Lens' EnumOptions
+--   [UninterpretedOption]</tt></li>
+--   <li><a>vec'uninterpretedOption</a> <tt>:: Lens' EnumOptions
+--   (Data.Vector.Vector UninterpretedOption)</tt></li>
+--   </ul>
+data EnumOptions
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>name</a> <tt>:: Lens' EnumValueDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'name</a> <tt>:: Lens' EnumValueDescriptorProto
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>number</a> <tt>:: Lens' EnumValueDescriptorProto
+--   Data.Int.Int32</tt></li>
+--   <li><a>maybe'number</a> <tt>:: Lens' EnumValueDescriptorProto
+--   (Prelude.Maybe Data.Int.Int32)</tt></li>
+--   <li><a>options</a> <tt>:: Lens' EnumValueDescriptorProto
+--   EnumValueOptions</tt></li>
+--   <li><a>maybe'options</a> <tt>:: Lens' EnumValueDescriptorProto
+--   (Prelude.Maybe EnumValueOptions)</tt></li>
+--   </ul>
+data EnumValueDescriptorProto
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>deprecated</a> <tt>:: Lens' EnumValueOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'deprecated</a> <tt>:: Lens' EnumValueOptions
+--   (Prelude.Maybe Prelude.Bool)</tt></li>
+--   <li><a>uninterpretedOption</a> <tt>:: Lens' EnumValueOptions
+--   [UninterpretedOption]</tt></li>
+--   <li><a>vec'uninterpretedOption</a> <tt>:: Lens' EnumValueOptions
+--   (Data.Vector.Vector UninterpretedOption)</tt></li>
+--   </ul>
+data EnumValueOptions
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>uninterpretedOption</a> <tt>:: Lens' ExtensionRangeOptions
+--   [UninterpretedOption]</tt></li>
+--   <li><a>vec'uninterpretedOption</a> <tt>:: Lens' ExtensionRangeOptions
+--   (Data.Vector.Vector UninterpretedOption)</tt></li>
+--   </ul>
+data ExtensionRangeOptions
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>name</a> <tt>:: Lens' FieldDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'name</a> <tt>:: Lens' FieldDescriptorProto (Prelude.Maybe
+--   Data.Text.Text)</tt></li>
+--   <li><a>number</a> <tt>:: Lens' FieldDescriptorProto
+--   Data.Int.Int32</tt></li>
+--   <li><a>maybe'number</a> <tt>:: Lens' FieldDescriptorProto
+--   (Prelude.Maybe Data.Int.Int32)</tt></li>
+--   <li><a>label</a> <tt>:: Lens' FieldDescriptorProto
+--   FieldDescriptorProto'Label</tt></li>
+--   <li><a>maybe'label</a> <tt>:: Lens' FieldDescriptorProto
+--   (Prelude.Maybe FieldDescriptorProto'Label)</tt></li>
+--   <li><a>type'</a> <tt>:: Lens' FieldDescriptorProto
+--   FieldDescriptorProto'Type</tt></li>
+--   <li><a>maybe'type'</a> <tt>:: Lens' FieldDescriptorProto
+--   (Prelude.Maybe FieldDescriptorProto'Type)</tt></li>
+--   <li><a>typeName</a> <tt>:: Lens' FieldDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'typeName</a> <tt>:: Lens' FieldDescriptorProto
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>extendee</a> <tt>:: Lens' FieldDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'extendee</a> <tt>:: Lens' FieldDescriptorProto
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>defaultValue</a> <tt>:: Lens' FieldDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'defaultValue</a> <tt>:: Lens' FieldDescriptorProto
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>oneofIndex</a> <tt>:: Lens' FieldDescriptorProto
+--   Data.Int.Int32</tt></li>
+--   <li><a>maybe'oneofIndex</a> <tt>:: Lens' FieldDescriptorProto
+--   (Prelude.Maybe Data.Int.Int32)</tt></li>
+--   <li><a>jsonName</a> <tt>:: Lens' FieldDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'jsonName</a> <tt>:: Lens' FieldDescriptorProto
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>options</a> <tt>:: Lens' FieldDescriptorProto
+--   FieldOptions</tt></li>
+--   <li><a>maybe'options</a> <tt>:: Lens' FieldDescriptorProto
+--   (Prelude.Maybe FieldOptions)</tt></li>
+--   </ul>
+data FieldDescriptorProto
+data FieldDescriptorProto'Label
+FieldDescriptorProto'LABEL_OPTIONAL :: FieldDescriptorProto'Label
+FieldDescriptorProto'LABEL_REQUIRED :: FieldDescriptorProto'Label
+FieldDescriptorProto'LABEL_REPEATED :: FieldDescriptorProto'Label
+data FieldDescriptorProto'Label
+data FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_DOUBLE :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_FLOAT :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_INT64 :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_UINT64 :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_INT32 :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_FIXED64 :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_FIXED32 :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_BOOL :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_STRING :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_GROUP :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_MESSAGE :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_BYTES :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_UINT32 :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_ENUM :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_SFIXED32 :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_SFIXED64 :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_SINT32 :: FieldDescriptorProto'Type
+FieldDescriptorProto'TYPE_SINT64 :: FieldDescriptorProto'Type
+data FieldDescriptorProto'Type
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>ctype</a> <tt>:: Lens' FieldOptions
+--   FieldOptions'CType</tt></li>
+--   <li><a>maybe'ctype</a> <tt>:: Lens' FieldOptions (Prelude.Maybe
+--   FieldOptions'CType)</tt></li>
+--   <li><a>packed</a> <tt>:: Lens' FieldOptions Prelude.Bool</tt></li>
+--   <li><a>maybe'packed</a> <tt>:: Lens' FieldOptions (Prelude.Maybe
+--   Prelude.Bool)</tt></li>
+--   <li><a>jstype</a> <tt>:: Lens' FieldOptions
+--   FieldOptions'JSType</tt></li>
+--   <li><a>maybe'jstype</a> <tt>:: Lens' FieldOptions (Prelude.Maybe
+--   FieldOptions'JSType)</tt></li>
+--   <li><a>lazy</a> <tt>:: Lens' FieldOptions Prelude.Bool</tt></li>
+--   <li><a>maybe'lazy</a> <tt>:: Lens' FieldOptions (Prelude.Maybe
+--   Prelude.Bool)</tt></li>
+--   <li><a>deprecated</a> <tt>:: Lens' FieldOptions Prelude.Bool</tt></li>
+--   <li><a>maybe'deprecated</a> <tt>:: Lens' FieldOptions (Prelude.Maybe
+--   Prelude.Bool)</tt></li>
+--   <li><a>weak</a> <tt>:: Lens' FieldOptions Prelude.Bool</tt></li>
+--   <li><a>maybe'weak</a> <tt>:: Lens' FieldOptions (Prelude.Maybe
+--   Prelude.Bool)</tt></li>
+--   <li><a>uninterpretedOption</a> <tt>:: Lens' FieldOptions
+--   [UninterpretedOption]</tt></li>
+--   <li><a>vec'uninterpretedOption</a> <tt>:: Lens' FieldOptions
+--   (Data.Vector.Vector UninterpretedOption)</tt></li>
+--   </ul>
+data FieldOptions
+data FieldOptions'CType
+FieldOptions'STRING :: FieldOptions'CType
+FieldOptions'CORD :: FieldOptions'CType
+FieldOptions'STRING_PIECE :: FieldOptions'CType
+data FieldOptions'CType
+data FieldOptions'JSType
+FieldOptions'JS_NORMAL :: FieldOptions'JSType
+FieldOptions'JS_STRING :: FieldOptions'JSType
+FieldOptions'JS_NUMBER :: FieldOptions'JSType
+data FieldOptions'JSType
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>name</a> <tt>:: Lens' FileDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'name</a> <tt>:: Lens' FileDescriptorProto (Prelude.Maybe
+--   Data.Text.Text)</tt></li>
+--   <li><a>package</a> <tt>:: Lens' FileDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'package</a> <tt>:: Lens' FileDescriptorProto
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>dependency</a> <tt>:: Lens' FileDescriptorProto
+--   [Data.Text.Text]</tt></li>
+--   <li><a>vec'dependency</a> <tt>:: Lens' FileDescriptorProto
+--   (Data.Vector.Vector Data.Text.Text)</tt></li>
+--   <li><a>publicDependency</a> <tt>:: Lens' FileDescriptorProto
+--   [Data.Int.Int32]</tt></li>
+--   <li><a>vec'publicDependency</a> <tt>:: Lens' FileDescriptorProto
+--   (Data.Vector.Unboxed.Vector Data.Int.Int32)</tt></li>
+--   <li><a>weakDependency</a> <tt>:: Lens' FileDescriptorProto
+--   [Data.Int.Int32]</tt></li>
+--   <li><a>vec'weakDependency</a> <tt>:: Lens' FileDescriptorProto
+--   (Data.Vector.Unboxed.Vector Data.Int.Int32)</tt></li>
+--   <li><a>messageType</a> <tt>:: Lens' FileDescriptorProto
+--   [DescriptorProto]</tt></li>
+--   <li><a>vec'messageType</a> <tt>:: Lens' FileDescriptorProto
+--   (Data.Vector.Vector DescriptorProto)</tt></li>
+--   <li><a>enumType</a> <tt>:: Lens' FileDescriptorProto
+--   [EnumDescriptorProto]</tt></li>
+--   <li><a>vec'enumType</a> <tt>:: Lens' FileDescriptorProto
+--   (Data.Vector.Vector EnumDescriptorProto)</tt></li>
+--   <li><a>service</a> <tt>:: Lens' FileDescriptorProto
+--   [ServiceDescriptorProto]</tt></li>
+--   <li><a>vec'service</a> <tt>:: Lens' FileDescriptorProto
+--   (Data.Vector.Vector ServiceDescriptorProto)</tt></li>
+--   <li><a>extension</a> <tt>:: Lens' FileDescriptorProto
+--   [FieldDescriptorProto]</tt></li>
+--   <li><a>vec'extension</a> <tt>:: Lens' FileDescriptorProto
+--   (Data.Vector.Vector FieldDescriptorProto)</tt></li>
+--   <li><a>options</a> <tt>:: Lens' FileDescriptorProto
+--   FileOptions</tt></li>
+--   <li><a>maybe'options</a> <tt>:: Lens' FileDescriptorProto
+--   (Prelude.Maybe FileOptions)</tt></li>
+--   <li><a>sourceCodeInfo</a> <tt>:: Lens' FileDescriptorProto
+--   SourceCodeInfo</tt></li>
+--   <li><a>maybe'sourceCodeInfo</a> <tt>:: Lens' FileDescriptorProto
+--   (Prelude.Maybe SourceCodeInfo)</tt></li>
+--   <li><a>syntax</a> <tt>:: Lens' FileDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'syntax</a> <tt>:: Lens' FileDescriptorProto
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   </ul>
+data FileDescriptorProto
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>file</a> <tt>:: Lens' FileDescriptorSet
+--   [FileDescriptorProto]</tt></li>
+--   <li><a>vec'file</a> <tt>:: Lens' FileDescriptorSet (Data.Vector.Vector
+--   FileDescriptorProto)</tt></li>
+--   </ul>
+data FileDescriptorSet
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>javaPackage</a> <tt>:: Lens' FileOptions
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'javaPackage</a> <tt>:: Lens' FileOptions (Prelude.Maybe
+--   Data.Text.Text)</tt></li>
+--   <li><a>javaOuterClassname</a> <tt>:: Lens' FileOptions
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'javaOuterClassname</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>javaMultipleFiles</a> <tt>:: Lens' FileOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'javaMultipleFiles</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Prelude.Bool)</tt></li>
+--   <li><a>javaGenerateEqualsAndHash</a> <tt>:: Lens' FileOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'javaGenerateEqualsAndHash</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Prelude.Bool)</tt></li>
+--   <li><a>javaStringCheckUtf8</a> <tt>:: Lens' FileOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'javaStringCheckUtf8</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Prelude.Bool)</tt></li>
+--   <li><a>optimizeFor</a> <tt>:: Lens' FileOptions
+--   FileOptions'OptimizeMode</tt></li>
+--   <li><a>maybe'optimizeFor</a> <tt>:: Lens' FileOptions (Prelude.Maybe
+--   FileOptions'OptimizeMode)</tt></li>
+--   <li><a>goPackage</a> <tt>:: Lens' FileOptions Data.Text.Text</tt></li>
+--   <li><a>maybe'goPackage</a> <tt>:: Lens' FileOptions (Prelude.Maybe
+--   Data.Text.Text)</tt></li>
+--   <li><a>ccGenericServices</a> <tt>:: Lens' FileOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'ccGenericServices</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Prelude.Bool)</tt></li>
+--   <li><a>javaGenericServices</a> <tt>:: Lens' FileOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'javaGenericServices</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Prelude.Bool)</tt></li>
+--   <li><a>pyGenericServices</a> <tt>:: Lens' FileOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'pyGenericServices</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Prelude.Bool)</tt></li>
+--   <li><a>phpGenericServices</a> <tt>:: Lens' FileOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'phpGenericServices</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Prelude.Bool)</tt></li>
+--   <li><a>deprecated</a> <tt>:: Lens' FileOptions Prelude.Bool</tt></li>
+--   <li><a>maybe'deprecated</a> <tt>:: Lens' FileOptions (Prelude.Maybe
+--   Prelude.Bool)</tt></li>
+--   <li><a>ccEnableArenas</a> <tt>:: Lens' FileOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'ccEnableArenas</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Prelude.Bool)</tt></li>
+--   <li><a>objcClassPrefix</a> <tt>:: Lens' FileOptions
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'objcClassPrefix</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>csharpNamespace</a> <tt>:: Lens' FileOptions
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'csharpNamespace</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>swiftPrefix</a> <tt>:: Lens' FileOptions
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'swiftPrefix</a> <tt>:: Lens' FileOptions (Prelude.Maybe
+--   Data.Text.Text)</tt></li>
+--   <li><a>phpClassPrefix</a> <tt>:: Lens' FileOptions
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'phpClassPrefix</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>phpNamespace</a> <tt>:: Lens' FileOptions
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'phpNamespace</a> <tt>:: Lens' FileOptions (Prelude.Maybe
+--   Data.Text.Text)</tt></li>
+--   <li><a>phpMetadataNamespace</a> <tt>:: Lens' FileOptions
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'phpMetadataNamespace</a> <tt>:: Lens' FileOptions
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>rubyPackage</a> <tt>:: Lens' FileOptions
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'rubyPackage</a> <tt>:: Lens' FileOptions (Prelude.Maybe
+--   Data.Text.Text)</tt></li>
+--   <li><a>uninterpretedOption</a> <tt>:: Lens' FileOptions
+--   [UninterpretedOption]</tt></li>
+--   <li><a>vec'uninterpretedOption</a> <tt>:: Lens' FileOptions
+--   (Data.Vector.Vector UninterpretedOption)</tt></li>
+--   </ul>
+data FileOptions
+data FileOptions'OptimizeMode
+FileOptions'SPEED :: FileOptions'OptimizeMode
+FileOptions'CODE_SIZE :: FileOptions'OptimizeMode
+FileOptions'LITE_RUNTIME :: FileOptions'OptimizeMode
+data FileOptions'OptimizeMode
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>annotation</a> <tt>:: Lens' GeneratedCodeInfo
+--   [GeneratedCodeInfo'Annotation]</tt></li>
+--   <li><a>vec'annotation</a> <tt>:: Lens' GeneratedCodeInfo
+--   (Data.Vector.Vector GeneratedCodeInfo'Annotation)</tt></li>
+--   </ul>
+data GeneratedCodeInfo
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>path</a> <tt>:: Lens' GeneratedCodeInfo'Annotation
+--   [Data.Int.Int32]</tt></li>
+--   <li><a>vec'path</a> <tt>:: Lens' GeneratedCodeInfo'Annotation
+--   (Data.Vector.Unboxed.Vector Data.Int.Int32)</tt></li>
+--   <li><a>sourceFile</a> <tt>:: Lens' GeneratedCodeInfo'Annotation
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'sourceFile</a> <tt>:: Lens' GeneratedCodeInfo'Annotation
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>begin</a> <tt>:: Lens' GeneratedCodeInfo'Annotation
+--   Data.Int.Int32</tt></li>
+--   <li><a>maybe'begin</a> <tt>:: Lens' GeneratedCodeInfo'Annotation
+--   (Prelude.Maybe Data.Int.Int32)</tt></li>
+--   <li><a>end</a> <tt>:: Lens' GeneratedCodeInfo'Annotation
+--   Data.Int.Int32</tt></li>
+--   <li><a>maybe'end</a> <tt>:: Lens' GeneratedCodeInfo'Annotation
+--   (Prelude.Maybe Data.Int.Int32)</tt></li>
+--   </ul>
+data GeneratedCodeInfo'Annotation
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>messageSetWireFormat</a> <tt>:: Lens' MessageOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'messageSetWireFormat</a> <tt>:: Lens' MessageOptions
+--   (Prelude.Maybe Prelude.Bool)</tt></li>
+--   <li><a>noStandardDescriptorAccessor</a> <tt>:: Lens' MessageOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'noStandardDescriptorAccessor</a> <tt>:: Lens'
+--   MessageOptions (Prelude.Maybe Prelude.Bool)</tt></li>
+--   <li><a>deprecated</a> <tt>:: Lens' MessageOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'deprecated</a> <tt>:: Lens' MessageOptions (Prelude.Maybe
+--   Prelude.Bool)</tt></li>
+--   <li><a>mapEntry</a> <tt>:: Lens' MessageOptions Prelude.Bool</tt></li>
+--   <li><a>maybe'mapEntry</a> <tt>:: Lens' MessageOptions (Prelude.Maybe
+--   Prelude.Bool)</tt></li>
+--   <li><a>uninterpretedOption</a> <tt>:: Lens' MessageOptions
+--   [UninterpretedOption]</tt></li>
+--   <li><a>vec'uninterpretedOption</a> <tt>:: Lens' MessageOptions
+--   (Data.Vector.Vector UninterpretedOption)</tt></li>
+--   </ul>
+data MessageOptions
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>name</a> <tt>:: Lens' MethodDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'name</a> <tt>:: Lens' MethodDescriptorProto
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>inputType</a> <tt>:: Lens' MethodDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'inputType</a> <tt>:: Lens' MethodDescriptorProto
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>outputType</a> <tt>:: Lens' MethodDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'outputType</a> <tt>:: Lens' MethodDescriptorProto
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>options</a> <tt>:: Lens' MethodDescriptorProto
+--   MethodOptions</tt></li>
+--   <li><a>maybe'options</a> <tt>:: Lens' MethodDescriptorProto
+--   (Prelude.Maybe MethodOptions)</tt></li>
+--   <li><a>clientStreaming</a> <tt>:: Lens' MethodDescriptorProto
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'clientStreaming</a> <tt>:: Lens' MethodDescriptorProto
+--   (Prelude.Maybe Prelude.Bool)</tt></li>
+--   <li><a>serverStreaming</a> <tt>:: Lens' MethodDescriptorProto
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'serverStreaming</a> <tt>:: Lens' MethodDescriptorProto
+--   (Prelude.Maybe Prelude.Bool)</tt></li>
+--   </ul>
+data MethodDescriptorProto
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>deprecated</a> <tt>:: Lens' MethodOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'deprecated</a> <tt>:: Lens' MethodOptions (Prelude.Maybe
+--   Prelude.Bool)</tt></li>
+--   <li><a>idempotencyLevel</a> <tt>:: Lens' MethodOptions
+--   MethodOptions'IdempotencyLevel</tt></li>
+--   <li><a>maybe'idempotencyLevel</a> <tt>:: Lens' MethodOptions
+--   (Prelude.Maybe MethodOptions'IdempotencyLevel)</tt></li>
+--   <li><a>uninterpretedOption</a> <tt>:: Lens' MethodOptions
+--   [UninterpretedOption]</tt></li>
+--   <li><a>vec'uninterpretedOption</a> <tt>:: Lens' MethodOptions
+--   (Data.Vector.Vector UninterpretedOption)</tt></li>
+--   </ul>
+data MethodOptions
+data MethodOptions'IdempotencyLevel
+MethodOptions'IDEMPOTENCY_UNKNOWN :: MethodOptions'IdempotencyLevel
+MethodOptions'NO_SIDE_EFFECTS :: MethodOptions'IdempotencyLevel
+MethodOptions'IDEMPOTENT :: MethodOptions'IdempotencyLevel
+data MethodOptions'IdempotencyLevel
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>name</a> <tt>:: Lens' OneofDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'name</a> <tt>:: Lens' OneofDescriptorProto (Prelude.Maybe
+--   Data.Text.Text)</tt></li>
+--   <li><a>options</a> <tt>:: Lens' OneofDescriptorProto
+--   OneofOptions</tt></li>
+--   <li><a>maybe'options</a> <tt>:: Lens' OneofDescriptorProto
+--   (Prelude.Maybe OneofOptions)</tt></li>
+--   </ul>
+data OneofDescriptorProto
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>uninterpretedOption</a> <tt>:: Lens' OneofOptions
+--   [UninterpretedOption]</tt></li>
+--   <li><a>vec'uninterpretedOption</a> <tt>:: Lens' OneofOptions
+--   (Data.Vector.Vector UninterpretedOption)</tt></li>
+--   </ul>
+data OneofOptions
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>name</a> <tt>:: Lens' ServiceDescriptorProto
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'name</a> <tt>:: Lens' ServiceDescriptorProto
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>method</a> <tt>:: Lens' ServiceDescriptorProto
+--   [MethodDescriptorProto]</tt></li>
+--   <li><a>vec'method</a> <tt>:: Lens' ServiceDescriptorProto
+--   (Data.Vector.Vector MethodDescriptorProto)</tt></li>
+--   <li><a>options</a> <tt>:: Lens' ServiceDescriptorProto
+--   ServiceOptions</tt></li>
+--   <li><a>maybe'options</a> <tt>:: Lens' ServiceDescriptorProto
+--   (Prelude.Maybe ServiceOptions)</tt></li>
+--   </ul>
+data ServiceDescriptorProto
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>deprecated</a> <tt>:: Lens' ServiceOptions
+--   Prelude.Bool</tt></li>
+--   <li><a>maybe'deprecated</a> <tt>:: Lens' ServiceOptions (Prelude.Maybe
+--   Prelude.Bool)</tt></li>
+--   <li><a>uninterpretedOption</a> <tt>:: Lens' ServiceOptions
+--   [UninterpretedOption]</tt></li>
+--   <li><a>vec'uninterpretedOption</a> <tt>:: Lens' ServiceOptions
+--   (Data.Vector.Vector UninterpretedOption)</tt></li>
+--   </ul>
+data ServiceOptions
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>location</a> <tt>:: Lens' SourceCodeInfo
+--   [SourceCodeInfo'Location]</tt></li>
+--   <li><a>vec'location</a> <tt>:: Lens' SourceCodeInfo
+--   (Data.Vector.Vector SourceCodeInfo'Location)</tt></li>
+--   </ul>
+data SourceCodeInfo
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>path</a> <tt>:: Lens' SourceCodeInfo'Location
+--   [Data.Int.Int32]</tt></li>
+--   <li><a>vec'path</a> <tt>:: Lens' SourceCodeInfo'Location
+--   (Data.Vector.Unboxed.Vector Data.Int.Int32)</tt></li>
+--   <li><a>span</a> <tt>:: Lens' SourceCodeInfo'Location
+--   [Data.Int.Int32]</tt></li>
+--   <li><a>vec'span</a> <tt>:: Lens' SourceCodeInfo'Location
+--   (Data.Vector.Unboxed.Vector Data.Int.Int32)</tt></li>
+--   <li><a>leadingComments</a> <tt>:: Lens' SourceCodeInfo'Location
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'leadingComments</a> <tt>:: Lens' SourceCodeInfo'Location
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>trailingComments</a> <tt>:: Lens' SourceCodeInfo'Location
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'trailingComments</a> <tt>:: Lens' SourceCodeInfo'Location
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>leadingDetachedComments</a> <tt>:: Lens'
+--   SourceCodeInfo'Location [Data.Text.Text]</tt></li>
+--   <li><a>vec'leadingDetachedComments</a> <tt>:: Lens'
+--   SourceCodeInfo'Location (Data.Vector.Vector Data.Text.Text)</tt></li>
+--   </ul>
+data SourceCodeInfo'Location
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>name</a> <tt>:: Lens' UninterpretedOption
+--   [UninterpretedOption'NamePart]</tt></li>
+--   <li><a>vec'name</a> <tt>:: Lens' UninterpretedOption
+--   (Data.Vector.Vector UninterpretedOption'NamePart)</tt></li>
+--   <li><a>identifierValue</a> <tt>:: Lens' UninterpretedOption
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'identifierValue</a> <tt>:: Lens' UninterpretedOption
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   <li><a>positiveIntValue</a> <tt>:: Lens' UninterpretedOption
+--   Data.Word.Word64</tt></li>
+--   <li><a>maybe'positiveIntValue</a> <tt>:: Lens' UninterpretedOption
+--   (Prelude.Maybe Data.Word.Word64)</tt></li>
+--   <li><a>negativeIntValue</a> <tt>:: Lens' UninterpretedOption
+--   Data.Int.Int64</tt></li>
+--   <li><a>maybe'negativeIntValue</a> <tt>:: Lens' UninterpretedOption
+--   (Prelude.Maybe Data.Int.Int64)</tt></li>
+--   <li><a>doubleValue</a> <tt>:: Lens' UninterpretedOption
+--   Prelude.Double</tt></li>
+--   <li><a>maybe'doubleValue</a> <tt>:: Lens' UninterpretedOption
+--   (Prelude.Maybe Prelude.Double)</tt></li>
+--   <li><a>stringValue</a> <tt>:: Lens' UninterpretedOption
+--   Data.ByteString.ByteString</tt></li>
+--   <li><a>maybe'stringValue</a> <tt>:: Lens' UninterpretedOption
+--   (Prelude.Maybe Data.ByteString.ByteString)</tt></li>
+--   <li><a>aggregateValue</a> <tt>:: Lens' UninterpretedOption
+--   Data.Text.Text</tt></li>
+--   <li><a>maybe'aggregateValue</a> <tt>:: Lens' UninterpretedOption
+--   (Prelude.Maybe Data.Text.Text)</tt></li>
+--   </ul>
+data UninterpretedOption
+
+-- | Fields :
+--   
+--   <ul>
+--   <li><a>namePart</a> <tt>:: Lens' UninterpretedOption'NamePart
+--   Data.Text.Text</tt></li>
+--   <li><a>isExtension</a> <tt>:: Lens' UninterpretedOption'NamePart
+--   Prelude.Bool</tt></li>
+--   </ul>
+data UninterpretedOption'NamePart
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.FileDescriptorSet
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.FileDescriptorSet
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.FileDescriptorProto
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.FileDescriptorProto
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.DescriptorProto
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.DescriptorProto
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.EnumDescriptorProto
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.EnumDescriptorProto
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.EnumOptions
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.EnumOptions
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.EnumValueOptions
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.EnumValueOptions
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.ExtensionRangeOptions
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.ExtensionRangeOptions
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.FieldDescriptorProto
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.FieldDescriptorProto
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.FieldOptions
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.FieldOptions
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.FileOptions
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.FileOptions
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.MessageOptions
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.MessageOptions
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.MethodDescriptorProto
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.MethodDescriptorProto
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.MethodOptions
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.MethodOptions
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.OneofDescriptorProto
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.OneofDescriptorProto
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.OneofOptions
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.OneofOptions
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.ServiceOptions
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.ServiceOptions
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.UninterpretedOption
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.UninterpretedOption
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.UninterpretedOption'NamePart
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.UninterpretedOption'NamePart
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.SourceCodeInfo
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.SourceCodeInfo
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.MethodOptions'IdempotencyLevel
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.MethodOptions'IdempotencyLevel
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.MethodOptions'IdempotencyLevel
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.FileOptions'OptimizeMode
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.FileOptions'OptimizeMode
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.FileOptions'OptimizeMode
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.FieldOptions'JSType
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.FieldOptions'JSType
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.FieldOptions'JSType
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.FieldOptions'CType
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.FieldOptions'CType
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.FieldOptions'CType
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Type
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Type
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Type
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Label
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Label
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Label
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.EnumDescriptorProto'EnumReservedRange
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.EnumDescriptorProto'EnumReservedRange
+instance GHC.Classes.Ord Proto.Google.Protobuf.Descriptor.DescriptorProto'ReservedRange
+instance GHC.Classes.Eq Proto.Google.Protobuf.Descriptor.DescriptorProto'ReservedRange
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.FileDescriptorSet
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorSet "file" [Proto.Google.Protobuf.Descriptor.FileDescriptorProto]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorSet "vec'file" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.FileDescriptorProto)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.FileDescriptorSet
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.FileDescriptorSet
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.FileDescriptorProto
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "name" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "maybe'name" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "package" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "maybe'package" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "dependency" [Data.Text.Internal.Text]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "vec'dependency" (Data.Vector.Vector Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "publicDependency" [GHC.Int.Int32]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "vec'publicDependency" (Data.Vector.Unboxed.Base.Vector GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "weakDependency" [GHC.Int.Int32]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "vec'weakDependency" (Data.Vector.Unboxed.Base.Vector GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "messageType" [Proto.Google.Protobuf.Descriptor.DescriptorProto]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "vec'messageType" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.DescriptorProto)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "enumType" [Proto.Google.Protobuf.Descriptor.EnumDescriptorProto]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "vec'enumType" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.EnumDescriptorProto)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "service" [Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "vec'service" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "extension" [Proto.Google.Protobuf.Descriptor.FieldDescriptorProto]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "vec'extension" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.FieldDescriptorProto)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "options" Proto.Google.Protobuf.Descriptor.FileOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "maybe'options" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.FileOptions)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "sourceCodeInfo" Proto.Google.Protobuf.Descriptor.SourceCodeInfo
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "maybe'sourceCodeInfo" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.SourceCodeInfo)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "syntax" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileDescriptorProto "maybe'syntax" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.FileDescriptorProto
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.FileDescriptorProto
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.DescriptorProto
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "name" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "maybe'name" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "field" [Proto.Google.Protobuf.Descriptor.FieldDescriptorProto]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "vec'field" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.FieldDescriptorProto)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "extension" [Proto.Google.Protobuf.Descriptor.FieldDescriptorProto]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "vec'extension" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.FieldDescriptorProto)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "nestedType" [Proto.Google.Protobuf.Descriptor.DescriptorProto]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "vec'nestedType" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.DescriptorProto)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "enumType" [Proto.Google.Protobuf.Descriptor.EnumDescriptorProto]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "vec'enumType" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.EnumDescriptorProto)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "extensionRange" [Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "vec'extensionRange" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "oneofDecl" [Proto.Google.Protobuf.Descriptor.OneofDescriptorProto]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "vec'oneofDecl" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.OneofDescriptorProto)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "options" Proto.Google.Protobuf.Descriptor.MessageOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "maybe'options" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.MessageOptions)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "reservedRange" [Proto.Google.Protobuf.Descriptor.DescriptorProto'ReservedRange]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "vec'reservedRange" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.DescriptorProto'ReservedRange)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "reservedName" [Data.Text.Internal.Text]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto "vec'reservedName" (Data.Vector.Vector Data.Text.Internal.Text)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.DescriptorProto
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.DescriptorProto
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.EnumDescriptorProto
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto "name" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto "maybe'name" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto "value" [Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto "vec'value" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto "options" Proto.Google.Protobuf.Descriptor.EnumOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto "maybe'options" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.EnumOptions)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto "reservedRange" [Proto.Google.Protobuf.Descriptor.EnumDescriptorProto'EnumReservedRange]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto "vec'reservedRange" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.EnumDescriptorProto'EnumReservedRange)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto "reservedName" [Data.Text.Internal.Text]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto "vec'reservedName" (Data.Vector.Vector Data.Text.Internal.Text)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.EnumDescriptorProto
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.EnumDescriptorProto
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.EnumOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumOptions "allowAlias" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumOptions "maybe'allowAlias" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumOptions "deprecated" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumOptions "maybe'deprecated" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumOptions "uninterpretedOption" [Proto.Google.Protobuf.Descriptor.UninterpretedOption]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumOptions "vec'uninterpretedOption" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.UninterpretedOption)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.EnumOptions
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.EnumOptions
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto "name" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto "maybe'name" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto "number" GHC.Int.Int32
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto "maybe'number" (GHC.Maybe.Maybe GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto "options" Proto.Google.Protobuf.Descriptor.EnumValueOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto "maybe'options" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.EnumValueOptions)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.EnumValueDescriptorProto
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.EnumValueOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumValueOptions "deprecated" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumValueOptions "maybe'deprecated" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumValueOptions "uninterpretedOption" [Proto.Google.Protobuf.Descriptor.UninterpretedOption]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumValueOptions "vec'uninterpretedOption" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.UninterpretedOption)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.EnumValueOptions
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.EnumValueOptions
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange "start" GHC.Int.Int32
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange "maybe'start" (GHC.Maybe.Maybe GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange "end" GHC.Int.Int32
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange "maybe'end" (GHC.Maybe.Maybe GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange "options" Proto.Google.Protobuf.Descriptor.ExtensionRangeOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange "maybe'options" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.ExtensionRangeOptions)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.DescriptorProto'ExtensionRange
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.ExtensionRangeOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.ExtensionRangeOptions "uninterpretedOption" [Proto.Google.Protobuf.Descriptor.UninterpretedOption]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.ExtensionRangeOptions "vec'uninterpretedOption" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.UninterpretedOption)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.ExtensionRangeOptions
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.ExtensionRangeOptions
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.FieldDescriptorProto
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "name" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "maybe'name" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "number" GHC.Int.Int32
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "maybe'number" (GHC.Maybe.Maybe GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "label" Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Label
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "maybe'label" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Label)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "type'" Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Type
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "maybe'type'" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Type)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "typeName" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "maybe'typeName" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "extendee" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "maybe'extendee" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "defaultValue" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "maybe'defaultValue" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "oneofIndex" GHC.Int.Int32
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "maybe'oneofIndex" (GHC.Maybe.Maybe GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "jsonName" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "maybe'jsonName" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "options" Proto.Google.Protobuf.Descriptor.FieldOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldDescriptorProto "maybe'options" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.FieldOptions)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.FieldDescriptorProto
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.FieldDescriptorProto
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.FieldOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "ctype" Proto.Google.Protobuf.Descriptor.FieldOptions'CType
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "maybe'ctype" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.FieldOptions'CType)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "packed" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "maybe'packed" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "jstype" Proto.Google.Protobuf.Descriptor.FieldOptions'JSType
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "maybe'jstype" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.FieldOptions'JSType)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "lazy" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "maybe'lazy" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "deprecated" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "maybe'deprecated" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "weak" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "maybe'weak" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "uninterpretedOption" [Proto.Google.Protobuf.Descriptor.UninterpretedOption]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FieldOptions "vec'uninterpretedOption" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.UninterpretedOption)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.FieldOptions
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.FieldOptions
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.FileOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "javaPackage" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'javaPackage" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "javaOuterClassname" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'javaOuterClassname" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "javaMultipleFiles" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'javaMultipleFiles" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "javaGenerateEqualsAndHash" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'javaGenerateEqualsAndHash" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "javaStringCheckUtf8" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'javaStringCheckUtf8" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "optimizeFor" Proto.Google.Protobuf.Descriptor.FileOptions'OptimizeMode
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'optimizeFor" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.FileOptions'OptimizeMode)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "goPackage" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'goPackage" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "ccGenericServices" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'ccGenericServices" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "javaGenericServices" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'javaGenericServices" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "pyGenericServices" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'pyGenericServices" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "phpGenericServices" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'phpGenericServices" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "deprecated" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'deprecated" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "ccEnableArenas" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'ccEnableArenas" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "objcClassPrefix" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'objcClassPrefix" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "csharpNamespace" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'csharpNamespace" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "swiftPrefix" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'swiftPrefix" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "phpClassPrefix" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'phpClassPrefix" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "phpNamespace" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'phpNamespace" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "phpMetadataNamespace" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'phpMetadataNamespace" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "rubyPackage" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "maybe'rubyPackage" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "uninterpretedOption" [Proto.Google.Protobuf.Descriptor.UninterpretedOption]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.FileOptions "vec'uninterpretedOption" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.UninterpretedOption)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.FileOptions
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.FileOptions
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.MessageOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MessageOptions "messageSetWireFormat" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MessageOptions "maybe'messageSetWireFormat" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MessageOptions "noStandardDescriptorAccessor" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MessageOptions "maybe'noStandardDescriptorAccessor" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MessageOptions "deprecated" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MessageOptions "maybe'deprecated" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MessageOptions "mapEntry" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MessageOptions "maybe'mapEntry" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MessageOptions "uninterpretedOption" [Proto.Google.Protobuf.Descriptor.UninterpretedOption]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MessageOptions "vec'uninterpretedOption" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.UninterpretedOption)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.MessageOptions
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.MessageOptions
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto "name" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto "maybe'name" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto "method" [Proto.Google.Protobuf.Descriptor.MethodDescriptorProto]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto "vec'method" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.MethodDescriptorProto)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto "options" Proto.Google.Protobuf.Descriptor.ServiceOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto "maybe'options" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.ServiceOptions)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.ServiceDescriptorProto
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.MethodDescriptorProto
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodDescriptorProto "name" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodDescriptorProto "maybe'name" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodDescriptorProto "inputType" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodDescriptorProto "maybe'inputType" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodDescriptorProto "outputType" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodDescriptorProto "maybe'outputType" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodDescriptorProto "options" Proto.Google.Protobuf.Descriptor.MethodOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodDescriptorProto "maybe'options" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.MethodOptions)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodDescriptorProto "clientStreaming" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodDescriptorProto "maybe'clientStreaming" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodDescriptorProto "serverStreaming" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodDescriptorProto "maybe'serverStreaming" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.MethodDescriptorProto
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.MethodDescriptorProto
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.MethodOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodOptions "deprecated" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodOptions "maybe'deprecated" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodOptions "idempotencyLevel" Proto.Google.Protobuf.Descriptor.MethodOptions'IdempotencyLevel
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodOptions "maybe'idempotencyLevel" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.MethodOptions'IdempotencyLevel)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodOptions "uninterpretedOption" [Proto.Google.Protobuf.Descriptor.UninterpretedOption]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.MethodOptions "vec'uninterpretedOption" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.UninterpretedOption)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.MethodOptions
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.MethodOptions
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.OneofDescriptorProto
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.OneofDescriptorProto "name" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.OneofDescriptorProto "maybe'name" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.OneofDescriptorProto "options" Proto.Google.Protobuf.Descriptor.OneofOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.OneofDescriptorProto "maybe'options" (GHC.Maybe.Maybe Proto.Google.Protobuf.Descriptor.OneofOptions)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.OneofDescriptorProto
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.OneofDescriptorProto
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.OneofOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.OneofOptions "uninterpretedOption" [Proto.Google.Protobuf.Descriptor.UninterpretedOption]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.OneofOptions "vec'uninterpretedOption" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.UninterpretedOption)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.OneofOptions
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.OneofOptions
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.ServiceOptions
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.ServiceOptions "deprecated" GHC.Types.Bool
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.ServiceOptions "maybe'deprecated" (GHC.Maybe.Maybe GHC.Types.Bool)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.ServiceOptions "uninterpretedOption" [Proto.Google.Protobuf.Descriptor.UninterpretedOption]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.ServiceOptions "vec'uninterpretedOption" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.UninterpretedOption)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.ServiceOptions
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.ServiceOptions
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.UninterpretedOption
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "name" [Proto.Google.Protobuf.Descriptor.UninterpretedOption'NamePart]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "vec'name" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.UninterpretedOption'NamePart)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "identifierValue" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "maybe'identifierValue" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "positiveIntValue" GHC.Word.Word64
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "maybe'positiveIntValue" (GHC.Maybe.Maybe GHC.Word.Word64)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "negativeIntValue" GHC.Int.Int64
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "maybe'negativeIntValue" (GHC.Maybe.Maybe GHC.Int.Int64)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "doubleValue" GHC.Types.Double
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "maybe'doubleValue" (GHC.Maybe.Maybe GHC.Types.Double)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "stringValue" Data.ByteString.Internal.ByteString
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "maybe'stringValue" (GHC.Maybe.Maybe Data.ByteString.Internal.ByteString)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "aggregateValue" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption "maybe'aggregateValue" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.UninterpretedOption
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.UninterpretedOption
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.UninterpretedOption'NamePart
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption'NamePart "namePart" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.UninterpretedOption'NamePart "isExtension" GHC.Types.Bool
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.UninterpretedOption'NamePart
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.UninterpretedOption'NamePart
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.SourceCodeInfo
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.SourceCodeInfo "location" [Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.SourceCodeInfo "vec'location" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.SourceCodeInfo
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.SourceCodeInfo
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location "path" [GHC.Int.Int32]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location "vec'path" (Data.Vector.Unboxed.Base.Vector GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location "span" [GHC.Int.Int32]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location "vec'span" (Data.Vector.Unboxed.Base.Vector GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location "leadingComments" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location "maybe'leadingComments" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location "trailingComments" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location "maybe'trailingComments" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location "leadingDetachedComments" [Data.Text.Internal.Text]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location "vec'leadingDetachedComments" (Data.Vector.Vector Data.Text.Internal.Text)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.SourceCodeInfo'Location
+instance Data.ProtoLens.Message.MessageEnum Proto.Google.Protobuf.Descriptor.MethodOptions'IdempotencyLevel
+instance GHC.Enum.Bounded Proto.Google.Protobuf.Descriptor.MethodOptions'IdempotencyLevel
+instance GHC.Enum.Enum Proto.Google.Protobuf.Descriptor.MethodOptions'IdempotencyLevel
+instance Data.ProtoLens.Message.FieldDefault Proto.Google.Protobuf.Descriptor.MethodOptions'IdempotencyLevel
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.MethodOptions'IdempotencyLevel
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo "annotation" [Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo "vec'annotation" (Data.Vector.Vector Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation "path" [GHC.Int.Int32]
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation "vec'path" (Data.Vector.Unboxed.Base.Vector GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation "sourceFile" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation "maybe'sourceFile" (GHC.Maybe.Maybe Data.Text.Internal.Text)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation "begin" GHC.Int.Int32
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation "maybe'begin" (GHC.Maybe.Maybe GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation "end" GHC.Int.Int32
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation "maybe'end" (GHC.Maybe.Maybe GHC.Int.Int32)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.GeneratedCodeInfo'Annotation
+instance Data.ProtoLens.Message.MessageEnum Proto.Google.Protobuf.Descriptor.FileOptions'OptimizeMode
+instance GHC.Enum.Bounded Proto.Google.Protobuf.Descriptor.FileOptions'OptimizeMode
+instance GHC.Enum.Enum Proto.Google.Protobuf.Descriptor.FileOptions'OptimizeMode
+instance Data.ProtoLens.Message.FieldDefault Proto.Google.Protobuf.Descriptor.FileOptions'OptimizeMode
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.FileOptions'OptimizeMode
+instance Data.ProtoLens.Message.MessageEnum Proto.Google.Protobuf.Descriptor.FieldOptions'JSType
+instance GHC.Enum.Bounded Proto.Google.Protobuf.Descriptor.FieldOptions'JSType
+instance GHC.Enum.Enum Proto.Google.Protobuf.Descriptor.FieldOptions'JSType
+instance Data.ProtoLens.Message.FieldDefault Proto.Google.Protobuf.Descriptor.FieldOptions'JSType
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.FieldOptions'JSType
+instance Data.ProtoLens.Message.MessageEnum Proto.Google.Protobuf.Descriptor.FieldOptions'CType
+instance GHC.Enum.Bounded Proto.Google.Protobuf.Descriptor.FieldOptions'CType
+instance GHC.Enum.Enum Proto.Google.Protobuf.Descriptor.FieldOptions'CType
+instance Data.ProtoLens.Message.FieldDefault Proto.Google.Protobuf.Descriptor.FieldOptions'CType
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.FieldOptions'CType
+instance Data.ProtoLens.Message.MessageEnum Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Type
+instance GHC.Enum.Bounded Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Type
+instance GHC.Enum.Enum Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Type
+instance Data.ProtoLens.Message.FieldDefault Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Type
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Type
+instance Data.ProtoLens.Message.MessageEnum Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Label
+instance GHC.Enum.Bounded Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Label
+instance GHC.Enum.Enum Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Label
+instance Data.ProtoLens.Message.FieldDefault Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Label
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.FieldDescriptorProto'Label
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.EnumDescriptorProto'EnumReservedRange
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto'EnumReservedRange "start" GHC.Int.Int32
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto'EnumReservedRange "maybe'start" (GHC.Maybe.Maybe GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto'EnumReservedRange "end" GHC.Int.Int32
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.EnumDescriptorProto'EnumReservedRange "maybe'end" (GHC.Maybe.Maybe GHC.Int.Int32)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.EnumDescriptorProto'EnumReservedRange
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.EnumDescriptorProto'EnumReservedRange
+instance GHC.Show.Show Proto.Google.Protobuf.Descriptor.DescriptorProto'ReservedRange
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto'ReservedRange "start" GHC.Int.Int32
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto'ReservedRange "maybe'start" (GHC.Maybe.Maybe GHC.Int.Int32)
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto'ReservedRange "end" GHC.Int.Int32
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Descriptor.DescriptorProto'ReservedRange "maybe'end" (GHC.Maybe.Maybe GHC.Int.Int32)
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Descriptor.DescriptorProto'ReservedRange
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Descriptor.DescriptorProto'ReservedRange
+
+module Proto.Gogo.Protobuf.Gogoproto.Gogo_Fields
+
+module Proto.Gogo.Protobuf.Gogoproto.Gogo
+
+module Proto.Google.Protobuf.Descriptor_Fields
+aggregateValue :: forall f s a. (Functor f, HasField s "aggregateValue" a) => LensLike' f s a
+allowAlias :: forall f s a. (Functor f, HasField s "allowAlias" a) => LensLike' f s a
+annotation :: forall f s a. (Functor f, HasField s "annotation" a) => LensLike' f s a
+begin :: forall f s a. (Functor f, HasField s "begin" a) => LensLike' f s a
+ccEnableArenas :: forall f s a. (Functor f, HasField s "ccEnableArenas" a) => LensLike' f s a
+ccGenericServices :: forall f s a. (Functor f, HasField s "ccGenericServices" a) => LensLike' f s a
+clientStreaming :: forall f s a. (Functor f, HasField s "clientStreaming" a) => LensLike' f s a
+csharpNamespace :: forall f s a. (Functor f, HasField s "csharpNamespace" a) => LensLike' f s a
+ctype :: forall f s a. (Functor f, HasField s "ctype" a) => LensLike' f s a
+defaultValue :: forall f s a. (Functor f, HasField s "defaultValue" a) => LensLike' f s a
+dependency :: forall f s a. (Functor f, HasField s "dependency" a) => LensLike' f s a
+deprecated :: forall f s a. (Functor f, HasField s "deprecated" a) => LensLike' f s a
+doubleValue :: forall f s a. (Functor f, HasField s "doubleValue" a) => LensLike' f s a
+end :: forall f s a. (Functor f, HasField s "end" a) => LensLike' f s a
+enumType :: forall f s a. (Functor f, HasField s "enumType" a) => LensLike' f s a
+extendee :: forall f s a. (Functor f, HasField s "extendee" a) => LensLike' f s a
+extension :: forall f s a. (Functor f, HasField s "extension" a) => LensLike' f s a
+extensionRange :: forall f s a. (Functor f, HasField s "extensionRange" a) => LensLike' f s a
+field :: forall f s a. (Functor f, HasField s "field" a) => LensLike' f s a
+file :: forall f s a. (Functor f, HasField s "file" a) => LensLike' f s a
+goPackage :: forall f s a. (Functor f, HasField s "goPackage" a) => LensLike' f s a
+idempotencyLevel :: forall f s a. (Functor f, HasField s "idempotencyLevel" a) => LensLike' f s a
+identifierValue :: forall f s a. (Functor f, HasField s "identifierValue" a) => LensLike' f s a
+inputType :: forall f s a. (Functor f, HasField s "inputType" a) => LensLike' f s a
+isExtension :: forall f s a. (Functor f, HasField s "isExtension" a) => LensLike' f s a
+javaGenerateEqualsAndHash :: forall f s a. (Functor f, HasField s "javaGenerateEqualsAndHash" a) => LensLike' f s a
+javaGenericServices :: forall f s a. (Functor f, HasField s "javaGenericServices" a) => LensLike' f s a
+javaMultipleFiles :: forall f s a. (Functor f, HasField s "javaMultipleFiles" a) => LensLike' f s a
+javaOuterClassname :: forall f s a. (Functor f, HasField s "javaOuterClassname" a) => LensLike' f s a
+javaPackage :: forall f s a. (Functor f, HasField s "javaPackage" a) => LensLike' f s a
+javaStringCheckUtf8 :: forall f s a. (Functor f, HasField s "javaStringCheckUtf8" a) => LensLike' f s a
+jsonName :: forall f s a. (Functor f, HasField s "jsonName" a) => LensLike' f s a
+jstype :: forall f s a. (Functor f, HasField s "jstype" a) => LensLike' f s a
+label :: forall f s a. (Functor f, HasField s "label" a) => LensLike' f s a
+lazy :: forall f s a. (Functor f, HasField s "lazy" a) => LensLike' f s a
+leadingComments :: forall f s a. (Functor f, HasField s "leadingComments" a) => LensLike' f s a
+leadingDetachedComments :: forall f s a. (Functor f, HasField s "leadingDetachedComments" a) => LensLike' f s a
+location :: forall f s a. (Functor f, HasField s "location" a) => LensLike' f s a
+mapEntry :: forall f s a. (Functor f, HasField s "mapEntry" a) => LensLike' f s a
+maybe'aggregateValue :: forall f s a. (Functor f, HasField s "maybe'aggregateValue" a) => LensLike' f s a
+maybe'allowAlias :: forall f s a. (Functor f, HasField s "maybe'allowAlias" a) => LensLike' f s a
+maybe'begin :: forall f s a. (Functor f, HasField s "maybe'begin" a) => LensLike' f s a
+maybe'ccEnableArenas :: forall f s a. (Functor f, HasField s "maybe'ccEnableArenas" a) => LensLike' f s a
+maybe'ccGenericServices :: forall f s a. (Functor f, HasField s "maybe'ccGenericServices" a) => LensLike' f s a
+maybe'clientStreaming :: forall f s a. (Functor f, HasField s "maybe'clientStreaming" a) => LensLike' f s a
+maybe'csharpNamespace :: forall f s a. (Functor f, HasField s "maybe'csharpNamespace" a) => LensLike' f s a
+maybe'ctype :: forall f s a. (Functor f, HasField s "maybe'ctype" a) => LensLike' f s a
+maybe'defaultValue :: forall f s a. (Functor f, HasField s "maybe'defaultValue" a) => LensLike' f s a
+maybe'deprecated :: forall f s a. (Functor f, HasField s "maybe'deprecated" a) => LensLike' f s a
+maybe'doubleValue :: forall f s a. (Functor f, HasField s "maybe'doubleValue" a) => LensLike' f s a
+maybe'end :: forall f s a. (Functor f, HasField s "maybe'end" a) => LensLike' f s a
+maybe'extendee :: forall f s a. (Functor f, HasField s "maybe'extendee" a) => LensLike' f s a
+maybe'goPackage :: forall f s a. (Functor f, HasField s "maybe'goPackage" a) => LensLike' f s a
+maybe'idempotencyLevel :: forall f s a. (Functor f, HasField s "maybe'idempotencyLevel" a) => LensLike' f s a
+maybe'identifierValue :: forall f s a. (Functor f, HasField s "maybe'identifierValue" a) => LensLike' f s a
+maybe'inputType :: forall f s a. (Functor f, HasField s "maybe'inputType" a) => LensLike' f s a
+maybe'javaGenerateEqualsAndHash :: forall f s a. (Functor f, HasField s "maybe'javaGenerateEqualsAndHash" a) => LensLike' f s a
+maybe'javaGenericServices :: forall f s a. (Functor f, HasField s "maybe'javaGenericServices" a) => LensLike' f s a
+maybe'javaMultipleFiles :: forall f s a. (Functor f, HasField s "maybe'javaMultipleFiles" a) => LensLike' f s a
+maybe'javaOuterClassname :: forall f s a. (Functor f, HasField s "maybe'javaOuterClassname" a) => LensLike' f s a
+maybe'javaPackage :: forall f s a. (Functor f, HasField s "maybe'javaPackage" a) => LensLike' f s a
+maybe'javaStringCheckUtf8 :: forall f s a. (Functor f, HasField s "maybe'javaStringCheckUtf8" a) => LensLike' f s a
+maybe'jsonName :: forall f s a. (Functor f, HasField s "maybe'jsonName" a) => LensLike' f s a
+maybe'jstype :: forall f s a. (Functor f, HasField s "maybe'jstype" a) => LensLike' f s a
+maybe'label :: forall f s a. (Functor f, HasField s "maybe'label" a) => LensLike' f s a
+maybe'lazy :: forall f s a. (Functor f, HasField s "maybe'lazy" a) => LensLike' f s a
+maybe'leadingComments :: forall f s a. (Functor f, HasField s "maybe'leadingComments" a) => LensLike' f s a
+maybe'mapEntry :: forall f s a. (Functor f, HasField s "maybe'mapEntry" a) => LensLike' f s a
+maybe'messageSetWireFormat :: forall f s a. (Functor f, HasField s "maybe'messageSetWireFormat" a) => LensLike' f s a
+maybe'name :: forall f s a. (Functor f, HasField s "maybe'name" a) => LensLike' f s a
+maybe'negativeIntValue :: forall f s a. (Functor f, HasField s "maybe'negativeIntValue" a) => LensLike' f s a
+maybe'noStandardDescriptorAccessor :: forall f s a. (Functor f, HasField s "maybe'noStandardDescriptorAccessor" a) => LensLike' f s a
+maybe'number :: forall f s a. (Functor f, HasField s "maybe'number" a) => LensLike' f s a
+maybe'objcClassPrefix :: forall f s a. (Functor f, HasField s "maybe'objcClassPrefix" a) => LensLike' f s a
+maybe'oneofIndex :: forall f s a. (Functor f, HasField s "maybe'oneofIndex" a) => LensLike' f s a
+maybe'optimizeFor :: forall f s a. (Functor f, HasField s "maybe'optimizeFor" a) => LensLike' f s a
+maybe'options :: forall f s a. (Functor f, HasField s "maybe'options" a) => LensLike' f s a
+maybe'outputType :: forall f s a. (Functor f, HasField s "maybe'outputType" a) => LensLike' f s a
+maybe'package :: forall f s a. (Functor f, HasField s "maybe'package" a) => LensLike' f s a
+maybe'packed :: forall f s a. (Functor f, HasField s "maybe'packed" a) => LensLike' f s a
+maybe'phpClassPrefix :: forall f s a. (Functor f, HasField s "maybe'phpClassPrefix" a) => LensLike' f s a
+maybe'phpGenericServices :: forall f s a. (Functor f, HasField s "maybe'phpGenericServices" a) => LensLike' f s a
+maybe'phpMetadataNamespace :: forall f s a. (Functor f, HasField s "maybe'phpMetadataNamespace" a) => LensLike' f s a
+maybe'phpNamespace :: forall f s a. (Functor f, HasField s "maybe'phpNamespace" a) => LensLike' f s a
+maybe'positiveIntValue :: forall f s a. (Functor f, HasField s "maybe'positiveIntValue" a) => LensLike' f s a
+maybe'pyGenericServices :: forall f s a. (Functor f, HasField s "maybe'pyGenericServices" a) => LensLike' f s a
+maybe'rubyPackage :: forall f s a. (Functor f, HasField s "maybe'rubyPackage" a) => LensLike' f s a
+maybe'serverStreaming :: forall f s a. (Functor f, HasField s "maybe'serverStreaming" a) => LensLike' f s a
+maybe'sourceCodeInfo :: forall f s a. (Functor f, HasField s "maybe'sourceCodeInfo" a) => LensLike' f s a
+maybe'sourceFile :: forall f s a. (Functor f, HasField s "maybe'sourceFile" a) => LensLike' f s a
+maybe'start :: forall f s a. (Functor f, HasField s "maybe'start" a) => LensLike' f s a
+maybe'stringValue :: forall f s a. (Functor f, HasField s "maybe'stringValue" a) => LensLike' f s a
+maybe'swiftPrefix :: forall f s a. (Functor f, HasField s "maybe'swiftPrefix" a) => LensLike' f s a
+maybe'syntax :: forall f s a. (Functor f, HasField s "maybe'syntax" a) => LensLike' f s a
+maybe'trailingComments :: forall f s a. (Functor f, HasField s "maybe'trailingComments" a) => LensLike' f s a
+maybe'type' :: forall f s a. (Functor f, HasField s "maybe'type'" a) => LensLike' f s a
+maybe'typeName :: forall f s a. (Functor f, HasField s "maybe'typeName" a) => LensLike' f s a
+maybe'weak :: forall f s a. (Functor f, HasField s "maybe'weak" a) => LensLike' f s a
+messageSetWireFormat :: forall f s a. (Functor f, HasField s "messageSetWireFormat" a) => LensLike' f s a
+messageType :: forall f s a. (Functor f, HasField s "messageType" a) => LensLike' f s a
+method :: forall f s a. (Functor f, HasField s "method" a) => LensLike' f s a
+name :: forall f s a. (Functor f, HasField s "name" a) => LensLike' f s a
+namePart :: forall f s a. (Functor f, HasField s "namePart" a) => LensLike' f s a
+negativeIntValue :: forall f s a. (Functor f, HasField s "negativeIntValue" a) => LensLike' f s a
+nestedType :: forall f s a. (Functor f, HasField s "nestedType" a) => LensLike' f s a
+noStandardDescriptorAccessor :: forall f s a. (Functor f, HasField s "noStandardDescriptorAccessor" a) => LensLike' f s a
+number :: forall f s a. (Functor f, HasField s "number" a) => LensLike' f s a
+objcClassPrefix :: forall f s a. (Functor f, HasField s "objcClassPrefix" a) => LensLike' f s a
+oneofDecl :: forall f s a. (Functor f, HasField s "oneofDecl" a) => LensLike' f s a
+oneofIndex :: forall f s a. (Functor f, HasField s "oneofIndex" a) => LensLike' f s a
+optimizeFor :: forall f s a. (Functor f, HasField s "optimizeFor" a) => LensLike' f s a
+options :: forall f s a. (Functor f, HasField s "options" a) => LensLike' f s a
+outputType :: forall f s a. (Functor f, HasField s "outputType" a) => LensLike' f s a
+package :: forall f s a. (Functor f, HasField s "package" a) => LensLike' f s a
+packed :: forall f s a. (Functor f, HasField s "packed" a) => LensLike' f s a
+path :: forall f s a. (Functor f, HasField s "path" a) => LensLike' f s a
+phpClassPrefix :: forall f s a. (Functor f, HasField s "phpClassPrefix" a) => LensLike' f s a
+phpGenericServices :: forall f s a. (Functor f, HasField s "phpGenericServices" a) => LensLike' f s a
+phpMetadataNamespace :: forall f s a. (Functor f, HasField s "phpMetadataNamespace" a) => LensLike' f s a
+phpNamespace :: forall f s a. (Functor f, HasField s "phpNamespace" a) => LensLike' f s a
+positiveIntValue :: forall f s a. (Functor f, HasField s "positiveIntValue" a) => LensLike' f s a
+publicDependency :: forall f s a. (Functor f, HasField s "publicDependency" a) => LensLike' f s a
+pyGenericServices :: forall f s a. (Functor f, HasField s "pyGenericServices" a) => LensLike' f s a
+reservedName :: forall f s a. (Functor f, HasField s "reservedName" a) => LensLike' f s a
+reservedRange :: forall f s a. (Functor f, HasField s "reservedRange" a) => LensLike' f s a
+rubyPackage :: forall f s a. (Functor f, HasField s "rubyPackage" a) => LensLike' f s a
+serverStreaming :: forall f s a. (Functor f, HasField s "serverStreaming" a) => LensLike' f s a
+service :: forall f s a. (Functor f, HasField s "service" a) => LensLike' f s a
+sourceCodeInfo :: forall f s a. (Functor f, HasField s "sourceCodeInfo" a) => LensLike' f s a
+sourceFile :: forall f s a. (Functor f, HasField s "sourceFile" a) => LensLike' f s a
+span :: forall f s a. (Functor f, HasField s "span" a) => LensLike' f s a
+start :: forall f s a. (Functor f, HasField s "start" a) => LensLike' f s a
+stringValue :: forall f s a. (Functor f, HasField s "stringValue" a) => LensLike' f s a
+swiftPrefix :: forall f s a. (Functor f, HasField s "swiftPrefix" a) => LensLike' f s a
+syntax :: forall f s a. (Functor f, HasField s "syntax" a) => LensLike' f s a
+trailingComments :: forall f s a. (Functor f, HasField s "trailingComments" a) => LensLike' f s a
+type' :: forall f s a. (Functor f, HasField s "type'" a) => LensLike' f s a
+typeName :: forall f s a. (Functor f, HasField s "typeName" a) => LensLike' f s a
+uninterpretedOption :: forall f s a. (Functor f, HasField s "uninterpretedOption" a) => LensLike' f s a
+value :: forall f s a. (Functor f, HasField s "value" a) => LensLike' f s a
+vec'annotation :: forall f s a. (Functor f, HasField s "vec'annotation" a) => LensLike' f s a
+vec'dependency :: forall f s a. (Functor f, HasField s "vec'dependency" a) => LensLike' f s a
+vec'enumType :: forall f s a. (Functor f, HasField s "vec'enumType" a) => LensLike' f s a
+vec'extension :: forall f s a. (Functor f, HasField s "vec'extension" a) => LensLike' f s a
+vec'extensionRange :: forall f s a. (Functor f, HasField s "vec'extensionRange" a) => LensLike' f s a
+vec'field :: forall f s a. (Functor f, HasField s "vec'field" a) => LensLike' f s a
+vec'file :: forall f s a. (Functor f, HasField s "vec'file" a) => LensLike' f s a
+vec'leadingDetachedComments :: forall f s a. (Functor f, HasField s "vec'leadingDetachedComments" a) => LensLike' f s a
+vec'location :: forall f s a. (Functor f, HasField s "vec'location" a) => LensLike' f s a
+vec'messageType :: forall f s a. (Functor f, HasField s "vec'messageType" a) => LensLike' f s a
+vec'method :: forall f s a. (Functor f, HasField s "vec'method" a) => LensLike' f s a
+vec'name :: forall f s a. (Functor f, HasField s "vec'name" a) => LensLike' f s a
+vec'nestedType :: forall f s a. (Functor f, HasField s "vec'nestedType" a) => LensLike' f s a
+vec'oneofDecl :: forall f s a. (Functor f, HasField s "vec'oneofDecl" a) => LensLike' f s a
+vec'path :: forall f s a. (Functor f, HasField s "vec'path" a) => LensLike' f s a
+vec'publicDependency :: forall f s a. (Functor f, HasField s "vec'publicDependency" a) => LensLike' f s a
+vec'reservedName :: forall f s a. (Functor f, HasField s "vec'reservedName" a) => LensLike' f s a
+vec'reservedRange :: forall f s a. (Functor f, HasField s "vec'reservedRange" a) => LensLike' f s a
+vec'service :: forall f s a. (Functor f, HasField s "vec'service" a) => LensLike' f s a
+vec'span :: forall f s a. (Functor f, HasField s "vec'span" a) => LensLike' f s a
+vec'uninterpretedOption :: forall f s a. (Functor f, HasField s "vec'uninterpretedOption" a) => LensLike' f s a
+vec'value :: forall f s a. (Functor f, HasField s "vec'value" a) => LensLike' f s a
+vec'weakDependency :: forall f s a. (Functor f, HasField s "vec'weakDependency" a) => LensLike' f s a
+weak :: forall f s a. (Functor f, HasField s "weak" a) => LensLike' f s a
+weakDependency :: forall f s a. (Functor f, HasField s "weakDependency" a) => LensLike' f s a
+
+module Proto.Google.Protobuf.Timestamp
 
 -- | Fields :
 --   
@@ -95,19 +1384,19 @@ module Proto.Vendored.Google.Protobuf.Timestamp
 --   <li><a>nanos</a> <tt>:: Lens' Timestamp Data.Int.Int32</tt></li>
 --   </ul>
 data Timestamp
-instance GHC.Classes.Ord Proto.Vendored.Google.Protobuf.Timestamp.Timestamp
-instance GHC.Classes.Eq Proto.Vendored.Google.Protobuf.Timestamp.Timestamp
-instance GHC.Show.Show Proto.Vendored.Google.Protobuf.Timestamp.Timestamp
-instance Data.ProtoLens.Field.HasField Proto.Vendored.Google.Protobuf.Timestamp.Timestamp "seconds" GHC.Int.Int64
-instance Data.ProtoLens.Field.HasField Proto.Vendored.Google.Protobuf.Timestamp.Timestamp "nanos" GHC.Int.Int32
-instance Data.ProtoLens.Message.Message Proto.Vendored.Google.Protobuf.Timestamp.Timestamp
-instance Control.DeepSeq.NFData Proto.Vendored.Google.Protobuf.Timestamp.Timestamp
+instance GHC.Classes.Ord Proto.Google.Protobuf.Timestamp.Timestamp
+instance GHC.Classes.Eq Proto.Google.Protobuf.Timestamp.Timestamp
+instance GHC.Show.Show Proto.Google.Protobuf.Timestamp.Timestamp
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Timestamp.Timestamp "seconds" GHC.Int.Int64
+instance Data.ProtoLens.Field.HasField Proto.Google.Protobuf.Timestamp.Timestamp "nanos" GHC.Int.Int32
+instance Data.ProtoLens.Message.Message Proto.Google.Protobuf.Timestamp.Timestamp
+instance Control.DeepSeq.NFData Proto.Google.Protobuf.Timestamp.Timestamp
 
-module Proto.Vendored.Google.Protobuf.Timestamp_Fields
+module Proto.Google.Protobuf.Timestamp_Fields
 nanos :: forall f s a. (Functor f, HasField s "nanos" a) => LensLike' f s a
 seconds :: forall f s a. (Functor f, HasField s "seconds" a) => LensLike' f s a
 
-module Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle
+module Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle
 
 -- | Fields :
 --   
@@ -128,30 +1417,30 @@ data Proof
 --   Data.ByteString.ByteString</tt></li>
 --   </ul>
 data ProofOp
-instance GHC.Classes.Ord Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof
-instance GHC.Classes.Eq Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof
-instance GHC.Classes.Ord Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp
-instance GHC.Classes.Eq Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp
-instance GHC.Show.Show Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof
-instance Data.ProtoLens.Field.HasField Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof "ops" [Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp]
-instance Data.ProtoLens.Field.HasField Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof "vec'ops" (Data.Vector.Vector Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp)
-instance Data.ProtoLens.Message.Message Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof
-instance Control.DeepSeq.NFData Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof
-instance GHC.Show.Show Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp
-instance Data.ProtoLens.Field.HasField Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp "type'" Data.Text.Internal.Text
-instance Data.ProtoLens.Field.HasField Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp "key" Data.ByteString.Internal.ByteString
-instance Data.ProtoLens.Field.HasField Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp "data'" Data.ByteString.Internal.ByteString
-instance Data.ProtoLens.Message.Message Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp
-instance Control.DeepSeq.NFData Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp
+instance GHC.Classes.Ord Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof
+instance GHC.Classes.Eq Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof
+instance GHC.Classes.Ord Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp
+instance GHC.Classes.Eq Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp
+instance GHC.Show.Show Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof
+instance Data.ProtoLens.Field.HasField Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof "ops" [Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp]
+instance Data.ProtoLens.Field.HasField Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof "vec'ops" (Data.Vector.Vector Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp)
+instance Data.ProtoLens.Message.Message Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof
+instance Control.DeepSeq.NFData Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof
+instance GHC.Show.Show Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp
+instance Data.ProtoLens.Field.HasField Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp "type'" Data.Text.Internal.Text
+instance Data.ProtoLens.Field.HasField Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp "key" Data.ByteString.Internal.ByteString
+instance Data.ProtoLens.Field.HasField Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp "data'" Data.ByteString.Internal.ByteString
+instance Data.ProtoLens.Message.Message Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp
+instance Control.DeepSeq.NFData Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.ProofOp
 
-module Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
+module Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle_Fields
 data' :: forall f s a. (Functor f, HasField s "data'" a) => LensLike' f s a
 key :: forall f s a. (Functor f, HasField s "key" a) => LensLike' f s a
 ops :: forall f s a. (Functor f, HasField s "ops" a) => LensLike' f s a
 type' :: forall f s a. (Functor f, HasField s "type'" a) => LensLike' f s a
 vec'ops :: forall f s a. (Functor f, HasField s "vec'ops" a) => LensLike' f s a
 
-module Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types
+module Proto.Tendermint.Tendermint.Libs.Common.Types
 
 -- | Fields :
 --   
@@ -171,132 +1460,24 @@ data KI64Pair
 --   Data.ByteString.ByteString</tt></li>
 --   </ul>
 data KVPair
-instance GHC.Classes.Ord Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KVPair
-instance GHC.Classes.Eq Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KVPair
-instance GHC.Classes.Ord Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KI64Pair
-instance GHC.Classes.Eq Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KI64Pair
-instance GHC.Show.Show Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KVPair
-instance Data.ProtoLens.Field.HasField Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KVPair "key" Data.ByteString.Internal.ByteString
-instance Data.ProtoLens.Field.HasField Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KVPair "value" Data.ByteString.Internal.ByteString
-instance Data.ProtoLens.Message.Message Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KVPair
-instance Control.DeepSeq.NFData Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KVPair
-instance GHC.Show.Show Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KI64Pair
-instance Data.ProtoLens.Field.HasField Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KI64Pair "key" Data.ByteString.Internal.ByteString
-instance Data.ProtoLens.Field.HasField Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KI64Pair "value" GHC.Int.Int64
-instance Data.ProtoLens.Message.Message Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KI64Pair
-instance Control.DeepSeq.NFData Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KI64Pair
+instance GHC.Classes.Ord Proto.Tendermint.Tendermint.Libs.Common.Types.KVPair
+instance GHC.Classes.Eq Proto.Tendermint.Tendermint.Libs.Common.Types.KVPair
+instance GHC.Classes.Ord Proto.Tendermint.Tendermint.Libs.Common.Types.KI64Pair
+instance GHC.Classes.Eq Proto.Tendermint.Tendermint.Libs.Common.Types.KI64Pair
+instance GHC.Show.Show Proto.Tendermint.Tendermint.Libs.Common.Types.KVPair
+instance Data.ProtoLens.Field.HasField Proto.Tendermint.Tendermint.Libs.Common.Types.KVPair "key" Data.ByteString.Internal.ByteString
+instance Data.ProtoLens.Field.HasField Proto.Tendermint.Tendermint.Libs.Common.Types.KVPair "value" Data.ByteString.Internal.ByteString
+instance Data.ProtoLens.Message.Message Proto.Tendermint.Tendermint.Libs.Common.Types.KVPair
+instance Control.DeepSeq.NFData Proto.Tendermint.Tendermint.Libs.Common.Types.KVPair
+instance GHC.Show.Show Proto.Tendermint.Tendermint.Libs.Common.Types.KI64Pair
+instance Data.ProtoLens.Field.HasField Proto.Tendermint.Tendermint.Libs.Common.Types.KI64Pair "key" Data.ByteString.Internal.ByteString
+instance Data.ProtoLens.Field.HasField Proto.Tendermint.Tendermint.Libs.Common.Types.KI64Pair "value" GHC.Int.Int64
+instance Data.ProtoLens.Message.Message Proto.Tendermint.Tendermint.Libs.Common.Types.KI64Pair
+instance Control.DeepSeq.NFData Proto.Tendermint.Tendermint.Libs.Common.Types.KI64Pair
 
-module Proto.Types_Fields
-address :: forall f s a. (Functor f, HasField s "address" a) => LensLike' f s a
-app :: forall f s a. (Functor f, HasField s "app" a) => LensLike' f s a
-appHash :: forall f s a. (Functor f, HasField s "appHash" a) => LensLike' f s a
-appStateBytes :: forall f s a. (Functor f, HasField s "appStateBytes" a) => LensLike' f s a
-appVersion :: forall f s a. (Functor f, HasField s "appVersion" a) => LensLike' f s a
-attributes :: forall f s a. (Functor f, HasField s "attributes" a) => LensLike' f s a
-beginBlock :: forall f s a. (Functor f, HasField s "beginBlock" a) => LensLike' f s a
-block :: forall f s a. (Functor f, HasField s "block" a) => LensLike' f s a
-blockVersion :: forall f s a. (Functor f, HasField s "blockVersion" a) => LensLike' f s a
-byzantineValidators :: forall f s a. (Functor f, HasField s "byzantineValidators" a) => LensLike' f s a
-chainId :: forall f s a. (Functor f, HasField s "chainId" a) => LensLike' f s a
-checkTx :: forall f s a. (Functor f, HasField s "checkTx" a) => LensLike' f s a
-code :: forall f s a. (Functor f, HasField s "code" a) => LensLike' f s a
-codespace :: forall f s a. (Functor f, HasField s "codespace" a) => LensLike' f s a
-commit :: forall f s a. (Functor f, HasField s "commit" a) => LensLike' f s a
-consensusHash :: forall f s a. (Functor f, HasField s "consensusHash" a) => LensLike' f s a
-consensusParamUpdates :: forall f s a. (Functor f, HasField s "consensusParamUpdates" a) => LensLike' f s a
-consensusParams :: forall f s a. (Functor f, HasField s "consensusParams" a) => LensLike' f s a
-data' :: forall f s a. (Functor f, HasField s "data'" a) => LensLike' f s a
-dataHash :: forall f s a. (Functor f, HasField s "dataHash" a) => LensLike' f s a
-deliverTx :: forall f s a. (Functor f, HasField s "deliverTx" a) => LensLike' f s a
-echo :: forall f s a. (Functor f, HasField s "echo" a) => LensLike' f s a
-endBlock :: forall f s a. (Functor f, HasField s "endBlock" a) => LensLike' f s a
-error :: forall f s a. (Functor f, HasField s "error" a) => LensLike' f s a
-events :: forall f s a. (Functor f, HasField s "events" a) => LensLike' f s a
-evidence :: forall f s a. (Functor f, HasField s "evidence" a) => LensLike' f s a
-evidenceHash :: forall f s a. (Functor f, HasField s "evidenceHash" a) => LensLike' f s a
-exception :: forall f s a. (Functor f, HasField s "exception" a) => LensLike' f s a
-flush :: forall f s a. (Functor f, HasField s "flush" a) => LensLike' f s a
-gasUsed :: forall f s a. (Functor f, HasField s "gasUsed" a) => LensLike' f s a
-gasWanted :: forall f s a. (Functor f, HasField s "gasWanted" a) => LensLike' f s a
-hash :: forall f s a. (Functor f, HasField s "hash" a) => LensLike' f s a
-header :: forall f s a. (Functor f, HasField s "header" a) => LensLike' f s a
-height :: forall f s a. (Functor f, HasField s "height" a) => LensLike' f s a
-index :: forall f s a. (Functor f, HasField s "index" a) => LensLike' f s a
-info :: forall f s a. (Functor f, HasField s "info" a) => LensLike' f s a
-initChain :: forall f s a. (Functor f, HasField s "initChain" a) => LensLike' f s a
+module Proto.Tendermint.Tendermint.Libs.Common.Types_Fields
 key :: forall f s a. (Functor f, HasField s "key" a) => LensLike' f s a
-lastBlockAppHash :: forall f s a. (Functor f, HasField s "lastBlockAppHash" a) => LensLike' f s a
-lastBlockHeight :: forall f s a. (Functor f, HasField s "lastBlockHeight" a) => LensLike' f s a
-lastBlockId :: forall f s a. (Functor f, HasField s "lastBlockId" a) => LensLike' f s a
-lastCommitHash :: forall f s a. (Functor f, HasField s "lastCommitHash" a) => LensLike' f s a
-lastCommitInfo :: forall f s a. (Functor f, HasField s "lastCommitInfo" a) => LensLike' f s a
-lastResultsHash :: forall f s a. (Functor f, HasField s "lastResultsHash" a) => LensLike' f s a
-log :: forall f s a. (Functor f, HasField s "log" a) => LensLike' f s a
-maxAge :: forall f s a. (Functor f, HasField s "maxAge" a) => LensLike' f s a
-maxBytes :: forall f s a. (Functor f, HasField s "maxBytes" a) => LensLike' f s a
-maxGas :: forall f s a. (Functor f, HasField s "maxGas" a) => LensLike' f s a
-maybe'beginBlock :: forall f s a. (Functor f, HasField s "maybe'beginBlock" a) => LensLike' f s a
-maybe'block :: forall f s a. (Functor f, HasField s "maybe'block" a) => LensLike' f s a
-maybe'checkTx :: forall f s a. (Functor f, HasField s "maybe'checkTx" a) => LensLike' f s a
-maybe'commit :: forall f s a. (Functor f, HasField s "maybe'commit" a) => LensLike' f s a
-maybe'consensusParamUpdates :: forall f s a. (Functor f, HasField s "maybe'consensusParamUpdates" a) => LensLike' f s a
-maybe'consensusParams :: forall f s a. (Functor f, HasField s "maybe'consensusParams" a) => LensLike' f s a
-maybe'deliverTx :: forall f s a. (Functor f, HasField s "maybe'deliverTx" a) => LensLike' f s a
-maybe'echo :: forall f s a. (Functor f, HasField s "maybe'echo" a) => LensLike' f s a
-maybe'endBlock :: forall f s a. (Functor f, HasField s "maybe'endBlock" a) => LensLike' f s a
-maybe'evidence :: forall f s a. (Functor f, HasField s "maybe'evidence" a) => LensLike' f s a
-maybe'exception :: forall f s a. (Functor f, HasField s "maybe'exception" a) => LensLike' f s a
-maybe'flush :: forall f s a. (Functor f, HasField s "maybe'flush" a) => LensLike' f s a
-maybe'header :: forall f s a. (Functor f, HasField s "maybe'header" a) => LensLike' f s a
-maybe'info :: forall f s a. (Functor f, HasField s "maybe'info" a) => LensLike' f s a
-maybe'initChain :: forall f s a. (Functor f, HasField s "maybe'initChain" a) => LensLike' f s a
-maybe'lastBlockId :: forall f s a. (Functor f, HasField s "maybe'lastBlockId" a) => LensLike' f s a
-maybe'lastCommitInfo :: forall f s a. (Functor f, HasField s "maybe'lastCommitInfo" a) => LensLike' f s a
-maybe'partsHeader :: forall f s a. (Functor f, HasField s "maybe'partsHeader" a) => LensLike' f s a
-maybe'proof :: forall f s a. (Functor f, HasField s "maybe'proof" a) => LensLike' f s a
-maybe'pubKey :: forall f s a. (Functor f, HasField s "maybe'pubKey" a) => LensLike' f s a
-maybe'query :: forall f s a. (Functor f, HasField s "maybe'query" a) => LensLike' f s a
-maybe'setOption :: forall f s a. (Functor f, HasField s "maybe'setOption" a) => LensLike' f s a
-maybe'time :: forall f s a. (Functor f, HasField s "maybe'time" a) => LensLike' f s a
-maybe'validator :: forall f s a. (Functor f, HasField s "maybe'validator" a) => LensLike' f s a
-maybe'value :: forall f s a. (Functor f, HasField s "maybe'value" a) => LensLike' f s a
-maybe'version :: forall f s a. (Functor f, HasField s "maybe'version" a) => LensLike' f s a
-message :: forall f s a. (Functor f, HasField s "message" a) => LensLike' f s a
-nextValidatorsHash :: forall f s a. (Functor f, HasField s "nextValidatorsHash" a) => LensLike' f s a
-numTxs :: forall f s a. (Functor f, HasField s "numTxs" a) => LensLike' f s a
-p2pVersion :: forall f s a. (Functor f, HasField s "p2pVersion" a) => LensLike' f s a
-partsHeader :: forall f s a. (Functor f, HasField s "partsHeader" a) => LensLike' f s a
-path :: forall f s a. (Functor f, HasField s "path" a) => LensLike' f s a
-power :: forall f s a. (Functor f, HasField s "power" a) => LensLike' f s a
-proof :: forall f s a. (Functor f, HasField s "proof" a) => LensLike' f s a
-proposerAddress :: forall f s a. (Functor f, HasField s "proposerAddress" a) => LensLike' f s a
-prove :: forall f s a. (Functor f, HasField s "prove" a) => LensLike' f s a
-pubKey :: forall f s a. (Functor f, HasField s "pubKey" a) => LensLike' f s a
-pubKeyTypes :: forall f s a. (Functor f, HasField s "pubKeyTypes" a) => LensLike' f s a
-query :: forall f s a. (Functor f, HasField s "query" a) => LensLike' f s a
-round :: forall f s a. (Functor f, HasField s "round" a) => LensLike' f s a
-setOption :: forall f s a. (Functor f, HasField s "setOption" a) => LensLike' f s a
-signedLastBlock :: forall f s a. (Functor f, HasField s "signedLastBlock" a) => LensLike' f s a
-time :: forall f s a. (Functor f, HasField s "time" a) => LensLike' f s a
-total :: forall f s a. (Functor f, HasField s "total" a) => LensLike' f s a
-totalTxs :: forall f s a. (Functor f, HasField s "totalTxs" a) => LensLike' f s a
-totalVotingPower :: forall f s a. (Functor f, HasField s "totalVotingPower" a) => LensLike' f s a
-tx :: forall f s a. (Functor f, HasField s "tx" a) => LensLike' f s a
-type' :: forall f s a. (Functor f, HasField s "type'" a) => LensLike' f s a
-validator :: forall f s a. (Functor f, HasField s "validator" a) => LensLike' f s a
-validatorUpdates :: forall f s a. (Functor f, HasField s "validatorUpdates" a) => LensLike' f s a
-validators :: forall f s a. (Functor f, HasField s "validators" a) => LensLike' f s a
-validatorsHash :: forall f s a. (Functor f, HasField s "validatorsHash" a) => LensLike' f s a
 value :: forall f s a. (Functor f, HasField s "value" a) => LensLike' f s a
-vec'attributes :: forall f s a. (Functor f, HasField s "vec'attributes" a) => LensLike' f s a
-vec'byzantineValidators :: forall f s a. (Functor f, HasField s "vec'byzantineValidators" a) => LensLike' f s a
-vec'events :: forall f s a. (Functor f, HasField s "vec'events" a) => LensLike' f s a
-vec'pubKeyTypes :: forall f s a. (Functor f, HasField s "vec'pubKeyTypes" a) => LensLike' f s a
-vec'validatorUpdates :: forall f s a. (Functor f, HasField s "vec'validatorUpdates" a) => LensLike' f s a
-vec'validators :: forall f s a. (Functor f, HasField s "vec'validators" a) => LensLike' f s a
-vec'votes :: forall f s a. (Functor f, HasField s "vec'votes" a) => LensLike' f s a
-version :: forall f s a. (Functor f, HasField s "version" a) => LensLike' f s a
-votes :: forall f s a. (Functor f, HasField s "votes" a) => LensLike' f s a
 
 module Proto.Types
 data ABCIApplication
@@ -343,9 +1524,9 @@ data ConsensusParams
 --   <ul>
 --   <li><a>type'</a> <tt>:: Lens' Event Data.Text.Text</tt></li>
 --   <li><a>attributes</a> <tt>:: Lens' Event
---   [Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KVPair]</tt></li>
+--   [Proto.Tendermint.Tendermint.Libs.Common.Types.KVPair]</tt></li>
 --   <li><a>vec'attributes</a> <tt>:: Lens' Event (Data.Vector.Vector
---   Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KVPair)</tt></li>
+--   Proto.Tendermint.Tendermint.Libs.Common.Types.KVPair)</tt></li>
 --   </ul>
 data Event
 
@@ -358,9 +1539,9 @@ data Event
 --   Validator)</tt></li>
 --   <li><a>height</a> <tt>:: Lens' Evidence Data.Int.Int64</tt></li>
 --   <li><a>time</a> <tt>:: Lens' Evidence
---   Proto.Vendored.Google.Protobuf.Timestamp.Timestamp</tt></li>
+--   Proto.Google.Protobuf.Timestamp.Timestamp</tt></li>
 --   <li><a>maybe'time</a> <tt>:: Lens' Evidence (Prelude.Maybe
---   Proto.Vendored.Google.Protobuf.Timestamp.Timestamp)</tt></li>
+--   Proto.Google.Protobuf.Timestamp.Timestamp)</tt></li>
 --   <li><a>totalVotingPower</a> <tt>:: Lens' Evidence
 --   Data.Int.Int64</tt></li>
 --   </ul>
@@ -382,9 +1563,9 @@ data EvidenceParams
 --   <li><a>chainId</a> <tt>:: Lens' Header Data.Text.Text</tt></li>
 --   <li><a>height</a> <tt>:: Lens' Header Data.Int.Int64</tt></li>
 --   <li><a>time</a> <tt>:: Lens' Header
---   Proto.Vendored.Google.Protobuf.Timestamp.Timestamp</tt></li>
+--   Proto.Google.Protobuf.Timestamp.Timestamp</tt></li>
 --   <li><a>maybe'time</a> <tt>:: Lens' Header (Prelude.Maybe
---   Proto.Vendored.Google.Protobuf.Timestamp.Timestamp)</tt></li>
+--   Proto.Google.Protobuf.Timestamp.Timestamp)</tt></li>
 --   <li><a>numTxs</a> <tt>:: Lens' Header Data.Int.Int64</tt></li>
 --   <li><a>totalTxs</a> <tt>:: Lens' Header Data.Int.Int64</tt></li>
 --   <li><a>lastBlockId</a> <tt>:: Lens' Header BlockID</tt></li>
@@ -574,9 +1755,9 @@ data RequestInfo
 --   
 --   <ul>
 --   <li><a>time</a> <tt>:: Lens' RequestInitChain
---   Proto.Vendored.Google.Protobuf.Timestamp.Timestamp</tt></li>
+--   Proto.Google.Protobuf.Timestamp.Timestamp</tt></li>
 --   <li><a>maybe'time</a> <tt>:: Lens' RequestInitChain (Prelude.Maybe
---   Proto.Vendored.Google.Protobuf.Timestamp.Timestamp)</tt></li>
+--   Proto.Google.Protobuf.Timestamp.Timestamp)</tt></li>
 --   <li><a>chainId</a> <tt>:: Lens' RequestInitChain
 --   Data.Text.Text</tt></li>
 --   <li><a>consensusParams</a> <tt>:: Lens' RequestInitChain
@@ -817,9 +1998,9 @@ data ResponseInitChain
 --   <li><a>value</a> <tt>:: Lens' ResponseQuery
 --   Data.ByteString.ByteString</tt></li>
 --   <li><a>proof</a> <tt>:: Lens' ResponseQuery
---   Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof</tt></li>
+--   Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof</tt></li>
 --   <li><a>maybe'proof</a> <tt>:: Lens' ResponseQuery (Prelude.Maybe
---   Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof)</tt></li>
+--   Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof)</tt></li>
 --   <li><a>height</a> <tt>:: Lens' ResponseQuery Data.Int.Int64</tt></li>
 --   <li><a>codespace</a> <tt>:: Lens' ResponseQuery
 --   Data.Text.Text</tt></li>
@@ -1036,8 +2217,8 @@ instance Data.ProtoLens.Field.HasField Proto.Types.Header "version" Proto.Types.
 instance Data.ProtoLens.Field.HasField Proto.Types.Header "maybe'version" (GHC.Maybe.Maybe Proto.Types.Version)
 instance Data.ProtoLens.Field.HasField Proto.Types.Header "chainId" Data.Text.Internal.Text
 instance Data.ProtoLens.Field.HasField Proto.Types.Header "height" GHC.Int.Int64
-instance Data.ProtoLens.Field.HasField Proto.Types.Header "time" Proto.Vendored.Google.Protobuf.Timestamp.Timestamp
-instance Data.ProtoLens.Field.HasField Proto.Types.Header "maybe'time" (GHC.Maybe.Maybe Proto.Vendored.Google.Protobuf.Timestamp.Timestamp)
+instance Data.ProtoLens.Field.HasField Proto.Types.Header "time" Proto.Google.Protobuf.Timestamp.Timestamp
+instance Data.ProtoLens.Field.HasField Proto.Types.Header "maybe'time" (GHC.Maybe.Maybe Proto.Google.Protobuf.Timestamp.Timestamp)
 instance Data.ProtoLens.Field.HasField Proto.Types.Header "numTxs" GHC.Int.Int64
 instance Data.ProtoLens.Field.HasField Proto.Types.Header "totalTxs" GHC.Int.Int64
 instance Data.ProtoLens.Field.HasField Proto.Types.Header "lastBlockId" Proto.Types.BlockID
@@ -1059,8 +2240,8 @@ instance Data.ProtoLens.Field.HasField Proto.Types.Version "app" GHC.Word.Word64
 instance Data.ProtoLens.Message.Message Proto.Types.Version
 instance Control.DeepSeq.NFData Proto.Types.Version
 instance GHC.Show.Show Proto.Types.RequestInitChain
-instance Data.ProtoLens.Field.HasField Proto.Types.RequestInitChain "time" Proto.Vendored.Google.Protobuf.Timestamp.Timestamp
-instance Data.ProtoLens.Field.HasField Proto.Types.RequestInitChain "maybe'time" (GHC.Maybe.Maybe Proto.Vendored.Google.Protobuf.Timestamp.Timestamp)
+instance Data.ProtoLens.Field.HasField Proto.Types.RequestInitChain "time" Proto.Google.Protobuf.Timestamp.Timestamp
+instance Data.ProtoLens.Field.HasField Proto.Types.RequestInitChain "maybe'time" (GHC.Maybe.Maybe Proto.Google.Protobuf.Timestamp.Timestamp)
 instance Data.ProtoLens.Field.HasField Proto.Types.RequestInitChain "chainId" Data.Text.Internal.Text
 instance Data.ProtoLens.Field.HasField Proto.Types.RequestInitChain "consensusParams" Proto.Types.ConsensusParams
 instance Data.ProtoLens.Field.HasField Proto.Types.RequestInitChain "maybe'consensusParams" (GHC.Maybe.Maybe Proto.Types.ConsensusParams)
@@ -1139,8 +2320,8 @@ instance Data.ProtoLens.Field.HasField Proto.Types.Evidence "type'" Data.Text.In
 instance Data.ProtoLens.Field.HasField Proto.Types.Evidence "validator" Proto.Types.Validator
 instance Data.ProtoLens.Field.HasField Proto.Types.Evidence "maybe'validator" (GHC.Maybe.Maybe Proto.Types.Validator)
 instance Data.ProtoLens.Field.HasField Proto.Types.Evidence "height" GHC.Int.Int64
-instance Data.ProtoLens.Field.HasField Proto.Types.Evidence "time" Proto.Vendored.Google.Protobuf.Timestamp.Timestamp
-instance Data.ProtoLens.Field.HasField Proto.Types.Evidence "maybe'time" (GHC.Maybe.Maybe Proto.Vendored.Google.Protobuf.Timestamp.Timestamp)
+instance Data.ProtoLens.Field.HasField Proto.Types.Evidence "time" Proto.Google.Protobuf.Timestamp.Timestamp
+instance Data.ProtoLens.Field.HasField Proto.Types.Evidence "maybe'time" (GHC.Maybe.Maybe Proto.Google.Protobuf.Timestamp.Timestamp)
 instance Data.ProtoLens.Field.HasField Proto.Types.Evidence "totalVotingPower" GHC.Int.Int64
 instance Data.ProtoLens.Message.Message Proto.Types.Evidence
 instance Control.DeepSeq.NFData Proto.Types.Evidence
@@ -1162,8 +2343,8 @@ instance Data.ProtoLens.Field.HasField Proto.Types.ResponseQuery "info" Data.Tex
 instance Data.ProtoLens.Field.HasField Proto.Types.ResponseQuery "index" GHC.Int.Int64
 instance Data.ProtoLens.Field.HasField Proto.Types.ResponseQuery "key" Data.ByteString.Internal.ByteString
 instance Data.ProtoLens.Field.HasField Proto.Types.ResponseQuery "value" Data.ByteString.Internal.ByteString
-instance Data.ProtoLens.Field.HasField Proto.Types.ResponseQuery "proof" Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof
-instance Data.ProtoLens.Field.HasField Proto.Types.ResponseQuery "maybe'proof" (GHC.Maybe.Maybe Proto.Vendored.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof)
+instance Data.ProtoLens.Field.HasField Proto.Types.ResponseQuery "proof" Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof
+instance Data.ProtoLens.Field.HasField Proto.Types.ResponseQuery "maybe'proof" (GHC.Maybe.Maybe Proto.Tendermint.Tendermint.Crypto.Merkle.Merkle.Proof)
 instance Data.ProtoLens.Field.HasField Proto.Types.ResponseQuery "height" GHC.Int.Int64
 instance Data.ProtoLens.Field.HasField Proto.Types.ResponseQuery "codespace" Data.Text.Internal.Text
 instance Data.ProtoLens.Message.Message Proto.Types.ResponseQuery
@@ -1282,8 +2463,8 @@ instance Data.ProtoLens.Message.Message Proto.Types.EvidenceParams
 instance Control.DeepSeq.NFData Proto.Types.EvidenceParams
 instance GHC.Show.Show Proto.Types.Event
 instance Data.ProtoLens.Field.HasField Proto.Types.Event "type'" Data.Text.Internal.Text
-instance Data.ProtoLens.Field.HasField Proto.Types.Event "attributes" [Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KVPair]
-instance Data.ProtoLens.Field.HasField Proto.Types.Event "vec'attributes" (Data.Vector.Vector Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types.KVPair)
+instance Data.ProtoLens.Field.HasField Proto.Types.Event "attributes" [Proto.Tendermint.Tendermint.Libs.Common.Types.KVPair]
+instance Data.ProtoLens.Field.HasField Proto.Types.Event "vec'attributes" (Data.Vector.Vector Proto.Tendermint.Tendermint.Libs.Common.Types.KVPair)
 instance Data.ProtoLens.Message.Message Proto.Types.Event
 instance Control.DeepSeq.NFData Proto.Types.Event
 instance GHC.Show.Show Proto.Types.BlockParams
@@ -1292,9 +2473,117 @@ instance Data.ProtoLens.Field.HasField Proto.Types.BlockParams "maxGas" GHC.Int.
 instance Data.ProtoLens.Message.Message Proto.Types.BlockParams
 instance Control.DeepSeq.NFData Proto.Types.BlockParams
 
-module Proto.Vendored.Tendermint.Tendermint.Libs.Common.Types_Fields
+module Proto.Types_Fields
+address :: forall f s a. (Functor f, HasField s "address" a) => LensLike' f s a
+app :: forall f s a. (Functor f, HasField s "app" a) => LensLike' f s a
+appHash :: forall f s a. (Functor f, HasField s "appHash" a) => LensLike' f s a
+appStateBytes :: forall f s a. (Functor f, HasField s "appStateBytes" a) => LensLike' f s a
+appVersion :: forall f s a. (Functor f, HasField s "appVersion" a) => LensLike' f s a
+attributes :: forall f s a. (Functor f, HasField s "attributes" a) => LensLike' f s a
+beginBlock :: forall f s a. (Functor f, HasField s "beginBlock" a) => LensLike' f s a
+block :: forall f s a. (Functor f, HasField s "block" a) => LensLike' f s a
+blockVersion :: forall f s a. (Functor f, HasField s "blockVersion" a) => LensLike' f s a
+byzantineValidators :: forall f s a. (Functor f, HasField s "byzantineValidators" a) => LensLike' f s a
+chainId :: forall f s a. (Functor f, HasField s "chainId" a) => LensLike' f s a
+checkTx :: forall f s a. (Functor f, HasField s "checkTx" a) => LensLike' f s a
+code :: forall f s a. (Functor f, HasField s "code" a) => LensLike' f s a
+codespace :: forall f s a. (Functor f, HasField s "codespace" a) => LensLike' f s a
+commit :: forall f s a. (Functor f, HasField s "commit" a) => LensLike' f s a
+consensusHash :: forall f s a. (Functor f, HasField s "consensusHash" a) => LensLike' f s a
+consensusParamUpdates :: forall f s a. (Functor f, HasField s "consensusParamUpdates" a) => LensLike' f s a
+consensusParams :: forall f s a. (Functor f, HasField s "consensusParams" a) => LensLike' f s a
+data' :: forall f s a. (Functor f, HasField s "data'" a) => LensLike' f s a
+dataHash :: forall f s a. (Functor f, HasField s "dataHash" a) => LensLike' f s a
+deliverTx :: forall f s a. (Functor f, HasField s "deliverTx" a) => LensLike' f s a
+echo :: forall f s a. (Functor f, HasField s "echo" a) => LensLike' f s a
+endBlock :: forall f s a. (Functor f, HasField s "endBlock" a) => LensLike' f s a
+error :: forall f s a. (Functor f, HasField s "error" a) => LensLike' f s a
+events :: forall f s a. (Functor f, HasField s "events" a) => LensLike' f s a
+evidence :: forall f s a. (Functor f, HasField s "evidence" a) => LensLike' f s a
+evidenceHash :: forall f s a. (Functor f, HasField s "evidenceHash" a) => LensLike' f s a
+exception :: forall f s a. (Functor f, HasField s "exception" a) => LensLike' f s a
+flush :: forall f s a. (Functor f, HasField s "flush" a) => LensLike' f s a
+gasUsed :: forall f s a. (Functor f, HasField s "gasUsed" a) => LensLike' f s a
+gasWanted :: forall f s a. (Functor f, HasField s "gasWanted" a) => LensLike' f s a
+hash :: forall f s a. (Functor f, HasField s "hash" a) => LensLike' f s a
+header :: forall f s a. (Functor f, HasField s "header" a) => LensLike' f s a
+height :: forall f s a. (Functor f, HasField s "height" a) => LensLike' f s a
+index :: forall f s a. (Functor f, HasField s "index" a) => LensLike' f s a
+info :: forall f s a. (Functor f, HasField s "info" a) => LensLike' f s a
+initChain :: forall f s a. (Functor f, HasField s "initChain" a) => LensLike' f s a
 key :: forall f s a. (Functor f, HasField s "key" a) => LensLike' f s a
+lastBlockAppHash :: forall f s a. (Functor f, HasField s "lastBlockAppHash" a) => LensLike' f s a
+lastBlockHeight :: forall f s a. (Functor f, HasField s "lastBlockHeight" a) => LensLike' f s a
+lastBlockId :: forall f s a. (Functor f, HasField s "lastBlockId" a) => LensLike' f s a
+lastCommitHash :: forall f s a. (Functor f, HasField s "lastCommitHash" a) => LensLike' f s a
+lastCommitInfo :: forall f s a. (Functor f, HasField s "lastCommitInfo" a) => LensLike' f s a
+lastResultsHash :: forall f s a. (Functor f, HasField s "lastResultsHash" a) => LensLike' f s a
+log :: forall f s a. (Functor f, HasField s "log" a) => LensLike' f s a
+maxAge :: forall f s a. (Functor f, HasField s "maxAge" a) => LensLike' f s a
+maxBytes :: forall f s a. (Functor f, HasField s "maxBytes" a) => LensLike' f s a
+maxGas :: forall f s a. (Functor f, HasField s "maxGas" a) => LensLike' f s a
+maybe'beginBlock :: forall f s a. (Functor f, HasField s "maybe'beginBlock" a) => LensLike' f s a
+maybe'block :: forall f s a. (Functor f, HasField s "maybe'block" a) => LensLike' f s a
+maybe'checkTx :: forall f s a. (Functor f, HasField s "maybe'checkTx" a) => LensLike' f s a
+maybe'commit :: forall f s a. (Functor f, HasField s "maybe'commit" a) => LensLike' f s a
+maybe'consensusParamUpdates :: forall f s a. (Functor f, HasField s "maybe'consensusParamUpdates" a) => LensLike' f s a
+maybe'consensusParams :: forall f s a. (Functor f, HasField s "maybe'consensusParams" a) => LensLike' f s a
+maybe'deliverTx :: forall f s a. (Functor f, HasField s "maybe'deliverTx" a) => LensLike' f s a
+maybe'echo :: forall f s a. (Functor f, HasField s "maybe'echo" a) => LensLike' f s a
+maybe'endBlock :: forall f s a. (Functor f, HasField s "maybe'endBlock" a) => LensLike' f s a
+maybe'evidence :: forall f s a. (Functor f, HasField s "maybe'evidence" a) => LensLike' f s a
+maybe'exception :: forall f s a. (Functor f, HasField s "maybe'exception" a) => LensLike' f s a
+maybe'flush :: forall f s a. (Functor f, HasField s "maybe'flush" a) => LensLike' f s a
+maybe'header :: forall f s a. (Functor f, HasField s "maybe'header" a) => LensLike' f s a
+maybe'info :: forall f s a. (Functor f, HasField s "maybe'info" a) => LensLike' f s a
+maybe'initChain :: forall f s a. (Functor f, HasField s "maybe'initChain" a) => LensLike' f s a
+maybe'lastBlockId :: forall f s a. (Functor f, HasField s "maybe'lastBlockId" a) => LensLike' f s a
+maybe'lastCommitInfo :: forall f s a. (Functor f, HasField s "maybe'lastCommitInfo" a) => LensLike' f s a
+maybe'partsHeader :: forall f s a. (Functor f, HasField s "maybe'partsHeader" a) => LensLike' f s a
+maybe'proof :: forall f s a. (Functor f, HasField s "maybe'proof" a) => LensLike' f s a
+maybe'pubKey :: forall f s a. (Functor f, HasField s "maybe'pubKey" a) => LensLike' f s a
+maybe'query :: forall f s a. (Functor f, HasField s "maybe'query" a) => LensLike' f s a
+maybe'setOption :: forall f s a. (Functor f, HasField s "maybe'setOption" a) => LensLike' f s a
+maybe'time :: forall f s a. (Functor f, HasField s "maybe'time" a) => LensLike' f s a
+maybe'validator :: forall f s a. (Functor f, HasField s "maybe'validator" a) => LensLike' f s a
+maybe'value :: forall f s a. (Functor f, HasField s "maybe'value" a) => LensLike' f s a
+maybe'version :: forall f s a. (Functor f, HasField s "maybe'version" a) => LensLike' f s a
+message :: forall f s a. (Functor f, HasField s "message" a) => LensLike' f s a
+nextValidatorsHash :: forall f s a. (Functor f, HasField s "nextValidatorsHash" a) => LensLike' f s a
+numTxs :: forall f s a. (Functor f, HasField s "numTxs" a) => LensLike' f s a
+p2pVersion :: forall f s a. (Functor f, HasField s "p2pVersion" a) => LensLike' f s a
+partsHeader :: forall f s a. (Functor f, HasField s "partsHeader" a) => LensLike' f s a
+path :: forall f s a. (Functor f, HasField s "path" a) => LensLike' f s a
+power :: forall f s a. (Functor f, HasField s "power" a) => LensLike' f s a
+proof :: forall f s a. (Functor f, HasField s "proof" a) => LensLike' f s a
+proposerAddress :: forall f s a. (Functor f, HasField s "proposerAddress" a) => LensLike' f s a
+prove :: forall f s a. (Functor f, HasField s "prove" a) => LensLike' f s a
+pubKey :: forall f s a. (Functor f, HasField s "pubKey" a) => LensLike' f s a
+pubKeyTypes :: forall f s a. (Functor f, HasField s "pubKeyTypes" a) => LensLike' f s a
+query :: forall f s a. (Functor f, HasField s "query" a) => LensLike' f s a
+round :: forall f s a. (Functor f, HasField s "round" a) => LensLike' f s a
+setOption :: forall f s a. (Functor f, HasField s "setOption" a) => LensLike' f s a
+signedLastBlock :: forall f s a. (Functor f, HasField s "signedLastBlock" a) => LensLike' f s a
+time :: forall f s a. (Functor f, HasField s "time" a) => LensLike' f s a
+total :: forall f s a. (Functor f, HasField s "total" a) => LensLike' f s a
+totalTxs :: forall f s a. (Functor f, HasField s "totalTxs" a) => LensLike' f s a
+totalVotingPower :: forall f s a. (Functor f, HasField s "totalVotingPower" a) => LensLike' f s a
+tx :: forall f s a. (Functor f, HasField s "tx" a) => LensLike' f s a
+type' :: forall f s a. (Functor f, HasField s "type'" a) => LensLike' f s a
+validator :: forall f s a. (Functor f, HasField s "validator" a) => LensLike' f s a
+validatorUpdates :: forall f s a. (Functor f, HasField s "validatorUpdates" a) => LensLike' f s a
+validators :: forall f s a. (Functor f, HasField s "validators" a) => LensLike' f s a
+validatorsHash :: forall f s a. (Functor f, HasField s "validatorsHash" a) => LensLike' f s a
 value :: forall f s a. (Functor f, HasField s "value" a) => LensLike' f s a
+vec'attributes :: forall f s a. (Functor f, HasField s "vec'attributes" a) => LensLike' f s a
+vec'byzantineValidators :: forall f s a. (Functor f, HasField s "vec'byzantineValidators" a) => LensLike' f s a
+vec'events :: forall f s a. (Functor f, HasField s "vec'events" a) => LensLike' f s a
+vec'pubKeyTypes :: forall f s a. (Functor f, HasField s "vec'pubKeyTypes" a) => LensLike' f s a
+vec'validatorUpdates :: forall f s a. (Functor f, HasField s "vec'validatorUpdates" a) => LensLike' f s a
+vec'validators :: forall f s a. (Functor f, HasField s "vec'validators" a) => LensLike' f s a
+vec'votes :: forall f s a. (Functor f, HasField s "vec'votes" a) => LensLike' f s a
+version :: forall f s a. (Functor f, HasField s "version" a) => LensLike' f s a
+votes :: forall f s a. (Functor f, HasField s "votes" a) => LensLike' f s a
 
 module Network.ABCI.Types.Messages.FieldTypes
 newtype WrappedVal a

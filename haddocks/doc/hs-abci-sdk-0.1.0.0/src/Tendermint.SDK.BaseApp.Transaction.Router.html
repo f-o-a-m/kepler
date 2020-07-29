@@ -1,130 +1,833 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE UndecidableInstances #-}</span><span>
-</span><a name="line-2"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp.Transaction.Router</span><span>
-</span><a name="line-3"></a><span>  </span><span class="hs-special">(</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
-</span><a name="line-4"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#emptyTxServer"><span class="hs-identifier hs-var">emptyTxServer</span></a><span>
-</span><a name="line-5"></a><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-6"></a><span>
-</span><a name="line-7"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Monad.IO.Class</span><span>                         </span><span class="hs-special">(</span><span class="hs-identifier hs-var">liftIO</span><span class="hs-special">)</span><span>
-</span><a name="line-8"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.ByteString</span><span>                                </span><span class="hs-special">(</span><span class="hs-identifier hs-type">ByteString</span><span class="hs-special">)</span><span>
-</span><a name="line-9"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Monoid</span><span>
-</span><a name="line-10"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Proxy</span><span>
-</span><a name="line-11"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.String.Conversions</span><span>                        </span><span class="hs-special">(</span><span class="hs-identifier hs-var">cs</span><span class="hs-special">)</span><span>
-</span><a name="line-12"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">GHC.TypeLits</span><span>                                   </span><span class="hs-special">(</span><span class="hs-identifier hs-type">KnownSymbol</span><span class="hs-special">,</span><span>
-</span><a name="line-13"></a><span>                                                                 </span><span class="hs-identifier hs-var">symbolVal</span><span class="hs-special">)</span><span>
-</span><a name="line-14"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy</span><span>                                       </span><span class="hs-special">(</span><span class="hs-identifier hs-type">EffectRow</span><span class="hs-special">,</span><span>
-</span><a name="line-15"></a><span>                                                                 </span><span class="hs-identifier hs-type">Embed</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Members</span><span class="hs-special">,</span><span>
-</span><a name="line-16"></a><span>                                                                 </span><span class="hs-identifier hs-type">Sem</span><span class="hs-special">)</span><span>
-</span><a name="line-17"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy.Tagged</span><span>                                </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Tagged</span><span class="hs-special">)</span><span>
-</span><a name="line-18"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Servant.API</span><span>
-</span><a name="line-19"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><a href="Tendermint.SDK.BaseApp.Router.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Router</span></a><span>                  </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">R</span><span>
-</span><a name="line-20"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Store.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store</span></a><span>                   </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a><span class="hs-special">,</span><span>
-</span><a name="line-21"></a><span>                                                                 </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Scope"><span class="hs-identifier hs-type">Scope</span></a><span class="hs-special">)</span><span>
-</span><a name="line-22"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Transaction.AnteHandler.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Transaction.AnteHandler</span></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.AnteHandler.html#AnteHandler"><span class="hs-identifier hs-type">AnteHandler</span></a><span class="hs-special">)</span><span>
-</span><a name="line-23"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Transaction.Cache</span></a><span>       </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a><span class="hs-special">)</span><span>
-</span><a name="line-24"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Transaction.Effect</span></a><span>      </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#TxEffs"><span class="hs-identifier hs-type">TxEffs</span></a><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#runTx"><span class="hs-identifier hs-var">runTx</span></a><span class="hs-special">)</span><span>
-</span><a name="line-25"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Transaction.Types</span></a><span>
-</span><a name="line-26"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.Codec.html"><span class="hs-identifier">Tendermint.SDK.Codec</span></a><span>                           </span><span class="hs-special">(</span><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-27"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.Types.Effects.html"><span class="hs-identifier">Tendermint.SDK.Types.Effects</span></a><span>                   </span><span class="hs-special">(</span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-28"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.Types.Message.html"><span class="hs-identifier">Tendermint.SDK.Types.Message</span></a><span>                   </span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.Message.html#HasMessageType"><span class="hs-identifier hs-type">HasMessageType</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-29"></a><span>                                                                 </span><a href="Tendermint.SDK.Types.Message.html#Msg"><span class="hs-identifier hs-type">Msg</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-30"></a><span class="hs-keyword">import</span><span>           </span><a href="Tendermint.SDK.Types.TxResult.html"><span class="hs-identifier">Tendermint.SDK.Types.TxResult</span></a><span>                  </span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a><span class="hs-special">)</span><span>
-</span><a name="line-31"></a><span>
-</span><a name="line-32"></a><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
-</span><a name="line-33"></a><span>
-</span><a name="line-34"></a><span class="hs-keyword">class</span><span> </span><a name="HasTxRouter"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier">HasTxRouter</span></a></a><span> </span><a name="local-6989586621679438405"><a href="#local-6989586621679438405"><span class="hs-identifier">layout</span></a></a><span> </span><span class="hs-special">(</span><a name="local-6989586621679438406"><a href="#local-6989586621679438406"><span class="hs-identifier">r</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">EffectRow</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><a name="local-6989586621679438407"><a href="#local-6989586621679438407"><span class="hs-identifier">scope</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Scope"><span class="hs-identifier hs-type">Scope</span></a><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-35"></a><span>  </span><span class="hs-keyword">type</span><span> </span><a name="RouteTx"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier">RouteTx</span></a></a><span> </span><a name="local-6989586621679438405"><a href="#local-6989586621679438405"><span class="hs-identifier">layout</span></a></a><span> </span><span class="hs-special">(</span><a name="local-6989586621679438408"><a href="#local-6989586621679438408"><span class="hs-identifier">s</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">EffectRow</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-operator">*</span><span>
-</span><a name="line-36"></a><span>  </span><a name="routeTx"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#routeTx"><span class="hs-identifier">routeTx</span></a></a><span>
-</span><a name="line-37"></a><span>        </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Proxy</span><span> </span><a href="#local-6989586621679438405"><span class="hs-identifier hs-type">layout</span></a><span>
-</span><a name="line-38"></a><span>        </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Proxy</span><span> </span><a href="#local-6989586621679438406"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-39"></a><span>        </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Proxy</span><span> </span><a href="#local-6989586621679438407"><span class="hs-identifier hs-type">scope</span></a><span>
-</span><a name="line-40"></a><span>        </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#Delayed"><span class="hs-identifier hs-type">R.Delayed</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="#local-6989586621679438406"><span class="hs-identifier hs-type">r</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438409"><span class="hs-identifier hs-type">env</span></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a><span> </span><span class="hs-identifier hs-type">ByteString</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a><span> </span><a href="#local-6989586621679438405"><span class="hs-identifier hs-type">layout</span></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-identifier hs-type">TxEffs</span></a><span> </span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a><span> </span><a href="#local-6989586621679438406"><span class="hs-identifier hs-type">r</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-41"></a><span>        </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Router.Router.html#Router"><span class="hs-identifier hs-type">R.Router</span></a><span> </span><a href="#local-6989586621679438409"><span class="hs-identifier hs-type">env</span></a><span> </span><a href="#local-6989586621679438406"><span class="hs-identifier hs-type">r</span></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a><span> </span><span class="hs-identifier hs-type">ByteString</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Maybe</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a><span class="hs-special">)</span><span>
-</span><a name="line-42"></a><span>
-</span><a name="line-43"></a><span>  </span><a name="applyAnteHandler"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#applyAnteHandler"><span class="hs-identifier">applyAnteHandler</span></a></a><span>
-</span><a name="line-44"></a><span>    </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Proxy</span><span> </span><a href="#local-6989586621679438405"><span class="hs-identifier hs-type">layout</span></a><span>
-</span><a name="line-45"></a><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Proxy</span><span> </span><a href="#local-6989586621679438406"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-46"></a><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Proxy</span><span> </span><a href="#local-6989586621679438407"><span class="hs-identifier hs-type">scope</span></a><span>
-</span><a name="line-47"></a><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.AnteHandler.html#AnteHandler"><span class="hs-identifier hs-type">AnteHandler</span></a><span> </span><a href="#local-6989586621679438406"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-48"></a><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a><span> </span><a href="#local-6989586621679438405"><span class="hs-identifier hs-type">layout</span></a><span> </span><a href="#local-6989586621679438406"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-49"></a><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a><span> </span><a href="#local-6989586621679438405"><span class="hs-identifier hs-type">layout</span></a><span> </span><a href="#local-6989586621679438406"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-50"></a><span>
-</span><a name="line-51"></a><span>  </span><a name="hoistTxRouter"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#hoistTxRouter"><span class="hs-identifier">hoistTxRouter</span></a></a><span>
-</span><a name="line-52"></a><span>    </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Proxy</span><span> </span><a href="#local-6989586621679438405"><span class="hs-identifier hs-type">layout</span></a><span>
-</span><a name="line-53"></a><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Proxy</span><span> </span><a href="#local-6989586621679438406"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-54"></a><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Proxy</span><span> </span><a href="#local-6989586621679438407"><span class="hs-identifier hs-type">scope</span></a><span>
-</span><a name="line-55"></a><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-keyword">forall</span><span> </span><a name="local-6989586621679438412"><a href="#local-6989586621679438412"><span class="hs-identifier">a</span></a></a><span class="hs-operator">.</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="#local-6989586621679438410"><span class="hs-identifier hs-type">s</span></a><span> </span><a href="#local-6989586621679438412"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="#local-6989586621679438411"><span class="hs-identifier hs-type">s'</span></a><span> </span><a href="#local-6989586621679438412"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span>
-</span><a name="line-56"></a><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a><span> </span><a href="#local-6989586621679438405"><span class="hs-identifier hs-type">layout</span></a><span> </span><a href="#local-6989586621679438410"><span class="hs-identifier hs-type">s</span></a><span>
-</span><a name="line-57"></a><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a><span> </span><a href="#local-6989586621679438405"><span class="hs-identifier hs-type">layout</span></a><span> </span><a href="#local-6989586621679438411"><span class="hs-identifier hs-type">s'</span></a><span>
-</span><a name="line-58"></a><span>
-</span><a name="line-59"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a><span> </span><a href="#local-6989586621679438445"><span class="hs-identifier hs-type">a</span></a><span> </span><a href="#local-6989586621679438446"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679438447"><span class="hs-identifier hs-type">scope</span></a><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a><span> </span><a href="#local-6989586621679438448"><span class="hs-identifier hs-type">b</span></a><span> </span><a href="#local-6989586621679438446"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679438447"><span class="hs-identifier hs-type">scope</span></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">a</span><span> </span><span class="hs-operator hs-type">:&lt;|&gt;</span><span> </span><a href="#local-6989586621679438448"><span class="hs-identifier hs-type">b</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438446"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679438447"><span class="hs-identifier hs-type">scope</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-60"></a><span>  </span><span class="hs-keyword">type</span><span> </span><span class="hs-identifier">RouteTx</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">a</span><span> </span><span class="hs-operator hs-type">:&lt;|&gt;</span><span> </span><a href="#local-6989586621679438448"><span class="hs-identifier hs-type">b</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438464"><span class="hs-identifier hs-type">s</span></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-type">RouteTx</span><span> </span><a href="#local-6989586621679438445"><span class="hs-identifier hs-type">a</span></a><span> </span><a href="#local-6989586621679438464"><span class="hs-identifier hs-type">s</span></a><span> </span><span class="hs-operator">:&lt;|&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a><span> </span><a href="#local-6989586621679438448"><span class="hs-identifier hs-type">b</span></a><span> </span><a href="#local-6989586621679438464"><span class="hs-identifier hs-type">s</span></a><span>
-</span><a name="line-61"></a><span>
-</span><a name="line-62"></a><span>  </span><a name="local-8214565720324213311"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#routeTx"><span class="hs-identifier">routeTx</span></a></a><span> </span><span class="hs-identifier">_</span><span> </span><a name="local-6989586621679438449"><a href="#local-6989586621679438449"><span class="hs-identifier">pr</span></a></a><span> </span><a name="local-6989586621679438450"><a href="#local-6989586621679438450"><span class="hs-identifier">ps</span></a></a><span> </span><a name="local-6989586621679438451"><a href="#local-6989586621679438451"><span class="hs-identifier">server</span></a></a><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-63"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Router.Router.html#choice"><span class="hs-identifier hs-var">R.choice</span></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#routeTx"><span class="hs-identifier hs-var">routeTx</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">@</span><a href="#local-6989586621679438445"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438449"><span class="hs-identifier hs-var">pr</span></a><span> </span><a href="#local-6989586621679438450"><span class="hs-identifier hs-var">ps</span></a><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span class="hs-special">(</span><a name="local-6989586621679438452"><a href="#local-6989586621679438452"><span class="hs-identifier">a</span></a></a><span> </span><span class="hs-operator hs-var">:&lt;|&gt;</span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="#local-6989586621679438452"><span class="hs-identifier hs-var">a</span></a><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">&lt;$&gt;</span><span> </span><a href="#local-6989586621679438451"><span class="hs-identifier hs-var">server</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-64"></a><span>             </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#routeTx"><span class="hs-identifier hs-var">routeTx</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">@</span><a href="#local-6989586621679438448"><span class="hs-identifier hs-type">b</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438449"><span class="hs-identifier hs-var">pr</span></a><span> </span><a href="#local-6989586621679438450"><span class="hs-identifier hs-var">ps</span></a><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">_</span><span> </span><span class="hs-operator hs-var">:&lt;|&gt;</span><span> </span><a name="local-6989586621679438453"><a href="#local-6989586621679438453"><span class="hs-identifier">b</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="#local-6989586621679438453"><span class="hs-identifier hs-var">b</span></a><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">&lt;$&gt;</span><span> </span><a href="#local-6989586621679438451"><span class="hs-identifier hs-var">server</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-65"></a><span>
-</span><a name="line-66"></a><span>  </span><a name="local-8214565720324213312"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#applyAnteHandler"><span class="hs-identifier">applyAnteHandler</span></a></a><span> </span><span class="hs-identifier">_</span><span> </span><a name="local-6989586621679438454"><a href="#local-6989586621679438454"><span class="hs-identifier">pr</span></a></a><span> </span><a name="local-6989586621679438455"><a href="#local-6989586621679438455"><span class="hs-identifier">ps</span></a></a><span> </span><a name="local-6989586621679438456"><a href="#local-6989586621679438456"><span class="hs-identifier">ah</span></a></a><span> </span><span class="hs-special">(</span><a name="local-6989586621679438457"><a href="#local-6989586621679438457"><span class="hs-identifier">a</span></a></a><span> </span><span class="hs-operator hs-var">:&lt;|&gt;</span><span> </span><a name="local-6989586621679438458"><a href="#local-6989586621679438458"><span class="hs-identifier">b</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-67"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#applyAnteHandler"><span class="hs-identifier hs-var">applyAnteHandler</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">@</span><a href="#local-6989586621679438445"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438454"><span class="hs-identifier hs-var">pr</span></a><span> </span><a href="#local-6989586621679438455"><span class="hs-identifier hs-var">ps</span></a><span> </span><a href="#local-6989586621679438456"><span class="hs-identifier hs-var">ah</span></a><span> </span><a href="#local-6989586621679438457"><span class="hs-identifier hs-var">a</span></a><span> </span><span class="hs-operator hs-var">:&lt;|&gt;</span><span>
-</span><a name="line-68"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#applyAnteHandler"><span class="hs-identifier hs-var">applyAnteHandler</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">@</span><a href="#local-6989586621679438448"><span class="hs-identifier hs-type">b</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438454"><span class="hs-identifier hs-var">pr</span></a><span> </span><a href="#local-6989586621679438455"><span class="hs-identifier hs-var">ps</span></a><span> </span><a href="#local-6989586621679438456"><span class="hs-identifier hs-var">ah</span></a><span> </span><a href="#local-6989586621679438458"><span class="hs-identifier hs-var">b</span></a><span>
-</span><a name="line-69"></a><span>
-</span><a name="line-70"></a><span>  </span><a name="local-8214565720324213313"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#hoistTxRouter"><span class="hs-identifier">hoistTxRouter</span></a></a><span> </span><span class="hs-identifier">_</span><span> </span><a name="local-6989586621679438459"><a href="#local-6989586621679438459"><span class="hs-identifier">pr</span></a></a><span> </span><a name="local-6989586621679438460"><a href="#local-6989586621679438460"><span class="hs-identifier">nat</span></a></a><span> </span><a name="local-6989586621679438461"><a href="#local-6989586621679438461"><span class="hs-identifier">ps</span></a></a><span> </span><span class="hs-special">(</span><a name="local-6989586621679438462"><a href="#local-6989586621679438462"><span class="hs-identifier">a</span></a></a><span> </span><span class="hs-operator hs-var">:&lt;|&gt;</span><span> </span><a name="local-6989586621679438463"><a href="#local-6989586621679438463"><span class="hs-identifier">b</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-71"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#hoistTxRouter"><span class="hs-identifier hs-var">hoistTxRouter</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">@</span><a href="#local-6989586621679438445"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438459"><span class="hs-identifier hs-var">pr</span></a><span> </span><a href="#local-6989586621679438460"><span class="hs-identifier hs-var">nat</span></a><span> </span><a href="#local-6989586621679438461"><span class="hs-identifier hs-var">ps</span></a><span> </span><a href="#local-6989586621679438462"><span class="hs-identifier hs-var">a</span></a><span> </span><span class="hs-operator hs-var">:&lt;|&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#hoistTxRouter"><span class="hs-identifier hs-var">hoistTxRouter</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">@</span><a href="#local-6989586621679438448"><span class="hs-identifier hs-type">b</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438459"><span class="hs-identifier hs-var">pr</span></a><span> </span><a href="#local-6989586621679438460"><span class="hs-identifier hs-var">nat</span></a><span> </span><a href="#local-6989586621679438461"><span class="hs-identifier hs-var">ps</span></a><span> </span><a href="#local-6989586621679438463"><span class="hs-identifier hs-var">b</span></a><span>
-</span><a name="line-72"></a><span>
-</span><a name="line-73"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a><span> </span><a href="#local-6989586621679438430"><span class="hs-identifier hs-type">sublayout</span></a><span> </span><a href="#local-6989586621679438431"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679438432"><span class="hs-identifier hs-type">scope</span></a><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">KnownSymbol</span><span> </span><a href="#local-6989586621679438433"><span class="hs-identifier hs-type">path</span></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">path</span><span> </span><span class="hs-operator hs-type">:&gt;</span><span> </span><a href="#local-6989586621679438430"><span class="hs-identifier hs-type">sublayout</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438431"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679438432"><span class="hs-identifier hs-type">scope</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-74"></a><span>
-</span><a name="line-75"></a><span>  </span><span class="hs-keyword">type</span><span> </span><span class="hs-identifier">RouteTx</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">path</span><span> </span><span class="hs-operator hs-type">:&gt;</span><span> </span><a href="#local-6989586621679438430"><span class="hs-identifier hs-type">sublayout</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438444"><span class="hs-identifier hs-type">s</span></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a><span> </span><a href="#local-6989586621679438430"><span class="hs-identifier hs-type">sublayout</span></a><span> </span><a href="#local-6989586621679438444"><span class="hs-identifier hs-type">s</span></a><span>
-</span><a name="line-76"></a><span>
-</span><a name="line-77"></a><span>  </span><a name="local-8214565720324213311"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#routeTx"><span class="hs-identifier">routeTx</span></a></a><span> </span><span class="hs-identifier">_</span><span> </span><a name="local-6989586621679438434"><a href="#local-6989586621679438434"><span class="hs-identifier">pr</span></a></a><span> </span><a name="local-6989586621679438435"><a href="#local-6989586621679438435"><span class="hs-identifier">ps</span></a></a><span> </span><a name="local-6989586621679438436"><a href="#local-6989586621679438436"><span class="hs-identifier">subserver</span></a></a><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-78"></a><span>    </span><a href="Tendermint.SDK.BaseApp.Router.Router.html#pathRouter"><span class="hs-identifier hs-var">R.pathRouter</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">cs</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">symbolVal</span><span> </span><a href="#local-6989586621679438437"><span class="hs-identifier hs-var">proxyPath</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#routeTx"><span class="hs-identifier hs-var">routeTx</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">@</span><a href="#local-6989586621679438430"><span class="hs-identifier hs-type">sublayout</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438434"><span class="hs-identifier hs-var">pr</span></a><span> </span><a href="#local-6989586621679438435"><span class="hs-identifier hs-var">ps</span></a><span> </span><a href="#local-6989586621679438436"><span class="hs-identifier hs-var">subserver</span></a><span class="hs-special">)</span><span>
-</span><a name="line-79"></a><span>    </span><span class="hs-keyword">where</span><span> </span><a name="local-6989586621679438437"><a href="#local-6989586621679438437"><span class="hs-identifier">proxyPath</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">@</span><a href="#local-6989586621679438433"><span class="hs-identifier hs-type">path</span></a><span>
-</span><a name="line-80"></a><span>
-</span><a name="line-81"></a><span>  </span><a name="local-8214565720324213312"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#applyAnteHandler"><span class="hs-identifier">applyAnteHandler</span></a></a><span> </span><span class="hs-identifier">_</span><span> </span><a name="local-6989586621679438438"><a href="#local-6989586621679438438"><span class="hs-identifier">pr</span></a></a><span> </span><a name="local-6989586621679438439"><a href="#local-6989586621679438439"><span class="hs-identifier">ps</span></a></a><span> </span><a name="local-6989586621679438440"><a href="#local-6989586621679438440"><span class="hs-identifier">ah</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#applyAnteHandler"><span class="hs-identifier hs-var">applyAnteHandler</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">@</span><a href="#local-6989586621679438430"><span class="hs-identifier hs-type">sublayout</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438438"><span class="hs-identifier hs-var">pr</span></a><span> </span><a href="#local-6989586621679438439"><span class="hs-identifier hs-var">ps</span></a><span> </span><a href="#local-6989586621679438440"><span class="hs-identifier hs-var">ah</span></a><span>
-</span><a name="line-82"></a><span>
-</span><a name="line-83"></a><span>  </span><a name="local-8214565720324213313"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#hoistTxRouter"><span class="hs-identifier">hoistTxRouter</span></a></a><span> </span><span class="hs-identifier">_</span><span> </span><a name="local-6989586621679438441"><a href="#local-6989586621679438441"><span class="hs-identifier">pr</span></a></a><span> </span><a name="local-6989586621679438442"><a href="#local-6989586621679438442"><span class="hs-identifier">ps</span></a></a><span> </span><a name="local-6989586621679438443"><a href="#local-6989586621679438443"><span class="hs-identifier">nat</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#hoistTxRouter"><span class="hs-identifier hs-var">hoistTxRouter</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">@</span><a href="#local-6989586621679438430"><span class="hs-identifier hs-type">sublayout</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438441"><span class="hs-identifier hs-var">pr</span></a><span> </span><a href="#local-6989586621679438442"><span class="hs-identifier hs-var">ps</span></a><span> </span><a href="#local-6989586621679438443"><span class="hs-identifier hs-var">nat</span></a><span>
-</span><a name="line-84"></a><span>
-</span><a name="line-85"></a><span class="hs-identifier">methodRouter</span><span>
-</span><a name="line-86"></a><span>  </span><span class="hs-glyph">::</span><span> </span><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a><span> </span><a href="#local-6989586621679438466"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-87"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-identifier hs-type">Members</span><span> </span><span class="hs-special">[</span><span class="hs-identifier hs-type">Embed</span><span> </span><span class="hs-identifier hs-type">IO</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Tagged</span><span> </span><a href="#local-6989586621679438467"><span class="hs-identifier hs-type">scope</span></a><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a><span class="hs-special">]</span><span> </span><a href="#local-6989586621679438468"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-88"></a><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-identifier hs-type">Proxy</span><span> </span><a href="#local-6989586621679438467"><span class="hs-identifier hs-type">scope</span></a><span>
-</span><a name="line-89"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#Delayed"><span class="hs-identifier hs-type">R.Delayed</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="#local-6989586621679438468"><span class="hs-identifier hs-type">r</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438469"><span class="hs-identifier hs-type">env</span></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a><span> </span><a href="#local-6989586621679438470"><span class="hs-identifier hs-type">msg</span></a><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Sem</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-identifier hs-type">TxEffs</span></a><span> </span><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a><span> </span><a href="#local-6989586621679438468"><span class="hs-identifier hs-type">r</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438466"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span>
-</span><a name="line-90"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Router.Router.html#Router"><span class="hs-identifier hs-type">R.Router</span></a><span> </span><a href="#local-6989586621679438469"><span class="hs-identifier hs-type">env</span></a><span> </span><a href="#local-6989586621679438468"><span class="hs-identifier hs-type">r</span></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a><span> </span><a href="#local-6989586621679438470"><span class="hs-identifier hs-type">msg</span></a><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Maybe</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a><span class="hs-special">)</span><span>
-</span><a name="line-91"></a><a name="methodRouter"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#methodRouter"><span class="hs-identifier">methodRouter</span></a></a><span> </span><a name="local-6989586621679438471"><a href="#local-6989586621679438471"><span class="hs-identifier">ps</span></a></a><span> </span><a name="local-6989586621679438472"><a href="#local-6989586621679438472"><span class="hs-identifier">action</span></a></a><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-92"></a><span>  </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679438473"><a href="#local-6989586621679438473"><span class="hs-identifier">route'</span></a></a><span> </span><a name="local-6989586621679438474"><a href="#local-6989586621679438474"><span class="hs-identifier">env</span></a></a><span> </span><a name="local-6989586621679438475"><a href="#local-6989586621679438475"><span class="hs-identifier">tx</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-93"></a><span>        </span><a name="local-6989586621679438476"><a href="#local-6989586621679438476"><span class="hs-identifier">ctx</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">liftIO</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#newTransactionContext"><span class="hs-identifier hs-var">newTransactionContext</span></a><span> </span><a href="#local-6989586621679438475"><span class="hs-identifier hs-var">tx</span></a><span>
-</span><a name="line-94"></a><span>        </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679438477"><a href="#local-6989586621679438477"><span class="hs-identifier">action'</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#runTx"><span class="hs-identifier hs-var">runTx</span></a><span> </span><a href="#local-6989586621679438471"><span class="hs-identifier hs-var">ps</span></a><span> </span><a href="#local-6989586621679438476"><span class="hs-identifier hs-var">ctx</span></a><span> </span><span class="hs-operator hs-var">&lt;$&gt;</span><span> </span><a href="#local-6989586621679438472"><span class="hs-identifier hs-var">action</span></a><span>
-</span><a name="line-95"></a><span>        </span><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#runAction"><span class="hs-identifier hs-var">R.runAction</span></a><span> </span><a href="#local-6989586621679438477"><span class="hs-identifier hs-var">action'</span></a><span> </span><a href="#local-6989586621679438474"><span class="hs-identifier hs-var">env</span></a><span> </span><a href="#local-6989586621679438475"><span class="hs-identifier hs-var">tx</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.BaseApp.Router.Types.html#Route"><span class="hs-identifier hs-var">R.Route</span></a><span class="hs-special">)</span><span>
-</span><a name="line-96"></a><span>  </span><span class="hs-keyword">in</span><span> </span><a href="Tendermint.SDK.BaseApp.Router.Router.html#leafRouter"><span class="hs-identifier hs-var">R.leafRouter</span></a><span> </span><a href="#local-6989586621679438473"><span class="hs-identifier hs-var">route'</span></a><span>
-</span><a name="line-97"></a><span>
-</span><a name="line-98"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-special">(</span><span> </span><a href="Tendermint.SDK.Types.Message.html#HasMessageType"><span class="hs-identifier hs-type">HasMessageType</span></a><span> </span><a href="#local-6989586621679438415"><span class="hs-identifier hs-type">msg</span></a><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a><span> </span><a href="#local-6989586621679438415"><span class="hs-identifier hs-type">msg</span></a><span>
-</span><a name="line-99"></a><span>         </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Members</span><span> </span><span class="hs-special">[</span><span class="hs-identifier hs-type">Tagged</span><span> </span><a href="#local-6989586621679438416"><span class="hs-identifier hs-type">scope</span></a><span> </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Embed</span><span> </span><span class="hs-identifier hs-type">IO</span><span class="hs-special">]</span><span> </span><a href="#local-6989586621679438417"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-100"></a><span>         </span><span class="hs-special">,</span><span> </span><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a><span> </span><a href="#local-6989586621679438418"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-101"></a><span>         </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#%3A~%3E"><span class="hs-identifier hs-type">TypedMessage</span></a><span> </span><a href="#local-6989586621679438415"><span class="hs-identifier hs-type">msg</span></a><span> </span><span class="hs-operator">:~&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#Return"><span class="hs-identifier hs-type">Return</span></a><span> </span><a href="#local-6989586621679438418"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438417"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679438416"><span class="hs-identifier hs-type">scope</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-102"></a><span>
-</span><a name="line-103"></a><span>  </span><span class="hs-keyword">type</span><span> </span><span class="hs-identifier">RouteTx</span><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#%3A~%3E"><span class="hs-identifier hs-type">TypedMessage</span></a><span> </span><a href="#local-6989586621679438415"><span class="hs-identifier hs-type">msg</span></a><span> </span><span class="hs-operator">:~&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#Return"><span class="hs-identifier hs-type">Return</span></a><span> </span><a href="#local-6989586621679438418"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438417"><span class="hs-identifier hs-type">r</span></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a><span> </span><a href="#local-6989586621679438415"><span class="hs-identifier hs-type">msg</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Sem</span><span> </span><a href="#local-6989586621679438417"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679438418"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-104"></a><span>
-</span><a name="line-105"></a><span>  </span><a name="local-8214565720324213311"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#routeTx"><span class="hs-identifier">routeTx</span></a></a><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><a name="local-6989586621679438419"><a href="#local-6989586621679438419"><span class="hs-identifier">ps</span></a></a><span> </span><a name="local-6989586621679438420"><a href="#local-6989586621679438420"><span class="hs-identifier">subserver</span></a></a><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-106"></a><span>    </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679438422"><a href="#local-6989586621679438422"><span class="hs-identifier">f</span></a></a><span> </span><span class="hs-special">(</span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-var">RoutingTx</span></a><span> </span><a name="local-6989586621679438423"><a href="#local-6989586621679438423"><span class="hs-identifier">tx</span></a></a><span class="hs-glyph">@</span><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-var">Tx</span></a><span class="hs-special">{</span><a name="local-6989586621679438424"><a href="#local-6989586621679438424"><span class="hs-identifier">txMsg</span></a></a><span class="hs-special">}</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
-</span><a name="line-107"></a><span>          </span><span class="hs-keyword">if</span><span> </span><span class="hs-identifier">msgType</span><span> </span><a href="#local-6989586621679438424"><span class="hs-identifier hs-var">txMsg</span></a><span> </span><span class="hs-operator hs-var">==</span><span> </span><a href="#local-6989586621679438421"><span class="hs-identifier hs-var">mt</span></a><span>
-</span><a name="line-108"></a><span>            </span><span class="hs-keyword">then</span><span> </span><span class="hs-keyword">case</span><span> </span><a href="Tendermint.SDK.Codec.html#decode"><span class="hs-identifier hs-var">decode</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier">msgData</span><span> </span><a href="#local-6989586621679438424"><span class="hs-identifier hs-var">txMsg</span></a><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-109"></a><span>              </span><span class="hs-identifier hs-var">Left</span><span> </span><a name="local-6989586621679438425"><a href="#local-6989586621679438425"><span class="hs-identifier">e</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#delayedFail"><span class="hs-identifier hs-var">R.delayedFail</span></a><span> </span><span class="hs-operator hs-var">$</span><span>
-</span><a name="line-110"></a><span>                </span><a href="Tendermint.SDK.BaseApp.Router.Types.html#InvalidRequest"><span class="hs-identifier hs-var">R.InvalidRequest</span></a><span> </span><span class="hs-special">(</span><span class="hs-string">&quot;Failed to parse message of type &quot;</span><span> </span><span class="hs-operator hs-var">&lt;&gt;</span><span> </span><a href="#local-6989586621679438421"><span class="hs-identifier hs-var">mt</span></a><span> </span><span class="hs-operator hs-var">&lt;&gt;</span><span> </span><span class="hs-string">&quot;: &quot;</span><span> </span><span class="hs-operator hs-var">&lt;&gt;</span><span> </span><a href="#local-6989586621679438425"><span class="hs-identifier hs-var">e</span></a><span> </span><span class="hs-operator hs-var">&lt;&gt;</span><span> </span><span class="hs-string">&quot;.&quot;</span><span class="hs-special">)</span><span>
-</span><a name="line-111"></a><span>              </span><span class="hs-identifier hs-var">Right</span><span> </span><a name="local-6989586621679438426"><a href="#local-6989586621679438426"><span class="hs-identifier">a</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">pure</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-var">RoutingTx</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="#local-6989586621679438423"><span class="hs-identifier hs-var">tx</span></a><span> </span><span class="hs-special">{</span><span class="hs-identifier">txMsg</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679438424"><span class="hs-identifier hs-var">txMsg</span></a><span> </span><span class="hs-special">{</span><span class="hs-identifier">msgData</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679438426"><span class="hs-identifier hs-var">a</span></a><span class="hs-special">}</span><span class="hs-special">}</span><span>
-</span><a name="line-112"></a><span>            </span><span class="hs-keyword">else</span><span> </span><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#delayedFail"><span class="hs-identifier hs-var">R.delayedFail</span></a><span> </span><a href="Tendermint.SDK.BaseApp.Router.Types.html#PathNotFound"><span class="hs-identifier hs-var">R.PathNotFound</span></a><span>
-</span><a name="line-113"></a><span>    </span><span class="hs-keyword">in</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#methodRouter"><span class="hs-identifier hs-var">methodRouter</span></a><span> </span><a href="#local-6989586621679438419"><span class="hs-identifier hs-var">ps</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#addBody"><span class="hs-identifier hs-var">R.addBody</span></a><span> </span><a href="#local-6989586621679438420"><span class="hs-identifier hs-var">subserver</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#withRequest"><span class="hs-identifier hs-var">R.withRequest</span></a><span> </span><a href="#local-6989586621679438422"><span class="hs-identifier hs-var">f</span></a><span>
-</span><a name="line-114"></a><span>      </span><span class="hs-keyword">where</span><span> </span><a name="local-6989586621679438421"><a href="#local-6989586621679438421"><span class="hs-identifier">mt</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.Types.Message.html#messageType"><span class="hs-identifier hs-var">messageType</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Proxy</span><span> </span><a href="#local-6989586621679438415"><span class="hs-identifier hs-type">msg</span></a><span class="hs-special">)</span><span>
-</span><a name="line-115"></a><span>
-</span><a name="line-116"></a><span>  </span><a name="local-8214565720324213312"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#applyAnteHandler"><span class="hs-identifier">applyAnteHandler</span></a></a><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><a name="local-6989586621679438427"><a href="#local-6989586621679438427"><span class="hs-identifier">ah</span></a></a><span> </span><a name="local-6989586621679438428"><a href="#local-6989586621679438428"><span class="hs-identifier">f</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">appEndo</span><span> </span><a href="#local-6989586621679438427"><span class="hs-identifier hs-var">ah</span></a><span> </span><a href="#local-6989586621679438428"><span class="hs-identifier hs-var">f</span></a><span>
-</span><a name="line-117"></a><span>
-</span><a name="line-118"></a><span>  </span><a name="local-8214565720324213313"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#hoistTxRouter"><span class="hs-identifier">hoistTxRouter</span></a></a><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><a name="local-6989586621679438429"><a href="#local-6989586621679438429"><span class="hs-identifier">nat</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-operator hs-var">.</span><span class="hs-special">)</span><span> </span><a href="#local-6989586621679438429"><span class="hs-identifier hs-var">nat</span></a><span>
-</span><a name="line-119"></a><span>
-</span><a name="line-120"></a><span class="hs-identifier">emptyTxServer</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#EmptyTxServer"><span class="hs-identifier hs-type">EmptyTxServer</span></a><span> </span><a href="#local-6989586621679438465"><span class="hs-identifier hs-type">r</span></a><span>
-</span><a name="line-121"></a><a name="emptyTxServer"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#emptyTxServer"><span class="hs-identifier">emptyTxServer</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#EmptyTxServer"><span class="hs-identifier hs-var">EmptyTxServer</span></a><span>
-</span><a name="line-122"></a><span>
-</span><a name="line-123"></a><span class="hs-keyword">instance</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#EmptyTxServer"><span class="hs-identifier hs-type">EmptyTxServer</span></a><span> </span><a href="#local-6989586621679438413"><span class="hs-identifier hs-type">r</span></a><span> </span><a href="#local-6989586621679438414"><span class="hs-identifier hs-type">scope</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-124"></a><span>  </span><span class="hs-keyword">type</span><span> </span><span class="hs-identifier">RouteTx</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#EmptyTxServer"><span class="hs-identifier hs-type">EmptyTxServer</span></a><span> </span><a href="#local-6989586621679438413"><span class="hs-identifier hs-type">r</span></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#EmptyTxServer"><span class="hs-identifier hs-type">EmptyTxServer</span></a><span>
-</span><a name="line-125"></a><span>  </span><a name="local-8214565720324213311"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#routeTx"><span class="hs-identifier">routeTx</span></a></a><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Router.Router.html#StaticRouter"><span class="hs-identifier hs-var">R.StaticRouter</span></a><span> </span><span class="hs-identifier hs-var">mempty</span><span> </span><span class="hs-identifier hs-var">mempty</span><span>
-</span><a name="line-126"></a><span>
-</span><a name="line-127"></a><span>  </span><a name="local-8214565720324213312"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#applyAnteHandler"><span class="hs-identifier">applyAnteHandler</span></a></a><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">id</span><span>
-</span><a name="line-128"></a><span>
-</span><a name="line-129"></a><span>  </span><a name="local-8214565720324213313"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#hoistTxRouter"><span class="hs-identifier">hoistTxRouter</span></a></a><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">id</span><span>
-</span><a name="line-130"></a></pre></body></html>
+</span><span id="line-2"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp.Transaction.Router</span><span>
+</span><span id="line-3"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier">HasTxRouter</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#emptyTxServer"><span class="hs-identifier">emptyTxServer</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Monad.IO.Class</span></span><span>                         </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">liftIO</span></span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.ByteString</span></span><span>                                </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">ByteString</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Kind</span></span><span>                                      </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Type</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Monoid</span></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Proxy</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.String.Conversions</span></span><span>                        </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">cs</span></span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">GHC.TypeLits</span></span><span>                                   </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">KnownSymbol</span></span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>                                                                 </span><span class="annot"><span class="hs-identifier">symbolVal</span></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy</span></span><span>                                       </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">EffectRow</span></span><span class="hs-special">,</span><span>
+</span><span id="line-16"></span><span>                                                                 </span><span class="annot"><span class="hs-identifier">Embed</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">Members</span></span><span class="hs-special">,</span><span>
+</span><span id="line-17"></span><span>                                                                 </span><span class="annot"><span class="hs-identifier">Sem</span></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy.Tagged</span></span><span>                                </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Tagged</span></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Servant.API</span></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Router.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Router</span></a></span><span>                  </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">R</span></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store</span></a></span><span>                   </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier">ReadStore</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>                                                                 </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Scope"><span class="hs-identifier">Scope</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.AnteHandler.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Transaction.AnteHandler</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.AnteHandler.html#AnteHandler"><span class="hs-identifier">AnteHandler</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Transaction.Cache</span></a></span><span>       </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier">Cache</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Transaction.Effect</span></a></span><span>      </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#TxEffs"><span class="hs-identifier">TxEffs</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#runTx"><span class="hs-identifier">runTx</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html"><span class="hs-identifier">Tendermint.SDK.BaseApp.Transaction.Types</span></a></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.Codec.html"><span class="hs-identifier">Tendermint.SDK.Codec</span></a></span><span>                           </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier">HasCodec</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html"><span class="hs-identifier">Tendermint.SDK.Types.Effects</span></a></span><span>                   </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator">(:&amp;)</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html"><span class="hs-identifier">Tendermint.SDK.Types.Message</span></a></span><span>                   </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#HasMessageType"><span class="hs-identifier">HasMessageType</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-30"></span><span>                                                                 </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#Msg"><span class="hs-identifier">Msg</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html"><span class="hs-identifier">Tendermint.SDK.Types.TxResult</span></a></span><span>                  </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier">TxResult</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-32"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-33"></span><span>
+</span><span id="line-34"></span><span class="hs-keyword">class</span><span> </span><span id="HasTxRouter"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-var">HasTxRouter</span></a></span></span><span> </span><span id="local-6989586621679553164"><span class="annot"><a href="#local-6989586621679553164"><span class="hs-identifier hs-type">layout</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679553163"><span class="annot"><a href="#local-6989586621679553163"><span class="hs-identifier hs-type">r</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">EffectRow</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679553162"><span class="annot"><a href="#local-6989586621679553162"><span class="hs-identifier hs-type">scope</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Scope"><span class="hs-identifier hs-type">Scope</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="RouteTx"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-var">RouteTx</span></a></span></span><span> </span><span id="local-6989586621679553164"><span class="annot"><a href="#local-6989586621679553164"><span class="hs-identifier hs-type">layout</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679553022"><span class="annot"><a href="#local-6989586621679553022"><span class="hs-identifier hs-type">s</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">EffectRow</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span>
+</span><span id="line-36"></span><span>  </span><span id="local-6989586621679553178"><span id="routeTx"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#routeTx"><span class="hs-identifier hs-type">routeTx</span></a></span></span><span>
+</span><span id="line-37"></span><span>        </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679553164"><span class="hs-identifier hs-type">layout</span></a></span><span>
+</span><span id="line-38"></span><span>        </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679553163"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-39"></span><span>        </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679553162"><span class="hs-identifier hs-type">scope</span></a></span><span>
+</span><span id="line-40"></span><span>        </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#Delayed"><span class="hs-identifier hs-type">R.Delayed</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679553163"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553178"><span class="hs-identifier hs-type">env</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553164"><span class="hs-identifier hs-type">layout</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#TxEffs"><span class="hs-identifier hs-type">TxEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553163"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span>        </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Router.Router.html#Router"><span class="hs-identifier hs-type">R.Router</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553178"><span class="hs-identifier hs-type">env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553163"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-42"></span><span>
+</span><span id="line-43"></span><span>  </span><span id="applyAnteHandler"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#applyAnteHandler"><span class="hs-identifier hs-type">applyAnteHandler</span></a></span></span><span>
+</span><span id="line-44"></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679553164"><span class="hs-identifier hs-type">layout</span></a></span><span>
+</span><span id="line-45"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679553163"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-46"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679553162"><span class="hs-identifier hs-type">scope</span></a></span><span>
+</span><span id="line-47"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.AnteHandler.html#AnteHandler"><span class="hs-identifier hs-type">AnteHandler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553163"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-48"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553164"><span class="hs-identifier hs-type">layout</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553163"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-49"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553164"><span class="hs-identifier hs-type">layout</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553163"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-50"></span><span>
+</span><span id="line-51"></span><span>  </span><span id="local-6989586621679553167"><span id="local-6989586621679553169"><span id="hoistTxRouter"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#hoistTxRouter"><span class="hs-identifier hs-type">hoistTxRouter</span></a></span></span><span>
+</span><span id="line-52"></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679553164"><span class="hs-identifier hs-type">layout</span></a></span><span>
+</span><span id="line-53"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679553163"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-54"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679553162"><span class="hs-identifier hs-type">scope</span></a></span><span>
+</span><span id="line-55"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679553168"><span class="annot"><a href="#local-6989586621679553168"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679553169"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553168"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679553167"><span class="hs-identifier hs-type">s'</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553168"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-56"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553164"><span class="hs-identifier hs-type">layout</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553169"><span class="hs-identifier hs-type">s</span></a></span><span>
+</span><span id="line-57"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553164"><span class="hs-identifier hs-type">layout</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553167"><span class="hs-identifier hs-type">s'</span></a></span></span></span><span>
+</span><span id="line-58"></span><span>
+</span><span id="line-59"></span><span id="local-6989586621679553015"><span id="local-6989586621679553016"><span id="local-6989586621679553017"><span id="local-6989586621679553018"><span class="hs-keyword">instance</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553018"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553017"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553016"><span class="hs-identifier hs-type">scope</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553015"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553017"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553016"><span class="hs-identifier hs-type">scope</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679553018"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-operator hs-type">:&lt;|&gt;</span></span><span> </span><span class="annot"><a href="#local-6989586621679553015"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553017"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553016"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-60"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="RouteTx"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-var">RouteTx</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679553018"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-operator hs-type">:&lt;|&gt;</span></span><span> </span><span class="annot"><a href="#local-6989586621679553015"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679553010"><span class="annot"><a href="#local-6989586621679553010"><span class="hs-identifier hs-type hs-type">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553018"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553010"><span class="hs-identifier hs-type">s</span></a></span><span> </span><span class="annot"><span class="hs-operator hs-type">:&lt;|&gt;</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553015"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553010"><span class="hs-identifier hs-type">s</span></a></span><span>
+</span><span id="line-61"></span><span>
+</span><span id="line-62"></span><span>  </span><span id="local-6989586621679553009"><span class="annot"><span class="annottext">routeTx :: Proxy (a :&lt;|&gt; b)
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; Delayed
+     (Sem r)
+     env
+     (RoutingTx ByteString)
+     (RouteTx (a :&lt;|&gt; b) (TxEffs :&amp; r))
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+</span><a href="#local-6989586621679553009"><span class="hs-identifier hs-var hs-var hs-var hs-var">routeTx</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679553008"><span class="annot"><span class="annottext">pr :: Proxy r
+</span><a href="#local-6989586621679553008"><span class="hs-identifier hs-var">pr</span></a></span></span><span> </span><span id="local-6989586621679553007"><span class="annot"><span class="annottext">ps :: Proxy scope
+</span><a href="#local-6989586621679553007"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span id="local-6989586621679553006"><span class="annot"><span class="annottext">server :: Delayed
+  (Sem r)
+  env
+  (RoutingTx ByteString)
+  (RouteTx (a :&lt;|&gt; b) (TxEffs :&amp; r))
+</span><a href="#local-6989586621679553006"><span class="hs-identifier hs-var">server</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-63"></span><span>    </span><span class="annot"><span class="annottext">Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+forall env a. Router' env a -&gt; Router' env a -&gt; Router' env a
+</span><a href="Tendermint.SDK.BaseApp.Router.Router.html#choice"><span class="hs-identifier hs-var">R.choice</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy a
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; Delayed
+     (Sem r) env (RoutingTx ByteString) (RouteTx a (TxEffs :&amp; r))
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+forall k (layout :: k) (r :: EffectRow) (scope :: Scope) env.
+HasTxRouter layout r scope =&gt;
+Proxy layout
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; Delayed
+     (Sem r) env (RoutingTx ByteString) (RouteTx layout (TxEffs :&amp; r))
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#routeTx"><span class="hs-identifier hs-var">routeTx</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy a
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679553018"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Proxy r
+</span><a href="#local-6989586621679553008"><span class="hs-identifier hs-var">pr</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
+</span><a href="#local-6989586621679553007"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679553003"><span class="annot"><span class="annottext">a :: RouteTx
+  a
+  (Output Event
+     : GasMeter : WriteStore : ReadStore : Error AppError : r)
+</span><a href="#local-6989586621679553003"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="annot"><span class="hs-operator hs-type">:&lt;|&gt;</span></span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">RouteTx
+  a
+  (Output Event
+     : GasMeter : WriteStore : ReadStore : Error AppError : r)
+</span><a href="#local-6989586621679553003"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">((RouteTx
+    a
+    (Output Event
+       : GasMeter : WriteStore : ReadStore : Error AppError : r)
+  :&lt;|&gt; RouteTx
+         b
+         (Output Event
+            : GasMeter : WriteStore : ReadStore : Error AppError : r))
+ -&gt; RouteTx
+      a
+      (Output Event
+         : GasMeter : WriteStore : ReadStore : Error AppError : r))
+-&gt; Delayed
+     (Sem r)
+     env
+     (RoutingTx ByteString)
+     (RouteTx
+        a
+        (Output Event
+           : GasMeter : WriteStore : ReadStore : Error AppError : r)
+      :&lt;|&gt; RouteTx
+             b
+             (Output Event
+                : GasMeter : WriteStore : ReadStore : Error AppError : r))
+-&gt; Delayed
+     (Sem r)
+     env
+     (RoutingTx ByteString)
+     (RouteTx
+        a
+        (Output Event
+           : GasMeter : WriteStore : ReadStore : Error AppError : r))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Delayed
+  (Sem r)
+  env
+  (RoutingTx ByteString)
+  (RouteTx
+     a
+     (Output Event
+        : GasMeter : WriteStore : ReadStore : Error AppError : r)
+   :&lt;|&gt; RouteTx
+          b
+          (Output Event
+             : GasMeter : WriteStore : ReadStore : Error AppError : r))
+Delayed
+  (Sem r)
+  env
+  (RoutingTx ByteString)
+  (RouteTx (a :&lt;|&gt; b) (TxEffs :&amp; r))
+</span><a href="#local-6989586621679553006"><span class="hs-identifier hs-var">server</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-64"></span><span>             </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy b
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; Delayed
+     (Sem r) env (RoutingTx ByteString) (RouteTx b (TxEffs :&amp; r))
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+forall k (layout :: k) (r :: EffectRow) (scope :: Scope) env.
+HasTxRouter layout r scope =&gt;
+Proxy layout
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; Delayed
+     (Sem r) env (RoutingTx ByteString) (RouteTx layout (TxEffs :&amp; r))
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#routeTx"><span class="hs-identifier hs-var">routeTx</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy b
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679553015"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Proxy r
+</span><a href="#local-6989586621679553008"><span class="hs-identifier hs-var">pr</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
+</span><a href="#local-6989586621679553007"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">_</span><span> </span><span class="annot"><span class="hs-operator hs-type">:&lt;|&gt;</span></span><span> </span><span id="local-6989586621679553000"><span class="annot"><span class="annottext">b :: RouteTx
+  b
+  (Output Event
+     : GasMeter : WriteStore : ReadStore : Error AppError : r)
+</span><a href="#local-6989586621679553000"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">RouteTx
+  b
+  (Output Event
+     : GasMeter : WriteStore : ReadStore : Error AppError : r)
+</span><a href="#local-6989586621679553000"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">((RouteTx
+    a
+    (Output Event
+       : GasMeter : WriteStore : ReadStore : Error AppError : r)
+  :&lt;|&gt; RouteTx
+         b
+         (Output Event
+            : GasMeter : WriteStore : ReadStore : Error AppError : r))
+ -&gt; RouteTx
+      b
+      (Output Event
+         : GasMeter : WriteStore : ReadStore : Error AppError : r))
+-&gt; Delayed
+     (Sem r)
+     env
+     (RoutingTx ByteString)
+     (RouteTx
+        a
+        (Output Event
+           : GasMeter : WriteStore : ReadStore : Error AppError : r)
+      :&lt;|&gt; RouteTx
+             b
+             (Output Event
+                : GasMeter : WriteStore : ReadStore : Error AppError : r))
+-&gt; Delayed
+     (Sem r)
+     env
+     (RoutingTx ByteString)
+     (RouteTx
+        b
+        (Output Event
+           : GasMeter : WriteStore : ReadStore : Error AppError : r))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Delayed
+  (Sem r)
+  env
+  (RoutingTx ByteString)
+  (RouteTx
+     a
+     (Output Event
+        : GasMeter : WriteStore : ReadStore : Error AppError : r)
+   :&lt;|&gt; RouteTx
+          b
+          (Output Event
+             : GasMeter : WriteStore : ReadStore : Error AppError : r))
+Delayed
+  (Sem r)
+  env
+  (RoutingTx ByteString)
+  (RouteTx (a :&lt;|&gt; b) (TxEffs :&amp; r))
+</span><a href="#local-6989586621679553006"><span class="hs-identifier hs-var">server</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span>  </span><span id="local-6989586621679552999"><span class="annot"><span class="annottext">applyAnteHandler :: Proxy (a :&lt;|&gt; b)
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; AnteHandler r
+-&gt; RouteTx (a :&lt;|&gt; b) r
+-&gt; RouteTx (a :&lt;|&gt; b) r
+</span><a href="#local-6989586621679552999"><span class="hs-identifier hs-var hs-var hs-var hs-var">applyAnteHandler</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679552998"><span class="annot"><span class="annottext">pr :: Proxy r
+</span><a href="#local-6989586621679552998"><span class="hs-identifier hs-var">pr</span></a></span></span><span> </span><span id="local-6989586621679552997"><span class="annot"><span class="annottext">ps :: Proxy scope
+</span><a href="#local-6989586621679552997"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span id="local-6989586621679552996"><span class="annot"><span class="annottext">ah :: AnteHandler r
+</span><a href="#local-6989586621679552996"><span class="hs-identifier hs-var">ah</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679552995"><span class="annot"><a href="#local-6989586621679552995"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="annot"><span class="hs-operator hs-type">:&lt;|&gt;</span></span><span> </span><span id="local-6989586621679552994"><span class="annot"><a href="#local-6989586621679552994"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-67"></span><span>    </span><span class="annot"><span class="annottext">Proxy a
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; AnteHandler r
+-&gt; RouteTx a r
+-&gt; RouteTx a r
+forall k (layout :: k) (r :: EffectRow) (scope :: Scope).
+HasTxRouter layout r scope =&gt;
+Proxy layout
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; AnteHandler r
+-&gt; RouteTx layout r
+-&gt; RouteTx layout r
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#applyAnteHandler"><span class="hs-identifier hs-var">applyAnteHandler</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy a
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679553018"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Proxy r
+</span><a href="#local-6989586621679552998"><span class="hs-identifier hs-var">pr</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
+</span><a href="#local-6989586621679552997"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">AnteHandler r
+</span><a href="#local-6989586621679552996"><span class="hs-identifier hs-var">ah</span></a></span><span> </span><span class="annot"><span class="annottext">RouteTx a r
+</span><a href="#local-6989586621679552995"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">RouteTx a r -&gt; RouteTx b r -&gt; RouteTx a r :&lt;|&gt; RouteTx b r
+forall a b. a -&gt; b -&gt; a :&lt;|&gt; b
+</span><span class="hs-operator hs-var">:&lt;|&gt;</span></span><span>
+</span><span id="line-68"></span><span>    </span><span class="annot"><span class="annottext">Proxy b
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; AnteHandler r
+-&gt; RouteTx b r
+-&gt; RouteTx b r
+forall k (layout :: k) (r :: EffectRow) (scope :: Scope).
+HasTxRouter layout r scope =&gt;
+Proxy layout
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; AnteHandler r
+-&gt; RouteTx layout r
+-&gt; RouteTx layout r
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#applyAnteHandler"><span class="hs-identifier hs-var">applyAnteHandler</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy b
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679553015"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Proxy r
+</span><a href="#local-6989586621679552998"><span class="hs-identifier hs-var">pr</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
+</span><a href="#local-6989586621679552997"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">AnteHandler r
+</span><a href="#local-6989586621679552996"><span class="hs-identifier hs-var">ah</span></a></span><span> </span><span class="annot"><span class="annottext">RouteTx b r
+</span><a href="#local-6989586621679552994"><span class="hs-identifier hs-var">b</span></a></span><span>
+</span><span id="line-69"></span><span>
+</span><span id="line-70"></span><span>  </span><span id="local-6989586621679552993"><span class="annot"><span class="annottext">hoistTxRouter :: Proxy (a :&lt;|&gt; b)
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; (forall a. Sem s a -&gt; Sem s' a)
+-&gt; RouteTx (a :&lt;|&gt; b) s
+-&gt; RouteTx (a :&lt;|&gt; b) s'
+</span><a href="#local-6989586621679552993"><span class="hs-identifier hs-var hs-var hs-var hs-var">hoistTxRouter</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679552992"><span class="annot"><span class="annottext">pr :: Proxy r
+</span><a href="#local-6989586621679552992"><span class="hs-identifier hs-var">pr</span></a></span></span><span> </span><span id="local-6989586621679552991"><span class="annot"><span class="annottext">nat :: Proxy scope
+</span><a href="#local-6989586621679552991"><span class="hs-identifier hs-var">nat</span></a></span></span><span> </span><span id="local-6989586621679552990"><span class="annot"><span class="annottext">ps :: forall a. Sem s a -&gt; Sem s' a
+</span><a href="#local-6989586621679552990"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679552989"><span class="annot"><a href="#local-6989586621679552989"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="annot"><span class="hs-operator hs-type">:&lt;|&gt;</span></span><span> </span><span id="local-6989586621679552988"><span class="annot"><a href="#local-6989586621679552988"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-71"></span><span>    </span><span class="annot"><span class="annottext">Proxy a
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; (forall a. Sem s a -&gt; Sem s' a)
+-&gt; RouteTx a s
+-&gt; RouteTx a s'
+forall k (layout :: k) (r :: EffectRow) (scope :: Scope)
+       (s :: EffectRow) (s' :: EffectRow).
+HasTxRouter layout r scope =&gt;
+Proxy layout
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; (forall a. Sem s a -&gt; Sem s' a)
+-&gt; RouteTx layout s
+-&gt; RouteTx layout s'
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#hoistTxRouter"><span class="hs-identifier hs-var">hoistTxRouter</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy a
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679553018"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Proxy r
+</span><a href="#local-6989586621679552992"><span class="hs-identifier hs-var">pr</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
+</span><a href="#local-6989586621679552991"><span class="hs-identifier hs-var">nat</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. Sem s a -&gt; Sem s' a
+</span><a href="#local-6989586621679552990"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">RouteTx a s
+</span><a href="#local-6989586621679552989"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">RouteTx a s' -&gt; RouteTx b s' -&gt; RouteTx a s' :&lt;|&gt; RouteTx b s'
+forall a b. a -&gt; b -&gt; a :&lt;|&gt; b
+</span><span class="hs-operator hs-var">:&lt;|&gt;</span></span><span> </span><span class="annot"><span class="annottext">Proxy b
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; (forall a. Sem s a -&gt; Sem s' a)
+-&gt; RouteTx b s
+-&gt; RouteTx b s'
+forall k (layout :: k) (r :: EffectRow) (scope :: Scope)
+       (s :: EffectRow) (s' :: EffectRow).
+HasTxRouter layout r scope =&gt;
+Proxy layout
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; (forall a. Sem s a -&gt; Sem s' a)
+-&gt; RouteTx layout s
+-&gt; RouteTx layout s'
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#hoistTxRouter"><span class="hs-identifier hs-var">hoistTxRouter</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy b
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679553015"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Proxy r
+</span><a href="#local-6989586621679552992"><span class="hs-identifier hs-var">pr</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
+</span><a href="#local-6989586621679552991"><span class="hs-identifier hs-var">nat</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. Sem s a -&gt; Sem s' a
+</span><a href="#local-6989586621679552990"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">RouteTx b s
+</span><a href="#local-6989586621679552988"><span class="hs-identifier hs-var">b</span></a></span></span></span></span></span><span>
+</span><span id="line-72"></span><span>
+</span><span id="line-73"></span><span id="local-6989586621679552984"><span id="local-6989586621679552985"><span id="local-6989586621679552986"><span id="local-6989586621679552987"><span class="hs-keyword">instance</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552987"><span class="hs-identifier hs-type">sublayout</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552986"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552985"><span class="hs-identifier hs-type">scope</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">KnownSymbol</span></span><span> </span><span class="annot"><a href="#local-6989586621679552984"><span class="hs-identifier hs-type">path</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679552984"><span class="hs-identifier hs-type">path</span></a></span><span> </span><span class="annot"><span class="hs-operator hs-type">:&gt;</span></span><span> </span><span class="annot"><a href="#local-6989586621679552987"><span class="hs-identifier hs-type">sublayout</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679552986"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552985"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-74"></span><span>
+</span><span id="line-75"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="RouteTx"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-var">RouteTx</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679552984"><span class="hs-identifier hs-type">path</span></a></span><span> </span><span class="annot"><span class="hs-operator hs-type">:&gt;</span></span><span> </span><span class="annot"><a href="#local-6989586621679552987"><span class="hs-identifier hs-type">sublayout</span></a></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679552980"><span class="annot"><a href="#local-6989586621679552980"><span class="hs-identifier hs-type hs-type">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552987"><span class="hs-identifier hs-type">sublayout</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552980"><span class="hs-identifier hs-type">s</span></a></span><span>
+</span><span id="line-76"></span><span>
+</span><span id="line-77"></span><span>  </span><span id="local-6989586621679552979"><span class="annot"><span class="annottext">routeTx :: Proxy (path :&gt; sublayout)
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; Delayed
+     (Sem r)
+     env
+     (RoutingTx ByteString)
+     (RouteTx (path :&gt; sublayout) (TxEffs :&amp; r))
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+</span><a href="#local-6989586621679552979"><span class="hs-identifier hs-var hs-var hs-var hs-var">routeTx</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679552978"><span class="annot"><span class="annottext">pr :: Proxy r
+</span><a href="#local-6989586621679552978"><span class="hs-identifier hs-var">pr</span></a></span></span><span> </span><span id="local-6989586621679552977"><span class="annot"><span class="annottext">ps :: Proxy scope
+</span><a href="#local-6989586621679552977"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span id="local-6989586621679552976"><span class="annot"><span class="annottext">subserver :: Delayed
+  (Sem r)
+  env
+  (RoutingTx ByteString)
+  (RouteTx (path :&gt; sublayout) (TxEffs :&amp; r))
+</span><a href="#local-6989586621679552976"><span class="hs-identifier hs-var">subserver</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-78"></span><span>    </span><span class="annot"><span class="annottext">Text
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+forall env a. Text -&gt; Router' env a -&gt; Router' env a
+</span><a href="Tendermint.SDK.BaseApp.Router.Router.html#pathRouter"><span class="hs-identifier hs-var">R.pathRouter</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Text
+forall a b. ConvertibleStrings a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">cs</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy path -&gt; String
+forall (n :: Symbol) (proxy :: Symbol -&gt; *).
+KnownSymbol n =&gt;
+proxy n -&gt; String
+</span><span class="hs-identifier hs-var">symbolVal</span></span><span> </span><span class="annot"><span class="annottext">Proxy path
+</span><a href="#local-6989586621679552974"><span class="hs-identifier hs-var">proxyPath</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy sublayout
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; Delayed
+     (Sem r)
+     env
+     (RoutingTx ByteString)
+     (RouteTx sublayout (TxEffs :&amp; r))
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+forall k (layout :: k) (r :: EffectRow) (scope :: Scope) env.
+HasTxRouter layout r scope =&gt;
+Proxy layout
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; Delayed
+     (Sem r) env (RoutingTx ByteString) (RouteTx layout (TxEffs :&amp; r))
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#routeTx"><span class="hs-identifier hs-var">routeTx</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy sublayout
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679552987"><span class="hs-identifier hs-type">sublayout</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Proxy r
+</span><a href="#local-6989586621679552978"><span class="hs-identifier hs-var">pr</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
+</span><a href="#local-6989586621679552977"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">Delayed
+  (Sem r)
+  env
+  (RoutingTx ByteString)
+  (RouteTx sublayout (TxEffs :&amp; r))
+Delayed
+  (Sem r)
+  env
+  (RoutingTx ByteString)
+  (RouteTx (path :&gt; sublayout) (TxEffs :&amp; r))
+</span><a href="#local-6989586621679552976"><span class="hs-identifier hs-var">subserver</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-79"></span><span>    </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679552974"><span class="annot"><span class="annottext">proxyPath :: Proxy path
+</span><a href="#local-6989586621679552974"><span class="hs-identifier hs-var hs-var">proxyPath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy path
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679552984"><span class="hs-identifier hs-type">path</span></a></span><span>
+</span><span id="line-80"></span><span>
+</span><span id="line-81"></span><span>  </span><span id="local-6989586621679552973"><span class="annot"><span class="annottext">applyAnteHandler :: Proxy (path :&gt; sublayout)
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; AnteHandler r
+-&gt; RouteTx (path :&gt; sublayout) r
+-&gt; RouteTx (path :&gt; sublayout) r
+</span><a href="#local-6989586621679552973"><span class="hs-identifier hs-var hs-var hs-var hs-var">applyAnteHandler</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679552972"><span class="annot"><span class="annottext">pr :: Proxy r
+</span><a href="#local-6989586621679552972"><span class="hs-identifier hs-var">pr</span></a></span></span><span> </span><span id="local-6989586621679552971"><span class="annot"><span class="annottext">ps :: Proxy scope
+</span><a href="#local-6989586621679552971"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span id="local-6989586621679552970"><span class="annot"><span class="annottext">ah :: AnteHandler r
+</span><a href="#local-6989586621679552970"><span class="hs-identifier hs-var">ah</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy sublayout
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; AnteHandler r
+-&gt; RouteTx sublayout r
+-&gt; RouteTx sublayout r
+forall k (layout :: k) (r :: EffectRow) (scope :: Scope).
+HasTxRouter layout r scope =&gt;
+Proxy layout
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; AnteHandler r
+-&gt; RouteTx layout r
+-&gt; RouteTx layout r
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#applyAnteHandler"><span class="hs-identifier hs-var">applyAnteHandler</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy sublayout
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679552987"><span class="hs-identifier hs-type">sublayout</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Proxy r
+</span><a href="#local-6989586621679552972"><span class="hs-identifier hs-var">pr</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
+</span><a href="#local-6989586621679552971"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">AnteHandler r
+</span><a href="#local-6989586621679552970"><span class="hs-identifier hs-var">ah</span></a></span><span>
+</span><span id="line-82"></span><span>
+</span><span id="line-83"></span><span>  </span><span id="local-6989586621679552969"><span class="annot"><span class="annottext">hoistTxRouter :: Proxy (path :&gt; sublayout)
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; (forall a. Sem s a -&gt; Sem s' a)
+-&gt; RouteTx (path :&gt; sublayout) s
+-&gt; RouteTx (path :&gt; sublayout) s'
+</span><a href="#local-6989586621679552969"><span class="hs-identifier hs-var hs-var hs-var hs-var">hoistTxRouter</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679552968"><span class="annot"><span class="annottext">pr :: Proxy r
+</span><a href="#local-6989586621679552968"><span class="hs-identifier hs-var">pr</span></a></span></span><span> </span><span id="local-6989586621679552967"><span class="annot"><span class="annottext">ps :: Proxy scope
+</span><a href="#local-6989586621679552967"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span id="local-6989586621679552966"><span class="annot"><span class="annottext">nat :: forall a. Sem s a -&gt; Sem s' a
+</span><a href="#local-6989586621679552966"><span class="hs-identifier hs-var">nat</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy sublayout
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; (forall a. Sem s a -&gt; Sem s' a)
+-&gt; RouteTx sublayout s
+-&gt; RouteTx sublayout s'
+forall k (layout :: k) (r :: EffectRow) (scope :: Scope)
+       (s :: EffectRow) (s' :: EffectRow).
+HasTxRouter layout r scope =&gt;
+Proxy layout
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; (forall a. Sem s a -&gt; Sem s' a)
+-&gt; RouteTx layout s
+-&gt; RouteTx layout s'
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#hoistTxRouter"><span class="hs-identifier hs-var">hoistTxRouter</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy sublayout
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679552987"><span class="hs-identifier hs-type">sublayout</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Proxy r
+</span><a href="#local-6989586621679552968"><span class="hs-identifier hs-var">pr</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
+</span><a href="#local-6989586621679552967"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. Sem s a -&gt; Sem s' a
+</span><a href="#local-6989586621679552966"><span class="hs-identifier hs-var">nat</span></a></span></span></span></span></span><span>
+</span><span id="line-84"></span><span>
+</span><span id="line-85"></span><span id="local-6989586621679553055"><span id="local-6989586621679553056"><span id="local-6989586621679553057"><span id="local-6989586621679553058"><span id="local-6989586621679553059"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#methodRouter"><span class="hs-identifier hs-type">methodRouter</span></a></span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553059"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="#local-6989586621679553058"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679553057"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679553058"><span class="hs-identifier hs-type">scope</span></a></span><span>
+</span><span id="line-89"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#Delayed"><span class="hs-identifier hs-type">R.Delayed</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679553057"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553056"><span class="hs-identifier hs-type">env</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553055"><span class="hs-identifier hs-type">msg</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#TxEffs"><span class="hs-identifier hs-type">TxEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553057"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553059"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-90"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Router.Router.html#Router"><span class="hs-identifier hs-type">R.Router</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553056"><span class="hs-identifier hs-type">env</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553057"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553055"><span class="hs-identifier hs-type">msg</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span class="hs-special">)</span></span></span></span></span></span><span>
+</span><span id="line-91"></span><span id="methodRouter"><span class="annot"><span class="annottext">methodRouter :: Proxy scope
+-&gt; Delayed (Sem r) env (RoutingTx msg) (Sem (TxEffs :&amp; r) a)
+-&gt; Router env r (RoutingTx msg) (TxResult, Maybe Cache)
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#methodRouter"><span class="hs-identifier hs-var hs-var">methodRouter</span></a></span></span><span> </span><span id="local-6989586621679552964"><span class="annot"><span class="annottext">ps :: Proxy scope
+</span><a href="#local-6989586621679552964"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span id="local-6989586621679552963"><span class="annot"><span class="annottext">action :: Delayed (Sem r) env (RoutingTx msg) (Sem (TxEffs :&amp; r) a)
+</span><a href="#local-6989586621679552963"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-92"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679552962"><span class="annot"><span class="annottext">route' :: env -&gt; RoutingTx msg -&gt; Sem r (RouteResult (TxResult, Maybe Cache))
+</span><a href="#local-6989586621679552962"><span class="hs-identifier hs-var hs-var">route'</span></a></span></span><span> </span><span id="local-6989586621679552961"><span class="annot"><span class="annottext">env :: env
+</span><a href="#local-6989586621679552961"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679552960"><span class="annot"><span class="annottext">tx :: RoutingTx msg
+</span><a href="#local-6989586621679552960"><span class="hs-identifier hs-var">tx</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-93"></span><span>        </span><span id="local-6989586621679552959"><span class="annot"><span class="annottext">TransactionContext
+</span><a href="#local-6989586621679552959"><span class="hs-identifier hs-var">ctx</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO TransactionContext -&gt; Sem r TransactionContext
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO TransactionContext -&gt; Sem r TransactionContext)
+-&gt; IO TransactionContext -&gt; Sem r TransactionContext
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">RoutingTx msg -&gt; IO TransactionContext
+forall msg. RoutingTx msg -&gt; IO TransactionContext
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#newTransactionContext"><span class="hs-identifier hs-var">newTransactionContext</span></a></span><span> </span><span class="annot"><span class="annottext">RoutingTx msg
+</span><a href="#local-6989586621679552960"><span class="hs-identifier hs-var">tx</span></a></span><span>
+</span><span id="line-94"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679552957"><span class="annot"><span class="annottext">action' :: Delayed (Sem r) env (RoutingTx msg) (Sem r (TxResult, Maybe Cache))
+</span><a href="#local-6989586621679552957"><span class="hs-identifier hs-var hs-var">action'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy scope
+-&gt; TransactionContext
+-&gt; Sem (TxEffs :&amp; r) a
+-&gt; Sem r (TxResult, Maybe Cache)
+forall k (scope :: k) (r :: EffectRow) a.
+(Members '[Embed IO, Tagged scope ReadStore] r, HasCodec a) =&gt;
+Proxy scope
+-&gt; TransactionContext
+-&gt; Sem (TxEffs :&amp; r) a
+-&gt; Sem r (TxResult, Maybe Cache)
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#runTx"><span class="hs-identifier hs-var">runTx</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
+</span><a href="#local-6989586621679552964"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">TransactionContext
+</span><a href="#local-6989586621679552959"><span class="hs-identifier hs-var">ctx</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem
+   (Output Event
+      : GasMeter : WriteStore : ReadStore : Error AppError : r)
+   a
+ -&gt; Sem r (TxResult, Maybe Cache))
+-&gt; Delayed
+     (Sem r)
+     env
+     (RoutingTx msg)
+     (Sem
+        (Output Event
+           : GasMeter : WriteStore : ReadStore : Error AppError : r)
+        a)
+-&gt; Delayed
+     (Sem r) env (RoutingTx msg) (Sem r (TxResult, Maybe Cache))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Delayed
+  (Sem r)
+  env
+  (RoutingTx msg)
+  (Sem
+     (Output Event
+        : GasMeter : WriteStore : ReadStore : Error AppError : r)
+     a)
+Delayed (Sem r) env (RoutingTx msg) (Sem (TxEffs :&amp; r) a)
+</span><a href="#local-6989586621679552963"><span class="hs-identifier hs-var">action</span></a></span><span>
+</span><span id="line-95"></span><span>        </span><span class="annot"><span class="annottext">Delayed (Sem r) env (RoutingTx msg) (Sem r (TxResult, Maybe Cache))
+-&gt; env
+-&gt; RoutingTx msg
+-&gt; ((TxResult, Maybe Cache)
+    -&gt; Sem r (RouteResult (TxResult, Maybe Cache)))
+-&gt; Sem r (RouteResult (TxResult, Maybe Cache))
+forall (r :: EffectRow) env req a b.
+Delayed (Sem r) env req (Sem r a)
+-&gt; env
+-&gt; req
+-&gt; (a -&gt; Sem r (RouteResult b))
+-&gt; Sem r (RouteResult b)
+</span><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#runAction"><span class="hs-identifier hs-var">R.runAction</span></a></span><span> </span><span class="annot"><span class="annottext">Delayed (Sem r) env (RoutingTx msg) (Sem r (TxResult, Maybe Cache))
+</span><a href="#local-6989586621679552957"><span class="hs-identifier hs-var">action'</span></a></span><span> </span><span class="annot"><span class="annottext">env
+</span><a href="#local-6989586621679552961"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="annot"><span class="annottext">RoutingTx msg
+</span><a href="#local-6989586621679552960"><span class="hs-identifier hs-var">tx</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RouteResult (TxResult, Maybe Cache)
+-&gt; Sem r (RouteResult (TxResult, Maybe Cache))
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(RouteResult (TxResult, Maybe Cache)
+ -&gt; Sem r (RouteResult (TxResult, Maybe Cache)))
+-&gt; ((TxResult, Maybe Cache) -&gt; RouteResult (TxResult, Maybe Cache))
+-&gt; (TxResult, Maybe Cache)
+-&gt; Sem r (RouteResult (TxResult, Maybe Cache))
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(TxResult, Maybe Cache) -&gt; RouteResult (TxResult, Maybe Cache)
+forall a. a -&gt; RouteResult a
+</span><a href="Tendermint.SDK.BaseApp.Router.Types.html#Route"><span class="hs-identifier hs-var">R.Route</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-96"></span><span>  </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">(env
+ -&gt; RoutingTx msg -&gt; Sem r (RouteResult (TxResult, Maybe Cache)))
+-&gt; Router env r (RoutingTx msg) (TxResult, Maybe Cache)
+forall env a. (env -&gt; a) -&gt; Router' env a
+</span><a href="Tendermint.SDK.BaseApp.Router.Router.html#leafRouter"><span class="hs-identifier hs-var">R.leafRouter</span></a></span><span> </span><span class="annot"><span class="annottext">env -&gt; RoutingTx msg -&gt; Sem r (RouteResult (TxResult, Maybe Cache))
+</span><a href="#local-6989586621679552962"><span class="hs-identifier hs-var">route'</span></a></span><span>
+</span><span id="line-97"></span><span>
+</span><span id="line-98"></span><span id="local-6989586621679552949"><span id="local-6989586621679552950"><span id="local-6989586621679552951"><span id="local-6989586621679552952"><span class="hs-keyword">instance</span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#HasMessageType"><span class="hs-identifier hs-type">HasMessageType</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552952"><span class="hs-identifier hs-type">msg</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552952"><span class="hs-identifier hs-type">msg</span></a></span><span>
+</span><span id="line-99"></span><span>         </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="#local-6989586621679552951"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679552950"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-100"></span><span>         </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552949"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-101"></span><span>         </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#TypedMessage"><span class="hs-identifier hs-type">TypedMessage</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552952"><span class="hs-identifier hs-type">msg</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#%3A~%3E"><span class="hs-operator hs-type">:~&gt;</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#Return"><span class="hs-identifier hs-type">Return</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552949"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679552950"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552951"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-102"></span><span>
+</span><span id="line-103"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="RouteTx"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-var">RouteTx</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#TypedMessage"><span class="hs-identifier hs-type">TypedMessage</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552952"><span class="hs-identifier hs-type">msg</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#%3A~%3E"><span class="hs-operator hs-type">:~&gt;</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#Return"><span class="hs-identifier hs-type">Return</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552949"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679552950"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552952"><span class="hs-identifier hs-type">msg</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679552950"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552949"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-104"></span><span>
+</span><span id="line-105"></span><span>  </span><span id="local-6989586621679552945"><span class="annot"><span class="annottext">routeTx :: Proxy (TypedMessage msg :~&gt; Return a)
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; Delayed
+     (Sem r)
+     env
+     (RoutingTx ByteString)
+     (RouteTx (TypedMessage msg :~&gt; Return a) (TxEffs :&amp; r))
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+</span><a href="#local-6989586621679552945"><span class="hs-identifier hs-var hs-var hs-var hs-var">routeTx</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679552944"><span class="annot"><span class="annottext">ps :: Proxy scope
+</span><a href="#local-6989586621679552944"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span id="local-6989586621679552943"><span class="annot"><span class="annottext">subserver :: Delayed
+  (Sem r)
+  env
+  (RoutingTx ByteString)
+  (RouteTx (TypedMessage msg :~&gt; Return a) (TxEffs :&amp; r))
+</span><a href="#local-6989586621679552943"><span class="hs-identifier hs-var">subserver</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-106"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679552942"><span class="annot"><span class="annottext">f :: RoutingTx ByteString
+-&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg)
+</span><a href="#local-6989586621679552942"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a></span><span> </span><span id="local-6989586621679552940"><span class="annot"><span class="annottext">tx :: Tx alg ByteString
+</span><a href="#local-6989586621679552940"><span class="hs-identifier hs-var">tx</span></a></span></span><span class="hs-glyph">@</span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-type">Tx</span></a></span><span class="hs-special">{</span><span id="local-6989586621679552938"><span class="annot"><span class="annottext">Msg ByteString
+txMsg :: forall k (alg :: k) msg. Tx alg msg -&gt; Msg msg
+txMsg :: Msg ByteString
+</span><a href="Tendermint.SDK.Types.Transaction.html#txMsg"><span class="hs-identifier hs-var hs-var">txMsg</span></a></span></span><span class="hs-special">}</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-107"></span><span>          </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Msg ByteString -&gt; Text
+forall msg. Msg msg -&gt; Text
+</span><a href="Tendermint.SDK.Types.Message.html#msgType"><span class="hs-identifier hs-var hs-var">msgType</span></a></span><span> </span><span class="annot"><span class="annottext">Msg ByteString
+</span><a href="#local-6989586621679552938"><span class="hs-identifier hs-var">txMsg</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679552935"><span class="hs-identifier hs-var">mt</span></a></span><span>
+</span><span id="line-108"></span><span>            </span><span class="hs-keyword">then</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either Text msg
+forall a. HasCodec a =&gt; ByteString -&gt; Either Text a
+</span><a href="Tendermint.SDK.Codec.html#decode"><span class="hs-identifier hs-var">decode</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Either Text msg) -&gt; ByteString -&gt; Either Text msg
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Msg ByteString -&gt; ByteString
+forall msg. Msg msg -&gt; msg
+</span><a href="Tendermint.SDK.Types.Message.html#msgData"><span class="hs-identifier hs-var hs-var">msgData</span></a></span><span> </span><span class="annot"><span class="annottext">Msg ByteString
+</span><a href="#local-6989586621679552938"><span class="hs-identifier hs-var">txMsg</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-109"></span><span>              </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679552932"><span class="annot"><span class="annottext">e :: Text
+</span><a href="#local-6989586621679552932"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">RouterError
+-&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg)
+forall (m :: * -&gt; *) req a.
+Monad m =&gt;
+RouterError -&gt; DelayedM m req a
+</span><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#delayedFail"><span class="hs-identifier hs-var">R.delayedFail</span></a></span><span> </span><span class="annot"><span class="annottext">(RouterError
+ -&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg))
+-&gt; RouterError
+-&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-110"></span><span>                </span><span class="annot"><span class="annottext">Text -&gt; RouterError
+</span><a href="Tendermint.SDK.BaseApp.Router.Types.html#InvalidRequest"><span class="hs-identifier hs-var">R.InvalidRequest</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;Failed to parse message of type &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679552935"><span class="hs-identifier hs-var">mt</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679552932"><span class="hs-identifier hs-var">e</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;.&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-111"></span><span>              </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679552929"><span class="annot"><span class="annottext">a :: msg
+</span><a href="#local-6989586621679552929"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">RoutingTx msg
+-&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg)
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(RoutingTx msg
+ -&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg))
+-&gt; (Tx alg msg -&gt; RoutingTx msg)
+-&gt; Tx alg msg
+-&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Tx alg msg -&gt; RoutingTx msg
+forall k (alg :: k) msg. Tx alg msg -&gt; RoutingTx msg
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-var">RoutingTx</span></a></span><span> </span><span class="annot"><span class="annottext">(Tx alg msg
+ -&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg))
+-&gt; Tx alg msg
+-&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Tx alg ByteString
+</span><a href="#local-6989586621679552940"><span class="hs-identifier hs-var">tx</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">txMsg :: Msg msg
+</span><a href="Tendermint.SDK.Types.Transaction.html#txMsg"><span class="hs-identifier hs-var">txMsg</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Msg ByteString
+</span><a href="#local-6989586621679552938"><span class="hs-identifier hs-var">txMsg</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">msgData :: msg
+</span><a href="Tendermint.SDK.Types.Message.html#msgData"><span class="hs-identifier hs-var">msgData</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">msg
+</span><a href="#local-6989586621679552929"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">}</span><span class="hs-special">}</span><span>
+</span><span id="line-112"></span><span>            </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">RouterError
+-&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg)
+forall (m :: * -&gt; *) req a.
+Monad m =&gt;
+RouterError -&gt; DelayedM m req a
+</span><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#delayedFail"><span class="hs-identifier hs-var">R.delayedFail</span></a></span><span> </span><span class="annot"><span class="annottext">RouterError
+</span><a href="Tendermint.SDK.BaseApp.Router.Types.html#PathNotFound"><span class="hs-identifier hs-var">R.PathNotFound</span></a></span><span>
+</span><span id="line-113"></span><span>    </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Proxy scope
+-&gt; Delayed (Sem r) env (RoutingTx ByteString) (Sem (TxEffs :&amp; r) a)
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+forall k a (scope :: k) (r :: EffectRow) env msg.
+(HasCodec a, Members '[Embed IO, Tagged scope ReadStore] r) =&gt;
+Proxy scope
+-&gt; Delayed (Sem r) env (RoutingTx msg) (Sem (TxEffs :&amp; r) a)
+-&gt; Router env r (RoutingTx msg) (TxResult, Maybe Cache)
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#methodRouter"><span class="hs-identifier hs-var">methodRouter</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
+</span><a href="#local-6989586621679552944"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">(Delayed (Sem r) env (RoutingTx ByteString) (Sem (TxEffs :&amp; r) a)
+ -&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache))
+-&gt; Delayed (Sem r) env (RoutingTx ByteString) (Sem (TxEffs :&amp; r) a)
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Delayed
+  (Sem r)
+  env
+  (RoutingTx ByteString)
+  (RoutingTx msg
+   -&gt; Sem
+        (Output Event
+           : GasMeter : WriteStore : ReadStore : Error AppError : r)
+        a)
+-&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg)
+-&gt; Delayed
+     (Sem r)
+     env
+     (RoutingTx ByteString)
+     (Sem
+        (Output Event
+           : GasMeter : WriteStore : ReadStore : Error AppError : r)
+        a)
+forall (m :: * -&gt; *) env req a b.
+Monad m =&gt;
+Delayed m env req (a -&gt; b)
+-&gt; DelayedM m req a -&gt; Delayed m env req b
+</span><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#addBody"><span class="hs-identifier hs-var">R.addBody</span></a></span><span> </span><span class="annot"><span class="annottext">Delayed
+  (Sem r)
+  env
+  (RoutingTx ByteString)
+  (RouteTx (TypedMessage msg :~&gt; Return a) (TxEffs :&amp; r))
+Delayed
+  (Sem r)
+  env
+  (RoutingTx ByteString)
+  (RoutingTx msg
+   -&gt; Sem
+        (Output Event
+           : GasMeter : WriteStore : ReadStore : Error AppError : r)
+        a)
+</span><a href="#local-6989586621679552943"><span class="hs-identifier hs-var">subserver</span></a></span><span> </span><span class="annot"><span class="annottext">(DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg)
+ -&gt; Delayed
+      (Sem r) env (RoutingTx ByteString) (Sem (TxEffs :&amp; r) a))
+-&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg)
+-&gt; Delayed (Sem r) env (RoutingTx ByteString) (Sem (TxEffs :&amp; r) a)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(RoutingTx ByteString
+ -&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg))
+-&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg)
+forall (m :: * -&gt; *) req a.
+Monad m =&gt;
+(req -&gt; DelayedM m req a) -&gt; DelayedM m req a
+</span><a href="Tendermint.SDK.BaseApp.Router.Delayed.html#withRequest"><span class="hs-identifier hs-var">R.withRequest</span></a></span><span> </span><span class="annot"><span class="annottext">RoutingTx ByteString
+-&gt; DelayedM (Sem r) (RoutingTx ByteString) (RoutingTx msg)
+</span><a href="#local-6989586621679552942"><span class="hs-identifier hs-var">f</span></a></span><span>
+</span><span id="line-114"></span><span>      </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679552935"><span class="annot"><span class="annottext">mt :: Text
+</span><a href="#local-6989586621679552935"><span class="hs-identifier hs-var hs-var">mt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy msg -&gt; Text
+forall k (msg :: k). HasMessageType msg =&gt; Proxy msg -&gt; Text
+</span><a href="Tendermint.SDK.Types.Message.html#messageType"><span class="hs-identifier hs-var">messageType</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy msg
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679552952"><span class="hs-identifier hs-type">msg</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-115"></span><span>
+</span><span id="line-116"></span><span>  </span><span id="local-6989586621679552924"><span class="annot"><span class="annottext">applyAnteHandler :: Proxy (TypedMessage msg :~&gt; Return a)
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; AnteHandler r
+-&gt; RouteTx (TypedMessage msg :~&gt; Return a) r
+-&gt; RouteTx (TypedMessage msg :~&gt; Return a) r
+</span><a href="#local-6989586621679552924"><span class="hs-identifier hs-var hs-var hs-var hs-var">applyAnteHandler</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679552923"><span class="annot"><span class="annottext">ah :: AnteHandler r
+</span><a href="#local-6989586621679552923"><span class="hs-identifier hs-var">ah</span></a></span></span><span> </span><span id="local-6989586621679552922"><span class="annot"><span class="annottext">f :: RouteTx (TypedMessage msg :~&gt; Return a) r
+</span><a href="#local-6989586621679552922"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Endo (RoutingTx msg -&gt; Sem r a)
+-&gt; (RoutingTx msg -&gt; Sem r a) -&gt; RoutingTx msg -&gt; Sem r a
+forall a. Endo a -&gt; a -&gt; a
+</span><span class="hs-identifier hs-var hs-var">appEndo</span></span><span> </span><span class="annot"><span class="annottext">Endo (RoutingTx msg -&gt; Sem r a)
+AnteHandler r
+</span><a href="#local-6989586621679552923"><span class="hs-identifier hs-var">ah</span></a></span><span> </span><span class="annot"><span class="annottext">RouteTx (TypedMessage msg :~&gt; Return a) r
+RoutingTx msg -&gt; Sem r a
+</span><a href="#local-6989586621679552922"><span class="hs-identifier hs-var">f</span></a></span><span>
+</span><span id="line-117"></span><span>
+</span><span id="line-118"></span><span>  </span><span id="local-6989586621679552920"><span class="annot"><span class="annottext">hoistTxRouter :: Proxy (TypedMessage msg :~&gt; Return a)
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; (forall a. Sem s a -&gt; Sem s' a)
+-&gt; RouteTx (TypedMessage msg :~&gt; Return a) s
+-&gt; RouteTx (TypedMessage msg :~&gt; Return a) s'
+</span><a href="#local-6989586621679552920"><span class="hs-identifier hs-var hs-var hs-var hs-var">hoistTxRouter</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679552919"><span class="annot"><span class="annottext">nat :: forall a. Sem s a -&gt; Sem s' a
+</span><a href="#local-6989586621679552919"><span class="hs-identifier hs-var">nat</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Sem s a -&gt; Sem s' a)
+-&gt; (RoutingTx msg -&gt; Sem s a) -&gt; RoutingTx msg -&gt; Sem s' a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">(.)</span></span><span> </span><span class="annot"><span class="annottext">Sem s a -&gt; Sem s' a
+forall a. Sem s a -&gt; Sem s' a
+</span><a href="#local-6989586621679552919"><span class="hs-identifier hs-var">nat</span></a></span></span></span></span></span><span>
+</span><span id="line-119"></span><span>
+</span><span id="line-120"></span><span id="local-6989586621679552918"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#emptyTxServer"><span class="hs-identifier hs-type">emptyTxServer</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-type">RouteTx</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#EmptyTxServer"><span class="hs-identifier hs-type">EmptyTxServer</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552918"><span class="hs-identifier hs-type">r</span></a></span></span><span>
+</span><span id="line-121"></span><span id="emptyTxServer"><span class="annot"><span class="annottext">emptyTxServer :: RouteTx EmptyTxServer r
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#emptyTxServer"><span class="hs-identifier hs-var hs-var">emptyTxServer</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">EmptyTxServer
+RouteTx EmptyTxServer r
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#EmptyTxServer"><span class="hs-identifier hs-var">EmptyTxServer</span></a></span><span>
+</span><span id="line-122"></span><span>
+</span><span id="line-123"></span><span id="local-6989586621679552915"><span id="local-6989586621679552916"><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#HasTxRouter"><span class="hs-identifier hs-type">HasTxRouter</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#EmptyTxServer"><span class="hs-identifier hs-type">EmptyTxServer</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552916"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552915"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-124"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="RouteTx"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Router.html#RouteTx"><span class="hs-identifier hs-var">RouteTx</span></a></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#EmptyTxServer"><span class="hs-identifier hs-type">EmptyTxServer</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552916"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#EmptyTxServer"><span class="hs-identifier hs-type">EmptyTxServer</span></a></span><span>
+</span><span id="line-125"></span><span>  </span><span id="local-6989586621679552911"><span class="annot"><span class="annottext">routeTx :: Proxy EmptyTxServer
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; Delayed
+     (Sem r)
+     env
+     (RoutingTx ByteString)
+     (RouteTx EmptyTxServer (TxEffs :&amp; r))
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+</span><a href="#local-6989586621679552911"><span class="hs-identifier hs-var hs-var hs-var hs-var">routeTx</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Map
+  Text (Router env r (RoutingTx ByteString) (TxResult, Maybe Cache))
+-&gt; [env
+    -&gt; Application
+         (Sem r) (RoutingTx ByteString) (TxResult, Maybe Cache)]
+-&gt; Router env r (RoutingTx ByteString) (TxResult, Maybe Cache)
+forall env a.
+Map Text (Router' env a) -&gt; [env -&gt; a] -&gt; Router' env a
+</span><a href="Tendermint.SDK.BaseApp.Router.Router.html#StaticRouter"><span class="hs-identifier hs-var">R.StaticRouter</span></a></span><span> </span><span class="annot"><span class="annottext">Map
+  Text (Router env r (RoutingTx ByteString) (TxResult, Maybe Cache))
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="annot"><span class="annottext">[env
+ -&gt; Application
+      (Sem r) (RoutingTx ByteString) (TxResult, Maybe Cache)]
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span>
+</span><span id="line-126"></span><span>
+</span><span id="line-127"></span><span>  </span><span id="local-6989586621679552909"><span class="annot"><span class="annottext">applyAnteHandler :: Proxy EmptyTxServer
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; AnteHandler r
+-&gt; RouteTx EmptyTxServer r
+-&gt; RouteTx EmptyTxServer r
+</span><a href="#local-6989586621679552909"><span class="hs-identifier hs-var hs-var hs-var hs-var">applyAnteHandler</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RouteTx EmptyTxServer r -&gt; RouteTx EmptyTxServer r
+forall a. a -&gt; a
+</span><span class="hs-identifier hs-var">id</span></span><span>
+</span><span id="line-128"></span><span>
+</span><span id="line-129"></span><span>  </span><span id="local-6989586621679552907"><span class="annot"><span class="annottext">hoistTxRouter :: Proxy EmptyTxServer
+-&gt; Proxy r
+-&gt; Proxy scope
+-&gt; (forall a. Sem s a -&gt; Sem s' a)
+-&gt; RouteTx EmptyTxServer s
+-&gt; RouteTx EmptyTxServer s'
+</span><a href="#local-6989586621679552907"><span class="hs-identifier hs-var hs-var hs-var hs-var">hoistTxRouter</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RouteTx EmptyTxServer s -&gt; RouteTx EmptyTxServer s'
+forall a. a -&gt; a
+</span><span class="hs-identifier hs-var">id</span></span></span></span><span>
+</span><span id="line-130"></span></pre></body></html>

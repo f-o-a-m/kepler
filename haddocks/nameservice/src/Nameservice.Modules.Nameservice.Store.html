@@ -1,35 +1,128 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE QuasiQuotes     #-}</span><span>
-</span><a name="line-2"></a><span class="hs-pragma">{-# LANGUAGE TemplateHaskell #-}</span><span>
-</span><a name="line-3"></a><span>
-</span><a name="line-4"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Nameservice.Modules.Nameservice.Store</span><span>
-</span><a name="line-5"></a><span>  </span><span class="hs-special">(</span><span> </span><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-type">Name</span></a><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
-</span><a name="line-6"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Nameservice.Modules.Nameservice.Store.html#whoisMap"><span class="hs-identifier hs-var">whoisMap</span></a><span>
-</span><a name="line-7"></a><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-8"></a><span>
-</span><a name="line-9"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Lens</span><span>                          </span><span class="hs-special">(</span><span class="hs-identifier hs-var">iso</span><span class="hs-special">)</span><span>
-</span><a name="line-10"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.Aeson</span><span>                            </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">A</span><span>
-</span><a name="line-11"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Proxy</span><span>
-</span><a name="line-12"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.String.Conversions</span><span>               </span><span class="hs-special">(</span><span class="hs-identifier hs-var">cs</span><span class="hs-special">)</span><span>
-</span><a name="line-13"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Text</span><span>                             </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Text</span><span class="hs-special">)</span><span>
-</span><a name="line-14"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">GHC.TypeLits</span><span>                          </span><span class="hs-special">(</span><span class="hs-identifier hs-var">symbolVal</span><span class="hs-special">)</span><span>
-</span><a name="line-15"></a><span class="hs-keyword">import</span><span>           </span><a href="Nameservice.Modules.Nameservice.Keys.html"><span class="hs-identifier">Nameservice.Modules.Nameservice.Keys</span></a><span>  </span><span class="hs-special">(</span><a href="Nameservice.Modules.Nameservice.Keys.html#whoisMapKey"><span class="hs-identifier hs-var">whoisMapKey</span></a><span class="hs-special">)</span><span>
-</span><a name="line-16"></a><span class="hs-keyword">import</span><span>           </span><a href="Nameservice.Modules.Nameservice.Types.html"><span class="hs-identifier">Nameservice.Modules.Nameservice.Types</span></a><span>
-</span><a name="line-17"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp</span><span>                </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">BaseApp</span><span>
-</span><a name="line-18"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.Map</span><span>      </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">M</span><span>
-</span><a name="line-19"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.TH</span><span>       </span><span class="hs-special">(</span><span class="hs-identifier hs-var">makeSubStore</span><span class="hs-special">)</span><span>
-</span><a name="line-20"></a><span>
-</span><a name="line-21"></a><span class="hs-keyword">data</span><span> </span><a name="NameserviceNamespace"><a href="Nameservice.Modules.Nameservice.Store.html#NameserviceNamespace"><span class="hs-identifier">NameserviceNamespace</span></a></a><span>
-</span><a name="line-22"></a><span>
-</span><a name="line-23"></a><span class="hs-identifier">store</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">BaseApp.Store</span><span> </span><a href="Nameservice.Modules.Nameservice.Store.html#NameserviceNamespace"><span class="hs-identifier hs-type">NameserviceNamespace</span></a><span>
-</span><a name="line-24"></a><a name="store"><a href="Nameservice.Modules.Nameservice.Store.html#store"><span class="hs-identifier">store</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">BaseApp.makeStore</span><span> </span><span class="hs-operator hs-var">$</span><span>
-</span><a name="line-25"></a><span>  </span><span class="hs-identifier hs-var">BaseApp.KeyRoot</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">cs</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">symbolVal</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">Proxy</span><span> </span><span class="hs-glyph">@</span><a href="Nameservice.Modules.Nameservice.Types.html#NameserviceName"><span class="hs-identifier hs-type">NameserviceName</span></a><span>
-</span><a name="line-26"></a><span>
-</span><a name="line-27"></a><span class="hs-keyword">newtype</span><span> </span><a name="Name"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier">Name</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="Name"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier">Name</span></a></a><span> </span><span class="hs-special">{</span><a name="unName"><a href="Nameservice.Modules.Nameservice.Store.html#unName"><span class="hs-identifier">unName</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Text</span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Eq</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Show</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">A.ToJSON</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">A.FromJSON</span><span class="hs-special">)</span><span>
-</span><a name="line-28"></a><span>
-</span><a name="line-29"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">BaseApp.RawKey</span><span> </span><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-type">Name</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-30"></a><span>    </span><a name="local-8214565720323815895"><span class="hs-identifier">rawKey</span></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">iso</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-special">(</span><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-var">Name</span></a><span> </span><a name="local-6989586621679290188"><a href="#local-6989586621679290188"><span class="hs-identifier">n</span></a></a><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">cs</span><span> </span><a href="#local-6989586621679290188"><span class="hs-identifier hs-var">n</span></a><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-var">Name</span></a><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">cs</span><span class="hs-special">)</span><span>
-</span><a name="line-31"></a><span>
-</span><a name="line-32"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">BaseApp.QueryData</span><span> </span><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-type">Name</span></a><span>
-</span><a name="line-33"></a><span>
-</span><a name="line-34"></a><span class="hs-special">$(</span><span class="hs-identifier hs-var">makeSubStore</span><span> </span><span class="hs-special">'</span><span class="hs-identifier hs-var">store</span><span> </span><span class="hs-string">&quot;whoisMap&quot;</span><span> </span><span class="hs-special">[t|</span><span> </span><span class="hs-identifier hs-var">M.Map</span><span> </span><span class="hs-identifier hs-var">Name</span><span> </span><span class="hs-identifier hs-var">Whois</span><span class="hs-special">|]</span><span> </span><span class="hs-identifier hs-var">whoisMapKey</span><span class="hs-special">)</span><span>
-</span><a name="line-35"></a></pre></body></html>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE TemplateHaskell #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Nameservice.Modules.Nameservice.Store</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier">Name</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#whoisMap"><span class="hs-identifier">whoisMap</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Lens</span></span><span>                          </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">iso</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Aeson</span></span><span>                            </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">A</span></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Proxy</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.String.Conversions</span></span><span>               </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">cs</span></span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span>                             </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">GHC.TypeLits</span></span><span>                          </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">symbolVal</span></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Keys.html"><span class="hs-identifier">Nameservice.Modules.Nameservice.Keys</span></a></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="Nameservice.Modules.Nameservice.Keys.html#whoisMapKey"><span class="hs-identifier">whoisMapKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Types.html"><span class="hs-identifier">Nameservice.Modules.Nameservice.Types</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Tendermint.SDK.BaseApp</span></span><span>                </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BaseApp</span></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.Map</span></span><span>      </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">M</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Tendermint.SDK.BaseApp.Store.TH</span></span><span>       </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">makeSubStore</span></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">data</span><span> </span><span id="NameserviceNamespace"><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#NameserviceNamespace"><span class="hs-identifier hs-var">NameserviceNamespace</span></a></span></span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#store"><span class="hs-identifier hs-type">store</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">BaseApp.Store</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#NameserviceNamespace"><span class="hs-identifier hs-type">NameserviceNamespace</span></a></span><span>
+</span><span id="line-24"></span><span id="store"><span class="annot"><span class="annottext">store :: Store NameserviceNamespace
+</span><a href="Nameservice.Modules.Nameservice.Store.html#store"><span class="hs-identifier hs-var hs-var">store</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">KeyRoot NameserviceNamespace -&gt; Store NameserviceNamespace
+forall k (ns :: k). KeyRoot ns -&gt; Store ns
+</span><span class="hs-identifier hs-var">BaseApp.makeStore</span></span><span> </span><span class="annot"><span class="annottext">(KeyRoot NameserviceNamespace -&gt; Store NameserviceNamespace)
+-&gt; KeyRoot NameserviceNamespace -&gt; Store NameserviceNamespace
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-25"></span><span>  </span><span class="annot"><span class="annottext">ByteString -&gt; KeyRoot NameserviceNamespace
+forall k (ns :: k). ByteString -&gt; KeyRoot ns
+</span><span class="hs-identifier hs-var">BaseApp.KeyRoot</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; KeyRoot NameserviceNamespace)
+-&gt; ByteString -&gt; KeyRoot NameserviceNamespace
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ByteString
+forall a b. ConvertibleStrings a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">cs</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; ByteString)
+-&gt; (Proxy NameserviceName -&gt; String)
+-&gt; Proxy NameserviceName
+-&gt; ByteString
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Proxy NameserviceName -&gt; String
+forall (n :: Symbol) (proxy :: Symbol -&gt; *).
+KnownSymbol n =&gt;
+proxy n -&gt; String
+</span><span class="hs-identifier hs-var">symbolVal</span></span><span> </span><span class="annot"><span class="annottext">(Proxy NameserviceName -&gt; ByteString)
+-&gt; Proxy NameserviceName -&gt; ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Proxy NameserviceName
+forall k (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="Nameservice.Modules.Nameservice.Types.html#NameserviceName"><span class="hs-identifier hs-type">NameserviceName</span></a></span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">newtype</span><span> </span><span id="Name"><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-var">Name</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Name"><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-var">Name</span></a></span></span><span> </span><span class="hs-special">{</span><span id="unName"><span class="annot"><span class="annottext">Name -&gt; Text
+</span><a href="Nameservice.Modules.Nameservice.Store.html#unName"><span class="hs-identifier hs-var hs-var">unName</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354732"><span id="local-6989586621679354734"><span class="annot"><span class="annottext">Name -&gt; Name -&gt; Bool
+(Name -&gt; Name -&gt; Bool) -&gt; (Name -&gt; Name -&gt; Bool) -&gt; Eq Name
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: Name -&gt; Name -&gt; Bool
+$c/= :: Name -&gt; Name -&gt; Bool
+== :: Name -&gt; Name -&gt; Bool
+$c== :: Name -&gt; Name -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354725"><span id="local-6989586621679354727"><span id="local-6989586621679354729"><span class="annot"><span class="annottext">Int -&gt; Name -&gt; ShowS
+[Name] -&gt; ShowS
+Name -&gt; String
+(Int -&gt; Name -&gt; ShowS)
+-&gt; (Name -&gt; String) -&gt; ([Name] -&gt; ShowS) -&gt; Show Name
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [Name] -&gt; ShowS
+$cshowList :: [Name] -&gt; ShowS
+show :: Name -&gt; String
+$cshow :: Name -&gt; String
+showsPrec :: Int -&gt; Name -&gt; ShowS
+$cshowsPrec :: Int -&gt; Name -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354716"><span id="local-6989586621679354718"><span id="local-6989586621679354720"><span id="local-6989586621679354722"><span class="annot"><span class="annottext">[Name] -&gt; Encoding
+[Name] -&gt; Value
+Name -&gt; Encoding
+Name -&gt; Value
+(Name -&gt; Value)
+-&gt; (Name -&gt; Encoding)
+-&gt; ([Name] -&gt; Value)
+-&gt; ([Name] -&gt; Encoding)
+-&gt; ToJSON Name
+forall a.
+(a -&gt; Value)
+-&gt; (a -&gt; Encoding)
+-&gt; ([a] -&gt; Value)
+-&gt; ([a] -&gt; Encoding)
+-&gt; ToJSON a
+toEncodingList :: [Name] -&gt; Encoding
+$ctoEncodingList :: [Name] -&gt; Encoding
+toJSONList :: [Name] -&gt; Value
+$ctoJSONList :: [Name] -&gt; Value
+toEncoding :: Name -&gt; Encoding
+$ctoEncoding :: Name -&gt; Encoding
+toJSON :: Name -&gt; Value
+$ctoJSON :: Name -&gt; Value
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">A.ToJSON</span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354711"><span id="local-6989586621679354713"><span class="annot"><span class="annottext">Value -&gt; Parser [Name]
+Value -&gt; Parser Name
+(Value -&gt; Parser Name) -&gt; (Value -&gt; Parser [Name]) -&gt; FromJSON Name
+forall a.
+(Value -&gt; Parser a) -&gt; (Value -&gt; Parser [a]) -&gt; FromJSON a
+parseJSONList :: Value -&gt; Parser [Name]
+$cparseJSONList :: Value -&gt; Parser [Name]
+parseJSON :: Value -&gt; Parser Name
+$cparseJSON :: Value -&gt; Parser Name
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">A.FromJSON</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">BaseApp.RawKey</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-30"></span><span>    </span><span id="local-6989586621679354707"><span class="annot"><span class="annottext">rawKey :: p ByteString (f ByteString) -&gt; p Name (f Name)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">rawKey</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Name -&gt; ByteString)
+-&gt; (ByteString -&gt; Name) -&gt; Iso' Name ByteString
+forall s a b t. (s -&gt; a) -&gt; (b -&gt; t) -&gt; Iso s t a b
+</span><span class="hs-identifier hs-var">iso</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-special">(</span><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679354705"><span class="annot"><span class="annottext">n :: Text
+</span><a href="#local-6989586621679354705"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+forall a b. ConvertibleStrings a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">cs</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679354705"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Name
+</span><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-var">Name</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Name) -&gt; (ByteString -&gt; Text) -&gt; ByteString -&gt; Name
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Text
+forall a b. ConvertibleStrings a b =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">cs</span></span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354701"><span id="local-6989586621679354703"><span class="annot"><span class="hs-identifier hs-type">BaseApp.QueryData</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-type">Name</span></a></span></span></span><span>
+</span><span id="line-33"></span><span>
+</span><span id="line-34"></span><span class="hs-special">$(</span><span id="NameWhoisMapKey"><span id="Value"><span id="local-6989586621679354695"><span id="local-6989586621679354697"><span id="whoisMap"><span id="NameWhoisMapKey"><span class="hs-identifier">makeSubStore</span><span> </span><span class="hs-special">'</span><span class="hs-identifier">store</span><span> </span><span class="hs-string">&quot;whoisMap&quot;</span><span> </span><span class="hs-special">[t|</span><span> </span><span class="hs-identifier">M.Map</span><span> </span><span class="hs-identifier">Name</span><span> </span><span class="hs-identifier">Whois</span><span class="hs-special">|]</span><span> </span><span class="hs-identifier">whoisMapKey</span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span></pre></body></html>

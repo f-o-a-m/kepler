@@ -1,92 +1,264 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE TemplateHaskell #-}</span><span>
-</span><a name="line-2"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.Types.TxResult</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-3"></a><span>
-</span><a name="line-4"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Lens</span><span>                           </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Iso'</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">iso</span><span class="hs-special">)</span><span>
-</span><a name="line-5"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Control.Lens.TH</span><span>                        </span><span class="hs-special">(</span><span class="hs-identifier hs-var">makeLenses</span><span class="hs-special">)</span><span>
-</span><a name="line-6"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.ByteArray.Base64String</span><span>            </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Base64String</span><span class="hs-special">)</span><span>
-</span><a name="line-7"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Default.Class</span><span>                     </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Default</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-8"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Int</span><span>                               </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Int64</span><span class="hs-special">)</span><span>
-</span><a name="line-9"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Text</span><span>                              </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Text</span><span class="hs-special">)</span><span>
-</span><a name="line-10"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Word</span><span>                              </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Word32</span><span class="hs-special">)</span><span>
-</span><a name="line-11"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Network.ABCI.Types.Messages.FieldTypes</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Event</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">WrappedVal</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-12"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Network.ABCI.Types.Messages.Response</span><span>   </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Response</span><span>
-</span><a name="line-13"></a><span>
-</span><a name="line-14"></a><span class="hs-comment">-- | This type represents a common transaction result for the CheckTx</span><span>
-</span><a name="line-15"></a><span class="hs-comment">-- | and DeliverTx abci-messages.</span><span>
-</span><a name="line-16"></a><span class="hs-keyword">data</span><span> </span><a name="TxResult"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier">TxResult</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="TxResult"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier">TxResult</span></a></a><span>
-</span><a name="line-17"></a><span>  </span><span class="hs-special">{</span><span> </span><a name="_txResultData"><a href="Tendermint.SDK.Types.TxResult.html#_txResultData"><span class="hs-identifier">_txResultData</span></a></a><span>      </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Base64String</span><span>
-</span><a name="line-18"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="_txResultInfo"><a href="Tendermint.SDK.Types.TxResult.html#_txResultInfo"><span class="hs-identifier">_txResultInfo</span></a></a><span>      </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Text</span><span>
-</span><a name="line-19"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="_txResultGasWanted"><a href="Tendermint.SDK.Types.TxResult.html#_txResultGasWanted"><span class="hs-identifier">_txResultGasWanted</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Int64</span><span>
-</span><a name="line-20"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="_txResultGasUsed"><a href="Tendermint.SDK.Types.TxResult.html#_txResultGasUsed"><span class="hs-identifier">_txResultGasUsed</span></a></a><span>   </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Int64</span><span>
-</span><a name="line-21"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="_txResultEvents"><a href="Tendermint.SDK.Types.TxResult.html#_txResultEvents"><span class="hs-identifier">_txResultEvents</span></a></a><span>    </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-identifier hs-type">Event</span><span class="hs-special">]</span><span>
-</span><a name="line-22"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="_txResultCode"><a href="Tendermint.SDK.Types.TxResult.html#_txResultCode"><span class="hs-identifier">_txResultCode</span></a></a><span>      </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Word32</span><span>
-</span><a name="line-23"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="_txResultLog"><a href="Tendermint.SDK.Types.TxResult.html#_txResultLog"><span class="hs-identifier">_txResultLog</span></a></a><span>       </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Text</span><span>
-</span><a name="line-24"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="_txResultCodespace"><a href="Tendermint.SDK.Types.TxResult.html#_txResultCodespace"><span class="hs-identifier">_txResultCodespace</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Text</span><span>
-</span><a name="line-25"></a><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-identifier hs-type">Show</span><span>
-</span><a name="line-26"></a><span>
-</span><a name="line-27"></a><span class="hs-identifier hs-var">makeLenses</span><span> </span><span class="hs-special">''</span><span class="hs-identifier hs-var">TxResult</span><span>
-</span><a name="line-28"></a><span>
-</span><a name="line-29"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">Default</span><span> </span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-30"></a><span>  </span><a name="local-8214565720324057825"><span class="hs-identifier">def</span></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-var">TxResult</span></a><span>
-</span><a name="line-31"></a><span>    </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">_txResultData</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-string">&quot;&quot;</span><span>
-</span><a name="line-32"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultInfo</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-string">&quot;&quot;</span><span>
-</span><a name="line-33"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultGasWanted</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-number">0</span><span>
-</span><a name="line-34"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultGasUsed</span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-number">0</span><span>
-</span><a name="line-35"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultEvents</span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
-</span><a name="line-36"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultCode</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-number">0</span><span>
-</span><a name="line-37"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultLog</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-string">&quot;&quot;</span><span>
-</span><a name="line-38"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultCodespace</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-string">&quot;&quot;</span><span>
-</span><a name="line-39"></a><span>    </span><span class="hs-special">}</span><span>
-</span><a name="line-40"></a><span>
-</span><a name="line-41"></a><span class="hs-comment">-- | This class is used to set the 'TxResult' data into the appropriate</span><span>
-</span><a name="line-42"></a><span class="hs-comment">-- | response fields for the CheckTx abci-message.</span><span>
-</span><a name="line-43"></a><span class="hs-identifier">checkTxTxResult</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Iso'</span><span> </span><span class="hs-identifier hs-type">Response.CheckTx</span><span> </span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a><span>
-</span><a name="line-44"></a><a name="checkTxTxResult"><a href="Tendermint.SDK.Types.TxResult.html#checkTxTxResult"><span class="hs-identifier">checkTxTxResult</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">iso</span><span> </span><a href="#local-6989586621679285305"><span class="hs-identifier hs-var">g</span></a><span> </span><a href="#local-6989586621679285306"><span class="hs-identifier hs-var">s</span></a><span>
-</span><a name="line-45"></a><span>  </span><span class="hs-keyword">where</span><span>
-</span><a name="line-46"></a><span>    </span><a name="local-6989586621679285305"><a href="#local-6989586621679285305"><span class="hs-identifier">g</span></a></a><span> </span><span class="hs-identifier hs-var">Response.CheckTx</span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-var">TxResult</span></a><span>
-</span><a name="line-47"></a><span>      </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">_txResultData</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285312"><span class="hs-identifier hs-var">checkTxData</span></a><span>
-</span><a name="line-48"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultInfo</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285314"><span class="hs-identifier hs-var">checkTxInfo</span></a><span>
-</span><a name="line-49"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultGasWanted</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">unWrappedVal</span><span> </span><a href="#local-6989586621679285315"><span class="hs-identifier hs-var">checkTxGasWanted</span></a><span>
-</span><a name="line-50"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultGasUsed</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">unWrappedVal</span><span> </span><a href="#local-6989586621679285316"><span class="hs-identifier hs-var">checkTxGasUsed</span></a><span>
-</span><a name="line-51"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultEvents</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285317"><span class="hs-identifier hs-var">checkTxEvents</span></a><span>
-</span><a name="line-52"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultCode</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285311"><span class="hs-identifier hs-var">checkTxCode</span></a><span>
-</span><a name="line-53"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultLog</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285313"><span class="hs-identifier hs-var">checkTxLog</span></a><span>
-</span><a name="line-54"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultCodespace</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285318"><span class="hs-identifier hs-var">checkTxCodespace</span></a><span>
-</span><a name="line-55"></a><span>      </span><span class="hs-special">}</span><span>
-</span><a name="line-56"></a><span>    </span><a name="local-6989586621679285306"><a href="#local-6989586621679285306"><span class="hs-identifier">s</span></a></a><span> </span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-var">TxResult</span></a><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Response.CheckTx</span><span>
-</span><a name="line-57"></a><span>      </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">Response.checkTxData</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285319"><span class="hs-identifier hs-var">_txResultData</span></a><span>
-</span><a name="line-58"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.checkTxInfo</span><span>  </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285320"><span class="hs-identifier hs-var">_txResultInfo</span></a><span>
-</span><a name="line-59"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.checkTxGasWanted</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">WrappedVal</span><span> </span><a href="#local-6989586621679285321"><span class="hs-identifier hs-var">_txResultGasWanted</span></a><span>
-</span><a name="line-60"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.checkTxGasUsed</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">WrappedVal</span><span> </span><a href="#local-6989586621679285322"><span class="hs-identifier hs-var">_txResultGasUsed</span></a><span>
-</span><a name="line-61"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.checkTxEvents</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285323"><span class="hs-identifier hs-var">_txResultEvents</span></a><span>
-</span><a name="line-62"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.checkTxCode</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285324"><span class="hs-identifier hs-var">_txResultCode</span></a><span>
-</span><a name="line-63"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.checkTxCodespace</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285326"><span class="hs-identifier hs-var">_txResultCodespace</span></a><span>
-</span><a name="line-64"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.checkTxLog</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285325"><span class="hs-identifier hs-var">_txResultLog</span></a><span>
-</span><a name="line-65"></a><span>      </span><span class="hs-special">}</span><span>
-</span><a name="line-66"></a><span>
-</span><a name="line-67"></a><span class="hs-comment">-- | This class is used to set the 'TxResult' data into the appropriate</span><span>
-</span><a name="line-68"></a><span class="hs-comment">-- | response fields for the DeliverTx abci-message.</span><span>
-</span><a name="line-69"></a><span class="hs-identifier">deliverTxTxResult</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Iso'</span><span> </span><span class="hs-identifier hs-type">Response.DeliverTx</span><span> </span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a><span>
-</span><a name="line-70"></a><a name="deliverTxTxResult"><a href="Tendermint.SDK.Types.TxResult.html#deliverTxTxResult"><span class="hs-identifier">deliverTxTxResult</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">iso</span><span> </span><a href="#local-6989586621679285327"><span class="hs-identifier hs-var">g</span></a><span> </span><a href="#local-6989586621679285328"><span class="hs-identifier hs-var">s</span></a><span>
-</span><a name="line-71"></a><span>  </span><span class="hs-keyword">where</span><span>
-</span><a name="line-72"></a><span>    </span><a name="local-6989586621679285327"><a href="#local-6989586621679285327"><span class="hs-identifier">g</span></a></a><span> </span><span class="hs-identifier hs-var">Response.DeliverTx</span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-var">TxResult</span></a><span>
-</span><a name="line-73"></a><span>      </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">_txResultData</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285334"><span class="hs-identifier hs-var">deliverTxData</span></a><span>
-</span><a name="line-74"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultInfo</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285336"><span class="hs-identifier hs-var">deliverTxInfo</span></a><span>
-</span><a name="line-75"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultGasWanted</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">unWrappedVal</span><span> </span><a href="#local-6989586621679285337"><span class="hs-identifier hs-var">deliverTxGasWanted</span></a><span>
-</span><a name="line-76"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultGasUsed</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">unWrappedVal</span><span> </span><a href="#local-6989586621679285338"><span class="hs-identifier hs-var">deliverTxGasUsed</span></a><span>
-</span><a name="line-77"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultEvents</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285339"><span class="hs-identifier hs-var">deliverTxEvents</span></a><span>
-</span><a name="line-78"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultCode</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285333"><span class="hs-identifier hs-var">deliverTxCode</span></a><span>
-</span><a name="line-79"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultLog</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285335"><span class="hs-identifier hs-var">deliverTxLog</span></a><span>
-</span><a name="line-80"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">_txResultCodespace</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285340"><span class="hs-identifier hs-var">deliverTxCodespace</span></a><span>
-</span><a name="line-81"></a><span>      </span><span class="hs-special">}</span><span>
-</span><a name="line-82"></a><span>    </span><a name="local-6989586621679285328"><a href="#local-6989586621679285328"><span class="hs-identifier">s</span></a></a><span> </span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-var">TxResult</span></a><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Response.DeliverTx</span><span>
-</span><a name="line-83"></a><span>      </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">Response.deliverTxData</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285341"><span class="hs-identifier hs-var">_txResultData</span></a><span>
-</span><a name="line-84"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.deliverTxInfo</span><span>  </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285342"><span class="hs-identifier hs-var">_txResultInfo</span></a><span>
-</span><a name="line-85"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.deliverTxGasWanted</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">WrappedVal</span><span> </span><a href="#local-6989586621679285343"><span class="hs-identifier hs-var">_txResultGasWanted</span></a><span>
-</span><a name="line-86"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.deliverTxGasUsed</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">WrappedVal</span><span> </span><a href="#local-6989586621679285344"><span class="hs-identifier hs-var">_txResultGasUsed</span></a><span>
-</span><a name="line-87"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.deliverTxEvents</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285345"><span class="hs-identifier hs-var">_txResultEvents</span></a><span>
-</span><a name="line-88"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.deliverTxCode</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285346"><span class="hs-identifier hs-var">_txResultCode</span></a><span>
-</span><a name="line-89"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.deliverTxCodespace</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285348"><span class="hs-identifier hs-var">_txResultCodespace</span></a><span>
-</span><a name="line-90"></a><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Response.deliverTxLog</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679285347"><span class="hs-identifier hs-var">_txResultLog</span></a><span>
-</span><a name="line-91"></a><span>      </span><span class="hs-special">}</span><span>
-</span><a name="line-92"></a></pre></body></html>
+</span><span id="line-2"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.Types.TxResult</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Lens</span></span><span>                           </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Iso'</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">iso</span></span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Lens.TH</span></span><span>                        </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">makeLenses</span></span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.ByteArray.Base64String</span></span><span>            </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Base64String</span></span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Default.Class</span></span><span>                     </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Default</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Int</span></span><span>                               </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Int64</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span>                              </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Word</span></span><span>                              </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Word32</span></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Network.ABCI.Types.Messages.FieldTypes</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Event</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">WrappedVal</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Network.ABCI.Types.Messages.Response</span></span><span>   </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Response</span></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- | This type represents a common transaction result for the CheckTx</span><span>
+</span><span id="line-15"></span><span class="hs-comment">-- | and DeliverTx abci-messages.</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">data</span><span> </span><span id="TxResult"><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-var">TxResult</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="TxResult"><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-var">TxResult</span></a></span></span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="_txResultData"><span class="annot"><span class="annottext">TxResult -&gt; Base64String
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultData"><span class="hs-identifier hs-var hs-var">_txResultData</span></a></span></span><span>      </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Base64String</span></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_txResultInfo"><span class="annot"><span class="annottext">TxResult -&gt; Text
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultInfo"><span class="hs-identifier hs-var hs-var">_txResultInfo</span></a></span></span><span>      </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_txResultGasWanted"><span class="annot"><span class="annottext">TxResult -&gt; Int64
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultGasWanted"><span class="hs-identifier hs-var hs-var">_txResultGasWanted</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int64</span></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_txResultGasUsed"><span class="annot"><span class="annottext">TxResult -&gt; Int64
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultGasUsed"><span class="hs-identifier hs-var hs-var">_txResultGasUsed</span></a></span></span><span>   </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int64</span></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_txResultEvents"><span class="annot"><span class="annottext">TxResult -&gt; [Event]
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultEvents"><span class="hs-identifier hs-var hs-var">_txResultEvents</span></a></span></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Event</span></span><span class="hs-special">]</span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_txResultCode"><span class="annot"><span class="annottext">TxResult -&gt; Word32
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultCode"><span class="hs-identifier hs-var hs-var">_txResultCode</span></a></span></span><span>      </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word32</span></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_txResultLog"><span class="annot"><span class="annottext">TxResult -&gt; Text
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultLog"><span class="hs-identifier hs-var hs-var">_txResultLog</span></a></span></span><span>       </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="_txResultCodespace"><span class="annot"><span class="annottext">TxResult -&gt; Text
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultCodespace"><span class="hs-identifier hs-var hs-var">_txResultCodespace</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679548279"><span id="local-6989586621679548281"><span id="local-6989586621679548283"><span class="annot"><span class="annottext">Int -&gt; TxResult -&gt; ShowS
+[TxResult] -&gt; ShowS
+TxResult -&gt; String
+(Int -&gt; TxResult -&gt; ShowS)
+-&gt; (TxResult -&gt; String) -&gt; ([TxResult] -&gt; ShowS) -&gt; Show TxResult
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [TxResult] -&gt; ShowS
+$cshowList :: [TxResult] -&gt; ShowS
+show :: TxResult -&gt; String
+$cshow :: TxResult -&gt; String
+showsPrec :: Int -&gt; TxResult -&gt; ShowS
+$cshowsPrec :: Int -&gt; TxResult -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span id="txResultLog"><span id="txResultInfo"><span id="txResultGasWanted"><span id="txResultGasUsed"><span id="txResultEvents"><span id="txResultData"><span id="txResultCodespace"><span id="txResultCode"><span class="hs-identifier">makeLenses</span><span> </span><span class="hs-special">''</span><span class="hs-identifier">TxResult</span></span></span></span></span></span></span></span></span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Default</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-30"></span><span>  </span><span id="local-6989586621679548267"><span class="annot"><span class="annottext">def :: TxResult
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">def</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TxResult :: Base64String
+-&gt; Text
+-&gt; Int64
+-&gt; Int64
+-&gt; [Event]
+-&gt; Word32
+-&gt; Text
+-&gt; Text
+-&gt; TxResult
+</span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type hs-type">TxResult</span></a></span><span>
+</span><span id="line-31"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">_txResultData :: Base64String
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultData"><span class="hs-identifier hs-var">_txResultData</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-32"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultInfo :: Text
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultInfo"><span class="hs-identifier hs-var">_txResultInfo</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-33"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultGasWanted :: Int64
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultGasWanted"><span class="hs-identifier hs-var">_txResultGasWanted</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">0</span></span><span>
+</span><span id="line-34"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultGasUsed :: Int64
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultGasUsed"><span class="hs-identifier hs-var">_txResultGasUsed</span></a></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">0</span></span><span>
+</span><span id="line-35"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultEvents :: [Event]
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultEvents"><span class="hs-identifier hs-var">_txResultEvents</span></a></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-36"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultCode :: Word32
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultCode"><span class="hs-identifier hs-var">_txResultCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">0</span></span><span>
+</span><span id="line-37"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultLog :: Text
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultLog"><span class="hs-identifier hs-var">_txResultLog</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-38"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultCodespace :: Text
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultCodespace"><span class="hs-identifier hs-var">_txResultCodespace</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-39"></span><span>    </span><span class="hs-special">}</span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span class="hs-comment">-- | This class is used to set the 'TxResult' data into the appropriate</span><span>
+</span><span id="line-42"></span><span class="hs-comment">-- | response fields for the CheckTx abci-message.</span><span>
+</span><span id="line-43"></span><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#checkTxTxResult"><span class="hs-identifier hs-type">checkTxTxResult</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Iso'</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Response.CheckTx</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a></span><span>
+</span><span id="line-44"></span><span id="checkTxTxResult"><span class="annot"><span class="annottext">checkTxTxResult :: p TxResult (f TxResult) -&gt; p CheckTx (f CheckTx)
+</span><a href="Tendermint.SDK.Types.TxResult.html#checkTxTxResult"><span class="hs-identifier hs-var hs-var">checkTxTxResult</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(CheckTx -&gt; TxResult)
+-&gt; (TxResult -&gt; CheckTx) -&gt; Iso CheckTx CheckTx TxResult TxResult
+forall s a b t. (s -&gt; a) -&gt; (b -&gt; t) -&gt; Iso s t a b
+</span><span class="hs-identifier hs-var">iso</span></span><span> </span><span class="annot"><span class="annottext">CheckTx -&gt; TxResult
+</span><a href="#local-6989586621679548263"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">TxResult -&gt; CheckTx
+</span><a href="#local-6989586621679548262"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-46"></span><span>    </span><span id="local-6989586621679548263"><span class="annot"><span class="annottext">g :: CheckTx -&gt; TxResult
+</span><a href="#local-6989586621679548263"><span class="hs-identifier hs-var hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679548254"><span id="local-6989586621679548255"><span id="local-6989586621679548256"><span id="local-6989586621679548257"><span id="local-6989586621679548258"><span id="local-6989586621679548259"><span id="local-6989586621679548260"><span id="local-6989586621679548261"><span class="annot"><span class="hs-identifier hs-type">Response.CheckTx</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TxResult :: Base64String
+-&gt; Text
+-&gt; Int64
+-&gt; Int64
+-&gt; [Event]
+-&gt; Word32
+-&gt; Text
+-&gt; Text
+-&gt; TxResult
+</span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type hs-type">TxResult</span></a></span><span>
+</span><span id="line-47"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">_txResultData :: Base64String
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultData"><span class="hs-identifier hs-var">_txResultData</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Base64String
+</span><a href="#local-6989586621679548260"><span class="hs-identifier hs-var">checkTxData</span></a></span><span>
+</span><span id="line-48"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultInfo :: Text
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultInfo"><span class="hs-identifier hs-var">_txResultInfo</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679548258"><span class="hs-identifier hs-var">checkTxInfo</span></a></span><span>
+</span><span id="line-49"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultGasWanted :: Int64
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultGasWanted"><span class="hs-identifier hs-var">_txResultGasWanted</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">WrappedVal Int64 -&gt; Int64
+forall a. WrappedVal a -&gt; a
+</span><span class="hs-identifier hs-var hs-var">unWrappedVal</span></span><span> </span><span class="annot"><span class="annottext">WrappedVal Int64
+</span><a href="#local-6989586621679548257"><span class="hs-identifier hs-var">checkTxGasWanted</span></a></span><span>
+</span><span id="line-50"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultGasUsed :: Int64
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultGasUsed"><span class="hs-identifier hs-var">_txResultGasUsed</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">WrappedVal Int64 -&gt; Int64
+forall a. WrappedVal a -&gt; a
+</span><span class="hs-identifier hs-var hs-var">unWrappedVal</span></span><span> </span><span class="annot"><span class="annottext">WrappedVal Int64
+</span><a href="#local-6989586621679548256"><span class="hs-identifier hs-var">checkTxGasUsed</span></a></span><span>
+</span><span id="line-51"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultEvents :: [Event]
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultEvents"><span class="hs-identifier hs-var">_txResultEvents</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Event]
+</span><a href="#local-6989586621679548255"><span class="hs-identifier hs-var">checkTxEvents</span></a></span><span>
+</span><span id="line-52"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultCode :: Word32
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultCode"><span class="hs-identifier hs-var">_txResultCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679548261"><span class="hs-identifier hs-var">checkTxCode</span></a></span><span>
+</span><span id="line-53"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultLog :: Text
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultLog"><span class="hs-identifier hs-var">_txResultLog</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679548259"><span class="hs-identifier hs-var">checkTxLog</span></a></span><span>
+</span><span id="line-54"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultCodespace :: Text
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultCodespace"><span class="hs-identifier hs-var">_txResultCodespace</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679548254"><span class="hs-identifier hs-var">checkTxCodespace</span></a></span><span>
+</span><span id="line-55"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-56"></span><span>    </span><span id="local-6989586621679548262"><span class="annot"><span class="annottext">s :: TxResult -&gt; CheckTx
+</span><a href="#local-6989586621679548262"><span class="hs-identifier hs-var hs-var">s</span></a></span></span><span> </span><span id="local-6989586621679548236"><span id="local-6989586621679548237"><span id="local-6989586621679548238"><span id="local-6989586621679548239"><span id="local-6989586621679548240"><span id="local-6989586621679548241"><span id="local-6989586621679548242"><span id="local-6989586621679548243"><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">CheckTx :: Word32
+-&gt; Base64String
+-&gt; Text
+-&gt; Text
+-&gt; WrappedVal Int64
+-&gt; WrappedVal Int64
+-&gt; [Event]
+-&gt; Text
+-&gt; CheckTx
+</span><span class="hs-identifier hs-type hs-type">Response.CheckTx</span></span><span>
+</span><span id="line-57"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">checkTxData :: Base64String
+</span><span class="hs-identifier hs-var">Response.checkTxData</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Base64String
+</span><a href="#local-6989586621679548243"><span class="hs-identifier hs-var">_txResultData</span></a></span><span>
+</span><span id="line-58"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">checkTxInfo :: Text
+</span><span class="hs-identifier hs-var">Response.checkTxInfo</span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679548242"><span class="hs-identifier hs-var">_txResultInfo</span></a></span><span>
+</span><span id="line-59"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">checkTxGasWanted :: WrappedVal Int64
+</span><span class="hs-identifier hs-var">Response.checkTxGasWanted</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; WrappedVal Int64
+forall a. a -&gt; WrappedVal a
+</span><span class="hs-identifier hs-var">WrappedVal</span></span><span> </span><span class="annot"><span class="annottext">Int64
+</span><a href="#local-6989586621679548241"><span class="hs-identifier hs-var">_txResultGasWanted</span></a></span><span>
+</span><span id="line-60"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">checkTxGasUsed :: WrappedVal Int64
+</span><span class="hs-identifier hs-var">Response.checkTxGasUsed</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; WrappedVal Int64
+forall a. a -&gt; WrappedVal a
+</span><span class="hs-identifier hs-var">WrappedVal</span></span><span> </span><span class="annot"><span class="annottext">Int64
+</span><a href="#local-6989586621679548240"><span class="hs-identifier hs-var">_txResultGasUsed</span></a></span><span>
+</span><span id="line-61"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">checkTxEvents :: [Event]
+</span><span class="hs-identifier hs-var">Response.checkTxEvents</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Event]
+</span><a href="#local-6989586621679548239"><span class="hs-identifier hs-var">_txResultEvents</span></a></span><span>
+</span><span id="line-62"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">checkTxCode :: Word32
+</span><span class="hs-identifier hs-var">Response.checkTxCode</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679548238"><span class="hs-identifier hs-var">_txResultCode</span></a></span><span>
+</span><span id="line-63"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">checkTxCodespace :: Text
+</span><span class="hs-identifier hs-var">Response.checkTxCodespace</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679548236"><span class="hs-identifier hs-var">_txResultCodespace</span></a></span><span>
+</span><span id="line-64"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">checkTxLog :: Text
+</span><span class="hs-identifier hs-var">Response.checkTxLog</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679548237"><span class="hs-identifier hs-var">_txResultLog</span></a></span><span>
+</span><span id="line-65"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-66"></span><span>
+</span><span id="line-67"></span><span class="hs-comment">-- | This class is used to set the 'TxResult' data into the appropriate</span><span>
+</span><span id="line-68"></span><span class="hs-comment">-- | response fields for the DeliverTx abci-message.</span><span>
+</span><span id="line-69"></span><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#deliverTxTxResult"><span class="hs-identifier hs-type">deliverTxTxResult</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Iso'</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Response.DeliverTx</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a></span><span>
+</span><span id="line-70"></span><span id="deliverTxTxResult"><span class="annot"><span class="annottext">deliverTxTxResult :: p TxResult (f TxResult) -&gt; p DeliverTx (f DeliverTx)
+</span><a href="Tendermint.SDK.Types.TxResult.html#deliverTxTxResult"><span class="hs-identifier hs-var hs-var">deliverTxTxResult</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(DeliverTx -&gt; TxResult)
+-&gt; (TxResult -&gt; DeliverTx)
+-&gt; Iso DeliverTx DeliverTx TxResult TxResult
+forall s a b t. (s -&gt; a) -&gt; (b -&gt; t) -&gt; Iso s t a b
+</span><span class="hs-identifier hs-var">iso</span></span><span> </span><span class="annot"><span class="annottext">DeliverTx -&gt; TxResult
+</span><a href="#local-6989586621679548232"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">TxResult -&gt; DeliverTx
+</span><a href="#local-6989586621679548231"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-72"></span><span>    </span><span id="local-6989586621679548232"><span class="annot"><span class="annottext">g :: DeliverTx -&gt; TxResult
+</span><a href="#local-6989586621679548232"><span class="hs-identifier hs-var hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679548223"><span id="local-6989586621679548224"><span id="local-6989586621679548225"><span id="local-6989586621679548226"><span id="local-6989586621679548227"><span id="local-6989586621679548228"><span id="local-6989586621679548229"><span id="local-6989586621679548230"><span class="annot"><span class="hs-identifier hs-type">Response.DeliverTx</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TxResult :: Base64String
+-&gt; Text
+-&gt; Int64
+-&gt; Int64
+-&gt; [Event]
+-&gt; Word32
+-&gt; Text
+-&gt; Text
+-&gt; TxResult
+</span><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type hs-type">TxResult</span></a></span><span>
+</span><span id="line-73"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">_txResultData :: Base64String
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultData"><span class="hs-identifier hs-var">_txResultData</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Base64String
+</span><a href="#local-6989586621679548229"><span class="hs-identifier hs-var">deliverTxData</span></a></span><span>
+</span><span id="line-74"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultInfo :: Text
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultInfo"><span class="hs-identifier hs-var">_txResultInfo</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679548227"><span class="hs-identifier hs-var">deliverTxInfo</span></a></span><span>
+</span><span id="line-75"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultGasWanted :: Int64
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultGasWanted"><span class="hs-identifier hs-var">_txResultGasWanted</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">WrappedVal Int64 -&gt; Int64
+forall a. WrappedVal a -&gt; a
+</span><span class="hs-identifier hs-var hs-var">unWrappedVal</span></span><span> </span><span class="annot"><span class="annottext">WrappedVal Int64
+</span><a href="#local-6989586621679548226"><span class="hs-identifier hs-var">deliverTxGasWanted</span></a></span><span>
+</span><span id="line-76"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultGasUsed :: Int64
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultGasUsed"><span class="hs-identifier hs-var">_txResultGasUsed</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">WrappedVal Int64 -&gt; Int64
+forall a. WrappedVal a -&gt; a
+</span><span class="hs-identifier hs-var hs-var">unWrappedVal</span></span><span> </span><span class="annot"><span class="annottext">WrappedVal Int64
+</span><a href="#local-6989586621679548225"><span class="hs-identifier hs-var">deliverTxGasUsed</span></a></span><span>
+</span><span id="line-77"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultEvents :: [Event]
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultEvents"><span class="hs-identifier hs-var">_txResultEvents</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Event]
+</span><a href="#local-6989586621679548224"><span class="hs-identifier hs-var">deliverTxEvents</span></a></span><span>
+</span><span id="line-78"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultCode :: Word32
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultCode"><span class="hs-identifier hs-var">_txResultCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679548230"><span class="hs-identifier hs-var">deliverTxCode</span></a></span><span>
+</span><span id="line-79"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultLog :: Text
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultLog"><span class="hs-identifier hs-var">_txResultLog</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679548228"><span class="hs-identifier hs-var">deliverTxLog</span></a></span><span>
+</span><span id="line-80"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultCodespace :: Text
+</span><a href="Tendermint.SDK.Types.TxResult.html#_txResultCodespace"><span class="hs-identifier hs-var">_txResultCodespace</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679548223"><span class="hs-identifier hs-var">deliverTxCodespace</span></a></span><span>
+</span><span id="line-81"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-82"></span><span>    </span><span id="local-6989586621679548231"><span class="annot"><span class="annottext">s :: TxResult -&gt; DeliverTx
+</span><a href="#local-6989586621679548231"><span class="hs-identifier hs-var hs-var">s</span></a></span></span><span> </span><span id="local-6989586621679548206"><span id="local-6989586621679548207"><span id="local-6989586621679548208"><span id="local-6989586621679548209"><span id="local-6989586621679548210"><span id="local-6989586621679548211"><span id="local-6989586621679548212"><span id="local-6989586621679548213"><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DeliverTx :: Word32
+-&gt; Base64String
+-&gt; Text
+-&gt; Text
+-&gt; WrappedVal Int64
+-&gt; WrappedVal Int64
+-&gt; [Event]
+-&gt; Text
+-&gt; DeliverTx
+</span><span class="hs-identifier hs-type hs-type">Response.DeliverTx</span></span><span>
+</span><span id="line-83"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">deliverTxData :: Base64String
+</span><span class="hs-identifier hs-var">Response.deliverTxData</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Base64String
+</span><a href="#local-6989586621679548213"><span class="hs-identifier hs-var">_txResultData</span></a></span><span>
+</span><span id="line-84"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">deliverTxInfo :: Text
+</span><span class="hs-identifier hs-var">Response.deliverTxInfo</span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679548212"><span class="hs-identifier hs-var">_txResultInfo</span></a></span><span>
+</span><span id="line-85"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">deliverTxGasWanted :: WrappedVal Int64
+</span><span class="hs-identifier hs-var">Response.deliverTxGasWanted</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; WrappedVal Int64
+forall a. a -&gt; WrappedVal a
+</span><span class="hs-identifier hs-var">WrappedVal</span></span><span> </span><span class="annot"><span class="annottext">Int64
+</span><a href="#local-6989586621679548211"><span class="hs-identifier hs-var">_txResultGasWanted</span></a></span><span>
+</span><span id="line-86"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">deliverTxGasUsed :: WrappedVal Int64
+</span><span class="hs-identifier hs-var">Response.deliverTxGasUsed</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; WrappedVal Int64
+forall a. a -&gt; WrappedVal a
+</span><span class="hs-identifier hs-var">WrappedVal</span></span><span> </span><span class="annot"><span class="annottext">Int64
+</span><a href="#local-6989586621679548210"><span class="hs-identifier hs-var">_txResultGasUsed</span></a></span><span>
+</span><span id="line-87"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">deliverTxEvents :: [Event]
+</span><span class="hs-identifier hs-var">Response.deliverTxEvents</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Event]
+</span><a href="#local-6989586621679548209"><span class="hs-identifier hs-var">_txResultEvents</span></a></span><span>
+</span><span id="line-88"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">deliverTxCode :: Word32
+</span><span class="hs-identifier hs-var">Response.deliverTxCode</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679548208"><span class="hs-identifier hs-var">_txResultCode</span></a></span><span>
+</span><span id="line-89"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">deliverTxCodespace :: Text
+</span><span class="hs-identifier hs-var">Response.deliverTxCodespace</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679548206"><span class="hs-identifier hs-var">_txResultCodespace</span></a></span><span>
+</span><span id="line-90"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">deliverTxLog :: Text
+</span><span class="hs-identifier hs-var">Response.deliverTxLog</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679548207"><span class="hs-identifier hs-var">_txResultLog</span></a></span><span>
+</span><span id="line-91"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-92"></span></pre></body></html>

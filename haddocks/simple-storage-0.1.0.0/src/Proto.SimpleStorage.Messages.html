@@ -1,194 +1,567 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">{- This file was auto-generated from simple-storage/messages.proto by the proto-lens-protoc program. -}</span><span>
-</span><a name="line-2"></a><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables, DataKinds, TypeFamilies,
-  UndecidableInstances, GeneralizedNewtypeDeriving,
-  MultiParamTypeClasses, FlexibleContexts, FlexibleInstances,
-  PatternSynonyms, MagicHash, NoImplicitPrelude, DataKinds,
-  BangPatterns, TypeApplications #-}</span><span>
-</span><a name="line-7"></a><span class="hs-pragma">{-# OPTIONS_GHC -fno-warn-unused-imports#-}</span><span>
-</span><a name="line-8"></a><span class="hs-pragma">{-# OPTIONS_GHC -fno-warn-duplicate-exports#-}</span><span>
-</span><a name="line-9"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Proto.SimpleStorage.Messages</span><span> </span><span class="hs-special">(</span><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-10"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Control.DeepSeq</span><span>
-</span><a name="line-11"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Control.DeepSeq</span><span>
-</span><a name="line-12"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Prism</span><span>
-</span><a name="line-13"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Prism</span><span>
-</span><a name="line-14"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Prelude</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Prelude</span><span>
-</span><a name="line-15"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Int</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Int</span><span>
-</span><a name="line-16"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Monoid</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Monoid</span><span>
-</span><a name="line-17"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Word</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Word</span><span>
-</span><a name="line-18"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens</span><span>
-</span><a name="line-19"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens</span><span>
-</span><a name="line-20"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span>
-</span><a name="line-21"></a><span>       </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Bytes</span><span>
-</span><a name="line-22"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Encoding.Bytes</span><span>
-</span><a name="line-23"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span>
-</span><a name="line-24"></a><span>       </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Growing</span><span>
-</span><a name="line-25"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Encoding.Growing</span><span>
-</span><a name="line-26"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span>
-</span><a name="line-27"></a><span>       </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Parser.Unsafe</span><span>
-</span><a name="line-28"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Encoding.Parser.Unsafe</span><span>
-</span><a name="line-29"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span>
-</span><a name="line-30"></a><span>       </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Wire</span><span>
-</span><a name="line-31"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Encoding.Wire</span><span>
-</span><a name="line-32"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Field</span><span>
-</span><a name="line-33"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Field</span><span>
-</span><a name="line-34"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Message.Enum</span><span>
-</span><a name="line-35"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Message.Enum</span><span>
-</span><a name="line-36"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span>
-</span><a name="line-37"></a><span>       </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Service.Types</span><span>
-</span><a name="line-38"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ProtoLens.Service.Types</span><span>
-</span><a name="line-39"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Lens.Family2</span><span>
-</span><a name="line-40"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Lens.Family2</span><span>
-</span><a name="line-41"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Lens.Family2.Unchecked</span><span>
-</span><a name="line-42"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Lens.Family2.Unchecked</span><span>
-</span><a name="line-43"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Text</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Text</span><span>
-</span><a name="line-44"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Map</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Map</span><span>
-</span><a name="line-45"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ByteString</span><span>
-</span><a name="line-46"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ByteString</span><span>
-</span><a name="line-47"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ByteString.Char8</span><span>
-</span><a name="line-48"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.ByteString.Char8</span><span>
-</span><a name="line-49"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Text.Encoding</span><span>
-</span><a name="line-50"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Text.Encoding</span><span>
-</span><a name="line-51"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Vector</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Vector</span><span>
-</span><a name="line-52"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Vector.Generic</span><span>
-</span><a name="line-53"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Vector.Generic</span><span>
-</span><a name="line-54"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Vector.Unboxed</span><span>
-</span><a name="line-55"></a><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Data.Vector.Unboxed</span><span>
-</span><a name="line-56"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.ProtoLens.Runtime.Text.Read</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">Text.Read</span><span>
-</span><a name="line-57"></a><span>
-</span><a name="line-58"></a><span class="hs-comment">{- | Fields :
-
-    * 'Proto.SimpleStorage.Messages_Fields.username' @:: Lens' UpdateCount Data.Text.Text@
-    * 'Proto.SimpleStorage.Messages_Fields.count' @:: Lens' UpdateCount Data.Int.Int32@
- -}</span><span>
-</span><a name="line-63"></a><span class="hs-keyword">data</span><span> </span><a name="UpdateCount"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier">UpdateCount</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="UpdateCount"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier">UpdateCount</span></a></a><span class="hs-special">{</span><a name="_UpdateCount%27username"><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27username"><span class="hs-identifier">_UpdateCount'username</span></a></a><span> </span><span class="hs-glyph">::</span><span>
-</span><a name="line-64"></a><span>                               </span><span class="hs-glyph">!</span><span class="hs-identifier hs-type">Data.Text.Text</span><span class="hs-special">,</span><span>
-</span><a name="line-65"></a><span>                               </span><a name="_UpdateCount%27count"><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27count"><span class="hs-identifier">_UpdateCount'count</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-identifier hs-type">Data.Int.Int32</span><span class="hs-special">,</span><span>
-</span><a name="line-66"></a><span>                               </span><a name="_UpdateCount%27_unknownFields"><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27_unknownFields"><span class="hs-identifier">_UpdateCount'_unknownFields</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-identifier hs-type">Data.ProtoLens.FieldSet</span><span class="hs-special">}</span><span>
-</span><a name="line-67"></a><span>                     </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Prelude.Eq</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Prelude.Ord</span><span class="hs-special">)</span><span>
-</span><a name="line-68"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">Prelude.Show</span><span> </span><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-69"></a><span>        </span><a name="local-8214565720323790324"><span class="hs-identifier">showsPrec</span></a><span> </span><span class="hs-identifier">_</span><span> </span><a name="local-6989586621679095665"><a href="#local-6989586621679095665"><span class="hs-identifier">__x</span></a></a><span> </span><a name="local-6989586621679095666"><a href="#local-6989586621679095666"><span class="hs-identifier">__s</span></a></a><span>
-</span><a name="line-70"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Prelude.showChar</span><span> </span><span class="hs-char">'{'</span><span>
-</span><a name="line-71"></a><span>              </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Prelude.showString</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.showMessageShort</span><span> </span><a href="#local-6989586621679095665"><span class="hs-identifier hs-var">__x</span></a><span class="hs-special">)</span><span>
-</span><a name="line-72"></a><span>                 </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Prelude.showChar</span><span> </span><span class="hs-char">'}'</span><span> </span><a href="#local-6989586621679095666"><span class="hs-identifier hs-var">__s</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-73"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">Data.ProtoLens.Field.HasField</span><span> </span><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a><span> </span><span class="hs-string">&quot;username&quot;</span><span>
-</span><a name="line-74"></a><span>           </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Data.Text.Text</span><span class="hs-special">)</span><span>
-</span><a name="line-75"></a><span>         </span><span class="hs-keyword">where</span><span>
-</span><a name="line-76"></a><span>        </span><a name="local-8214565720323828442"><span class="hs-identifier">fieldOf</span></a><span> </span><span class="hs-identifier">_</span><span>
-</span><a name="line-77"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Lens.Family2.Unchecked.lens</span><span> </span><span class="hs-identifier">_UpdateCount'username</span><span>
-</span><a name="line-78"></a><span>               </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><a name="local-6989586621679095663"><a href="#local-6989586621679095663"><span class="hs-identifier">x__</span></a></a><span> </span><a name="local-6989586621679095664"><a href="#local-6989586621679095664"><span class="hs-identifier">y__</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="#local-6989586621679095663"><span class="hs-identifier hs-var">x__</span></a><span class="hs-special">{</span><span class="hs-identifier">_UpdateCount'username</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679095664"><span class="hs-identifier hs-var">y__</span></a><span class="hs-special">}</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-79"></a><span>              </span><span class="hs-operator hs-var">Prelude..</span><span> </span><span class="hs-identifier hs-var">Prelude.id</span><span>
-</span><a name="line-80"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">Data.ProtoLens.Field.HasField</span><span> </span><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a><span> </span><span class="hs-string">&quot;count&quot;</span><span>
-</span><a name="line-81"></a><span>           </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Data.Int.Int32</span><span class="hs-special">)</span><span>
-</span><a name="line-82"></a><span>         </span><span class="hs-keyword">where</span><span>
-</span><a name="line-83"></a><span>        </span><a name="local-8214565720323828442"><span class="hs-identifier">fieldOf</span></a><span> </span><span class="hs-identifier">_</span><span>
-</span><a name="line-84"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Lens.Family2.Unchecked.lens</span><span> </span><span class="hs-identifier">_UpdateCount'count</span><span>
-</span><a name="line-85"></a><span>               </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><a name="local-6989586621679095661"><a href="#local-6989586621679095661"><span class="hs-identifier">x__</span></a></a><span> </span><a name="local-6989586621679095662"><a href="#local-6989586621679095662"><span class="hs-identifier">y__</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="#local-6989586621679095661"><span class="hs-identifier hs-var">x__</span></a><span class="hs-special">{</span><span class="hs-identifier">_UpdateCount'count</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679095662"><span class="hs-identifier hs-var">y__</span></a><span class="hs-special">}</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-86"></a><span>              </span><span class="hs-operator hs-var">Prelude..</span><span> </span><span class="hs-identifier hs-var">Prelude.id</span><span>
-</span><a name="line-87"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">Data.ProtoLens.Message</span><span> </span><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-88"></a><span>        </span><a name="local-8214565720323827966"><span class="hs-identifier">messageName</span></a><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Data.Text.pack</span><span> </span><span class="hs-string">&quot;simple_storage.UpdateCount&quot;</span><span>
-</span><a name="line-89"></a><span>        </span><a name="local-8214565720323827964"><span class="hs-identifier">fieldsByTag</span></a><span>
-</span><a name="line-90"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679093439"><a href="#local-6989586621679093439"><span class="hs-identifier">username__field_descriptor</span></a></a><span>
-</span><a name="line-91"></a><span>                  </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.FieldDescriptor</span><span> </span><span class="hs-string">&quot;username&quot;</span><span>
-</span><a name="line-92"></a><span>                      </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.ScalarField</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.StringField</span><span> </span><span class="hs-glyph">::</span><span>
-</span><a name="line-93"></a><span>                         </span><span class="hs-identifier hs-type">Data.ProtoLens.FieldTypeDescriptor</span><span> </span><span class="hs-identifier hs-type">Data.Text.Text</span><span class="hs-special">)</span><span>
-</span><a name="line-94"></a><span>                      </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.PlainField</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.Optional</span><span>
-</span><a name="line-95"></a><span>                         </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.Field.field</span><span> </span><span class="hs-glyph">@</span><span class="hs-string">&quot;username&quot;</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-96"></a><span>                      </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Data.ProtoLens.FieldDescriptor</span><span> </span><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a><span>
-</span><a name="line-97"></a><span>                </span><a name="local-6989586621679093440"><a href="#local-6989586621679093440"><span class="hs-identifier">count__field_descriptor</span></a></a><span>
-</span><a name="line-98"></a><span>                  </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.FieldDescriptor</span><span> </span><span class="hs-string">&quot;count&quot;</span><span>
-</span><a name="line-99"></a><span>                      </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.ScalarField</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.Int32Field</span><span> </span><span class="hs-glyph">::</span><span>
-</span><a name="line-100"></a><span>                         </span><span class="hs-identifier hs-type">Data.ProtoLens.FieldTypeDescriptor</span><span> </span><span class="hs-identifier hs-type">Data.Int.Int32</span><span class="hs-special">)</span><span>
-</span><a name="line-101"></a><span>                      </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.PlainField</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.Optional</span><span>
-</span><a name="line-102"></a><span>                         </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.Field.field</span><span> </span><span class="hs-glyph">@</span><span class="hs-string">&quot;count&quot;</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-103"></a><span>                      </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Data.ProtoLens.FieldDescriptor</span><span> </span><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a><span>
-</span><a name="line-104"></a><span>              </span><span class="hs-keyword">in</span><span>
-</span><a name="line-105"></a><span>              </span><span class="hs-identifier hs-var">Data.Map.fromList</span><span>
-</span><a name="line-106"></a><span>                </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.Tag</span><span> </span><span class="hs-number">1</span><span class="hs-special">,</span><span> </span><a href="#local-6989586621679093439"><span class="hs-identifier hs-var">username__field_descriptor</span></a><span class="hs-special">)</span><span class="hs-special">,</span><span>
-</span><a name="line-107"></a><span>                 </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.Tag</span><span> </span><span class="hs-number">2</span><span class="hs-special">,</span><span> </span><a href="#local-6989586621679093440"><span class="hs-identifier hs-var">count__field_descriptor</span></a><span class="hs-special">)</span><span class="hs-special">]</span><span>
-</span><a name="line-108"></a><span>        </span><a name="local-8214565720323827968"><span class="hs-identifier">unknownFields</span></a><span>
-</span><a name="line-109"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Lens.Family2.Unchecked.lens</span><span> </span><span class="hs-identifier">_UpdateCount'_unknownFields</span><span>
-</span><a name="line-110"></a><span>              </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><a name="local-6989586621679093441"><a href="#local-6989586621679093441"><span class="hs-identifier">x__</span></a></a><span> </span><a name="local-6989586621679093442"><a href="#local-6989586621679093442"><span class="hs-identifier">y__</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="#local-6989586621679093441"><span class="hs-identifier hs-var">x__</span></a><span class="hs-special">{</span><span class="hs-identifier">_UpdateCount'_unknownFields</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="#local-6989586621679093442"><span class="hs-identifier hs-var">y__</span></a><span class="hs-special">}</span><span class="hs-special">)</span><span>
-</span><a name="line-111"></a><span>        </span><a name="local-8214565720323827963"><span class="hs-identifier">defMessage</span></a><span>
-</span><a name="line-112"></a><span>          </span><span class="hs-glyph">=</span><span> </span><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-var">UpdateCount</span></a><span class="hs-special">{</span><span class="hs-identifier">_UpdateCount'username</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.fieldDefault</span><span class="hs-special">,</span><span>
-</span><a name="line-113"></a><span>                        </span><span class="hs-identifier">_UpdateCount'count</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.fieldDefault</span><span class="hs-special">,</span><span>
-</span><a name="line-114"></a><span>                        </span><span class="hs-identifier">_UpdateCount'_unknownFields</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span class="hs-special">}</span><span>
-</span><a name="line-115"></a><span>        </span><a name="local-8214565720323827967"><span class="hs-identifier">parseMessage</span></a><span>
-</span><a name="line-116"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span> </span><span class="hs-identifier">loop</span><span> </span><span class="hs-glyph">::</span><span>
-</span><a name="line-117"></a><span>                     </span><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Data.ProtoLens.Encoding.Bytes.Parser</span><span> </span><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a><span>
-</span><a name="line-118"></a><span>                </span><a name="local-6989586621679093443"><a href="#local-6989586621679093443"><span class="hs-identifier">loop</span></a></a><span> </span><a name="local-6989586621679093540"><a href="#local-6989586621679093540"><span class="hs-identifier">x</span></a></a><span>
-</span><a name="line-119"></a><span>                  </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span> </span><a name="local-6989586621679093612"><a href="#local-6989586621679093612"><span class="hs-identifier">end</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.atEnd</span><span>
-</span><a name="line-120"></a><span>                       </span><span class="hs-keyword">if</span><span> </span><a href="#local-6989586621679093612"><span class="hs-identifier hs-var">end</span></a><span> </span><span class="hs-keyword">then</span><span>
-</span><a name="line-121"></a><span>                         </span><span class="hs-keyword">do</span><span> </span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679093613"><a href="#local-6989586621679093613"><span class="hs-identifier">missing</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-keyword">in</span><span>
-</span><a name="line-122"></a><span>                              </span><span class="hs-keyword">if</span><span> </span><span class="hs-identifier hs-var">Prelude.null</span><span> </span><a href="#local-6989586621679093613"><span class="hs-identifier hs-var">missing</span></a><span> </span><span class="hs-keyword">then</span><span> </span><span class="hs-identifier hs-var">Prelude.return</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">else</span><span>
-</span><a name="line-123"></a><span>                                </span><span class="hs-identifier hs-var">Prelude.fail</span><span>
-</span><a name="line-124"></a><span>                                  </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-string">&quot;Missing required fields: &quot;</span><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">Prelude.++</span><span>
-</span><a name="line-125"></a><span>                                     </span><span class="hs-identifier hs-var">Prelude.show</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679093613"><span class="hs-identifier hs-var">missing</span></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">[</span><span class="hs-identifier hs-type">Prelude.String</span><span class="hs-special">]</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-126"></a><span>                            </span><span class="hs-identifier hs-var">Prelude.return</span><span>
-</span><a name="line-127"></a><span>                              </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Lens.Family2.over</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.unknownFields</span><span>
-</span><a name="line-128"></a><span>                                 </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span class="hs-glyph">!</span><a name="local-6989586621679094738"><a href="#local-6989586621679094738"><span class="hs-identifier">t</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">Prelude.reverse</span><span> </span><a href="#local-6989586621679094738"><span class="hs-identifier hs-var">t</span></a><span class="hs-special">)</span><span>
-</span><a name="line-129"></a><span>                                 </span><a href="#local-6989586621679093540"><span class="hs-identifier hs-var">x</span></a><span class="hs-special">)</span><span>
-</span><a name="line-130"></a><span>                         </span><span class="hs-keyword">else</span><span>
-</span><a name="line-131"></a><span>                         </span><span class="hs-keyword">do</span><span> </span><a name="local-6989586621679094923"><a href="#local-6989586621679094923"><span class="hs-identifier">tag</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.getVarInt</span><span>
-</span><a name="line-132"></a><span>                            </span><span class="hs-keyword">case</span><span> </span><a href="#local-6989586621679094923"><span class="hs-identifier hs-var">tag</span></a><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-133"></a><span>                                </span><span class="hs-number">10</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span> </span><a name="local-6989586621679095572"><a href="#local-6989586621679095572"><span class="hs-identifier">y</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">(</span><span class="hs-keyword">do</span><span> </span><a name="local-6989586621679095427"><a href="#local-6989586621679095427"><span class="hs-identifier">value</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">do</span><span> </span><a name="local-6989586621679094924"><a href="#local-6989586621679094924"><span class="hs-identifier">len</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.getVarInt</span><span>
-</span><a name="line-134"></a><span>                                                              </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.getBytes</span><span>
-</span><a name="line-135"></a><span>                                                                </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Prelude.fromIntegral</span><span> </span><a href="#local-6989586621679094924"><span class="hs-identifier hs-var">len</span></a><span class="hs-special">)</span><span>
-</span><a name="line-136"></a><span>                                                  </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.runEither</span><span>
-</span><a name="line-137"></a><span>                                                    </span><span class="hs-special">(</span><span class="hs-keyword">case</span><span> </span><span class="hs-identifier hs-var">Data.Text.Encoding.decodeUtf8'</span><span> </span><a href="#local-6989586621679095427"><span class="hs-identifier hs-var">value</span></a><span> </span><span class="hs-keyword">of</span><span>
-</span><a name="line-138"></a><span>                                                         </span><span class="hs-identifier hs-var">Prelude.Left</span><span> </span><a name="local-6989586621679095570"><a href="#local-6989586621679095570"><span class="hs-identifier">err</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">Prelude.Left</span><span>
-</span><a name="line-139"></a><span>                                                                               </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Prelude.show</span><span> </span><a href="#local-6989586621679095570"><span class="hs-identifier hs-var">err</span></a><span class="hs-special">)</span><span>
-</span><a name="line-140"></a><span>                                                         </span><span class="hs-identifier hs-var">Prelude.Right</span><span> </span><a name="local-6989586621679095571"><a href="#local-6989586621679095571"><span class="hs-identifier">r</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-var">Prelude.Right</span><span> </span><a href="#local-6989586621679095571"><span class="hs-identifier hs-var">r</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-141"></a><span>                                                </span><span class="hs-operator hs-var">Data.ProtoLens.Encoding.Bytes.&lt;?&gt;</span><span> </span><span class="hs-string">&quot;username&quot;</span><span>
-</span><a name="line-142"></a><span>                                         </span><a href="#local-6989586621679093443"><span class="hs-identifier hs-var">loop</span></a><span>
-</span><a name="line-143"></a><span>                                           </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Lens.Family2.set</span><span>
-</span><a name="line-144"></a><span>                                              </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.Field.field</span><span> </span><span class="hs-glyph">@</span><span class="hs-string">&quot;username&quot;</span><span class="hs-special">)</span><span>
-</span><a name="line-145"></a><span>                                              </span><a href="#local-6989586621679095572"><span class="hs-identifier hs-var">y</span></a><span>
-</span><a name="line-146"></a><span>                                              </span><a href="#local-6989586621679093540"><span class="hs-identifier hs-var">x</span></a><span class="hs-special">)</span><span>
-</span><a name="line-147"></a><span>                                </span><span class="hs-number">16</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span> </span><a name="local-6989586621679095573"><a href="#local-6989586621679095573"><span class="hs-identifier">y</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Prelude.fmap</span><span> </span><span class="hs-identifier hs-var">Prelude.fromIntegral</span><span>
-</span><a name="line-148"></a><span>                                                 </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.getVarInt</span><span class="hs-special">)</span><span>
-</span><a name="line-149"></a><span>                                                </span><span class="hs-operator hs-var">Data.ProtoLens.Encoding.Bytes.&lt;?&gt;</span><span> </span><span class="hs-string">&quot;count&quot;</span><span>
-</span><a name="line-150"></a><span>                                         </span><a href="#local-6989586621679093443"><span class="hs-identifier hs-var">loop</span></a><span>
-</span><a name="line-151"></a><span>                                           </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Lens.Family2.set</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.Field.field</span><span> </span><span class="hs-glyph">@</span><span class="hs-string">&quot;count&quot;</span><span class="hs-special">)</span><span> </span><a href="#local-6989586621679095573"><span class="hs-identifier hs-var">y</span></a><span>
-</span><a name="line-152"></a><span>                                              </span><a href="#local-6989586621679093540"><span class="hs-identifier hs-var">x</span></a><span class="hs-special">)</span><span>
-</span><a name="line-153"></a><span>                                </span><a name="local-6989586621679095574"><a href="#local-6989586621679095574"><span class="hs-identifier">wire</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span> </span><span class="hs-glyph">!</span><a name="local-6989586621679095575"><a href="#local-6989586621679095575"><span class="hs-identifier">y</span></a></a><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Wire.parseTaggedValueFromWire</span><span>
-</span><a name="line-154"></a><span>                                                   </span><a href="#local-6989586621679095574"><span class="hs-identifier hs-var">wire</span></a><span>
-</span><a name="line-155"></a><span>                                           </span><a href="#local-6989586621679093443"><span class="hs-identifier hs-var">loop</span></a><span>
-</span><a name="line-156"></a><span>                                             </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Lens.Family2.over</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.unknownFields</span><span>
-</span><a name="line-157"></a><span>                                                </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span class="hs-glyph">!</span><a name="local-6989586621679095576"><a href="#local-6989586621679095576"><span class="hs-identifier">t</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">:</span><span class="hs-special">)</span><span> </span><a href="#local-6989586621679095575"><span class="hs-identifier hs-var">y</span></a><span> </span><a href="#local-6989586621679095576"><span class="hs-identifier hs-var">t</span></a><span class="hs-special">)</span><span>
-</span><a name="line-158"></a><span>                                                </span><a href="#local-6989586621679093540"><span class="hs-identifier hs-var">x</span></a><span class="hs-special">)</span><span>
-</span><a name="line-159"></a><span>              </span><span class="hs-keyword">in</span><span>
-</span><a name="line-160"></a><span>              </span><span class="hs-special">(</span><span class="hs-keyword">do</span><span> </span><a href="#local-6989586621679093443"><span class="hs-identifier hs-var">loop</span></a><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.defMessage</span><span class="hs-special">)</span><span>
-</span><a name="line-161"></a><span>                </span><span class="hs-operator hs-var">Data.ProtoLens.Encoding.Bytes.&lt;?&gt;</span><span> </span><span class="hs-string">&quot;UpdateCount&quot;</span><span>
-</span><a name="line-162"></a><span>        </span><a name="local-8214565720323827962"><span class="hs-identifier">buildMessage</span></a><span>
-</span><a name="line-163"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><a name="local-6989586621679095577"><a href="#local-6989586621679095577"><span class="hs-identifier">_x</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><a name="line-164"></a><span>               </span><span class="hs-special">(</span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679095578"><a href="#local-6989586621679095578"><span class="hs-identifier">_v</span></a></a><span>
-</span><a name="line-165"></a><span>                      </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Lens.Family2.view</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.Field.field</span><span> </span><span class="hs-glyph">@</span><span class="hs-string">&quot;username&quot;</span><span class="hs-special">)</span><span> </span><a href="#local-6989586621679095577"><span class="hs-identifier hs-var">_x</span></a><span>
-</span><a name="line-166"></a><span>                  </span><span class="hs-keyword">in</span><span>
-</span><a name="line-167"></a><span>                  </span><span class="hs-keyword">if</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679095578"><span class="hs-identifier hs-var">_v</span></a><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">Prelude.==</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.fieldDefault</span><span> </span><span class="hs-keyword">then</span><span>
-</span><a name="line-168"></a><span>                    </span><span class="hs-identifier hs-var">Data.Monoid.mempty</span><span> </span><span class="hs-keyword">else</span><span>
-</span><a name="line-169"></a><span>                    </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.putVarInt</span><span> </span><span class="hs-number">10</span><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">Data.Monoid.&lt;&gt;</span><span>
-</span><a name="line-170"></a><span>                      </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><a name="local-6989586621679095659"><a href="#local-6989586621679095659"><span class="hs-identifier">bs</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><a name="line-171"></a><span>                           </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.putVarInt</span><span>
-</span><a name="line-172"></a><span>                              </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Prelude.fromIntegral</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ByteString.length</span><span> </span><a href="#local-6989586621679095659"><span class="hs-identifier hs-var">bs</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-173"></a><span>                             </span><span class="hs-operator hs-var">Data.Monoid.&lt;&gt;</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.putBytes</span><span> </span><a href="#local-6989586621679095659"><span class="hs-identifier hs-var">bs</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-174"></a><span>                         </span><span class="hs-operator hs-var">Prelude..</span><span> </span><span class="hs-identifier hs-var">Data.Text.Encoding.encodeUtf8</span><span class="hs-special">)</span><span>
-</span><a name="line-175"></a><span>                        </span><a href="#local-6989586621679095578"><span class="hs-identifier hs-var">_v</span></a><span class="hs-special">)</span><span>
-</span><a name="line-176"></a><span>                 </span><span class="hs-operator hs-var">Data.Monoid.&lt;&gt;</span><span>
-</span><a name="line-177"></a><span>                 </span><span class="hs-special">(</span><span class="hs-keyword">let</span><span> </span><a name="local-6989586621679095660"><a href="#local-6989586621679095660"><span class="hs-identifier">_v</span></a></a><span>
-</span><a name="line-178"></a><span>                        </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">Lens.Family2.view</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.Field.field</span><span> </span><span class="hs-glyph">@</span><span class="hs-string">&quot;count&quot;</span><span class="hs-special">)</span><span> </span><a href="#local-6989586621679095577"><span class="hs-identifier hs-var">_x</span></a><span>
-</span><a name="line-179"></a><span>                    </span><span class="hs-keyword">in</span><span>
-</span><a name="line-180"></a><span>                    </span><span class="hs-keyword">if</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679095660"><span class="hs-identifier hs-var">_v</span></a><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">Prelude.==</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.fieldDefault</span><span> </span><span class="hs-keyword">then</span><span>
-</span><a name="line-181"></a><span>                      </span><span class="hs-identifier hs-var">Data.Monoid.mempty</span><span> </span><span class="hs-keyword">else</span><span>
-</span><a name="line-182"></a><span>                      </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.putVarInt</span><span> </span><span class="hs-number">16</span><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">Data.Monoid.&lt;&gt;</span><span>
-</span><a name="line-183"></a><span>                        </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.putVarInt</span><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">Prelude..</span><span>
-</span><a name="line-184"></a><span>                           </span><span class="hs-identifier hs-var">Prelude.fromIntegral</span><span class="hs-special">)</span><span>
-</span><a name="line-185"></a><span>                          </span><a href="#local-6989586621679095660"><span class="hs-identifier hs-var">_v</span></a><span class="hs-special">)</span><span>
-</span><a name="line-186"></a><span>                   </span><span class="hs-operator hs-var">Data.Monoid.&lt;&gt;</span><span>
-</span><a name="line-187"></a><span>                   </span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Wire.buildFieldSet</span><span>
-</span><a name="line-188"></a><span>                     </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Lens.Family2.view</span><span> </span><span class="hs-identifier hs-var">Data.ProtoLens.unknownFields</span><span> </span><a href="#local-6989586621679095577"><span class="hs-identifier hs-var">_x</span></a><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-189"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">Control.DeepSeq.NFData</span><span> </span><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-190"></a><span>        </span><a name="local-8214565720323792605"><span class="hs-identifier">rnf</span></a><span>
-</span><a name="line-191"></a><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><a name="local-6989586621679093438"><a href="#local-6989586621679093438"><span class="hs-identifier">x__</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><a name="line-192"></a><span>               </span><span class="hs-identifier hs-var">Control.DeepSeq.deepseq</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">_UpdateCount'_unknownFields</span><span> </span><a href="#local-6989586621679093438"><span class="hs-identifier hs-var">x__</span></a><span class="hs-special">)</span><span>
-</span><a name="line-193"></a><span>                 </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Control.DeepSeq.deepseq</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">_UpdateCount'username</span><span> </span><a href="#local-6989586621679093438"><span class="hs-identifier hs-var">x__</span></a><span class="hs-special">)</span><span>
-</span><a name="line-194"></a><span>                    </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Control.DeepSeq.deepseq</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">_UpdateCount'count</span><span> </span><a href="#local-6989586621679093438"><span class="hs-identifier hs-var">x__</span></a><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span></pre></body></html>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables, DataKinds, TypeFamilies, UndecidableInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses, FlexibleContexts, FlexibleInstances, PatternSynonyms, MagicHash, NoImplicitPrelude, DataKinds, BangPatterns, TypeApplications#-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# OPTIONS_GHC -Wno-unused-imports#-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# OPTIONS_GHC -Wno-duplicate-exports#-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# OPTIONS_GHC -Wno-dodgy-exports#-}</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Proto.SimpleStorage.Messages</span><span> </span><span class="hs-special">(</span><span>
+</span><span id="line-7"></span><span>        </span><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier">UpdateCount</span></a></span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Control.DeepSeq</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Prism</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Prism</span></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Prelude</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Prelude</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Int</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Int</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Monoid</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Monoid</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Word</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Word</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Bytes</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Encoding.Bytes</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Growing</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Encoding.Growing</span></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Parser.Unsafe</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Encoding.Parser.Unsafe</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Encoding.Wire</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Encoding.Wire</span></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Field</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Field</span></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Message.Enum</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Message.Enum</span></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ProtoLens.Service.Types</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Service.Types</span></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Lens.Family2</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Lens.Family2</span></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Lens.Family2.Unchecked</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Lens.Family2.Unchecked</span></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Text</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Map</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Map</span></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ByteString</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString</span></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.ByteString.Char8</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Char8</span></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Text.Encoding</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text.Encoding</span></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Vector</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Vector</span></span><span>
+</span><span id="line-31"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Vector.Generic</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Vector.Generic</span></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Data.Vector.Unboxed</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Data.Vector.Unboxed</span></span><span>
+</span><span id="line-33"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ProtoLens.Runtime.Text.Read</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text.Read</span></span><span>
+</span><span id="line-34"></span><span class="hs-comment">{- | Fields :
+     
+         * 'Proto.SimpleStorage.Messages_Fields.username' @:: Lens' UpdateCount Data.Text.Text@
+         * 'Proto.SimpleStorage.Messages_Fields.count' @:: Lens' UpdateCount Data.Int.Int32@ -}</span><span>
+</span><span id="line-38"></span><span class="hs-keyword">data</span><span> </span><span id="UpdateCount"><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-var">UpdateCount</span></a></span></span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="UpdateCount%27_constructor"><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount%27_constructor"><span class="hs-identifier hs-var">UpdateCount'_constructor</span></a></span></span><span> </span><span class="hs-special">{</span><span id="_UpdateCount%27username"><span class="annot"><span class="annottext">UpdateCount -&gt; Text
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27username"><span class="hs-identifier hs-var hs-var">_UpdateCount'username</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Data.Text.Text</span></span><span class="hs-special">,</span><span>
+</span><span id="line-40"></span><span>                              </span><span id="_UpdateCount%27count"><span class="annot"><span class="annottext">UpdateCount -&gt; Int32
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27count"><span class="hs-identifier hs-var hs-var">_UpdateCount'count</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Data.Int.Int32</span></span><span class="hs-special">,</span><span>
+</span><span id="line-41"></span><span>                              </span><span id="_UpdateCount%27_unknownFields"><span class="annot"><span class="annottext">UpdateCount -&gt; FieldSet
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27_unknownFields"><span class="hs-identifier hs-var hs-var">_UpdateCount'_unknownFields</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Data.ProtoLens.FieldSet</span></span><span class="hs-special">}</span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679292533"><span id="local-6989586621679292535"><span class="annot"><span class="annottext">UpdateCount -&gt; UpdateCount -&gt; Bool
+(UpdateCount -&gt; UpdateCount -&gt; Bool)
+-&gt; (UpdateCount -&gt; UpdateCount -&gt; Bool) -&gt; Eq UpdateCount
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: UpdateCount -&gt; UpdateCount -&gt; Bool
+$c/= :: UpdateCount -&gt; UpdateCount -&gt; Bool
+== :: UpdateCount -&gt; UpdateCount -&gt; Bool
+$c== :: UpdateCount -&gt; UpdateCount -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Prelude.Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679292517"><span id="local-6989586621679292519"><span id="local-6989586621679292521"><span id="local-6989586621679292523"><span id="local-6989586621679292525"><span id="local-6989586621679292527"><span id="local-6989586621679292529"><span class="annot"><span class="annottext">Eq UpdateCount
+Eq UpdateCount =&gt;
+(UpdateCount -&gt; UpdateCount -&gt; Ordering)
+-&gt; (UpdateCount -&gt; UpdateCount -&gt; Bool)
+-&gt; (UpdateCount -&gt; UpdateCount -&gt; Bool)
+-&gt; (UpdateCount -&gt; UpdateCount -&gt; Bool)
+-&gt; (UpdateCount -&gt; UpdateCount -&gt; Bool)
+-&gt; (UpdateCount -&gt; UpdateCount -&gt; UpdateCount)
+-&gt; (UpdateCount -&gt; UpdateCount -&gt; UpdateCount)
+-&gt; Ord UpdateCount
+UpdateCount -&gt; UpdateCount -&gt; Bool
+UpdateCount -&gt; UpdateCount -&gt; Ordering
+UpdateCount -&gt; UpdateCount -&gt; UpdateCount
+forall a.
+Eq a =&gt;
+(a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+min :: UpdateCount -&gt; UpdateCount -&gt; UpdateCount
+$cmin :: UpdateCount -&gt; UpdateCount -&gt; UpdateCount
+max :: UpdateCount -&gt; UpdateCount -&gt; UpdateCount
+$cmax :: UpdateCount -&gt; UpdateCount -&gt; UpdateCount
+&gt;= :: UpdateCount -&gt; UpdateCount -&gt; Bool
+$c&gt;= :: UpdateCount -&gt; UpdateCount -&gt; Bool
+&gt; :: UpdateCount -&gt; UpdateCount -&gt; Bool
+$c&gt; :: UpdateCount -&gt; UpdateCount -&gt; Bool
+&lt;= :: UpdateCount -&gt; UpdateCount -&gt; Bool
+$c&lt;= :: UpdateCount -&gt; UpdateCount -&gt; Bool
+&lt; :: UpdateCount -&gt; UpdateCount -&gt; Bool
+$c&lt; :: UpdateCount -&gt; UpdateCount -&gt; Bool
+compare :: UpdateCount -&gt; UpdateCount -&gt; Ordering
+$ccompare :: UpdateCount -&gt; UpdateCount -&gt; Ordering
+$cp1Ord :: Eq UpdateCount
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Prelude.Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679292511"><span id="local-6989586621679292513"><span class="annot"><span class="hs-identifier hs-type">Prelude.Show</span></span><span> </span><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-44"></span><span>  </span><span id="local-6989586621679292509"><span class="annot"><span class="annottext">showsPrec :: Int -&gt; UpdateCount -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">showsPrec</span></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679292507"><span class="annot"><span class="annottext">__x :: UpdateCount
+</span><a href="#local-6989586621679292507"><span class="hs-identifier hs-var">__x</span></a></span></span><span> </span><span id="local-6989586621679292506"><span class="annot"><span class="annottext">__s :: String
+</span><a href="#local-6989586621679292506"><span class="hs-identifier hs-var">__s</span></a></span></span><span>
+</span><span id="line-45"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Char -&gt; ShowS
+</span><span class="hs-identifier hs-var">Prelude.showChar</span></span><span>
+</span><span id="line-46"></span><span>        </span><span class="annot"><span class="hs-char">'{'</span></span><span>
+</span><span id="line-47"></span><span>        </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; ShowS
+</span><span class="hs-identifier hs-var">Prelude.showString</span></span><span>
+</span><span id="line-48"></span><span>           </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UpdateCount -&gt; String
+forall msg. Message msg =&gt; msg -&gt; String
+</span><span class="hs-identifier hs-var">Data.ProtoLens.showMessageShort</span></span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292507"><span class="hs-identifier hs-var">__x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Char -&gt; ShowS
+</span><span class="hs-identifier hs-var">Prelude.showChar</span></span><span> </span><span class="annot"><span class="hs-char">'}'</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679292506"><span class="hs-identifier hs-var">__s</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-49"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Data.ProtoLens.Field.HasField</span></span><span> </span><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;username&quot;</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Data.Text.Text</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-50"></span><span>  </span><span id="local-6989586621679292500"><span class="annot"><span class="annottext">fieldOf :: Proxy# &quot;username&quot;
+-&gt; (Text -&gt; f Text) -&gt; UpdateCount -&gt; f UpdateCount
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fieldOf</span></span></span><span> </span><span class="hs-identifier">_</span><span>
+</span><span id="line-51"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Text -&gt; f Text) -&gt; UpdateCount -&gt; f UpdateCount)
+-&gt; ((Text -&gt; f Text) -&gt; Text -&gt; f Text)
+-&gt; (Text -&gt; f Text)
+-&gt; UpdateCount
+-&gt; f UpdateCount
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">(Prelude..)</span></span><span>
+</span><span id="line-52"></span><span>        </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(UpdateCount -&gt; Text)
+-&gt; (UpdateCount -&gt; Text -&gt; UpdateCount)
+-&gt; Lens UpdateCount UpdateCount Text Text
+forall s a b t. (s -&gt; a) -&gt; (s -&gt; b -&gt; t) -&gt; Lens s t a b
+</span><span class="hs-identifier hs-var">Lens.Family2.Unchecked.lens</span></span><span>
+</span><span id="line-53"></span><span>           </span><span class="annot"><span class="annottext">UpdateCount -&gt; Text
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27username"><span class="hs-identifier hs-var hs-var">_UpdateCount'username</span></a></span><span>
+</span><span id="line-54"></span><span>           </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span id="local-6989586621679292496"><span class="annot"><span class="annottext">x__ :: UpdateCount
+</span><a href="#local-6989586621679292496"><span class="hs-identifier hs-var">x__</span></a></span></span><span> </span><span id="local-6989586621679292495"><span class="annot"><span class="annottext">y__ :: Text
+</span><a href="#local-6989586621679292495"><span class="hs-identifier hs-var">y__</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292496"><span class="hs-identifier hs-var">x__</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">_UpdateCount'username :: Text
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27username"><span class="hs-identifier hs-var">_UpdateCount'username</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679292495"><span class="hs-identifier hs-var">y__</span></a></span><span class="hs-special">}</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-55"></span><span>        </span><span class="annot"><span class="annottext">(Text -&gt; f Text) -&gt; Text -&gt; f Text
+forall a. a -&gt; a
+</span><span class="hs-identifier hs-var">Prelude.id</span></span><span>
+</span><span id="line-56"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Data.ProtoLens.Field.HasField</span></span><span> </span><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;count&quot;</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Data.Int.Int32</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-57"></span><span>  </span><span id="local-6989586621679292492"><span class="annot"><span class="annottext">fieldOf :: Proxy# &quot;count&quot;
+-&gt; (Int32 -&gt; f Int32) -&gt; UpdateCount -&gt; f UpdateCount
+</span><a href="#local-6989586621679292492"><span class="hs-identifier hs-var hs-var hs-var hs-var">fieldOf</span></a></span></span><span> </span><span class="hs-identifier">_</span><span>
+</span><span id="line-58"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Int32 -&gt; f Int32) -&gt; UpdateCount -&gt; f UpdateCount)
+-&gt; ((Int32 -&gt; f Int32) -&gt; Int32 -&gt; f Int32)
+-&gt; (Int32 -&gt; f Int32)
+-&gt; UpdateCount
+-&gt; f UpdateCount
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">(Prelude..)</span></span><span>
+</span><span id="line-59"></span><span>        </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(UpdateCount -&gt; Int32)
+-&gt; (UpdateCount -&gt; Int32 -&gt; UpdateCount)
+-&gt; Lens UpdateCount UpdateCount Int32 Int32
+forall s a b t. (s -&gt; a) -&gt; (s -&gt; b -&gt; t) -&gt; Lens s t a b
+</span><span class="hs-identifier hs-var">Lens.Family2.Unchecked.lens</span></span><span>
+</span><span id="line-60"></span><span>           </span><span class="annot"><span class="annottext">UpdateCount -&gt; Int32
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27count"><span class="hs-identifier hs-var hs-var">_UpdateCount'count</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span id="local-6989586621679292491"><span class="annot"><span class="annottext">x__ :: UpdateCount
+</span><a href="#local-6989586621679292491"><span class="hs-identifier hs-var">x__</span></a></span></span><span> </span><span id="local-6989586621679292490"><span class="annot"><span class="annottext">y__ :: Int32
+</span><a href="#local-6989586621679292490"><span class="hs-identifier hs-var">y__</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292491"><span class="hs-identifier hs-var">x__</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">_UpdateCount'count :: Int32
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27count"><span class="hs-identifier hs-var">_UpdateCount'count</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int32
+</span><a href="#local-6989586621679292490"><span class="hs-identifier hs-var">y__</span></a></span><span class="hs-special">}</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-61"></span><span>        </span><span class="annot"><span class="annottext">(Int32 -&gt; f Int32) -&gt; Int32 -&gt; f Int32
+forall a. a -&gt; a
+</span><span class="hs-identifier hs-var">Prelude.id</span></span><span>
+</span><span id="line-62"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679292485"><span class="annot"><span class="hs-identifier hs-type">Data.ProtoLens.Message</span></span><span> </span><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-63"></span><span>  </span><span id="local-6989586621679292480"><span class="annot"><span class="annottext">messageName :: Proxy UpdateCount -&gt; Text
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">messageName</span></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><span class="hs-identifier hs-var">Data.Text.pack</span></span><span> </span><span class="annot"><span class="hs-string">&quot;simple_storage.UpdateCount&quot;</span></span><span>
+</span><span id="line-64"></span><span>  </span><span id="local-6989586621679292477"><span class="annot"><span class="annottext">fieldsByTag :: Map Tag (FieldDescriptor UpdateCount)
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fieldsByTag</span></span></span><span>
+</span><span id="line-65"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span>
+</span><span id="line-66"></span><span>        </span><span id="local-6989586621679292475"><span class="annot"><span class="annottext">username__field_descriptor :: FieldDescriptor UpdateCount
+</span><a href="#local-6989586621679292475"><span class="hs-identifier hs-var hs-var">username__field_descriptor</span></a></span></span><span>
+</span><span id="line-67"></span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; FieldTypeDescriptor Text
+-&gt; FieldAccessor UpdateCount Text
+-&gt; FieldDescriptor UpdateCount
+forall value msg.
+String
+-&gt; FieldTypeDescriptor value
+-&gt; FieldAccessor msg value
+-&gt; FieldDescriptor msg
+</span><span class="hs-identifier hs-var">Data.ProtoLens.FieldDescriptor</span></span><span>
+</span><span id="line-68"></span><span>              </span><span class="annot"><span class="hs-string">&quot;username&quot;</span></span><span>
+</span><span id="line-69"></span><span>              </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ScalarField Text -&gt; FieldTypeDescriptor Text
+forall value. ScalarField value -&gt; FieldTypeDescriptor value
+</span><span class="hs-identifier hs-var">Data.ProtoLens.ScalarField</span></span><span> </span><span class="annot"><span class="annottext">ScalarField Text
+</span><span class="hs-identifier hs-var">Data.ProtoLens.StringField</span></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-70"></span><span>                 </span><span class="annot"><span class="hs-identifier hs-type">Data.ProtoLens.FieldTypeDescriptor</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Data.Text.Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-71"></span><span>              </span><span class="hs-special">(</span><span class="annot"><span class="annottext">WireDefault Text
+-&gt; Lens UpdateCount UpdateCount Text Text
+-&gt; FieldAccessor UpdateCount Text
+forall value msg.
+WireDefault value -&gt; Lens' msg value -&gt; FieldAccessor msg value
+</span><span class="hs-identifier hs-var">Data.ProtoLens.PlainField</span></span><span>
+</span><span id="line-72"></span><span>                 </span><span class="annot"><span class="annottext">WireDefault Text
+forall value. (FieldDefault value, Eq value) =&gt; WireDefault value
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Optional</span></span><span>
+</span><span id="line-73"></span><span>                 </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall s a (f :: * -&gt; *).
+(HasField s &quot;username&quot; a, Functor f) =&gt;
+(a -&gt; f a) -&gt; s -&gt; f s
+forall (x :: Symbol) s a (f :: * -&gt; *).
+(HasField s x a, Functor f) =&gt;
+(a -&gt; f a) -&gt; s -&gt; f s
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Field.field</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><span class="hs-string">&quot;username&quot;</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-74"></span><span>              </span><span class="annot"><span class="hs-identifier hs-type">Data.ProtoLens.FieldDescriptor</span></span><span> </span><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a></span><span>
+</span><span id="line-75"></span><span>        </span><span id="local-6989586621679292468"><span class="annot"><span class="annottext">count__field_descriptor :: FieldDescriptor UpdateCount
+</span><a href="#local-6989586621679292468"><span class="hs-identifier hs-var hs-var">count__field_descriptor</span></a></span></span><span>
+</span><span id="line-76"></span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; FieldTypeDescriptor Int32
+-&gt; FieldAccessor UpdateCount Int32
+-&gt; FieldDescriptor UpdateCount
+forall value msg.
+String
+-&gt; FieldTypeDescriptor value
+-&gt; FieldAccessor msg value
+-&gt; FieldDescriptor msg
+</span><span class="hs-identifier hs-var">Data.ProtoLens.FieldDescriptor</span></span><span>
+</span><span id="line-77"></span><span>              </span><span class="annot"><span class="hs-string">&quot;count&quot;</span></span><span>
+</span><span id="line-78"></span><span>              </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ScalarField Int32 -&gt; FieldTypeDescriptor Int32
+forall value. ScalarField value -&gt; FieldTypeDescriptor value
+</span><span class="hs-identifier hs-var">Data.ProtoLens.ScalarField</span></span><span> </span><span class="annot"><span class="annottext">ScalarField Int32
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Int32Field</span></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-79"></span><span>                 </span><span class="annot"><span class="hs-identifier hs-type">Data.ProtoLens.FieldTypeDescriptor</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Data.Int.Int32</span></span><span class="hs-special">)</span><span>
+</span><span id="line-80"></span><span>              </span><span class="hs-special">(</span><span class="annot"><span class="annottext">WireDefault Int32
+-&gt; Lens UpdateCount UpdateCount Int32 Int32
+-&gt; FieldAccessor UpdateCount Int32
+forall value msg.
+WireDefault value -&gt; Lens' msg value -&gt; FieldAccessor msg value
+</span><span class="hs-identifier hs-var">Data.ProtoLens.PlainField</span></span><span>
+</span><span id="line-81"></span><span>                 </span><span class="annot"><span class="annottext">WireDefault Int32
+forall value. (FieldDefault value, Eq value) =&gt; WireDefault value
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Optional</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall s a (f :: * -&gt; *).
+(HasField s &quot;count&quot; a, Functor f) =&gt;
+(a -&gt; f a) -&gt; s -&gt; f s
+forall (x :: Symbol) s a (f :: * -&gt; *).
+(HasField s x a, Functor f) =&gt;
+(a -&gt; f a) -&gt; s -&gt; f s
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Field.field</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><span class="hs-string">&quot;count&quot;</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-82"></span><span>              </span><span class="annot"><span class="hs-identifier hs-type">Data.ProtoLens.FieldDescriptor</span></span><span> </span><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a></span><span>
+</span><span id="line-83"></span><span>      </span><span class="hs-keyword">in</span><span>
+</span><span id="line-84"></span><span>        </span><span class="annot"><span class="annottext">[(Tag, FieldDescriptor UpdateCount)]
+-&gt; Map Tag (FieldDescriptor UpdateCount)
+forall k a. Ord k =&gt; [(k, a)] -&gt; Map k a
+</span><span class="hs-identifier hs-var">Data.Map.fromList</span></span><span>
+</span><span id="line-85"></span><span>          </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Tag
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Tag</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">FieldDescriptor UpdateCount
+</span><a href="#local-6989586621679292475"><span class="hs-identifier hs-var">username__field_descriptor</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-86"></span><span>           </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Tag
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Tag</span></span><span> </span><span class="annot"><span class="hs-number">2</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">FieldDescriptor UpdateCount
+</span><a href="#local-6989586621679292468"><span class="hs-identifier hs-var">count__field_descriptor</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-87"></span><span>  </span><span id="local-6989586621679292464"><span class="annot"><span class="annottext">unknownFields :: LensLike' f UpdateCount FieldSet
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">unknownFields</span></span></span><span>
+</span><span id="line-88"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(UpdateCount -&gt; FieldSet)
+-&gt; (UpdateCount -&gt; FieldSet -&gt; UpdateCount)
+-&gt; Lens' UpdateCount FieldSet
+forall s a b t. (s -&gt; a) -&gt; (s -&gt; b -&gt; t) -&gt; Lens s t a b
+</span><span class="hs-identifier hs-var">Lens.Family2.Unchecked.lens</span></span><span>
+</span><span id="line-89"></span><span>        </span><span class="annot"><span class="annottext">UpdateCount -&gt; FieldSet
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27_unknownFields"><span class="hs-identifier hs-var hs-var">_UpdateCount'_unknownFields</span></a></span><span>
+</span><span id="line-90"></span><span>        </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span id="local-6989586621679292462"><span class="annot"><span class="annottext">x__ :: UpdateCount
+</span><a href="#local-6989586621679292462"><span class="hs-identifier hs-var">x__</span></a></span></span><span> </span><span id="local-6989586621679292461"><span class="annot"><span class="annottext">y__ :: FieldSet
+</span><a href="#local-6989586621679292461"><span class="hs-identifier hs-var">y__</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292462"><span class="hs-identifier hs-var">x__</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">_UpdateCount'_unknownFields :: FieldSet
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27_unknownFields"><span class="hs-identifier hs-var">_UpdateCount'_unknownFields</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FieldSet
+</span><a href="#local-6989586621679292461"><span class="hs-identifier hs-var">y__</span></a></span><span class="hs-special">}</span><span class="hs-special">)</span><span>
+</span><span id="line-91"></span><span>  </span><span id="local-6989586621679292460"><span class="annot"><span class="annottext">defMessage :: UpdateCount
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">defMessage</span></span></span><span>
+</span><span id="line-92"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">$WUpdateCount'_constructor :: Text -&gt; Int32 -&gt; FieldSet -&gt; UpdateCount
+</span><a href="Proto.SimpleStorage.Messages.html#%24WUpdateCount%27_constructor"><span class="hs-identifier hs-type hs-type">UpdateCount'_constructor</span></a></span><span>
+</span><span id="line-93"></span><span>        </span><span class="hs-special">{</span><span class="annot"><span class="annottext">_UpdateCount'username :: Text
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27username"><span class="hs-identifier hs-var">_UpdateCount'username</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+forall value. FieldDefault value =&gt; value
+</span><span class="hs-identifier hs-var">Data.ProtoLens.fieldDefault</span></span><span class="hs-special">,</span><span>
+</span><span id="line-94"></span><span>         </span><span class="annot"><span class="annottext">_UpdateCount'count :: Int32
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27count"><span class="hs-identifier hs-var">_UpdateCount'count</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int32
+forall value. FieldDefault value =&gt; value
+</span><span class="hs-identifier hs-var">Data.ProtoLens.fieldDefault</span></span><span class="hs-special">,</span><span>
+</span><span id="line-95"></span><span>         </span><span class="annot"><span class="annottext">_UpdateCount'_unknownFields :: FieldSet
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27_unknownFields"><span class="hs-identifier hs-var">_UpdateCount'_unknownFields</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">}</span><span>
+</span><span id="line-96"></span><span>  </span><span id="local-6989586621679292456"><span class="annot"><span class="annottext">parseMessage :: Parser UpdateCount
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">parseMessage</span></span></span><span>
+</span><span id="line-97"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">let</span><span>
+</span><span id="line-98"></span><span>        </span><span class="annot"><a href="#local-6989586621679292454"><span class="hs-identifier hs-type">loop</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-99"></span><span>          </span><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Data.ProtoLens.Encoding.Bytes.Parser</span></span><span> </span><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a></span><span>
+</span><span id="line-100"></span><span>        </span><span id="local-6989586621679292454"><span class="annot"><span class="annottext">loop :: UpdateCount -&gt; Parser UpdateCount
+</span><a href="#local-6989586621679292454"><span class="hs-identifier hs-var hs-var">loop</span></a></span></span><span> </span><span id="local-6989586621679292453"><span class="annot"><span class="annottext">x :: UpdateCount
+</span><a href="#local-6989586621679292453"><span class="hs-identifier hs-var">x</span></a></span></span><span>
+</span><span id="line-101"></span><span>          </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span> </span><span id="local-6989586621679292452"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679292452"><span class="hs-identifier hs-var">end</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser Bool
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.atEnd</span></span><span>
+</span><span id="line-102"></span><span>               </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679292452"><span class="hs-identifier hs-var">end</span></a></span><span> </span><span class="hs-keyword">then</span><span>
+</span><span id="line-103"></span><span>                   </span><span class="hs-keyword">do</span><span> </span><span class="hs-special">(</span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679292450"><span class="annot"><span class="annottext">missing :: [a]
+</span><a href="#local-6989586621679292450"><span class="hs-identifier hs-var hs-var">missing</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-104"></span><span>                       </span><span class="hs-keyword">in</span><span>
+</span><span id="line-105"></span><span>                         </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">[Any] -&gt; Bool
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Bool
+</span><span class="hs-identifier hs-var">Prelude.null</span></span><span> </span><span class="annot"><span class="annottext">[Any]
+forall a. [a]
+</span><a href="#local-6989586621679292450"><span class="hs-identifier hs-var">missing</span></a></span><span> </span><span class="hs-keyword">then</span><span>
+</span><span id="line-106"></span><span>                             </span><span class="annot"><span class="annottext">() -&gt; Parser ()
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">Prelude.return</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-107"></span><span>                         </span><span class="hs-keyword">else</span><span>
+</span><span id="line-108"></span><span>                             </span><span class="annot"><span class="annottext">String -&gt; Parser ()
+forall (m :: * -&gt; *) a. MonadFail m =&gt; String -&gt; m a
+</span><span class="hs-identifier hs-var">Prelude.fail</span></span><span>
+</span><span id="line-109"></span><span>                               </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">(Prelude.++)</span></span><span>
+</span><span id="line-110"></span><span>                                  </span><span class="annot"><span class="hs-string">&quot;Missing required fields: &quot;</span></span><span>
+</span><span id="line-111"></span><span>                                  </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">Prelude.show</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[String]
+forall a. [a]
+</span><a href="#local-6989586621679292450"><span class="hs-identifier hs-var">missing</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Prelude.String</span></span><span class="hs-special">]</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-112"></span><span>                      </span><span class="annot"><span class="annottext">UpdateCount -&gt; Parser UpdateCount
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">Prelude.return</span></span><span>
+</span><span id="line-113"></span><span>                        </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Setter UpdateCount UpdateCount FieldSet FieldSet
+-&gt; (FieldSet -&gt; FieldSet) -&gt; UpdateCount -&gt; UpdateCount
+forall s t a b. Setter s t a b -&gt; (a -&gt; b) -&gt; s -&gt; t
+</span><span class="hs-identifier hs-var">Lens.Family2.over</span></span><span>
+</span><span id="line-114"></span><span>                           </span><span class="annot"><span class="annottext">forall msg. Message msg =&gt; Lens' msg FieldSet
+Setter UpdateCount UpdateCount FieldSet FieldSet
+</span><span class="hs-identifier hs-var">Data.ProtoLens.unknownFields</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679292446"><span class="annot"><span class="annottext">FieldSet
+</span><a href="#local-6989586621679292446"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">FieldSet -&gt; FieldSet
+forall a. [a] -&gt; [a]
+</span><span class="hs-identifier hs-var">Prelude.reverse</span></span><span> </span><span class="annot"><span class="annottext">FieldSet
+</span><a href="#local-6989586621679292446"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292453"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-115"></span><span>               </span><span class="hs-keyword">else</span><span>
+</span><span id="line-116"></span><span>                   </span><span class="hs-keyword">do</span><span> </span><span id="local-6989586621679292444"><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679292444"><span class="hs-identifier hs-var">tag</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser Word64
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.getVarInt</span></span><span>
+</span><span id="line-117"></span><span>                      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679292444"><span class="hs-identifier hs-var">tag</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-118"></span><span>                        </span><span class="hs-number">10</span><span>
+</span><span id="line-119"></span><span>                          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span> </span><span id="local-6989586621679292442"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679292442"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser Text -&gt; String -&gt; Parser Text
+forall a. Parser a -&gt; String -&gt; Parser a
+</span><span class="hs-operator hs-var">(Data.ProtoLens.Encoding.Bytes.&lt;?&gt;)</span></span><span>
+</span><span id="line-120"></span><span>                                       </span><span class="hs-special">(</span><span class="hs-keyword">do</span><span> </span><span id="local-6989586621679292440"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679292440"><span class="hs-identifier hs-var">value</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">do</span><span> </span><span id="local-6989586621679292439"><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679292439"><span class="hs-identifier hs-var">len</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser Word64
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.getVarInt</span></span><span>
+</span><span id="line-121"></span><span>                                                       </span><span class="annot"><span class="annottext">Int -&gt; Parser ByteString
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.getBytes</span></span><span>
+</span><span id="line-122"></span><span>                                                         </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64 -&gt; Int
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">Prelude.fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679292439"><span class="hs-identifier hs-var">len</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-123"></span><span>                                           </span><span class="annot"><span class="annottext">Either String Text -&gt; Parser Text
+forall a. Either String a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.runEither</span></span><span>
+</span><span id="line-124"></span><span>                                             </span><span class="hs-special">(</span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either UnicodeException Text
+</span><span class="hs-identifier hs-var">Data.Text.Encoding.decodeUtf8'</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679292440"><span class="hs-identifier hs-var">value</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-125"></span><span>                                                </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Prelude.Left</span></span><span> </span><span id="local-6989586621679292435"><span class="annot"><span class="annottext">err :: UnicodeException
+</span><a href="#local-6989586621679292435"><span class="hs-identifier hs-var">err</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-126"></span><span>                                                  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Either String Text
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Prelude.Left</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UnicodeException -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><span class="hs-identifier hs-var">Prelude.show</span></span><span> </span><span class="annot"><span class="annottext">UnicodeException
+</span><a href="#local-6989586621679292435"><span class="hs-identifier hs-var">err</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-127"></span><span>                                                </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Prelude.Right</span></span><span> </span><span id="local-6989586621679292434"><span class="annot"><span class="annottext">r :: Text
+</span><a href="#local-6989586621679292434"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Either String Text
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Prelude.Right</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679292434"><span class="hs-identifier hs-var">r</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-128"></span><span>                                       </span><span class="annot"><span class="hs-string">&quot;username&quot;</span></span><span>
+</span><span id="line-129"></span><span>                                </span><span class="annot"><span class="annottext">UpdateCount -&gt; Parser UpdateCount
+</span><a href="#local-6989586621679292454"><span class="hs-identifier hs-var">loop</span></a></span><span>
+</span><span id="line-130"></span><span>                                  </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Setter UpdateCount UpdateCount Text Text
+-&gt; Text -&gt; UpdateCount -&gt; UpdateCount
+forall s t a b. Setter s t a b -&gt; b -&gt; s -&gt; t
+</span><span class="hs-identifier hs-var">Lens.Family2.set</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall s a (f :: * -&gt; *).
+(HasField s &quot;username&quot; a, Functor f) =&gt;
+(a -&gt; f a) -&gt; s -&gt; f s
+forall (x :: Symbol) s a (f :: * -&gt; *).
+(HasField s x a, Functor f) =&gt;
+(a -&gt; f a) -&gt; s -&gt; f s
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Field.field</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><span class="hs-string">&quot;username&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679292442"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292453"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-131"></span><span>                        </span><span class="hs-number">16</span><span>
+</span><span id="line-132"></span><span>                          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span> </span><span id="local-6989586621679292432"><span class="annot"><span class="annottext">Int32
+</span><a href="#local-6989586621679292432"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Parser Int32 -&gt; String -&gt; Parser Int32
+forall a. Parser a -&gt; String -&gt; Parser a
+</span><span class="hs-operator hs-var">(Data.ProtoLens.Encoding.Bytes.&lt;?&gt;)</span></span><span>
+</span><span id="line-133"></span><span>                                       </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Word64 -&gt; Int32) -&gt; Parser Word64 -&gt; Parser Int32
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">Prelude.fmap</span></span><span>
+</span><span id="line-134"></span><span>                                          </span><span class="annot"><span class="annottext">Word64 -&gt; Int32
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">Prelude.fromIntegral</span></span><span>
+</span><span id="line-135"></span><span>                                          </span><span class="annot"><span class="annottext">Parser Word64
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.getVarInt</span></span><span class="hs-special">)</span><span>
+</span><span id="line-136"></span><span>                                       </span><span class="annot"><span class="hs-string">&quot;count&quot;</span></span><span>
+</span><span id="line-137"></span><span>                                </span><span class="annot"><span class="annottext">UpdateCount -&gt; Parser UpdateCount
+</span><a href="#local-6989586621679292454"><span class="hs-identifier hs-var">loop</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Setter UpdateCount UpdateCount Int32 Int32
+-&gt; Int32 -&gt; UpdateCount -&gt; UpdateCount
+forall s t a b. Setter s t a b -&gt; b -&gt; s -&gt; t
+</span><span class="hs-identifier hs-var">Lens.Family2.set</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall s a (f :: * -&gt; *).
+(HasField s &quot;count&quot; a, Functor f) =&gt;
+(a -&gt; f a) -&gt; s -&gt; f s
+forall (x :: Symbol) s a (f :: * -&gt; *).
+(HasField s x a, Functor f) =&gt;
+(a -&gt; f a) -&gt; s -&gt; f s
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Field.field</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><span class="hs-string">&quot;count&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int32
+</span><a href="#local-6989586621679292432"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292453"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-138"></span><span>                        </span><span id="local-6989586621679292431"><span class="annot"><span class="annottext">wire :: Word64
+</span><a href="#local-6989586621679292431"><span class="hs-identifier hs-var">wire</span></a></span></span><span>
+</span><span id="line-139"></span><span>                          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679292430"><span class="annot"><span class="annottext">TaggedValue
+</span><a href="#local-6989586621679292430"><span class="hs-identifier hs-var">y</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Parser TaggedValue
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Wire.parseTaggedValueFromWire</span></span><span>
+</span><span id="line-140"></span><span>                                        </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679292431"><span class="hs-identifier hs-var">wire</span></a></span><span>
+</span><span id="line-141"></span><span>                                </span><span class="annot"><span class="annottext">UpdateCount -&gt; Parser UpdateCount
+</span><a href="#local-6989586621679292454"><span class="hs-identifier hs-var">loop</span></a></span><span>
+</span><span id="line-142"></span><span>                                  </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Setter UpdateCount UpdateCount FieldSet FieldSet
+-&gt; (FieldSet -&gt; FieldSet) -&gt; UpdateCount -&gt; UpdateCount
+forall s t a b. Setter s t a b -&gt; (a -&gt; b) -&gt; s -&gt; t
+</span><span class="hs-identifier hs-var">Lens.Family2.over</span></span><span>
+</span><span id="line-143"></span><span>                                     </span><span class="annot"><span class="annottext">forall msg. Message msg =&gt; Lens' msg FieldSet
+Setter UpdateCount UpdateCount FieldSet FieldSet
+</span><span class="hs-identifier hs-var">Data.ProtoLens.unknownFields</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span class="hs-glyph">!</span><span id="local-6989586621679292428"><span class="annot"><span class="annottext">FieldSet
+</span><a href="#local-6989586621679292428"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">:</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TaggedValue
+</span><a href="#local-6989586621679292430"><span class="hs-identifier hs-var">y</span></a></span><span> </span><span class="annot"><span class="annottext">FieldSet
+</span><a href="#local-6989586621679292428"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292453"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-144"></span><span>      </span><span class="hs-keyword">in</span><span>
+</span><span id="line-145"></span><span>        </span><span class="annot"><span class="annottext">Parser UpdateCount -&gt; String -&gt; Parser UpdateCount
+forall a. Parser a -&gt; String -&gt; Parser a
+</span><span class="hs-operator hs-var">(Data.ProtoLens.Encoding.Bytes.&lt;?&gt;)</span></span><span>
+</span><span id="line-146"></span><span>          </span><span class="hs-special">(</span><span class="hs-keyword">do</span><span> </span><span class="annot"><span class="annottext">UpdateCount -&gt; Parser UpdateCount
+</span><a href="#local-6989586621679292454"><span class="hs-identifier hs-var">loop</span></a></span><span> </span><span class="annot"><span class="annottext">UpdateCount
+forall msg. Message msg =&gt; msg
+</span><span class="hs-identifier hs-var">Data.ProtoLens.defMessage</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-string">&quot;UpdateCount&quot;</span></span><span>
+</span><span id="line-147"></span><span>  </span><span id="local-6989586621679292427"><span class="annot"><span class="annottext">buildMessage :: UpdateCount -&gt; Builder
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">buildMessage</span></span></span><span>
+</span><span id="line-148"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span> </span><span id="local-6989586621679292425"><span class="annot"><span class="annottext">_x :: UpdateCount
+</span><a href="#local-6989586621679292425"><span class="hs-identifier hs-var">_x</span></a></span></span><span>
+</span><span id="line-149"></span><span>        </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Builder -&gt; Builder -&gt; Builder
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(Data.Monoid.&lt;&gt;)</span></span><span>
+</span><span id="line-150"></span><span>             </span><span class="hs-special">(</span><span class="hs-keyword">let</span><span>
+</span><span id="line-151"></span><span>                </span><span id="local-6989586621679292424"><span class="annot"><span class="annottext">_v :: Text
+</span><a href="#local-6989586621679292424"><span class="hs-identifier hs-var hs-var">_v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FoldLike Text UpdateCount UpdateCount Text Text
+-&gt; UpdateCount -&gt; Text
+forall a s t b. FoldLike a s t a b -&gt; s -&gt; a
+</span><span class="hs-identifier hs-var">Lens.Family2.view</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall s a (f :: * -&gt; *).
+(HasField s &quot;username&quot; a, Functor f) =&gt;
+(a -&gt; f a) -&gt; s -&gt; f s
+forall (x :: Symbol) s a (f :: * -&gt; *).
+(HasField s x a, Functor f) =&gt;
+(a -&gt; f a) -&gt; s -&gt; f s
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Field.field</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><span class="hs-string">&quot;username&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292425"><span class="hs-identifier hs-var">_x</span></a></span><span>
+</span><span id="line-152"></span><span>              </span><span class="hs-keyword">in</span><span>
+</span><span id="line-153"></span><span>                </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">(Prelude.==)</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679292424"><span class="hs-identifier hs-var">_v</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+forall value. FieldDefault value =&gt; value
+</span><span class="hs-identifier hs-var">Data.ProtoLens.fieldDefault</span></span><span> </span><span class="hs-keyword">then</span><span>
+</span><span id="line-154"></span><span>                    </span><span class="annot"><span class="annottext">Builder
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">Data.Monoid.mempty</span></span><span>
+</span><span id="line-155"></span><span>                </span><span class="hs-keyword">else</span><span>
+</span><span id="line-156"></span><span>                    </span><span class="annot"><span class="annottext">Builder -&gt; Builder -&gt; Builder
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(Data.Monoid.&lt;&gt;)</span></span><span>
+</span><span id="line-157"></span><span>                      </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64 -&gt; Builder
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.putVarInt</span></span><span> </span><span class="annot"><span class="hs-number">10</span></span><span class="hs-special">)</span><span>
+</span><span id="line-158"></span><span>                      </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(ByteString -&gt; Builder) -&gt; (Text -&gt; ByteString) -&gt; Text -&gt; Builder
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">(Prelude..)</span></span><span>
+</span><span id="line-159"></span><span>                         </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span> </span><span id="local-6989586621679292421"><span class="annot"><span class="annottext">bs :: ByteString
+</span><a href="#local-6989586621679292421"><span class="hs-identifier hs-var">bs</span></a></span></span><span>
+</span><span id="line-160"></span><span>                            </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Builder -&gt; Builder -&gt; Builder
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(Data.Monoid.&lt;&gt;)</span></span><span>
+</span><span id="line-161"></span><span>                                 </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64 -&gt; Builder
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.putVarInt</span></span><span>
+</span><span id="line-162"></span><span>                                    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; Word64
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">Prelude.fromIntegral</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ByteString -&gt; Int
+</span><span class="hs-identifier hs-var">Data.ByteString.length</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679292421"><span class="hs-identifier hs-var">bs</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-163"></span><span>                                 </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ByteString -&gt; Builder
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.putBytes</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679292421"><span class="hs-identifier hs-var">bs</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-164"></span><span>                         </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><span class="hs-identifier hs-var">Data.Text.Encoding.encodeUtf8</span></span><span>
+</span><span id="line-165"></span><span>                         </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679292424"><span class="hs-identifier hs-var">_v</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-166"></span><span>             </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Builder -&gt; Builder -&gt; Builder
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(Data.Monoid.&lt;&gt;)</span></span><span>
+</span><span id="line-167"></span><span>                </span><span class="hs-special">(</span><span class="hs-keyword">let</span><span>
+</span><span id="line-168"></span><span>                   </span><span id="local-6989586621679292417"><span class="annot"><span class="annottext">_v :: Int32
+</span><a href="#local-6989586621679292417"><span class="hs-identifier hs-var hs-var">_v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FoldLike Int32 UpdateCount UpdateCount Int32 Int32
+-&gt; UpdateCount -&gt; Int32
+forall a s t b. FoldLike a s t a b -&gt; s -&gt; a
+</span><span class="hs-identifier hs-var">Lens.Family2.view</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall s a (f :: * -&gt; *).
+(HasField s &quot;count&quot; a, Functor f) =&gt;
+(a -&gt; f a) -&gt; s -&gt; f s
+forall (x :: Symbol) s a (f :: * -&gt; *).
+(HasField s x a, Functor f) =&gt;
+(a -&gt; f a) -&gt; s -&gt; f s
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Field.field</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><span class="hs-string">&quot;count&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292425"><span class="hs-identifier hs-var">_x</span></a></span><span>
+</span><span id="line-169"></span><span>                 </span><span class="hs-keyword">in</span><span>
+</span><span id="line-170"></span><span>                   </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Int32 -&gt; Int32 -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">(Prelude.==)</span></span><span> </span><span class="annot"><span class="annottext">Int32
+</span><a href="#local-6989586621679292417"><span class="hs-identifier hs-var">_v</span></a></span><span> </span><span class="annot"><span class="annottext">Int32
+forall value. FieldDefault value =&gt; value
+</span><span class="hs-identifier hs-var">Data.ProtoLens.fieldDefault</span></span><span> </span><span class="hs-keyword">then</span><span>
+</span><span id="line-171"></span><span>                       </span><span class="annot"><span class="annottext">Builder
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">Data.Monoid.mempty</span></span><span>
+</span><span id="line-172"></span><span>                   </span><span class="hs-keyword">else</span><span>
+</span><span id="line-173"></span><span>                       </span><span class="annot"><span class="annottext">Builder -&gt; Builder -&gt; Builder
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">(Data.Monoid.&lt;&gt;)</span></span><span>
+</span><span id="line-174"></span><span>                         </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64 -&gt; Builder
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.putVarInt</span></span><span> </span><span class="annot"><span class="hs-number">16</span></span><span class="hs-special">)</span><span>
+</span><span id="line-175"></span><span>                         </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Word64 -&gt; Builder) -&gt; (Int32 -&gt; Word64) -&gt; Int32 -&gt; Builder
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">(Prelude..)</span></span><span>
+</span><span id="line-176"></span><span>                            </span><span class="annot"><span class="annottext">Word64 -&gt; Builder
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Bytes.putVarInt</span></span><span> </span><span class="annot"><span class="annottext">Int32 -&gt; Word64
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">Prelude.fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Int32
+</span><a href="#local-6989586621679292417"><span class="hs-identifier hs-var">_v</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-177"></span><span>                </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FieldSet -&gt; Builder
+</span><span class="hs-identifier hs-var">Data.ProtoLens.Encoding.Wire.buildFieldSet</span></span><span>
+</span><span id="line-178"></span><span>                   </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FoldLike FieldSet UpdateCount UpdateCount FieldSet FieldSet
+-&gt; UpdateCount -&gt; FieldSet
+forall a s t b. FoldLike a s t a b -&gt; s -&gt; a
+</span><span class="hs-identifier hs-var">Lens.Family2.view</span></span><span> </span><span class="annot"><span class="annottext">FoldLike FieldSet UpdateCount UpdateCount FieldSet FieldSet
+forall msg. Message msg =&gt; Lens' msg FieldSet
+</span><span class="hs-identifier hs-var">Data.ProtoLens.unknownFields</span></span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292425"><span class="hs-identifier hs-var">_x</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-179"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Control.DeepSeq.NFData</span></span><span> </span><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">UpdateCount</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-180"></span><span>  </span><span id="local-6989586621679292413"><span class="annot"><span class="annottext">rnf :: UpdateCount -&gt; ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">rnf</span></span></span><span>
+</span><span id="line-181"></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span> </span><span id="local-6989586621679292411"><span class="annot"><span class="annottext">x__ :: UpdateCount
+</span><a href="#local-6989586621679292411"><span class="hs-identifier hs-var">x__</span></a></span></span><span>
+</span><span id="line-182"></span><span>        </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">FieldSet -&gt; () -&gt; ()
+forall a b. NFData a =&gt; a -&gt; b -&gt; b
+</span><span class="hs-identifier hs-var">Control.DeepSeq.deepseq</span></span><span>
+</span><span id="line-183"></span><span>             </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UpdateCount -&gt; FieldSet
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27_unknownFields"><span class="hs-identifier hs-var hs-var">_UpdateCount'_unknownFields</span></a></span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292411"><span class="hs-identifier hs-var">x__</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-184"></span><span>             </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; () -&gt; ()
+forall a b. NFData a =&gt; a -&gt; b -&gt; b
+</span><span class="hs-identifier hs-var">Control.DeepSeq.deepseq</span></span><span>
+</span><span id="line-185"></span><span>                </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UpdateCount -&gt; Text
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27username"><span class="hs-identifier hs-var hs-var">_UpdateCount'username</span></a></span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292411"><span class="hs-identifier hs-var">x__</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-186"></span><span>                </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int32 -&gt; () -&gt; ()
+forall a b. NFData a =&gt; a -&gt; b -&gt; b
+</span><span class="hs-identifier hs-var">Control.DeepSeq.deepseq</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UpdateCount -&gt; Int32
+</span><a href="Proto.SimpleStorage.Messages.html#_UpdateCount%27count"><span class="hs-identifier hs-var hs-var">_UpdateCount'count</span></a></span><span> </span><span class="annot"><span class="annottext">UpdateCount
+</span><a href="#local-6989586621679292411"><span class="hs-identifier hs-var">x__</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span></pre></body></html>

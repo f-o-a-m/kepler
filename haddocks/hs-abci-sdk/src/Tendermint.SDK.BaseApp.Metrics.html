@@ -1,34 +1,149 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE TemplateHaskell #-}</span><span>
-</span><a name="line-2"></a><span>
-</span><a name="line-3"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp.Metrics</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-4"></a><span>
-</span><a name="line-5"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.String</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">IsString</span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-6"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Text</span><span>   </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Text</span><span class="hs-special">)</span><span>
-</span><a name="line-7"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Polysemy</span><span>
-</span><a name="line-8"></a><span>
-</span><a name="line-9"></a><span class="hs-keyword">data</span><span> </span><a name="CountName"><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier">CountName</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="CountName"><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier">CountName</span></a></a><span>
-</span><a name="line-10"></a><span>  </span><span class="hs-special">{</span><span> </span><a name="countName"><a href="Tendermint.SDK.BaseApp.Metrics.html#countName"><span class="hs-identifier">countName</span></a></a><span>   </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Text</span><span>
-</span><a name="line-11"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="countLabels"><a href="Tendermint.SDK.BaseApp.Metrics.html#countLabels"><span class="hs-identifier">countLabels</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="hs-identifier hs-type">Text</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Text</span><span class="hs-special">)</span><span class="hs-special">]</span><span>
-</span><a name="line-12"></a><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Eq</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Ord</span><span class="hs-special">)</span><span>
-</span><a name="line-13"></a><span>
-</span><a name="line-14"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">IsString</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier hs-type">CountName</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-15"></a><span>  </span><a name="local-3458764513820541114"><span class="hs-identifier">fromString</span></a><span> </span><a name="local-6989586621679194244"><a href="#local-6989586621679194244"><span class="hs-identifier">s</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier hs-var">CountName</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fromString</span><span> </span><a href="#local-6989586621679194244"><span class="hs-identifier hs-var">s</span></a><span class="hs-special">)</span><span> </span><span class="hs-identifier hs-var">mempty</span><span>
-</span><a name="line-16"></a><span>
-</span><a name="line-17"></a><span class="hs-keyword">data</span><span> </span><a name="HistogramName"><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier">HistogramName</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="HistogramName"><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier">HistogramName</span></a></a><span>
-</span><a name="line-18"></a><span>  </span><span class="hs-special">{</span><span> </span><a name="histogramName"><a href="Tendermint.SDK.BaseApp.Metrics.html#histogramName"><span class="hs-identifier">histogramName</span></a></a><span>    </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Text</span><span>
-</span><a name="line-19"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="histogramLabels"><a href="Tendermint.SDK.BaseApp.Metrics.html#histogramLabels"><span class="hs-identifier">histogramLabels</span></a></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="hs-identifier hs-type">Text</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Text</span><span class="hs-special">)</span><span class="hs-special">]</span><span>
-</span><a name="line-20"></a><span>  </span><span class="hs-special">,</span><span> </span><a name="histogramBuckets"><a href="Tendermint.SDK.BaseApp.Metrics.html#histogramBuckets"><span class="hs-identifier">histogramBuckets</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-identifier hs-type">Double</span><span class="hs-special">]</span><span>
-</span><a name="line-21"></a><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Eq</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Ord</span><span class="hs-special">)</span><span>
-</span><a name="line-22"></a><span>
-</span><a name="line-23"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">IsString</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-type">HistogramName</span></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-24"></a><span>  </span><a name="local-3458764513820541114"><span class="hs-identifier">fromString</span></a><span> </span><a name="local-6989586621679194242"><a href="#local-6989586621679194242"><span class="hs-identifier">s</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-var">HistogramName</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fromString</span><span> </span><a href="#local-6989586621679194242"><span class="hs-identifier hs-var">s</span></a><span class="hs-special">)</span><span> </span><span class="hs-identifier hs-var">mempty</span><span> </span><a href="#local-6989586621679194243"><span class="hs-identifier hs-var">defaultBuckets</span></a><span>
-</span><a name="line-25"></a><span>    </span><span class="hs-keyword">where</span><span> </span><a name="local-6989586621679194243"><a href="#local-6989586621679194243"><span class="hs-identifier">defaultBuckets</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-number">0.0001</span><span class="hs-special">,</span><span> </span><span class="hs-number">0.001</span><span class="hs-special">,</span><span> </span><span class="hs-number">0.01</span><span class="hs-special">,</span><span> </span><span class="hs-number">0.1</span><span class="hs-special">,</span><span> </span><span class="hs-number">0.25</span><span class="hs-special">,</span><span> </span><span class="hs-number">0.5</span><span class="hs-special">,</span><span> </span><span class="hs-number">0.75</span><span class="hs-special">,</span><span> </span><span class="hs-number">1</span><span class="hs-special">,</span><span> </span><span class="hs-number">10</span><span class="hs-special">,</span><span> </span><span class="hs-number">100</span><span class="hs-special">]</span><span>
-</span><a name="line-26"></a><span>
-</span><a name="line-27"></a><span class="hs-keyword">data</span><span> </span><a name="Metrics"><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier">Metrics</span></a></a><span> </span><a name="local-6989586621679194237"><a href="#local-6989586621679194237"><span class="hs-identifier">m</span></a></a><span> </span><a name="local-6989586621679194238"><a href="#local-6989586621679194238"><span class="hs-identifier">a</span></a></a><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-28"></a><span>  </span><span class="hs-comment">-- | Increments the count of a specific message</span><span>
-</span><a name="line-29"></a><span>  </span><a name="IncCount"><a href="Tendermint.SDK.BaseApp.Metrics.html#IncCount"><span class="hs-identifier">IncCount</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier hs-type">CountName</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a><span> </span><a href="#local-6989586621679194239"><span class="hs-identifier hs-type">m</span></a><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><a name="line-30"></a><span>  </span><span class="hs-comment">-- | Times an action and records it in a histogram</span><span>
-</span><a name="line-31"></a><span>  </span><a name="WithTimer"><a href="Tendermint.SDK.BaseApp.Metrics.html#WithTimer"><span class="hs-identifier">WithTimer</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-type">HistogramName</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="#local-6989586621679194240"><span class="hs-identifier hs-type">m</span></a><span> </span><a href="#local-6989586621679194241"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a><span> </span><a href="#local-6989586621679194240"><span class="hs-identifier hs-type">m</span></a><span> </span><a href="#local-6989586621679194241"><span class="hs-identifier hs-type">a</span></a><span>
-</span><a name="line-32"></a><span>
-</span><a name="line-33"></a><span class="hs-identifier hs-var">makeSem</span><span> </span><span class="hs-special">''</span><span class="hs-identifier hs-var">Metrics</span><span>
-</span><a name="line-34"></a></pre></body></html>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Tendermint.SDK.BaseApp.Metrics</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.String</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">IsString</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span>   </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Polysemy</span></span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">data</span><span> </span><span id="CountName"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier hs-var">CountName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="CountName"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier hs-var">CountName</span></a></span></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="countName"><span class="annot"><span class="annottext">CountName -&gt; Text
+</span><a href="Tendermint.SDK.BaseApp.Metrics.html#countName"><span class="hs-identifier hs-var hs-var">countName</span></a></span></span><span>   </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="countLabels"><span class="annot"><span class="annottext">CountName -&gt; [(Text, Text)]
+</span><a href="Tendermint.SDK.BaseApp.Metrics.html#countLabels"><span class="hs-identifier hs-var hs-var">countLabels</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679546846"><span id="local-6989586621679546848"><span class="annot"><span class="annottext">CountName -&gt; CountName -&gt; Bool
+(CountName -&gt; CountName -&gt; Bool)
+-&gt; (CountName -&gt; CountName -&gt; Bool) -&gt; Eq CountName
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: CountName -&gt; CountName -&gt; Bool
+$c/= :: CountName -&gt; CountName -&gt; Bool
+== :: CountName -&gt; CountName -&gt; Bool
+$c== :: CountName -&gt; CountName -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679546830"><span id="local-6989586621679546832"><span id="local-6989586621679546834"><span id="local-6989586621679546836"><span id="local-6989586621679546838"><span id="local-6989586621679546840"><span id="local-6989586621679546842"><span class="annot"><span class="annottext">Eq CountName
+Eq CountName =&gt;
+(CountName -&gt; CountName -&gt; Ordering)
+-&gt; (CountName -&gt; CountName -&gt; Bool)
+-&gt; (CountName -&gt; CountName -&gt; Bool)
+-&gt; (CountName -&gt; CountName -&gt; Bool)
+-&gt; (CountName -&gt; CountName -&gt; Bool)
+-&gt; (CountName -&gt; CountName -&gt; CountName)
+-&gt; (CountName -&gt; CountName -&gt; CountName)
+-&gt; Ord CountName
+CountName -&gt; CountName -&gt; Bool
+CountName -&gt; CountName -&gt; Ordering
+CountName -&gt; CountName -&gt; CountName
+forall a.
+Eq a =&gt;
+(a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+min :: CountName -&gt; CountName -&gt; CountName
+$cmin :: CountName -&gt; CountName -&gt; CountName
+max :: CountName -&gt; CountName -&gt; CountName
+$cmax :: CountName -&gt; CountName -&gt; CountName
+&gt;= :: CountName -&gt; CountName -&gt; Bool
+$c&gt;= :: CountName -&gt; CountName -&gt; Bool
+&gt; :: CountName -&gt; CountName -&gt; Bool
+$c&gt; :: CountName -&gt; CountName -&gt; Bool
+&lt;= :: CountName -&gt; CountName -&gt; Bool
+$c&lt;= :: CountName -&gt; CountName -&gt; Bool
+&lt; :: CountName -&gt; CountName -&gt; Bool
+$c&lt; :: CountName -&gt; CountName -&gt; Bool
+compare :: CountName -&gt; CountName -&gt; Ordering
+$ccompare :: CountName -&gt; CountName -&gt; Ordering
+$cp1Ord :: Eq CountName
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IsString</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier hs-type">CountName</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-15"></span><span>  </span><span id="local-6989586621679546826"><span class="annot"><span class="annottext">fromString :: String -&gt; CountName
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromString</span></span></span><span> </span><span id="local-6989586621679546825"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679546825"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; [(Text, Text)] -&gt; CountName
+</span><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier hs-var">CountName</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Text
+forall a. IsString a =&gt; String -&gt; a
+</span><span class="hs-identifier hs-var">fromString</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679546825"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(Text, Text)]
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">data</span><span> </span><span id="HistogramName"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-var">HistogramName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="HistogramName"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-var">HistogramName</span></a></span></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="histogramName"><span class="annot"><span class="annottext">HistogramName -&gt; Text
+</span><a href="Tendermint.SDK.BaseApp.Metrics.html#histogramName"><span class="hs-identifier hs-var hs-var">histogramName</span></a></span></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="histogramLabels"><span class="annot"><span class="annottext">HistogramName -&gt; [(Text, Text)]
+</span><a href="Tendermint.SDK.BaseApp.Metrics.html#histogramLabels"><span class="hs-identifier hs-var hs-var">histogramLabels</span></a></span></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="histogramBuckets"><span class="annot"><span class="annottext">HistogramName -&gt; [Double]
+</span><a href="Tendermint.SDK.BaseApp.Metrics.html#histogramBuckets"><span class="hs-identifier hs-var hs-var">histogramBuckets</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span class="hs-special">]</span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679546817"><span id="local-6989586621679546819"><span class="annot"><span class="annottext">HistogramName -&gt; HistogramName -&gt; Bool
+(HistogramName -&gt; HistogramName -&gt; Bool)
+-&gt; (HistogramName -&gt; HistogramName -&gt; Bool) -&gt; Eq HistogramName
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: HistogramName -&gt; HistogramName -&gt; Bool
+$c/= :: HistogramName -&gt; HistogramName -&gt; Bool
+== :: HistogramName -&gt; HistogramName -&gt; Bool
+$c== :: HistogramName -&gt; HistogramName -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679546802"><span id="local-6989586621679546804"><span id="local-6989586621679546806"><span id="local-6989586621679546808"><span id="local-6989586621679546810"><span id="local-6989586621679546812"><span id="local-6989586621679546814"><span class="annot"><span class="annottext">Eq HistogramName
+Eq HistogramName =&gt;
+(HistogramName -&gt; HistogramName -&gt; Ordering)
+-&gt; (HistogramName -&gt; HistogramName -&gt; Bool)
+-&gt; (HistogramName -&gt; HistogramName -&gt; Bool)
+-&gt; (HistogramName -&gt; HistogramName -&gt; Bool)
+-&gt; (HistogramName -&gt; HistogramName -&gt; Bool)
+-&gt; (HistogramName -&gt; HistogramName -&gt; HistogramName)
+-&gt; (HistogramName -&gt; HistogramName -&gt; HistogramName)
+-&gt; Ord HistogramName
+HistogramName -&gt; HistogramName -&gt; Bool
+HistogramName -&gt; HistogramName -&gt; Ordering
+HistogramName -&gt; HistogramName -&gt; HistogramName
+forall a.
+Eq a =&gt;
+(a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+min :: HistogramName -&gt; HistogramName -&gt; HistogramName
+$cmin :: HistogramName -&gt; HistogramName -&gt; HistogramName
+max :: HistogramName -&gt; HistogramName -&gt; HistogramName
+$cmax :: HistogramName -&gt; HistogramName -&gt; HistogramName
+&gt;= :: HistogramName -&gt; HistogramName -&gt; Bool
+$c&gt;= :: HistogramName -&gt; HistogramName -&gt; Bool
+&gt; :: HistogramName -&gt; HistogramName -&gt; Bool
+$c&gt; :: HistogramName -&gt; HistogramName -&gt; Bool
+&lt;= :: HistogramName -&gt; HistogramName -&gt; Bool
+$c&lt;= :: HistogramName -&gt; HistogramName -&gt; Bool
+&lt; :: HistogramName -&gt; HistogramName -&gt; Bool
+$c&lt; :: HistogramName -&gt; HistogramName -&gt; Bool
+compare :: HistogramName -&gt; HistogramName -&gt; Ordering
+$ccompare :: HistogramName -&gt; HistogramName -&gt; Ordering
+$cp1Ord :: Eq HistogramName
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IsString</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-type">HistogramName</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-24"></span><span>  </span><span id="local-6989586621679546800"><span class="annot"><span class="annottext">fromString :: String -&gt; HistogramName
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromString</span></span></span><span> </span><span id="local-6989586621679546799"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679546799"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; [(Text, Text)] -&gt; [Double] -&gt; HistogramName
+</span><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-var">HistogramName</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Text
+forall a. IsString a =&gt; String -&gt; a
+</span><span class="hs-identifier hs-var">fromString</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679546799"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(Text, Text)]
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="annot"><span class="annottext">[Double]
+</span><a href="#local-6989586621679546798"><span class="hs-identifier hs-var">defaultBuckets</span></a></span><span>
+</span><span id="line-25"></span><span>    </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679546798"><span class="annot"><span class="annottext">defaultBuckets :: [Double]
+</span><a href="#local-6989586621679546798"><span class="hs-identifier hs-var hs-var">defaultBuckets</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-number">0.0001</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-number">0.001</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-number">0.01</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-number">0.1</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-number">0.25</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-number">0.5</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-number">0.75</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-number">10</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-number">100</span></span><span class="hs-special">]</span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">data</span><span> </span><span id="Metrics"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-var">Metrics</span></a></span></span><span> </span><span id="local-6989586621679546796"><span class="annot"><a href="#local-6989586621679546796"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span id="local-6989586621679546795"><span class="annot"><a href="#local-6989586621679546795"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-comment">-- | Increments the count of a specific message</span><span>
+</span><span id="line-29"></span><span>  </span><span id="local-6989586621679546794"><span id="IncCount"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#IncCount"><span class="hs-identifier hs-var">IncCount</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier hs-type">CountName</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679546794"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-comment">-- | Times an action and records it in a histogram</span><span>
+</span><span id="line-31"></span><span>  </span><span id="local-6989586621679546791"><span id="local-6989586621679546792"><span id="WithTimer"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#WithTimer"><span class="hs-identifier hs-var">WithTimer</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-type">HistogramName</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679546792"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679546791"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679546792"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679546791"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span id="withTimer"><span id="incCount"><span id="DefiningModule"><span id="local-6989586621679546788"><span id="local-6989586621679546789"><span id="local-6989586621679546791"><span class="hs-identifier">makeSem</span><span> </span><span class="hs-special">''</span><span class="hs-identifier">Metrics</span></span></span></span></span></span></span><span>
+</span><span id="line-34"></span></pre></body></html>

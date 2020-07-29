@@ -36,7 +36,7 @@ class Monad m => RunQueryClient m
 runQuery :: RunQueryClient m => Query -> m Query
 type QueryStringList = [(Text, Text)]
 class HasQueryClient m layout where {
-    type family ClientQ (m :: * -> *) layout :: *;
+    type family ClientQ (m :: Type -> Type) layout :: Type;
 }
 genClientQ :: HasQueryClient m layout => Proxy m -> Proxy layout -> (Query, QueryStringList) -> ClientQ m layout
 appendToQueryString :: Text -> Maybe Text -> QueryStringList -> QueryStringList
@@ -104,7 +104,7 @@ class Monad m => RunTxClient m
 runTx :: RunTxClient m => RawTransaction -> m ResultBroadcastTxCommit
 getNonce :: RunTxClient m => Address -> m Word64
 class HasTxClient m layoutC layoutD where {
-    type family ClientT (m :: * -> *) layoutC layoutD :: *;
+    type family ClientT (m :: Type -> Type) layoutC layoutD :: Type;
 }
 genClientT :: HasTxClient m layoutC layoutD => Proxy m -> Proxy layoutC -> Proxy layoutD -> ClientTxOpts -> ClientT m layoutC layoutD
 
@@ -128,7 +128,7 @@ class Monad m => RunQueryClient m
 -- | How to make a request.
 runQuery :: RunQueryClient m => Query -> m Query
 class HasQueryClient m layout where {
-    type family ClientQ (m :: * -> *) layout :: *;
+    type family ClientQ (m :: Type -> Type) layout :: Type;
 }
 genClientQ :: HasQueryClient m layout => Proxy m -> Proxy layout -> (Query, QueryStringList) -> ClientQ m layout
 
@@ -141,7 +141,7 @@ QueryError :: AppError -> QueryClientResponse a
 data EmptyQueryClient
 EmptyQueryClient :: EmptyQueryClient
 class HasTxClient m layoutC layoutD where {
-    type family ClientT (m :: * -> *) layoutC layoutD :: *;
+    type family ClientT (m :: Type -> Type) layoutC layoutD :: Type;
 }
 genClientT :: HasTxClient m layoutC layoutD => Proxy m -> Proxy layoutC -> Proxy layoutD -> ClientTxOpts -> ClientT m layoutC layoutD
 class Monad m => RunTxClient m
@@ -184,15 +184,15 @@ makeSignerFromKey :: RecoverableSignatureSchema alg => Message alg ~ Digest SHA2
 module Tendermint.Utils.ClientUtils
 
 -- | Tx helpers
-assertTx :: Monad m => m (TxClientResponse a b) -> m (SynchronousResponse a b)
-deliverTxEvents :: Monad m => Proxy e -> SynchronousResponse a b -> m [Event]
-ensureCheckResponseCode :: Monad m => Word32 -> SynchronousResponse a b -> m ()
-ensureDeliverResponseCode :: Monad m => Word32 -> SynchronousResponse a b -> m ()
-ensureResponseCodes :: Monad m => (Word32, Word32) -> SynchronousResponse a b -> m ()
+assertTx :: Monad m => MonadFail m => m (TxClientResponse a b) -> m (SynchronousResponse a b)
+deliverTxEvents :: Monad m => MonadFail m => Proxy e -> SynchronousResponse a b -> m [Event]
+ensureCheckResponseCode :: MonadFail m => Word32 -> SynchronousResponse a b -> m ()
+ensureDeliverResponseCode :: Monad m => MonadFail m => Word32 -> SynchronousResponse a b -> m ()
+ensureResponseCodes :: MonadFail m => (Word32, Word32) -> SynchronousResponse a b -> m ()
 
 -- | Query helpers
-assertQuery :: Monad m => m (QueryClientResponse a) -> m (QueryResult a)
-ensureQueryResponseCode :: Monad m => Word32 -> QueryClientResponse a -> m ()
+assertQuery :: Monad m => MonadFail m => m (QueryClientResponse a) -> m (QueryResult a)
+ensureQueryResponseCode :: Monad m => MonadFail m => Word32 -> QueryClientResponse a -> m ()
 rpcConfig :: Config
 
 module Tendermint.Utils.User

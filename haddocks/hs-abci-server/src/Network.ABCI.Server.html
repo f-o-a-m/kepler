@@ -1,37 +1,105 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Network.ABCI.Server</span><span> </span><span class="hs-keyword">where</span><span>
-</span><a name="line-2"></a><span>
-</span><a name="line-3"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Conduit</span><span>            </span><span class="hs-special">(</span><span class="hs-identifier hs-var">runConduit</span><span class="hs-special">,</span><span> </span><span class="hs-special">(</span><span class="hs-operator hs-var">.|</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-4"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-identifier">Data.Conduit.List</span><span>       </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">CL</span><span>
-</span><a name="line-5"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Conduit.Network</span><span>    </span><span class="hs-special">(</span><span class="hs-identifier hs-type">AppData</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">ServerSettings</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">appSink</span><span class="hs-special">,</span><span>
-</span><a name="line-6"></a><span>                                          </span><span class="hs-identifier hs-var">appSource</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">runTCPServer</span><span class="hs-special">,</span><span>
-</span><a name="line-7"></a><span>                                          </span><span class="hs-identifier hs-var">serverSettings</span><span class="hs-special">)</span><span>
-</span><a name="line-8"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.Monoid</span><span>             </span><span class="hs-special">(</span><span class="hs-identifier hs-var">mempty</span><span class="hs-special">)</span><span>
-</span><a name="line-9"></a><span class="hs-keyword">import</span><span>           </span><span class="hs-identifier">Data.String</span><span>             </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fromString</span><span class="hs-special">)</span><span>
-</span><a name="line-10"></a><span class="hs-keyword">import</span><span>           </span><a href="Network.ABCI.Server.App.html"><span class="hs-identifier">Network.ABCI.Server.App</span></a><span> </span><span class="hs-special">(</span><a href="Network.ABCI.Server.App.html#App"><span class="hs-identifier hs-type">App</span></a><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-11"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><a href="Network.ABCI.Server.App.html"><span class="hs-identifier">Network.ABCI.Server.App</span></a><span> </span><span class="hs-keyword">as</span><span> </span><span class="hs-identifier">App</span><span>
-</span><a name="line-12"></a><span>
-</span><a name="line-13"></a><span>
-</span><a name="line-14"></a><span class="hs-comment">-- | Default ABCI app network settings for serving on localhost at the</span><span>
-</span><a name="line-15"></a><span class="hs-comment">-- standard port.</span><span>
-</span><a name="line-16"></a><span class="hs-identifier">defaultLocalSettings</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">ServerSettings</span><span>
-</span><a name="line-17"></a><a name="defaultLocalSettings"><a href="Network.ABCI.Server.html#defaultLocalSettings"><span class="hs-identifier">defaultLocalSettings</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">serverSettings</span><span> </span><span class="hs-number">26658</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">fromString</span><span> </span><span class="hs-string">&quot;0.0.0.0&quot;</span><span>
-</span><a name="line-18"></a><span>
-</span><a name="line-19"></a><span class="hs-comment">-- | Serve an ABCI application with custom 'ServerSettings' and a custom</span><span>
-</span><a name="line-20"></a><span class="hs-comment">-- action to perform on acquiring the socket resource.</span><span>
-</span><a name="line-21"></a><span class="hs-identifier">serveAppWith</span><span>
-</span><a name="line-22"></a><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">ServerSettings</span><span>
-</span><a name="line-23"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">AppData</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><a name="line-24"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Network.ABCI.Server.App.html#App"><span class="hs-identifier hs-type">App</span></a><span> </span><span class="hs-identifier hs-type">IO</span><span>
-</span><a name="line-25"></a><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><a name="line-26"></a><a name="serveAppWith"><a href="Network.ABCI.Server.html#serveAppWith"><span class="hs-identifier">serveAppWith</span></a></a><span> </span><a name="local-6989586621679153009"><a href="#local-6989586621679153009"><span class="hs-identifier">cfg</span></a></a><span> </span><a name="local-6989586621679153010"><a href="#local-6989586621679153010"><span class="hs-identifier">onAquire</span></a></a><span> </span><a name="local-6989586621679153011"><a href="#local-6989586621679153011"><span class="hs-identifier">app</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">runTCPServer</span><span> </span><a href="#local-6989586621679153009"><span class="hs-identifier hs-var">cfg</span></a><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-glyph">\</span><a name="local-6989586621679153420"><a href="#local-6989586621679153420"><span class="hs-identifier">appData</span></a></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><a name="line-27"></a><span>  </span><a href="#local-6989586621679153010"><span class="hs-identifier hs-var">onAquire</span></a><span> </span><a href="#local-6989586621679153420"><span class="hs-identifier hs-var">appData</span></a><span>
-</span><a name="line-28"></a><span>  </span><span class="hs-identifier hs-var">runConduit</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">appSource</span><span> </span><a href="#local-6989586621679153420"><span class="hs-identifier hs-var">appData</span></a><span>
-</span><a name="line-29"></a><span>    </span><span class="hs-operator hs-var">.|</span><span> </span><span class="hs-identifier hs-var">CL.mapM</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fmap</span><span> </span><span class="hs-identifier">App.unLPByteStrings</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Network.ABCI.Server.App.html#runApp"><span class="hs-identifier hs-var">App.runApp</span></a><span> </span><a href="#local-6989586621679153011"><span class="hs-identifier hs-var">app</span></a><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="Network.ABCI.Server.App.html#LPByteStrings"><span class="hs-identifier hs-var">App.LPByteStrings</span></a><span class="hs-special">)</span><span>
-</span><a name="line-30"></a><span>    </span><span class="hs-operator hs-var">.|</span><span> </span><span class="hs-identifier hs-var">appSink</span><span> </span><a href="#local-6989586621679153420"><span class="hs-identifier hs-var">appData</span></a><span>
-</span><a name="line-31"></a><span>
-</span><a name="line-32"></a><span>
-</span><a name="line-33"></a><span class="hs-comment">-- | Serve an ABCI application with default local 'ServerSettings'</span><span>
-</span><a name="line-34"></a><span class="hs-comment">-- and a no-op on acquiring the socket resource.</span><span>
-</span><a name="line-35"></a><span class="hs-identifier">serveApp</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="Network.ABCI.Server.App.html#App"><span class="hs-identifier hs-type">App</span></a><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><a name="line-36"></a><a name="serveApp"><a href="Network.ABCI.Server.html#serveApp"><span class="hs-identifier">serveApp</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Network.ABCI.Server.html#serveAppWith"><span class="hs-identifier hs-var">serveAppWith</span></a><span> </span><a href="Network.ABCI.Server.html#defaultLocalSettings"><span class="hs-identifier hs-var">defaultLocalSettings</span></a><span> </span><span class="hs-identifier hs-var">mempty</span><span>
-</span><a name="line-37"></a></pre></body></html>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Conduit</span></span><span>            </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">runConduit</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-operator">(.|)</span></span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.Conduit.List</span></span><span>       </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">CL</span></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Conduit.Network</span></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">AppData</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">ServerSettings</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">appSink</span></span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>                                          </span><span class="annot"><span class="hs-identifier">appSource</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">runTCPServer</span></span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>                                          </span><span class="annot"><span class="hs-identifier">serverSettings</span></span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.String</span></span><span>             </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">fromString</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Network.ABCI.Server.App.html"><span class="hs-identifier">Network.ABCI.Server.App</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.ABCI.Server.App.html#App"><span class="hs-identifier">App</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Network.ABCI.Server.App.html"><span class="hs-identifier">Network.ABCI.Server.App</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">App</span></span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-comment">-- | Default ABCI app network settings for serving on localhost at the</span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- standard port.</span><span>
+</span><span id="line-15"></span><span class="annot"><a href="Network.ABCI.Server.html#defaultLocalSettings"><span class="hs-identifier hs-type">defaultLocalSettings</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ServerSettings</span></span><span>
+</span><span id="line-16"></span><span id="defaultLocalSettings"><span class="annot"><span class="annottext">defaultLocalSettings :: ServerSettings
+</span><a href="Network.ABCI.Server.html#defaultLocalSettings"><span class="hs-identifier hs-var hs-var">defaultLocalSettings</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; HostPreference -&gt; ServerSettings
+</span><span class="hs-identifier hs-var">serverSettings</span></span><span> </span><span class="annot"><span class="hs-number">26658</span></span><span> </span><span class="annot"><span class="annottext">(HostPreference -&gt; ServerSettings)
+-&gt; HostPreference -&gt; ServerSettings
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; HostPreference
+forall a. IsString a =&gt; String -&gt; a
+</span><span class="hs-identifier hs-var">fromString</span></span><span> </span><span class="annot"><span class="hs-string">&quot;0.0.0.0&quot;</span></span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span class="hs-comment">-- | Serve an ABCI application with custom 'ServerSettings' and a custom</span><span>
+</span><span id="line-19"></span><span class="hs-comment">-- action to perform on acquiring the socket resource.</span><span>
+</span><span id="line-20"></span><span class="annot"><a href="Network.ABCI.Server.html#serveAppWith"><span class="hs-identifier hs-type">serveAppWith</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ServerSettings</span></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">AppData</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Network.ABCI.Server.App.html#App"><span class="hs-identifier hs-type">App</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span id="serveAppWith"><span class="annot"><span class="annottext">serveAppWith :: ServerSettings -&gt; (AppData -&gt; IO ()) -&gt; App IO -&gt; IO ()
+</span><a href="Network.ABCI.Server.html#serveAppWith"><span class="hs-identifier hs-var hs-var">serveAppWith</span></a></span></span><span> </span><span id="local-6989586621679203417"><span class="annot"><span class="annottext">cfg :: ServerSettings
+</span><a href="#local-6989586621679203417"><span class="hs-identifier hs-var">cfg</span></a></span></span><span> </span><span id="local-6989586621679203416"><span class="annot"><span class="annottext">onAquire :: AppData -&gt; IO ()
+</span><a href="#local-6989586621679203416"><span class="hs-identifier hs-var">onAquire</span></a></span></span><span> </span><span id="local-6989586621679203415"><span class="annot"><span class="annottext">app :: App IO
+</span><a href="#local-6989586621679203415"><span class="hs-identifier hs-var">app</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ServerSettings -&gt; (AppData -&gt; IO ()) -&gt; IO ()
+forall a. ServerSettings -&gt; (AppData -&gt; IO ()) -&gt; IO a
+</span><span class="hs-identifier hs-var">runTCPServer</span></span><span> </span><span class="annot"><span class="annottext">ServerSettings
+</span><a href="#local-6989586621679203417"><span class="hs-identifier hs-var">cfg</span></a></span><span> </span><span class="annot"><span class="annottext">((AppData -&gt; IO ()) -&gt; IO ()) -&gt; (AppData -&gt; IO ()) -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679203414"><span class="annot"><span class="annottext">appData :: AppData
+</span><a href="#local-6989586621679203414"><span class="hs-identifier hs-var">appData</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-26"></span><span>  </span><span class="annot"><span class="annottext">AppData -&gt; IO ()
+</span><a href="#local-6989586621679203416"><span class="hs-identifier hs-var">onAquire</span></a></span><span> </span><span class="annot"><span class="annottext">AppData
+</span><a href="#local-6989586621679203414"><span class="hs-identifier hs-var">appData</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="annot"><span class="annottext">ConduitT () Void IO () -&gt; IO ()
+forall (m :: * -&gt; *) r. Monad m =&gt; ConduitT () Void m r -&gt; m r
+</span><span class="hs-identifier hs-var">runConduit</span></span><span> </span><span class="annot"><span class="annottext">(ConduitT () Void IO () -&gt; IO ())
+-&gt; ConduitT () Void IO () -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">AppData -&gt; ConduitT () ByteString IO ()
+forall ad (m :: * -&gt; *) i.
+(HasReadWrite ad, MonadIO m) =&gt;
+ad -&gt; ConduitT i ByteString m ()
+</span><span class="hs-identifier hs-var">appSource</span></span><span> </span><span class="annot"><span class="annottext">AppData
+</span><a href="#local-6989586621679203414"><span class="hs-identifier hs-var">appData</span></a></span><span>
+</span><span id="line-28"></span><span>    </span><span class="annot"><span class="annottext">ConduitT () ByteString IO ()
+-&gt; ConduitM ByteString Void IO () -&gt; ConduitT () Void IO ()
+forall (m :: * -&gt; *) a b c r.
+Monad m =&gt;
+ConduitM a b m () -&gt; ConduitM b c m r -&gt; ConduitM a c m r
+</span><span class="hs-operator hs-var">.|</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ByteString)
+-&gt; ConduitT ByteString ByteString IO ()
+forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+(a -&gt; m b) -&gt; ConduitT a b m ()
+</span><span class="hs-identifier hs-var">CL.mapM</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(LPByteStrings -&gt; ByteString) -&gt; IO LPByteStrings -&gt; IO ByteString
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">LPByteStrings -&gt; ByteString
+</span><a href="Network.ABCI.Server.App.html#unLPByteStrings"><span class="hs-identifier hs-var hs-var">App.unLPByteStrings</span></a></span><span> </span><span class="annot"><span class="annottext">(IO LPByteStrings -&gt; IO ByteString)
+-&gt; (ByteString -&gt; IO LPByteStrings) -&gt; ByteString -&gt; IO ByteString
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">App IO -&gt; LPByteStrings -&gt; IO LPByteStrings
+forall (m :: * -&gt; *).
+Applicative m =&gt;
+App m -&gt; LPByteStrings -&gt; m LPByteStrings
+</span><a href="Network.ABCI.Server.App.html#runApp"><span class="hs-identifier hs-var">App.runApp</span></a></span><span> </span><span class="annot"><span class="annottext">App IO
+</span><a href="#local-6989586621679203415"><span class="hs-identifier hs-var">app</span></a></span><span> </span><span class="annot"><span class="annottext">(LPByteStrings -&gt; IO LPByteStrings)
+-&gt; (ByteString -&gt; LPByteStrings) -&gt; ByteString -&gt; IO LPByteStrings
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; LPByteStrings
+</span><a href="Network.ABCI.Server.App.html#LPByteStrings"><span class="hs-identifier hs-var">App.LPByteStrings</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><span class="annottext">ConduitT ByteString ByteString IO ()
+-&gt; ConduitM ByteString Void IO () -&gt; ConduitM ByteString Void IO ()
+forall (m :: * -&gt; *) a b c r.
+Monad m =&gt;
+ConduitM a b m () -&gt; ConduitM b c m r -&gt; ConduitM a c m r
+</span><span class="hs-operator hs-var">.|</span></span><span> </span><span class="annot"><span class="annottext">AppData -&gt; ConduitM ByteString Void IO ()
+forall ad (m :: * -&gt; *) o.
+(HasReadWrite ad, MonadIO m) =&gt;
+ad -&gt; ConduitT ByteString o m ()
+</span><span class="hs-identifier hs-var">appSink</span></span><span> </span><span class="annot"><span class="annottext">AppData
+</span><a href="#local-6989586621679203414"><span class="hs-identifier hs-var">appData</span></a></span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="hs-comment">-- | Serve an ABCI application with default local 'ServerSettings'</span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- and a no-op on acquiring the socket resource.</span><span>
+</span><span id="line-34"></span><span class="annot"><a href="Network.ABCI.Server.html#serveApp"><span class="hs-identifier hs-type">serveApp</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Network.ABCI.Server.App.html#App"><span class="hs-identifier hs-type">App</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span id="serveApp"><span class="annot"><span class="annottext">serveApp :: App IO -&gt; IO ()
+</span><a href="Network.ABCI.Server.html#serveApp"><span class="hs-identifier hs-var hs-var">serveApp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ServerSettings -&gt; (AppData -&gt; IO ()) -&gt; App IO -&gt; IO ()
+</span><a href="Network.ABCI.Server.html#serveAppWith"><span class="hs-identifier hs-var">serveAppWith</span></a></span><span> </span><span class="annot"><span class="annottext">ServerSettings
+</span><a href="Network.ABCI.Server.html#defaultLocalSettings"><span class="hs-identifier hs-var">defaultLocalSettings</span></a></span><span> </span><span class="annot"><span class="annottext">AppData -&gt; IO ()
+forall a. Monoid a =&gt; a
+</span><span class="hs-identifier hs-var">mempty</span></span><span>
+</span><span id="line-36"></span></pre></body></html>
