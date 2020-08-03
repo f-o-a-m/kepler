@@ -168,13 +168,13 @@ spec = beforeAll (initGrpcClient $ GrpcConfig "0.0.0.0" 8090) $ do
     it "should call `has` RPC method" $ \gc -> do
       let hasReq = defMessage & Api.key .~ testKey
                               & Api.version .~ 1
-      hasRes <- runGrpc $ has gc hasReq
+      hasRes <- runGrpc $ hasVersioned gc hasReq
       hasRes ^? _Right . Api.result `shouldBe` Just True
 
     it "should call `has` RPC method and fail" $ \gc -> do
       let hasReq = defMessage & Api.key .~ "non-existing-key"
                               & Api.version .~ 1
-      hasRes <- runGrpc $ has gc hasReq
+      hasRes <- runGrpc $ hasVersioned gc hasReq
       hasRes ^? _Right . Api.result `shouldBe` Just False
 
     it "should call `deleteVersion` RPC method and get False for non-existing version" $ \gc -> do
@@ -230,7 +230,7 @@ spec = beforeAll (initGrpcClient $ GrpcConfig "0.0.0.0" 8090) $ do
           hasReq = defMessage & Api.key .~ key
                               & Api.version .~ currentVersion
       print $ "The current version is " <> show currentVersion
-      hasRes <- runGrpc $ has gc hasReq
+      hasRes <- runGrpc $ hasVersioned gc hasReq
       hasRes ^? _Right . Api.result `shouldBe` Just False
 
 
