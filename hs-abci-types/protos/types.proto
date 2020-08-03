@@ -3,10 +3,10 @@ package types;
 
 // For more information on gogo.proto, see:
 // https://github.com/gogo/protobuf/blob/master/extensions.md
-import "vendored/gogo/protobuf/gogoproto/gogo.proto";
-import "vendored/google/protobuf/timestamp.proto";
-import "vendored/tendermint/tendermint/libs/common/types.proto";
-import "vendored/tendermint/tendermint/crypto/merkle/merkle.proto";
+import "gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "tendermint/tendermint/libs/common/types.proto";
+import "tendermint/tendermint/crypto/merkle/merkle.proto";
 
 // This file is copied from http://github.com/tendermint/abci
 // NOTE: When using custom types, mind the warnings.

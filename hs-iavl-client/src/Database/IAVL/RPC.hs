@@ -1,12 +1,13 @@
 module Database.IAVL.RPC where
 
-import           Data.ProtoLens.Message      (defMessage)
-import           Network.GRPC.Client         (RPC (..), RawReply)
-import           Network.GRPC.Client.Helpers (GrpcClient, rawUnary)
-import           Network.HTTP2.Client        (ClientIO, TooMuchConcurrency)
+import           Data.ProtoLens.Message       (defMessage)
+import           Network.GRPC.Client          (RawReply)
+import           Network.GRPC.Client.Helpers  (GrpcClient, rawUnary)
+import           Network.GRPC.HTTP2.ProtoLens (RPC (..))
+import           Network.HTTP2.Client         (ClientIO, TooMuchConcurrency)
 
-import qualified Proto.Google.Protobuf.Empty as PT (Empty)
-import qualified Proto.Iavl.Api              as Api
+import qualified Proto.Google.Protobuf.Empty  as PT (Empty)
+import qualified Proto.Iavl.Api               as Api
 
 
 --------------------------------------------------------------------------------

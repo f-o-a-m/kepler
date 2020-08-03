@@ -2,10 +2,8 @@ module Main where
 
 import           Control.Concurrent.Async (forConcurrently_)
 import           Control.Monad            (forever, replicateM)
-import           Data.Maybe               (maybe)
 import           Interact
 import           System.Environment       (lookupEnv)
-import           Text.Read                (read)
 
 main :: IO ()
 main = do

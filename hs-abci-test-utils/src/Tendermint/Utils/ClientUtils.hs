@@ -21,6 +21,7 @@ import           Tendermint.Utils.Client                (QueryClientResponse (..
 
 assertTx
  :: Monad m
+ => MonadFail m
  => m (TxClientResponse a b)
  -> m (SynchronousResponse a b)
 assertTx m = do
@@ -34,6 +35,7 @@ assertTx m = do
 -- get the logged events from a deliver response,
 deliverTxEvents
   :: Monad m
+  => MonadFail m
   => Proxy e
   -> SynchronousResponse a b
   -> m [Event]
@@ -45,7 +47,7 @@ deliverTxEvents _ SynchronousResponse{deliverTxResponse} =
 
 -- check for a specific check response code
 ensureCheckResponseCode
-  :: Monad m
+  :: MonadFail m
   => Word32
   -> SynchronousResponse a b
   -> m ()
@@ -63,6 +65,7 @@ ensureCheckResponseCode code SynchronousResponse{checkTxResponse} =
 -- check for a specific check response code
 ensureDeliverResponseCode
   :: Monad m
+  => MonadFail m
   => Word32
   -> SynchronousResponse a b
   -> m ()
@@ -78,7 +81,7 @@ ensureDeliverResponseCode code SynchronousResponse{deliverTxResponse} =
              " with expected code " <> show code <> "."
 
 ensureResponseCodes
-  :: Monad m
+  :: MonadFail m
   => (Word32, Word32)
   -> SynchronousResponse a b
   -> m ()
@@ -92,6 +95,7 @@ ensureResponseCodes (checkCode, deliverCode) resp = do
 
 assertQuery
   :: Monad m
+  => MonadFail m
   => m (QueryClientResponse a)
   -> m (QueryResult a)
 assertQuery m = do
@@ -102,6 +106,7 @@ assertQuery m = do
 
 ensureQueryResponseCode
   :: Monad m
+  => MonadFail m
   => Word32
   -> QueryClientResponse a
   -> m ()

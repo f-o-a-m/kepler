@@ -40,6 +40,7 @@ module Tendermint.SDK.BaseApp.Store.RawStore
 import           Control.Lens                  (Iso', iso, (^.))
 import           Data.ByteArray.Base64String   (Base64String)
 import qualified Data.ByteString               as BS
+import           Data.Kind                     (Type)
 import           Data.Proxy
 import           Data.String.Conversions       (cs)
 import           Data.Text
@@ -75,7 +76,7 @@ instance RawKey () where
     rawKey = iso (const "") (const ())
 
 class RawKey k => IsKey k ns where
-  type Value k ns :: *
+  type Value k ns :: Type
   prefix :: Proxy k -> Proxy ns -> BS.ByteString
 
   default prefix :: Proxy k -> Proxy ns -> BS.ByteString

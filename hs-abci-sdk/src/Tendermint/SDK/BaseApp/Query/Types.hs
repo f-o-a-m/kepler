@@ -20,6 +20,7 @@ import           Control.Lens                           (from, lens, to, (^.))
 import           Data.ByteArray.Base64String            (Base64String,
                                                          fromBytes, toBytes)
 import           Data.Int                               (Int64)
+import           Data.Kind                              (Type)
 import           Data.Text                              (Text, breakOn, uncons)
 import           Data.Word                              (Word64)
 import           Network.ABCI.Types.Messages.FieldTypes (Proof, WrappedVal (..))
@@ -29,9 +30,9 @@ import           Tendermint.SDK.BaseApp.Router.Types    (HasPath (..))
 import           Tendermint.SDK.BaseApp.Store           (RawKey (..))
 import           Tendermint.SDK.Types.Address           (Address)
 
-data Leaf (a :: *)
+data Leaf (a :: Type)
 
-data QA (a :: *)
+data QA (a :: Type)
 
 --------------------------------------------------------------------------------
 

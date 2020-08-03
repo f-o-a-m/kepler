@@ -15,6 +15,7 @@ module Tendermint.SDK.BaseApp.Store.Array
 import           Control.Lens                          (iso, (^.))
 import qualified Data.ByteArray.HexString              as Hex
 import qualified Data.ByteString                       as BS
+import           Data.Kind                             (Type)
 import           Data.Maybe                            (fromMaybe)
 import           Data.String.Conversions               (cs)
 import           Data.Word                             (Word64)
@@ -34,7 +35,7 @@ import           Tendermint.SDK.Codec                  (HasCodec (..))
 -- | A 'Array a' is an appendable list whose elements can be accessed
 -- | by their index. You can also delete from the list, in which case accessing
 -- | that index will result in a `Nothing`.
-data Array (a :: *) = Array
+data Array (a :: Type) = Array
   { arrayStore :: S.Store (Array a) }
 
 -- | Represents an index into a list

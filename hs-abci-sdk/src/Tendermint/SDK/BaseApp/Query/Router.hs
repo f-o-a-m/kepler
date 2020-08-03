@@ -5,6 +5,7 @@ module Tendermint.SDK.BaseApp.Query.Router
   ) where
 
 import           Control.Monad                        (join)
+import           Data.Kind                            (Type)
 import           Data.Proxy
 import           Data.String.Conversions              (cs)
 import           Data.Text                            (Text)
@@ -29,9 +30,7 @@ import qualified Tendermint.SDK.BaseApp.Router        as R
 import           Tendermint.SDK.BaseApp.Store         (ReadStore, Scope (..))
 import           Tendermint.SDK.Codec                 (HasCodec (..))
 import           Tendermint.SDK.Types.Effects         ((:&))
-import           Web.HttpApiData                      (FromHttpApiData (..),
-                                                       parseUrlPieceMaybe)
-
+import           Web.HttpApiData                      (parseUrlPieceMaybe)
 
 --------------------------------------------------------------------------------
 
@@ -40,7 +39,7 @@ import           Web.HttpApiData                      (FromHttpApiData (..),
 -- | Servant combinators are recognized.
 class HasQueryRouter layout r where
   -- | A routeQ handler.
-  type RouteQ layout r :: *
+  type RouteQ layout r :: Type
   -- | Transform a routeQ handler into a 'Router'.
   routeQ
     :: Proxy layout

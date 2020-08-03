@@ -21,7 +21,6 @@ import qualified Tendermint.SDK.BaseApp.Store.Map  as M
 import           Tendermint.SDK.BaseApp.Store.TH   (makeSubStore)
 import           Tendermint.SDK.Modules.Auth.Keys  (accountsKey)
 import           Tendermint.SDK.Modules.Auth.Types
-import           Tendermint.SDK.Types.Address      (Address)
 
 --------------------------------------------------------------------------------
 

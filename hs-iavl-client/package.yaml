@@ -48,6 +48,7 @@ library:
   dependencies:
     - base >= 4.7 && < 5
     - http2-client
+    - http2-grpc-proto-lens
     - http2-client-grpc
     - proto-lens
     - proto-lens-runtime
@@ -61,8 +62,13 @@ library:
   - Proto.Iavl.Proof
   - Proto.Iavl.Proof_Fields
   - Proto.Google.Api.Http
+  - Proto.Google.Api.Http_Fields
   - Proto.Google.Protobuf.Empty
+  - Proto.Google.Protobuf.Empty_Fields
+  - Proto.Google.Protobuf.Descriptor
+  - Proto.Google.Protobuf.Descriptor_Fields
   - Proto.Google.Api.Annotations
+  - Proto.Google.Api.Annotations_Fields
 
 tests:
   hs-iavl-client-test:
