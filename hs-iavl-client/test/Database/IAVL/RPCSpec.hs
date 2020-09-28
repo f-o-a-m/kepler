@@ -17,12 +17,13 @@ spec = beforeAll (initGrpcClient $ GrpcConfig "0.0.0.0" 8090) $ do
       testValue = "test-value"
       testKey2 = "test-key-2"
       testValue2 = "test-value-2"
+      emptyHash = "\227\176\196B\152\252\FS\DC4\154\251\244\200\153o\185$'\174A\228d\155\147L\164\149\153\ESCxR\184U"
       rootWithTestKey = "`\241\167\226\242u\194\221L!\200\202\159\232\131\\\ESC\ESC\158wZ\164yw\248\194jW\145:\206\209"
   describe "IAVL RPC calls" $ do
 
     it "should call `hash` RPC method on empty Iavl store and get empty root hash" $ \gc -> do
       res <- runGrpc $ hash gc
-      res ^? _Right . Api.rootHash `shouldBe` Just ""
+      res ^? _Right . Api.rootHash `shouldBe` Just emptyHash
 
     it "should call `set` RPC method and get false as result since it does not already exist" $ \gc -> do
       let setReq = defMessage & Api.key .~ testKey
