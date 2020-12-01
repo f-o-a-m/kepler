@@ -94,8 +94,16 @@ module Tendermint.SDK.BaseApp
   , storeQueryHandler
   , EmptyQueryServer(..)
   , RouterError(ResourceNotFound)
+
+  -- * Block
+  , BlockEffs
+  , RouteBB
+  , EmptyBeginBlockServer(..)
+  , RouteEB
+  , EmptyEndBlockServer(..)
   ) where
 
+import           Tendermint.SDK.BaseApp.Block
 import           Tendermint.SDK.BaseApp.Effects
 import           Tendermint.SDK.BaseApp.Errors
 import           Tendermint.SDK.BaseApp.Events

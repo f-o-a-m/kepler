@@ -8,6 +8,7 @@ module Tendermint.SDK.BaseApp.Transaction
   , VoidReturn
   , TxEffs
   , evalReadOnly
+  , evalToBlock
   , AnteHandler
   ) where
 

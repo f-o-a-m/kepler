@@ -19,7 +19,7 @@ import           Tendermint.SDK.Application                  (Module (..),
 import qualified Tendermint.SDK.BaseApp                      as BaseApp
 
 type SimpleStorage =
-  Module SimpleStorageName MessageApi MessageApi QueryApi SimpleStorageEffs '[]
+  Module SimpleStorageName MessageApi MessageApi QueryApi BaseApp.EmptyBeginBlockServer BaseApp.EmptyEndBlockServer SimpleStorageEffs '[]
 
 simpleStorageModule
   :: Members (ModuleEffs SimpleStorage) r
@@ -28,5 +28,7 @@ simpleStorageModule = Module
   { moduleTxDeliverer = messageHandlers
   , moduleTxChecker = BaseApp.defaultCheckTx (Proxy @MessageApi) (Proxy :: Proxy r)
   , moduleQuerier = querier
+  , moduleBeginBlocker = BaseApp.EmptyBeginBlockServer
+  , moduleEndBlocker = BaseApp.EmptyEndBlockServer
   , moduleEval = eval
   }

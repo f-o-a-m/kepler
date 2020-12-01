@@ -3,6 +3,7 @@ module Tendermint.SDK.BaseApp.Transaction.Effect
   , runTx
   , eval
   , evalReadOnly
+  , evalToBlock
   ) where
 
 import           Control.Lens                             ((&), (.~))
@@ -78,6 +79,14 @@ evalReadOnly =
       StorePut _ _ -> pure ()
       StoreDelete _ -> pure ()
       )
+
+--Transforms from TxEffs to BlockEffs by ignoring events and gas
+evalToBlock
+  :: forall r.
+     forall a.
+    Sem (TxEffs :& r) a
+  -> Sem (WriteStore ': ReadStore ': Error AppError ': r) a
+evalToBlock = G.doNothing . ignoreOutput
 
 runTx
   :: Members [Embed IO, Tagged scope ReadStore] r

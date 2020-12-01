@@ -24,12 +24,13 @@ import           Nameservice.Modules.Nameservice.Types
 import           Polysemy                                 (Members)
 import           Tendermint.SDK.Application               (Module (..),
                                                            ModuleEffs)
-import           Tendermint.SDK.BaseApp                   (DefaultCheckTx (..))
+import           Tendermint.SDK.BaseApp                   (DefaultCheckTx (..), EmptyBeginBlockServer (..),
+                                                           EmptyEndBlockServer (..))
 import           Tendermint.SDK.Modules.Bank              (Bank)
 
 
 type Nameservice =
-  Module NameserviceName MessageApi MessageApi QueryApi NameserviceEffs '[Bank]
+  Module NameserviceName MessageApi MessageApi QueryApi EmptyBeginBlockServer EmptyEndBlockServer NameserviceEffs '[Bank]
 
 nameserviceModule
   :: Members (ModuleEffs Nameservice) r
@@ -38,5 +39,7 @@ nameserviceModule = Module
   { moduleTxDeliverer = messageHandlers
   , moduleTxChecker = defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
   , moduleQuerier = querier
+  , moduleBeginBlocker = EmptyBeginBlockServer
+  , moduleEndBlocker = EmptyEndBlockServer
   , moduleEval = eval
   }
