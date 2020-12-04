@@ -257,7 +257,7 @@ querier =
 --------------------------------------------------------------------------------
 
 type SimpleStorage =
-  Module SimpleStorageName MessageApi MessageApi QueryApi BA.EmptyBeginBlockServer BA.EmptyEndBlockServer SimpleStorageEffs '[B.Bank]
+  Module SimpleStorageName MessageApi MessageApi QueryApi SimpleStorageEffs '[B.Bank]
 
 simpleStorageModule
   :: Members (ModuleEffs SimpleStorage) r
@@ -266,8 +266,6 @@ simpleStorageModule = Module
   { moduleTxDeliverer = messageHandlers
   , moduleTxChecker = BA.defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
   , moduleQuerier = querier
-  , moduleBeginBlocker = BA.EmptyBeginBlockServer
-  , moduleEndBlocker = BA.EmptyEndBlockServer
   , moduleEval = eval
   }
 

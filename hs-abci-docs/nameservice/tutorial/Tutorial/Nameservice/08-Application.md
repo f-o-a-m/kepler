@@ -19,6 +19,8 @@ and ultimately our configuration of modules must be converted to this format. Th
 data HandlersContext alg ms core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.ModuleList ms (Effs ms core)
+  , beginBlockers :: [Req.BeginBlock -> Sem (BA.BaseAppEffs core) Resp.BeginBlock]
+  , endBlockers   :: [Req.EndBlock -> Sem (BA.BaseAppEffs core) Resp.EndBlock]
   , anteHandler   :: BA.AnteHandler (Effs ms core)
   , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
   }
@@ -83,6 +85,8 @@ handlersContext :: HandlersContext Secp256k1 NameserviceModules CoreEffs
 handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = nameserviceModules
+  , beginBlockers = []
+  , endBlockers = []
   , compileToCore  = defaultCompileToCore
   , anteHandler = baseAppAnteHandler
   }

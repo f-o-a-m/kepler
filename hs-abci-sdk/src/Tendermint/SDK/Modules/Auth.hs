@@ -9,15 +9,13 @@ module Tendermint.SDK.Modules.Auth
 
 import           Polysemy                           (Members)
 import           Tendermint.SDK.Application.Module  (Module (..), ModuleEffs)
-import           Tendermint.SDK.BaseApp             (EmptyBeginBlockServer (..),
-                                                     EmptyEndBlockServer (..),
-                                                     EmptyTxServer (..))
+import           Tendermint.SDK.BaseApp             (EmptyTxServer (..))
 import           Tendermint.SDK.Modules.Auth.Keeper hiding (accountsMap)
 import           Tendermint.SDK.Modules.Auth.Query
 import           Tendermint.SDK.Modules.Auth.Types
 
 type Auth =
-  Module AuthName EmptyTxServer EmptyTxServer Api EmptyBeginBlockServer EmptyEndBlockServer AuthEffs '[]
+  Module AuthName EmptyTxServer EmptyTxServer Api AuthEffs '[]
 
 authModule
   :: Members (ModuleEffs Auth) r
@@ -26,7 +24,5 @@ authModule = Module
   { moduleTxDeliverer = EmptyTxServer
   , moduleTxChecker = EmptyTxServer
   , moduleQuerier = querier
-  , moduleBeginBlocker = EmptyBeginBlockServer
-  , moduleEndBlocker = EmptyEndBlockServer
   , moduleEval = eval
   }

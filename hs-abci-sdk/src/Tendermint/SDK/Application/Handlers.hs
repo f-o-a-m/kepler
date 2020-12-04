@@ -22,7 +22,6 @@ import           Polysemy
 import           Polysemy.Error                           (catch)
 import qualified Tendermint.SDK.Application.Module        as M
 import qualified Tendermint.SDK.BaseApp                   as BA
-import qualified Tendermint.SDK.BaseApp.Block             as B
 import           Tendermint.SDK.BaseApp.Errors            (SDKError (..),
                                                            queryAppError,
                                                            throwSDKError,
@@ -75,6 +74,8 @@ defaultHandlers = Handlers
 data HandlersContext alg ms core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.ModuleList ms (M.Effs ms core)
+  , beginBlockers :: [Req.BeginBlock -> Sem (BA.BaseAppEffs core) Resp.BeginBlock]
+  , endBlockers   :: [Req.EndBlock -> Sem (BA.BaseAppEffs core) Resp.EndBlock]
   , anteHandler   :: BA.AnteHandler (M.Effs ms core)
   , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
   }
@@ -91,10 +92,6 @@ makeHandlers
   => T.HasTxRouter (M.ApplicationD ms) (BA.BaseAppEffs core) 'Store.Consensus
   => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms core)
   => Q.HasQueryRouter (M.ApplicationQ ms) (BA.BaseAppEffs core)
-  => B.HasBeginBlockRouter (M.ApplicationBB ms) (M.Effs ms core)
-  => B.HasBeginBlockRouter (M.ApplicationBB ms) (BA.BaseAppEffs core)
-  => B.HasEndBlockRouter (M.ApplicationEB ms) (M.Effs ms core)
-  => B.HasEndBlockRouter (M.ApplicationEB ms) (BA.BaseAppEffs core)
   => M.Eval ms core
  -- => M.Effs ms core ~ (BA.AppEffs (M.ModulesEffs ms) core)
   => HandlersContext alg ms core
@@ -108,8 +105,8 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
       rProxy :: Proxy (BA.BaseAppEffs core)
       rProxy = Proxy
 
-      app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms) (M.ApplicationBB ms) (M.ApplicationEB ms)
-               (T.TxEffs BA.:& BA.BaseAppEffs core) (Q.QueryEffs BA.:& BA.BaseAppEffs core) (B.BlockEffs BA.:& BA.BaseAppEffs core)
+      app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms)
+               (T.TxEffs BA.:& BA.BaseAppEffs core) (Q.QueryEffs BA.:& BA.BaseAppEffs core)
       app = M.makeApplication cProxy anteHandler modules
 
       txParser bs = case parseTx signatureAlgP bs of
@@ -126,12 +123,6 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
 
       queryServer :: Q.QueryApplication (Sem (BA.BaseAppEffs core))
       queryServer = Q.serveQueryApplication (Proxy @(M.ApplicationQ ms)) rProxy $ M.applicationQuerier app
-
-      beginBlockServer :: B.BeginBlockApplication (Sem (BA.BaseAppEffs core))
-      beginBlockServer = B.serveBeginBlockApplication (Proxy @(M.ApplicationBB ms)) rProxy $ M.applicationBeginBlocker app
-
-      endBlockServer :: B.EndBlockApplication (Sem (BA.BaseAppEffs core))
-      endBlockServer = B.serveEndBlockApplication (Proxy @(M.ApplicationEB ms)) rProxy $ M.applicationEndBlocker app
 
       query (RequestQuery q) =
         --Store.applyScope $
@@ -169,14 +160,19 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
           )
         return . ResponseDeliverTx $ res ^. from deliverTxTxResult
 
+      mergeBeginBlock (Resp.BeginBlock a) (Resp.BeginBlock b) = Resp.BeginBlock (a++b)
       beginBlock (RequestBeginBlock bb) = do
-        bbResp <- beginBlockServer (B.BeginBlockRequest bb)
-        pure $ ResponseBeginBlock bbResp
+        res <- mapM (\f -> f bb) beginBlockers
+        pure $ ResponseBeginBlock (foldl mergeBeginBlock (Resp.BeginBlock []) res)
 
+      mergeEndBlock (Resp.EndBlock updatesA paramsA eventsA) (Resp.EndBlock updatesB paramsB eventsB) =
+        Resp.EndBlock (updatesA ++ updatesB) (mergeParams paramsA paramsB) (eventsA ++ eventsB)
+        where
+          mergeParams Nothing y = y
+          mergeParams x _       = x
       endBlock (RequestEndBlock eb) = do
-        ebResp <- endBlockServer (B.EndBlockRequest eb)
-        pure $ ResponseEndBlock ebResp
-
+        res <- mapM (\f -> f eb) endBlockers
+        pure $ ResponseEndBlock (foldl mergeEndBlock (Resp.EndBlock [] Nothing []) res)
 
       commit :: Handler 'MTCommit (BA.BaseAppEffs core)
       commit _ = do
@@ -206,10 +202,6 @@ makeApp
   => T.HasTxRouter (M.ApplicationD ms) (BA.BaseAppEffs core) 'Store.Consensus
   => Q.HasQueryRouter (M.ApplicationQ ms) (M.Effs ms core)
   => Q.HasQueryRouter (M.ApplicationQ ms) (BA.BaseAppEffs core)
-  => B.HasBeginBlockRouter (M.ApplicationBB ms) (M.Effs ms core)
-  => B.HasBeginBlockRouter (M.ApplicationBB ms) (BA.BaseAppEffs core)
-  => B.HasEndBlockRouter (M.ApplicationEB ms) (M.Effs ms core)
-  => B.HasEndBlockRouter (M.ApplicationEB ms) (BA.BaseAppEffs core)
   => M.Eval ms core
   -- => M.Effs ms (BA.BaseAppEffs core) ~ (BA.AppEffs (M.ModulesEffs ms) core)
   => HandlersContext alg ms core

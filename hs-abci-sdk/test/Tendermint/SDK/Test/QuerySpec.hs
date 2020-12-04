@@ -44,8 +44,8 @@ cProxy = Proxy
 rProxy :: Proxy (BA.BaseAppEffs BA.PureCoreEffs)
 rProxy = Proxy
 
-app :: M.Application (M.ApplicationC Ms) (M.ApplicationD Ms) (M.ApplicationQ Ms) (M.ApplicationBB Ms) (M.ApplicationEB Ms)
-         (BA.TxEffs BA.:& BA.BaseAppEffs BA.PureCoreEffs) (BA.QueryEffs BA.:& BA.BaseAppEffs BA.PureCoreEffs) (BA.BlockEffs BA.:& BA.BaseAppEffs BA.PureCoreEffs)
+app :: M.Application (M.ApplicationC Ms) (M.ApplicationD Ms) (M.ApplicationQ Ms)
+         (BA.TxEffs BA.:& BA.BaseAppEffs BA.PureCoreEffs) (BA.QueryEffs BA.:& BA.BaseAppEffs BA.PureCoreEffs)
 app = M.makeApplication cProxy mempty modules
 
 doQuery :: QueryApplication (Sem (BA.BaseAppEffs BA.PureCoreEffs))

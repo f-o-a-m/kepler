@@ -5,7 +5,6 @@ module Tendermint.SDK.BaseApp.Router.Router
   , pathRouter
   , leafRouter
   , choice
-  , makeMerge
   ) where
 
 import           Control.Lens                        ((&), (.~), (^.))
@@ -27,7 +26,6 @@ data Router' env a =
     StaticRouter (Map Text (Router' env a)) [env -> a]
   | CaptureRouter (Router' (Text, env) a)
   | Choice (Router' env a) (Router' env a)
-  | ChoiceMerge (Router' env a) (Router' env a) (a -> a -> a)
 
 
 type Router env r req res = Router' env (Application (Sem r) req res)
@@ -80,8 +78,6 @@ runRouter router env req =
              in  runRouter router' (first, env) req'
     Choice r1 r2 ->
       runChoice [runRouter r1, runRouter r2] env req
-    ChoiceMerge r1 r2 merge ->
-      runChoiceMerge [runRouter r1, runRouter r2] merge env req
 
 runChoice
   :: [env -> Application (Sem r) req res]
@@ -97,37 +93,3 @@ runChoice ls =
         case response1 of
           Fail _ -> runChoice rs env query
           _      ->  pure response1
-
-
--- run all routes in a choice, apply a function to merge the results
-runChoiceMerge
-  :: [env -> Application (Sem r) req res]
-  -> (Application (Sem r) req res -> Application (Sem r) req res -> Application (Sem r) req res)
-  -> env
-  -> Application (Sem r) req res
-runChoiceMerge ls merge =
-  case ls of
-    []       -> \ _ _ -> pure $ Fail PathNotFound
-    [r]      -> r
-    (r : rs) -> \env -> merge (r env) (runChoiceMerge rs merge env)
-
--- build a function to merge Router.Application over the same result type, from a merge function on the result type
-makeMerge
-  :: (res -> res -> res)
-  -> Application (Sem r) req res
-  -> Application (Sem r) req res
-  -> Application (Sem r) req res
-makeMerge merge app1 app2 req = do
-  response1 <- app1 req
-  response2 <- app2 req
-  case (response1, response2) of
-    (Route a, Route b) -> pure (Route (merge a b))
-    (FailFatal _, _)   -> pure response1
-    (_, FailFatal _)   -> pure response2
-    (Fail _ , _)       -> pure response2
-    (_, Fail _)        -> pure response1
-
-
-
-
-

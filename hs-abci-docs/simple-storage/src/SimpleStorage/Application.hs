@@ -23,6 +23,8 @@ handlersContext :: HandlersContext Secp256k1 SimpleStorageModules BA.CoreEffs
 handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = simpleStorageModules
+  , beginBlockers = []
+  , endBlockers = []
   , compileToCore  = BA.defaultCompileToCore
   , anteHandler = baseAppAnteHandler
   }

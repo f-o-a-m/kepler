@@ -1,7 +1,4 @@
-module Tendermint.SDK.BaseApp.Block.Effect where
-
-
-
+module Tendermint.SDK.BaseApp.Block.Effect (BlockEffs, runBeginBlock, runEndBlock) where
 
 import           Network.ABCI.Types.Messages.Response  as Response
 import           Polysemy                              (Embed, Members, Sem)
