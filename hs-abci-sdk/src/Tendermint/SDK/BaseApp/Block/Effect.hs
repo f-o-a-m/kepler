@@ -1,12 +1,15 @@
 module Tendermint.SDK.BaseApp.Block.Effect (BlockEffs, runBeginBlock, runEndBlock) where
 
-import           Network.ABCI.Types.Messages.Response  as Response
+import           Network.ABCI.Types.Messages.Response  as Response (BeginBlock (BeginBlock),
+                                                                    EndBlock (EndBlock))
 import           Polysemy                              (Embed, Members, Sem)
 
 import           Polysemy.Error                        (Error, runError)
 import           Polysemy.Tagged                       (Tagged, tag)
 import           Tendermint.SDK.BaseApp.Errors         (AppError)
-import           Tendermint.SDK.BaseApp.Store.RawStore
+import           Tendermint.SDK.BaseApp.Store.RawStore (ReadStore,
+                                                        Scope (Consensus),
+                                                        WriteStore)
 import           Tendermint.SDK.Types.Effects          ((:&))
 
 type BlockEffs =
