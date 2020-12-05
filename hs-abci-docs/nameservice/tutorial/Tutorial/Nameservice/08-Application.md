@@ -19,8 +19,10 @@ and ultimately our configuration of modules must be converted to this format. Th
 data HandlersContext alg ms core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.ModuleList ms (Effs ms core)
-  , beginBlockers :: [Req.BeginBlock -> Sem (BA.BaseAppEffs core) Resp.BeginBlock]
-  , endBlockers   :: [Req.EndBlock -> Sem (BA.BaseAppEffs core) Resp.EndBlock]
+  , beginBlockers :: [Req.BeginBlock ->
+    Sem (BlockEffs BA.:& BA.BaseAppEffs core) Resp.BeginBlock]
+  , endBlockers   :: [Req.EndBlock ->
+    Sem (BlockEffs BA.:& BA.BaseAppEffs core) Resp.EndBlock]
   , anteHandler   :: BA.AnteHandler (Effs ms core)
   , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
   }

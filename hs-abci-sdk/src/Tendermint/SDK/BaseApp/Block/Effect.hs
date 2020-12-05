@@ -2,7 +2,7 @@ module Tendermint.SDK.BaseApp.Block.Effect (BlockEffs, runBeginBlock, runEndBloc
 
 import           Network.ABCI.Types.Messages.Response  as Response (BeginBlock (BeginBlock),
                                                                     EndBlock (EndBlock))
-import           Polysemy                              (Embed, Members, Sem)
+import           Polysemy                              (Members, Sem)
 
 import           Polysemy.Error                        (Error, runError)
 import           Polysemy.Tagged                       (Tagged, tag)
@@ -11,6 +11,7 @@ import           Tendermint.SDK.BaseApp.Store.RawStore (ReadStore,
                                                         Scope (Consensus),
                                                         WriteStore)
 import           Tendermint.SDK.Types.Effects          ((:&))
+import           Data.Either
 
 type BlockEffs =
  [ WriteStore
@@ -18,38 +19,18 @@ type BlockEffs =
  , Error AppError
  ]
 
-
-evalBB
-  :: Members [Tagged 'Consensus ReadStore,
-                 Tagged 'Consensus WriteStore] r
-  => Sem (BlockEffs :& r) Response.BeginBlock
-  -> Sem r (Either AppError Response.BeginBlock)
-evalBB = runError . tag . tag
-
-
-evalEB
-  :: Members [Tagged 'Consensus ReadStore,
-              Tagged 'Consensus WriteStore] r
-  => Sem (BlockEffs :& r) Response.EndBlock
-  -> Sem r (Either AppError Response.EndBlock)
-evalEB = runError . tag . tag
-
 runBeginBlock
-  :: Members [Embed IO, Tagged 'Consensus ReadStore, Tagged 'Consensus WriteStore] r
+  :: Members [Tagged 'Consensus ReadStore, Tagged 'Consensus WriteStore] r
   => Sem (BlockEffs :& r) Response.BeginBlock
   -> Sem r Response.BeginBlock
 runBeginBlock b = do
-  r <- evalBB b
-  case r of
-    Left _    -> pure (Response.BeginBlock [])
-    Right rbb -> pure rbb
+  res <- (runError . tag . tag) b
+  pure $ fromRight (Response.BeginBlock []) res
 
 runEndBlock
-  :: Members [Embed IO, Tagged 'Consensus ReadStore, Tagged 'Consensus WriteStore] r
+  :: Members [Tagged 'Consensus ReadStore, Tagged 'Consensus WriteStore] r
   => Sem (BlockEffs :& r) Response.EndBlock
   -> Sem r Response.EndBlock
 runEndBlock b = do
-  r <- evalEB b
-  case r of
-    Left _    -> pure (Response.EndBlock [] Nothing [])
-    Right reb -> pure reb
+  res <- (runError . tag . tag) b
+  pure $ fromRight (Response.EndBlock [] Nothing []) res

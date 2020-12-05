@@ -22,6 +22,9 @@ import           Polysemy
 import           Polysemy.Error                           (catch)
 import qualified Tendermint.SDK.Application.Module        as M
 import qualified Tendermint.SDK.BaseApp                   as BA
+import           Tendermint.SDK.BaseApp.Block.Effect      (BlockEffs,
+                                                           runBeginBlock,
+                                                           runEndBlock)
 import           Tendermint.SDK.BaseApp.Errors            (SDKError (..),
                                                            queryAppError,
                                                            throwSDKError,
@@ -74,8 +77,10 @@ defaultHandlers = Handlers
 data HandlersContext alg ms core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.ModuleList ms (M.Effs ms core)
-  , beginBlockers :: [Req.BeginBlock -> Sem (BA.BaseAppEffs core) Resp.BeginBlock]
-  , endBlockers   :: [Req.EndBlock -> Sem (BA.BaseAppEffs core) Resp.EndBlock]
+  , beginBlockers :: [Req.BeginBlock ->
+    Sem (BlockEffs BA.:& BA.BaseAppEffs core) Resp.BeginBlock]
+  , endBlockers   :: [Req.EndBlock ->
+    Sem (BlockEffs BA.:& BA.BaseAppEffs core) Resp.EndBlock]
   , anteHandler   :: BA.AnteHandler (M.Effs ms core)
   , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
   }
@@ -162,7 +167,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
 
       mergeBeginBlock (Resp.BeginBlock a) (Resp.BeginBlock b) = Resp.BeginBlock (a++b)
       beginBlock (RequestBeginBlock bb) = do
-        res <- mapM (\f -> f bb) beginBlockers
+        res <- mapM (\f -> (runBeginBlock . f) bb) beginBlockers
         pure $ ResponseBeginBlock (foldl mergeBeginBlock (Resp.BeginBlock []) res)
 
       mergeEndBlock (Resp.EndBlock updatesA paramsA eventsA) (Resp.EndBlock updatesB paramsB eventsB) =
@@ -171,7 +176,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
           mergeParams Nothing y = y
           mergeParams x _       = x
       endBlock (RequestEndBlock eb) = do
-        res <- mapM (\f -> f eb) endBlockers
+        res <- mapM (\f ->      (runEndBlock . f) eb) endBlockers
         pure $ ResponseEndBlock (foldl mergeEndBlock (Resp.EndBlock [] Nothing []) res)
 
       commit :: Handler 'MTCommit (BA.BaseAppEffs core)
