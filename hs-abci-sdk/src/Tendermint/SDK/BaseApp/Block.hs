@@ -1,4 +1,4 @@
-module Tendermint.SDK.BaseApp.Block.Effect (BlockEffs, EndBlockResult, runBeginBlock, runEndBlock) where
+module Tendermint.SDK.BaseApp.Block (BlockEffs, EndBlockResult, runBeginBlock, runEndBlock) where
 
 import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams,
                                                          ValidatorUpdate)

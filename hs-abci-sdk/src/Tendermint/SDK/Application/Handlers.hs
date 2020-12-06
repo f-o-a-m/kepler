@@ -22,7 +22,7 @@ import           Polysemy
 import           Polysemy.Error                           (catch)
 import qualified Tendermint.SDK.Application.Module        as M
 import qualified Tendermint.SDK.BaseApp                   as BA
-import           Tendermint.SDK.BaseApp.Block.Effect      (BlockEffs,
+import           Tendermint.SDK.BaseApp.Block             (BlockEffs,
                                                            EndBlockResult,
                                                            runBeginBlock,
                                                            runEndBlock)
