@@ -4,6 +4,7 @@ import           Network.ABCI.Types.Messages.Response  as Response (BeginBlock (
                                                                     EndBlock (EndBlock))
 import           Polysemy                              (Members, Sem)
 
+import           Data.Either
 import           Polysemy.Error                        (Error, runError)
 import           Polysemy.Tagged                       (Tagged, tag)
 import           Tendermint.SDK.BaseApp.Errors         (AppError)
@@ -11,7 +12,6 @@ import           Tendermint.SDK.BaseApp.Store.RawStore (ReadStore,
                                                         Scope (Consensus),
                                                         WriteStore)
 import           Tendermint.SDK.Types.Effects          ((:&))
-import           Data.Either
 
 type BlockEffs =
  [ WriteStore
