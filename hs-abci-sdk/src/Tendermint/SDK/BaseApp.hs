@@ -99,7 +99,7 @@ module Tendermint.SDK.BaseApp
   , BlockEffs
   , runBeginBlock
   , runEndBlock
-  , EndBlockResult
+  , EndBlockResult (..)
   ) where
 
 import           Tendermint.SDK.BaseApp.Block
