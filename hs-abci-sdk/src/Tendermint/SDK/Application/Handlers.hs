@@ -23,6 +23,7 @@ import           Polysemy.Error                           (catch)
 import qualified Tendermint.SDK.Application.Module        as M
 import qualified Tendermint.SDK.BaseApp                   as BA
 import           Tendermint.SDK.BaseApp.Block.Effect      (BlockEffs,
+                                                           EndBlockResult,
                                                            runBeginBlock,
                                                            runEndBlock)
 import           Tendermint.SDK.BaseApp.Errors            (SDKError (..),
@@ -78,9 +79,9 @@ data HandlersContext alg ms core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.ModuleList ms (M.Effs ms core)
   , beginBlockers :: [Req.BeginBlock ->
-    Sem (BlockEffs BA.:& BA.BaseAppEffs core) Resp.BeginBlock]
+    Sem (BlockEffs BA.:& BA.BaseAppEffs core) ()]
   , endBlockers   :: [Req.EndBlock ->
-    Sem (BlockEffs BA.:& BA.BaseAppEffs core) Resp.EndBlock]
+    Sem (BlockEffs BA.:& BA.BaseAppEffs core) EndBlockResult]
   , anteHandler   :: BA.AnteHandler (M.Effs ms core)
   , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
   }
