@@ -20,9 +20,9 @@ data HandlersContext alg ms core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.ModuleList ms (Effs ms core)
   , beginBlockers :: [Req.BeginBlock ->
-    Sem (BlockEffs BA.:& BA.BaseAppEffs core) Resp.BeginBlock]
+    Sem (BlockEffs BA.:& BA.BaseAppEffs core) ()]
   , endBlockers   :: [Req.EndBlock ->
-    Sem (BlockEffs BA.:& BA.BaseAppEffs core) Resp.EndBlock]
+    Sem (BlockEffs BA.:& BA.BaseAppEffs core) EndBlockResult]
   , anteHandler   :: BA.AnteHandler (Effs ms core)
   , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
   }
