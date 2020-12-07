@@ -14,17 +14,19 @@ module Tendermint.SDK.Application.Module
 
   ) where
 
-import           Data.Kind                          (Type)
+import           Data.Kind                           (Type)
 import           Data.Proxy
-import           GHC.TypeLits                       (ErrorMessage (..), Symbol,
-                                                     TypeError)
-import           Polysemy                           (EffectRow, Members, Sem)
-import           Servant.API                        ((:<|>) (..), (:>))
-import           Tendermint.SDK.BaseApp             ((:&), BaseAppEffs,
-                                                     BaseEffs)
-import qualified Tendermint.SDK.BaseApp.Query       as Q
-import           Tendermint.SDK.BaseApp.Store       (Scope (..))
-import qualified Tendermint.SDK.BaseApp.Transaction as T
+import           GHC.TypeLits                        (ErrorMessage (..), Symbol,
+                                                      TypeError)
+import qualified Network.ABCI.Types.Messages.Request as Req
+import           Polysemy                            (EffectRow, Members, Sem)
+import           Servant.API                         ((:<|>) (..), (:>))
+import           Tendermint.SDK.BaseApp              ((:&), BaseAppEffs,
+                                                      BaseEffs)
+import qualified Tendermint.SDK.BaseApp.Query        as Q
+import           Tendermint.SDK.BaseApp.Store        (Scope (..))
+import qualified Tendermint.SDK.BaseApp.Transaction  as T
+-- import qualified Network.ABCI.Types.Messages.Response     as Resp
 
 type Component = EffectRow -> Type
 
@@ -39,6 +41,7 @@ data Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (
   { moduleTxChecker :: T.RouteTx check r
   , moduleTxDeliverer :: T.RouteTx deliver r
   , moduleQuerier :: Q.RouteQ query r
+  , moduleBeginBlock ::  Req.BeginBlock -> Sem r ()
   , moduleEval :: forall s. (Members T.TxEffs s, Members BaseEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a
   }
 
@@ -58,6 +61,7 @@ data Application check deliver query r s = Application
   { applicationTxChecker   :: T.RouteTx check r
   , applicationTxDeliverer :: T.RouteTx deliver r
   , applicationQuerier     :: Q.RouteQ query s
+  , applicationBeginBlock  :: Req.BeginBlock -> Sem r ()
   }
 
 class ToApplication ms r where
@@ -77,6 +81,7 @@ instance ToApplication '[Module name check deliver query es deps] r where
       { applicationTxChecker = moduleTxChecker
       , applicationTxDeliverer = moduleTxDeliverer
       , applicationQuerier = moduleQuerier
+      , applicationBeginBlock = moduleBeginBlock
       }
 
 instance ToApplication (m' ': ms) r => ToApplication (Module name check deliver query es deps ': m' ': ms) r where
@@ -90,6 +95,7 @@ instance ToApplication (m' ': ms) r => ToApplication (Module name check deliver 
          { applicationTxChecker = moduleTxChecker :<|> applicationTxChecker app
          , applicationTxDeliverer = moduleTxDeliverer :<|> applicationTxDeliverer app
          , applicationQuerier = moduleQuerier :<|> applicationQuerier app
+         , applicationBeginBlock = moduleBeginBlock >> applicationBeginBlock app
          }
 
 hoistApplication
@@ -105,6 +111,7 @@ hoistApplication natT natQ (app :: Application check deliver query r s) =
     { applicationTxChecker = T.hoistTxRouter (Proxy @check) (Proxy @r) (Proxy @'QueryAndMempool) natT $ applicationTxChecker app
     , applicationTxDeliverer = T.hoistTxRouter (Proxy @deliver) (Proxy @r) (Proxy @'Consensus) natT $ applicationTxDeliverer app
     , applicationQuerier = Q.hoistQueryRouter (Proxy @query) (Proxy @s) natQ $ applicationQuerier app
+    , applicationBeginBlock = natT . applicationBeginBlock app
     }
 
 class Eval ms (core :: EffectRow) where

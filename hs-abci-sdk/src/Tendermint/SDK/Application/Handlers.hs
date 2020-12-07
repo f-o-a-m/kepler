@@ -22,6 +22,7 @@ import           Polysemy
 import           Polysemy.Error                           (catch)
 import qualified Tendermint.SDK.Application.Module        as M
 import qualified Tendermint.SDK.BaseApp                   as BA
+import qualified Tendermint.SDK.BaseApp.Block             as Block
 import           Tendermint.SDK.BaseApp.Errors            (SDKError (..),
                                                            queryAppError,
                                                            throwSDKError,
@@ -83,6 +84,7 @@ makeHandlers
   :: forall alg ms core.
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
+  => Member (Embed IO) core
   => M.ToApplication ms (M.Effs ms core)
   => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms core) 'Store.QueryAndMempool
   => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs core) 'Store.QueryAndMempool
@@ -165,11 +167,24 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
         return . ResponseCommit $ def
           & Resp._commitData .~ Base64.fromBytes rootHash
 
+      beginBlock :: Handler 'MTBeginBlock (BA.BaseAppEffs core)
+      beginBlock _ = do
+        catch
+          (do
+            _ <- Block.evalBlockHandler $ M.applicationBeginBlock app undefined
+            return . ResponseBeginBlock $ def
+          )
+          (\(_ :: BA.AppError) -> undefined
+          )
+
+
+
   in defaultHandlers
-       { query = query
-       , checkTx = checkTx
-       , deliverTx = deliverTx
-       , commit = commit
+       { query
+       , checkTx
+       , deliverTx
+       , commit
+       , beginBlock
        }
 
 makeApp
@@ -177,6 +192,7 @@ makeApp
 
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
+  => Member (Embed IO) core
   => M.ToApplication ms (M.Effs ms core)
   => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms core) 'Store.QueryAndMempool
   => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs core) 'Store.QueryAndMempool

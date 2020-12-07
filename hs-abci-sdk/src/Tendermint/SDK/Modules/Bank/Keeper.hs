@@ -8,6 +8,7 @@ module Tendermint.SDK.Modules.Bank.Keeper
   , burn
   , mint
   , eval
+  , endBlockF
   ) where
 
 import           Data.List                         (find)
@@ -101,6 +102,14 @@ mintF
 mintF addr (Auth.Coin cid amount) = do
   (Auth.Coin _ bal) <- getCoinBalance addr cid
   putCoinBalance addr (Auth.Coin cid (bal + amount))
+
+endBlockF
+  :: Members Auth.AuthEffs r
+  => Member (Error BankError) r
+  => Sem r ()
+endBlockF = do
+  _ <- throw @Auth.AuthError undefined
+  throw @BankError undefined
 
 --------------------------------------------------------------------------------
 
