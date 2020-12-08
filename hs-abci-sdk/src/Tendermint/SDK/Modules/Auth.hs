@@ -24,5 +24,6 @@ authModule = Module
   { moduleTxDeliverer = EmptyTxServer
   , moduleTxChecker = EmptyTxServer
   , moduleQuerier = querier
+  , moduleBeginBlock = const $ pure ()
   , moduleEval = eval
   }

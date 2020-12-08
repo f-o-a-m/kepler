@@ -96,13 +96,13 @@ module Tendermint.SDK.BaseApp
   , RouterError(ResourceNotFound)
 
   -- * Block
-  , BlockEffs
-  , runBeginBlock
-  , runEndBlock
-  , EndBlockResult (..)
+  -- , BlockEffs
+  -- , runBeginBlock
+  -- , runEndBlock
+  -- , EndBlockResult (..)
   ) where
 
-import           Tendermint.SDK.BaseApp.Block
+-- import           Tendermint.SDK.BaseApp.Block
 import           Tendermint.SDK.BaseApp.Effects
 import           Tendermint.SDK.BaseApp.Errors
 import           Tendermint.SDK.BaseApp.Events

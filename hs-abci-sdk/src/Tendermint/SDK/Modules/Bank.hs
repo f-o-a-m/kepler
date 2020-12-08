@@ -33,5 +33,6 @@ bankModule = Module
   { moduleTxDeliverer = messageHandlers
   , moduleTxChecker = defaultCheckTx (Proxy :: Proxy MessageApi) (Proxy :: Proxy r)
   , moduleQuerier = querier
+  , moduleBeginBlock = const $ endBlockF
   , moduleEval = eval
   }

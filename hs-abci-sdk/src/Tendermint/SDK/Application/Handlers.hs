@@ -22,10 +22,7 @@ import           Polysemy
 import           Polysemy.Error                           (catch)
 import qualified Tendermint.SDK.Application.Module        as M
 import qualified Tendermint.SDK.BaseApp                   as BA
-import           Tendermint.SDK.BaseApp.Block             (BlockEffs,
-                                                           EndBlockResult,
-                                                           runBeginBlock,
-                                                           runEndBlock)
+import qualified Tendermint.SDK.BaseApp.Block             as Block
 import           Tendermint.SDK.BaseApp.Errors            (SDKError (..),
                                                            queryAppError,
                                                            throwSDKError,
@@ -78,10 +75,10 @@ defaultHandlers = Handlers
 data HandlersContext alg ms core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.ModuleList ms (M.Effs ms core)
-  , beginBlockers :: [Req.BeginBlock ->
-    Sem (BlockEffs BA.:& BA.BaseAppEffs core) ()]
-  , endBlockers   :: [Req.EndBlock ->
-    Sem (BlockEffs BA.:& BA.BaseAppEffs core) EndBlockResult]
+  -- , beginBlockers :: [Req.BeginBlock ->
+  --   Sem (BlockEffs BA.:& BA.BaseAppEffs core) ()]
+  -- , endBlockers   :: [Req.EndBlock ->
+  --   Sem (BlockEffs BA.:& BA.BaseAppEffs core) EndBlockResult]
   , anteHandler   :: BA.AnteHandler (M.Effs ms core)
   , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
   }
@@ -91,6 +88,7 @@ makeHandlers
   :: forall alg ms core.
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
+  => Member (Embed IO) core
   => M.ToApplication ms (M.Effs ms core)
   => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms core) 'Store.QueryAndMempool
   => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs core) 'Store.QueryAndMempool
@@ -166,19 +164,19 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
           )
         return . ResponseDeliverTx $ res ^. from deliverTxTxResult
 
-      mergeBeginBlock (Resp.BeginBlock a) (Resp.BeginBlock b) = Resp.BeginBlock (a++b)
-      beginBlock (RequestBeginBlock bb) = do
-        res <- mapM (\f -> (runBeginBlock . f) bb) beginBlockers
-        pure $ ResponseBeginBlock (foldl mergeBeginBlock (Resp.BeginBlock []) res)
+      -- mergeBeginBlock (Resp.BeginBlock a) (Resp.BeginBlock b) = Resp.BeginBlock (a++b)
+      -- beginBlock (RequestBeginBlock bb) = do
+      --   res <- mapM (\f -> (runBeginBlock . f) bb) beginBlockers
+      --   pure $ ResponseBeginBlock (foldl mergeBeginBlock (Resp.BeginBlock []) res)
 
-      mergeEndBlock (Resp.EndBlock updatesA paramsA eventsA) (Resp.EndBlock updatesB paramsB eventsB) =
-        Resp.EndBlock (updatesA ++ updatesB) (mergeParams paramsA paramsB) (eventsA ++ eventsB)
-        where
-          mergeParams Nothing y = y
-          mergeParams x _       = x
-      endBlock (RequestEndBlock eb) = do
-        res <- mapM (\f ->      (runEndBlock . f) eb) endBlockers
-        pure $ ResponseEndBlock (foldl mergeEndBlock (Resp.EndBlock [] Nothing []) res)
+      -- mergeEndBlock (Resp.EndBlock updatesA paramsA eventsA) (Resp.EndBlock updatesB paramsB eventsB) =
+      --   Resp.EndBlock (updatesA ++ updatesB) (mergeParams paramsA paramsB) (eventsA ++ eventsB)
+      --   where
+      --     mergeParams Nothing y = y
+      --     mergeParams x _       = x
+      -- endBlock (RequestEndBlock eb) = do
+      --   res <- mapM (\f ->      (runEndBlock . f) eb) endBlockers
+      --   pure $ ResponseEndBlock (foldl mergeEndBlock (Resp.EndBlock [] Nothing []) res)
 
       commit :: Handler 'MTCommit (BA.BaseAppEffs core)
       commit _ = do
@@ -187,13 +185,24 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
         return . ResponseCommit $ def
           & Resp._commitData .~ Base64.fromBytes rootHash
 
+      beginBlock :: Handler 'MTBeginBlock (BA.BaseAppEffs core)
+      beginBlock _ = do
+        catch
+          (do
+            _ <- Block.evalBlockHandler $ M.applicationBeginBlock app undefined
+            return . ResponseBeginBlock $ def
+          )
+          (\(_ :: BA.AppError) -> undefined
+          )
+
+
+
   in defaultHandlers
-       { query = query
-       , checkTx = checkTx
-       , beginBlock = beginBlock
-       , deliverTx = deliverTx
-       , endBlock = endBlock
-       , commit = commit
+       { query
+       , checkTx
+       , deliverTx
+       , commit
+       , beginBlock
        }
 
 makeApp
@@ -201,6 +210,7 @@ makeApp
 
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
+  => Member (Embed IO) core
   => M.ToApplication ms (M.Effs ms core)
   => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms core) 'Store.QueryAndMempool
   => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs core) 'Store.QueryAndMempool
