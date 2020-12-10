@@ -19,10 +19,8 @@ and ultimately our configuration of modules must be converted to this format. Th
 data HandlersContext alg ms core = HandlersContext
   { signatureAlgP :: Proxy alg
   , modules       :: M.ModuleList ms (Effs ms core)
-  , beginBlockers :: [Req.BeginBlock ->
-    Sem (BlockEffs BA.:& BA.BaseAppEffs core) ()]
-  , endBlockers   :: [Req.EndBlock ->
-    Sem (BlockEffs BA.:& BA.BaseAppEffs core) EndBlockResult]
+  , beginBlocker  :: Req.BeginBlock -> Sem (M.Effs ms core) ()
+  , endBlocker    :: Req.EndBlock -> Sem (M.Effs ms core) EndBlockResult
   , anteHandler   :: BA.AnteHandler (Effs ms core)
   , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
   }
@@ -64,7 +62,7 @@ import Network.ABCI.Server.App (App)
 import Polysemy (Sem)
 import Tendermint.SDK.Modules.Auth (Auth, authModule)
 import Tendermint.SDK.Application (ModuleList(..), HandlersContext(..), baseAppAnteHandler, makeApp, createIOApp)
-import Tendermint.SDK.BaseApp (CoreEffs, Context, defaultCompileToCore, runCoreEffs)
+import Tendermint.SDK.BaseApp (CoreEffs, Context, defaultBeginBlocker, defaultEndBlocker, defaultCompileToCore, runCoreEffs)
 import Tendermint.SDK.Crypto (Secp256k1)
 import Tendermint.SDK.Modules.Bank (Bank, bankModule)
 ~~~
@@ -87,8 +85,8 @@ handlersContext :: HandlersContext Secp256k1 NameserviceModules CoreEffs
 handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = nameserviceModules
-  , beginBlockers = []
-  , endBlockers = []
+  , beginBlocker = defaultBeginBlocker
+  , endBlocker = defaultEndBlocker
   , compileToCore  = defaultCompileToCore
   , anteHandler = baseAppAnteHandler
   }

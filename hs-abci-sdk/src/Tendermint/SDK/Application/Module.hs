@@ -23,6 +23,7 @@ import           Polysemy                            (EffectRow, Members, Sem)
 import           Servant.API                         ((:<|>) (..), (:>))
 import           Tendermint.SDK.BaseApp              ((:&), BaseAppEffs,
                                                       BaseEffs)
+import           Tendermint.SDK.BaseApp.Block
 import qualified Tendermint.SDK.BaseApp.Query        as Q
 import           Tendermint.SDK.BaseApp.Store        (Scope (..))
 import qualified Tendermint.SDK.BaseApp.Transaction  as T
@@ -41,7 +42,6 @@ data Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (
   { moduleTxChecker :: T.RouteTx check r
   , moduleTxDeliverer :: T.RouteTx deliver r
   , moduleQuerier :: Q.RouteQ query r
-  , moduleBeginBlock ::  Req.BeginBlock -> Sem r ()
   , moduleEval :: forall s. (Members T.TxEffs s, Members BaseEffs s, Members (DependencyEffs deps) s) => forall a. Sem (es :& s) a -> Sem s a
   }
 
@@ -58,10 +58,11 @@ data ModuleList (ms :: [Component]) r where
 infixr 5 :+
 
 data Application check deliver query r s = Application
-  { applicationTxChecker   :: T.RouteTx check r
-  , applicationTxDeliverer :: T.RouteTx deliver r
-  , applicationQuerier     :: Q.RouteQ query s
-  , applicationBeginBlock  :: Req.BeginBlock -> Sem r ()
+  { applicationTxChecker    :: T.RouteTx check r
+  , applicationTxDeliverer  :: T.RouteTx deliver r
+  , applicationQuerier      :: Q.RouteQ query s
+  , applicationBeginBlocker :: Req.BeginBlock -> Sem r ()
+  , applicationEndBlocker   :: Req.EndBlock -> Sem r EndBlockResult
   }
 
 class ToApplication ms r where
@@ -81,7 +82,8 @@ instance ToApplication '[Module name check deliver query es deps] r where
       { applicationTxChecker = moduleTxChecker
       , applicationTxDeliverer = moduleTxDeliverer
       , applicationQuerier = moduleQuerier
-      , applicationBeginBlock = moduleBeginBlock
+      , applicationBeginBlocker = defaultBeginBlocker
+      , applicationEndBlocker = defaultEndBlocker
       }
 
 instance ToApplication (m' ': ms) r => ToApplication (Module name check deliver query es deps ': m' ': ms) r where
@@ -95,7 +97,8 @@ instance ToApplication (m' ': ms) r => ToApplication (Module name check deliver 
          { applicationTxChecker = moduleTxChecker :<|> applicationTxChecker app
          , applicationTxDeliverer = moduleTxDeliverer :<|> applicationTxDeliverer app
          , applicationQuerier = moduleQuerier :<|> applicationQuerier app
-         , applicationBeginBlock = moduleBeginBlock >> applicationBeginBlock app
+         , applicationBeginBlocker = defaultBeginBlocker
+         , applicationEndBlocker = defaultEndBlocker
          }
 
 hoistApplication
@@ -111,7 +114,8 @@ hoistApplication natT natQ (app :: Application check deliver query r s) =
     { applicationTxChecker = T.hoistTxRouter (Proxy @check) (Proxy @r) (Proxy @'QueryAndMempool) natT $ applicationTxChecker app
     , applicationTxDeliverer = T.hoistTxRouter (Proxy @deliver) (Proxy @r) (Proxy @'Consensus) natT $ applicationTxDeliverer app
     , applicationQuerier = Q.hoistQueryRouter (Proxy @query) (Proxy @s) natQ $ applicationQuerier app
-    , applicationBeginBlock = natT . applicationBeginBlock app
+    , applicationBeginBlocker = natT . applicationBeginBlocker app
+    , applicationEndBlocker = natT . applicationEndBlocker app
     }
 
 class Eval ms (core :: EffectRow) where
@@ -144,11 +148,13 @@ makeApplication
   => Proxy core
   -> T.AnteHandler (Effs ms core)
   -> ModuleList ms (Effs ms core)
+  -> (Req.BeginBlock -> Sem (Effs ms core) ())
+  -> (Req.EndBlock -> Sem (Effs ms core) EndBlockResult)
   -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (T.TxEffs :& BaseAppEffs core) (Q.QueryEffs :& BaseAppEffs core)
-makeApplication p@(Proxy :: Proxy core) ah (ms :: ModuleList ms (Effs ms core)) =
+makeApplication p@(Proxy :: Proxy core) ah (ms :: ModuleList ms (Effs ms core)) beginBlocker endBlocker =
   let app = applyAnteHandler ah $ toApplication ms :: Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (Effs ms core) (Effs ms core)
       -- WEIRD: if you move the eval into a separate let binding then it doesn't typecheck...
-  in hoistApplication (eval @ms @core p ms) (T.evalReadOnly . eval @ms @core p ms) app
+  in hoistApplication (eval @ms @core p ms) (T.evalReadOnly . eval @ms @core p ms) (app{applicationBeginBlocker = beginBlocker, applicationEndBlocker = endBlocker})
 
 applyAnteHandler
   :: T.HasTxRouter check r 'QueryAndMempool

@@ -24,8 +24,8 @@ handlersContext :: HandlersContext Secp256k1 NameserviceModules BA.CoreEffs
 handlersContext = HandlersContext
   { signatureAlgP = Proxy @Secp256k1
   , modules = nameserviceModules
-  , beginBlockers = []
-  , endBlockers = []
+  , beginBlocker = BA.defaultBeginBlocker
+  , endBlocker = BA.defaultEndBlocker
   , compileToCore  = BA.defaultCompileToCore
   , anteHandler = baseAppAnteHandler
   }

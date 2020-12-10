@@ -46,7 +46,7 @@ rProxy = Proxy
 
 app :: M.Application (M.ApplicationC Ms) (M.ApplicationD Ms) (M.ApplicationQ Ms)
          (BA.TxEffs BA.:& BA.BaseAppEffs BA.PureCoreEffs) (BA.QueryEffs BA.:& BA.BaseAppEffs BA.PureCoreEffs)
-app = M.makeApplication cProxy mempty modules
+app = M.makeApplication cProxy mempty modules BA.defaultBeginBlocker BA.defaultEndBlocker
 
 doQuery :: QueryApplication (Sem (BA.BaseAppEffs BA.PureCoreEffs))
 doQuery = serveQueryApplication (Proxy @(M.ApplicationQ Ms)) rProxy $ M.applicationQuerier app

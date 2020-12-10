@@ -1,23 +1,33 @@
 module Tendermint.SDK.BaseApp.Block
   ( BlockEffs
-  , BlockContext(..)
-  , newBlockContext
-  , evalBlockHandler
+  , evalBeginBlockHandler
+  , evalEndBlockHandler
+  , EndBlockResult (..)
+  , defaultBeginBlocker
+  , defaultEndBlocker
   ) where
 
-import           Data.IORef                                (newIORef)
-import           Data.Proxy
---import qualified Network.ABCI.Types.Messages.Request       as Req
---import qualified Network.ABCI.Types.Messages.Response      as Resp
-import           Polysemy
-import           Polysemy.Tagged                           (Tagged (..))
---import qualified Tendermint.SDK.BaseApp.Events             as E
 import           Control.Monad.IO.Class                    (liftIO)
+import qualified Data.Aeson                                as A
+import           Data.ByteString.Lazy                      (toStrict)
+import           Data.IORef                                (newIORef)
+import           Data.Proxy                                (Proxy (Proxy))
+import           GHC.Generics                              (Generic)
+import           Network.ABCI.Types.Messages.FieldTypes    (ConsensusParams,
+                                                            ValidatorUpdate)
+import qualified Network.ABCI.Types.Messages.Request       as Req
+import qualified Network.ABCI.Types.Messages.Response      as Resp
+import           Polysemy                                  (Embed, Members, Sem)
+import           Polysemy.Tagged                           (Tagged (..))
 import qualified Tendermint.SDK.BaseApp.Store              as Store
 import qualified Tendermint.SDK.BaseApp.Transaction.Cache  as Cache
 import           Tendermint.SDK.BaseApp.Transaction.Effect (TxEffs, runTx)
 import           Tendermint.SDK.BaseApp.Transaction.Types  (TransactionContext (..))
+import           Tendermint.SDK.Codec                      (HasCodec (..))
 import           Tendermint.SDK.Types.Effects              ((:&))
+import           Tendermint.SDK.Types.TxResult             (TxResult (_txResultEvents))
+
+
 
 data BlockContext = BlockContext TransactionContext
 
@@ -36,58 +46,49 @@ newBlockContext = do
 
 type BlockEffs = TxEffs
 
-evalBlockHandler
+----------------------
+
+evalBeginBlockHandler
   :: Members [Embed IO, Tagged 'Store.Consensus Store.ReadStore, Tagged 'Store.Consensus Store.WriteStore] r
   => Sem (BlockEffs :& r) ()
-  -> Sem r ()
-evalBlockHandler action = do
+  -> Sem r Resp.BeginBlock
+evalBeginBlockHandler action = do
   (BlockContext txCtx)  <- liftIO newBlockContext
-  (_,_,cache)  <- runTx (Proxy @'Store.Consensus) txCtx action
-  maybe (pure ()) Cache.writeCache cache
+  (_, txres, cache)  <- runTx (Proxy @'Store.Consensus) txCtx action
+  case cache of
+    Just c -> do
+      Cache.writeCache c
+      pure $ Resp.BeginBlock (_txResultEvents txres)
+    _ -> pure $ Resp.BeginBlock []
 
 
+defaultBeginBlocker :: Req.BeginBlock -> Sem r ()
+defaultBeginBlocker = const $ pure ()
 
--- module Tendermint.SDK.BaseApp.Block (BlockEffs, EndBlockResult (..), runBeginBlock, runEndBlock) where
+----------------------
 
--- import           Network.ABCI.Types.Messages.FieldTypes (ConsensusParams,
---                                                          ValidatorUpdate)
--- import           Network.ABCI.Types.Messages.Response   as Response (BeginBlock (BeginBlock),
---                                                                      EndBlock (EndBlock))
--- import           Polysemy                               (Members, Sem)
--- import           Polysemy.Error                         (Error, runError)
--- import           Polysemy.Output                        (Output, runOutputList)
--- import           Polysemy.Tagged                        (Tagged, tag)
--- import           Tendermint.SDK.BaseApp.Errors          (AppError)
--- import qualified Tendermint.SDK.BaseApp.Events          as E
--- import           Tendermint.SDK.BaseApp.Store.RawStore  (ReadStore,
---                                                          Scope (Consensus),
---                                                          WriteStore)
--- import           Tendermint.SDK.Types.Effects           ((:&))
+data EndBlockResult = EndBlockResult [ValidatorUpdate] (Maybe ConsensusParams)
+    deriving (Generic)
 
--- type BlockEffs =
---  [ WriteStore
---  , ReadStore
---  , Error AppError
---  , Output E.Event
---  ]
+instance A.ToJSON EndBlockResult
+instance A.FromJSON EndBlockResult
+instance HasCodec EndBlockResult where
+  encode = toStrict . A.encode
+  decode s = maybe (Left "EndBlockResult failure") Right (A.decodeStrict s)
 
 
--- runBeginBlock
---   :: Members [Tagged 'Consensus ReadStore, Tagged 'Consensus WriteStore] r
---   => Sem (BlockEffs :& r) ()
---   -> Sem r Response.BeginBlock
--- runBeginBlock b = do
---   (events, _) <- (runOutputList . runError . tag . tag) b
---   pure $ Response.BeginBlock events
+evalEndBlockHandler
+  :: Members [Embed IO, Tagged 'Store.Consensus Store.ReadStore, Tagged 'Store.Consensus Store.WriteStore] r
+  => Sem (BlockEffs :& r) EndBlockResult
+  -> Sem r Resp.EndBlock
+evalEndBlockHandler action = do
+  (BlockContext txCtx) <- liftIO newBlockContext
+  (res, txres, cache) <- runTx (Proxy @'Store.Consensus) txCtx action
+  case (res, cache) of
+    (Just (EndBlockResult updates params), Just c) -> do
+      Cache.writeCache c
+      pure $ Resp.EndBlock updates params (_txResultEvents txres)
+    _ -> pure $ Resp.EndBlock [] Nothing []
 
--- data EndBlockResult = EndBlockResult [ValidatorUpdate] (Maybe ConsensusParams)
-
--- runEndBlock
---   :: Members [Tagged 'Consensus ReadStore, Tagged 'Consensus WriteStore] r
---   => Sem (BlockEffs :& r) EndBlockResult
---   -> Sem r Response.EndBlock
--- runEndBlock b = do
---   (events, res) <- (runOutputList . runError . tag . tag) b
---   case res of
---     Left _ -> pure $ Response.EndBlock [] Nothing events
---     Right (EndBlockResult updates params) -> pure $ Response.EndBlock updates params events
+defaultEndBlocker :: Req.EndBlock -> Sem r EndBlockResult
+defaultEndBlocker = const $ pure (EndBlockResult [] Nothing)

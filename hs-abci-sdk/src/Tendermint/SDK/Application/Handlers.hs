@@ -22,7 +22,9 @@ import           Polysemy
 import           Polysemy.Error                           (catch)
 import qualified Tendermint.SDK.Application.Module        as M
 import qualified Tendermint.SDK.BaseApp                   as BA
-import qualified Tendermint.SDK.BaseApp.Block             as Block
+import           Tendermint.SDK.BaseApp.Block             (EndBlockResult,
+                                                           evalBeginBlockHandler,
+                                                           evalEndBlockHandler)
 import           Tendermint.SDK.BaseApp.Errors            (SDKError (..),
                                                            queryAppError,
                                                            throwSDKError,
@@ -40,16 +42,16 @@ import           Tendermint.SDK.Types.TxResult            (checkTxTxResult,
 type Handler mt r = Request mt -> Sem r (Response mt)
 
 data Handlers r = Handlers
-  { info       :: Handler 'MTInfo r
-  , setOption  :: Handler 'MTSetOption r
-  , initChain  :: Handler 'MTInitChain r
-  , query      :: Handler 'MTQuery r
-  , checkTx    :: Handler 'MTCheckTx r
-  , beginBlock :: Handler 'MTBeginBlock r
-  , deliverTx  :: Handler 'MTDeliverTx r
-  , endBlock   :: Handler 'MTEndBlock r
-  , commit     :: Handler 'MTCommit r
-  }
+    { info       :: Handler 'MTInfo r
+    , setOption  :: Handler 'MTSetOption r
+    , initChain  :: Handler 'MTInitChain r
+    , query      :: Handler 'MTQuery r
+    , checkTx    :: Handler 'MTCheckTx r
+    , beginBlock :: Handler 'MTBeginBlock r
+    , deliverTx  :: Handler 'MTDeliverTx r
+    , endBlock   :: Handler 'MTEndBlock r
+    , commit     :: Handler 'MTCommit r
+    }
 
 defaultHandlers :: forall r. Handlers r
 defaultHandlers = Handlers
@@ -73,15 +75,13 @@ defaultHandlers = Handlers
 
 
 data HandlersContext alg ms core = HandlersContext
-  { signatureAlgP :: Proxy alg
-  , modules       :: M.ModuleList ms (M.Effs ms core)
-  -- , beginBlockers :: [Req.BeginBlock ->
-  --   Sem (BlockEffs BA.:& BA.BaseAppEffs core) ()]
-  -- , endBlockers   :: [Req.EndBlock ->
-  --   Sem (BlockEffs BA.:& BA.BaseAppEffs core) EndBlockResult]
-  , anteHandler   :: BA.AnteHandler (M.Effs ms core)
-  , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
-  }
+    { signatureAlgP :: Proxy alg
+    , modules       :: M.ModuleList ms (M.Effs ms core)
+    , beginBlocker  :: Req.BeginBlock -> Sem (M.Effs ms core) ()
+    , endBlocker    :: Req.EndBlock -> Sem (M.Effs ms core) EndBlockResult
+    , anteHandler   :: BA.AnteHandler (M.Effs ms core)
+    , compileToCore :: forall a . Sem (BA.BaseAppEffs core) a -> Sem core a
+    }
 
 -- Common function between checkTx and deliverTx
 makeHandlers
@@ -111,7 +111,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
 
       app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms)
                (T.TxEffs BA.:& BA.BaseAppEffs core) (Q.QueryEffs BA.:& BA.BaseAppEffs core)
-      app = M.makeApplication cProxy anteHandler modules
+      app = M.makeApplication cProxy anteHandler modules beginBlocker endBlocker
 
       txParser bs = case parseTx signatureAlgP bs of
         Left err -> throwSDKError $ ParseError err
@@ -164,20 +164,6 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
           )
         return . ResponseDeliverTx $ res ^. from deliverTxTxResult
 
-      -- mergeBeginBlock (Resp.BeginBlock a) (Resp.BeginBlock b) = Resp.BeginBlock (a++b)
-      -- beginBlock (RequestBeginBlock bb) = do
-      --   res <- mapM (\f -> (runBeginBlock . f) bb) beginBlockers
-      --   pure $ ResponseBeginBlock (foldl mergeBeginBlock (Resp.BeginBlock []) res)
-
-      -- mergeEndBlock (Resp.EndBlock updatesA paramsA eventsA) (Resp.EndBlock updatesB paramsB eventsB) =
-      --   Resp.EndBlock (updatesA ++ updatesB) (mergeParams paramsA paramsB) (eventsA ++ eventsB)
-      --   where
-      --     mergeParams Nothing y = y
-      --     mergeParams x _       = x
-      -- endBlock (RequestEndBlock eb) = do
-      --   res <- mapM (\f ->      (runEndBlock . f) eb) endBlockers
-      --   pure $ ResponseEndBlock (foldl mergeEndBlock (Resp.EndBlock [] Nothing []) res)
-
       commit :: Handler 'MTCommit (BA.BaseAppEffs core)
       commit _ = do
         _ <- Store.commit
@@ -186,14 +172,25 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
           & Resp._commitData .~ Base64.fromBytes rootHash
 
       beginBlock :: Handler 'MTBeginBlock (BA.BaseAppEffs core)
-      beginBlock _ = do
+      beginBlock (RequestBeginBlock bb) = do
         catch
           (do
-            _ <- Block.evalBlockHandler $ M.applicationBeginBlock app undefined
-            return . ResponseBeginBlock $ def
+            res <- evalBeginBlockHandler $ M.applicationBeginBlocker app bb
+            return . ResponseBeginBlock $ res
           )
-          (\(_ :: BA.AppError) -> undefined
+          (\(_ :: BA.AppError) -> return . ResponseBeginBlock $ def
           )
+
+      endBlock :: Handler 'MTEndBlock (BA.BaseAppEffs core)
+      endBlock (RequestEndBlock eb) = do
+        catch
+          (do
+            res <- evalEndBlockHandler $ M.applicationEndBlocker app eb
+            return . ResponseEndBlock $ res
+          )
+          (\(_ :: BA.AppError) -> return . ResponseEndBlock $ def
+          )
+
 
 
 
@@ -203,6 +200,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
        , deliverTx
        , commit
        , beginBlock
+       , endBlock
        }
 
 makeApp
