@@ -42,16 +42,16 @@ import           Tendermint.SDK.Types.TxResult            (checkTxTxResult,
 type Handler mt r = Request mt -> Sem r (Response mt)
 
 data Handlers r = Handlers
-    { info       :: Handler 'MTInfo r
-    , setOption  :: Handler 'MTSetOption r
-    , initChain  :: Handler 'MTInitChain r
-    , query      :: Handler 'MTQuery r
-    , checkTx    :: Handler 'MTCheckTx r
-    , beginBlock :: Handler 'MTBeginBlock r
-    , deliverTx  :: Handler 'MTDeliverTx r
-    , endBlock   :: Handler 'MTEndBlock r
-    , commit     :: Handler 'MTCommit r
-    }
+  { info       :: Handler 'MTInfo r
+  , setOption  :: Handler 'MTSetOption r
+  , initChain  :: Handler 'MTInitChain r
+  , query      :: Handler 'MTQuery r
+  , checkTx    :: Handler 'MTCheckTx r
+  , beginBlock :: Handler 'MTBeginBlock r
+  , deliverTx  :: Handler 'MTDeliverTx r
+  , endBlock   :: Handler 'MTEndBlock r
+  , commit     :: Handler 'MTCommit r
+  }
 
 defaultHandlers :: forall r. Handlers r
 defaultHandlers = Handlers

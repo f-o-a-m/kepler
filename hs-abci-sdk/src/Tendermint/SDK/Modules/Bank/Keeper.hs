@@ -102,7 +102,6 @@ mintF addr (Auth.Coin cid amount) = do
   (Auth.Coin _ bal) <- getCoinBalance addr cid
   putCoinBalance addr (Auth.Coin cid (bal + amount))
 
-
 --------------------------------------------------------------------------------
 
 getCoinBalance
