@@ -90,7 +90,7 @@ runTx
   => Proxy scope
   -> TransactionContext
   -> Sem (TxEffs :& r) a
-  -> Sem r (Maybe a, TxResult, Maybe Cache.Cache)
+  -> Sem r (Maybe (a, Cache.Cache), TxResult)
 runTx ps ctx@TransactionContext{..} tx = do
   initialGas <- liftIO $ readIORef gasRemaining
   eRes <- eval ps ctx tx
@@ -100,14 +100,13 @@ runTx ps ctx@TransactionContext{..} tx = do
         def & txResultGasWanted .~ G.unGasAmount initialGas
             & txResultGasUsed .~ G.unGasAmount gasUsed
   case eRes of
-    Left e -> return (Nothing, baseResponse & txResultAppError .~ e, Nothing)
+    Left e -> return (Nothing, baseResponse & txResultAppError .~ e)
     Right a -> do
         es <- liftIO $ readIORef events
         c <- liftIO $ readIORef storeCache
-        return ( Just a
+        return ( Just (a,c)
                , baseResponse & txResultEvents .~ es
                               & txResultData .~ fromBytes (encode a)
-               , Just c
                )
 
 evalCachedReadStore

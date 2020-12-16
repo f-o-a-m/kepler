@@ -11,6 +11,7 @@ import           Crypto.Hash.Algorithms                   (SHA256)
 import qualified Data.ByteArray.Base64String              as Base64
 import           Data.Default.Class                       (Default (..))
 import           Data.Proxy
+import           Data.Text
 import           Network.ABCI.Server.App                  (App (..),
                                                            MessageType (..),
                                                            Request (..),
@@ -173,24 +174,21 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
 
       beginBlock :: Handler 'MTBeginBlock (BA.BaseAppEffs core)
       beginBlock (RequestBeginBlock bb) = do
-        catch
-          (do
-            res <- evalBeginBlockHandler $ M.applicationBeginBlocker app bb
-            return . ResponseBeginBlock $ res
-          )
-          (\(_ :: BA.AppError) -> return . ResponseBeginBlock $ def
-          )
+        res <- evalBeginBlockHandler $ M.applicationBeginBlocker app bb
+        case res of
+          Right bbr ->
+            return . ResponseBeginBlock $ bbr
+          Left e ->
+            return . ResponseException . Resp.Exception . pack $ "Fatal Error in handling of BeginBlock: " ++ show e
 
       endBlock :: Handler 'MTEndBlock (BA.BaseAppEffs core)
       endBlock (RequestEndBlock eb) = do
-        catch
-          (do
-            res <- evalEndBlockHandler $ M.applicationEndBlocker app eb
-            return . ResponseEndBlock $ res
-          )
-          (\(_ :: BA.AppError) -> return . ResponseEndBlock $ def
-          )
-
+        res <- evalEndBlockHandler $ M.applicationEndBlocker app eb
+        case res of
+          Right ebr ->
+            return . ResponseEndBlock $ ebr
+          Left e ->
+            return . ResponseException . Resp.Exception . pack $ "Fatal Error in handling of EndBlock: " ++ show e
 
 
 

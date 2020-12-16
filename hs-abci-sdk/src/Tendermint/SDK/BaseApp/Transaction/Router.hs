@@ -91,7 +91,7 @@ methodRouter
 methodRouter ps action =
   let route' env tx = do
         ctx <- liftIO $ newTransactionContext True tx
-        let action' = fmap (\(_,res,c) -> (res,c)) . runTx ps ctx <$> action
+        let action' = fmap (\(rc,res) -> (res,fmap snd rc)) . runTx ps ctx <$> action
         R.runAction action' env tx (pure . R.Route)
   in R.leafRouter route'
 
