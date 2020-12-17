@@ -23,33 +23,33 @@
 </span><span id="line-23"></span><span>
 </span><span id="line-24"></span><span class="annot"><a href="Nameservice.Server.html#makeAndServeApplication"><span class="hs-identifier hs-type">makeAndServeApplication</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier hs-type">AppConfig</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-25"></span><span id="makeAndServeApplication"><span class="annot"><span class="annottext">makeAndServeApplication :: AppConfig -&gt; IO ()
-</span><a href="Nameservice.Server.html#makeAndServeApplication"><span class="hs-identifier hs-var hs-var">makeAndServeApplication</span></a></span></span><span> </span><span id="local-6989586621679355374"><span id="local-6989586621679355375"><span class="annot"><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier hs-type">AppConfig</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="Nameservice.Server.html#makeAndServeApplication"><span class="hs-identifier hs-var hs-var">makeAndServeApplication</span></a></span></span><span> </span><span id="local-6989586621679355503"><span id="local-6989586621679355504"><span class="annot"><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier hs-type">AppConfig</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-26"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; IO ()
 </span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Starting ABCI application...&quot;</span></span><span>
 </span><span id="line-27"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Context -&gt; Maybe PrometheusEnv
 </span><span class="hs-identifier hs-var hs-var">_contextPrometheusEnv</span></span><span> </span><span class="annot"><span class="annottext">Context
-</span><a href="#local-6989586621679355375"><span class="hs-identifier hs-var">_baseAppContext</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679355504"><span class="hs-identifier hs-var">_baseAppContext</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-28"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span>            </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; IO ()
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-29"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679355368"><span class="annot"><span class="annottext">prometheusEnv :: PrometheusEnv
-</span><a href="#local-6989586621679355368"><span class="hs-identifier hs-var">prometheusEnv</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-30"></span><span>      </span><span id="local-6989586621679355367"><span class="annot"><span class="annottext">ThreadId
-</span><a href="#local-6989586621679355367"><span class="hs-identifier hs-var">prometheusThreadId</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">PrometheusEnv -&gt; IO ThreadId
+</span><span id="line-29"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679355497"><span class="annot"><span class="annottext">prometheusEnv :: PrometheusEnv
+</span><a href="#local-6989586621679355497"><span class="hs-identifier hs-var">prometheusEnv</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-30"></span><span>      </span><span id="local-6989586621679355496"><span class="annot"><span class="annottext">ThreadId
+</span><a href="#local-6989586621679355496"><span class="hs-identifier hs-var">prometheusThreadId</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">PrometheusEnv -&gt; IO ThreadId
 forall (m :: * -&gt; *). MonadIO m =&gt; PrometheusEnv -&gt; m ThreadId
 </span><span class="hs-identifier hs-var">forkMetricsServer</span></span><span> </span><span class="annot"><span class="annottext">PrometheusEnv
-</span><a href="#local-6989586621679355368"><span class="hs-identifier hs-var">prometheusEnv</span></a></span><span>
+</span><a href="#local-6989586621679355497"><span class="hs-identifier hs-var">prometheusEnv</span></a></span><span>
 </span><span id="line-31"></span><span>      </span><span class="annot"><span class="annottext">IORef (Maybe ThreadId) -&gt; Maybe ThreadId -&gt; IO ()
 forall a. IORef a -&gt; a -&gt; IO ()
 </span><span class="hs-identifier hs-var">writeIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Maybe ThreadId)
-</span><a href="#local-6989586621679355374"><span class="hs-identifier hs-var">_prometheusServerThreadId</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ThreadId -&gt; Maybe ThreadId
+</span><a href="#local-6989586621679355503"><span class="hs-identifier hs-var">_prometheusServerThreadId</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ThreadId -&gt; Maybe ThreadId
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">ThreadId
-</span><a href="#local-6989586621679355367"><span class="hs-identifier hs-var">prometheusThreadId</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-32"></span><span>  </span><span id="local-6989586621679355366"><span class="annot"><span class="annottext">App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
-</span><a href="#local-6989586621679355366"><span class="hs-identifier hs-var">metricsMiddleware</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><a href="#local-6989586621679355496"><span class="hs-identifier hs-var">prometheusThreadId</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-32"></span><span>  </span><span id="local-6989586621679355495"><span class="annot"><span class="annottext">App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
+</span><a href="#local-6989586621679355495"><span class="hs-identifier hs-var">metricsMiddleware</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
 </span><span id="line-33"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Context
-</span><a href="#local-6989586621679355375"><span class="hs-identifier hs-var">_baseAppContext</span></a></span><span> </span><span class="annot"><span class="annottext">Context
+</span><a href="#local-6989586621679355504"><span class="hs-identifier hs-var">_baseAppContext</span></a></span><span> </span><span class="annot"><span class="annottext">Context
 -&gt; Getting (First Registry) Context Registry -&gt; Maybe Registry
 forall s a. s -&gt; Getting (First a) s a -&gt; Maybe a
 </span><span class="hs-operator hs-var">^?</span></span><span> </span><span class="annot"><span class="annottext">(Maybe PrometheusEnv
@@ -98,27 +98,28 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
 forall a. a -&gt; a
 </span><span class="hs-identifier hs-var">id</span></span><span>
-</span><span id="line-35"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679355363"><span class="annot"><span class="annottext">registry :: Registry
-</span><a href="#local-6989586621679355363"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[UpperBound]
+</span><span id="line-35"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679355492"><span class="annot"><span class="annottext">registry :: Registry
+</span><a href="#local-6989586621679355492"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[UpperBound]
 -&gt; Registry -&gt; IO (App (Sem CoreEffs) -&gt; App (Sem CoreEffs))
 forall (m :: * -&gt; *).
 MonadIO m =&gt;
 [UpperBound] -&gt; Registry -&gt; IO (Middleware m)
 </span><span class="hs-identifier hs-var">Met.mkMetricsMiddleware</span></span><span> </span><span class="annot"><span class="annottext">[UpperBound]
 </span><span class="hs-identifier hs-var">Met.defaultBuckets</span></span><span> </span><span class="annot"><span class="annottext">Registry
-</span><a href="#local-6989586621679355363"><span class="hs-identifier hs-var">registry</span></a></span><span>
+</span><a href="#local-6989586621679355492"><span class="hs-identifier hs-var">registry</span></a></span><span>
 </span><span id="line-36"></span><span>
-</span><span id="line-37"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="#local-6989586621679355360"><span class="hs-identifier hs-type">nat</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679355359"><span class="annot"><a href="#local-6989586621679355359"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">CoreEffs</span></span><span> </span><span class="annot"><a href="#local-6989586621679355359"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="#local-6989586621679355359"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-38"></span><span>      </span><span id="local-6989586621679355360"><span class="annot"><span class="annottext">nat :: Sem CoreEffs a -&gt; IO a
-</span><a href="#local-6989586621679355360"><span class="hs-identifier hs-var hs-var">nat</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Context -&gt; forall a. Sem CoreEffs a -&gt; IO a
+</span><span id="line-37"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="#local-6989586621679355489"><span class="hs-identifier hs-type">nat</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679355488"><span class="annot"><a href="#local-6989586621679355488"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">CoreEffs</span></span><span> </span><span class="annot"><a href="#local-6989586621679355488"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="#local-6989586621679355488"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-38"></span><span>      </span><span id="local-6989586621679355489"><span class="annot"><span class="annottext">nat :: Sem CoreEffs a -&gt; IO a
+</span><a href="#local-6989586621679355489"><span class="hs-identifier hs-var hs-var">nat</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Context -&gt; forall a. Sem CoreEffs a -&gt; IO a
 </span><span class="hs-identifier hs-var">runCoreEffs</span></span><span> </span><span class="annot"><span class="annottext">Context
-</span><a href="#local-6989586621679355375"><span class="hs-identifier hs-var">_baseAppContext</span></a></span><span>
-</span><span id="line-39"></span><span>      </span><span id="local-6989586621679355358"><span class="annot"><span class="annottext">application :: App (Sem CoreEffs)
-</span><a href="#local-6989586621679355358"><span class="hs-identifier hs-var hs-var">application</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HandlersContext Secp256k1 NameserviceModules CoreEffs
+</span><a href="#local-6989586621679355504"><span class="hs-identifier hs-var">_baseAppContext</span></a></span><span>
+</span><span id="line-39"></span><span>      </span><span id="local-6989586621679355487"><span class="annot"><span class="annottext">application :: App (Sem CoreEffs)
+</span><a href="#local-6989586621679355487"><span class="hs-identifier hs-var hs-var">application</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HandlersContext Secp256k1 NameserviceModules CoreEffs
 -&gt; App (Sem CoreEffs)
-forall k (alg :: k) (ms :: [Component]) (core :: EffectRow).
+forall k (alg :: k) (ms :: [Component])
+       (core :: [(* -&gt; *) -&gt; * -&gt; *]).
 (RecoverableSignatureSchema alg, Message alg ~ Digest SHA256,
- ToApplication ms (Effs ms core),
+ Member (Embed IO) core, ToApplication ms (Effs ms core),
  HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool,
  HasTxRouter (ApplicationC ms) (BaseAppEffs core) 'QueryAndMempool,
  HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus,
@@ -129,9 +130,9 @@ forall k (alg :: k) (ms :: [Component]) (core :: EffectRow).
 HandlersContext alg ms core -&gt; App (Sem core)
 </span><span class="hs-identifier hs-var">makeApp</span></span><span> </span><span class="annot"><span class="annottext">HandlersContext Secp256k1 NameserviceModules CoreEffs
 </span><a href="Nameservice.Application.html#handlersContext"><span class="hs-identifier hs-var">handlersContext</span></a></span><span>
-</span><span id="line-40"></span><span>      </span><span class="annot"><a href="#local-6989586621679355357"><span class="hs-identifier hs-type">middleware</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Middleware</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">CoreEffs</span></span><span class="hs-special">)</span><span>
-</span><span id="line-41"></span><span>      </span><span id="local-6989586621679355357"><span class="annot"><span class="annottext">middleware :: App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
-</span><a href="#local-6989586621679355357"><span class="hs-identifier hs-var hs-var">middleware</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Endo (App (Sem CoreEffs))
+</span><span id="line-40"></span><span>      </span><span class="annot"><a href="#local-6989586621679355486"><span class="hs-identifier hs-type">middleware</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Middleware</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">CoreEffs</span></span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span>      </span><span id="local-6989586621679355486"><span class="annot"><span class="annottext">middleware :: App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
+</span><a href="#local-6989586621679355486"><span class="hs-identifier hs-var hs-var">middleware</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Endo (App (Sem CoreEffs))
 -&gt; App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
 forall a. Endo a -&gt; a -&gt; a
 </span><span class="hs-identifier hs-var hs-var">appEndo</span></span><span> </span><span class="annot"><span class="annottext">(Endo (App (Sem CoreEffs))
@@ -160,16 +161,16 @@ forall (m :: * -&gt; *). KatipContext m =&gt; Middleware m
 -&gt; Endo (App (Sem CoreEffs))
 forall a. (a -&gt; a) -&gt; Endo a
 </span><span class="hs-identifier hs-var">Endo</span></span><span> </span><span class="annot"><span class="annottext">App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
-</span><a href="#local-6989586621679355366"><span class="hs-identifier hs-var">metricsMiddleware</span></a></span><span>
+</span><a href="#local-6989586621679355495"><span class="hs-identifier hs-var">metricsMiddleware</span></a></span><span>
 </span><span id="line-44"></span><span>          </span><span class="hs-special">]</span><span>
 </span><span id="line-45"></span><span>  </span><span class="annot"><span class="annottext">App IO -&gt; IO ()
 </span><span class="hs-identifier hs-var">serveApp</span></span><span> </span><span class="annot"><span class="annottext">(App IO -&gt; IO ()) -&gt; App IO -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(forall a. Sem CoreEffs a -&gt; IO a) -&gt; App (Sem CoreEffs) -&gt; App IO
-forall (r :: EffectRow).
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]).
 (forall a. Sem r a -&gt; IO a) -&gt; App (Sem r) -&gt; App IO
 </span><span class="hs-identifier hs-var">createIOApp</span></span><span> </span><span class="annot"><span class="annottext">forall a. Sem CoreEffs a -&gt; IO a
-</span><a href="#local-6989586621679355360"><span class="hs-identifier hs-var">nat</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
-</span><a href="#local-6989586621679355357"><span class="hs-identifier hs-var">middleware</span></a></span><span> </span><span class="annot"><span class="annottext">App (Sem CoreEffs)
-</span><a href="#local-6989586621679355358"><span class="hs-identifier hs-var">application</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679355489"><span class="hs-identifier hs-var">nat</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">App (Sem CoreEffs) -&gt; App (Sem CoreEffs)
+</span><a href="#local-6989586621679355486"><span class="hs-identifier hs-var">middleware</span></a></span><span> </span><span class="annot"><span class="annottext">App (Sem CoreEffs)
+</span><a href="#local-6989586621679355487"><span class="hs-identifier hs-var">application</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-46"></span></pre></body></html>

@@ -24,6 +24,8 @@
 </span><a href="SimpleStorage.Application.html#handlersContext"><span class="hs-identifier hs-var hs-var">handlersContext</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HandlersContext :: forall k (alg :: k) (ms :: [Component]) (core :: EffectRow).
 Proxy alg
 -&gt; ModuleList ms (Effs ms core)
+-&gt; (BeginBlock -&gt; Sem (Effs ms core) ())
+-&gt; (EndBlock -&gt; Sem (Effs ms core) EndBlockResult)
 -&gt; AnteHandler (Effs ms core)
 -&gt; (forall a. Sem (BaseAppEffs core) a -&gt; Sem core a)
 -&gt; HandlersContext alg ms core
@@ -44,19 +46,27 @@ forall k (t :: k). Proxy t
      : Error AppError : CoreEffs)
 ModuleList
   SimpleStorageModules (Effs SimpleStorageModules CoreEffs)
-</span><a href="#local-6989586621679293334"><span class="hs-identifier hs-var">simpleStorageModules</span></a></span><span>
-</span><span id="line-26"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">compileToCore :: forall a. Sem (BaseAppEffs CoreEffs) a -&gt; Sem CoreEffs a
+</span><a href="#local-6989586621679293458"><span class="hs-identifier hs-var">simpleStorageModules</span></a></span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">beginBlocker :: BeginBlock -&gt; Sem (Effs SimpleStorageModules CoreEffs) ()
+</span><span class="hs-identifier hs-var">beginBlocker</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BeginBlock -&gt; Sem (Effs SimpleStorageModules CoreEffs) ()
+forall (r :: EffectRow). BeginBlock -&gt; Sem r ()
+</span><span class="hs-identifier hs-var">BA.defaultBeginBlocker</span></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">endBlocker :: EndBlock -&gt; Sem (Effs SimpleStorageModules CoreEffs) EndBlockResult
+</span><span class="hs-identifier hs-var">endBlocker</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">EndBlock -&gt; Sem (Effs SimpleStorageModules CoreEffs) EndBlockResult
+forall (r :: EffectRow). EndBlock -&gt; Sem r EndBlockResult
+</span><span class="hs-identifier hs-var">BA.defaultEndBlocker</span></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">compileToCore :: forall a. Sem (BaseAppEffs CoreEffs) a -&gt; Sem CoreEffs a
 </span><span class="hs-identifier hs-var">compileToCore</span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall a. Sem (BaseAppEffs CoreEffs) a -&gt; Sem CoreEffs a
 </span><span class="hs-identifier hs-var">BA.defaultCompileToCore</span></span><span>
-</span><span id="line-27"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">anteHandler :: AnteHandler (Effs SimpleStorageModules CoreEffs)
+</span><span id="line-29"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">anteHandler :: AnteHandler (Effs SimpleStorageModules CoreEffs)
 </span><span class="hs-identifier hs-var">anteHandler</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall (r :: EffectRow).
 (Members AuthEffs r, Member (Error AppError) r) =&gt;
 AnteHandler r
 AnteHandler (Effs SimpleStorageModules CoreEffs)
 </span><span class="hs-identifier hs-var">baseAppAnteHandler</span></span><span>
-</span><span id="line-28"></span><span>  </span><span class="hs-special">}</span><span>
-</span><span id="line-29"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-30"></span><span>  </span><span id="local-6989586621679293334"><span class="annot"><span class="annottext">simpleStorageModules :: ModuleList
+</span><span id="line-30"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-32"></span><span>  </span><span id="local-6989586621679293458"><span class="annot"><span class="annottext">simpleStorageModules :: ModuleList
   SimpleStorageModules
   (SimpleStorageKeeper
      : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
@@ -64,8 +74,8 @@ AnteHandler (Effs SimpleStorageModules CoreEffs)
      : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
      : Transaction : CommitBlock : Metrics : Logger : Resource
      : Error AppError : CoreEffs)
-</span><a href="#local-6989586621679293334"><span class="hs-identifier hs-var hs-var">simpleStorageModules</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-31"></span><span>       </span><span class="annot"><span class="annottext">SimpleStorage
+</span><a href="#local-6989586621679293458"><span class="hs-identifier hs-var hs-var">simpleStorageModules</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-33"></span><span>       </span><span class="annot"><span class="annottext">SimpleStorage
   (SimpleStorageKeeper
      : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
      : ReadStore : Error AppError : Tagged 'Consensus ReadStore
@@ -76,7 +86,7 @@ forall (r :: EffectRow).
 Members (ModuleEffs SimpleStorage) r =&gt;
 SimpleStorage r
 </span><a href="SimpleStorage.Modules.SimpleStorage.html#simpleStorageModule"><span class="hs-identifier hs-var">SimpleStorage.simpleStorageModule</span></a></span><span>
-</span><span id="line-32"></span><span>    </span><span class="annot"><span class="annottext">SimpleStorage
+</span><span id="line-34"></span><span>    </span><span class="annot"><span class="annottext">SimpleStorage
   (SimpleStorageKeeper
      : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
      : ReadStore : Error AppError : Tagged 'Consensus ReadStore
@@ -118,7 +128,7 @@ Members
   r =&gt;
 Auth r
 </span><span class="hs-identifier hs-var">A.authModule</span></span><span>
-</span><span id="line-33"></span><span>    </span><span class="annot"><span class="annottext">Auth
+</span><span id="line-35"></span><span>    </span><span class="annot"><span class="annottext">Auth
   (SimpleStorageKeeper
      : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
      : ReadStore : Error AppError : Tagged 'Consensus ReadStore
@@ -156,4 +166,4 @@ Module name check deliver query es deps r
      : Error AppError : CoreEffs)
 forall (r :: EffectRow). ModuleList '[] r
 </span><span class="hs-identifier hs-var">NilModules</span></span><span>
-</span><span id="line-34"></span></pre></body></html>
+</span><span id="line-36"></span></pre></body></html>

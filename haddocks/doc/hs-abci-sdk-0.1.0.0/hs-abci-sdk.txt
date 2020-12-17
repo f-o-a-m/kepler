@@ -1036,8 +1036,9 @@ instance GHC.Classes.Eq Tendermint.SDK.BaseApp.Gas.GasAmount
 module Tendermint.SDK.BaseApp.Transaction.Types
 type TransactionApplication m = RoutingTx ByteString -> m (TxResult, Maybe Cache)
 data TransactionContext
-TransactionContext :: IORef GasAmount -> IORef Cache -> IORef [Event] -> TransactionContext
+TransactionContext :: IORef GasAmount -> Bool -> IORef Cache -> IORef [Event] -> TransactionContext
 [gasRemaining] :: TransactionContext -> IORef GasAmount
+[txRequiresGas] :: TransactionContext -> Bool
 [storeCache] :: TransactionContext -> IORef Cache
 [events] :: TransactionContext -> IORef [Event]
 data RoutingTx msg
@@ -1050,7 +1051,7 @@ EmptyTxServer :: EmptyTxServer
 data Return a
 data TypedMessage msg
 data msg :~> a
-newTransactionContext :: RoutingTx msg -> IO TransactionContext
+newTransactionContext :: Bool -> RoutingTx msg -> IO TransactionContext
 data Tx alg msg
 Tx :: Msg msg -> Text -> Int64 -> RecoverableSignature alg -> Message alg -> PubKey alg -> Word64 -> Tx alg msg
 [txMsg] :: Tx alg msg -> Msg msg
@@ -1081,7 +1082,7 @@ type AnteHandler r = forall msg a. (Endo (RoutingTx msg -> Sem r a))
 
 module Tendermint.SDK.BaseApp.Transaction.Effect
 type TxEffs = [Output Event, GasMeter, WriteStore, ReadStore, Error AppError]
-runTx :: Members [Embed IO, Tagged scope ReadStore] r => HasCodec a => Proxy scope -> TransactionContext -> Sem (TxEffs :& r) a -> Sem r (TxResult, Maybe Cache)
+runTx :: Members [Embed IO, Tagged scope ReadStore] r => HasCodec a => Proxy scope -> TransactionContext -> Sem (TxEffs :& r) a -> Sem r (Maybe (a, Cache), TxResult)
 eval :: forall r scope a. Members [Embed IO, Tagged scope ReadStore] r => Proxy scope -> TransactionContext -> Sem (TxEffs :& r) a -> Sem r (Either AppError a)
 evalReadOnly :: forall r. forall a. Sem (TxEffs :& r) a -> Sem (ReadStore : (Error AppError : r)) a
 
@@ -1153,6 +1154,9 @@ module Tendermint.SDK.BaseApp.Effects
 type BaseAppEffs core = StoreEffs :& BaseEffs :& core
 defaultCompileToCore :: forall a. Sem (BaseAppEffs CoreEffs) a -> Sem CoreEffs a
 defaultCompileToPureCore :: forall a. Sem (BaseAppEffs PureCoreEffs) a -> Sem PureCoreEffs a
+
+module Tendermint.SDK.Application.App
+createIOApp :: forall r. (forall a. Sem r a -> IO a) -> App (Sem r) -> App IO
 
 module Tendermint.SDK.BaseApp
 
@@ -1350,6 +1354,11 @@ data EmptyQueryServer
 EmptyQueryServer :: EmptyQueryServer
 data RouterError
 ResourceNotFound :: RouterError
+type BlockEffs = TxEffs
+data EndBlockResult
+EndBlockResult :: [ValidatorUpdate] -> Maybe ConsensusParams -> EndBlockResult
+defaultBeginBlocker :: BeginBlock -> Sem r ()
+defaultEndBlocker :: EndBlock -> Sem r EndBlockResult
 
 module Tendermint.SDK.Application.Module
 data Module (name :: Symbol) (check :: Type) (deliver :: Type) (query :: Type) (es :: EffectRow) (deps :: [Component]) (r :: EffectRow)
@@ -1365,10 +1374,12 @@ data ModuleList (ms :: [Component]) r
 [:+] :: Module name check deliver query es deps r -> ModuleList ms r -> ModuleList (Module name check deliver query es deps : ms) r
 infixr 5 :+
 data Application check deliver query r s
-Application :: RouteTx check r -> RouteTx deliver r -> RouteQ query s -> Application check deliver query r s
+Application :: RouteTx check r -> RouteTx deliver r -> RouteQ query s -> (BeginBlock -> Sem r ()) -> (EndBlock -> Sem r EndBlockResult) -> Application check deliver query r s
 [applicationTxChecker] :: Application check deliver query r s -> RouteTx check r
 [applicationTxDeliverer] :: Application check deliver query r s -> RouteTx deliver r
 [applicationQuerier] :: Application check deliver query r s -> RouteQ query s
+[applicationBeginBlocker] :: Application check deliver query r s -> BeginBlock -> Sem r ()
+[applicationEndBlocker] :: Application check deliver query r s -> EndBlock -> Sem r EndBlockResult
 class ToApplication ms r where {
     type family ApplicationC ms :: Type;
     type family ApplicationD ms :: Type;
@@ -1380,7 +1391,7 @@ class Eval ms (core :: EffectRow) where {
     type family Effs ms core :: EffectRow;
 }
 eval :: Eval ms core => proxy core -> ModuleList ms r -> forall a. Sem (Effs ms core) a -> Sem (TxEffs :& BaseAppEffs core) a
-makeApplication :: Eval ms core => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => Proxy core -> AnteHandler (Effs ms core) -> ModuleList ms (Effs ms core) -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (TxEffs :& BaseAppEffs core) (QueryEffs :& BaseAppEffs core)
+makeApplication :: Eval ms core => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => Proxy core -> AnteHandler (Effs ms core) -> ModuleList ms (Effs ms core) -> (BeginBlock -> Sem (Effs ms core) ()) -> (EndBlock -> Sem (Effs ms core) EndBlockResult) -> Application (ApplicationC ms) (ApplicationD ms) (ApplicationQ ms) (TxEffs :& BaseAppEffs core) (QueryEffs :& BaseAppEffs core)
 applyAnteHandler :: HasTxRouter check r 'QueryAndMempool => HasTxRouter deliver r 'Consensus => AnteHandler r -> Application check deliver query r s -> Application check deliver query r s
 instance (Tendermint.SDK.Application.Module.DependencyEffs deps GHC.Types.~ '[]) => Tendermint.SDK.Application.Module.Eval '[Tendermint.SDK.Application.Module.Module name check deliver query es deps] core
 instance (Polysemy.Internal.Members (Tendermint.SDK.Application.Module.DependencyEffs deps) (Tendermint.SDK.Application.Module.Effs (m' : ms) s), Polysemy.Internal.Members Tendermint.SDK.BaseApp.Transaction.Effect.TxEffs (Tendermint.SDK.Application.Module.Effs (m' : ms) s), Polysemy.Internal.Members Tendermint.SDK.BaseApp.Effects.BaseEffs.BaseEffs (Tendermint.SDK.Application.Module.Effs (m' : ms) s), Tendermint.SDK.Application.Module.Eval (m' : ms) s) => Tendermint.SDK.Application.Module.Eval (Tendermint.SDK.Application.Module.Module name check deliver query es deps : m' : ms) s
@@ -1395,9 +1406,9 @@ data Accounts m a
 [UpdateAccount] :: Address -> (Account -> Account) -> Accounts m ()
 [GetAccount] :: Address -> Accounts m (Maybe Account)
 type AuthEffs = '[Accounts, Error AuthError]
-createAccount :: forall r_a1VpT. MemberWithError Accounts r_a1VpT => Address -> Sem r_a1VpT Account
-updateAccount :: forall r_a1VpV. MemberWithError Accounts r_a1VpV => Address -> (Account -> Account) -> Sem r_a1VpV ()
-getAccount :: forall r_a1VpY. MemberWithError Accounts r_a1VpY => Address -> Sem r_a1VpY (Maybe Account)
+createAccount :: forall r_a1WA1. MemberWithError Accounts r_a1WA1 => Address -> Sem r_a1WA1 Account
+updateAccount :: forall r_a1WA3. MemberWithError Accounts r_a1WA3 => Address -> (Account -> Account) -> Sem r_a1WA3 ()
+getAccount :: forall r_a1WA6. MemberWithError Accounts r_a1WA6 => Address -> Sem r_a1WA6 (Maybe Account)
 eval :: Members [ReadStore, WriteStore, Error AppError] r => Sem (Accounts : (Error AuthError : r)) a -> Sem r a
 
 -- | Query API
@@ -1427,9 +1438,6 @@ coinAesonOptions :: Options
 newtype Address
 Address :: HexString -> Address
 
-module Tendermint.SDK.Application.App
-createIOApp :: forall r. (forall a. Sem r a -> IO a) -> App (Sem r) -> App IO
-
 module Tendermint.SDK.Application.AnteHandler
 createAccountAnteHandler :: Members AuthEffs r => AnteHandler r
 nonceAnteHandler :: Members AuthEffs r => Member (Error AppError) r => AnteHandler r
@@ -1439,12 +1447,14 @@ type AnteHandler r = forall msg a. (Endo (RoutingTx msg -> Sem r a))
 module Tendermint.SDK.Application.Handlers
 type Handler mt r = Request mt -> Sem r (Response mt)
 data HandlersContext alg ms core
-HandlersContext :: Proxy alg -> ModuleList ms (Effs ms core) -> AnteHandler (Effs ms core) -> (forall a. Sem (BaseAppEffs core) a -> Sem core a) -> HandlersContext alg ms core
+HandlersContext :: Proxy alg -> ModuleList ms (Effs ms core) -> (BeginBlock -> Sem (Effs ms core) ()) -> (EndBlock -> Sem (Effs ms core) EndBlockResult) -> AnteHandler (Effs ms core) -> (forall a. Sem (BaseAppEffs core) a -> Sem core a) -> HandlersContext alg ms core
 [signatureAlgP] :: HandlersContext alg ms core -> Proxy alg
 [modules] :: HandlersContext alg ms core -> ModuleList ms (Effs ms core)
+[beginBlocker] :: HandlersContext alg ms core -> BeginBlock -> Sem (Effs ms core) ()
+[endBlocker] :: HandlersContext alg ms core -> EndBlock -> Sem (Effs ms core) EndBlockResult
 [anteHandler] :: HandlersContext alg ms core -> AnteHandler (Effs ms core)
 [compileToCore] :: HandlersContext alg ms core -> forall a. Sem (BaseAppEffs core) a -> Sem core a
-makeApp :: forall alg ms core. RecoverableSignatureSchema alg => Message alg ~ Digest SHA256 => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool => HasTxRouter (ApplicationC ms) (BaseAppEffs core) 'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus => HasTxRouter (ApplicationD ms) (BaseAppEffs core) 'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => HasQueryRouter (ApplicationQ ms) (BaseAppEffs core) => Eval ms core => HandlersContext alg ms core -> App (Sem core)
+makeApp :: forall alg ms core. RecoverableSignatureSchema alg => Message alg ~ Digest SHA256 => Member (Embed IO) core => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool => HasTxRouter (ApplicationC ms) (BaseAppEffs core) 'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus => HasTxRouter (ApplicationD ms) (BaseAppEffs core) 'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => HasQueryRouter (ApplicationQ ms) (BaseAppEffs core) => Eval ms core => HandlersContext alg ms core -> App (Sem core)
 
 module Tendermint.SDK.Application
 data ModuleList (ms :: [Component]) r
@@ -1464,14 +1474,16 @@ class Eval ms (core :: EffectRow) where {
 eval :: Eval ms core => proxy core -> ModuleList ms r -> forall a. Sem (Effs ms core) a -> Sem (TxEffs :& BaseAppEffs core) a
 type family ModuleEffs (m :: Component) :: EffectRow
 data HandlersContext alg ms core
-HandlersContext :: Proxy alg -> ModuleList ms (Effs ms core) -> AnteHandler (Effs ms core) -> (forall a. Sem (BaseAppEffs core) a -> Sem core a) -> HandlersContext alg ms core
+HandlersContext :: Proxy alg -> ModuleList ms (Effs ms core) -> (BeginBlock -> Sem (Effs ms core) ()) -> (EndBlock -> Sem (Effs ms core) EndBlockResult) -> AnteHandler (Effs ms core) -> (forall a. Sem (BaseAppEffs core) a -> Sem core a) -> HandlersContext alg ms core
 [signatureAlgP] :: HandlersContext alg ms core -> Proxy alg
 [modules] :: HandlersContext alg ms core -> ModuleList ms (Effs ms core)
+[beginBlocker] :: HandlersContext alg ms core -> BeginBlock -> Sem (Effs ms core) ()
+[endBlocker] :: HandlersContext alg ms core -> EndBlock -> Sem (Effs ms core) EndBlockResult
 [anteHandler] :: HandlersContext alg ms core -> AnteHandler (Effs ms core)
 [compileToCore] :: HandlersContext alg ms core -> forall a. Sem (BaseAppEffs core) a -> Sem core a
 baseAppAnteHandler :: Members AuthEffs r => Member (Error AppError) r => AnteHandler r
 createIOApp :: forall r. (forall a. Sem r a -> IO a) -> App (Sem r) -> App IO
-makeApp :: forall alg ms core. RecoverableSignatureSchema alg => Message alg ~ Digest SHA256 => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool => HasTxRouter (ApplicationC ms) (BaseAppEffs core) 'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus => HasTxRouter (ApplicationD ms) (BaseAppEffs core) 'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => HasQueryRouter (ApplicationQ ms) (BaseAppEffs core) => Eval ms core => HandlersContext alg ms core -> App (Sem core)
+makeApp :: forall alg ms core. RecoverableSignatureSchema alg => Message alg ~ Digest SHA256 => Member (Embed IO) core => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool => HasTxRouter (ApplicationC ms) (BaseAppEffs core) 'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus => HasTxRouter (ApplicationD ms) (BaseAppEffs core) 'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => HasQueryRouter (ApplicationQ ms) (BaseAppEffs core) => Eval ms core => HandlersContext alg ms core -> App (Sem core)
 
 module Tendermint.SDK.Modules.Bank
 type Bank = Module BankName MessageApi MessageApi QueryApi BankEffs '[Auth]
@@ -1482,10 +1494,10 @@ data BankKeeper m a
 [Transfer] :: Address -> Coin -> Address -> BankKeeper m ()
 [Burn] :: Address -> Coin -> BankKeeper m ()
 [Mint] :: Address -> Coin -> BankKeeper m ()
-getBalance :: forall r_a21aM. MemberWithError BankKeeper r_a21aM => Address -> CoinId -> Sem r_a21aM Coin
-transfer :: forall r_a21aP. MemberWithError BankKeeper r_a21aP => Address -> Coin -> Address -> Sem r_a21aP ()
-burn :: forall r_a21aT. MemberWithError BankKeeper r_a21aT => Address -> Coin -> Sem r_a21aT ()
-mint :: forall r_a21aW. MemberWithError BankKeeper r_a21aW => Address -> Coin -> Sem r_a21aW ()
+getBalance :: forall r_a22rC. MemberWithError BankKeeper r_a22rC => Address -> CoinId -> Sem r_a22rC Coin
+transfer :: forall r_a22rF. MemberWithError BankKeeper r_a22rF => Address -> Coin -> Address -> Sem r_a22rF ()
+burn :: forall r_a22rJ. MemberWithError BankKeeper r_a22rJ => Address -> Coin -> Sem r_a22rJ ()
+mint :: forall r_a22rM. MemberWithError BankKeeper r_a22rM => Address -> Coin -> Sem r_a22rM ()
 eval :: Members [Logger, Output Event, Error AppError] r => Members AuthEffs r => forall a. Sem (BankKeeper : (Error BankError : r)) a -> Sem r a
 data TransferMsg
 TransferMsg :: Address -> Address -> CoinId -> Amount -> TransferMsg

@@ -25,6 +25,8 @@
 </span><a href="Nameservice.Application.html#handlersContext"><span class="hs-identifier hs-var hs-var">handlersContext</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HandlersContext :: forall k (alg :: k) (ms :: [Component]) (core :: EffectRow).
 Proxy alg
 -&gt; ModuleList ms (Effs ms core)
+-&gt; (BeginBlock -&gt; Sem (Effs ms core) ())
+-&gt; (EndBlock -&gt; Sem (Effs ms core) EndBlockResult)
 -&gt; AnteHandler (Effs ms core)
 -&gt; (forall a. Sem (BaseAppEffs core) a -&gt; Sem core a)
 -&gt; HandlersContext alg ms core
@@ -44,19 +46,27 @@ forall k (t :: k). Proxy t
      : Transaction : CommitBlock : Metrics : Logger : Resource
      : Error AppError : CoreEffs)
 ModuleList NameserviceModules (Effs NameserviceModules CoreEffs)
-</span><a href="#local-6989586621679355281"><span class="hs-identifier hs-var">nameserviceModules</span></a></span><span>
-</span><span id="line-27"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">compileToCore :: forall a. Sem (BaseAppEffs CoreEffs) a -&gt; Sem CoreEffs a
+</span><a href="#local-6989586621679355405"><span class="hs-identifier hs-var">nameserviceModules</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">beginBlocker :: BeginBlock -&gt; Sem (Effs NameserviceModules CoreEffs) ()
+</span><span class="hs-identifier hs-var">beginBlocker</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BeginBlock -&gt; Sem (Effs NameserviceModules CoreEffs) ()
+forall (r :: EffectRow). BeginBlock -&gt; Sem r ()
+</span><span class="hs-identifier hs-var">BA.defaultBeginBlocker</span></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">endBlocker :: EndBlock -&gt; Sem (Effs NameserviceModules CoreEffs) EndBlockResult
+</span><span class="hs-identifier hs-var">endBlocker</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">EndBlock -&gt; Sem (Effs NameserviceModules CoreEffs) EndBlockResult
+forall (r :: EffectRow). EndBlock -&gt; Sem r EndBlockResult
+</span><span class="hs-identifier hs-var">BA.defaultEndBlocker</span></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">compileToCore :: forall a. Sem (BaseAppEffs CoreEffs) a -&gt; Sem CoreEffs a
 </span><span class="hs-identifier hs-var">compileToCore</span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall a. Sem (BaseAppEffs CoreEffs) a -&gt; Sem CoreEffs a
 </span><span class="hs-identifier hs-var">BA.defaultCompileToCore</span></span><span>
-</span><span id="line-28"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">anteHandler :: AnteHandler (Effs NameserviceModules CoreEffs)
+</span><span id="line-30"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">anteHandler :: AnteHandler (Effs NameserviceModules CoreEffs)
 </span><span class="hs-identifier hs-var">anteHandler</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall (r :: EffectRow).
 (Members AuthEffs r, Member (Error AppError) r) =&gt;
 AnteHandler r
 AnteHandler (Effs NameserviceModules CoreEffs)
 </span><span class="hs-identifier hs-var">baseAppAnteHandler</span></span><span>
-</span><span id="line-29"></span><span>  </span><span class="hs-special">}</span><span>
-</span><span id="line-30"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-31"></span><span>  </span><span id="local-6989586621679355281"><span class="annot"><span class="annottext">nameserviceModules :: ModuleList
+</span><span id="line-31"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-33"></span><span>  </span><span id="local-6989586621679355405"><span class="annot"><span class="annottext">nameserviceModules :: ModuleList
   NameserviceModules
   (NameserviceKeeper
      : Error NameserviceError : BankKeeper : Error BankError : Accounts
@@ -65,8 +75,8 @@ AnteHandler (Effs NameserviceModules CoreEffs)
      : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
      : Transaction : CommitBlock : Metrics : Logger : Resource
      : Error AppError : CoreEffs)
-</span><a href="#local-6989586621679355281"><span class="hs-identifier hs-var hs-var">nameserviceModules</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-32"></span><span>       </span><span class="annot"><span class="annottext">Nameservice
+</span><a href="#local-6989586621679355405"><span class="hs-identifier hs-var hs-var">nameserviceModules</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-34"></span><span>       </span><span class="annot"><span class="annottext">Nameservice
   (NameserviceKeeper
      : Error NameserviceError : BankKeeper : Error BankError : Accounts
      : Error AuthError : Output Event : GasMeter : WriteStore
@@ -78,7 +88,7 @@ forall (r :: EffectRow).
 Members (ModuleEffs Nameservice) r =&gt;
 Nameservice r
 </span><a href="Nameservice.Modules.Nameservice.html#nameserviceModule"><span class="hs-identifier hs-var">N.nameserviceModule</span></a></span><span>
-</span><span id="line-33"></span><span>    </span><span class="annot"><span class="annottext">Nameservice
+</span><span id="line-35"></span><span>    </span><span class="annot"><span class="annottext">Nameservice
   (NameserviceKeeper
      : Error NameserviceError : BankKeeper : Error BankError : Accounts
      : Error AuthError : Output Event : GasMeter : WriteStore
@@ -125,7 +135,7 @@ Members
   r =&gt;
 Bank r
 </span><span class="hs-identifier hs-var">B.bankModule</span></span><span>
-</span><span id="line-34"></span><span>    </span><span class="annot"><span class="annottext">Bank
+</span><span id="line-36"></span><span>    </span><span class="annot"><span class="annottext">Bank
   (NameserviceKeeper
      : Error NameserviceError : BankKeeper : Error BankError : Accounts
      : Error AuthError : Output Event : GasMeter : WriteStore
@@ -167,7 +177,7 @@ Module name check deliver query es deps r
      : Error AppError : CoreEffs)
 forall (r :: EffectRow). Members (ModuleEffs Auth) r =&gt; Auth r
 </span><span class="hs-identifier hs-var">A.authModule</span></span><span>
-</span><span id="line-35"></span><span>    </span><span class="annot"><span class="annottext">Auth
+</span><span id="line-37"></span><span>    </span><span class="annot"><span class="annottext">Auth
   (NameserviceKeeper
      : Error NameserviceError : BankKeeper : Error BankError : Accounts
      : Error AuthError : Output Event : GasMeter : WriteStore
@@ -209,4 +219,4 @@ Module name check deliver query es deps r
      : Error AppError : CoreEffs)
 forall (r :: EffectRow). ModuleList '[] r
 </span><span class="hs-identifier hs-var">NilModules</span></span><span>
-</span><span id="line-36"></span></pre></body></html>
+</span><span id="line-38"></span></pre></body></html>

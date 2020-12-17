@@ -37,22 +37,22 @@
 </span><a href="Tendermint.Utils.TxClient.Types.html#signerSign"><span class="hs-identifier hs-var hs-var">signerSign</span></a></span></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RawTransaction</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RawTransaction</span></span><span>
 </span><span id="line-34"></span><span>  </span><span class="hs-special">}</span><span>
 </span><span id="line-35"></span><span>
-</span><span id="line-36"></span><span id="local-6989586621679268307"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#makeSignerFromKey"><span class="hs-identifier hs-type">makeSignerFromKey</span></a></span><span>
-</span><span id="line-37"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RecoverableSignatureSchema</span></span><span> </span><span class="annot"><a href="#local-6989586621679268307"><span class="hs-identifier hs-type">alg</span></a></span><span>
-</span><span id="line-38"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Message</span></span><span> </span><span class="annot"><a href="#local-6989586621679268307"><span class="hs-identifier hs-type">alg</span></a></span><span> </span><span class="annot"><span class="hs-glyph hs-type">~</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Digest</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">SHA256</span></span><span>
-</span><span id="line-39"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679268307"><span class="hs-identifier hs-type">alg</span></a></span><span>
-</span><span id="line-40"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">PrivateKey</span></span><span> </span><span class="annot"><a href="#local-6989586621679268307"><span class="hs-identifier hs-type">alg</span></a></span><span>
+</span><span id="line-36"></span><span id="local-6989586621679268320"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#makeSignerFromKey"><span class="hs-identifier hs-type">makeSignerFromKey</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RecoverableSignatureSchema</span></span><span> </span><span class="annot"><a href="#local-6989586621679268320"><span class="hs-identifier hs-type">alg</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Message</span></span><span> </span><span class="annot"><a href="#local-6989586621679268320"><span class="hs-identifier hs-type">alg</span></a></span><span> </span><span class="annot"><span class="hs-glyph hs-type">~</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Digest</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">SHA256</span></span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679268320"><span class="hs-identifier hs-type">alg</span></a></span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">PrivateKey</span></span><span> </span><span class="annot"><a href="#local-6989586621679268320"><span class="hs-identifier hs-type">alg</span></a></span><span>
 </span><span id="line-41"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#Signer"><span class="hs-identifier hs-type">Signer</span></a></span></span><span>
 </span><span id="line-42"></span><span id="makeSignerFromKey"><span class="annot"><span class="annottext">makeSignerFromKey :: Proxy alg -&gt; PrivateKey alg -&gt; Signer
-</span><a href="Tendermint.Utils.TxClient.Types.html#makeSignerFromKey"><span class="hs-identifier hs-var hs-var">makeSignerFromKey</span></a></span></span><span> </span><span id="local-6989586621679268305"><span class="annot"><span class="annottext">pa :: Proxy alg
-</span><a href="#local-6989586621679268305"><span class="hs-identifier hs-var">pa</span></a></span></span><span> </span><span id="local-6989586621679268304"><span class="annot"><span class="annottext">privKey :: PrivateKey alg
-</span><a href="#local-6989586621679268304"><span class="hs-identifier hs-var">privKey</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Address -&gt; (RawTransaction -&gt; RawTransaction) -&gt; Signer
+</span><a href="Tendermint.Utils.TxClient.Types.html#makeSignerFromKey"><span class="hs-identifier hs-var hs-var">makeSignerFromKey</span></a></span></span><span> </span><span id="local-6989586621679268318"><span class="annot"><span class="annottext">pa :: Proxy alg
+</span><a href="#local-6989586621679268318"><span class="hs-identifier hs-var">pa</span></a></span></span><span> </span><span id="local-6989586621679268317"><span class="annot"><span class="annottext">privKey :: PrivateKey alg
+</span><a href="#local-6989586621679268317"><span class="hs-identifier hs-var">privKey</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Address -&gt; (RawTransaction -&gt; RawTransaction) -&gt; Signer
 </span><a href="Tendermint.Utils.TxClient.Types.html#Signer"><span class="hs-identifier hs-var">Signer</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy alg -&gt; PubKey alg -&gt; Address
 forall k (alg :: k).
 SignatureSchema alg =&gt;
 Proxy alg -&gt; PubKey alg -&gt; Address
 </span><span class="hs-identifier hs-var">addressFromPubKey</span></span><span> </span><span class="annot"><span class="annottext">Proxy alg
-</span><a href="#local-6989586621679268305"><span class="hs-identifier hs-var">pa</span></a></span><span> </span><span class="annot"><span class="annottext">(PubKey alg -&gt; Address)
+</span><a href="#local-6989586621679268318"><span class="hs-identifier hs-var">pa</span></a></span><span> </span><span class="annot"><span class="annottext">(PubKey alg -&gt; Address)
 -&gt; (PrivateKey alg -&gt; PubKey alg) -&gt; PrivateKey alg -&gt; Address
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Proxy alg -&gt; PrivateKey alg -&gt; PubKey alg
@@ -60,21 +60,21 @@ forall k (alg :: k).
 SignatureSchema alg =&gt;
 Proxy alg -&gt; PrivateKey alg -&gt; PubKey alg
 </span><span class="hs-identifier hs-var">derivePubKey</span></span><span> </span><span class="annot"><span class="annottext">Proxy alg
-</span><a href="#local-6989586621679268305"><span class="hs-identifier hs-var">pa</span></a></span><span> </span><span class="annot"><span class="annottext">(PrivateKey alg -&gt; Address) -&gt; PrivateKey alg -&gt; Address
+</span><a href="#local-6989586621679268318"><span class="hs-identifier hs-var">pa</span></a></span><span> </span><span class="annot"><span class="annottext">(PrivateKey alg -&gt; Address) -&gt; PrivateKey alg -&gt; Address
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">PrivateKey alg
-</span><a href="#local-6989586621679268304"><span class="hs-identifier hs-var">privKey</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">((RawTransaction -&gt; RawTransaction) -&gt; Signer)
+</span><a href="#local-6989586621679268317"><span class="hs-identifier hs-var">privKey</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">((RawTransaction -&gt; RawTransaction) -&gt; Signer)
 -&gt; (RawTransaction -&gt; RawTransaction) -&gt; Signer
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679268300"><span class="annot"><span class="annottext">r :: RawTransaction
-</span><a href="#local-6989586621679268300"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><span id="line-43"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679268299"><span class="annot"><span class="annottext">sig :: ByteString
-</span><a href="#local-6989586621679268299"><span class="hs-identifier hs-var hs-var">sig</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy alg -&gt; RecoverableSignature alg -&gt; ByteString
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679268313"><span class="annot"><span class="annottext">r :: RawTransaction
+</span><a href="#local-6989586621679268313"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679268312"><span class="annot"><span class="annottext">sig :: ByteString
+</span><a href="#local-6989586621679268312"><span class="hs-identifier hs-var hs-var">sig</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy alg -&gt; RecoverableSignature alg -&gt; ByteString
 forall k (alg :: k).
 RecoverableSignatureSchema alg =&gt;
 Proxy alg -&gt; RecoverableSignature alg -&gt; ByteString
 </span><span class="hs-identifier hs-var">serializeRecoverableSignature</span></span><span> </span><span class="annot"><span class="annottext">Proxy alg
-</span><a href="#local-6989586621679268305"><span class="hs-identifier hs-var">pa</span></a></span><span> </span><span class="annot"><span class="annottext">(RecoverableSignature alg -&gt; ByteString)
+</span><a href="#local-6989586621679268318"><span class="hs-identifier hs-var">pa</span></a></span><span> </span><span class="annot"><span class="annottext">(RecoverableSignature alg -&gt; ByteString)
 -&gt; RecoverableSignature alg -&gt; ByteString
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span>
@@ -85,27 +85,27 @@ forall k (alg :: k).
 Proxy alg
 -&gt; PrivateKey alg -&gt; RawTransaction -&gt; RecoverableSignature alg
 </span><span class="hs-identifier hs-var">signRawTransaction</span></span><span> </span><span class="annot"><span class="annottext">Proxy alg
-</span><a href="#local-6989586621679268305"><span class="hs-identifier hs-var">pa</span></a></span><span> </span><span class="annot"><span class="annottext">PrivateKey alg
-</span><a href="#local-6989586621679268304"><span class="hs-identifier hs-var">privKey</span></a></span><span> </span><span class="annot"><span class="annottext">(RawTransaction -&gt; RecoverableSignature alg)
+</span><a href="#local-6989586621679268318"><span class="hs-identifier hs-var">pa</span></a></span><span> </span><span class="annot"><span class="annottext">PrivateKey alg
+</span><a href="#local-6989586621679268317"><span class="hs-identifier hs-var">privKey</span></a></span><span> </span><span class="annot"><span class="annottext">(RawTransaction -&gt; RecoverableSignature alg)
 -&gt; RawTransaction -&gt; RecoverableSignature alg
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">RawTransaction
-</span><a href="#local-6989586621679268300"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">rawTransactionSignature :: ByteString
+</span><a href="#local-6989586621679268313"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">rawTransactionSignature :: ByteString
 </span><span class="hs-identifier hs-var">rawTransactionSignature</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span class="hs-special">}</span><span>
 </span><span id="line-45"></span><span>  </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">RawTransaction
-</span><a href="#local-6989586621679268300"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">rawTransactionSignature :: ByteString
+</span><a href="#local-6989586621679268313"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">rawTransactionSignature :: ByteString
 </span><span class="hs-identifier hs-var">rawTransactionSignature</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679268299"><span class="hs-identifier hs-var">sig</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679268312"><span class="hs-identifier hs-var">sig</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-46"></span><span>
-</span><span id="line-47"></span><span class="hs-keyword">data</span><span> </span><span id="TxResponse"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#TxResponse"><span class="hs-identifier hs-var">TxResponse</span></a></span></span><span> </span><span id="local-6989586621679268341"><span class="annot"><a href="#local-6989586621679268341"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-47"></span><span class="hs-keyword">data</span><span> </span><span id="TxResponse"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#TxResponse"><span class="hs-identifier hs-var">TxResponse</span></a></span></span><span> </span><span id="local-6989586621679268354"><span class="annot"><a href="#local-6989586621679268354"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-48"></span><span>    </span><span id="TxResponse"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#TxResponse"><span class="hs-identifier hs-var">TxResponse</span></a></span></span><span>
 </span><span id="line-49"></span><span>      </span><span class="hs-special">{</span><span> </span><span id="txResponseResult"><span class="annot"><span class="annottext">TxResponse a -&gt; a
-</span><a href="Tendermint.Utils.TxClient.Types.html#txResponseResult"><span class="hs-identifier hs-var hs-var">txResponseResult</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679268341"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><a href="Tendermint.Utils.TxClient.Types.html#txResponseResult"><span class="hs-identifier hs-var hs-var">txResponseResult</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679268354"><span class="hs-identifier hs-type">a</span></a></span><span>
 </span><span id="line-50"></span><span>      </span><span class="hs-special">,</span><span> </span><span id="txResponseEvents"><span class="annot"><span class="annottext">TxResponse a -&gt; [Event]
 </span><a href="Tendermint.Utils.TxClient.Types.html#txResponseEvents"><span class="hs-identifier hs-var hs-var">txResponseEvents</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Event</span></span><span class="hs-special">]</span><span>
 </span><span id="line-51"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-52"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxError"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#TxError"><span class="hs-identifier hs-var">TxError</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">AppError</span></span><span>
-</span><span id="line-53"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679268289"><span id="local-6989586621679268291"><span class="annot"><span class="annottext">TxResponse a -&gt; TxResponse a -&gt; Bool
+</span><span id="line-53"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679268302"><span id="local-6989586621679268304"><span class="annot"><span class="annottext">TxResponse a -&gt; TxResponse a -&gt; Bool
 (TxResponse a -&gt; TxResponse a -&gt; Bool)
 -&gt; (TxResponse a -&gt; TxResponse a -&gt; Bool) -&gt; Eq (TxResponse a)
 forall a. Eq a =&gt; TxResponse a -&gt; TxResponse a -&gt; Bool
@@ -114,7 +114,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: forall a. Eq a =&gt; TxResponse a -&gt; TxResponse a -&gt; Bool
 == :: TxResponse a -&gt; TxResponse a -&gt; Bool
 $c== :: forall a. Eq a =&gt; TxResponse a -&gt; TxResponse a -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679268282"><span id="local-6989586621679268284"><span id="local-6989586621679268286"><span class="annot"><span class="annottext">Int -&gt; TxResponse a -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679268295"><span id="local-6989586621679268297"><span id="local-6989586621679268299"><span class="annot"><span class="annottext">Int -&gt; TxResponse a -&gt; ShowS
 [TxResponse a] -&gt; ShowS
 TxResponse a -&gt; String
 (Int -&gt; TxResponse a -&gt; ShowS)
@@ -134,12 +134,12 @@ showsPrec :: Int -&gt; TxResponse a -&gt; ShowS
 $cshowsPrec :: forall a. Show a =&gt; Int -&gt; TxResponse a -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-54"></span><span>
-</span><span id="line-55"></span><span class="hs-keyword">data</span><span> </span><span id="SynchronousResponse"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#SynchronousResponse"><span class="hs-identifier hs-var">SynchronousResponse</span></a></span></span><span> </span><span id="local-6989586621679268321"><span class="annot"><a href="#local-6989586621679268321"><span class="hs-identifier hs-type">c</span></a></span></span><span> </span><span id="local-6989586621679268320"><span class="annot"><a href="#local-6989586621679268320"><span class="hs-identifier hs-type">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="SynchronousResponse"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#SynchronousResponse"><span class="hs-identifier hs-var">SynchronousResponse</span></a></span></span><span>
+</span><span id="line-55"></span><span class="hs-keyword">data</span><span> </span><span id="SynchronousResponse"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#SynchronousResponse"><span class="hs-identifier hs-var">SynchronousResponse</span></a></span></span><span> </span><span id="local-6989586621679268334"><span class="annot"><a href="#local-6989586621679268334"><span class="hs-identifier hs-type">c</span></a></span></span><span> </span><span id="local-6989586621679268333"><span class="annot"><a href="#local-6989586621679268333"><span class="hs-identifier hs-type">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="SynchronousResponse"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#SynchronousResponse"><span class="hs-identifier hs-var">SynchronousResponse</span></a></span></span><span>
 </span><span id="line-56"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="checkTxResponse"><span class="annot"><span class="annottext">SynchronousResponse c d -&gt; TxResponse c
-</span><a href="Tendermint.Utils.TxClient.Types.html#checkTxResponse"><span class="hs-identifier hs-var hs-var">checkTxResponse</span></a></span></span><span>   </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#TxResponse"><span class="hs-identifier hs-type">TxResponse</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679268321"><span class="hs-identifier hs-type">c</span></a></span><span>
+</span><a href="Tendermint.Utils.TxClient.Types.html#checkTxResponse"><span class="hs-identifier hs-var hs-var">checkTxResponse</span></a></span></span><span>   </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#TxResponse"><span class="hs-identifier hs-type">TxResponse</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679268334"><span class="hs-identifier hs-type">c</span></a></span><span>
 </span><span id="line-57"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="deliverTxResponse"><span class="annot"><span class="annottext">SynchronousResponse c d -&gt; TxResponse d
-</span><a href="Tendermint.Utils.TxClient.Types.html#deliverTxResponse"><span class="hs-identifier hs-var hs-var">deliverTxResponse</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#TxResponse"><span class="hs-identifier hs-type">TxResponse</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679268320"><span class="hs-identifier hs-type">d</span></a></span><span>
-</span><span id="line-58"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679268274"><span id="local-6989586621679268276"><span class="annot"><span class="annottext">SynchronousResponse c d -&gt; SynchronousResponse c d -&gt; Bool
+</span><a href="Tendermint.Utils.TxClient.Types.html#deliverTxResponse"><span class="hs-identifier hs-var hs-var">deliverTxResponse</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#TxResponse"><span class="hs-identifier hs-type">TxResponse</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679268333"><span class="hs-identifier hs-type">d</span></a></span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679268287"><span id="local-6989586621679268289"><span class="annot"><span class="annottext">SynchronousResponse c d -&gt; SynchronousResponse c d -&gt; Bool
 (SynchronousResponse c d -&gt; SynchronousResponse c d -&gt; Bool)
 -&gt; (SynchronousResponse c d -&gt; SynchronousResponse c d -&gt; Bool)
 -&gt; Eq (SynchronousResponse c d)
@@ -155,7 +155,7 @@ SynchronousResponse c d -&gt; SynchronousResponse c d -&gt; Bool
 $c== :: forall c d.
 (Eq c, Eq d) =&gt;
 SynchronousResponse c d -&gt; SynchronousResponse c d -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679268268"><span id="local-6989586621679268270"><span id="local-6989586621679268272"><span class="annot"><span class="annottext">Int -&gt; SynchronousResponse c d -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679268281"><span id="local-6989586621679268283"><span id="local-6989586621679268285"><span class="annot"><span class="annottext">Int -&gt; SynchronousResponse c d -&gt; ShowS
 [SynchronousResponse c d] -&gt; ShowS
 SynchronousResponse c d -&gt; String
 (Int -&gt; SynchronousResponse c d -&gt; ShowS)
@@ -179,11 +179,11 @@ $cshowsPrec :: forall c d.
 Int -&gt; SynchronousResponse c d -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-59"></span><span>
-</span><span id="line-60"></span><span class="hs-keyword">data</span><span> </span><span id="TxClientResponse"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#TxClientResponse"><span class="hs-identifier hs-var">TxClientResponse</span></a></span></span><span> </span><span id="local-6989586621679268323"><span class="annot"><a href="#local-6989586621679268323"><span class="hs-identifier hs-type">c</span></a></span></span><span> </span><span id="local-6989586621679268322"><span class="annot"><a href="#local-6989586621679268322"><span class="hs-identifier hs-type">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-60"></span><span class="hs-keyword">data</span><span> </span><span id="TxClientResponse"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#TxClientResponse"><span class="hs-identifier hs-var">TxClientResponse</span></a></span></span><span> </span><span id="local-6989586621679268336"><span class="annot"><a href="#local-6989586621679268336"><span class="hs-identifier hs-type">c</span></a></span></span><span> </span><span id="local-6989586621679268335"><span class="annot"><a href="#local-6989586621679268335"><span class="hs-identifier hs-type">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-61"></span><span>    </span><span id="RPCError"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#RPCError"><span class="hs-identifier hs-var">RPCError</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
 </span><span id="line-62"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="ParseError"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#ParseError"><span class="hs-identifier hs-var">ParseError</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">T.RouteContext</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
-</span><span id="line-63"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Response"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#Response"><span class="hs-identifier hs-var">Response</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#SynchronousResponse"><span class="hs-identifier hs-type">SynchronousResponse</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679268323"><span class="hs-identifier hs-type">c</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679268322"><span class="hs-identifier hs-type">d</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-64"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679268261"><span id="local-6989586621679268263"><span class="annot"><span class="annottext">TxClientResponse c d -&gt; TxClientResponse c d -&gt; Bool
+</span><span id="line-63"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Response"><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#Response"><span class="hs-identifier hs-var">Response</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#SynchronousResponse"><span class="hs-identifier hs-type">SynchronousResponse</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679268336"><span class="hs-identifier hs-type">c</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679268335"><span class="hs-identifier hs-type">d</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-64"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679268274"><span id="local-6989586621679268276"><span class="annot"><span class="annottext">TxClientResponse c d -&gt; TxClientResponse c d -&gt; Bool
 (TxClientResponse c d -&gt; TxClientResponse c d -&gt; Bool)
 -&gt; (TxClientResponse c d -&gt; TxClientResponse c d -&gt; Bool)
 -&gt; Eq (TxClientResponse c d)
@@ -199,7 +199,7 @@ TxClientResponse c d -&gt; TxClientResponse c d -&gt; Bool
 $c== :: forall c d.
 (Eq c, Eq d) =&gt;
 TxClientResponse c d -&gt; TxClientResponse c d -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679268255"><span id="local-6989586621679268257"><span id="local-6989586621679268259"><span class="annot"><span class="annottext">Int -&gt; TxClientResponse c d -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679268268"><span id="local-6989586621679268270"><span id="local-6989586621679268272"><span class="annot"><span class="annottext">Int -&gt; TxClientResponse c d -&gt; ShowS
 [TxClientResponse c d] -&gt; ShowS
 TxClientResponse c d -&gt; String
 (Int -&gt; TxClientResponse c d -&gt; ShowS)
@@ -224,28 +224,28 @@ Int -&gt; TxClientResponse c d -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-65"></span><span>
 </span><span id="line-66"></span><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#parseRPCResponse"><span class="hs-identifier hs-type">parseRPCResponse</span></a></span><span>
-</span><span id="line-67"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679268253"><span class="annot"><a href="#local-6989586621679268253"><span class="hs-identifier hs-type">check</span></a></span></span><span> </span><span id="local-6989586621679268252"><span class="annot"><a href="#local-6989586621679268252"><span class="hs-identifier hs-type">deliver</span></a></span></span><span class="hs-operator">.</span><span>
-</span><span id="line-68"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">HasCodec</span></span><span> </span><span class="annot"><a href="#local-6989586621679268253"><span class="hs-identifier hs-type">check</span></a></span><span>
-</span><span id="line-69"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCodec</span></span><span> </span><span class="annot"><a href="#local-6989586621679268252"><span class="hs-identifier hs-type">deliver</span></a></span><span>
+</span><span id="line-67"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679268266"><span class="annot"><a href="#local-6989586621679268266"><span class="hs-identifier hs-type">check</span></a></span></span><span> </span><span id="local-6989586621679268265"><span class="annot"><a href="#local-6989586621679268265"><span class="hs-identifier hs-type">deliver</span></a></span></span><span class="hs-operator">.</span><span>
+</span><span id="line-68"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">HasCodec</span></span><span> </span><span class="annot"><a href="#local-6989586621679268266"><span class="hs-identifier hs-type">check</span></a></span><span>
+</span><span id="line-69"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCodec</span></span><span> </span><span class="annot"><a href="#local-6989586621679268265"><span class="hs-identifier hs-type">deliver</span></a></span><span>
 </span><span id="line-70"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">RPC.ResultBroadcastTxCommit</span></span><span>
-</span><span id="line-71"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#TxClientResponse"><span class="hs-identifier hs-type">TxClientResponse</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679268253"><span class="hs-identifier hs-type">check</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679268252"><span class="hs-identifier hs-type">deliver</span></a></span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#TxClientResponse"><span class="hs-identifier hs-type">TxClientResponse</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679268266"><span class="hs-identifier hs-type">check</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679268265"><span class="hs-identifier hs-type">deliver</span></a></span><span>
 </span><span id="line-72"></span><span id="parseRPCResponse"><span class="annot"><span class="annottext">parseRPCResponse :: ResultBroadcastTxCommit -&gt; TxClientResponse check deliver
-</span><a href="Tendermint.Utils.TxClient.Types.html#parseRPCResponse"><span class="hs-identifier hs-var hs-var">parseRPCResponse</span></a></span></span><span> </span><span id="local-6989586621679268248"><span id="local-6989586621679268249"><span id="local-6989586621679268250"><span id="local-6989586621679268251"><span class="annot"><span class="hs-identifier hs-type">RPC.ResultBroadcastTxCommit</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Tendermint.Utils.TxClient.Types.html#parseRPCResponse"><span class="hs-identifier hs-var hs-var">parseRPCResponse</span></a></span></span><span> </span><span id="local-6989586621679268261"><span id="local-6989586621679268262"><span id="local-6989586621679268263"><span id="local-6989586621679268264"><span class="annot"><span class="hs-identifier hs-type">RPC.ResultBroadcastTxCommit</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-73"></span><span>      </span><span class="hs-keyword">let</span><span>
-</span><span id="line-74"></span><span>          </span><span id="local-6989586621679268242"><span class="annot"><span class="annottext">makeCheckResp :: CheckTx -&gt; Either Text (TxResponse a)
-</span><a href="#local-6989586621679268242"><span class="hs-identifier hs-var hs-var">makeCheckResp</span></a></span></span><span> </span><span id="local-6989586621679268241"><span class="annot"><span class="annottext">r :: CheckTx
-</span><a href="#local-6989586621679268241"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679268233"><span id="local-6989586621679268234"><span id="local-6989586621679268235"><span id="local-6989586621679268236"><span id="local-6989586621679268237"><span id="local-6989586621679268238"><span id="local-6989586621679268239"><span id="local-6989586621679268240"><span class="annot"><span class="hs-identifier hs-type">Response.CheckTx</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679268240"><span class="hs-identifier hs-var">checkTxCode</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-74"></span><span>          </span><span id="local-6989586621679268255"><span class="annot"><span class="annottext">makeCheckResp :: CheckTx -&gt; Either Text (TxResponse a)
+</span><a href="#local-6989586621679268255"><span class="hs-identifier hs-var hs-var">makeCheckResp</span></a></span></span><span> </span><span id="local-6989586621679268254"><span class="annot"><span class="annottext">r :: CheckTx
+</span><a href="#local-6989586621679268254"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679268246"><span id="local-6989586621679268247"><span id="local-6989586621679268248"><span id="local-6989586621679268249"><span id="local-6989586621679268250"><span id="local-6989586621679268251"><span id="local-6989586621679268252"><span id="local-6989586621679268253"><span class="annot"><span class="hs-identifier hs-type">Response.CheckTx</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679268253"><span class="hs-identifier hs-var">checkTxCode</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-75"></span><span>              </span><span class="hs-number">0</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-76"></span><span>                </span><span id="local-6989586621679268223"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679268223"><span class="hs-identifier hs-var">resp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either Text a
+</span><span id="line-76"></span><span>                </span><span id="local-6989586621679268236"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679268236"><span class="hs-identifier hs-var">resp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either Text a
 forall a. HasCodec a =&gt; ByteString -&gt; Either Text a
 </span><span class="hs-identifier hs-var">decode</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Either Text a) -&gt; ByteString -&gt; Either Text a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Base64String -&gt; ByteString
 forall ba. ByteArray ba =&gt; Base64String -&gt; ba
 </span><span class="hs-identifier hs-var">Base64.toBytes</span></span><span> </span><span class="annot"><span class="annottext">Base64String
-</span><a href="#local-6989586621679268239"><span class="hs-identifier hs-var">checkTxData</span></a></span><span>
+</span><a href="#local-6989586621679268252"><span class="hs-identifier hs-var">checkTxData</span></a></span><span>
 </span><span id="line-77"></span><span>                </span><span class="annot"><span class="annottext">TxResponse a -&gt; Either Text (TxResponse a)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(TxResponse a -&gt; Either Text (TxResponse a))
@@ -254,10 +254,10 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; [Event] -&gt; TxResponse a
 forall a. a -&gt; [Event] -&gt; TxResponse a
 </span><a href="Tendermint.Utils.TxClient.Types.html#TxResponse"><span class="hs-identifier hs-var">TxResponse</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679268223"><span class="hs-identifier hs-var">resp</span></a></span><span> </span><span class="annot"><span class="annottext">([Event] -&gt; TxResponse a) -&gt; [Event] -&gt; TxResponse a
+</span><a href="#local-6989586621679268236"><span class="hs-identifier hs-var">resp</span></a></span><span> </span><span class="annot"><span class="annottext">([Event] -&gt; TxResponse a) -&gt; [Event] -&gt; TxResponse a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[Event]
-</span><a href="#local-6989586621679268234"><span class="hs-identifier hs-var">checkTxEvents</span></a></span><span>
+</span><a href="#local-6989586621679268247"><span class="hs-identifier hs-var">checkTxEvents</span></a></span><span>
 </span><span id="line-78"></span><span>              </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TxResponse a -&gt; Either Text (TxResponse a)
 forall a b. b -&gt; Either a b
 </span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(TxResponse a -&gt; Either Text (TxResponse a))
@@ -271,7 +271,7 @@ forall a. AppError -&gt; TxResponse a
 -&gt; AppError -&gt; Either Text (TxResponse a)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">CheckTx
-</span><a href="#local-6989586621679268241"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">CheckTx -&gt; Getting AppError CheckTx AppError -&gt; AppError
+</span><a href="#local-6989586621679268254"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">CheckTx -&gt; Getting AppError CheckTx AppError -&gt; AppError
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">(TxResult -&gt; Const AppError TxResult)
 -&gt; CheckTx -&gt; Const AppError CheckTx
@@ -287,20 +287,20 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 Lens' TxResult AppError
 </span><span class="hs-identifier hs-var">txResultAppError</span></span><span>
 </span><span id="line-79"></span><span>
-</span><span id="line-80"></span><span>          </span><span id="local-6989586621679268220"><span class="annot"><span class="annottext">makeDeliverResp :: DeliverTx -&gt; Either Text (TxResponse a)
-</span><a href="#local-6989586621679268220"><span class="hs-identifier hs-var hs-var">makeDeliverResp</span></a></span></span><span> </span><span id="local-6989586621679268219"><span class="annot"><span class="annottext">r :: DeliverTx
-</span><a href="#local-6989586621679268219"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679268211"><span id="local-6989586621679268212"><span id="local-6989586621679268213"><span id="local-6989586621679268214"><span id="local-6989586621679268215"><span id="local-6989586621679268216"><span id="local-6989586621679268217"><span id="local-6989586621679268218"><span class="annot"><span class="hs-identifier hs-type">Response.DeliverTx</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679268218"><span class="hs-identifier hs-var">deliverTxCode</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-80"></span><span>          </span><span id="local-6989586621679268233"><span class="annot"><span class="annottext">makeDeliverResp :: DeliverTx -&gt; Either Text (TxResponse a)
+</span><a href="#local-6989586621679268233"><span class="hs-identifier hs-var hs-var">makeDeliverResp</span></a></span></span><span> </span><span id="local-6989586621679268232"><span class="annot"><span class="annottext">r :: DeliverTx
+</span><a href="#local-6989586621679268232"><span class="hs-identifier hs-var">r</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679268224"><span id="local-6989586621679268225"><span id="local-6989586621679268226"><span id="local-6989586621679268227"><span id="local-6989586621679268228"><span id="local-6989586621679268229"><span id="local-6989586621679268230"><span id="local-6989586621679268231"><span class="annot"><span class="hs-identifier hs-type">Response.DeliverTx</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621679268231"><span class="hs-identifier hs-var">deliverTxCode</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-81"></span><span>              </span><span class="hs-number">0</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-82"></span><span>                </span><span id="local-6989586621679268201"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679268201"><span class="hs-identifier hs-var">resp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either Text a
+</span><span id="line-82"></span><span>                </span><span id="local-6989586621679268214"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679268214"><span class="hs-identifier hs-var">resp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either Text a
 forall a. HasCodec a =&gt; ByteString -&gt; Either Text a
 </span><span class="hs-identifier hs-var">decode</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Either Text a) -&gt; ByteString -&gt; Either Text a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Base64String -&gt; ByteString
 forall ba. ByteArray ba =&gt; Base64String -&gt; ba
 </span><span class="hs-identifier hs-var">Base64.toBytes</span></span><span> </span><span class="annot"><span class="annottext">Base64String
-</span><a href="#local-6989586621679268217"><span class="hs-identifier hs-var">deliverTxData</span></a></span><span>
+</span><a href="#local-6989586621679268230"><span class="hs-identifier hs-var">deliverTxData</span></a></span><span>
 </span><span id="line-83"></span><span>                </span><span class="annot"><span class="annottext">TxResponse a -&gt; Either Text (TxResponse a)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(TxResponse a -&gt; Either Text (TxResponse a))
@@ -309,10 +309,10 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; [Event] -&gt; TxResponse a
 forall a. a -&gt; [Event] -&gt; TxResponse a
 </span><a href="Tendermint.Utils.TxClient.Types.html#TxResponse"><span class="hs-identifier hs-var">TxResponse</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679268201"><span class="hs-identifier hs-var">resp</span></a></span><span> </span><span class="annot"><span class="annottext">([Event] -&gt; TxResponse a) -&gt; [Event] -&gt; TxResponse a
+</span><a href="#local-6989586621679268214"><span class="hs-identifier hs-var">resp</span></a></span><span> </span><span class="annot"><span class="annottext">([Event] -&gt; TxResponse a) -&gt; [Event] -&gt; TxResponse a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[Event]
-</span><a href="#local-6989586621679268212"><span class="hs-identifier hs-var">deliverTxEvents</span></a></span><span>
+</span><a href="#local-6989586621679268225"><span class="hs-identifier hs-var">deliverTxEvents</span></a></span><span>
 </span><span id="line-84"></span><span>              </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TxResponse a -&gt; Either Text (TxResponse a)
 forall a b. b -&gt; Either a b
 </span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(TxResponse a -&gt; Either Text (TxResponse a))
@@ -326,7 +326,7 @@ forall a. AppError -&gt; TxResponse a
 -&gt; AppError -&gt; Either Text (TxResponse a)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">DeliverTx
-</span><a href="#local-6989586621679268219"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">DeliverTx -&gt; Getting AppError DeliverTx AppError -&gt; AppError
+</span><a href="#local-6989586621679268232"><span class="hs-identifier hs-var">r</span></a></span><span> </span><span class="annot"><span class="annottext">DeliverTx -&gt; Getting AppError DeliverTx AppError -&gt; AppError
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">(TxResult -&gt; Const AppError TxResult)
 -&gt; DeliverTx -&gt; Const AppError DeliverTx
@@ -342,12 +342,12 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 Lens' TxResult AppError
 </span><span class="hs-identifier hs-var">txResultAppError</span></span><span>
 </span><span id="line-85"></span><span>
-</span><span id="line-86"></span><span>          </span><span id="local-6989586621679268200"><span class="annot"><span class="annottext">eResponses :: Either
+</span><span id="line-86"></span><span>          </span><span id="local-6989586621679268213"><span class="annot"><span class="annottext">eResponses :: Either
   (TxClientResponse check deliver)
   (TxResponse check, TxResponse deliver)
-</span><a href="#local-6989586621679268200"><span class="hs-identifier hs-var hs-var">eResponses</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-87"></span><span>            </span><span id="local-6989586621679268199"><span class="annot"><span class="annottext">TxResponse check
-</span><a href="#local-6989586621679268199"><span class="hs-identifier hs-var">checkResp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(Text -&gt; TxClientResponse check deliver)
+</span><a href="#local-6989586621679268213"><span class="hs-identifier hs-var hs-var">eResponses</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-87"></span><span>            </span><span id="local-6989586621679268212"><span class="annot"><span class="annottext">TxResponse check
+</span><a href="#local-6989586621679268212"><span class="hs-identifier hs-var">checkResp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(Text -&gt; TxClientResponse check deliver)
 -&gt; Either Text (TxResponse check)
 -&gt; Either (TxClientResponse check deliver) (TxResponse check)
 forall (p :: * -&gt; * -&gt; *) a b c.
@@ -364,10 +364,10 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span>
 </span><span id="line-88"></span><span>              </span><span class="annot"><span class="annottext">CheckTx -&gt; Either Text (TxResponse check)
 forall a. HasCodec a =&gt; CheckTx -&gt; Either Text (TxResponse a)
-</span><a href="#local-6989586621679268242"><span class="hs-identifier hs-var">makeCheckResp</span></a></span><span> </span><span class="annot"><span class="annottext">CheckTx
-</span><a href="#local-6989586621679268251"><span class="hs-identifier hs-var">resultBroadcastTxCommitCheckTx</span></a></span><span>
-</span><span id="line-89"></span><span>            </span><span id="local-6989586621679268197"><span class="annot"><span class="annottext">TxResponse deliver
-</span><a href="#local-6989586621679268197"><span class="hs-identifier hs-var">deliverResp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(Text -&gt; TxClientResponse check deliver)
+</span><a href="#local-6989586621679268255"><span class="hs-identifier hs-var">makeCheckResp</span></a></span><span> </span><span class="annot"><span class="annottext">CheckTx
+</span><a href="#local-6989586621679268264"><span class="hs-identifier hs-var">resultBroadcastTxCommitCheckTx</span></a></span><span>
+</span><span id="line-89"></span><span>            </span><span id="local-6989586621679268210"><span class="annot"><span class="annottext">TxResponse deliver
+</span><a href="#local-6989586621679268210"><span class="hs-identifier hs-var">deliverResp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(Text -&gt; TxClientResponse check deliver)
 -&gt; Either Text (TxResponse deliver)
 -&gt; Either (TxClientResponse check deliver) (TxResponse deliver)
 forall (p :: * -&gt; * -&gt; *) a b c.
@@ -384,27 +384,27 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span>
 </span><span id="line-90"></span><span>              </span><span class="annot"><span class="annottext">DeliverTx -&gt; Either Text (TxResponse deliver)
 forall a. HasCodec a =&gt; DeliverTx -&gt; Either Text (TxResponse a)
-</span><a href="#local-6989586621679268220"><span class="hs-identifier hs-var">makeDeliverResp</span></a></span><span> </span><span class="annot"><span class="annottext">DeliverTx
-</span><a href="#local-6989586621679268250"><span class="hs-identifier hs-var">resultBroadcastTxCommitDeliverTx</span></a></span><span>
+</span><a href="#local-6989586621679268233"><span class="hs-identifier hs-var">makeDeliverResp</span></a></span><span> </span><span class="annot"><span class="annottext">DeliverTx
+</span><a href="#local-6989586621679268263"><span class="hs-identifier hs-var">resultBroadcastTxCommitDeliverTx</span></a></span><span>
 </span><span id="line-91"></span><span>            </span><span class="annot"><span class="annottext">(TxResponse check, TxResponse deliver)
 -&gt; Either
      (TxClientResponse check deliver)
      (TxResponse check, TxResponse deliver)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TxResponse check
-</span><a href="#local-6989586621679268199"><span class="hs-identifier hs-var">checkResp</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">TxResponse deliver
-</span><a href="#local-6989586621679268197"><span class="hs-identifier hs-var">deliverResp</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679268212"><span class="hs-identifier hs-var">checkResp</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">TxResponse deliver
+</span><a href="#local-6989586621679268210"><span class="hs-identifier hs-var">deliverResp</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-92"></span><span>
 </span><span id="line-93"></span><span>      </span><span class="hs-keyword">in</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either
   (TxClientResponse check deliver)
   (TxResponse check, TxResponse deliver)
-</span><a href="#local-6989586621679268200"><span class="hs-identifier hs-var">eResponses</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-94"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679268195"><span class="annot"><span class="annottext">e :: TxClientResponse check deliver
-</span><a href="#local-6989586621679268195"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TxClientResponse check deliver
-</span><a href="#local-6989586621679268195"><span class="hs-identifier hs-var">e</span></a></span><span>
-</span><span id="line-95"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679268194"><span class="annot"><span class="annottext">check :: TxResponse check
-</span><a href="#local-6989586621679268194"><span class="hs-identifier hs-var">check</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679268193"><span class="annot"><span class="annottext">deliver :: TxResponse deliver
-</span><a href="#local-6989586621679268193"><span class="hs-identifier hs-var">deliver</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">SynchronousResponse check deliver -&gt; TxClientResponse check deliver
+</span><a href="#local-6989586621679268213"><span class="hs-identifier hs-var">eResponses</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-94"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679268208"><span class="annot"><span class="annottext">e :: TxClientResponse check deliver
+</span><a href="#local-6989586621679268208"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TxClientResponse check deliver
+</span><a href="#local-6989586621679268208"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-95"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679268207"><span class="annot"><span class="annottext">check :: TxResponse check
+</span><a href="#local-6989586621679268207"><span class="hs-identifier hs-var">check</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679268206"><span class="annot"><span class="annottext">deliver :: TxResponse deliver
+</span><a href="#local-6989586621679268206"><span class="hs-identifier hs-var">deliver</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">SynchronousResponse check deliver -&gt; TxClientResponse check deliver
 forall c d. SynchronousResponse c d -&gt; TxClientResponse c d
 </span><a href="Tendermint.Utils.TxClient.Types.html#Response"><span class="hs-identifier hs-var">Response</span></a></span><span> </span><span class="annot"><span class="annottext">(SynchronousResponse check deliver
  -&gt; TxClientResponse check deliver)
@@ -415,6 +415,6 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 -&gt; TxResponse deliver -&gt; SynchronousResponse check deliver
 forall c d. TxResponse c -&gt; TxResponse d -&gt; SynchronousResponse c d
 </span><a href="Tendermint.Utils.TxClient.Types.html#SynchronousResponse"><span class="hs-identifier hs-var">SynchronousResponse</span></a></span><span> </span><span class="annot"><span class="annottext">TxResponse check
-</span><a href="#local-6989586621679268194"><span class="hs-identifier hs-var">check</span></a></span><span> </span><span class="annot"><span class="annottext">TxResponse deliver
-</span><a href="#local-6989586621679268193"><span class="hs-identifier hs-var">deliver</span></a></span><span>
+</span><a href="#local-6989586621679268207"><span class="hs-identifier hs-var">check</span></a></span><span> </span><span class="annot"><span class="annottext">TxResponse deliver
+</span><a href="#local-6989586621679268206"><span class="hs-identifier hs-var">deliver</span></a></span><span>
 </span><span id="line-96"></span></pre></body></html>

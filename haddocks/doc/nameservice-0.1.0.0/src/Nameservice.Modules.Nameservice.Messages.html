@@ -34,7 +34,7 @@
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#faucetAccountCoinId"><span class="hs-identifier hs-var hs-var">faucetAccountCoinId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">CoinId</span></span><span>
 </span><span id="line-33"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="faucetAccountAmount"><span class="annot"><span class="annottext">FaucetAccountMsg -&gt; Amount
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#faucetAccountAmount"><span class="hs-identifier hs-var hs-var">faucetAccountAmount</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Amount</span></span><span>
-</span><span id="line-34"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354272"><span id="local-6989586621679354274"><span class="annot"><span class="annottext">FaucetAccountMsg -&gt; FaucetAccountMsg -&gt; Bool
+</span><span id="line-34"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354392"><span id="local-6989586621679354394"><span class="annot"><span class="annottext">FaucetAccountMsg -&gt; FaucetAccountMsg -&gt; Bool
 (FaucetAccountMsg -&gt; FaucetAccountMsg -&gt; Bool)
 -&gt; (FaucetAccountMsg -&gt; FaucetAccountMsg -&gt; Bool)
 -&gt; Eq FaucetAccountMsg
@@ -43,7 +43,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: FaucetAccountMsg -&gt; FaucetAccountMsg -&gt; Bool
 == :: FaucetAccountMsg -&gt; FaucetAccountMsg -&gt; Bool
 $c== :: FaucetAccountMsg -&gt; FaucetAccountMsg -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354265"><span id="local-6989586621679354267"><span id="local-6989586621679354269"><span class="annot"><span class="annottext">Int -&gt; FaucetAccountMsg -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354385"><span id="local-6989586621679354387"><span id="local-6989586621679354389"><span class="annot"><span class="annottext">Int -&gt; FaucetAccountMsg -&gt; ShowS
 [FaucetAccountMsg] -&gt; ShowS
 FaucetAccountMsg -&gt; String
 (Int -&gt; FaucetAccountMsg -&gt; ShowS)
@@ -60,14 +60,14 @@ showsPrec :: Int -&gt; FaucetAccountMsg -&gt; ShowS
 $cshowsPrec :: Int -&gt; FaucetAccountMsg -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-35"></span><span>
-</span><span id="line-36"></span><span id="local-6989586621679354262"><span id="local-6989586621679354263"></span></span><span class="hs-keyword">data</span><span> </span><span id="FaucetAccountMessage"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMessage"><span class="hs-identifier hs-var">FaucetAccountMessage</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="FaucetAccountMessage"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMessage"><span class="hs-identifier hs-var">FaucetAccountMessage</span></a></span></span><span>
+</span><span id="line-36"></span><span id="local-6989586621679354382"><span id="local-6989586621679354383"></span></span><span class="hs-keyword">data</span><span> </span><span id="FaucetAccountMessage"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMessage"><span class="hs-identifier hs-var">FaucetAccountMessage</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="FaucetAccountMessage"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMessage"><span class="hs-identifier hs-var">FaucetAccountMessage</span></a></span></span><span>
 </span><span id="line-37"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="faucetAccountMessageTo"><span class="annot"><span class="annottext">FaucetAccountMessage -&gt; Address
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#faucetAccountMessageTo"><span class="hs-identifier hs-var hs-var">faucetAccountMessageTo</span></a></span></span><span>     </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Address</span></span><span>
 </span><span id="line-38"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="faucetAccountMessageCoinId"><span class="annot"><span class="annottext">FaucetAccountMessage -&gt; Text
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#faucetAccountMessageCoinId"><span class="hs-identifier hs-var hs-var">faucetAccountMessageCoinId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
 </span><span id="line-39"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="faucetAccountMessageAmount"><span class="annot"><span class="annottext">FaucetAccountMessage -&gt; Word64
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#faucetAccountMessageAmount"><span class="hs-identifier hs-var hs-var">faucetAccountMessageAmount</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span>
-</span><span id="line-40"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354254"><span id="local-6989586621679354256"><span class="annot"><span class="annottext">FaucetAccountMessage -&gt; FaucetAccountMessage -&gt; Bool
+</span><span id="line-40"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354374"><span id="local-6989586621679354376"><span class="annot"><span class="annottext">FaucetAccountMessage -&gt; FaucetAccountMessage -&gt; Bool
 (FaucetAccountMessage -&gt; FaucetAccountMessage -&gt; Bool)
 -&gt; (FaucetAccountMessage -&gt; FaucetAccountMessage -&gt; Bool)
 -&gt; Eq FaucetAccountMessage
@@ -76,7 +76,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: FaucetAccountMessage -&gt; FaucetAccountMessage -&gt; Bool
 == :: FaucetAccountMessage -&gt; FaucetAccountMessage -&gt; Bool
 $c== :: FaucetAccountMessage -&gt; FaucetAccountMessage -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354248"><span id="local-6989586621679354250"><span id="local-6989586621679354252"><span class="annot"><span class="annottext">Int -&gt; FaucetAccountMessage -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354368"><span id="local-6989586621679354370"><span id="local-6989586621679354372"><span class="annot"><span class="annottext">Int -&gt; FaucetAccountMessage -&gt; ShowS
 [FaucetAccountMessage] -&gt; ShowS
 FaucetAccountMessage -&gt; String
 (Int -&gt; FaucetAccountMessage -&gt; ShowS)
@@ -101,30 +101,30 @@ forall a.
 $cto :: forall x. Rep FaucetAccountMessage x -&gt; FaucetAccountMessage
 $cfrom :: forall x. FaucetAccountMessage -&gt; Rep FaucetAccountMessage x
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
-</span><span id="line-41"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354239"><span id="local-6989586621679354241"><span id="local-6989586621679354243"><span class="annot"><span class="hs-identifier hs-type">Message</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMessage"><span class="hs-identifier hs-type">FaucetAccountMessage</span></a></span></span></span></span><span>
-</span><span id="line-42"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354236"><span class="annot"><span class="hs-identifier hs-type">Named</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMessage"><span class="hs-identifier hs-type">FaucetAccountMessage</span></a></span></span><span>
+</span><span id="line-41"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354359"><span id="local-6989586621679354361"><span id="local-6989586621679354363"><span class="annot"><span class="hs-identifier hs-type">Message</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMessage"><span class="hs-identifier hs-type">FaucetAccountMessage</span></a></span></span></span></span><span>
+</span><span id="line-42"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354356"><span class="annot"><span class="hs-identifier hs-type">Named</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMessage"><span class="hs-identifier hs-type">FaucetAccountMessage</span></a></span></span><span>
 </span><span id="line-43"></span><span>
 </span><span id="line-44"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasMessageType</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMsg"><span class="hs-identifier hs-type">FaucetAccountMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-45"></span><span>  </span><span id="local-6989586621679354232"><span class="annot"><span class="annottext">messageType :: Proxy FaucetAccountMsg -&gt; Text
+</span><span id="line-45"></span><span>  </span><span id="local-6989586621679354352"><span class="annot"><span class="annottext">messageType :: Proxy FaucetAccountMsg -&gt; Text
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">messageType</span></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;FaucetAccount&quot;</span></span><span>
 </span><span id="line-46"></span><span>
 </span><span id="line-47"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCodec</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMsg"><span class="hs-identifier hs-type">FaucetAccountMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-48"></span><span>  </span><span id="local-6989586621679354227"><span class="annot"><span class="annottext">encode :: FaucetAccountMsg -&gt; ByteString
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></span></span><span> </span><span id="local-6989586621679354223"><span id="local-6989586621679354224"><span id="local-6989586621679354225"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMsg"><span class="hs-identifier hs-type">FaucetAccountMsg</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-49"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679354222"><span class="annot"><span class="annottext">faucetAccountMessaage :: FaucetAccountMessage
-</span><a href="#local-6989586621679354222"><span class="hs-identifier hs-var hs-var">faucetAccountMessaage</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FaucetAccountMessage :: Address -&gt; Text -&gt; Word64 -&gt; FaucetAccountMessage
+</span><span id="line-48"></span><span>  </span><span id="local-6989586621679354347"><span class="annot"><span class="annottext">encode :: FaucetAccountMsg -&gt; ByteString
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></span></span><span> </span><span id="local-6989586621679354343"><span id="local-6989586621679354344"><span id="local-6989586621679354345"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMsg"><span class="hs-identifier hs-type">FaucetAccountMsg</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-49"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679354342"><span class="annot"><span class="annottext">faucetAccountMessaage :: FaucetAccountMessage
+</span><a href="#local-6989586621679354342"><span class="hs-identifier hs-var hs-var">faucetAccountMessaage</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FaucetAccountMessage :: Address -&gt; Text -&gt; Word64 -&gt; FaucetAccountMessage
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMessage"><span class="hs-identifier hs-type hs-type">FaucetAccountMessage</span></a></span><span>
 </span><span id="line-50"></span><span>          </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">faucetAccountMessageTo :: Address
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#faucetAccountMessageTo"><span class="hs-identifier hs-var">faucetAccountMessageTo</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679354225"><span class="hs-identifier hs-var">faucetAccountTo</span></a></span><span>
+</span><a href="#local-6989586621679354345"><span class="hs-identifier hs-var">faucetAccountTo</span></a></span><span>
 </span><span id="line-51"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">faucetAccountMessageCoinId :: Text
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#faucetAccountMessageCoinId"><span class="hs-identifier hs-var">faucetAccountMessageCoinId</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">CoinId -&gt; Text
 </span><span class="hs-identifier hs-var hs-var">unCoinId</span></span><span> </span><span class="annot"><span class="annottext">CoinId
-</span><a href="#local-6989586621679354224"><span class="hs-identifier hs-var">faucetAccountCoinId</span></a></span><span>
+</span><a href="#local-6989586621679354344"><span class="hs-identifier hs-var">faucetAccountCoinId</span></a></span><span>
 </span><span id="line-52"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">faucetAccountMessageAmount :: Word64
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#faucetAccountMessageAmount"><span class="hs-identifier hs-var">faucetAccountMessageAmount</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Amount -&gt; Word64
 </span><span class="hs-identifier hs-var hs-var">unAmount</span></span><span> </span><span class="annot"><span class="annottext">Amount
-</span><a href="#local-6989586621679354223"><span class="hs-identifier hs-var">faucetAccountAmount</span></a></span><span>
+</span><a href="#local-6989586621679354343"><span class="hs-identifier hs-var">faucetAccountAmount</span></a></span><span>
 </span><span id="line-53"></span><span>          </span><span class="hs-special">}</span><span>
 </span><span id="line-54"></span><span>    </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
@@ -139,23 +139,23 @@ forall a. Message a =&gt; a -&gt; ByteString
 -&gt; FaucetAccountMessage -&gt; ByteString
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">FaucetAccountMessage
-</span><a href="#local-6989586621679354222"><span class="hs-identifier hs-var">faucetAccountMessaage</span></a></span><span>
-</span><span id="line-55"></span><span>  </span><span id="local-6989586621679354217"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text FaucetAccountMsg
+</span><a href="#local-6989586621679354342"><span class="hs-identifier hs-var">faucetAccountMessaage</span></a></span><span>
+</span><span id="line-55"></span><span>  </span><span id="local-6989586621679354337"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text FaucetAccountMsg
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-56"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679354215"><span class="annot"><span class="annottext">toFaucetAccount :: FaucetAccountMessage -&gt; FaucetAccountMsg
-</span><a href="#local-6989586621679354215"><span class="hs-identifier hs-var hs-var">toFaucetAccount</span></a></span></span><span> </span><span id="local-6989586621679354212"><span id="local-6989586621679354213"><span id="local-6989586621679354214"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMessage"><span class="hs-identifier hs-type">FaucetAccountMessage</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FaucetAccountMsg :: Address -&gt; CoinId -&gt; Amount -&gt; FaucetAccountMsg
+</span><span id="line-56"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679354335"><span class="annot"><span class="annottext">toFaucetAccount :: FaucetAccountMessage -&gt; FaucetAccountMsg
+</span><a href="#local-6989586621679354335"><span class="hs-identifier hs-var hs-var">toFaucetAccount</span></a></span></span><span> </span><span id="local-6989586621679354332"><span id="local-6989586621679354333"><span id="local-6989586621679354334"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMessage"><span class="hs-identifier hs-type">FaucetAccountMessage</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FaucetAccountMsg :: Address -&gt; CoinId -&gt; Amount -&gt; FaucetAccountMsg
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMsg"><span class="hs-identifier hs-type hs-type">FaucetAccountMsg</span></a></span><span>
 </span><span id="line-57"></span><span>          </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">faucetAccountTo :: Address
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#faucetAccountTo"><span class="hs-identifier hs-var">faucetAccountTo</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679354214"><span class="hs-identifier hs-var">faucetAccountMessageTo</span></a></span><span>
+</span><a href="#local-6989586621679354334"><span class="hs-identifier hs-var">faucetAccountMessageTo</span></a></span><span>
 </span><span id="line-58"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">faucetAccountCoinId :: CoinId
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#faucetAccountCoinId"><span class="hs-identifier hs-var">faucetAccountCoinId</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; CoinId
 </span><span class="hs-identifier hs-var">CoinId</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679354213"><span class="hs-identifier hs-var">faucetAccountMessageCoinId</span></a></span><span>
+</span><a href="#local-6989586621679354333"><span class="hs-identifier hs-var">faucetAccountMessageCoinId</span></a></span><span>
 </span><span id="line-59"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">faucetAccountAmount :: Amount
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#faucetAccountAmount"><span class="hs-identifier hs-var">faucetAccountAmount</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Amount
 </span><span class="hs-identifier hs-var">Amount</span></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679354212"><span class="hs-identifier hs-var">faucetAccountMessageAmount</span></a></span><span>
+</span><a href="#local-6989586621679354332"><span class="hs-identifier hs-var">faucetAccountMessageAmount</span></a></span><span>
 </span><span id="line-60"></span><span>          </span><span class="hs-special">}</span><span>
 </span><span id="line-61"></span><span>    </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">(ParseError -&gt; Text)
 -&gt; (FaucetAccountMessage -&gt; FaucetAccountMsg)
@@ -170,7 +170,7 @@ Bifunctor p =&gt;
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ParseError -&gt; MessageParseError
 </span><span class="hs-identifier hs-var">coerceProto3Error</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">FaucetAccountMessage -&gt; FaucetAccountMsg
-</span><a href="#local-6989586621679354215"><span class="hs-identifier hs-var">toFaucetAccount</span></a></span><span>
+</span><a href="#local-6989586621679354335"><span class="hs-identifier hs-var">toFaucetAccount</span></a></span><span>
 </span><span id="line-62"></span><span>       </span><span class="annot"><span class="annottext">(Either ParseError FaucetAccountMessage
  -&gt; Either Text FaucetAccountMsg)
 -&gt; (ByteString -&gt; Either ParseError FaucetAccountMessage)
@@ -183,21 +183,21 @@ forall a. Message a =&gt; ByteString -&gt; Either ParseError a
 </span><span class="hs-identifier hs-var">fromByteString</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMessage"><span class="hs-identifier hs-type">FaucetAccountMessage</span></a></span><span>
 </span><span id="line-63"></span><span>
 </span><span id="line-64"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ValidateMessage</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#FaucetAccountMsg"><span class="hs-identifier hs-type">FaucetAccountMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-65"></span><span>  </span><span id="local-6989586621679354206"><span class="annot"><span class="annottext">validateMessage :: Msg FaucetAccountMsg -&gt; Validation [MessageSemanticError] ()
+</span><span id="line-65"></span><span>  </span><span id="local-6989586621679354326"><span class="annot"><span class="annottext">validateMessage :: Msg FaucetAccountMsg -&gt; Validation [MessageSemanticError] ()
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">validateMessage</span></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">() -&gt; Validation [MessageSemanticError] ()
 forall err a. a -&gt; Validation err a
 </span><span class="hs-identifier hs-var">Success</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-66"></span><span>
 </span><span id="line-67"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-68"></span><span>
-</span><span id="line-69"></span><span id="local-6989586621679354202"><span id="local-6989586621679354203"></span></span><span class="hs-keyword">data</span><span> </span><span id="SetNameMsg"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-var">SetNameMsg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="SetNameMsg"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-var">SetNameMsg</span></a></span></span><span>
+</span><span id="line-69"></span><span id="local-6989586621679354322"><span id="local-6989586621679354323"></span></span><span class="hs-keyword">data</span><span> </span><span id="SetNameMsg"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-var">SetNameMsg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="SetNameMsg"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-var">SetNameMsg</span></a></span></span><span>
 </span><span id="line-70"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="setNameName"><span class="annot"><span class="annottext">SetNameMsg -&gt; Text
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#setNameName"><span class="hs-identifier hs-var hs-var">setNameName</span></a></span></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
 </span><span id="line-71"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="setNameOwner"><span class="annot"><span class="annottext">SetNameMsg -&gt; Address
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#setNameOwner"><span class="hs-identifier hs-var hs-var">setNameOwner</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Address</span></span><span>
 </span><span id="line-72"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="setNameValue"><span class="annot"><span class="annottext">SetNameMsg -&gt; Text
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#setNameValue"><span class="hs-identifier hs-var hs-var">setNameValue</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
-</span><span id="line-73"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354194"><span id="local-6989586621679354196"><span class="annot"><span class="annottext">SetNameMsg -&gt; SetNameMsg -&gt; Bool
+</span><span id="line-73"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354314"><span id="local-6989586621679354316"><span class="annot"><span class="annottext">SetNameMsg -&gt; SetNameMsg -&gt; Bool
 (SetNameMsg -&gt; SetNameMsg -&gt; Bool)
 -&gt; (SetNameMsg -&gt; SetNameMsg -&gt; Bool) -&gt; Eq SetNameMsg
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -205,7 +205,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: SetNameMsg -&gt; SetNameMsg -&gt; Bool
 == :: SetNameMsg -&gt; SetNameMsg -&gt; Bool
 $c== :: SetNameMsg -&gt; SetNameMsg -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354188"><span id="local-6989586621679354190"><span id="local-6989586621679354192"><span class="annot"><span class="annottext">Int -&gt; SetNameMsg -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354308"><span id="local-6989586621679354310"><span id="local-6989586621679354312"><span class="annot"><span class="annottext">Int -&gt; SetNameMsg -&gt; ShowS
 [SetNameMsg] -&gt; ShowS
 SetNameMsg -&gt; String
 (Int -&gt; SetNameMsg -&gt; ShowS)
@@ -230,16 +230,16 @@ $cto :: forall x. Rep SetNameMsg x -&gt; SetNameMsg
 $cfrom :: forall x. SetNameMsg -&gt; Rep SetNameMsg x
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
 </span><span id="line-74"></span><span>
-</span><span id="line-75"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354180"><span id="local-6989586621679354182"><span id="local-6989586621679354184"><span class="annot"><span class="hs-identifier hs-type">Message</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-type">SetNameMsg</span></a></span></span></span></span><span>
-</span><span id="line-76"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354178"><span class="annot"><span class="hs-identifier hs-type">Named</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-type">SetNameMsg</span></a></span></span><span>
+</span><span id="line-75"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354300"><span id="local-6989586621679354302"><span id="local-6989586621679354304"><span class="annot"><span class="hs-identifier hs-type">Message</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-type">SetNameMsg</span></a></span></span></span></span><span>
+</span><span id="line-76"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354298"><span class="annot"><span class="hs-identifier hs-type">Named</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-type">SetNameMsg</span></a></span></span><span>
 </span><span id="line-77"></span><span>
 </span><span id="line-78"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasMessageType</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-type">SetNameMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-79"></span><span>  </span><span id="local-6989586621679354176"><span class="annot"><span class="annottext">messageType :: Proxy SetNameMsg -&gt; Text
-</span><a href="#local-6989586621679354176"><span class="hs-identifier hs-var hs-var hs-var hs-var">messageType</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;SetName&quot;</span></span><span>
+</span><span id="line-79"></span><span>  </span><span id="local-6989586621679354296"><span class="annot"><span class="annottext">messageType :: Proxy SetNameMsg -&gt; Text
+</span><a href="#local-6989586621679354296"><span class="hs-identifier hs-var hs-var hs-var hs-var">messageType</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;SetName&quot;</span></span><span>
 </span><span id="line-80"></span><span>
 </span><span id="line-81"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCodec</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-type">SetNameMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-82"></span><span>  </span><span id="local-6989586621679354173"><span class="annot"><span class="annottext">encode :: SetNameMsg -&gt; ByteString
-</span><a href="#local-6989586621679354173"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
+</span><span id="line-82"></span><span>  </span><span id="local-6989586621679354293"><span class="annot"><span class="annottext">encode :: SetNameMsg -&gt; ByteString
+</span><a href="#local-6989586621679354293"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; ByteString)
 -&gt; (SetNameMsg -&gt; ByteString) -&gt; SetNameMsg -&gt; ByteString
@@ -247,8 +247,8 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">SetNameMsg -&gt; ByteString
 forall a. Message a =&gt; a -&gt; ByteString
 </span><span class="hs-identifier hs-var">toLazyByteString</span></span><span>
-</span><span id="line-83"></span><span>  </span><span id="local-6989586621679354172"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text SetNameMsg
-</span><a href="#local-6989586621679354172"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ParseError -&gt; Text)
+</span><span id="line-83"></span><span>  </span><span id="local-6989586621679354292"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text SetNameMsg
+</span><a href="#local-6989586621679354292"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ParseError -&gt; Text)
 -&gt; Either ParseError SetNameMsg -&gt; Either Text SetNameMsg
 forall (p :: * -&gt; * -&gt; *) a b c.
 Bifunctor p =&gt;
@@ -269,17 +269,17 @@ forall a. Message a =&gt; ByteString -&gt; Either ParseError a
 </span><span id="line-84"></span><span>
 </span><span id="line-85"></span><span class="hs-comment">-- TL;DR. ValidateBasic: https://cosmos.network/docs/tutorial/set-name.html#msg</span><span>
 </span><span id="line-86"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ValidateMessage</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-type">SetNameMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-87"></span><span>  </span><span id="local-6989586621679354170"><span class="annot"><span class="annottext">validateMessage :: Msg SetNameMsg -&gt; Validation [MessageSemanticError] ()
-</span><a href="#local-6989586621679354170"><span class="hs-identifier hs-var hs-var hs-var hs-var">validateMessage</span></a></span></span><span> </span><span id="local-6989586621679354169"><span class="annot"><span class="annottext">msg :: Msg SetNameMsg
-</span><a href="#local-6989586621679354169"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679354166"><span id="local-6989586621679354167"><span id="local-6989586621679354168"><span class="annot"><span class="hs-identifier hs-type">Msg</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-88"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-type">SetNameMsg</span></a></span><span class="hs-special">{</span><span id="local-6989586621679354161"><span class="annot"><span class="annottext">Text
+</span><span id="line-87"></span><span>  </span><span id="local-6989586621679354290"><span class="annot"><span class="annottext">validateMessage :: Msg SetNameMsg -&gt; Validation [MessageSemanticError] ()
+</span><a href="#local-6989586621679354290"><span class="hs-identifier hs-var hs-var hs-var hs-var">validateMessage</span></a></span></span><span> </span><span id="local-6989586621679354289"><span class="annot"><span class="annottext">msg :: Msg SetNameMsg
+</span><a href="#local-6989586621679354289"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679354286"><span id="local-6989586621679354287"><span id="local-6989586621679354288"><span class="annot"><span class="hs-identifier hs-type">Msg</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-88"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#SetNameMsg"><span class="hs-identifier hs-type">SetNameMsg</span></a></span><span class="hs-special">{</span><span id="local-6989586621679354281"><span class="annot"><span class="annottext">Text
 setNameName :: Text
 setNameName :: SetNameMsg -&gt; Text
-</span><a href="#local-6989586621679354161"><span class="hs-identifier hs-var hs-var">setNameName</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354160"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679354281"><span class="hs-identifier hs-var hs-var">setNameName</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354280"><span class="annot"><span class="annottext">Text
 setNameValue :: Text
 setNameValue :: SetNameMsg -&gt; Text
-</span><a href="#local-6989586621679354160"><span class="hs-identifier hs-var hs-var">setNameValue</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SetNameMsg
-</span><a href="#local-6989586621679354167"><span class="hs-identifier hs-var">msgData</span></a></span><span>
+</span><a href="#local-6989586621679354280"><span class="hs-identifier hs-var hs-var">setNameValue</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SetNameMsg
+</span><a href="#local-6989586621679354287"><span class="hs-identifier hs-var">msgData</span></a></span><span>
 </span><span id="line-89"></span><span>    </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[Validation [MessageSemanticError] ()]
 -&gt; Validation [MessageSemanticError] ()
 forall (t :: * -&gt; *) (f :: * -&gt; *) a.
@@ -291,13 +291,13 @@ forall a.
 (Eq a, Monoid a) =&gt;
 Text -&gt; a -&gt; Validation [MessageSemanticError] ()
 </span><span class="hs-identifier hs-var">nonEmptyCheck</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Name&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679354161"><span class="hs-identifier hs-var">setNameName</span></a></span><span>
+</span><a href="#local-6989586621679354281"><span class="hs-identifier hs-var">setNameName</span></a></span><span>
 </span><span id="line-91"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Validation [MessageSemanticError] ()
 forall a.
 (Eq a, Monoid a) =&gt;
 Text -&gt; a -&gt; Validation [MessageSemanticError] ()
 </span><span class="hs-identifier hs-var">nonEmptyCheck</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Value&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679354160"><span class="hs-identifier hs-var">setNameValue</span></a></span><span>
+</span><a href="#local-6989586621679354280"><span class="hs-identifier hs-var">setNameValue</span></a></span><span>
 </span><span id="line-92"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
 -&gt; Msg SetNameMsg
 -&gt; (SetNameMsg -&gt; Address)
@@ -308,18 +308,18 @@ Text
 -&gt; (msg -&gt; Address)
 -&gt; Validation [MessageSemanticError] ()
 </span><span class="hs-identifier hs-var">isAuthorCheck</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Owner&quot;</span></span><span> </span><span class="annot"><span class="annottext">Msg SetNameMsg
-</span><a href="#local-6989586621679354169"><span class="hs-identifier hs-var">msg</span></a></span><span> </span><span class="annot"><span class="annottext">SetNameMsg -&gt; Address
+</span><a href="#local-6989586621679354289"><span class="hs-identifier hs-var">msg</span></a></span><span> </span><span class="annot"><span class="annottext">SetNameMsg -&gt; Address
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#setNameOwner"><span class="hs-identifier hs-var hs-var">setNameOwner</span></a></span><span>
 </span><span id="line-93"></span><span>        </span><span class="hs-special">]</span><span>
 </span><span id="line-94"></span><span>
 </span><span id="line-95"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-96"></span><span>
-</span><span id="line-97"></span><span id="local-6989586621679354158"><span id="local-6989586621679354159"></span></span><span class="hs-keyword">data</span><span> </span><span id="DeleteNameMsg"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-var">DeleteNameMsg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="DeleteNameMsg"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-var">DeleteNameMsg</span></a></span></span><span>
+</span><span id="line-97"></span><span id="local-6989586621679354278"><span id="local-6989586621679354279"></span></span><span class="hs-keyword">data</span><span> </span><span id="DeleteNameMsg"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-var">DeleteNameMsg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="DeleteNameMsg"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-var">DeleteNameMsg</span></a></span></span><span>
 </span><span id="line-98"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="deleteNameOwner"><span class="annot"><span class="annottext">DeleteNameMsg -&gt; Address
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#deleteNameOwner"><span class="hs-identifier hs-var hs-var">deleteNameOwner</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Address</span></span><span>
 </span><span id="line-99"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="deleteNameName"><span class="annot"><span class="annottext">DeleteNameMsg -&gt; Text
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#deleteNameName"><span class="hs-identifier hs-var hs-var">deleteNameName</span></a></span></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
-</span><span id="line-100"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354151"><span id="local-6989586621679354153"><span class="annot"><span class="annottext">DeleteNameMsg -&gt; DeleteNameMsg -&gt; Bool
+</span><span id="line-100"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354271"><span id="local-6989586621679354273"><span class="annot"><span class="annottext">DeleteNameMsg -&gt; DeleteNameMsg -&gt; Bool
 (DeleteNameMsg -&gt; DeleteNameMsg -&gt; Bool)
 -&gt; (DeleteNameMsg -&gt; DeleteNameMsg -&gt; Bool) -&gt; Eq DeleteNameMsg
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -327,7 +327,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: DeleteNameMsg -&gt; DeleteNameMsg -&gt; Bool
 == :: DeleteNameMsg -&gt; DeleteNameMsg -&gt; Bool
 $c== :: DeleteNameMsg -&gt; DeleteNameMsg -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354145"><span id="local-6989586621679354147"><span id="local-6989586621679354149"><span class="annot"><span class="annottext">Int -&gt; DeleteNameMsg -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354265"><span id="local-6989586621679354267"><span id="local-6989586621679354269"><span class="annot"><span class="annottext">Int -&gt; DeleteNameMsg -&gt; ShowS
 [DeleteNameMsg] -&gt; ShowS
 DeleteNameMsg -&gt; String
 (Int -&gt; DeleteNameMsg -&gt; ShowS)
@@ -353,16 +353,16 @@ $cto :: forall x. Rep DeleteNameMsg x -&gt; DeleteNameMsg
 $cfrom :: forall x. DeleteNameMsg -&gt; Rep DeleteNameMsg x
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
 </span><span id="line-101"></span><span>
-</span><span id="line-102"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354137"><span id="local-6989586621679354139"><span id="local-6989586621679354141"><span class="annot"><span class="hs-identifier hs-type">Message</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-type">DeleteNameMsg</span></a></span></span></span></span><span>
-</span><span id="line-103"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354135"><span class="annot"><span class="hs-identifier hs-type">Named</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-type">DeleteNameMsg</span></a></span></span><span>
+</span><span id="line-102"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354257"><span id="local-6989586621679354259"><span id="local-6989586621679354261"><span class="annot"><span class="hs-identifier hs-type">Message</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-type">DeleteNameMsg</span></a></span></span></span></span><span>
+</span><span id="line-103"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354255"><span class="annot"><span class="hs-identifier hs-type">Named</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-type">DeleteNameMsg</span></a></span></span><span>
 </span><span id="line-104"></span><span>
 </span><span id="line-105"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasMessageType</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-type">DeleteNameMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-106"></span><span>  </span><span id="local-6989586621679354133"><span class="annot"><span class="annottext">messageType :: Proxy DeleteNameMsg -&gt; Text
-</span><a href="#local-6989586621679354133"><span class="hs-identifier hs-var hs-var hs-var hs-var">messageType</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;DeleteName&quot;</span></span><span>
+</span><span id="line-106"></span><span>  </span><span id="local-6989586621679354253"><span class="annot"><span class="annottext">messageType :: Proxy DeleteNameMsg -&gt; Text
+</span><a href="#local-6989586621679354253"><span class="hs-identifier hs-var hs-var hs-var hs-var">messageType</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;DeleteName&quot;</span></span><span>
 </span><span id="line-107"></span><span>
 </span><span id="line-108"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCodec</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-type">DeleteNameMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-109"></span><span>  </span><span id="local-6989586621679354130"><span class="annot"><span class="annottext">encode :: DeleteNameMsg -&gt; ByteString
-</span><a href="#local-6989586621679354130"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
+</span><span id="line-109"></span><span>  </span><span id="local-6989586621679354250"><span class="annot"><span class="annottext">encode :: DeleteNameMsg -&gt; ByteString
+</span><a href="#local-6989586621679354250"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; ByteString)
 -&gt; (DeleteNameMsg -&gt; ByteString) -&gt; DeleteNameMsg -&gt; ByteString
@@ -370,8 +370,8 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">DeleteNameMsg -&gt; ByteString
 forall a. Message a =&gt; a -&gt; ByteString
 </span><span class="hs-identifier hs-var">toLazyByteString</span></span><span>
-</span><span id="line-110"></span><span>  </span><span id="local-6989586621679354129"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text DeleteNameMsg
-</span><a href="#local-6989586621679354129"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ParseError -&gt; Text)
+</span><span id="line-110"></span><span>  </span><span id="local-6989586621679354249"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text DeleteNameMsg
+</span><a href="#local-6989586621679354249"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ParseError -&gt; Text)
 -&gt; Either ParseError DeleteNameMsg -&gt; Either Text DeleteNameMsg
 forall (p :: * -&gt; * -&gt; *) a b c.
 Bifunctor p =&gt;
@@ -391,14 +391,14 @@ forall a. Message a =&gt; ByteString -&gt; Either ParseError a
 </span><span class="hs-identifier hs-var">fromByteString</span></span><span>
 </span><span id="line-111"></span><span>
 </span><span id="line-112"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ValidateMessage</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-type">DeleteNameMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-113"></span><span>  </span><span id="local-6989586621679354127"><span class="annot"><span class="annottext">validateMessage :: Msg DeleteNameMsg -&gt; Validation [MessageSemanticError] ()
-</span><a href="#local-6989586621679354127"><span class="hs-identifier hs-var hs-var hs-var hs-var">validateMessage</span></a></span></span><span> </span><span id="local-6989586621679354126"><span class="annot"><span class="annottext">msg :: Msg DeleteNameMsg
-</span><a href="#local-6989586621679354126"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679354123"><span id="local-6989586621679354124"><span id="local-6989586621679354125"><span class="annot"><span class="hs-identifier hs-type">Msg</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-114"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-type">DeleteNameMsg</span></a></span><span class="hs-special">{</span><span id="local-6989586621679354122"><span class="annot"><span class="annottext">Text
+</span><span id="line-113"></span><span>  </span><span id="local-6989586621679354247"><span class="annot"><span class="annottext">validateMessage :: Msg DeleteNameMsg -&gt; Validation [MessageSemanticError] ()
+</span><a href="#local-6989586621679354247"><span class="hs-identifier hs-var hs-var hs-var hs-var">validateMessage</span></a></span></span><span> </span><span id="local-6989586621679354246"><span class="annot"><span class="annottext">msg :: Msg DeleteNameMsg
+</span><a href="#local-6989586621679354246"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679354243"><span id="local-6989586621679354244"><span id="local-6989586621679354245"><span class="annot"><span class="hs-identifier hs-type">Msg</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-114"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#DeleteNameMsg"><span class="hs-identifier hs-type">DeleteNameMsg</span></a></span><span class="hs-special">{</span><span id="local-6989586621679354242"><span class="annot"><span class="annottext">Text
 deleteNameName :: Text
 deleteNameName :: DeleteNameMsg -&gt; Text
-</span><a href="#local-6989586621679354122"><span class="hs-identifier hs-var hs-var">deleteNameName</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DeleteNameMsg
-</span><a href="#local-6989586621679354124"><span class="hs-identifier hs-var">msgData</span></a></span><span>
+</span><a href="#local-6989586621679354242"><span class="hs-identifier hs-var hs-var">deleteNameName</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DeleteNameMsg
+</span><a href="#local-6989586621679354244"><span class="hs-identifier hs-var">msgData</span></a></span><span>
 </span><span id="line-115"></span><span>    </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[Validation [MessageSemanticError] ()]
 -&gt; Validation [MessageSemanticError] ()
 forall (t :: * -&gt; *) (f :: * -&gt; *) a.
@@ -410,7 +410,7 @@ forall a.
 (Eq a, Monoid a) =&gt;
 Text -&gt; a -&gt; Validation [MessageSemanticError] ()
 </span><span class="hs-identifier hs-var">nonEmptyCheck</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Name&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679354122"><span class="hs-identifier hs-var">deleteNameName</span></a></span><span>
+</span><a href="#local-6989586621679354242"><span class="hs-identifier hs-var">deleteNameName</span></a></span><span>
 </span><span id="line-117"></span><span>       </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
 -&gt; Msg DeleteNameMsg
 -&gt; (DeleteNameMsg -&gt; Address)
@@ -421,7 +421,7 @@ Text
 -&gt; (msg -&gt; Address)
 -&gt; Validation [MessageSemanticError] ()
 </span><span class="hs-identifier hs-var">isAuthorCheck</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Owner&quot;</span></span><span> </span><span class="annot"><span class="annottext">Msg DeleteNameMsg
-</span><a href="#local-6989586621679354126"><span class="hs-identifier hs-var">msg</span></a></span><span> </span><span class="annot"><span class="annottext">DeleteNameMsg -&gt; Address
+</span><a href="#local-6989586621679354246"><span class="hs-identifier hs-var">msg</span></a></span><span> </span><span class="annot"><span class="annottext">DeleteNameMsg -&gt; Address
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#deleteNameOwner"><span class="hs-identifier hs-var hs-var">deleteNameOwner</span></a></span><span>
 </span><span id="line-118"></span><span>       </span><span class="hs-special">]</span><span>
 </span><span id="line-119"></span><span>
@@ -436,7 +436,7 @@ Text
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameValue"><span class="hs-identifier hs-var hs-var">buyNameValue</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
 </span><span id="line-126"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="buyNameBuyer"><span class="annot"><span class="annottext">BuyNameMsg -&gt; Address
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameBuyer"><span class="hs-identifier hs-var hs-var">buyNameBuyer</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Address</span></span><span>
-</span><span id="line-127"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354113"><span id="local-6989586621679354115"><span class="annot"><span class="annottext">BuyNameMsg -&gt; BuyNameMsg -&gt; Bool
+</span><span id="line-127"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354233"><span id="local-6989586621679354235"><span class="annot"><span class="annottext">BuyNameMsg -&gt; BuyNameMsg -&gt; Bool
 (BuyNameMsg -&gt; BuyNameMsg -&gt; Bool)
 -&gt; (BuyNameMsg -&gt; BuyNameMsg -&gt; Bool) -&gt; Eq BuyNameMsg
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -444,7 +444,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: BuyNameMsg -&gt; BuyNameMsg -&gt; Bool
 == :: BuyNameMsg -&gt; BuyNameMsg -&gt; Bool
 $c== :: BuyNameMsg -&gt; BuyNameMsg -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354107"><span id="local-6989586621679354109"><span id="local-6989586621679354111"><span class="annot"><span class="annottext">Int -&gt; BuyNameMsg -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354227"><span id="local-6989586621679354229"><span id="local-6989586621679354231"><span class="annot"><span class="annottext">Int -&gt; BuyNameMsg -&gt; ShowS
 [BuyNameMsg] -&gt; ShowS
 BuyNameMsg -&gt; String
 (Int -&gt; BuyNameMsg -&gt; ShowS)
@@ -461,7 +461,7 @@ showsPrec :: Int -&gt; BuyNameMsg -&gt; ShowS
 $cshowsPrec :: Int -&gt; BuyNameMsg -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-128"></span><span>
-</span><span id="line-129"></span><span id="local-6989586621679354105"><span id="local-6989586621679354106"></span></span><span class="hs-keyword">data</span><span> </span><span id="BuyNameMessage"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMessage"><span class="hs-identifier hs-var">BuyNameMessage</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="BuyNameMessage"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMessage"><span class="hs-identifier hs-var">BuyNameMessage</span></a></span></span><span>
+</span><span id="line-129"></span><span id="local-6989586621679354225"><span id="local-6989586621679354226"></span></span><span class="hs-keyword">data</span><span> </span><span id="BuyNameMessage"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMessage"><span class="hs-identifier hs-var">BuyNameMessage</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="BuyNameMessage"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMessage"><span class="hs-identifier hs-var">BuyNameMessage</span></a></span></span><span>
 </span><span id="line-130"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="buyNameMessageBid"><span class="annot"><span class="annottext">BuyNameMessage -&gt; Word64
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameMessageBid"><span class="hs-identifier hs-var hs-var">buyNameMessageBid</span></a></span></span><span>   </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span>
 </span><span id="line-131"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="buyNameMessageName"><span class="annot"><span class="annottext">BuyNameMessage -&gt; Text
@@ -470,7 +470,7 @@ $cshowsPrec :: Int -&gt; BuyNameMsg -&gt; ShowS
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameMessageValue"><span class="hs-identifier hs-var hs-var">buyNameMessageValue</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
 </span><span id="line-133"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="buyNameMessageBuyer"><span class="annot"><span class="annottext">BuyNameMessage -&gt; Address
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameMessageBuyer"><span class="hs-identifier hs-var hs-var">buyNameMessageBuyer</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Address</span></span><span>
-</span><span id="line-134"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354096"><span id="local-6989586621679354098"><span class="annot"><span class="annottext">BuyNameMessage -&gt; BuyNameMessage -&gt; Bool
+</span><span id="line-134"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354216"><span id="local-6989586621679354218"><span class="annot"><span class="annottext">BuyNameMessage -&gt; BuyNameMessage -&gt; Bool
 (BuyNameMessage -&gt; BuyNameMessage -&gt; Bool)
 -&gt; (BuyNameMessage -&gt; BuyNameMessage -&gt; Bool) -&gt; Eq BuyNameMessage
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -478,7 +478,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: BuyNameMessage -&gt; BuyNameMessage -&gt; Bool
 == :: BuyNameMessage -&gt; BuyNameMessage -&gt; Bool
 $c== :: BuyNameMessage -&gt; BuyNameMessage -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354090"><span id="local-6989586621679354092"><span id="local-6989586621679354094"><span class="annot"><span class="annottext">Int -&gt; BuyNameMessage -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354210"><span id="local-6989586621679354212"><span id="local-6989586621679354214"><span class="annot"><span class="annottext">Int -&gt; BuyNameMessage -&gt; ShowS
 [BuyNameMessage] -&gt; ShowS
 BuyNameMessage -&gt; String
 (Int -&gt; BuyNameMessage -&gt; ShowS)
@@ -503,32 +503,32 @@ forall a.
 $cto :: forall x. Rep BuyNameMessage x -&gt; BuyNameMessage
 $cfrom :: forall x. BuyNameMessage -&gt; Rep BuyNameMessage x
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
-</span><span id="line-135"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354082"><span id="local-6989586621679354084"><span id="local-6989586621679354086"><span class="annot"><span class="hs-identifier hs-type">Message</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMessage"><span class="hs-identifier hs-type">BuyNameMessage</span></a></span></span></span></span><span>
-</span><span id="line-136"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354080"><span class="annot"><span class="hs-identifier hs-type">Named</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMessage"><span class="hs-identifier hs-type">BuyNameMessage</span></a></span></span><span>
+</span><span id="line-135"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354202"><span id="local-6989586621679354204"><span id="local-6989586621679354206"><span class="annot"><span class="hs-identifier hs-type">Message</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMessage"><span class="hs-identifier hs-type">BuyNameMessage</span></a></span></span></span></span><span>
+</span><span id="line-136"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354200"><span class="annot"><span class="hs-identifier hs-type">Named</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMessage"><span class="hs-identifier hs-type">BuyNameMessage</span></a></span></span><span>
 </span><span id="line-137"></span><span>
 </span><span id="line-138"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasMessageType</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMsg"><span class="hs-identifier hs-type">BuyNameMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-139"></span><span>  </span><span id="local-6989586621679354078"><span class="annot"><span class="annottext">messageType :: Proxy BuyNameMsg -&gt; Text
-</span><a href="#local-6989586621679354078"><span class="hs-identifier hs-var hs-var hs-var hs-var">messageType</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;BuyName&quot;</span></span><span>
+</span><span id="line-139"></span><span>  </span><span id="local-6989586621679354198"><span class="annot"><span class="annottext">messageType :: Proxy BuyNameMsg -&gt; Text
+</span><a href="#local-6989586621679354198"><span class="hs-identifier hs-var hs-var hs-var hs-var">messageType</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;BuyName&quot;</span></span><span>
 </span><span id="line-140"></span><span>
 </span><span id="line-141"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCodec</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMsg"><span class="hs-identifier hs-type">BuyNameMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-142"></span><span>  </span><span id="local-6989586621679354075"><span class="annot"><span class="annottext">encode :: BuyNameMsg -&gt; ByteString
-</span><a href="#local-6989586621679354075"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span id="local-6989586621679354071"><span id="local-6989586621679354072"><span id="local-6989586621679354073"><span id="local-6989586621679354074"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMsg"><span class="hs-identifier hs-type">BuyNameMsg</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-143"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679354070"><span class="annot"><span class="annottext">buyNameMessage :: BuyNameMessage
-</span><a href="#local-6989586621679354070"><span class="hs-identifier hs-var hs-var">buyNameMessage</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BuyNameMessage :: Word64 -&gt; Text -&gt; Text -&gt; Address -&gt; BuyNameMessage
+</span><span id="line-142"></span><span>  </span><span id="local-6989586621679354195"><span class="annot"><span class="annottext">encode :: BuyNameMsg -&gt; ByteString
+</span><a href="#local-6989586621679354195"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span id="local-6989586621679354191"><span id="local-6989586621679354192"><span id="local-6989586621679354193"><span id="local-6989586621679354194"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMsg"><span class="hs-identifier hs-type">BuyNameMsg</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-143"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679354190"><span class="annot"><span class="annottext">buyNameMessage :: BuyNameMessage
+</span><a href="#local-6989586621679354190"><span class="hs-identifier hs-var hs-var">buyNameMessage</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BuyNameMessage :: Word64 -&gt; Text -&gt; Text -&gt; Address -&gt; BuyNameMessage
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMessage"><span class="hs-identifier hs-type hs-type">BuyNameMessage</span></a></span><span>
 </span><span id="line-144"></span><span>          </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">buyNameMessageBid :: Word64
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameMessageBid"><span class="hs-identifier hs-var">buyNameMessageBid</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Amount -&gt; Word64
 </span><span class="hs-identifier hs-var hs-var">unAmount</span></span><span> </span><span class="annot"><span class="annottext">Amount
-</span><a href="#local-6989586621679354074"><span class="hs-identifier hs-var">buyNameBid</span></a></span><span>
+</span><a href="#local-6989586621679354194"><span class="hs-identifier hs-var">buyNameBid</span></a></span><span>
 </span><span id="line-145"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">buyNameMessageName :: Text
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameMessageName"><span class="hs-identifier hs-var">buyNameMessageName</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679354073"><span class="hs-identifier hs-var">buyNameName</span></a></span><span>
+</span><a href="#local-6989586621679354193"><span class="hs-identifier hs-var">buyNameName</span></a></span><span>
 </span><span id="line-146"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">buyNameMessageValue :: Text
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameMessageValue"><span class="hs-identifier hs-var">buyNameMessageValue</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679354072"><span class="hs-identifier hs-var">buyNameValue</span></a></span><span>
+</span><a href="#local-6989586621679354192"><span class="hs-identifier hs-var">buyNameValue</span></a></span><span>
 </span><span id="line-147"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">buyNameMessageBuyer :: Address
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameMessageBuyer"><span class="hs-identifier hs-var">buyNameMessageBuyer</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679354071"><span class="hs-identifier hs-var">buyNameBuyer</span></a></span><span>
+</span><a href="#local-6989586621679354191"><span class="hs-identifier hs-var">buyNameBuyer</span></a></span><span>
 </span><span id="line-148"></span><span>          </span><span class="hs-special">}</span><span>
 </span><span id="line-149"></span><span>    </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
@@ -540,25 +540,25 @@ forall a. Message a =&gt; a -&gt; ByteString
 </span><span class="hs-identifier hs-var">toLazyByteString</span></span><span> </span><span class="annot"><span class="annottext">(BuyNameMessage -&gt; ByteString) -&gt; BuyNameMessage -&gt; ByteString
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">BuyNameMessage
-</span><a href="#local-6989586621679354070"><span class="hs-identifier hs-var">buyNameMessage</span></a></span><span>
-</span><span id="line-150"></span><span>  </span><span id="local-6989586621679354068"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text BuyNameMsg
-</span><a href="#local-6989586621679354068"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-151"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679354067"><span class="annot"><span class="annottext">toBuyName :: BuyNameMessage -&gt; BuyNameMsg
-</span><a href="#local-6989586621679354067"><span class="hs-identifier hs-var hs-var">toBuyName</span></a></span></span><span> </span><span id="local-6989586621679354063"><span id="local-6989586621679354064"><span id="local-6989586621679354065"><span id="local-6989586621679354066"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMessage"><span class="hs-identifier hs-type">BuyNameMessage</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BuyNameMsg :: Amount -&gt; Text -&gt; Text -&gt; Address -&gt; BuyNameMsg
+</span><a href="#local-6989586621679354190"><span class="hs-identifier hs-var">buyNameMessage</span></a></span><span>
+</span><span id="line-150"></span><span>  </span><span id="local-6989586621679354188"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text BuyNameMsg
+</span><a href="#local-6989586621679354188"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-151"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679354187"><span class="annot"><span class="annottext">toBuyName :: BuyNameMessage -&gt; BuyNameMsg
+</span><a href="#local-6989586621679354187"><span class="hs-identifier hs-var hs-var">toBuyName</span></a></span></span><span> </span><span id="local-6989586621679354183"><span id="local-6989586621679354184"><span id="local-6989586621679354185"><span id="local-6989586621679354186"><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMessage"><span class="hs-identifier hs-type">BuyNameMessage</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BuyNameMsg :: Amount -&gt; Text -&gt; Text -&gt; Address -&gt; BuyNameMsg
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMsg"><span class="hs-identifier hs-type hs-type">BuyNameMsg</span></a></span><span>
 </span><span id="line-152"></span><span>          </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">buyNameBid :: Amount
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameBid"><span class="hs-identifier hs-var">buyNameBid</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Amount
 </span><span class="hs-identifier hs-var">Amount</span></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679354066"><span class="hs-identifier hs-var">buyNameMessageBid</span></a></span><span>
+</span><a href="#local-6989586621679354186"><span class="hs-identifier hs-var">buyNameMessageBid</span></a></span><span>
 </span><span id="line-153"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">buyNameName :: Text
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameName"><span class="hs-identifier hs-var">buyNameName</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679354065"><span class="hs-identifier hs-var">buyNameMessageName</span></a></span><span>
+</span><a href="#local-6989586621679354185"><span class="hs-identifier hs-var">buyNameMessageName</span></a></span><span>
 </span><span id="line-154"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">buyNameValue :: Text
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameValue"><span class="hs-identifier hs-var">buyNameValue</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679354064"><span class="hs-identifier hs-var">buyNameMessageValue</span></a></span><span>
+</span><a href="#local-6989586621679354184"><span class="hs-identifier hs-var">buyNameMessageValue</span></a></span><span>
 </span><span id="line-155"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">buyNameBuyer :: Address
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameBuyer"><span class="hs-identifier hs-var">buyNameBuyer</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679354063"><span class="hs-identifier hs-var">buyNameMessageBuyer</span></a></span><span>
+</span><a href="#local-6989586621679354183"><span class="hs-identifier hs-var">buyNameMessageBuyer</span></a></span><span>
 </span><span id="line-156"></span><span>          </span><span class="hs-special">}</span><span>
 </span><span id="line-157"></span><span>    </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">(ParseError -&gt; Text)
 -&gt; (BuyNameMessage -&gt; BuyNameMsg)
@@ -573,7 +573,7 @@ Bifunctor p =&gt;
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ParseError -&gt; MessageParseError
 </span><span class="hs-identifier hs-var">coerceProto3Error</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">BuyNameMessage -&gt; BuyNameMsg
-</span><a href="#local-6989586621679354067"><span class="hs-identifier hs-var">toBuyName</span></a></span><span>
+</span><a href="#local-6989586621679354187"><span class="hs-identifier hs-var">toBuyName</span></a></span><span>
 </span><span id="line-158"></span><span>       </span><span class="annot"><span class="annottext">(Either ParseError BuyNameMessage -&gt; Either Text BuyNameMsg)
 -&gt; (ByteString -&gt; Either ParseError BuyNameMessage)
 -&gt; ByteString
@@ -585,17 +585,17 @@ forall a. Message a =&gt; ByteString -&gt; Either ParseError a
 </span><span class="hs-identifier hs-var">fromByteString</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMessage"><span class="hs-identifier hs-type">BuyNameMessage</span></a></span><span>
 </span><span id="line-159"></span><span>
 </span><span id="line-160"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ValidateMessage</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMsg"><span class="hs-identifier hs-type">BuyNameMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-161"></span><span>  </span><span id="local-6989586621679354060"><span class="annot"><span class="annottext">validateMessage :: Msg BuyNameMsg -&gt; Validation [MessageSemanticError] ()
-</span><a href="#local-6989586621679354060"><span class="hs-identifier hs-var hs-var hs-var hs-var">validateMessage</span></a></span></span><span> </span><span id="local-6989586621679354059"><span class="annot"><span class="annottext">msg :: Msg BuyNameMsg
-</span><a href="#local-6989586621679354059"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679354056"><span id="local-6989586621679354057"><span id="local-6989586621679354058"><span class="annot"><span class="hs-identifier hs-type">Msg</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-162"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMsg"><span class="hs-identifier hs-type">BuyNameMsg</span></a></span><span class="hs-special">{</span><span id="local-6989586621679354055"><span class="annot"><span class="annottext">Text
+</span><span id="line-161"></span><span>  </span><span id="local-6989586621679354180"><span class="annot"><span class="annottext">validateMessage :: Msg BuyNameMsg -&gt; Validation [MessageSemanticError] ()
+</span><a href="#local-6989586621679354180"><span class="hs-identifier hs-var hs-var hs-var hs-var">validateMessage</span></a></span></span><span> </span><span id="local-6989586621679354179"><span class="annot"><span class="annottext">msg :: Msg BuyNameMsg
+</span><a href="#local-6989586621679354179"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679354176"><span id="local-6989586621679354177"><span id="local-6989586621679354178"><span class="annot"><span class="hs-identifier hs-type">Msg</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-162"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Messages.html#BuyNameMsg"><span class="hs-identifier hs-type">BuyNameMsg</span></a></span><span class="hs-special">{</span><span id="local-6989586621679354175"><span class="annot"><span class="annottext">Text
 buyNameName :: Text
 buyNameName :: BuyNameMsg -&gt; Text
-</span><a href="#local-6989586621679354055"><span class="hs-identifier hs-var hs-var">buyNameName</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354054"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679354175"><span class="hs-identifier hs-var hs-var">buyNameName</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354174"><span class="annot"><span class="annottext">Text
 buyNameValue :: Text
 buyNameValue :: BuyNameMsg -&gt; Text
-</span><a href="#local-6989586621679354054"><span class="hs-identifier hs-var hs-var">buyNameValue</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BuyNameMsg
-</span><a href="#local-6989586621679354057"><span class="hs-identifier hs-var">msgData</span></a></span><span>
+</span><a href="#local-6989586621679354174"><span class="hs-identifier hs-var hs-var">buyNameValue</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BuyNameMsg
+</span><a href="#local-6989586621679354177"><span class="hs-identifier hs-var">msgData</span></a></span><span>
 </span><span id="line-163"></span><span>    </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[Validation [MessageSemanticError] ()]
 -&gt; Validation [MessageSemanticError] ()
 forall (t :: * -&gt; *) (f :: * -&gt; *) a.
@@ -607,13 +607,13 @@ forall a.
 (Eq a, Monoid a) =&gt;
 Text -&gt; a -&gt; Validation [MessageSemanticError] ()
 </span><span class="hs-identifier hs-var">nonEmptyCheck</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Name&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679354055"><span class="hs-identifier hs-var">buyNameName</span></a></span><span>
+</span><a href="#local-6989586621679354175"><span class="hs-identifier hs-var">buyNameName</span></a></span><span>
 </span><span id="line-165"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Validation [MessageSemanticError] ()
 forall a.
 (Eq a, Monoid a) =&gt;
 Text -&gt; a -&gt; Validation [MessageSemanticError] ()
 </span><span class="hs-identifier hs-var">nonEmptyCheck</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Value&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679354054"><span class="hs-identifier hs-var">buyNameValue</span></a></span><span>
+</span><a href="#local-6989586621679354174"><span class="hs-identifier hs-var">buyNameValue</span></a></span><span>
 </span><span id="line-166"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
 -&gt; Msg BuyNameMsg
 -&gt; (BuyNameMsg -&gt; Address)
@@ -624,7 +624,7 @@ Text
 -&gt; (msg -&gt; Address)
 -&gt; Validation [MessageSemanticError] ()
 </span><span class="hs-identifier hs-var">isAuthorCheck</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Owner&quot;</span></span><span> </span><span class="annot"><span class="annottext">Msg BuyNameMsg
-</span><a href="#local-6989586621679354059"><span class="hs-identifier hs-var">msg</span></a></span><span> </span><span class="annot"><span class="annottext">BuyNameMsg -&gt; Address
+</span><a href="#local-6989586621679354179"><span class="hs-identifier hs-var">msg</span></a></span><span> </span><span class="annot"><span class="annottext">BuyNameMsg -&gt; Address
 </span><a href="Nameservice.Modules.Nameservice.Messages.html#buyNameBuyer"><span class="hs-identifier hs-var hs-var">buyNameBuyer</span></a></span><span>
 </span><span id="line-167"></span><span>        </span><span class="hs-special">]</span><span>
 </span><span id="line-168"></span></pre></body></html>

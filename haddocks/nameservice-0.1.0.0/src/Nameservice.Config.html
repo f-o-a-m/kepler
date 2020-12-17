@@ -36,16 +36,16 @@
 </span><span id="line-34"></span><span class="annot"><a href="Nameservice.Config.html#makeAppConfig"><span class="hs-identifier hs-type">makeAppConfig</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier hs-type">AppConfig</span></a></span><span>
 </span><span id="line-35"></span><span id="makeAppConfig"><span class="annot"><span class="annottext">makeAppConfig :: IO AppConfig
 </span><a href="Nameservice.Config.html#makeAppConfig"><span class="hs-identifier hs-var hs-var">makeAppConfig</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-36"></span><span>  </span><span id="local-6989586621679353960"><span class="annot"><span class="annottext">IAVLVersions
-</span><a href="#local-6989586621679353960"><span class="hs-identifier hs-var">versions</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO IAVLVersions
+</span><span id="line-36"></span><span>  </span><span id="local-6989586621679354080"><span class="annot"><span class="annottext">IAVLVersions
+</span><a href="#local-6989586621679354080"><span class="hs-identifier hs-var">versions</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO IAVLVersions
 </span><span class="hs-identifier hs-var">initIAVLVersions</span></span><span>
-</span><span id="line-37"></span><span>  </span><span id="local-6989586621679353959"><span class="annot"><span class="annottext">GrpcConfig
-</span><a href="#local-6989586621679353959"><span class="hs-identifier hs-var">grpcConfig</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-38"></span><span>    </span><span id="local-6989586621679353958"><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679353958"><span class="hs-identifier hs-var">host</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO String
+</span><span id="line-37"></span><span>  </span><span id="local-6989586621679354079"><span class="annot"><span class="annottext">GrpcConfig
+</span><a href="#local-6989586621679354079"><span class="hs-identifier hs-var">grpcConfig</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-38"></span><span>    </span><span id="local-6989586621679354078"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679354078"><span class="hs-identifier hs-var">host</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO String
 </span><span class="hs-identifier hs-var">getEnv</span></span><span> </span><span class="annot"><span class="hs-string">&quot;IAVL_HOST&quot;</span></span><span>
-</span><span id="line-39"></span><span>    </span><span id="local-6989586621679353956"><span class="annot"><span class="annottext">Integer
-</span><a href="#local-6989586621679353956"><span class="hs-identifier hs-var">port</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; Integer
+</span><span id="line-39"></span><span>    </span><span id="local-6989586621679354076"><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679354076"><span class="hs-identifier hs-var">port</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; Integer
 forall a. Read a =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">read</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Integer) -&gt; IO String -&gt; IO Integer
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
@@ -57,10 +57,10 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Integer -&gt; GrpcConfig
 </span><span class="hs-identifier hs-var">GrpcConfig</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679353958"><span class="hs-identifier hs-var">host</span></a></span><span> </span><span class="annot"><span class="annottext">Integer
-</span><a href="#local-6989586621679353956"><span class="hs-identifier hs-var">port</span></a></span><span>
-</span><span id="line-41"></span><span>  </span><span id="local-6989586621679353952"><span class="annot"><span class="annottext">Maybe MetricsScrapingConfig
-</span><a href="#local-6989586621679353952"><span class="hs-identifier hs-var">prometheusEnv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">MaybeT IO MetricsScrapingConfig -&gt; IO (Maybe MetricsScrapingConfig)
+</span><a href="#local-6989586621679354078"><span class="hs-identifier hs-var">host</span></a></span><span> </span><span class="annot"><span class="annottext">Integer
+</span><a href="#local-6989586621679354076"><span class="hs-identifier hs-var">port</span></a></span><span>
+</span><span id="line-41"></span><span>  </span><span id="local-6989586621679354072"><span class="annot"><span class="annottext">Maybe MetricsScrapingConfig
+</span><a href="#local-6989586621679354072"><span class="hs-identifier hs-var">prometheusEnv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">MaybeT IO MetricsScrapingConfig -&gt; IO (Maybe MetricsScrapingConfig)
 forall (m :: * -&gt; *) a. MaybeT m a -&gt; m (Maybe a)
 </span><span class="hs-identifier hs-var hs-var">runMaybeT</span></span><span> </span><span class="annot"><span class="annottext">(MaybeT IO MetricsScrapingConfig
  -&gt; IO (Maybe MetricsScrapingConfig))
@@ -68,8 +68,8 @@ forall (m :: * -&gt; *) a. MaybeT m a -&gt; m (Maybe a)
 -&gt; IO (Maybe MetricsScrapingConfig)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-42"></span><span>    </span><span id="local-6989586621679353951"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679353951"><span class="hs-identifier hs-var">prometheusPort</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; Int
+</span><span id="line-42"></span><span>    </span><span id="local-6989586621679354071"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679354071"><span class="hs-identifier hs-var">prometheusPort</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; Int
 forall a. Read a =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">read</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Int) -&gt; MaybeT IO String -&gt; MaybeT IO Int
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
@@ -84,20 +84,20 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; MetricsScrapingConfig
 </span><span class="hs-identifier hs-var">P.MetricsScrapingConfig</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679353951"><span class="hs-identifier hs-var">prometheusPort</span></a></span><span>
-</span><span id="line-44"></span><span>  </span><span id="local-6989586621679353947"><span class="annot"><span class="annottext">Context
-</span><a href="#local-6989586621679353947"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">InitialLogNamespace
+</span><a href="#local-6989586621679354071"><span class="hs-identifier hs-var">prometheusPort</span></a></span><span>
+</span><span id="line-44"></span><span>  </span><span id="local-6989586621679354067"><span class="annot"><span class="annottext">Context
+</span><a href="#local-6989586621679354067"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">InitialLogNamespace
 -&gt; Maybe MetricsScrapingConfig
 -&gt; IAVLVersions
 -&gt; GrpcConfig
 -&gt; IO Context
 </span><span class="hs-identifier hs-var">BaseApp.makeContext</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; InitialLogNamespace
 </span><span class="hs-identifier hs-var">KL.InitialLogNamespace</span></span><span> </span><span class="annot"><span class="hs-string">&quot;dev&quot;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;nameservice&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe MetricsScrapingConfig
-</span><a href="#local-6989586621679353952"><span class="hs-identifier hs-var">prometheusEnv</span></a></span><span> </span><span class="annot"><span class="annottext">IAVLVersions
-</span><a href="#local-6989586621679353960"><span class="hs-identifier hs-var">versions</span></a></span><span> </span><span class="annot"><span class="annottext">GrpcConfig
-</span><a href="#local-6989586621679353959"><span class="hs-identifier hs-var">grpcConfig</span></a></span><span>
-</span><span id="line-45"></span><span>  </span><span id="local-6989586621679353944"><span class="annot"><span class="annottext">IORef (Maybe ThreadId)
-</span><a href="#local-6989586621679353944"><span class="hs-identifier hs-var">prometheusServer</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Maybe ThreadId -&gt; IO (IORef (Maybe ThreadId))
+</span><a href="#local-6989586621679354072"><span class="hs-identifier hs-var">prometheusEnv</span></a></span><span> </span><span class="annot"><span class="annottext">IAVLVersions
+</span><a href="#local-6989586621679354080"><span class="hs-identifier hs-var">versions</span></a></span><span> </span><span class="annot"><span class="annottext">GrpcConfig
+</span><a href="#local-6989586621679354079"><span class="hs-identifier hs-var">grpcConfig</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span id="local-6989586621679354064"><span class="annot"><span class="annottext">IORef (Maybe ThreadId)
+</span><a href="#local-6989586621679354064"><span class="hs-identifier hs-var">prometheusServer</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Maybe ThreadId -&gt; IO (IORef (Maybe ThreadId))
 forall a. a -&gt; IO (IORef a)
 </span><span class="hs-identifier hs-var">newIORef</span></span><span> </span><span class="annot"><span class="annottext">Maybe ThreadId
 forall a. Maybe a
@@ -109,25 +109,25 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span id="line-47"></span><span>    </span><span class="annot"><span class="annottext">AppConfig :: Context -&gt; IORef (Maybe ThreadId) -&gt; AppConfig
 </span><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier hs-type hs-type">AppConfig</span></a></span><span> </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">_baseAppContext :: Context
 </span><a href="Nameservice.Config.html#_baseAppContext"><span class="hs-identifier hs-var">_baseAppContext</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Context
-</span><a href="#local-6989586621679353947"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><a href="#local-6989586621679354067"><span class="hs-identifier hs-var">c</span></a></span><span>
 </span><span id="line-48"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_prometheusServerThreadId :: IORef (Maybe ThreadId)
 </span><a href="Nameservice.Config.html#_prometheusServerThreadId"><span class="hs-identifier hs-var">_prometheusServerThreadId</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IORef (Maybe ThreadId)
-</span><a href="#local-6989586621679353944"><span class="hs-identifier hs-var">prometheusServer</span></a></span><span>
+</span><a href="#local-6989586621679354064"><span class="hs-identifier hs-var">prometheusServer</span></a></span><span>
 </span><span id="line-49"></span><span>              </span><span class="hs-special">}</span><span>
 </span><span id="line-50"></span><span>
 </span><span id="line-51"></span><span class="annot"><a href="Nameservice.Config.html#addScribesToLogEnv"><span class="hs-identifier hs-type">addScribesToLogEnv</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier hs-type">AppConfig</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Nameservice.Config.html#AppConfig"><span class="hs-identifier hs-type">AppConfig</span></a></span><span>
 </span><span id="line-52"></span><span id="addScribesToLogEnv"><span class="annot"><span class="annottext">addScribesToLogEnv :: AppConfig -&gt; IO AppConfig
-</span><a href="Nameservice.Config.html#addScribesToLogEnv"><span class="hs-identifier hs-var hs-var">addScribesToLogEnv</span></a></span></span><span> </span><span id="local-6989586621679353941"><span class="annot"><span class="annottext">cfg :: AppConfig
-</span><a href="#local-6989586621679353941"><span class="hs-identifier hs-var">cfg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-53"></span><span>  </span><span id="local-6989586621679353940"><span class="annot"><span class="annottext">LogLevel
-</span><a href="#local-6989586621679353940"><span class="hs-identifier hs-var">logLevel</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO LogLevel
+</span><a href="Nameservice.Config.html#addScribesToLogEnv"><span class="hs-identifier hs-var hs-var">addScribesToLogEnv</span></a></span></span><span> </span><span id="local-6989586621679354061"><span class="annot"><span class="annottext">cfg :: AppConfig
+</span><a href="#local-6989586621679354061"><span class="hs-identifier hs-var">cfg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-53"></span><span>  </span><span id="local-6989586621679354060"><span class="annot"><span class="annottext">LogLevel
+</span><a href="#local-6989586621679354060"><span class="hs-identifier hs-var">logLevel</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO LogLevel
 </span><a href="Nameservice.Config.html#makeLogLevel"><span class="hs-identifier hs-var">makeLogLevel</span></a></span><span>
-</span><span id="line-54"></span><span>  </span><span id="local-6989586621679353938"><span class="annot"><span class="annottext">KatipConfig
-</span><a href="#local-6989586621679353938"><span class="hs-identifier hs-var">loggingCfg</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO KatipConfig
+</span><span id="line-54"></span><span>  </span><span id="local-6989586621679354058"><span class="annot"><span class="annottext">KatipConfig
+</span><a href="#local-6989586621679354058"><span class="hs-identifier hs-var">loggingCfg</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO KatipConfig
 </span><a href="Nameservice.Config.html#makeLoggingConfig"><span class="hs-identifier hs-var">makeLoggingConfig</span></a></span><span>
-</span><span id="line-55"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679353936"><span class="annot"><span class="annottext">initialLogEnv :: LogEnv
-</span><a href="#local-6989586621679353936"><span class="hs-identifier hs-var hs-var">initialLogEnv</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>  </span><span class="annot"><span class="annottext">AppConfig
-</span><a href="#local-6989586621679353941"><span class="hs-identifier hs-var">cfg</span></a></span><span> </span><span class="annot"><span class="annottext">AppConfig -&gt; Getting LogEnv AppConfig LogEnv -&gt; LogEnv
+</span><span id="line-55"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679354056"><span class="annot"><span class="annottext">initialLogEnv :: LogEnv
+</span><a href="#local-6989586621679354056"><span class="hs-identifier hs-var hs-var">initialLogEnv</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>  </span><span class="annot"><span class="annottext">AppConfig
+</span><a href="#local-6989586621679354061"><span class="hs-identifier hs-var">cfg</span></a></span><span> </span><span class="annot"><span class="annottext">AppConfig -&gt; Getting LogEnv AppConfig LogEnv -&gt; LogEnv
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">(Context -&gt; Const LogEnv Context)
 -&gt; AppConfig -&gt; Const LogEnv AppConfig
@@ -153,18 +153,18 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 -&gt; LogConfig -&gt; Const LogEnv LogConfig
 Lens' LogConfig LogEnv
 </span><span class="hs-identifier hs-var">KL.logEnv</span></span><span>
-</span><span id="line-56"></span><span>  </span><span id="local-6989586621679353932"><span class="annot"><span class="annottext">LogEnv
-</span><a href="#local-6989586621679353932"><span class="hs-identifier hs-var">scribesLogEnv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">KatipConfig -&gt; LogLevel -&gt; LogEnv -&gt; IO LogEnv
+</span><span id="line-56"></span><span>  </span><span id="local-6989586621679354052"><span class="annot"><span class="annottext">LogEnv
+</span><a href="#local-6989586621679354052"><span class="hs-identifier hs-var">scribesLogEnv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">KatipConfig -&gt; LogLevel -&gt; LogEnv -&gt; IO LogEnv
 </span><a href="Nameservice.Config.html#makeKatipScribe"><span class="hs-identifier hs-var">makeKatipScribe</span></a></span><span> </span><span class="annot"><span class="annottext">KatipConfig
-</span><a href="#local-6989586621679353938"><span class="hs-identifier hs-var">loggingCfg</span></a></span><span> </span><span class="annot"><span class="annottext">LogLevel
-</span><a href="#local-6989586621679353940"><span class="hs-identifier hs-var">logLevel</span></a></span><span> </span><span class="annot"><span class="annottext">LogEnv
-</span><a href="#local-6989586621679353936"><span class="hs-identifier hs-var">initialLogEnv</span></a></span><span>
+</span><a href="#local-6989586621679354058"><span class="hs-identifier hs-var">loggingCfg</span></a></span><span> </span><span class="annot"><span class="annottext">LogLevel
+</span><a href="#local-6989586621679354060"><span class="hs-identifier hs-var">logLevel</span></a></span><span> </span><span class="annot"><span class="annottext">LogEnv
+</span><a href="#local-6989586621679354056"><span class="hs-identifier hs-var">initialLogEnv</span></a></span><span>
 </span><span id="line-57"></span><span>  </span><span class="annot"><span class="annottext">AppConfig -&gt; IO AppConfig
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(AppConfig -&gt; IO AppConfig) -&gt; AppConfig -&gt; IO AppConfig
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">AppConfig
-</span><a href="#local-6989586621679353941"><span class="hs-identifier hs-var">cfg</span></a></span><span> </span><span class="annot"><span class="annottext">AppConfig -&gt; (AppConfig -&gt; AppConfig) -&gt; AppConfig
+</span><a href="#local-6989586621679354061"><span class="hs-identifier hs-var">cfg</span></a></span><span> </span><span class="annot"><span class="annottext">AppConfig -&gt; (AppConfig -&gt; AppConfig) -&gt; AppConfig
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span>
 </span><span id="line-58"></span><span>    </span><span class="annot"><span class="annottext">(Context -&gt; Identity Context) -&gt; AppConfig -&gt; Identity AppConfig
@@ -189,7 +189,7 @@ Lens' LogConfig LogEnv
 -&gt; LogEnv -&gt; AppConfig -&gt; AppConfig
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">LogEnv
-</span><a href="#local-6989586621679353932"><span class="hs-identifier hs-var">scribesLogEnv</span></a></span><span>
+</span><a href="#local-6989586621679354052"><span class="hs-identifier hs-var">scribesLogEnv</span></a></span><span>
 </span><span id="line-59"></span><span>
 </span><span id="line-60"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-61"></span><span>
@@ -204,75 +204,75 @@ forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span id="line-68"></span><span id="makeLogLevel"><span class="annot"><span class="annottext">makeLogLevel :: IO LogLevel
 </span><a href="Nameservice.Config.html#makeLogLevel"><span class="hs-identifier hs-var hs-var">makeLogLevel</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-69"></span><span>  </span><span class="hs-comment">-- LOG_SEVERITY should be in {debug, info, notice, warning, error, critical, alert, emergency}</span><span>
-</span><span id="line-70"></span><span>  </span><span id="local-6989586621679353927"><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679353927"><span class="hs-identifier hs-var">msev</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO (Maybe String)
+</span><span id="line-70"></span><span>  </span><span id="local-6989586621679354047"><span class="annot"><span class="annottext">Maybe String
+</span><a href="#local-6989586621679354047"><span class="hs-identifier hs-var">msev</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO (Maybe String)
 </span><span class="hs-identifier hs-var">lookupEnv</span></span><span> </span><span class="annot"><span class="hs-string">&quot;LOG_SEVERITY&quot;</span></span><span>
-</span><span id="line-71"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679353926"><span class="annot"><span class="annottext">s :: Severity
-</span><a href="#local-6989586621679353926"><span class="hs-identifier hs-var hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Severity -&gt; Maybe Severity -&gt; Severity
+</span><span id="line-71"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679354046"><span class="annot"><span class="annottext">s :: Severity
+</span><a href="#local-6989586621679354046"><span class="hs-identifier hs-var hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Severity -&gt; Maybe Severity -&gt; Severity
 forall a. a -&gt; Maybe a -&gt; a
 </span><span class="hs-identifier hs-var">fromMaybe</span></span><span> </span><span class="annot"><span class="annottext">Severity
 </span><span class="hs-identifier hs-var">K.InfoS</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe Severity
-</span><a href="#local-6989586621679353924"><span class="hs-identifier hs-var">parseSeverity</span></a></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Maybe Severity) -&gt; Maybe String -&gt; Maybe Severity
+</span><a href="#local-6989586621679354044"><span class="hs-identifier hs-var">parseSeverity</span></a></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Maybe Severity) -&gt; Maybe String -&gt; Maybe Severity
 forall (m :: * -&gt; *) a b. Monad m =&gt; (a -&gt; m b) -&gt; m a -&gt; m b
 </span><span class="hs-operator hs-var">=&lt;&lt;</span></span><span> </span><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679353927"><span class="hs-identifier hs-var">msev</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679354047"><span class="hs-identifier hs-var">msev</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-72"></span><span>  </span><span class="hs-comment">-- LOG_VERBOSITY should be in {0,1,2,3}</span><span>
-</span><span id="line-73"></span><span>  </span><span id="local-6989586621679353922"><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679353922"><span class="hs-identifier hs-var">mverb</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>  </span><span class="annot"><span class="annottext">String -&gt; IO (Maybe String)
+</span><span id="line-73"></span><span>  </span><span id="local-6989586621679354042"><span class="annot"><span class="annottext">Maybe String
+</span><a href="#local-6989586621679354042"><span class="hs-identifier hs-var">mverb</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>  </span><span class="annot"><span class="annottext">String -&gt; IO (Maybe String)
 </span><span class="hs-identifier hs-var">lookupEnv</span></span><span> </span><span class="annot"><span class="hs-string">&quot;LOG_VERBOSITY&quot;</span></span><span>
-</span><span id="line-74"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679353921"><span class="annot"><span class="annottext">v :: Verbosity
-</span><a href="#local-6989586621679353921"><span class="hs-identifier hs-var hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Verbosity -&gt; Maybe Verbosity -&gt; Verbosity
+</span><span id="line-74"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679354041"><span class="annot"><span class="annottext">v :: Verbosity
+</span><a href="#local-6989586621679354041"><span class="hs-identifier hs-var hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Verbosity -&gt; Maybe Verbosity -&gt; Verbosity
 forall a. a -&gt; Maybe a -&gt; a
 </span><span class="hs-identifier hs-var">fromMaybe</span></span><span> </span><span class="annot"><span class="annottext">Verbosity
 </span><span class="hs-identifier hs-var">K.V0</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe Verbosity
 forall a. (Eq a, IsString a) =&gt; a -&gt; Maybe Verbosity
-</span><a href="#local-6989586621679353919"><span class="hs-identifier hs-var">parseVerbosity</span></a></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Maybe Verbosity) -&gt; Maybe String -&gt; Maybe Verbosity
+</span><a href="#local-6989586621679354039"><span class="hs-identifier hs-var">parseVerbosity</span></a></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Maybe Verbosity) -&gt; Maybe String -&gt; Maybe Verbosity
 forall (m :: * -&gt; *) a b. Monad m =&gt; (a -&gt; m b) -&gt; m a -&gt; m b
 </span><span class="hs-operator hs-var">=&lt;&lt;</span></span><span> </span><span class="annot"><span class="annottext">Maybe String
-</span><a href="#local-6989586621679353922"><span class="hs-identifier hs-var">mverb</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679354042"><span class="hs-identifier hs-var">mverb</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-75"></span><span>  </span><span class="annot"><span class="annottext">LogLevel -&gt; IO LogLevel
 forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
 </span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">LogLevel :: Severity -&gt; Verbosity -&gt; LogLevel
 </span><a href="Nameservice.Config.html#LogLevel"><span class="hs-identifier hs-type hs-type">LogLevel</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">severity :: Severity
 </span><a href="Nameservice.Config.html#severity"><span class="hs-identifier hs-var">severity</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Severity
-</span><a href="#local-6989586621679353926"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">verbosity :: Verbosity
+</span><a href="#local-6989586621679354046"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">verbosity :: Verbosity
 </span><a href="Nameservice.Config.html#verbosity"><span class="hs-identifier hs-var">verbosity</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Verbosity
-</span><a href="#local-6989586621679353921"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">}</span><span>
+</span><a href="#local-6989586621679354041"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">}</span><span>
 </span><span id="line-76"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-77"></span><span>    </span><span id="local-6989586621679353924"><span class="annot"><span class="annottext">parseSeverity :: String -&gt; Maybe Severity
-</span><a href="#local-6989586621679353924"><span class="hs-identifier hs-var hs-var">parseSeverity</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Severity
+</span><span id="line-77"></span><span>    </span><span id="local-6989586621679354044"><span class="annot"><span class="annottext">parseSeverity :: String -&gt; Maybe Severity
+</span><a href="#local-6989586621679354044"><span class="hs-identifier hs-var hs-var">parseSeverity</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Severity
 </span><span class="hs-identifier hs-var">K.textToSeverity</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Maybe Severity)
 -&gt; (String -&gt; Text) -&gt; String -&gt; Maybe Severity
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span>
-</span><span id="line-78"></span><span>    </span><span id="local-6989586621679353919"><span class="annot"><span class="annottext">parseVerbosity :: a -&gt; Maybe Verbosity
-</span><a href="#local-6989586621679353919"><span class="hs-identifier hs-var hs-var">parseVerbosity</span></a></span></span><span> </span><span id="local-6989586621679353916"><span class="annot"><span class="annottext">v :: a
-</span><a href="#local-6989586621679353916"><span class="hs-identifier hs-var">v</span></a></span></span><span>
+</span><span id="line-78"></span><span>    </span><span id="local-6989586621679354039"><span class="annot"><span class="annottext">parseVerbosity :: a -&gt; Maybe Verbosity
+</span><a href="#local-6989586621679354039"><span class="hs-identifier hs-var hs-var">parseVerbosity</span></a></span></span><span> </span><span id="local-6989586621679354036"><span class="annot"><span class="annottext">v :: a
+</span><a href="#local-6989586621679354036"><span class="hs-identifier hs-var">v</span></a></span></span><span>
 </span><span id="line-79"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679353916"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679354036"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-string">&quot;0&quot;</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Verbosity -&gt; Maybe Verbosity
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">Verbosity
 </span><span class="hs-identifier hs-var">K.V0</span></span><span>
 </span><span id="line-80"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679353916"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679354036"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-string">&quot;1&quot;</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Verbosity -&gt; Maybe Verbosity
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">Verbosity
 </span><span class="hs-identifier hs-var">K.V1</span></span><span>
 </span><span id="line-81"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679353916"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679354036"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-string">&quot;2&quot;</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Verbosity -&gt; Maybe Verbosity
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">Verbosity
 </span><span class="hs-identifier hs-var">K.V2</span></span><span>
 </span><span id="line-82"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679353916"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
+</span><a href="#local-6989586621679354036"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-string">&quot;3&quot;</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Verbosity -&gt; Maybe Verbosity
 forall a. a -&gt; Maybe a
@@ -291,8 +291,8 @@ forall a. Maybe a
 </span><span id="line-90"></span><span class="annot"><a href="Nameservice.Config.html#makeLoggingConfig"><span class="hs-identifier hs-type">makeLoggingConfig</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Nameservice.Config.html#KatipConfig"><span class="hs-identifier hs-type">KatipConfig</span></a></span><span>
 </span><span id="line-91"></span><span id="makeLoggingConfig"><span class="annot"><span class="annottext">makeLoggingConfig :: IO KatipConfig
 </span><a href="Nameservice.Config.html#makeLoggingConfig"><span class="hs-identifier hs-var hs-var">makeLoggingConfig</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-92"></span><span>  </span><span id="local-6989586621679353910"><span class="annot"><span class="annottext">Maybe KatipConfig
-</span><a href="#local-6989586621679353910"><span class="hs-identifier hs-var">mEsConfig</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">MaybeT IO KatipConfig -&gt; IO (Maybe KatipConfig)
+</span><span id="line-92"></span><span>  </span><span id="local-6989586621679354030"><span class="annot"><span class="annottext">Maybe KatipConfig
+</span><a href="#local-6989586621679354030"><span class="hs-identifier hs-var">mEsConfig</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">MaybeT IO KatipConfig -&gt; IO (Maybe KatipConfig)
 forall (m :: * -&gt; *) a. MaybeT m a -&gt; m (Maybe a)
 </span><span class="hs-identifier hs-var hs-var">runMaybeT</span></span><span> </span><span class="annot"><span class="annottext">(MaybeT IO KatipConfig -&gt; IO (Maybe KatipConfig))
 -&gt; MaybeT IO KatipConfig -&gt; IO (Maybe KatipConfig)
@@ -320,7 +320,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a. a -&gt; Maybe a -&gt; a
 </span><span class="hs-identifier hs-var">fromMaybe</span></span><span> </span><span class="annot"><span class="annottext">KatipConfig
 </span><a href="Nameservice.Config.html#Console"><span class="hs-identifier hs-var">Console</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe KatipConfig
-</span><a href="#local-6989586621679353910"><span class="hs-identifier hs-var">mEsConfig</span></a></span><span>
+</span><a href="#local-6989586621679354030"><span class="hs-identifier hs-var">mEsConfig</span></a></span><span>
 </span><span id="line-95"></span><span>
 </span><span id="line-96"></span><span class="hs-comment">-- makes a log environment for console logs / ES logs</span><span>
 </span><span id="line-97"></span><span class="annot"><a href="Nameservice.Config.html#makeKatipScribe"><span class="hs-identifier hs-type">makeKatipScribe</span></a></span><span>
@@ -329,25 +329,25 @@ forall a. a -&gt; Maybe a -&gt; a
 </span><span id="line-100"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">K.LogEnv</span></span><span>
 </span><span id="line-101"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">K.LogEnv</span></span><span>
 </span><span id="line-102"></span><span id="makeKatipScribe"><span class="annot"><span class="annottext">makeKatipScribe :: KatipConfig -&gt; LogLevel -&gt; LogEnv -&gt; IO LogEnv
-</span><a href="Nameservice.Config.html#makeKatipScribe"><span class="hs-identifier hs-var hs-var">makeKatipScribe</span></a></span></span><span> </span><span id="local-6989586621679353909"><span class="annot"><span class="annottext">kcfg :: KatipConfig
-</span><a href="#local-6989586621679353909"><span class="hs-identifier hs-var">kcfg</span></a></span></span><span> </span><span id="local-6989586621679353907"><span id="local-6989586621679353908"><span class="annot"><a href="Nameservice.Config.html#LogLevel"><span class="hs-identifier hs-type">LogLevel</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span id="local-6989586621679353906"><span class="annot"><span class="annottext">le :: LogEnv
-</span><a href="#local-6989586621679353906"><span class="hs-identifier hs-var">le</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">KatipConfig
-</span><a href="#local-6989586621679353909"><span class="hs-identifier hs-var">kcfg</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="Nameservice.Config.html#makeKatipScribe"><span class="hs-identifier hs-var hs-var">makeKatipScribe</span></a></span></span><span> </span><span id="local-6989586621679354029"><span class="annot"><span class="annottext">kcfg :: KatipConfig
+</span><a href="#local-6989586621679354029"><span class="hs-identifier hs-var">kcfg</span></a></span></span><span> </span><span id="local-6989586621679354027"><span id="local-6989586621679354028"><span class="annot"><a href="Nameservice.Config.html#LogLevel"><span class="hs-identifier hs-type">LogLevel</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span id="local-6989586621679354026"><span class="annot"><span class="annottext">le :: LogEnv
+</span><a href="#local-6989586621679354026"><span class="hs-identifier hs-var">le</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">KatipConfig
+</span><a href="#local-6989586621679354029"><span class="hs-identifier hs-var">kcfg</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-103"></span><span>  </span><span class="annot"><a href="Nameservice.Config.html#Console"><span class="hs-identifier hs-type">Console</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-104"></span><span>    </span><span id="local-6989586621679353905"><span class="annot"><span class="annottext">Scribe
-</span><a href="#local-6989586621679353905"><span class="hs-identifier hs-var">handleScribe</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ColorStrategy -&gt; Handle -&gt; PermitFunc -&gt; Verbosity -&gt; IO Scribe
+</span><span id="line-104"></span><span>    </span><span id="local-6989586621679354025"><span class="annot"><span class="annottext">Scribe
+</span><a href="#local-6989586621679354025"><span class="hs-identifier hs-var">handleScribe</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ColorStrategy -&gt; Handle -&gt; PermitFunc -&gt; Verbosity -&gt; IO Scribe
 </span><span class="hs-identifier hs-var">K.mkHandleScribe</span></span><span> </span><span class="annot"><span class="annottext">ColorStrategy
 </span><span class="hs-identifier hs-var">K.ColorIfTerminal</span></span><span> </span><span class="annot"><span class="annottext">Handle
 </span><span class="hs-identifier hs-var">stdout</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Severity -&gt; Item a -&gt; IO Bool
 forall (m :: * -&gt; *) a. Monad m =&gt; Severity -&gt; Item a -&gt; m Bool
 </span><span class="hs-identifier hs-var">K.permitItem</span></span><span> </span><span class="annot"><span class="annottext">Severity
-</span><a href="#local-6989586621679353908"><span class="hs-identifier hs-var">severity</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Verbosity
-</span><a href="#local-6989586621679353907"><span class="hs-identifier hs-var">verbosity</span></a></span><span>
+</span><a href="#local-6989586621679354028"><span class="hs-identifier hs-var">severity</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Verbosity
+</span><a href="#local-6989586621679354027"><span class="hs-identifier hs-var">verbosity</span></a></span><span>
 </span><span id="line-105"></span><span>    </span><span class="annot"><span class="annottext">Text -&gt; Scribe -&gt; ScribeSettings -&gt; LogEnv -&gt; IO LogEnv
 </span><span class="hs-identifier hs-var">K.registerScribe</span></span><span> </span><span class="annot"><span class="hs-string">&quot;stdout&quot;</span></span><span> </span><span class="annot"><span class="annottext">Scribe
-</span><a href="#local-6989586621679353905"><span class="hs-identifier hs-var">handleScribe</span></a></span><span> </span><span class="annot"><span class="annottext">ScribeSettings
+</span><a href="#local-6989586621679354025"><span class="hs-identifier hs-var">handleScribe</span></a></span><span> </span><span class="annot"><span class="annottext">ScribeSettings
 </span><span class="hs-identifier hs-var">K.defaultScribeSettings</span></span><span> </span><span class="annot"><span class="annottext">LogEnv
-</span><a href="#local-6989586621679353906"><span class="hs-identifier hs-var">le</span></a></span><span>
+</span><a href="#local-6989586621679354026"><span class="hs-identifier hs-var">le</span></a></span><span>
 </span><span id="line-106"></span><span>  </span><span class="annot"><a href="Nameservice.Config.html#ES"><span class="hs-identifier hs-type">ES</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO LogEnv
 forall a. HasCallStack =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;ES Logging is not available due to dependency issues with Bloodhound ES client&quot;</span></span><span>

@@ -18,10 +18,10 @@
 </span><span id="line-16"></span><span>
 </span><span id="line-17"></span><span class="annot"><a href="Tendermint.Utils.User.html#makeUser"><span class="hs-identifier hs-type">makeUser</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.Utils.User.html#User"><span class="hs-identifier hs-type">User</span></a></span><span>
 </span><span id="line-18"></span><span id="makeUser"><span class="annot"><span class="annottext">makeUser :: String -&gt; User
-</span><a href="Tendermint.Utils.User.html#makeUser"><span class="hs-identifier hs-var hs-var">makeUser</span></a></span></span><span> </span><span id="local-6989586621679268825"><span class="annot"><span class="annottext">privKeyStr :: String
-</span><a href="#local-6989586621679268825"><span class="hs-identifier hs-var">privKeyStr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-19"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679268824"><span class="annot"><span class="annottext">privateKey :: SecKey
-</span><a href="#local-6989586621679268824"><span class="hs-identifier hs-var hs-var">privateKey</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe SecKey -&gt; SecKey
+</span><a href="Tendermint.Utils.User.html#makeUser"><span class="hs-identifier hs-var hs-var">makeUser</span></a></span></span><span> </span><span id="local-6989586621679268838"><span class="annot"><span class="annottext">privKeyStr :: String
+</span><a href="#local-6989586621679268838"><span class="hs-identifier hs-var">privKeyStr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679268837"><span class="annot"><span class="annottext">privateKey :: SecKey
+</span><a href="#local-6989586621679268837"><span class="hs-identifier hs-var hs-var">privateKey</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe SecKey -&gt; SecKey
 forall a. HasCallStack =&gt; Maybe a -&gt; a
 </span><span class="hs-identifier hs-var">fromJust</span></span><span> </span><span class="annot"><span class="annottext">(Maybe SecKey -&gt; SecKey)
 -&gt; (String -&gt; Maybe SecKey) -&gt; String -&gt; SecKey
@@ -40,13 +40,13 @@ forall a. IsString a =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">fromString</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; SecKey) -&gt; String -&gt; SecKey
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679268825"><span class="hs-identifier hs-var">privKeyStr</span></a></span><span>
-</span><span id="line-20"></span><span>      </span><span id="local-6989586621679268821"><span class="annot"><span class="annottext">pubKey :: PubKey
-</span><a href="#local-6989586621679268821"><span class="hs-identifier hs-var hs-var">pubKey</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SecKey -&gt; PubKey
+</span><a href="#local-6989586621679268838"><span class="hs-identifier hs-var">privKeyStr</span></a></span><span>
+</span><span id="line-20"></span><span>      </span><span id="local-6989586621679268834"><span class="annot"><span class="annottext">pubKey :: PubKey
+</span><a href="#local-6989586621679268834"><span class="hs-identifier hs-var hs-var">pubKey</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SecKey -&gt; PubKey
 </span><span class="hs-identifier hs-var">derivePubKey</span></span><span> </span><span class="annot"><span class="annottext">SecKey
-</span><a href="#local-6989586621679268824"><span class="hs-identifier hs-var">privateKey</span></a></span><span>
-</span><span id="line-21"></span><span>      </span><span id="local-6989586621679268820"><span class="annot"><span class="annottext">address :: Address
-</span><a href="#local-6989586621679268820"><span class="hs-identifier hs-var hs-var">address</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy Secp256k1 -&gt; PubKey Secp256k1 -&gt; Address
+</span><a href="#local-6989586621679268837"><span class="hs-identifier hs-var">privateKey</span></a></span><span>
+</span><span id="line-21"></span><span>      </span><span id="local-6989586621679268833"><span class="annot"><span class="annottext">address :: Address
+</span><a href="#local-6989586621679268833"><span class="hs-identifier hs-var hs-var">address</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy Secp256k1 -&gt; PubKey Secp256k1 -&gt; Address
 forall k (alg :: k).
 SignatureSchema alg =&gt;
 Proxy alg -&gt; PubKey alg -&gt; Address
@@ -54,20 +54,20 @@ Proxy alg -&gt; PubKey alg -&gt; Address
 forall k (t :: k). Proxy t
 </span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><span class="hs-identifier hs-type">Secp256k1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">PubKey Secp256k1
 PubKey
-</span><a href="#local-6989586621679268821"><span class="hs-identifier hs-var">pubKey</span></a></span><span>
+</span><a href="#local-6989586621679268834"><span class="hs-identifier hs-var">pubKey</span></a></span><span>
 </span><span id="line-22"></span><span>  </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">SecKey -&gt; Address -&gt; User
 </span><a href="Tendermint.Utils.User.html#User"><span class="hs-identifier hs-var">User</span></a></span><span> </span><span class="annot"><span class="annottext">SecKey
-</span><a href="#local-6989586621679268824"><span class="hs-identifier hs-var">privateKey</span></a></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679268820"><span class="hs-identifier hs-var">address</span></a></span><span>
+</span><a href="#local-6989586621679268837"><span class="hs-identifier hs-var">privateKey</span></a></span><span> </span><span class="annot"><span class="annottext">Address
+</span><a href="#local-6989586621679268833"><span class="hs-identifier hs-var">address</span></a></span><span>
 </span><span id="line-23"></span><span>
 </span><span id="line-24"></span><span class="annot"><a href="Tendermint.Utils.User.html#makeSignerFromUser"><span class="hs-identifier hs-type">makeSignerFromUser</span></a></span><span>
 </span><span id="line-25"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.Utils.User.html#User"><span class="hs-identifier hs-type">User</span></a></span><span>
 </span><span id="line-26"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.Utils.TxClient.Types.html#Signer"><span class="hs-identifier hs-type">Signer</span></a></span><span>
 </span><span id="line-27"></span><span id="makeSignerFromUser"><span class="annot"><span class="annottext">makeSignerFromUser :: User -&gt; Signer
-</span><a href="Tendermint.Utils.User.html#makeSignerFromUser"><span class="hs-identifier hs-var hs-var">makeSignerFromUser</span></a></span></span><span> </span><span class="annot"><a href="Tendermint.Utils.User.html#User"><span class="hs-identifier hs-type">User</span></a></span><span class="hs-special">{</span><span id="local-6989586621679268817"><span class="annot"><span class="annottext">SecKey
+</span><a href="Tendermint.Utils.User.html#makeSignerFromUser"><span class="hs-identifier hs-var hs-var">makeSignerFromUser</span></a></span></span><span> </span><span class="annot"><a href="Tendermint.Utils.User.html#User"><span class="hs-identifier hs-type">User</span></a></span><span class="hs-special">{</span><span id="local-6989586621679268830"><span class="annot"><span class="annottext">SecKey
 userPrivKey :: SecKey
 userPrivKey :: User -&gt; SecKey
-</span><a href="#local-6989586621679268817"><span class="hs-identifier hs-var hs-var">userPrivKey</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="#local-6989586621679268830"><span class="hs-identifier hs-var hs-var">userPrivKey</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-28"></span><span>  </span><span class="annot"><span class="annottext">Proxy Secp256k1 -&gt; PrivateKey Secp256k1 -&gt; Signer
 forall alg.
 (RecoverableSignatureSchema alg, Message alg ~ Digest SHA256) =&gt;
@@ -76,5 +76,5 @@ Proxy alg -&gt; PrivateKey alg -&gt; Signer
 forall k (t :: k). Proxy t
 </span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><span class="hs-identifier hs-type">Secp256k1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">PrivateKey Secp256k1
 SecKey
-</span><a href="#local-6989586621679268817"><span class="hs-identifier hs-var">userPrivKey</span></a></span><span>
+</span><a href="#local-6989586621679268830"><span class="hs-identifier hs-var">userPrivKey</span></a></span><span>
 </span><span id="line-29"></span></pre></body></html>

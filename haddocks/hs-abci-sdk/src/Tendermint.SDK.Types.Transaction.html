@@ -24,37 +24,37 @@
 </span><span id="line-24"></span><span>
 </span><span id="line-25"></span><span class="hs-comment">-- Our standard transaction type parameterized by the signature schema 'alg'</span><span>
 </span><span id="line-26"></span><span class="hs-comment">-- and an underlying message type 'msg'.</span><span>
-</span><span id="line-27"></span><span class="hs-keyword">data</span><span> </span><span id="Tx"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-var">Tx</span></a></span></span><span> </span><span id="local-6989586621679548166"><span class="annot"><a href="#local-6989586621679548166"><span class="hs-identifier hs-type">alg</span></a></span></span><span> </span><span id="local-6989586621679548165"><span class="annot"><a href="#local-6989586621679548165"><span class="hs-identifier hs-type">msg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Tx"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-var">Tx</span></a></span></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">data</span><span> </span><span id="Tx"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-var">Tx</span></a></span></span><span> </span><span id="local-6989586621679552418"><span class="annot"><a href="#local-6989586621679552418"><span class="hs-identifier hs-type">alg</span></a></span></span><span> </span><span id="local-6989586621679552417"><span class="annot"><a href="#local-6989586621679552417"><span class="hs-identifier hs-type">msg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Tx"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-var">Tx</span></a></span></span><span>
 </span><span id="line-28"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="txMsg"><span class="annot"><span class="annottext">Tx alg msg -&gt; Msg msg
-</span><a href="Tendermint.SDK.Types.Transaction.html#txMsg"><span class="hs-identifier hs-var hs-var">txMsg</span></a></span></span><span>       </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#Msg"><span class="hs-identifier hs-type">Msg</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679548165"><span class="hs-identifier hs-type">msg</span></a></span><span>
+</span><a href="Tendermint.SDK.Types.Transaction.html#txMsg"><span class="hs-identifier hs-var hs-var">txMsg</span></a></span></span><span>       </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#Msg"><span class="hs-identifier hs-type">Msg</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552417"><span class="hs-identifier hs-type">msg</span></a></span><span>
 </span><span id="line-29"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="txRoute"><span class="annot"><span class="annottext">Tx alg msg -&gt; Text
 </span><a href="Tendermint.SDK.Types.Transaction.html#txRoute"><span class="hs-identifier hs-var hs-var">txRoute</span></a></span></span><span>     </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
 </span><span id="line-30"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="txGas"><span class="annot"><span class="annottext">Tx alg msg -&gt; Int64
 </span><a href="Tendermint.SDK.Types.Transaction.html#txGas"><span class="hs-identifier hs-var hs-var">txGas</span></a></span></span><span>       </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int64</span></span><span>
 </span><span id="line-31"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="txSignature"><span class="annot"><span class="annottext">Tx alg msg -&gt; RecoverableSignature alg
-</span><a href="Tendermint.SDK.Types.Transaction.html#txSignature"><span class="hs-identifier hs-var hs-var">txSignature</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#RecoverableSignature"><span class="hs-identifier hs-type">RecoverableSignature</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679548166"><span class="hs-identifier hs-type">alg</span></a></span><span>
+</span><a href="Tendermint.SDK.Types.Transaction.html#txSignature"><span class="hs-identifier hs-var hs-var">txSignature</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#RecoverableSignature"><span class="hs-identifier hs-type">RecoverableSignature</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552418"><span class="hs-identifier hs-type">alg</span></a></span><span>
 </span><span id="line-32"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="txSignBytes"><span class="annot"><span class="annottext">Tx alg msg -&gt; Message alg
-</span><a href="Tendermint.SDK.Types.Transaction.html#txSignBytes"><span class="hs-identifier hs-var hs-var">txSignBytes</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#Message"><span class="hs-identifier hs-type">Message</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679548166"><span class="hs-identifier hs-type">alg</span></a></span><span>
+</span><a href="Tendermint.SDK.Types.Transaction.html#txSignBytes"><span class="hs-identifier hs-var hs-var">txSignBytes</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#Message"><span class="hs-identifier hs-type">Message</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552418"><span class="hs-identifier hs-type">alg</span></a></span><span>
 </span><span id="line-33"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="txSigner"><span class="annot"><span class="annottext">Tx alg msg -&gt; PubKey alg
-</span><a href="Tendermint.SDK.Types.Transaction.html#txSigner"><span class="hs-identifier hs-var hs-var">txSigner</span></a></span></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#PubKey"><span class="hs-identifier hs-type">PubKey</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679548166"><span class="hs-identifier hs-type">alg</span></a></span><span>
+</span><a href="Tendermint.SDK.Types.Transaction.html#txSigner"><span class="hs-identifier hs-var hs-var">txSigner</span></a></span></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#PubKey"><span class="hs-identifier hs-type">PubKey</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552418"><span class="hs-identifier hs-type">alg</span></a></span><span>
 </span><span id="line-34"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="txNonce"><span class="annot"><span class="annottext">Tx alg msg -&gt; Word64
 </span><a href="Tendermint.SDK.Types.Transaction.html#txNonce"><span class="hs-identifier hs-var hs-var">txNonce</span></a></span></span><span>     </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span>
 </span><span id="line-35"></span><span>  </span><span class="hs-special">}</span><span>
 </span><span id="line-36"></span><span>
-</span><span id="line-37"></span><span id="local-6989586621679548035"><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679548032"><span class="annot"><span class="hs-identifier hs-type">Functor</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-type">Tx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679548035"><span class="hs-identifier hs-type">alg</span></a></span><span class="hs-special">)</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-38"></span><span>  </span><span id="local-6989586621679548030"><span class="annot"><span class="annottext">fmap :: (a -&gt; b) -&gt; Tx alg a -&gt; Tx alg b
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fmap</span></span></span><span> </span><span id="local-6989586621679548029"><span class="annot"><span class="annottext">f :: a -&gt; b
-</span><a href="#local-6989586621679548029"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679548028"><span class="annot"><span class="annottext">tx :: Tx alg a
-</span><a href="#local-6989586621679548028"><span class="hs-identifier hs-var">tx</span></a></span></span><span class="hs-glyph">@</span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-type">Tx</span></a></span><span class="hs-special">{</span><span id="local-6989586621679548027"><span class="annot"><span class="annottext">Msg a
+</span><span id="line-37"></span><span id="local-6989586621679552287"><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679552284"><span class="annot"><span class="hs-identifier hs-type">Functor</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-type">Tx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552287"><span class="hs-identifier hs-type">alg</span></a></span><span class="hs-special">)</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-38"></span><span>  </span><span id="local-6989586621679552282"><span class="annot"><span class="annottext">fmap :: (a -&gt; b) -&gt; Tx alg a -&gt; Tx alg b
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fmap</span></span></span><span> </span><span id="local-6989586621679552281"><span class="annot"><span class="annottext">f :: a -&gt; b
+</span><a href="#local-6989586621679552281"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679552280"><span class="annot"><span class="annottext">tx :: Tx alg a
+</span><a href="#local-6989586621679552280"><span class="hs-identifier hs-var">tx</span></a></span></span><span class="hs-glyph">@</span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-type">Tx</span></a></span><span class="hs-special">{</span><span id="local-6989586621679552279"><span class="annot"><span class="annottext">Msg a
 txMsg :: Msg a
 txMsg :: forall k (alg :: k) msg. Tx alg msg -&gt; Msg msg
-</span><a href="#local-6989586621679548027"><span class="hs-identifier hs-var hs-var">txMsg</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tx alg a
-</span><a href="#local-6989586621679548028"><span class="hs-identifier hs-var">tx</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">txMsg :: Msg b
+</span><a href="#local-6989586621679552279"><span class="hs-identifier hs-var hs-var">txMsg</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tx alg a
+</span><a href="#local-6989586621679552280"><span class="hs-identifier hs-var">tx</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">txMsg :: Msg b
 </span><a href="Tendermint.SDK.Types.Transaction.html#txMsg"><span class="hs-identifier hs-var">txMsg</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a -&gt; b) -&gt; Msg a -&gt; Msg b
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; b
-</span><a href="#local-6989586621679548029"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">Msg a
-</span><a href="#local-6989586621679548027"><span class="hs-identifier hs-var">txMsg</span></a></span><span class="hs-special">}</span></span><span>
+</span><a href="#local-6989586621679552281"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">Msg a
+</span><a href="#local-6989586621679552279"><span class="hs-identifier hs-var">txMsg</span></a></span><span class="hs-special">}</span></span><span>
 </span><span id="line-39"></span><span>
 </span><span id="line-40"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-41"></span><span>
@@ -62,7 +62,7 @@ forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span id="line-43"></span><span class="hs-comment">-- even are any.</span><span>
 </span><span id="line-44"></span><span>
 </span><span id="line-45"></span><span class="hs-comment">-- | Raw transaction type coming in over the wire</span><span>
-</span><span id="line-46"></span><span id="local-6989586621679548025"><span id="local-6989586621679548026"></span></span><span class="hs-keyword">data</span><span> </span><span id="RawTransaction"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-var">RawTransaction</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="RawTransaction"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-var">RawTransaction</span></a></span></span><span>
+</span><span id="line-46"></span><span id="local-6989586621679552277"><span id="local-6989586621679552278"></span></span><span class="hs-keyword">data</span><span> </span><span id="RawTransaction"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-var">RawTransaction</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="RawTransaction"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-var">RawTransaction</span></a></span></span><span>
 </span><span id="line-47"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="rawTransactionData"><span class="annot"><span class="annottext">RawTransaction -&gt; TypedMessage
 </span><a href="Tendermint.SDK.Types.Transaction.html#rawTransactionData"><span class="hs-identifier hs-var hs-var">rawTransactionData</span></a></span></span><span>      </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#TypedMessage"><span class="hs-identifier hs-type">TypedMessage</span></a></span><span>
 </span><span id="line-48"></span><span>  </span><span class="hs-comment">-- ^ the encoded message via protobuf encoding</span><span>
@@ -89,7 +89,7 @@ $cfrom :: forall x. RawTransaction -&gt; Rep RawTransaction x
 </span><span id="line-56"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Wrapped</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-type">RawTransaction</span></a></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-57"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Unwrapped"><span class="annot"><span class="hs-identifier hs-var">Unwrapped</span></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-type">RawTransaction</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Proto.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-type">T.RawTransaction</span></a></span><span>
 </span><span id="line-58"></span><span>
-</span><span id="line-59"></span><span>  </span><span id="local-6989586621679548013"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped RawTransaction) (f (Unwrapped RawTransaction))
+</span><span id="line-59"></span><span>  </span><span id="local-6989586621679552265"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped RawTransaction) (f (Unwrapped RawTransaction))
 -&gt; p RawTransaction (f RawTransaction)
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">_Wrapped'</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(RawTransaction -&gt; RawTransaction)
 -&gt; (RawTransaction -&gt; RawTransaction)
@@ -101,16 +101,16 @@ forall b.
  HasField b &quot;gas&quot; Int64, HasField b &quot;nonce&quot; Word64,
  HasField b &quot;route&quot; Text, HasField b &quot;signature&quot; ByteString) =&gt;
 RawTransaction -&gt; b
-</span><a href="#local-6989586621679548011"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">RawTransaction -&gt; RawTransaction
+</span><a href="#local-6989586621679552263"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">RawTransaction -&gt; RawTransaction
 forall s.
 (HasField s &quot;data'&quot; TypedMessage, HasField s &quot;gas&quot; Int64,
  HasField s &quot;nonce&quot; Word64, HasField s &quot;route&quot; Text,
  HasField s &quot;signature&quot; ByteString) =&gt;
 s -&gt; RawTransaction
-</span><a href="#local-6989586621679548010"><span class="hs-identifier hs-var">f</span></a></span><span>
+</span><a href="#local-6989586621679552262"><span class="hs-identifier hs-var">f</span></a></span><span>
 </span><span id="line-60"></span><span>   </span><span class="hs-keyword">where</span><span>
-</span><span id="line-61"></span><span>    </span><span id="local-6989586621679548011"><span class="annot"><span class="annottext">t :: RawTransaction -&gt; b
-</span><a href="#local-6989586621679548011"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679548005"><span id="local-6989586621679548006"><span id="local-6989586621679548007"><span id="local-6989586621679548008"><span id="local-6989586621679548009"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-type">RawTransaction</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-61"></span><span>    </span><span id="local-6989586621679552263"><span class="annot"><span class="annottext">t :: RawTransaction -&gt; b
+</span><a href="#local-6989586621679552263"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679552257"><span id="local-6989586621679552258"><span id="local-6989586621679552259"><span id="local-6989586621679552260"><span id="local-6989586621679552261"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-type">RawTransaction</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-62"></span><span>      </span><span class="annot"><span class="annottext">b
 forall msg. Message msg =&gt; msg
 </span><span class="hs-identifier hs-var">P.defMessage</span></span><span>
@@ -123,7 +123,7 @@ LensLike' f s a
 </span><a href="Proto.Types.Transaction_Fields.html#data%27"><span class="hs-identifier hs-var">T.data'</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b TypedMessage -&gt; TypedMessage -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TypedMessage
-</span><a href="#local-6989586621679548009"><span class="hs-identifier hs-var">rawTransactionData</span></a></span><span> </span><span class="annot"><span class="annottext">TypedMessage
+</span><a href="#local-6989586621679552261"><span class="hs-identifier hs-var">rawTransactionData</span></a></span><span> </span><span class="annot"><span class="annottext">TypedMessage
 -&gt; Getting TypedMessage TypedMessage TypedMessage -&gt; TypedMessage
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting TypedMessage TypedMessage TypedMessage
@@ -138,7 +138,7 @@ LensLike' f s a
 </span><a href="Proto.Types.Transaction_Fields.html#gas"><span class="hs-identifier hs-var">T.gas</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Int64 -&gt; Int64 -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Int64
-</span><a href="#local-6989586621679548008"><span class="hs-identifier hs-var">rawTransactionGas</span></a></span><span>
+</span><a href="#local-6989586621679552260"><span class="hs-identifier hs-var">rawTransactionGas</span></a></span><span>
 </span><span id="line-65"></span><span>        </span><span class="annot"><span class="annottext">b -&gt; (b -&gt; b) -&gt; b
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Text
@@ -148,7 +148,7 @@ LensLike' f s a
 </span><a href="Proto.Types.Transaction_Fields.html#route"><span class="hs-identifier hs-var">T.route</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Text -&gt; Text -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679548007"><span class="hs-identifier hs-var">rawTransactionRoute</span></a></span><span>
+</span><a href="#local-6989586621679552259"><span class="hs-identifier hs-var">rawTransactionRoute</span></a></span><span>
 </span><span id="line-66"></span><span>        </span><span class="annot"><span class="annottext">b -&gt; (b -&gt; b) -&gt; b
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b ByteString
@@ -158,7 +158,7 @@ LensLike' f s a
 </span><a href="Proto.Types.Transaction_Fields.html#signature"><span class="hs-identifier hs-var">T.signature</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b ByteString -&gt; ByteString -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679548006"><span class="hs-identifier hs-var">rawTransactionSignature</span></a></span><span>
+</span><a href="#local-6989586621679552258"><span class="hs-identifier hs-var">rawTransactionSignature</span></a></span><span>
 </span><span id="line-67"></span><span>        </span><span class="annot"><span class="annottext">b -&gt; (b -&gt; b) -&gt; b
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Word64
@@ -168,15 +168,15 @@ LensLike' f s a
 </span><a href="Proto.Types.Transaction_Fields.html#nonce"><span class="hs-identifier hs-var">T.nonce</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Word64 -&gt; Word64 -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679548005"><span class="hs-identifier hs-var">rawTransactionNonce</span></a></span><span>
-</span><span id="line-68"></span><span>    </span><span id="local-6989586621679548010"><span class="annot"><span class="annottext">f :: s -&gt; RawTransaction
-</span><a href="#local-6989586621679548010"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679547998"><span class="annot"><span class="annottext">message :: s
-</span><a href="#local-6989586621679547998"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RawTransaction :: TypedMessage
+</span><a href="#local-6989586621679552257"><span class="hs-identifier hs-var">rawTransactionNonce</span></a></span><span>
+</span><span id="line-68"></span><span>    </span><span id="local-6989586621679552262"><span class="annot"><span class="annottext">f :: s -&gt; RawTransaction
+</span><a href="#local-6989586621679552262"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679552250"><span class="annot"><span class="annottext">message :: s
+</span><a href="#local-6989586621679552250"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RawTransaction :: TypedMessage
 -&gt; Int64 -&gt; Text -&gt; ByteString -&gt; Word64 -&gt; RawTransaction
 </span><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-type hs-type">RawTransaction</span></a></span><span>
 </span><span id="line-69"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">rawTransactionData :: TypedMessage
 </span><a href="Tendermint.SDK.Types.Transaction.html#rawTransactionData"><span class="hs-identifier hs-var">rawTransactionData</span></a></span><span>      </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679547998"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting TypedMessage s TypedMessage -&gt; TypedMessage
+</span><a href="#local-6989586621679552250"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting TypedMessage s TypedMessage -&gt; TypedMessage
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">LensLike' (Const TypedMessage) s TypedMessage
 forall (f :: * -&gt; *) s a.
@@ -193,7 +193,7 @@ forall s. Wrapped s =&gt; Iso' (Unwrapped s) s
 </span><span class="hs-identifier hs-var">_Unwrapped'</span></span><span>
 </span><span id="line-70"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">rawTransactionGas :: Int64
 </span><a href="Tendermint.SDK.Types.Transaction.html#rawTransactionGas"><span class="hs-identifier hs-var">rawTransactionGas</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679547998"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Int64 s Int64 -&gt; Int64
+</span><a href="#local-6989586621679552250"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Int64 s Int64 -&gt; Int64
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Int64 s Int64
 forall (f :: * -&gt; *) s a.
@@ -202,7 +202,7 @@ LensLike' f s a
 </span><a href="Proto.Types.Transaction_Fields.html#gas"><span class="hs-identifier hs-var">T.gas</span></a></span><span>
 </span><span id="line-71"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">rawTransactionRoute :: Text
 </span><a href="Tendermint.SDK.Types.Transaction.html#rawTransactionRoute"><span class="hs-identifier hs-var">rawTransactionRoute</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679547998"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Text s Text -&gt; Text
+</span><a href="#local-6989586621679552250"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Text s Text -&gt; Text
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Text s Text
 forall (f :: * -&gt; *) s a.
@@ -211,7 +211,7 @@ LensLike' f s a
 </span><a href="Proto.Types.Transaction_Fields.html#route"><span class="hs-identifier hs-var">T.route</span></a></span><span>
 </span><span id="line-72"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">rawTransactionSignature :: ByteString
 </span><a href="Tendermint.SDK.Types.Transaction.html#rawTransactionSignature"><span class="hs-identifier hs-var">rawTransactionSignature</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679547998"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting ByteString s ByteString -&gt; ByteString
+</span><a href="#local-6989586621679552250"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting ByteString s ByteString -&gt; ByteString
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting ByteString s ByteString
 forall (f :: * -&gt; *) s a.
@@ -220,7 +220,7 @@ LensLike' f s a
 </span><a href="Proto.Types.Transaction_Fields.html#signature"><span class="hs-identifier hs-var">T.signature</span></a></span><span>
 </span><span id="line-73"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">rawTransactionNonce :: Word64
 </span><a href="Tendermint.SDK.Types.Transaction.html#rawTransactionNonce"><span class="hs-identifier hs-var">rawTransactionNonce</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679547998"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Word64 s Word64 -&gt; Word64
+</span><a href="#local-6989586621679552250"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Word64 s Word64 -&gt; Word64
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Word64 s Word64
 forall (f :: * -&gt; *) s a.
@@ -230,7 +230,7 @@ LensLike' f s a
 </span><span id="line-74"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-75"></span><span>
 </span><span id="line-76"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-type">RawTransaction</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-77"></span><span>  </span><span id="local-6989586621679547992"><span class="annot"><span class="annottext">encode :: RawTransaction -&gt; ByteString
+</span><span id="line-77"></span><span>  </span><span id="local-6989586621679552244"><span class="annot"><span class="annottext">encode :: RawTransaction -&gt; ByteString
 </span><a href="Tendermint.SDK.Codec.html#encode"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RawTransaction -&gt; ByteString
 forall msg. Message msg =&gt; msg -&gt; ByteString
 </span><span class="hs-identifier hs-var">P.encodeMessage</span></span><span> </span><span class="annot"><span class="annottext">(RawTransaction -&gt; ByteString)
@@ -244,7 +244,7 @@ forall s (m :: * -&gt; *) a. MonadReader s m =&gt; Getting a s a -&gt; m a
 </span><span class="hs-identifier hs-var">view</span></span><span> </span><span class="annot"><span class="annottext">Getting RawTransaction RawTransaction RawTransaction
 forall s. Wrapped s =&gt; Iso' s (Unwrapped s)
 </span><span class="hs-identifier hs-var">_Wrapped'</span></span><span>
-</span><span id="line-78"></span><span>  </span><span id="local-6989586621679547989"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text RawTransaction
+</span><span id="line-78"></span><span>  </span><span id="local-6989586621679552241"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text RawTransaction
 </span><a href="Tendermint.SDK.Codec.html#decode"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text)
 -&gt; (RawTransaction -&gt; RawTransaction)
 -&gt; Either String RawTransaction
@@ -278,9 +278,9 @@ forall msg. Message msg =&gt; ByteString -&gt; Either String msg
 </span><span class="hs-identifier hs-var">P.decodeMessage</span></span><span>
 </span><span id="line-79"></span><span>
 </span><span id="line-80"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#MakeDigest"><span class="hs-identifier hs-type">MakeDigest</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-type">RawTransaction</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-81"></span><span>  </span><span id="local-6989586621679547984"><span class="annot"><span class="annottext">makeDigest :: RawTransaction -&gt; Digest SHA256
-</span><a href="Tendermint.SDK.Crypto.html#makeDigest"><span class="hs-identifier hs-var hs-var hs-var hs-var">makeDigest</span></a></span></span><span> </span><span id="local-6989586621679547982"><span class="annot"><span class="annottext">tx :: RawTransaction
-</span><a href="#local-6989586621679547982"><span class="hs-identifier hs-var">tx</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SHA256 -&gt; ByteString -&gt; Digest SHA256
+</span><span id="line-81"></span><span>  </span><span id="local-6989586621679552236"><span class="annot"><span class="annottext">makeDigest :: RawTransaction -&gt; Digest SHA256
+</span><a href="Tendermint.SDK.Crypto.html#makeDigest"><span class="hs-identifier hs-var hs-var hs-var hs-var">makeDigest</span></a></span></span><span> </span><span id="local-6989586621679552234"><span class="annot"><span class="annottext">tx :: RawTransaction
+</span><a href="#local-6989586621679552234"><span class="hs-identifier hs-var">tx</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SHA256 -&gt; ByteString -&gt; Digest SHA256
 forall ba alg.
 (ByteArrayAccess ba, HashAlgorithm alg) =&gt;
 alg -&gt; ba -&gt; Digest alg
@@ -296,57 +296,57 @@ forall a. HasCodec a =&gt; a -&gt; ByteString
 -&gt; RawTransaction -&gt; Digest SHA256
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">RawTransaction
-</span><a href="#local-6989586621679547982"><span class="hs-identifier hs-var">tx</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">rawTransactionSignature :: ByteString
+</span><a href="#local-6989586621679552234"><span class="hs-identifier hs-var">tx</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">rawTransactionSignature :: ByteString
 </span><a href="Tendermint.SDK.Types.Transaction.html#rawTransactionSignature"><span class="hs-identifier hs-var">rawTransactionSignature</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span class="hs-special">}</span><span>
 </span><span id="line-82"></span><span>
 </span><span id="line-83"></span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#signRawTransaction"><span class="hs-identifier hs-type">signRawTransaction</span></a></span><span>
-</span><span id="line-84"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679547979"><span class="annot"><a href="#local-6989586621679547979"><span class="hs-identifier hs-type">alg</span></a></span></span><span class="hs-operator">.</span><span>
-</span><span id="line-85"></span><span>     </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#RecoverableSignatureSchema"><span class="hs-identifier hs-type">RecoverableSignatureSchema</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679547979"><span class="hs-identifier hs-type">alg</span></a></span><span>
-</span><span id="line-86"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#Message"><span class="hs-identifier hs-type">Message</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679547979"><span class="hs-identifier hs-type">alg</span></a></span><span> </span><span class="annot"><span class="hs-glyph hs-type">~</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Digest</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">SHA256</span></span><span>
-</span><span id="line-87"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679547979"><span class="hs-identifier hs-type">alg</span></a></span><span>
-</span><span id="line-88"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#PrivateKey"><span class="hs-identifier hs-type">PrivateKey</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679547979"><span class="hs-identifier hs-type">alg</span></a></span><span> </span><span class="hs-comment">--</span><span>
+</span><span id="line-84"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679552231"><span class="annot"><a href="#local-6989586621679552231"><span class="hs-identifier hs-type">alg</span></a></span></span><span class="hs-operator">.</span><span>
+</span><span id="line-85"></span><span>     </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#RecoverableSignatureSchema"><span class="hs-identifier hs-type">RecoverableSignatureSchema</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552231"><span class="hs-identifier hs-type">alg</span></a></span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#Message"><span class="hs-identifier hs-type">Message</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552231"><span class="hs-identifier hs-type">alg</span></a></span><span> </span><span class="annot"><span class="hs-glyph hs-type">~</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Digest</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">SHA256</span></span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679552231"><span class="hs-identifier hs-type">alg</span></a></span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#PrivateKey"><span class="hs-identifier hs-type">PrivateKey</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552231"><span class="hs-identifier hs-type">alg</span></a></span><span> </span><span class="hs-comment">--</span><span>
 </span><span id="line-89"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-type">RawTransaction</span></a></span><span>
-</span><span id="line-90"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#RecoverableSignature"><span class="hs-identifier hs-type">RecoverableSignature</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679547979"><span class="hs-identifier hs-type">alg</span></a></span><span>
+</span><span id="line-90"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#RecoverableSignature"><span class="hs-identifier hs-type">RecoverableSignature</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552231"><span class="hs-identifier hs-type">alg</span></a></span><span>
 </span><span id="line-91"></span><span id="signRawTransaction"><span class="annot"><span class="annottext">signRawTransaction :: Proxy alg
 -&gt; PrivateKey alg -&gt; RawTransaction -&gt; RecoverableSignature alg
-</span><a href="Tendermint.SDK.Types.Transaction.html#signRawTransaction"><span class="hs-identifier hs-var hs-var">signRawTransaction</span></a></span></span><span> </span><span id="local-6989586621679547978"><span class="annot"><span class="annottext">p :: Proxy alg
-</span><a href="#local-6989586621679547978"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679547977"><span class="annot"><span class="annottext">priv :: PrivateKey alg
-</span><a href="#local-6989586621679547977"><span class="hs-identifier hs-var">priv</span></a></span></span><span> </span><span id="local-6989586621679547976"><span class="annot"><span class="annottext">tx :: RawTransaction
-</span><a href="#local-6989586621679547976"><span class="hs-identifier hs-var">tx</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy alg
+</span><a href="Tendermint.SDK.Types.Transaction.html#signRawTransaction"><span class="hs-identifier hs-var hs-var">signRawTransaction</span></a></span></span><span> </span><span id="local-6989586621679552230"><span class="annot"><span class="annottext">p :: Proxy alg
+</span><a href="#local-6989586621679552230"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679552229"><span class="annot"><span class="annottext">priv :: PrivateKey alg
+</span><a href="#local-6989586621679552229"><span class="hs-identifier hs-var">priv</span></a></span></span><span> </span><span id="local-6989586621679552228"><span class="annot"><span class="annottext">tx :: RawTransaction
+</span><a href="#local-6989586621679552228"><span class="hs-identifier hs-var">tx</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy alg
 -&gt; PrivateKey alg -&gt; Message alg -&gt; RecoverableSignature alg
 forall k (alg :: k).
 RecoverableSignatureSchema alg =&gt;
 Proxy alg
 -&gt; PrivateKey alg -&gt; Message alg -&gt; RecoverableSignature alg
 </span><a href="Tendermint.SDK.Crypto.html#signRecoverableMessage"><span class="hs-identifier hs-var">signRecoverableMessage</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy alg
-</span><a href="#local-6989586621679547978"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">PrivateKey alg
-</span><a href="#local-6989586621679547977"><span class="hs-identifier hs-var">priv</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RawTransaction -&gt; Digest SHA256
+</span><a href="#local-6989586621679552230"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">PrivateKey alg
+</span><a href="#local-6989586621679552229"><span class="hs-identifier hs-var">priv</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">RawTransaction -&gt; Digest SHA256
 forall a. MakeDigest a =&gt; a -&gt; Digest SHA256
 </span><a href="Tendermint.SDK.Crypto.html#makeDigest"><span class="hs-identifier hs-var">makeDigest</span></a></span><span> </span><span class="annot"><span class="annottext">RawTransaction
-</span><a href="#local-6989586621679547976"><span class="hs-identifier hs-var">tx</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679552228"><span class="hs-identifier hs-var">tx</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-92"></span><span>
 </span><span id="line-93"></span><span class="hs-comment">-- | Attempt to parse a Bytestring into a 'RawTransaction' then as a 'Tx' without</span><span>
 </span><span id="line-94"></span><span class="hs-comment">-- | attempting to parse the underlying message. This is done as a preprocessing</span><span>
 </span><span id="line-95"></span><span class="hs-comment">-- | step to the router, allowing for failure before the router is ever</span><span>
 </span><span id="line-96"></span><span class="hs-comment">-- | reached.</span><span>
 </span><span id="line-97"></span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#parseTx"><span class="hs-identifier hs-type">parseTx</span></a></span><span>
-</span><span id="line-98"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679547973"><span class="annot"><a href="#local-6989586621679547973"><span class="hs-identifier hs-type">alg</span></a></span></span><span class="hs-operator">.</span><span>
-</span><span id="line-99"></span><span>     </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#RecoverableSignatureSchema"><span class="hs-identifier hs-type">RecoverableSignatureSchema</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679547973"><span class="hs-identifier hs-type">alg</span></a></span><span>
-</span><span id="line-100"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#Message"><span class="hs-identifier hs-type">Message</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679547973"><span class="hs-identifier hs-type">alg</span></a></span><span> </span><span class="annot"><span class="hs-glyph hs-type">~</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Digest</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">SHA256</span></span><span>
-</span><span id="line-101"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679547973"><span class="hs-identifier hs-type">alg</span></a></span><span>
+</span><span id="line-98"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679552225"><span class="annot"><a href="#local-6989586621679552225"><span class="hs-identifier hs-type">alg</span></a></span></span><span class="hs-operator">.</span><span>
+</span><span id="line-99"></span><span>     </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#RecoverableSignatureSchema"><span class="hs-identifier hs-type">RecoverableSignatureSchema</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552225"><span class="hs-identifier hs-type">alg</span></a></span><span>
+</span><span id="line-100"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Crypto.html#Message"><span class="hs-identifier hs-type">Message</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552225"><span class="hs-identifier hs-type">alg</span></a></span><span> </span><span class="annot"><span class="hs-glyph hs-type">~</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Digest</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">SHA256</span></span><span>
+</span><span id="line-101"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679552225"><span class="hs-identifier hs-type">alg</span></a></span><span>
 </span><span id="line-102"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span>
-</span><span id="line-103"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-type">Tx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679547973"><span class="hs-identifier hs-type">alg</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span class="hs-special">)</span><span>
+</span><span id="line-103"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-type">Tx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552225"><span class="hs-identifier hs-type">alg</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span class="hs-special">)</span><span>
 </span><span id="line-104"></span><span id="parseTx"><span class="annot"><span class="annottext">parseTx :: Proxy alg -&gt; ByteString -&gt; Either Text (Tx alg ByteString)
-</span><a href="Tendermint.SDK.Types.Transaction.html#parseTx"><span class="hs-identifier hs-var hs-var">parseTx</span></a></span></span><span> </span><span id="local-6989586621679547972"><span class="annot"><span class="annottext">p :: Proxy alg
-</span><a href="#local-6989586621679547972"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679547971"><span class="annot"><span class="annottext">bs :: ByteString
-</span><a href="#local-6989586621679547971"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-105"></span><span>  </span><span id="local-6989586621679547970"><span class="annot"><span class="annottext">rawTx :: RawTransaction
-</span><a href="#local-6989586621679547970"><span class="hs-identifier hs-var">rawTx</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679547965"><span id="local-6989586621679547966"><span id="local-6989586621679547967"><span id="local-6989586621679547968"><span id="local-6989586621679547969"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-type">RawTransaction</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either Text RawTransaction
+</span><a href="Tendermint.SDK.Types.Transaction.html#parseTx"><span class="hs-identifier hs-var hs-var">parseTx</span></a></span></span><span> </span><span id="local-6989586621679552224"><span class="annot"><span class="annottext">p :: Proxy alg
+</span><a href="#local-6989586621679552224"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679552223"><span class="annot"><span class="annottext">bs :: ByteString
+</span><a href="#local-6989586621679552223"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-105"></span><span>  </span><span id="local-6989586621679552222"><span class="annot"><span class="annottext">rawTx :: RawTransaction
+</span><a href="#local-6989586621679552222"><span class="hs-identifier hs-var">rawTx</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679552217"><span id="local-6989586621679552218"><span id="local-6989586621679552219"><span id="local-6989586621679552220"><span id="local-6989586621679552221"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#RawTransaction"><span class="hs-identifier hs-type">RawTransaction</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either Text RawTransaction
 forall a. HasCodec a =&gt; ByteString -&gt; Either Text a
 </span><a href="Tendermint.SDK.Codec.html#decode"><span class="hs-identifier hs-var">decode</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679547971"><span class="hs-identifier hs-var">bs</span></a></span><span>
-</span><span id="line-106"></span><span>  </span><span id="local-6989586621679547964"><span class="annot"><span class="annottext">RecoverableSignature alg
-</span><a href="#local-6989586621679547964"><span class="hs-identifier hs-var">recSig</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679552223"><span class="hs-identifier hs-var">bs</span></a></span><span>
+</span><span id="line-106"></span><span>  </span><span id="local-6989586621679552216"><span class="annot"><span class="annottext">RecoverableSignature alg
+</span><a href="#local-6989586621679552216"><span class="hs-identifier hs-var">recSig</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text
 -&gt; Maybe (RecoverableSignature alg)
 -&gt; Either Text (RecoverableSignature alg)
 forall a b. a -&gt; Maybe b -&gt; Either a b
@@ -361,19 +361,19 @@ forall k (alg :: k).
 RecoverableSignatureSchema alg =&gt;
 Proxy alg -&gt; ByteString -&gt; Maybe (RecoverableSignature alg)
 </span><a href="Tendermint.SDK.Crypto.html#makeRecoverableSignature"><span class="hs-identifier hs-var">makeRecoverableSignature</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy alg
-</span><a href="#local-6989586621679547972"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679547966"><span class="hs-identifier hs-var">rawTransactionSignature</span></a></span><span>
-</span><span id="line-108"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679547962"><span class="annot"><span class="annottext">txForSigning :: RawTransaction
-</span><a href="#local-6989586621679547962"><span class="hs-identifier hs-var hs-var">txForSigning</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RawTransaction
-</span><a href="#local-6989586621679547970"><span class="hs-identifier hs-var">rawTx</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">rawTransactionSignature :: ByteString
+</span><a href="#local-6989586621679552224"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679552218"><span class="hs-identifier hs-var">rawTransactionSignature</span></a></span><span>
+</span><span id="line-108"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679552214"><span class="annot"><span class="annottext">txForSigning :: RawTransaction
+</span><a href="#local-6989586621679552214"><span class="hs-identifier hs-var hs-var">txForSigning</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RawTransaction
+</span><a href="#local-6989586621679552222"><span class="hs-identifier hs-var">rawTx</span></a></span><span> </span><span class="hs-special">{</span><span class="annot"><span class="annottext">rawTransactionSignature :: ByteString
 </span><a href="Tendermint.SDK.Types.Transaction.html#rawTransactionSignature"><span class="hs-identifier hs-var">rawTransactionSignature</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span class="hs-special">}</span><span>
-</span><span id="line-109"></span><span>      </span><span id="local-6989586621679547961"><span class="annot"><span class="annottext">signBytes :: Digest SHA256
-</span><a href="#local-6989586621679547961"><span class="hs-identifier hs-var hs-var">signBytes</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RawTransaction -&gt; Digest SHA256
+</span><span id="line-109"></span><span>      </span><span id="local-6989586621679552213"><span class="annot"><span class="annottext">signBytes :: Digest SHA256
+</span><a href="#local-6989586621679552213"><span class="hs-identifier hs-var hs-var">signBytes</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RawTransaction -&gt; Digest SHA256
 forall a. MakeDigest a =&gt; a -&gt; Digest SHA256
 </span><a href="Tendermint.SDK.Crypto.html#makeDigest"><span class="hs-identifier hs-var">makeDigest</span></a></span><span> </span><span class="annot"><span class="annottext">RawTransaction
-</span><a href="#local-6989586621679547962"><span class="hs-identifier hs-var">txForSigning</span></a></span><span>
-</span><span id="line-110"></span><span>  </span><span id="local-6989586621679547960"><span class="annot"><span class="annottext">PubKey alg
-</span><a href="#local-6989586621679547960"><span class="hs-identifier hs-var">signerPubKey</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe (PubKey alg) -&gt; Either Text (PubKey alg)
+</span><a href="#local-6989586621679552214"><span class="hs-identifier hs-var">txForSigning</span></a></span><span>
+</span><span id="line-110"></span><span>  </span><span id="local-6989586621679552212"><span class="annot"><span class="annottext">PubKey alg
+</span><a href="#local-6989586621679552212"><span class="hs-identifier hs-var">signerPubKey</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe (PubKey alg) -&gt; Either Text (PubKey alg)
 forall a b. a -&gt; Maybe b -&gt; Either a b
 </span><span class="hs-identifier hs-var">note</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Signature recovery failed.&quot;</span></span><span> </span><span class="annot"><span class="annottext">(Maybe (PubKey alg) -&gt; Either Text (PubKey alg))
 -&gt; Maybe (PubKey alg) -&gt; Either Text (PubKey alg)
@@ -385,10 +385,10 @@ RecoverableSignatureSchema alg =&gt;
 Proxy alg
 -&gt; RecoverableSignature alg -&gt; Message alg -&gt; Maybe (PubKey alg)
 </span><a href="Tendermint.SDK.Crypto.html#recover"><span class="hs-identifier hs-var">recover</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy alg
-</span><a href="#local-6989586621679547972"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">RecoverableSignature alg
-</span><a href="#local-6989586621679547964"><span class="hs-identifier hs-var">recSig</span></a></span><span> </span><span class="annot"><span class="annottext">Digest SHA256
+</span><a href="#local-6989586621679552224"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">RecoverableSignature alg
+</span><a href="#local-6989586621679552216"><span class="hs-identifier hs-var">recSig</span></a></span><span> </span><span class="annot"><span class="annottext">Digest SHA256
 Message alg
-</span><a href="#local-6989586621679547961"><span class="hs-identifier hs-var">signBytes</span></a></span><span>
+</span><a href="#local-6989586621679552213"><span class="hs-identifier hs-var">signBytes</span></a></span><span>
 </span><span id="line-111"></span><span>  </span><span class="annot"><span class="annottext">Tx alg ByteString -&gt; Either Text (Tx alg ByteString)
 forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
 </span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(Tx alg ByteString -&gt; Either Text (Tx alg ByteString))
@@ -410,40 +410,40 @@ Msg msg
 </span><span id="line-113"></span><span>              </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">msgData :: ByteString
 </span><a href="Tendermint.SDK.Types.Message.html#msgData"><span class="hs-identifier hs-var">msgData</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TypedMessage -&gt; ByteString
 </span><a href="Tendermint.SDK.Types.Message.html#typedMsgData"><span class="hs-identifier hs-var hs-var">typedMsgData</span></a></span><span> </span><span class="annot"><span class="annottext">TypedMessage
-</span><a href="#local-6989586621679547969"><span class="hs-identifier hs-var">rawTransactionData</span></a></span><span>
+</span><a href="#local-6989586621679552221"><span class="hs-identifier hs-var">rawTransactionData</span></a></span><span>
 </span><span id="line-114"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">msgAuthor :: Address
 </span><a href="Tendermint.SDK.Types.Message.html#msgAuthor"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Proxy alg -&gt; PubKey alg -&gt; Address
 forall k (alg :: k).
 SignatureSchema alg =&gt;
 Proxy alg -&gt; PubKey alg -&gt; Address
 </span><a href="Tendermint.SDK.Crypto.html#addressFromPubKey"><span class="hs-identifier hs-var">addressFromPubKey</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy alg
-</span><a href="#local-6989586621679547972"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">PubKey alg
-</span><a href="#local-6989586621679547960"><span class="hs-identifier hs-var">signerPubKey</span></a></span><span>
+</span><a href="#local-6989586621679552224"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">PubKey alg
+</span><a href="#local-6989586621679552212"><span class="hs-identifier hs-var">signerPubKey</span></a></span><span>
 </span><span id="line-115"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">msgType :: Text
 </span><a href="Tendermint.SDK.Types.Message.html#msgType"><span class="hs-identifier hs-var">msgType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TypedMessage -&gt; Text
 </span><a href="Tendermint.SDK.Types.Message.html#typedMsgType"><span class="hs-identifier hs-var hs-var">typedMsgType</span></a></span><span> </span><span class="annot"><span class="annottext">TypedMessage
-</span><a href="#local-6989586621679547969"><span class="hs-identifier hs-var">rawTransactionData</span></a></span><span>
+</span><a href="#local-6989586621679552221"><span class="hs-identifier hs-var">rawTransactionData</span></a></span><span>
 </span><span id="line-116"></span><span>              </span><span class="hs-special">}</span><span>
 </span><span id="line-117"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">txRoute :: Text
 </span><a href="Tendermint.SDK.Types.Transaction.html#txRoute"><span class="hs-identifier hs-var">txRoute</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679547967"><span class="hs-identifier hs-var">rawTransactionRoute</span></a></span><span>
+</span><a href="#local-6989586621679552219"><span class="hs-identifier hs-var">rawTransactionRoute</span></a></span><span>
 </span><span id="line-118"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">txGas :: Int64
 </span><a href="Tendermint.SDK.Types.Transaction.html#txGas"><span class="hs-identifier hs-var">txGas</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int64
-</span><a href="#local-6989586621679547968"><span class="hs-identifier hs-var">rawTransactionGas</span></a></span><span>
+</span><a href="#local-6989586621679552220"><span class="hs-identifier hs-var">rawTransactionGas</span></a></span><span>
 </span><span id="line-119"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">txSignature :: RecoverableSignature alg
 </span><a href="Tendermint.SDK.Types.Transaction.html#txSignature"><span class="hs-identifier hs-var">txSignature</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RecoverableSignature alg
-</span><a href="#local-6989586621679547964"><span class="hs-identifier hs-var">recSig</span></a></span><span>
+</span><a href="#local-6989586621679552216"><span class="hs-identifier hs-var">recSig</span></a></span><span>
 </span><span id="line-120"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">txSignBytes :: Message alg
 </span><a href="Tendermint.SDK.Types.Transaction.html#txSignBytes"><span class="hs-identifier hs-var">txSignBytes</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Digest SHA256
 Message alg
-</span><a href="#local-6989586621679547961"><span class="hs-identifier hs-var">signBytes</span></a></span><span>
+</span><a href="#local-6989586621679552213"><span class="hs-identifier hs-var">signBytes</span></a></span><span>
 </span><span id="line-121"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">txSigner :: PubKey alg
 </span><a href="Tendermint.SDK.Types.Transaction.html#txSigner"><span class="hs-identifier hs-var">txSigner</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PubKey alg
-</span><a href="#local-6989586621679547960"><span class="hs-identifier hs-var">signerPubKey</span></a></span><span>
+</span><a href="#local-6989586621679552212"><span class="hs-identifier hs-var">signerPubKey</span></a></span><span>
 </span><span id="line-122"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">txNonce :: Word64
 </span><a href="Tendermint.SDK.Types.Transaction.html#txNonce"><span class="hs-identifier hs-var">txNonce</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679547965"><span class="hs-identifier hs-var">rawTransactionNonce</span></a></span><span>
+</span><a href="#local-6989586621679552217"><span class="hs-identifier hs-var">rawTransactionNonce</span></a></span><span>
 </span><span id="line-123"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-124"></span></pre></body></html>

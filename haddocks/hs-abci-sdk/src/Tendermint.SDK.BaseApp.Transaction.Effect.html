@@ -47,18 +47,18 @@
 </span><span id="line-47"></span><span>    </span><span class="hs-special">]</span><span>
 </span><span id="line-48"></span><span>
 </span><span id="line-49"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#eval"><span class="hs-identifier hs-type">eval</span></a></span><span>
-</span><span id="line-50"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679552809"><span class="annot"><a href="#local-6989586621679552809"><span class="hs-identifier hs-type">r</span></a></span></span><span> </span><span id="local-6989586621679552810"><span class="annot"><a href="#local-6989586621679552810"><span class="hs-identifier hs-type">scope</span></a></span></span><span> </span><span id="local-6989586621679552808"><span class="annot"><a href="#local-6989586621679552808"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span>
-</span><span id="line-51"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="#local-6989586621679552810"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679552809"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-52"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679552810"><span class="hs-identifier hs-type">scope</span></a></span><span>
+</span><span id="line-50"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679557067"><span class="annot"><a href="#local-6989586621679557067"><span class="hs-identifier hs-type">r</span></a></span></span><span> </span><span id="local-6989586621679557068"><span class="annot"><a href="#local-6989586621679557068"><span class="hs-identifier hs-type">scope</span></a></span></span><span> </span><span id="local-6989586621679557066"><span class="annot"><a href="#local-6989586621679557066"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span>
+</span><span id="line-51"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="#local-6989586621679557068"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679557067"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-52"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679557068"><span class="hs-identifier hs-type">scope</span></a></span><span>
 </span><span id="line-53"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#TransactionContext"><span class="hs-identifier hs-type">TransactionContext</span></a></span><span>
-</span><span id="line-54"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#TxEffs"><span class="hs-identifier hs-type">TxEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552809"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679552808"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-55"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679552809"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552808"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-54"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#TxEffs"><span class="hs-identifier hs-type">TxEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679557067"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557066"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-55"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679557067"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679557066"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-56"></span><span id="eval"><span class="annot"><span class="annottext">eval :: Proxy scope
 -&gt; TransactionContext
 -&gt; Sem (TxEffs :&amp; r) a
 -&gt; Sem r (Either AppError a)
-</span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#eval"><span class="hs-identifier hs-var hs-var">eval</span></a></span></span><span> </span><span id="local-6989586621679552746"><span class="annot"><span class="annottext">ps :: Proxy scope
-</span><a href="#local-6989586621679552746"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span id="local-6989586621679552743"><span id="local-6989586621679552744"><span id="local-6989586621679552745"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#TransactionContext"><span class="hs-identifier hs-type">TransactionContext</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#eval"><span class="hs-identifier hs-var hs-var">eval</span></a></span></span><span> </span><span id="local-6989586621679557004"><span class="annot"><span class="annottext">ps :: Proxy scope
+</span><a href="#local-6989586621679557004"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span id="local-6989586621679557000"><span id="local-6989586621679557001"><span id="local-6989586621679557002"><span id="local-6989586621679557003"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#TransactionContext"><span class="hs-identifier hs-type">TransactionContext</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-57"></span><span>  </span><span class="annot"><span class="annottext">Sem (Error AppError : r) a -&gt; Sem r (Either AppError a)
 forall e (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Sem (Error e : r) a -&gt; Sem r (Either e a)
@@ -84,8 +84,8 @@ Members '[Embed IO, Tagged scope ReadStore] r =&gt;
 Proxy scope
 -&gt; IORef Cache -&gt; Sem (Tagged Cache ReadStore : r) a -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalCachedReadStore"><span class="hs-identifier hs-var">evalCachedReadStore</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
-</span><a href="#local-6989586621679552746"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">IORef Cache
-</span><a href="#local-6989586621679552744"><span class="hs-identifier hs-var">storeCache</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (Tagged Cache ReadStore : Error AppError : r) a
+</span><a href="#local-6989586621679557004"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">IORef Cache
+</span><a href="#local-6989586621679557001"><span class="hs-identifier hs-var">storeCache</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (Tagged Cache ReadStore : Error AppError : r) a
  -&gt; Sem (Error AppError : r) a)
 -&gt; (Sem
       (Output Event
@@ -132,7 +132,7 @@ forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Member (Embed IO) r =&gt;
 IORef Cache -&gt; Sem (Tagged Cache WriteStore : r) a -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalCachedWriteStore"><span class="hs-identifier hs-var">evalCachedWriteStore</span></a></span><span> </span><span class="annot"><span class="annottext">IORef Cache
-</span><a href="#local-6989586621679552744"><span class="hs-identifier hs-var">storeCache</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (Tagged Cache WriteStore : ReadStore : Error AppError : r) a
+</span><a href="#local-6989586621679557001"><span class="hs-identifier hs-var">storeCache</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (Tagged Cache WriteStore : ReadStore : Error AppError : r) a
  -&gt; Sem (ReadStore : Error AppError : r) a)
 -&gt; (Sem
       (Output Event
@@ -174,23 +174,15 @@ e m a -&gt; Tagged Cache e m a
 -&gt; Sem (Tagged Cache WriteStore : ReadStore : Error AppError : r) a
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span>
-</span><span id="line-62"></span><span>    </span><span class="annot"><span class="annottext">IORef GasAmount
--&gt; Sem
-     (State GasAmount : WriteStore : ReadStore : Error AppError : r) a
+</span><span id="line-62"></span><span>    </span><span class="annot"><span class="annottext">Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
 -&gt; Sem (WriteStore : ReadStore : Error AppError : r) a
-forall s (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
-Member (Embed IO) r =&gt;
-IORef s -&gt; Sem (State s : r) a -&gt; Sem r a
-</span><span class="hs-identifier hs-var">State.runStateIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef GasAmount
-</span><a href="#local-6989586621679552745"><span class="hs-identifier hs-var">gasRemaining</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem
-   (State GasAmount : WriteStore : ReadStore : Error AppError : r) a
+</span><a href="#local-6989586621679556990"><span class="hs-identifier hs-var">runGas</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
  -&gt; Sem (WriteStore : ReadStore : Error AppError : r) a)
 -&gt; (Sem
       (Output Event
          : GasMeter : WriteStore : ReadStore : Error AppError : r)
       a
-    -&gt; Sem
-         (State GasAmount : WriteStore : ReadStore : Error AppError : r) a)
+    -&gt; Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a)
 -&gt; Sem
      (Output Event
         : GasMeter : WriteStore : ReadStore : Error AppError : r)
@@ -198,7 +190,45 @@ IORef s -&gt; Sem (State s : r) a -&gt; Sem r a
 -&gt; Sem (WriteStore : ReadStore : Error AppError : r) a
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span>
-</span><span id="line-63"></span><span>    </span><span class="annot"><span class="annottext">Sem
+</span><span id="line-63"></span><span>    </span><span class="annot"><span class="annottext">IORef [Event]
+-&gt; (Event -&gt; [Event])
+-&gt; Sem
+     (Output Event
+        : GasMeter : WriteStore : ReadStore : Error AppError : r)
+     a
+-&gt; Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
+forall o m (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+(Monoid m, Member (Embed IO) r) =&gt;
+IORef m -&gt; (o -&gt; m) -&gt; Sem (Output o : r) a -&gt; Sem r a
+</span><span class="hs-identifier hs-var">runOutputMonoidIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef [Event]
+</span><a href="#local-6989586621679557000"><span class="hs-identifier hs-var">events</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall a. Applicative [] =&gt; a -&gt; [a]
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><span id="line-64"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-65"></span><span>    </span><span id="local-6989586621679556990"><span class="annot"><span class="annottext">runGas :: Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
+-&gt; Sem (WriteStore : ReadStore : Error AppError : r) a
+</span><a href="#local-6989586621679556990"><span class="hs-identifier hs-var hs-var">runGas</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-66"></span><span>      </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621679557002"><span class="hs-identifier hs-var">txRequiresGas</span></a></span><span>
+</span><span id="line-67"></span><span>        </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">IORef GasAmount
+-&gt; Sem
+     (State GasAmount : WriteStore : ReadStore : Error AppError : r) a
+-&gt; Sem (WriteStore : ReadStore : Error AppError : r) a
+forall s (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Member (Embed IO) r =&gt;
+IORef s -&gt; Sem (State s : r) a -&gt; Sem r a
+</span><span class="hs-identifier hs-var">State.runStateIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef GasAmount
+</span><a href="#local-6989586621679557003"><span class="hs-identifier hs-var">gasRemaining</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem
+   (State GasAmount : WriteStore : ReadStore : Error AppError : r) a
+ -&gt; Sem (WriteStore : ReadStore : Error AppError : r) a)
+-&gt; (Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
+    -&gt; Sem
+         (State GasAmount : WriteStore : ReadStore : Error AppError : r) a)
+-&gt; Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
+-&gt; Sem (WriteStore : ReadStore : Error AppError : r) a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span>
+</span><span id="line-68"></span><span>               </span><span class="annot"><span class="annottext">Sem
   (GasMeter
      : State GasAmount : WriteStore : ReadStore : Error AppError : r)
   a
@@ -213,74 +243,40 @@ Sem (GasMeter : r) a -&gt; Sem r a
    a
  -&gt; Sem
       (State GasAmount : WriteStore : ReadStore : Error AppError : r) a)
--&gt; (Sem
-      (Output Event
-         : GasMeter : WriteStore : ReadStore : Error AppError : r)
-      a
+-&gt; (Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
     -&gt; Sem
          (GasMeter
             : State GasAmount : WriteStore : ReadStore : Error AppError : r)
          a)
--&gt; Sem
-     (Output Event
-        : GasMeter : WriteStore : ReadStore : Error AppError : r)
-     a
+-&gt; Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
 -&gt; Sem
      (State GasAmount : WriteStore : ReadStore : Error AppError : r) a
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span>
-</span><span id="line-64"></span><span>    </span><span class="annot"><span class="annottext">forall (e1 :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+</span><span id="line-69"></span><span>               </span><span class="annot"><span class="annottext">forall (e1 :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Sem (e1 : r) a -&gt; Sem (e1 : State GasAmount : r) a
 forall (e2 :: (* -&gt; *) -&gt; * -&gt; *) (e1 :: (* -&gt; *) -&gt; * -&gt; *)
        (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Sem (e1 : r) a -&gt; Sem (e1 : e2 : r) a
-</span><span class="hs-identifier hs-var">raiseUnder</span></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">State.State</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Gas.html#GasAmount"><span class="hs-identifier hs-type">G.GasAmount</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
- -&gt; Sem
-      (GasMeter
-         : State GasAmount : WriteStore : ReadStore : Error AppError : r)
-      a)
--&gt; (Sem
-      (Output Event
-         : GasMeter : WriteStore : ReadStore : Error AppError : r)
-      a
-    -&gt; Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a)
--&gt; Sem
-     (Output Event
-        : GasMeter : WriteStore : ReadStore : Error AppError : r)
-     a
--&gt; Sem
-     (GasMeter
-        : State GasAmount : WriteStore : ReadStore : Error AppError : r)
-     a
-forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span>
-</span><span id="line-65"></span><span>    </span><span class="annot"><span class="annottext">IORef [Event]
--&gt; (Event -&gt; [Event])
--&gt; Sem
-     (Output Event
-        : GasMeter : WriteStore : ReadStore : Error AppError : r)
-     a
--&gt; Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
-forall o m (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
-(Monoid m, Member (Embed IO) r) =&gt;
-IORef m -&gt; (o -&gt; m) -&gt; Sem (Output o : r) a -&gt; Sem r a
-</span><span class="hs-identifier hs-var">runOutputMonoidIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef [Event]
-</span><a href="#local-6989586621679552743"><span class="hs-identifier hs-var">events</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall a. Applicative [] =&gt; a -&gt; [a]
-forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
-</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span>
-</span><span id="line-66"></span><span>
-</span><span id="line-67"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalReadOnly"><span class="hs-identifier hs-type">evalReadOnly</span></a></span><span>
-</span><span id="line-68"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679552732"><span class="annot"><a href="#local-6989586621679552732"><span class="hs-identifier hs-type">r</span></a></span></span><span class="hs-operator">.</span><span>
-</span><span id="line-69"></span><span>     </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679552731"><span class="annot"><a href="#local-6989586621679552731"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span>
-</span><span id="line-70"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#TxEffs"><span class="hs-identifier hs-type">TxEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552732"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679552731"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-71"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679552732"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679552731"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-72"></span><span id="evalReadOnly"><span class="annot"><span class="annottext">evalReadOnly :: Sem (TxEffs :&amp; r) a -&gt; Sem (ReadStore : Error AppError : r) a
+</span><span class="hs-identifier hs-var">raiseUnder</span></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">State.State</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Gas.html#GasAmount"><span class="hs-identifier hs-type">G.GasAmount</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-70"></span><span>        </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
+-&gt; Sem (WriteStore : ReadStore : Error AppError : r) a
+forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+Sem (GasMeter : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Gas.html#doNothing"><span class="hs-identifier hs-var">G.doNothing</span></a></span><span>
+</span><span id="line-71"></span><span>
+</span><span id="line-72"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalReadOnly"><span class="hs-identifier hs-type">evalReadOnly</span></a></span><span>
+</span><span id="line-73"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679556986"><span class="annot"><a href="#local-6989586621679556986"><span class="hs-identifier hs-type">r</span></a></span></span><span class="hs-operator">.</span><span>
+</span><span id="line-74"></span><span>     </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679556985"><span class="annot"><a href="#local-6989586621679556985"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span>
+</span><span id="line-75"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#TxEffs"><span class="hs-identifier hs-type">TxEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679556986"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679556985"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-76"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679556986"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679556985"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-77"></span><span id="evalReadOnly"><span class="annot"><span class="annottext">evalReadOnly :: Sem (TxEffs :&amp; r) a -&gt; Sem (ReadStore : Error AppError : r) a
 </span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalReadOnly"><span class="hs-identifier hs-var hs-var">evalReadOnly</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-73"></span><span>    </span><span class="annot"><span class="annottext">Sem (WriteStore : ReadStore : Error AppError : r) a
+</span><span id="line-78"></span><span>    </span><span class="annot"><span class="annottext">Sem (WriteStore : ReadStore : Error AppError : r) a
 -&gt; Sem (ReadStore : Error AppError : r) a
 forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Sem (WriteStore : r) a -&gt; Sem r a
-</span><a href="#local-6989586621679552730"><span class="hs-identifier hs-var">writeNothing</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (WriteStore : ReadStore : Error AppError : r) a
+</span><a href="#local-6989586621679556984"><span class="hs-identifier hs-var">writeNothing</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (WriteStore : ReadStore : Error AppError : r) a
  -&gt; Sem (ReadStore : Error AppError : r) a)
 -&gt; (Sem
       (Output Event
@@ -294,7 +290,7 @@ Sem (WriteStore : r) a -&gt; Sem r a
 -&gt; Sem (ReadStore : Error AppError : r) a
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span>
-</span><span id="line-74"></span><span>      </span><span class="annot"><span class="annottext">Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
+</span><span id="line-79"></span><span>      </span><span class="annot"><span class="annottext">Sem (GasMeter : WriteStore : ReadStore : Error AppError : r) a
 -&gt; Sem (WriteStore : ReadStore : Error AppError : r) a
 forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Sem (GasMeter : r) a -&gt; Sem r a
@@ -312,7 +308,7 @@ Sem (GasMeter : r) a -&gt; Sem r a
 -&gt; Sem (WriteStore : ReadStore : Error AppError : r) a
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span>
-</span><span id="line-75"></span><span>      </span><span class="annot"><span class="annottext">Sem
+</span><span id="line-80"></span><span>      </span><span class="annot"><span class="annottext">Sem
   (Output Event
      : GasMeter : WriteStore : ReadStore : Error AppError : r)
   a
@@ -320,40 +316,40 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 forall o (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Sem (Output o : r) a -&gt; Sem r a
 </span><span class="hs-identifier hs-var">ignoreOutput</span></span><span>
-</span><span id="line-76"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-77"></span><span>    </span><span id="local-6989586621679552730"><span class="annot"><span class="annottext">writeNothing :: Sem (WriteStore : r) a -&gt; Sem r a
-</span><a href="#local-6989586621679552730"><span class="hs-identifier hs-var hs-var">writeNothing</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). WriteStore m x -&gt; Sem r x)
+</span><span id="line-81"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-82"></span><span>    </span><span id="local-6989586621679556984"><span class="annot"><span class="annottext">writeNothing :: Sem (WriteStore : r) a -&gt; Sem r a
+</span><a href="#local-6989586621679556984"><span class="hs-identifier hs-var hs-var">writeNothing</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). WriteStore m x -&gt; Sem r x)
 -&gt; Sem (WriteStore : r) a -&gt; Sem r a
 forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 FirstOrder e &quot;interpret&quot; =&gt;
 (forall x (m :: * -&gt; *). e m x -&gt; Sem r x)
 -&gt; Sem (e : r) a -&gt; Sem r a
 </span><span class="hs-identifier hs-var">interpret</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
-</span><span id="line-78"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StorePut"><span class="hs-identifier hs-type">StorePut</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; Sem r ()
+</span><span id="line-83"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StorePut"><span class="hs-identifier hs-type">StorePut</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; Sem r ()
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-79"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreDelete"><span class="hs-identifier hs-type">StoreDelete</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; Sem r ()
+</span><span id="line-84"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreDelete"><span class="hs-identifier hs-type">StoreDelete</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; Sem r ()
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-80"></span><span>      </span><span class="hs-special">)</span><span>
-</span><span id="line-81"></span><span>
-</span><span id="line-82"></span><span id="local-6989586621679552724"><span id="local-6989586621679552725"><span id="local-6989586621679552726"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#runTx"><span class="hs-identifier hs-type">runTx</span></a></span><span>
-</span><span id="line-83"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="#local-6989586621679552726"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679552725"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-84"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552724"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-85"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679552726"><span class="hs-identifier hs-type">scope</span></a></span><span>
-</span><span id="line-86"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#TransactionContext"><span class="hs-identifier hs-type">TransactionContext</span></a></span><span>
-</span><span id="line-87"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#TxEffs"><span class="hs-identifier hs-type">TxEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552725"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679552724"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-88"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679552725"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache.Cache</span></a></span><span class="hs-special">)</span></span></span></span><span>
-</span><span id="line-89"></span><span id="runTx"><span class="annot"><span class="annottext">runTx :: Proxy scope
+</span><span id="line-85"></span><span>      </span><span class="hs-special">)</span><span>
+</span><span id="line-86"></span><span>
+</span><span id="line-87"></span><span id="local-6989586621679556979"><span id="local-6989586621679556980"><span id="local-6989586621679556981"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#runTx"><span class="hs-identifier hs-type">runTx</span></a></span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="#local-6989586621679556981"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679556980"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-89"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679556979"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-90"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679556981"><span class="hs-identifier hs-type">scope</span></a></span><span>
+</span><span id="line-91"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#TransactionContext"><span class="hs-identifier hs-type">TransactionContext</span></a></span><span>
+</span><span id="line-92"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#TxEffs"><span class="hs-identifier hs-type">TxEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679556980"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679556979"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-93"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679556980"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679556979"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache.Cache</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a></span><span class="hs-special">)</span></span></span></span><span>
+</span><span id="line-94"></span><span id="runTx"><span class="annot"><span class="annottext">runTx :: Proxy scope
 -&gt; TransactionContext
 -&gt; Sem (TxEffs :&amp; r) a
--&gt; Sem r (TxResult, Maybe Cache)
-</span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#runTx"><span class="hs-identifier hs-var hs-var">runTx</span></a></span></span><span> </span><span id="local-6989586621679552723"><span class="annot"><span class="annottext">ps :: Proxy scope
-</span><a href="#local-6989586621679552723"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span id="local-6989586621679552722"><span class="annot"><span class="annottext">ctx :: TransactionContext
-</span><a href="#local-6989586621679552722"><span class="hs-identifier hs-var">ctx</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679552719"><span id="local-6989586621679552720"><span id="local-6989586621679552721"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#TransactionContext"><span class="hs-identifier hs-type">TransactionContext</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span id="local-6989586621679552718"><span class="annot"><span class="annottext">tx :: Sem (TxEffs :&amp; r) a
-</span><a href="#local-6989586621679552718"><span class="hs-identifier hs-var">tx</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-90"></span><span>  </span><span id="local-6989586621679552717"><span class="annot"><span class="annottext">GasAmount
-</span><a href="#local-6989586621679552717"><span class="hs-identifier hs-var">initialGas</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO GasAmount -&gt; Sem r GasAmount
+-&gt; Sem r (Maybe (a, Cache), TxResult)
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#runTx"><span class="hs-identifier hs-var hs-var">runTx</span></a></span></span><span> </span><span id="local-6989586621679556978"><span class="annot"><span class="annottext">ps :: Proxy scope
+</span><a href="#local-6989586621679556978"><span class="hs-identifier hs-var">ps</span></a></span></span><span> </span><span id="local-6989586621679556977"><span class="annot"><span class="annottext">ctx :: TransactionContext
+</span><a href="#local-6989586621679556977"><span class="hs-identifier hs-var">ctx</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679556973"><span id="local-6989586621679556974"><span id="local-6989586621679556975"><span id="local-6989586621679556976"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#TransactionContext"><span class="hs-identifier hs-type">TransactionContext</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span id="local-6989586621679556972"><span class="annot"><span class="annottext">tx :: Sem (TxEffs :&amp; r) a
+</span><a href="#local-6989586621679556972"><span class="hs-identifier hs-var">tx</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-95"></span><span>  </span><span id="local-6989586621679556971"><span class="annot"><span class="annottext">GasAmount
+</span><a href="#local-6989586621679556971"><span class="hs-identifier hs-var">initialGas</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO GasAmount -&gt; Sem r GasAmount
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO GasAmount -&gt; Sem r GasAmount)
 -&gt; IO GasAmount -&gt; Sem r GasAmount
@@ -361,9 +357,9 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">IORef GasAmount -&gt; IO GasAmount
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef GasAmount
-</span><a href="#local-6989586621679552721"><span class="hs-identifier hs-var">gasRemaining</span></a></span><span>
-</span><span id="line-91"></span><span>  </span><span id="local-6989586621679552716"><span class="annot"><span class="annottext">Either AppError a
-</span><a href="#local-6989586621679552716"><span class="hs-identifier hs-var">eRes</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Proxy scope
+</span><a href="#local-6989586621679556976"><span class="hs-identifier hs-var">gasRemaining</span></a></span><span>
+</span><span id="line-96"></span><span>  </span><span id="local-6989586621679556970"><span class="annot"><span class="annottext">Either AppError a
+</span><a href="#local-6989586621679556970"><span class="hs-identifier hs-var">eRes</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Proxy scope
 -&gt; TransactionContext
 -&gt; Sem (TxEffs :&amp; r) a
 -&gt; Sem r (Either AppError a)
@@ -374,11 +370,11 @@ Proxy scope
 -&gt; Sem (TxEffs :&amp; r) a
 -&gt; Sem r (Either AppError a)
 </span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#eval"><span class="hs-identifier hs-var">eval</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy scope
-</span><a href="#local-6989586621679552723"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">TransactionContext
-</span><a href="#local-6989586621679552722"><span class="hs-identifier hs-var">ctx</span></a></span><span> </span><span class="annot"><span class="annottext">Sem (TxEffs :&amp; r) a
-</span><a href="#local-6989586621679552718"><span class="hs-identifier hs-var">tx</span></a></span><span>
-</span><span id="line-92"></span><span>  </span><span id="local-6989586621679552715"><span class="annot"><span class="annottext">GasAmount
-</span><a href="#local-6989586621679552715"><span class="hs-identifier hs-var">finalGas</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO GasAmount -&gt; Sem r GasAmount
+</span><a href="#local-6989586621679556978"><span class="hs-identifier hs-var">ps</span></a></span><span> </span><span class="annot"><span class="annottext">TransactionContext
+</span><a href="#local-6989586621679556977"><span class="hs-identifier hs-var">ctx</span></a></span><span> </span><span class="annot"><span class="annottext">Sem (TxEffs :&amp; r) a
+</span><a href="#local-6989586621679556972"><span class="hs-identifier hs-var">tx</span></a></span><span>
+</span><span id="line-97"></span><span>  </span><span id="local-6989586621679556969"><span class="annot"><span class="annottext">GasAmount
+</span><a href="#local-6989586621679556969"><span class="hs-identifier hs-var">finalGas</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO GasAmount -&gt; Sem r GasAmount
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO GasAmount -&gt; Sem r GasAmount)
 -&gt; IO GasAmount -&gt; Sem r GasAmount
@@ -386,16 +382,16 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">IORef GasAmount -&gt; IO GasAmount
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef GasAmount
-</span><a href="#local-6989586621679552721"><span class="hs-identifier hs-var">gasRemaining</span></a></span><span>
-</span><span id="line-93"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679552714"><span class="annot"><span class="annottext">gasUsed :: GasAmount
-</span><a href="#local-6989586621679552714"><span class="hs-identifier hs-var hs-var">gasUsed</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">GasAmount
-</span><a href="#local-6989586621679552717"><span class="hs-identifier hs-var">initialGas</span></a></span><span> </span><span class="annot"><span class="annottext">GasAmount -&gt; GasAmount -&gt; GasAmount
+</span><a href="#local-6989586621679556976"><span class="hs-identifier hs-var">gasRemaining</span></a></span><span>
+</span><span id="line-98"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679556968"><span class="annot"><span class="annottext">gasUsed :: GasAmount
+</span><a href="#local-6989586621679556968"><span class="hs-identifier hs-var hs-var">gasUsed</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">GasAmount
+</span><a href="#local-6989586621679556971"><span class="hs-identifier hs-var">initialGas</span></a></span><span> </span><span class="annot"><span class="annottext">GasAmount -&gt; GasAmount -&gt; GasAmount
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">GasAmount
-</span><a href="#local-6989586621679552715"><span class="hs-identifier hs-var">finalGas</span></a></span><span>
-</span><span id="line-94"></span><span>      </span><span id="local-6989586621679552713"><span class="annot"><span class="annottext">baseResponse :: TxResult
-</span><a href="#local-6989586621679552713"><span class="hs-identifier hs-var hs-var">baseResponse</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-95"></span><span>        </span><span class="annot"><span class="annottext">TxResult
+</span><a href="#local-6989586621679556969"><span class="hs-identifier hs-var">finalGas</span></a></span><span>
+</span><span id="line-99"></span><span>      </span><span id="local-6989586621679556967"><span class="annot"><span class="annottext">baseResponse :: TxResult
+</span><a href="#local-6989586621679556967"><span class="hs-identifier hs-var hs-var">baseResponse</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-100"></span><span>        </span><span class="annot"><span class="annottext">TxResult
 forall a. Default a =&gt; a
 </span><span class="hs-identifier hs-var">def</span></span><span> </span><span class="annot"><span class="annottext">TxResult -&gt; (TxResult -&gt; TxResult) -&gt; TxResult
 forall a b. a -&gt; (a -&gt; b) -&gt; b
@@ -406,8 +402,8 @@ Lens' TxResult Int64
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">GasAmount -&gt; Int64
 </span><a href="Tendermint.SDK.BaseApp.Gas.html#unGasAmount"><span class="hs-identifier hs-var hs-var">G.unGasAmount</span></a></span><span> </span><span class="annot"><span class="annottext">GasAmount
-</span><a href="#local-6989586621679552717"><span class="hs-identifier hs-var">initialGas</span></a></span><span>
-</span><span id="line-96"></span><span>            </span><span class="annot"><span class="annottext">TxResult -&gt; (TxResult -&gt; TxResult) -&gt; TxResult
+</span><a href="#local-6989586621679556971"><span class="hs-identifier hs-var">initialGas</span></a></span><span>
+</span><span id="line-101"></span><span>            </span><span class="annot"><span class="annottext">TxResult -&gt; (TxResult -&gt; TxResult) -&gt; TxResult
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">(Int64 -&gt; Identity Int64) -&gt; TxResult -&gt; Identity TxResult
 Lens' TxResult Int64
@@ -416,14 +412,16 @@ Lens' TxResult Int64
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">GasAmount -&gt; Int64
 </span><a href="Tendermint.SDK.BaseApp.Gas.html#unGasAmount"><span class="hs-identifier hs-var hs-var">G.unGasAmount</span></a></span><span> </span><span class="annot"><span class="annottext">GasAmount
-</span><a href="#local-6989586621679552714"><span class="hs-identifier hs-var">gasUsed</span></a></span><span>
-</span><span id="line-97"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either AppError a
-</span><a href="#local-6989586621679552716"><span class="hs-identifier hs-var">eRes</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-98"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679552711"><span class="annot"><span class="annottext">e :: AppError
-</span><a href="#local-6989586621679552711"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(TxResult, Maybe Cache) -&gt; Sem r (TxResult, Maybe Cache)
+</span><a href="#local-6989586621679556968"><span class="hs-identifier hs-var">gasUsed</span></a></span><span>
+</span><span id="line-102"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either AppError a
+</span><a href="#local-6989586621679556970"><span class="hs-identifier hs-var">eRes</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-103"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679556965"><span class="annot"><span class="annottext">e :: AppError
+</span><a href="#local-6989586621679556965"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(Maybe (a, Cache), TxResult) -&gt; Sem r (Maybe (a, Cache), TxResult)
 forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
-</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TxResult
-</span><a href="#local-6989586621679552713"><span class="hs-identifier hs-var">baseResponse</span></a></span><span> </span><span class="annot"><span class="annottext">TxResult -&gt; (TxResult -&gt; TxResult) -&gt; TxResult
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe (a, Cache)
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">TxResult
+</span><a href="#local-6989586621679556967"><span class="hs-identifier hs-var">baseResponse</span></a></span><span> </span><span class="annot"><span class="annottext">TxResult -&gt; (TxResult -&gt; TxResult) -&gt; TxResult
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">(AppError -&gt; Identity AppError) -&gt; TxResult -&gt; Identity TxResult
 Lens' TxResult AppError
@@ -431,33 +429,36 @@ Lens' TxResult AppError
 -&gt; AppError -&gt; TxResult -&gt; TxResult
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">AppError
-</span><a href="#local-6989586621679552711"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe Cache
-forall a. Maybe a
-</span><span class="hs-identifier hs-var">Nothing</span></span><span class="hs-special">)</span><span>
-</span><span id="line-99"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679552710"><span class="annot"><span class="annottext">a :: a
-</span><a href="#local-6989586621679552710"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-100"></span><span>        </span><span id="local-6989586621679552709"><span class="annot"><span class="annottext">[Event]
-</span><a href="#local-6989586621679552709"><span class="hs-identifier hs-var">es</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO [Event] -&gt; Sem r [Event]
+</span><a href="#local-6989586621679556965"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-104"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679556964"><span class="annot"><span class="annottext">a :: a
+</span><a href="#local-6989586621679556964"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-105"></span><span>        </span><span id="local-6989586621679556963"><span class="annot"><span class="annottext">[Event]
+</span><a href="#local-6989586621679556963"><span class="hs-identifier hs-var">es</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO [Event] -&gt; Sem r [Event]
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO [Event] -&gt; Sem r [Event]) -&gt; IO [Event] -&gt; Sem r [Event]
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">IORef [Event] -&gt; IO [Event]
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef [Event]
-</span><a href="#local-6989586621679552719"><span class="hs-identifier hs-var">events</span></a></span><span>
-</span><span id="line-101"></span><span>        </span><span id="local-6989586621679552708"><span class="annot"><span class="annottext">Cache
-</span><a href="#local-6989586621679552708"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Cache -&gt; Sem r Cache
+</span><a href="#local-6989586621679556973"><span class="hs-identifier hs-var">events</span></a></span><span>
+</span><span id="line-106"></span><span>        </span><span id="local-6989586621679556962"><span class="annot"><span class="annottext">Cache
+</span><a href="#local-6989586621679556962"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Cache -&gt; Sem r Cache
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO Cache -&gt; Sem r Cache) -&gt; IO Cache -&gt; Sem r Cache
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">IORef Cache -&gt; IO Cache
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef Cache
-</span><a href="#local-6989586621679552720"><span class="hs-identifier hs-var">storeCache</span></a></span><span>
-</span><span id="line-102"></span><span>        </span><span class="annot"><span class="annottext">(TxResult, Maybe Cache) -&gt; Sem r (TxResult, Maybe Cache)
+</span><a href="#local-6989586621679556974"><span class="hs-identifier hs-var">storeCache</span></a></span><span>
+</span><span id="line-107"></span><span>        </span><span class="annot"><span class="annottext">(Maybe (a, Cache), TxResult) -&gt; Sem r (Maybe (a, Cache), TxResult)
 forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
-</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">TxResult
-</span><a href="#local-6989586621679552713"><span class="hs-identifier hs-var">baseResponse</span></a></span><span> </span><span class="annot"><span class="annottext">TxResult -&gt; (TxResult -&gt; TxResult) -&gt; TxResult
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">(a, Cache) -&gt; Maybe (a, Cache)
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679556964"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">Cache
+</span><a href="#local-6989586621679556962"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-108"></span><span>               </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">TxResult
+</span><a href="#local-6989586621679556967"><span class="hs-identifier hs-var">baseResponse</span></a></span><span> </span><span class="annot"><span class="annottext">TxResult -&gt; (TxResult -&gt; TxResult) -&gt; TxResult
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">([Event] -&gt; Identity [Event]) -&gt; TxResult -&gt; Identity TxResult
 Lens' TxResult [Event]
@@ -465,8 +466,8 @@ Lens' TxResult [Event]
 -&gt; [Event] -&gt; TxResult -&gt; TxResult
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">[Event]
-</span><a href="#local-6989586621679552709"><span class="hs-identifier hs-var">es</span></a></span><span>
-</span><span id="line-103"></span><span>                              </span><span class="annot"><span class="annottext">TxResult -&gt; (TxResult -&gt; TxResult) -&gt; TxResult
+</span><a href="#local-6989586621679556963"><span class="hs-identifier hs-var">es</span></a></span><span>
+</span><span id="line-109"></span><span>                              </span><span class="annot"><span class="annottext">TxResult -&gt; (TxResult -&gt; TxResult) -&gt; TxResult
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">(Base64String -&gt; Identity Base64String)
 -&gt; TxResult -&gt; Identity TxResult
@@ -480,62 +481,58 @@ forall ba. ByteArrayAccess ba =&gt; ba -&gt; Base64String
 </span><span class="hs-identifier hs-var">fromBytes</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; ByteString
 forall a. HasCodec a =&gt; a -&gt; ByteString
 </span><a href="Tendermint.SDK.Codec.html#encode"><span class="hs-identifier hs-var">encode</span></a></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679552710"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-104"></span><span>               </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Cache -&gt; Maybe Cache
-forall a. a -&gt; Maybe a
-</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">Cache
-</span><a href="#local-6989586621679552708"><span class="hs-identifier hs-var">c</span></a></span><span>
-</span><span id="line-105"></span><span>               </span><span class="hs-special">)</span><span>
-</span><span id="line-106"></span><span>
-</span><span id="line-107"></span><span id="local-6989586621679552876"><span id="local-6989586621679552878"><span id="local-6989586621679552879"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalCachedReadStore"><span class="hs-identifier hs-type">evalCachedReadStore</span></a></span><span>
-</span><span id="line-108"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="#local-6989586621679552879"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679552878"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-109"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679552879"><span class="hs-identifier hs-type">scope</span></a></span><span>
-</span><span id="line-110"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IORef</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache.Cache</span></a></span><span>
-</span><span id="line-111"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache.Cache</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679552878"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679552876"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-112"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679552878"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552876"><span class="hs-identifier hs-type">a</span></a></span></span></span></span><span>
-</span><span id="line-113"></span><span id="evalCachedReadStore"><span class="annot"><span class="annottext">evalCachedReadStore :: Proxy scope
+</span><a href="#local-6989586621679556964"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-110"></span><span>               </span><span class="hs-special">)</span><span>
+</span><span id="line-111"></span><span>
+</span><span id="line-112"></span><span id="local-6989586621679557134"><span id="local-6989586621679557136"><span id="local-6989586621679557137"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalCachedReadStore"><span class="hs-identifier hs-type">evalCachedReadStore</span></a></span><span>
+</span><span id="line-113"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="#local-6989586621679557137"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679557136"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-114"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679557137"><span class="hs-identifier hs-type">scope</span></a></span><span>
+</span><span id="line-115"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IORef</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache.Cache</span></a></span><span>
+</span><span id="line-116"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache.Cache</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679557136"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557134"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-117"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679557136"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679557134"><span class="hs-identifier hs-type">a</span></a></span></span></span></span><span>
+</span><span id="line-118"></span><span id="evalCachedReadStore"><span class="annot"><span class="annottext">evalCachedReadStore :: Proxy scope
 -&gt; IORef Cache -&gt; Sem (Tagged Cache ReadStore : r) a -&gt; Sem r a
-</span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalCachedReadStore"><span class="hs-identifier hs-var hs-var">evalCachedReadStore</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679552706"><span class="annot"><span class="annottext">Proxy scope
-</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679552706"><span class="hs-identifier hs-type">scope</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679552705"><span class="annot"><span class="annottext">c :: IORef Cache
-</span><a href="#local-6989586621679552705"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span id="local-6989586621679552704"><span class="annot"><span class="annottext">m :: Sem (Tagged Cache ReadStore : r) a
-</span><a href="#local-6989586621679552704"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-114"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). Tagged Cache ReadStore m x -&gt; Sem r x)
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalCachedReadStore"><span class="hs-identifier hs-var hs-var">evalCachedReadStore</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679556960"><span class="annot"><span class="annottext">Proxy scope
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Proxy</span></span><span> </span><span class="annot"><a href="#local-6989586621679556960"><span class="hs-identifier hs-type">scope</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679556959"><span class="annot"><span class="annottext">c :: IORef Cache
+</span><a href="#local-6989586621679556959"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span id="local-6989586621679556958"><span class="annot"><span class="annottext">m :: Sem (Tagged Cache ReadStore : r) a
+</span><a href="#local-6989586621679556958"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-119"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). Tagged Cache ReadStore m x -&gt; Sem r x)
 -&gt; Sem (Tagged Cache ReadStore : r) a -&gt; Sem r a
 forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 FirstOrder e &quot;interpret&quot; =&gt;
 (forall x (m :: * -&gt; *). e m x -&gt; Sem r x)
 -&gt; Sem (e : r) a -&gt; Sem r a
 </span><span class="hs-identifier hs-var">interpret</span></span><span>
-</span><span id="line-115"></span><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span id="local-6989586621679552703"><span class="annot"><a href="#local-6989586621679552703"><span class="hs-identifier hs-var">action</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ReadStore m x
-</span><a href="#local-6989586621679552703"><span class="hs-identifier hs-var">action</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-116"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreGet"><span class="hs-identifier hs-type">StoreGet</span></a></span><span> </span><span id="local-6989586621679552701"><span class="annot"><span class="annottext">k :: StoreKey
-</span><a href="#local-6989586621679552701"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-117"></span><span>        </span><span id="local-6989586621679552700"><span class="annot"><span class="annottext">Cache
-</span><a href="#local-6989586621679552700"><span class="hs-identifier hs-var">cache</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Cache -&gt; Sem r Cache
+</span><span id="line-120"></span><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span id="local-6989586621679556957"><span class="annot"><a href="#local-6989586621679556957"><span class="hs-identifier hs-var">action</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ReadStore m x
+</span><a href="#local-6989586621679556957"><span class="hs-identifier hs-var">action</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-121"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreGet"><span class="hs-identifier hs-type">StoreGet</span></a></span><span> </span><span id="local-6989586621679556955"><span class="annot"><span class="annottext">k :: StoreKey
+</span><a href="#local-6989586621679556955"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-122"></span><span>        </span><span id="local-6989586621679556954"><span class="annot"><span class="annottext">Cache
+</span><a href="#local-6989586621679556954"><span class="hs-identifier hs-var">cache</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Cache -&gt; Sem r Cache
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO Cache -&gt; Sem r Cache) -&gt; IO Cache -&gt; Sem r Cache
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">IORef Cache -&gt; IO Cache
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef Cache
-</span><a href="#local-6989586621679552705"><span class="hs-identifier hs-var">c</span></a></span><span>
-</span><span id="line-118"></span><span>        </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; Cache -&gt; Either Deleted (Maybe ByteString)
+</span><a href="#local-6989586621679556959"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><span id="line-123"></span><span>        </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; Cache -&gt; Either Deleted (Maybe ByteString)
 </span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#get"><span class="hs-identifier hs-var">Cache.get</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679552701"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Cache
-</span><a href="#local-6989586621679552700"><span class="hs-identifier hs-var">cache</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-119"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Deleted"><span class="hs-identifier hs-type">Cache.Deleted</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r (Maybe ByteString)
+</span><a href="#local-6989586621679556955"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Cache
+</span><a href="#local-6989586621679556954"><span class="hs-identifier hs-var">cache</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-124"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Deleted"><span class="hs-identifier hs-type">Cache.Deleted</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r (Maybe ByteString)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Maybe ByteString
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-120"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679552697"><span class="annot"><span class="annottext">v :: ByteString
-</span><a href="#local-6989586621679552697"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span>     </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r (Maybe ByteString)
+</span><span id="line-125"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679556951"><span class="annot"><span class="annottext">v :: ByteString
+</span><a href="#local-6989586621679556951"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span>     </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r (Maybe ByteString)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ByteString -&gt; Maybe ByteString
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679552697"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-121"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span>      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Tagged scope ReadStore (Sem r) (Maybe ByteString)
+</span><a href="#local-6989586621679556951"><span class="hs-identifier hs-var">v</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-126"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span>      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Tagged scope ReadStore (Sem r) (Maybe ByteString)
 -&gt; Sem r (Maybe ByteString)
 forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Member e r =&gt;
@@ -544,86 +541,86 @@ e (Sem r) a -&gt; Sem r a
 -&gt; Tagged scope ReadStore (Sem r) (Maybe ByteString)
 forall k k1 k2 (k3 :: k) (e :: k1 -&gt; k2 -&gt; *) (m :: k1) (a :: k2).
 e m a -&gt; Tagged k3 e m a
-</span><span class="hs-identifier hs-var">Tagged</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679552706"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">StoreKey -&gt; ReadStore (Sem r) (Maybe ByteString)
+</span><span class="hs-identifier hs-var">Tagged</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679556960"><span class="hs-identifier hs-type">scope</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">StoreKey -&gt; ReadStore (Sem r) (Maybe ByteString)
 forall k (m :: k). StoreKey -&gt; ReadStore m (Maybe ByteString)
 </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreGet"><span class="hs-identifier hs-var">StoreGet</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679552701"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-122"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreProve"><span class="hs-identifier hs-type">StoreProve</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r (Maybe ByteString)
+</span><a href="#local-6989586621679556955"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-127"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreProve"><span class="hs-identifier hs-type">StoreProve</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r (Maybe ByteString)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Maybe ByteString
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
-</span><span id="line-123"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Sem (Tagged Cache ReadStore : r) a
-</span><a href="#local-6989586621679552704"><span class="hs-identifier hs-var">m</span></a></span><span>
-</span><span id="line-124"></span><span>
-</span><span id="line-125"></span><span id="local-6989586621679552858"><span id="local-6989586621679552860"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalCachedWriteStore"><span class="hs-identifier hs-type">evalCachedWriteStore</span></a></span><span>
-</span><span id="line-126"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679552860"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-127"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IORef</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache.Cache</span></a></span><span>
-</span><span id="line-128"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache.Cache</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#WriteStore"><span class="hs-identifier hs-type">WriteStore</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679552860"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679552858"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-129"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679552860"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679552858"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
-</span><span id="line-130"></span><span id="evalCachedWriteStore"><span class="annot"><span class="annottext">evalCachedWriteStore :: IORef Cache -&gt; Sem (Tagged Cache WriteStore : r) a -&gt; Sem r a
-</span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalCachedWriteStore"><span class="hs-identifier hs-var hs-var">evalCachedWriteStore</span></a></span></span><span> </span><span id="local-6989586621679552695"><span class="annot"><span class="annottext">c :: IORef Cache
-</span><a href="#local-6989586621679552695"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span id="local-6989586621679552694"><span class="annot"><span class="annottext">m :: Sem (Tagged Cache WriteStore : r) a
-</span><a href="#local-6989586621679552694"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-131"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). Tagged Cache WriteStore m x -&gt; Sem r x)
+</span><span id="line-128"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Sem (Tagged Cache ReadStore : r) a
+</span><a href="#local-6989586621679556958"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-129"></span><span>
+</span><span id="line-130"></span><span id="local-6989586621679557116"><span id="local-6989586621679557118"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalCachedWriteStore"><span class="hs-identifier hs-type">evalCachedWriteStore</span></a></span><span>
+</span><span id="line-131"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557118"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-132"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IORef</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache.Cache</span></a></span><span>
+</span><span id="line-133"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache.Cache</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#WriteStore"><span class="hs-identifier hs-type">WriteStore</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679557118"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557116"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-134"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679557118"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679557116"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-135"></span><span id="evalCachedWriteStore"><span class="annot"><span class="annottext">evalCachedWriteStore :: IORef Cache -&gt; Sem (Tagged Cache WriteStore : r) a -&gt; Sem r a
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Effect.html#evalCachedWriteStore"><span class="hs-identifier hs-var hs-var">evalCachedWriteStore</span></a></span></span><span> </span><span id="local-6989586621679556949"><span class="annot"><span class="annottext">c :: IORef Cache
+</span><a href="#local-6989586621679556949"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span id="local-6989586621679556948"><span class="annot"><span class="annottext">m :: Sem (Tagged Cache WriteStore : r) a
+</span><a href="#local-6989586621679556948"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-136"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). Tagged Cache WriteStore m x -&gt; Sem r x)
 -&gt; Sem (Tagged Cache WriteStore : r) a -&gt; Sem r a
 forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 FirstOrder e &quot;interpret&quot; =&gt;
 (forall x (m :: * -&gt; *). e m x -&gt; Sem r x)
 -&gt; Sem (e : r) a -&gt; Sem r a
 </span><span class="hs-identifier hs-var">interpret</span></span><span>
-</span><span id="line-132"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">IO x -&gt; Sem r x
+</span><span id="line-137"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">IO x -&gt; Sem r x
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO x -&gt; Sem r x)
 -&gt; (Tagged Cache WriteStore m x -&gt; IO x)
 -&gt; Tagged Cache WriteStore m x
 -&gt; Sem r x
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
-</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span id="local-6989586621679552693"><span class="annot"><span class="annottext">action :: WriteStore m x
-</span><a href="#local-6989586621679552693"><span class="hs-identifier hs-var">action</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">WriteStore m x
-</span><a href="#local-6989586621679552693"><span class="hs-identifier hs-var">action</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-133"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StorePut"><span class="hs-identifier hs-type">StorePut</span></a></span><span> </span><span id="local-6989586621679552692"><span class="annot"><span class="annottext">k :: StoreKey
-</span><a href="#local-6989586621679552692"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679552691"><span class="annot"><span class="annottext">v :: ByteString
-</span><a href="#local-6989586621679552691"><span class="hs-identifier hs-var">v</span></a></span></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-134"></span><span>       </span><span id="local-6989586621679552690"><span class="annot"><span class="annottext">Cache
-</span><a href="#local-6989586621679552690"><span class="hs-identifier hs-var">cache</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Cache -&gt; IO Cache
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span id="local-6989586621679556947"><span class="annot"><span class="annottext">action :: WriteStore m x
+</span><a href="#local-6989586621679556947"><span class="hs-identifier hs-var">action</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">WriteStore m x
+</span><a href="#local-6989586621679556947"><span class="hs-identifier hs-var">action</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-138"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StorePut"><span class="hs-identifier hs-type">StorePut</span></a></span><span> </span><span id="local-6989586621679556946"><span class="annot"><span class="annottext">k :: StoreKey
+</span><a href="#local-6989586621679556946"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679556945"><span class="annot"><span class="annottext">v :: ByteString
+</span><a href="#local-6989586621679556945"><span class="hs-identifier hs-var">v</span></a></span></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-139"></span><span>       </span><span id="local-6989586621679556944"><span class="annot"><span class="annottext">Cache
+</span><a href="#local-6989586621679556944"><span class="hs-identifier hs-var">cache</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Cache -&gt; IO Cache
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO Cache -&gt; IO Cache) -&gt; IO Cache -&gt; IO Cache
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">IORef Cache -&gt; IO Cache
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef Cache
-</span><a href="#local-6989586621679552695"><span class="hs-identifier hs-var">c</span></a></span><span>
-</span><span id="line-135"></span><span>       </span><span class="annot"><span class="annottext">IORef Cache -&gt; Cache -&gt; IO ()
+</span><a href="#local-6989586621679556949"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><span id="line-140"></span><span>       </span><span class="annot"><span class="annottext">IORef Cache -&gt; Cache -&gt; IO ()
 forall a. IORef a -&gt; a -&gt; IO ()
 </span><span class="hs-identifier hs-var">writeIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef Cache
-</span><a href="#local-6989586621679552695"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">(Cache -&gt; IO x) -&gt; Cache -&gt; IO x
+</span><a href="#local-6989586621679556949"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">(Cache -&gt; IO x) -&gt; Cache -&gt; IO x
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; ByteString -&gt; Cache -&gt; Cache
 </span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#put"><span class="hs-identifier hs-var">Cache.put</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679552692"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679552691"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Cache
-</span><a href="#local-6989586621679552690"><span class="hs-identifier hs-var">cache</span></a></span><span>
-</span><span id="line-136"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreDelete"><span class="hs-identifier hs-type">StoreDelete</span></a></span><span> </span><span id="local-6989586621679552688"><span class="annot"><span class="annottext">k :: StoreKey
-</span><a href="#local-6989586621679552688"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-137"></span><span>        </span><span id="local-6989586621679552687"><span class="annot"><span class="annottext">Cache
-</span><a href="#local-6989586621679552687"><span class="hs-identifier hs-var">cache</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Cache -&gt; IO Cache
+</span><a href="#local-6989586621679556946"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679556945"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Cache
+</span><a href="#local-6989586621679556944"><span class="hs-identifier hs-var">cache</span></a></span><span>
+</span><span id="line-141"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreDelete"><span class="hs-identifier hs-type">StoreDelete</span></a></span><span> </span><span id="local-6989586621679556942"><span class="annot"><span class="annottext">k :: StoreKey
+</span><a href="#local-6989586621679556942"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-142"></span><span>        </span><span id="local-6989586621679556941"><span class="annot"><span class="annottext">Cache
+</span><a href="#local-6989586621679556941"><span class="hs-identifier hs-var">cache</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Cache -&gt; IO Cache
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO Cache -&gt; IO Cache) -&gt; IO Cache -&gt; IO Cache
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">IORef Cache -&gt; IO Cache
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef Cache
-</span><a href="#local-6989586621679552695"><span class="hs-identifier hs-var">c</span></a></span><span>
-</span><span id="line-138"></span><span>        </span><span class="annot"><span class="annottext">IORef Cache -&gt; Cache -&gt; IO ()
+</span><a href="#local-6989586621679556949"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><span id="line-143"></span><span>        </span><span class="annot"><span class="annottext">IORef Cache -&gt; Cache -&gt; IO ()
 forall a. IORef a -&gt; a -&gt; IO ()
 </span><span class="hs-identifier hs-var">writeIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef Cache
-</span><a href="#local-6989586621679552695"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">(Cache -&gt; IO x) -&gt; Cache -&gt; IO x
+</span><a href="#local-6989586621679556949"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">(Cache -&gt; IO x) -&gt; Cache -&gt; IO x
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; Cache -&gt; Cache
 </span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#delete"><span class="hs-identifier hs-var">Cache.delete</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679552688"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Cache
-</span><a href="#local-6989586621679552687"><span class="hs-identifier hs-var">cache</span></a></span><span>
-</span><span id="line-139"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Sem (Tagged Cache WriteStore : r) a
-</span><a href="#local-6989586621679552694"><span class="hs-identifier hs-var">m</span></a></span><span>
-</span><span id="line-140"></span></pre></body></html>
+</span><a href="#local-6989586621679556942"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Cache
+</span><a href="#local-6989586621679556941"><span class="hs-identifier hs-var">cache</span></a></span><span>
+</span><span id="line-144"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Sem (Tagged Cache WriteStore : r) a
+</span><a href="#local-6989586621679556948"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-145"></span></pre></body></html>
