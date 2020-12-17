@@ -9,9 +9,12 @@ module Tendermint.SDK.BaseApp.Errors
 
 import           Control.Exception                    (Exception)
 import           Control.Lens                         (Lens', lens)
+import qualified Data.Aeson                           as A
 import           Data.String.Conversions              (cs)
 import           Data.Text                            (Text, intercalate)
 import           Data.Word                            (Word32, Word64)
+import           GHC.Generics                         (Generic)
+import           Network.ABCI.Types.Messages.Common   (defaultABCIOptions)
 import qualified Network.ABCI.Types.Messages.Response as Response
 import           Polysemy
 import           Polysemy.Error                       (Error, throw)
@@ -24,9 +27,15 @@ data AppError = AppError
   { appErrorCode      :: Word32
   , appErrorCodespace :: Text
   , appErrorMessage   :: Text
-  } deriving (Eq, Show)
+  } deriving (Eq, Show, Generic)
 
 instance Exception AppError
+
+instance A.ToJSON AppError where
+  toJSON = A.genericToJSON $ defaultABCIOptions "appError"
+
+instance A.FromJSON AppError where
+  parseJSON = A.genericParseJSON $ defaultABCIOptions "appError"
 
 -- | Allows for custom application error types to be coerced into the
 -- standard error resposne.

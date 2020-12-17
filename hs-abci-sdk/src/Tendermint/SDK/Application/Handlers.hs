@@ -8,10 +8,11 @@ import           Control.Lens                             (from, to, (&), (.~),
                                                            (^.))
 import           Crypto.Hash                              (Digest)
 import           Crypto.Hash.Algorithms                   (SHA256)
+import qualified Data.Aeson                               as A
 import qualified Data.ByteArray.Base64String              as Base64
 import           Data.Default.Class                       (Default (..))
 import           Data.Proxy
-import           Data.Text
+import           Data.String.Conversions                  (cs)
 import           Network.ABCI.Server.App                  (App (..),
                                                            MessageType (..),
                                                            Request (..),
@@ -179,7 +180,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
           Right bbr ->
             return . ResponseBeginBlock $ bbr
           Left e ->
-            return . ResponseException . Resp.Exception . pack $ "Fatal Error in handling of BeginBlock: " ++ show e
+            return . ResponseException . Resp.Exception . cs . A.encode $ e
 
       endBlock :: Handler 'MTEndBlock (BA.BaseAppEffs core)
       endBlock (RequestEndBlock eb) = do
@@ -188,7 +189,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
           Right ebr ->
             return . ResponseEndBlock $ ebr
           Left e ->
-            return . ResponseException . Resp.Exception . pack $ "Fatal Error in handling of EndBlock: " ++ show e
+            return . ResponseException . Resp.Exception . cs . A.encode $ e
 
 
 
