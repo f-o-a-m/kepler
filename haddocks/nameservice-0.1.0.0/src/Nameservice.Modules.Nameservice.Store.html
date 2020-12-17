@@ -52,14 +52,14 @@ forall k (t :: k). Proxy t
 </span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="Nameservice.Modules.Nameservice.Types.html#NameserviceName"><span class="hs-identifier hs-type">NameserviceName</span></a></span><span>
 </span><span id="line-26"></span><span>
 </span><span id="line-27"></span><span class="hs-keyword">newtype</span><span> </span><span id="Name"><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-var">Name</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Name"><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-var">Name</span></a></span></span><span> </span><span class="hs-special">{</span><span id="unName"><span class="annot"><span class="annottext">Name -&gt; Text
-</span><a href="Nameservice.Modules.Nameservice.Store.html#unName"><span class="hs-identifier hs-var hs-var">unName</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354852"><span id="local-6989586621679354854"><span class="annot"><span class="annottext">Name -&gt; Name -&gt; Bool
+</span><a href="Nameservice.Modules.Nameservice.Store.html#unName"><span class="hs-identifier hs-var hs-var">unName</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679354975"><span id="local-6989586621679354977"><span class="annot"><span class="annottext">Name -&gt; Name -&gt; Bool
 (Name -&gt; Name -&gt; Bool) -&gt; (Name -&gt; Name -&gt; Bool) -&gt; Eq Name
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 /= :: Name -&gt; Name -&gt; Bool
 $c/= :: Name -&gt; Name -&gt; Bool
 == :: Name -&gt; Name -&gt; Bool
 $c== :: Name -&gt; Name -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354845"><span id="local-6989586621679354847"><span id="local-6989586621679354849"><span class="annot"><span class="annottext">Int -&gt; Name -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354968"><span id="local-6989586621679354970"><span id="local-6989586621679354972"><span class="annot"><span class="annottext">Int -&gt; Name -&gt; ShowS
 [Name] -&gt; ShowS
 Name -&gt; String
 (Int -&gt; Name -&gt; ShowS)
@@ -72,7 +72,7 @@ show :: Name -&gt; String
 $cshow :: Name -&gt; String
 showsPrec :: Int -&gt; Name -&gt; ShowS
 $cshowsPrec :: Int -&gt; Name -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354836"><span id="local-6989586621679354838"><span id="local-6989586621679354840"><span id="local-6989586621679354842"><span class="annot"><span class="annottext">[Name] -&gt; Encoding
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354959"><span id="local-6989586621679354961"><span id="local-6989586621679354963"><span id="local-6989586621679354965"><span class="annot"><span class="annottext">[Name] -&gt; Encoding
 [Name] -&gt; Value
 Name -&gt; Encoding
 Name -&gt; Value
@@ -95,7 +95,7 @@ toEncoding :: Name -&gt; Encoding
 $ctoEncoding :: Name -&gt; Encoding
 toJSON :: Name -&gt; Value
 $ctoJSON :: Name -&gt; Value
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">A.ToJSON</span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354831"><span id="local-6989586621679354833"><span class="annot"><span class="annottext">Value -&gt; Parser [Name]
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">A.ToJSON</span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679354954"><span id="local-6989586621679354956"><span class="annot"><span class="annottext">Value -&gt; Parser [Name]
 Value -&gt; Parser Name
 (Value -&gt; Parser Name) -&gt; (Value -&gt; Parser [Name]) -&gt; FromJSON Name
 forall a.
@@ -107,22 +107,22 @@ $cparseJSON :: Value -&gt; Parser Name
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">A.FromJSON</span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-28"></span><span>
 </span><span id="line-29"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">BaseApp.RawKey</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-30"></span><span>    </span><span id="local-6989586621679354827"><span class="annot"><span class="annottext">rawKey :: p ByteString (f ByteString) -&gt; p Name (f Name)
+</span><span id="line-30"></span><span>    </span><span id="local-6989586621679354950"><span class="annot"><span class="annottext">rawKey :: p ByteString (f ByteString) -&gt; p Name (f Name)
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">rawKey</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Name -&gt; ByteString)
 -&gt; (ByteString -&gt; Name) -&gt; Iso' Name ByteString
 forall s a b t. (s -&gt; a) -&gt; (b -&gt; t) -&gt; Iso s t a b
-</span><span class="hs-identifier hs-var">iso</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-special">(</span><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679354825"><span class="annot"><span class="annottext">n :: Text
-</span><a href="#local-6989586621679354825"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><span class="hs-identifier hs-var">iso</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-special">(</span><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-type">Name</span></a></span><span> </span><span id="local-6989586621679354948"><span class="annot"><span class="annottext">n :: Text
+</span><a href="#local-6989586621679354948"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679354825"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Name
+</span><a href="#local-6989586621679354948"><span class="hs-identifier hs-var">n</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Name
 </span><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-var">Name</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Name) -&gt; (ByteString -&gt; Text) -&gt; ByteString -&gt; Name
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Text
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span class="hs-special">)</span><span>
 </span><span id="line-31"></span><span>
-</span><span id="line-32"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354821"><span id="local-6989586621679354823"><span class="annot"><span class="hs-identifier hs-type">BaseApp.QueryData</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-type">Name</span></a></span></span></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679354944"><span id="local-6989586621679354946"><span class="annot"><span class="hs-identifier hs-type">BaseApp.QueryData</span></span><span> </span><span class="annot"><a href="Nameservice.Modules.Nameservice.Store.html#Name"><span class="hs-identifier hs-type">Name</span></a></span></span></span><span>
 </span><span id="line-33"></span><span>
-</span><span id="line-34"></span><span class="hs-special">$(</span><span id="NameWhoisMapKey"><span id="Value"><span id="local-6989586621679354815"><span id="local-6989586621679354817"><span id="whoisMap"><span id="NameWhoisMapKey"><span class="hs-identifier">makeSubStore</span><span> </span><span class="hs-special">'</span><span class="hs-identifier">store</span><span> </span><span class="hs-string">&quot;whoisMap&quot;</span><span> </span><span class="hs-special">[t|</span><span> </span><span class="hs-identifier">M.Map</span><span> </span><span class="hs-identifier">Name</span><span> </span><span class="hs-identifier">Whois</span><span class="hs-special">|]</span><span> </span><span class="hs-identifier">whoisMapKey</span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span class="hs-special">$(</span><span id="NameWhoisMapKey"><span id="Value"><span id="local-6989586621679354938"><span id="local-6989586621679354940"><span id="whoisMap"><span id="NameWhoisMapKey"><span class="hs-identifier">makeSubStore</span><span> </span><span class="hs-special">'</span><span class="hs-identifier">store</span><span> </span><span class="hs-string">&quot;whoisMap&quot;</span><span> </span><span class="hs-special">[t|</span><span> </span><span class="hs-identifier">M.Map</span><span> </span><span class="hs-identifier">Name</span><span> </span><span class="hs-identifier">Whois</span><span class="hs-special">|]</span><span> </span><span class="hs-identifier">whoisMapKey</span></span></span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-35"></span></pre></body></html>

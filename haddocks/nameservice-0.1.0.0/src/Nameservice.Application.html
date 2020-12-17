@@ -46,7 +46,7 @@ forall k (t :: k). Proxy t
      : Transaction : CommitBlock : Metrics : Logger : Resource
      : Error AppError : CoreEffs)
 ModuleList NameserviceModules (Effs NameserviceModules CoreEffs)
-</span><a href="#local-6989586621679355405"><span class="hs-identifier hs-var">nameserviceModules</span></a></span><span>
+</span><a href="#local-6989586621679355528"><span class="hs-identifier hs-var">nameserviceModules</span></a></span><span>
 </span><span id="line-27"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">beginBlocker :: BeginBlock -&gt; Sem (Effs NameserviceModules CoreEffs) ()
 </span><span class="hs-identifier hs-var">beginBlocker</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BeginBlock -&gt; Sem (Effs NameserviceModules CoreEffs) ()
 forall (r :: EffectRow). BeginBlock -&gt; Sem r ()
@@ -66,7 +66,7 @@ AnteHandler (Effs NameserviceModules CoreEffs)
 </span><span class="hs-identifier hs-var">baseAppAnteHandler</span></span><span>
 </span><span id="line-31"></span><span>  </span><span class="hs-special">}</span><span>
 </span><span id="line-32"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-33"></span><span>  </span><span id="local-6989586621679355405"><span class="annot"><span class="annottext">nameserviceModules :: ModuleList
+</span><span id="line-33"></span><span>  </span><span id="local-6989586621679355528"><span class="annot"><span class="annottext">nameserviceModules :: ModuleList
   NameserviceModules
   (NameserviceKeeper
      : Error NameserviceError : BankKeeper : Error BankError : Accounts
@@ -75,7 +75,7 @@ AnteHandler (Effs NameserviceModules CoreEffs)
      : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
      : Transaction : CommitBlock : Metrics : Logger : Resource
      : Error AppError : CoreEffs)
-</span><a href="#local-6989586621679355405"><span class="hs-identifier hs-var hs-var">nameserviceModules</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="#local-6989586621679355528"><span class="hs-identifier hs-var hs-var">nameserviceModules</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-34"></span><span>       </span><span class="annot"><span class="annottext">Nameservice
   (NameserviceKeeper
      : Error NameserviceError : BankKeeper : Error BankError : Accounts

@@ -590,10 +590,13 @@ UnknownAccountError :: Address -> SDKError
 --   directly.
 throwSDKError :: Member (Error AppError) r => SDKError -> Sem r a
 instance GHC.Show.Show Tendermint.SDK.BaseApp.Errors.SDKError
+instance GHC.Generics.Generic Tendermint.SDK.BaseApp.Errors.AppError
 instance GHC.Show.Show Tendermint.SDK.BaseApp.Errors.AppError
 instance GHC.Classes.Eq Tendermint.SDK.BaseApp.Errors.AppError
 instance Tendermint.SDK.BaseApp.Errors.IsAppError Tendermint.SDK.BaseApp.Errors.SDKError
 instance GHC.Exception.Type.Exception Tendermint.SDK.BaseApp.Errors.AppError
+instance Data.Aeson.Types.ToJSON.ToJSON Tendermint.SDK.BaseApp.Errors.AppError
+instance Data.Aeson.Types.FromJSON.FromJSON Tendermint.SDK.BaseApp.Errors.AppError
 
 module Tendermint.SDK.BaseApp.Store.RawStore
 type StoreEffs = [Tagged 'Consensus ReadStore, Tagged 'QueryAndMempool ReadStore, Tagged 'Consensus WriteStore, Transaction, CommitBlock]
@@ -607,29 +610,29 @@ QueryAndMempool :: Scope
 data ReadStore m a
 [StoreGet] :: StoreKey -> ReadStore m (Maybe ByteString)
 [StoreProve] :: StoreKey -> ReadStore m (Maybe ByteString)
-storeGet :: forall r_a1eYQ. MemberWithError ReadStore r_a1eYQ => StoreKey -> Sem r_a1eYQ (Maybe ByteString)
+storeGet :: forall r_a1gue. MemberWithError ReadStore r_a1gue => StoreKey -> Sem r_a1gue (Maybe ByteString)
 get :: forall k r ns. IsKey k ns => HasCodec (Value k ns) => Members [ReadStore, Error AppError] r => Store ns -> k -> Sem r (Maybe (Value k ns))
 prove :: forall k ns r. IsKey k ns => Member ReadStore r => Store ns -> k -> Sem r (Maybe ByteString)
 data WriteStore m a
 [StorePut] :: StoreKey -> ByteString -> WriteStore m ()
 [StoreDelete] :: StoreKey -> WriteStore m ()
 put :: forall k r ns. IsKey k ns => HasCodec (Value k ns) => Member WriteStore r => Store ns -> k -> Value k ns -> Sem r ()
-storePut :: forall r_a1f2n. MemberWithError WriteStore r_a1f2n => StoreKey -> ByteString -> Sem r_a1f2n ()
+storePut :: forall r_a1gxL. MemberWithError WriteStore r_a1gxL => StoreKey -> ByteString -> Sem r_a1gxL ()
 delete :: forall k ns r. IsKey k ns => Member WriteStore r => Store ns -> k -> Sem r ()
-storeDelete :: forall r_a1f2q. MemberWithError WriteStore r_a1f2q => StoreKey -> Sem r_a1f2q ()
+storeDelete :: forall r_a1gxO. MemberWithError WriteStore r_a1gxO => StoreKey -> Sem r_a1gxO ()
 
 -- | Consensus Effects
 data CommitBlock m a
 [CommitBlock] :: CommitBlock m Base64String
-commitBlock :: forall r_a1fba. MemberWithError CommitBlock r_a1fba => Sem r_a1fba Base64String
+commitBlock :: forall r_a1gGy. MemberWithError CommitBlock r_a1gGy => Sem r_a1gGy Base64String
 data Transaction m a
 [BeginTransaction] :: Transaction m ()
 [Rollback] :: Transaction m ()
 [Commit] :: Transaction m CommitResponse
-beginTransaction :: forall r_a1ffI. MemberWithError Transaction r_a1ffI => Sem r_a1ffI ()
+beginTransaction :: forall r_a1gL6. MemberWithError Transaction r_a1gL6 => Sem r_a1gL6 ()
 withSandbox :: forall r a. Members [Transaction, Resource, Error AppError] r => Sem r a -> Sem r a
 withTransaction :: forall r a. Members [Transaction, Resource, Error AppError] r => Sem r a -> Sem r (a, CommitResponse)
-commit :: forall r_a1ffK. MemberWithError Transaction r_a1ffK => Sem r_a1ffK CommitResponse
+commit :: forall r_a1gL8. MemberWithError Transaction r_a1gL8 => Sem r_a1gL8 CommitResponse
 
 -- | Keys
 class RawKey k
@@ -1025,7 +1028,7 @@ data GasMeter m a
 newtype GasAmount
 GasAmount :: Int64 -> GasAmount
 [unGasAmount] :: GasAmount -> Int64
-withGas :: forall r_a1LOt a_a1LEA. MemberWithError GasMeter r_a1LOt => GasAmount -> Sem r_a1LOt a_a1LEA -> Sem r_a1LOt a_a1LEA
+withGas :: forall r_a1N3G a_a1MTN. MemberWithError GasMeter r_a1N3G => GasAmount -> Sem r_a1N3G a_a1MTN -> Sem r_a1N3G a_a1MTN
 eval :: Members [Error AppError, State GasAmount] r => Sem (GasMeter : r) a -> Sem r a
 doNothing :: forall r. forall a. Sem (GasMeter : r) a -> Sem r a
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Gas.GasAmount
@@ -1274,7 +1277,7 @@ ContextEvent :: t -> ContextEvent t
 emit :: ToEvent e => Member (Output Event) r => e -> Sem r ()
 logEvent :: forall e r. (ToJSON e, ToEvent e, Select e) => Member Logger r => e -> Sem r ()
 data GasMeter m a
-withGas :: forall r_a1LOt a_a1LEA. MemberWithError GasMeter r_a1LOt => GasAmount -> Sem r_a1LOt a_a1LEA -> Sem r_a1LOt a_a1LEA
+withGas :: forall r_a1N3G a_a1MTN. MemberWithError GasMeter r_a1N3G => GasAmount -> Sem r_a1N3G a_a1MTN -> Sem r_a1N3G a_a1MTN
 
 -- | Effect allowing for console logging.
 data Logger m a
@@ -1406,9 +1409,9 @@ data Accounts m a
 [UpdateAccount] :: Address -> (Account -> Account) -> Accounts m ()
 [GetAccount] :: Address -> Accounts m (Maybe Account)
 type AuthEffs = '[Accounts, Error AuthError]
-createAccount :: forall r_a1WA1. MemberWithError Accounts r_a1WA1 => Address -> Sem r_a1WA1 Account
-updateAccount :: forall r_a1WA3. MemberWithError Accounts r_a1WA3 => Address -> (Account -> Account) -> Sem r_a1WA3 ()
-getAccount :: forall r_a1WA6. MemberWithError Accounts r_a1WA6 => Address -> Sem r_a1WA6 (Maybe Account)
+createAccount :: forall r_a1XFG. MemberWithError Accounts r_a1XFG => Address -> Sem r_a1XFG Account
+updateAccount :: forall r_a1XFI. MemberWithError Accounts r_a1XFI => Address -> (Account -> Account) -> Sem r_a1XFI ()
+getAccount :: forall r_a1XFL. MemberWithError Accounts r_a1XFL => Address -> Sem r_a1XFL (Maybe Account)
 eval :: Members [ReadStore, WriteStore, Error AppError] r => Sem (Accounts : (Error AuthError : r)) a -> Sem r a
 
 -- | Query API
@@ -1494,10 +1497,10 @@ data BankKeeper m a
 [Transfer] :: Address -> Coin -> Address -> BankKeeper m ()
 [Burn] :: Address -> Coin -> BankKeeper m ()
 [Mint] :: Address -> Coin -> BankKeeper m ()
-getBalance :: forall r_a22rC. MemberWithError BankKeeper r_a22rC => Address -> CoinId -> Sem r_a22rC Coin
-transfer :: forall r_a22rF. MemberWithError BankKeeper r_a22rF => Address -> Coin -> Address -> Sem r_a22rF ()
-burn :: forall r_a22rJ. MemberWithError BankKeeper r_a22rJ => Address -> Coin -> Sem r_a22rJ ()
-mint :: forall r_a22rM. MemberWithError BankKeeper r_a22rM => Address -> Coin -> Sem r_a22rM ()
+getBalance :: forall r_a23wC. MemberWithError BankKeeper r_a23wC => Address -> CoinId -> Sem r_a23wC Coin
+transfer :: forall r_a23wF. MemberWithError BankKeeper r_a23wF => Address -> Coin -> Address -> Sem r_a23wF ()
+burn :: forall r_a23wJ. MemberWithError BankKeeper r_a23wJ => Address -> Coin -> Sem r_a23wJ ()
+mint :: forall r_a23wM. MemberWithError BankKeeper r_a23wM => Address -> Coin -> Sem r_a23wM ()
 eval :: Members [Logger, Output Event, Error AppError] r => Members AuthEffs r => forall a. Sem (BankKeeper : (Error BankError : r)) a -> Sem r a
 data TransferMsg
 TransferMsg :: Address -> Address -> CoinId -> Amount -> TransferMsg

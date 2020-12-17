@@ -46,7 +46,7 @@ forall k (t :: k). Proxy t
      : Error AppError : CoreEffs)
 ModuleList
   SimpleStorageModules (Effs SimpleStorageModules CoreEffs)
-</span><a href="#local-6989586621679293458"><span class="hs-identifier hs-var">simpleStorageModules</span></a></span><span>
+</span><a href="#local-6989586621679293581"><span class="hs-identifier hs-var">simpleStorageModules</span></a></span><span>
 </span><span id="line-26"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">beginBlocker :: BeginBlock -&gt; Sem (Effs SimpleStorageModules CoreEffs) ()
 </span><span class="hs-identifier hs-var">beginBlocker</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BeginBlock -&gt; Sem (Effs SimpleStorageModules CoreEffs) ()
 forall (r :: EffectRow). BeginBlock -&gt; Sem r ()
@@ -66,7 +66,7 @@ AnteHandler (Effs SimpleStorageModules CoreEffs)
 </span><span class="hs-identifier hs-var">baseAppAnteHandler</span></span><span>
 </span><span id="line-30"></span><span>  </span><span class="hs-special">}</span><span>
 </span><span id="line-31"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-32"></span><span>  </span><span id="local-6989586621679293458"><span class="annot"><span class="annottext">simpleStorageModules :: ModuleList
+</span><span id="line-32"></span><span>  </span><span id="local-6989586621679293581"><span class="annot"><span class="annottext">simpleStorageModules :: ModuleList
   SimpleStorageModules
   (SimpleStorageKeeper
      : Accounts : Error AuthError : Output Event : GasMeter : WriteStore
@@ -74,7 +74,7 @@ AnteHandler (Effs SimpleStorageModules CoreEffs)
      : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
      : Transaction : CommitBlock : Metrics : Logger : Resource
      : Error AppError : CoreEffs)
-</span><a href="#local-6989586621679293458"><span class="hs-identifier hs-var hs-var">simpleStorageModules</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="#local-6989586621679293581"><span class="hs-identifier hs-var hs-var">simpleStorageModules</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-33"></span><span>       </span><span class="annot"><span class="annottext">SimpleStorage
   (SimpleStorageKeeper
      : Accounts : Error AuthError : Output Event : GasMeter : WriteStore

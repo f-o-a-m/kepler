@@ -42,15 +42,15 @@
 </span><span id="line-42"></span><span class="hs-keyword">newtype</span><span> </span><span id="AuthTreeHash"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#AuthTreeHash"><span class="hs-identifier hs-var">AuthTreeHash</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>  </span><span id="AuthTreeHash"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#AuthTreeHash"><span class="hs-identifier hs-var">AuthTreeHash</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Cryptonite.Digest</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Cryptonite.SHA256</span></span><span class="hs-special">)</span><span>
 </span><span id="line-43"></span><span>
 </span><span id="line-44"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">AT.MerkleHash</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#AuthTreeHash"><span class="hs-identifier hs-type">AuthTreeHash</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-45"></span><span>    </span><span id="local-6989586621679553441"><span class="annot"><span class="annottext">emptyHash :: AuthTreeHash
+</span><span id="line-45"></span><span>    </span><span id="local-6989586621679557635"><span class="annot"><span class="annottext">emptyHash :: AuthTreeHash
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">emptyHash</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Digest SHA256 -&gt; AuthTreeHash
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#AuthTreeHash"><span class="hs-identifier hs-var">AuthTreeHash</span></a></span><span> </span><span class="annot"><span class="annottext">Digest SHA256
 forall a. HashAlgorithm a =&gt; Digest a
 </span><span class="hs-identifier hs-var">Cryptonite.emptyHash</span></span><span>
-</span><span id="line-46"></span><span>    </span><span id="local-6989586621679553438"><span class="annot"><span class="annottext">hashLeaf :: k -&gt; v -&gt; AuthTreeHash
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">hashLeaf</span></span></span><span> </span><span id="local-6989586621679553436"><span class="annot"><span class="annottext">k :: k
-</span><a href="#local-6989586621679553436"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679553435"><span class="annot"><span class="annottext">v :: v
-</span><a href="#local-6989586621679553435"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Digest SHA256 -&gt; AuthTreeHash
+</span><span id="line-46"></span><span>    </span><span id="local-6989586621679557632"><span class="annot"><span class="annottext">hashLeaf :: k -&gt; v -&gt; AuthTreeHash
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">hashLeaf</span></span></span><span> </span><span id="local-6989586621679557630"><span class="annot"><span class="annottext">k :: k
+</span><a href="#local-6989586621679557630"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679557629"><span class="annot"><span class="annottext">v :: v
+</span><a href="#local-6989586621679557629"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Digest SHA256 -&gt; AuthTreeHash
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#AuthTreeHash"><span class="hs-identifier hs-var">AuthTreeHash</span></a></span><span> </span><span class="annot"><span class="annottext">(Digest SHA256 -&gt; AuthTreeHash) -&gt; Digest SHA256 -&gt; AuthTreeHash
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">k -&gt; v -&gt; Digest SHA256
@@ -58,19 +58,19 @@ forall a k v.
 (HashAlgorithm a, ByteArrayAccess k, ByteArrayAccess v) =&gt;
 k -&gt; v -&gt; Digest a
 </span><span class="hs-identifier hs-var">Cryptonite.hashLeaf</span></span><span> </span><span class="annot"><span class="annottext">k
-</span><a href="#local-6989586621679553436"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">v
-</span><a href="#local-6989586621679553435"><span class="hs-identifier hs-var">v</span></a></span><span>
-</span><span id="line-47"></span><span>    </span><span id="local-6989586621679553433"><span class="annot"><span class="annottext">concatHashes :: AuthTreeHash -&gt; AuthTreeHash -&gt; AuthTreeHash
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">concatHashes</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#AuthTreeHash"><span class="hs-identifier hs-type">AuthTreeHash</span></a></span><span> </span><span id="local-6989586621679553431"><span class="annot"><span class="annottext">a :: Digest SHA256
-</span><a href="#local-6989586621679553431"><span class="hs-identifier hs-var">a</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#AuthTreeHash"><span class="hs-identifier hs-type">AuthTreeHash</span></a></span><span> </span><span id="local-6989586621679553430"><span class="annot"><span class="annottext">b :: Digest SHA256
-</span><a href="#local-6989586621679553430"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Digest SHA256 -&gt; AuthTreeHash
+</span><a href="#local-6989586621679557630"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">v
+</span><a href="#local-6989586621679557629"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><span id="line-47"></span><span>    </span><span id="local-6989586621679557627"><span class="annot"><span class="annottext">concatHashes :: AuthTreeHash -&gt; AuthTreeHash -&gt; AuthTreeHash
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">concatHashes</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#AuthTreeHash"><span class="hs-identifier hs-type">AuthTreeHash</span></a></span><span> </span><span id="local-6989586621679557625"><span class="annot"><span class="annottext">a :: Digest SHA256
+</span><a href="#local-6989586621679557625"><span class="hs-identifier hs-var">a</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#AuthTreeHash"><span class="hs-identifier hs-type">AuthTreeHash</span></a></span><span> </span><span id="local-6989586621679557624"><span class="annot"><span class="annottext">b :: Digest SHA256
+</span><a href="#local-6989586621679557624"><span class="hs-identifier hs-var">b</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Digest SHA256 -&gt; AuthTreeHash
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#AuthTreeHash"><span class="hs-identifier hs-var">AuthTreeHash</span></a></span><span> </span><span class="annot"><span class="annottext">(Digest SHA256 -&gt; AuthTreeHash) -&gt; Digest SHA256 -&gt; AuthTreeHash
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Digest SHA256 -&gt; Digest SHA256 -&gt; Digest SHA256
 forall a. HashAlgorithm a =&gt; Digest a -&gt; Digest a -&gt; Digest a
 </span><span class="hs-identifier hs-var">Cryptonite.concatHashes</span></span><span> </span><span class="annot"><span class="annottext">Digest SHA256
-</span><a href="#local-6989586621679553431"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Digest SHA256
-</span><a href="#local-6989586621679553430"><span class="hs-identifier hs-var">b</span></a></span><span>
+</span><a href="#local-6989586621679557625"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">Digest SHA256
+</span><a href="#local-6989586621679557624"><span class="hs-identifier hs-var">b</span></a></span><span>
 </span><span id="line-48"></span><span>
 </span><span id="line-49"></span><span class="hs-keyword">data</span><span> </span><span id="DB"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-var">DB</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="DB"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-var">DB</span></a></span></span><span>
 </span><span id="line-50"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="dbCommitted"><span class="annot"><span class="annottext">DB -&gt; IORef (Tree Natural (Tree ByteString ByteString))
@@ -105,16 +105,16 @@ forall a. a -&gt; IO (IORef a)
 forall k v. Tree k v
 </span><span class="hs-identifier hs-var">AT.empty</span></span><span>
 </span><span id="line-58"></span><span>
-</span><span id="line-59"></span><span id="local-6989586621679553485"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalWrite"><span class="hs-identifier hs-type">evalWrite</span></a></span><span>
-</span><span id="line-60"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553485"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-59"></span><span id="local-6989586621679557679"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalWrite"><span class="hs-identifier hs-type">evalWrite</span></a></span><span>
+</span><span id="line-60"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557679"><span class="hs-identifier hs-type">r</span></a></span><span>
 </span><span id="line-61"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span>
-</span><span id="line-62"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679553557"><span class="annot"><a href="#local-6989586621679553557"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#WriteStore"><span class="hs-identifier hs-type">WriteStore</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679553485"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553557"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679553485"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553557"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-62"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679557751"><span class="annot"><a href="#local-6989586621679557751"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#WriteStore"><span class="hs-identifier hs-type">WriteStore</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679557679"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557751"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679557679"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679557751"><span class="hs-identifier hs-type">a</span></a></span></span><span>
 </span><span id="line-63"></span><span id="evalWrite"><span class="annot"><span class="annottext">evalWrite :: DB -&gt; forall a. Sem (WriteStore : r) a -&gt; Sem r a
-</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalWrite"><span class="hs-identifier hs-var hs-var">evalWrite</span></a></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span id="local-6989586621679553422"><span class="annot"><span class="annottext">IORef (Tree ByteString ByteString)
+</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalWrite"><span class="hs-identifier hs-var hs-var">evalWrite</span></a></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span id="local-6989586621679557616"><span class="annot"><span class="annottext">IORef (Tree ByteString ByteString)
 dbLatest :: IORef (Tree ByteString ByteString)
 dbLatest :: DB -&gt; IORef (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553422"><span class="hs-identifier hs-var hs-var">dbLatest</span></a></span></span><span class="hs-special">}</span><span> </span><span id="local-6989586621679553421"><span class="annot"><span class="annottext">m :: Sem (WriteStore : r) a
-</span><a href="#local-6989586621679553421"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="#local-6989586621679557616"><span class="hs-identifier hs-var hs-var">dbLatest</span></a></span></span><span class="hs-special">}</span><span> </span><span id="local-6989586621679557615"><span class="annot"><span class="annottext">m :: Sem (WriteStore : r) a
+</span><a href="#local-6989586621679557615"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-64"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). WriteStore m x -&gt; Sem r x)
 -&gt; Sem (WriteStore : r) a -&gt; Sem r a
 forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
@@ -123,7 +123,7 @@ FirstOrder e &quot;interpret&quot; =&gt;
 -&gt; Sem (e : r) a -&gt; Sem r a
 </span><span class="hs-identifier hs-var">interpret</span></span><span>
 </span><span id="line-65"></span><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
-</span><span id="line-66"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StorePut"><span class="hs-identifier hs-type">StorePut</span></a></span><span> </span><span id="local-6989586621679553418"><span class="annot"><a href="#local-6989586621679553418"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679553417"><span class="annot"><a href="#local-6989586621679553417"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-66"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StorePut"><span class="hs-identifier hs-type">StorePut</span></a></span><span> </span><span id="local-6989586621679557612"><span class="annot"><a href="#local-6989586621679557612"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679557611"><span class="annot"><a href="#local-6989586621679557611"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-67"></span><span>        </span><span class="annot"><span class="annottext">IO () -&gt; Sem r ()
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Sem r ())
@@ -137,7 +137,7 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 -&gt; IO ()
 forall a. IORef a -&gt; (a -&gt; a) -&gt; IO ()
 </span><span class="hs-identifier hs-var">modifyIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553422"><span class="hs-identifier hs-var">dbLatest</span></a></span><span> </span><span class="annot"><span class="annottext">((Tree ByteString ByteString -&gt; Tree ByteString ByteString)
+</span><a href="#local-6989586621679557616"><span class="hs-identifier hs-var">dbLatest</span></a></span><span> </span><span class="annot"><span class="annottext">((Tree ByteString ByteString -&gt; Tree ByteString ByteString)
  -&gt; Sem r x)
 -&gt; (Tree ByteString ByteString -&gt; Tree ByteString ByteString)
 -&gt; Sem r x
@@ -149,9 +149,9 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall k v. Ord k =&gt; k -&gt; v -&gt; Tree k v -&gt; Tree k v
 </span><span class="hs-identifier hs-var">AT.insert</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">StoreKey -&gt; ByteString
 </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679553418"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679553417"><span class="hs-identifier hs-var">v</span></a></span><span>
-</span><span id="line-68"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreDelete"><span class="hs-identifier hs-type">StoreDelete</span></a></span><span> </span><span id="local-6989586621679553412"><span class="annot"><a href="#local-6989586621679553412"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><a href="#local-6989586621679557612"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679557611"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><span id="line-68"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreDelete"><span class="hs-identifier hs-type">StoreDelete</span></a></span><span> </span><span id="local-6989586621679557606"><span class="annot"><a href="#local-6989586621679557606"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-69"></span><span>        </span><span class="annot"><span class="annottext">IO () -&gt; Sem r ()
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Sem r ())
@@ -165,7 +165,7 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 -&gt; IO ()
 forall a. IORef a -&gt; (a -&gt; a) -&gt; IO ()
 </span><span class="hs-identifier hs-var">modifyIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553422"><span class="hs-identifier hs-var">dbLatest</span></a></span><span> </span><span class="annot"><span class="annottext">((Tree ByteString ByteString -&gt; Tree ByteString ByteString)
+</span><a href="#local-6989586621679557616"><span class="hs-identifier hs-var">dbLatest</span></a></span><span> </span><span class="annot"><span class="annottext">((Tree ByteString ByteString -&gt; Tree ByteString ByteString)
  -&gt; Sem r x)
 -&gt; (Tree ByteString ByteString -&gt; Tree ByteString ByteString)
 -&gt; Sem r x
@@ -175,25 +175,25 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall k v. Ord k =&gt; k -&gt; Tree k v -&gt; Tree k v
 </span><span class="hs-identifier hs-var">AT.delete</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">StoreKey -&gt; ByteString
 </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679553412"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679557606"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-70"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Sem (WriteStore : r) a
-</span><a href="#local-6989586621679553421"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><a href="#local-6989586621679557615"><span class="hs-identifier hs-var">m</span></a></span><span>
 </span><span id="line-71"></span><span>
-</span><span id="line-72"></span><span id="local-6989586621679553479"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalRead"><span class="hs-identifier hs-type">evalRead</span></a></span><span>
-</span><span id="line-73"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553479"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-72"></span><span id="local-6989586621679557673"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalRead"><span class="hs-identifier hs-type">evalRead</span></a></span><span>
+</span><span id="line-73"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557673"><span class="hs-identifier hs-type">r</span></a></span><span>
 </span><span id="line-74"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span>
 </span><span id="line-75"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IORef</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-type">Version</span></a></span><span>
-</span><span id="line-76"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679553532"><span class="annot"><a href="#local-6989586621679553532"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679553479"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553532"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679553479"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553532"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-76"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679557726"><span class="annot"><a href="#local-6989586621679557726"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#ReadStore"><span class="hs-identifier hs-type">ReadStore</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679557673"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557726"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679557673"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679557726"><span class="hs-identifier hs-type">a</span></a></span></span><span>
 </span><span id="line-77"></span><span id="evalRead"><span class="annot"><span class="annottext">evalRead :: DB -&gt; IORef Version -&gt; forall a. Sem (ReadStore : r) a -&gt; Sem r a
-</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalRead"><span class="hs-identifier hs-var hs-var">evalRead</span></a></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span id="local-6989586621679553410"><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
+</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalRead"><span class="hs-identifier hs-var hs-var">evalRead</span></a></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span id="local-6989586621679557604"><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
 dbCommitted :: IORef (Tree Natural (Tree ByteString ByteString))
 dbCommitted :: DB -&gt; IORef (Tree Natural (Tree ByteString ByteString))
-</span><a href="#local-6989586621679553410"><span class="hs-identifier hs-var hs-var">dbCommitted</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679553409"><span class="annot"><span class="annottext">IORef (Tree ByteString ByteString)
+</span><a href="#local-6989586621679557604"><span class="hs-identifier hs-var hs-var">dbCommitted</span></a></span></span><span class="hs-special">,</span><span id="local-6989586621679557603"><span class="annot"><span class="annottext">IORef (Tree ByteString ByteString)
 dbLatest :: IORef (Tree ByteString ByteString)
 dbLatest :: DB -&gt; IORef (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553409"><span class="hs-identifier hs-var hs-var">dbLatest</span></a></span></span><span class="hs-special">}</span><span> </span><span id="local-6989586621679553408"><span class="annot"><span class="annottext">iavlVersion :: IORef Version
-</span><a href="#local-6989586621679553408"><span class="hs-identifier hs-var">iavlVersion</span></a></span></span><span> </span><span id="local-6989586621679553407"><span class="annot"><span class="annottext">m :: Sem (ReadStore : r) a
-</span><a href="#local-6989586621679553407"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="#local-6989586621679557603"><span class="hs-identifier hs-var hs-var">dbLatest</span></a></span></span><span class="hs-special">}</span><span> </span><span id="local-6989586621679557602"><span class="annot"><span class="annottext">iavlVersion :: IORef Version
+</span><a href="#local-6989586621679557602"><span class="hs-identifier hs-var">iavlVersion</span></a></span></span><span> </span><span id="local-6989586621679557601"><span class="annot"><span class="annottext">m :: Sem (ReadStore : r) a
+</span><a href="#local-6989586621679557601"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-78"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). ReadStore m x -&gt; Sem r x)
 -&gt; Sem (ReadStore : r) a -&gt; Sem r a
 forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
@@ -202,21 +202,21 @@ FirstOrder e &quot;interpret&quot; =&gt;
 -&gt; Sem (e : r) a -&gt; Sem r a
 </span><span class="hs-identifier hs-var">interpret</span></span><span>
 </span><span id="line-79"></span><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
-</span><span id="line-80"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreGet"><span class="hs-identifier hs-type">StoreGet</span></a></span><span> </span><span id="local-6989586621679553405"><span class="annot"><a href="#local-6989586621679553405"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-81"></span><span>        </span><span id="local-6989586621679553404"><span class="annot"><span class="annottext">Version
-</span><a href="#local-6989586621679553404"><span class="hs-identifier hs-var">version</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Version -&gt; Sem r Version
+</span><span id="line-80"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreGet"><span class="hs-identifier hs-type">StoreGet</span></a></span><span> </span><span id="local-6989586621679557599"><span class="annot"><a href="#local-6989586621679557599"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-81"></span><span>        </span><span id="local-6989586621679557598"><span class="annot"><span class="annottext">Version
+</span><a href="#local-6989586621679557598"><span class="hs-identifier hs-var">version</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Version -&gt; Sem r Version
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO Version -&gt; Sem r Version) -&gt; IO Version -&gt; Sem r Version
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">IORef Version -&gt; IO Version
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef Version
-</span><a href="#local-6989586621679553408"><span class="hs-identifier hs-var">iavlVersion</span></a></span><span>
+</span><a href="#local-6989586621679557602"><span class="hs-identifier hs-var">iavlVersion</span></a></span><span>
 </span><span id="line-82"></span><span>        </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Version
-</span><a href="#local-6989586621679553404"><span class="hs-identifier hs-var">version</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679557598"><span class="hs-identifier hs-var">version</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-83"></span><span>          </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Latest"><span class="hs-identifier hs-type">Latest</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-84"></span><span>            </span><span id="local-6989586621679553401"><span class="annot"><span class="annottext">Tree ByteString ByteString
-</span><a href="#local-6989586621679553401"><span class="hs-identifier hs-var">tree</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO (Tree ByteString ByteString)
+</span><span id="line-84"></span><span>            </span><span id="local-6989586621679557595"><span class="annot"><span class="annottext">Tree ByteString ByteString
+</span><a href="#local-6989586621679557595"><span class="hs-identifier hs-var">tree</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO (Tree ByteString ByteString)
 -&gt; Sem r (Tree ByteString ByteString)
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO (Tree ByteString ByteString)
@@ -228,7 +228,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 -&gt; IO (Tree ByteString ByteString)
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553409"><span class="hs-identifier hs-var">dbLatest</span></a></span><span>
+</span><a href="#local-6989586621679557603"><span class="hs-identifier hs-var">dbLatest</span></a></span><span>
 </span><span id="line-85"></span><span>            </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r x
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Maybe ByteString -&gt; Sem r x) -&gt; Maybe ByteString -&gt; Sem r x
@@ -237,12 +237,12 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall k v. Ord k =&gt; k -&gt; Tree k v -&gt; Maybe v
 </span><span class="hs-identifier hs-var">AT.lookup</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">StoreKey -&gt; ByteString
 </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679553405"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString
-</span><a href="#local-6989586621679553401"><span class="hs-identifier hs-var">tree</span></a></span><span>
-</span><span id="line-86"></span><span>          </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-type">Version</span></a></span><span> </span><span id="local-6989586621679553398"><span class="annot"><span class="annottext">v :: Natural
-</span><a href="#local-6989586621679553398"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-87"></span><span>            </span><span id="local-6989586621679553397"><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553397"><span class="hs-identifier hs-var">tree</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO (Tree Natural (Tree ByteString ByteString))
+</span><a href="#local-6989586621679557599"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString
+</span><a href="#local-6989586621679557595"><span class="hs-identifier hs-var">tree</span></a></span><span>
+</span><span id="line-86"></span><span>          </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-type">Version</span></a></span><span> </span><span id="local-6989586621679557592"><span class="annot"><span class="annottext">v :: Natural
+</span><a href="#local-6989586621679557592"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-87"></span><span>            </span><span id="local-6989586621679557591"><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
+</span><a href="#local-6989586621679557591"><span class="hs-identifier hs-var">tree</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO (Tree Natural (Tree ByteString ByteString))
 -&gt; Sem r (Tree Natural (Tree ByteString ByteString))
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO (Tree Natural (Tree ByteString ByteString))
@@ -254,7 +254,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 -&gt; IO (Tree Natural (Tree ByteString ByteString))
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
-</span><a href="#local-6989586621679553410"><span class="hs-identifier hs-var">dbCommitted</span></a></span><span>
+</span><a href="#local-6989586621679557604"><span class="hs-identifier hs-var">dbCommitted</span></a></span><span>
 </span><span id="line-88"></span><span>            </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r (Maybe ByteString)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Natural
@@ -262,8 +262,8 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 -&gt; Maybe (Tree ByteString ByteString)
 forall k v. Ord k =&gt; k -&gt; Tree k v -&gt; Maybe v
 </span><span class="hs-identifier hs-var">AT.lookup</span></span><span> </span><span class="annot"><span class="annottext">Natural
-</span><a href="#local-6989586621679553398"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553397"><span class="hs-identifier hs-var">tree</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Tree ByteString ByteString)
+</span><a href="#local-6989586621679557592"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
+</span><a href="#local-6989586621679557591"><span class="hs-identifier hs-var">tree</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Tree ByteString ByteString)
 -&gt; (Tree ByteString ByteString -&gt; Maybe ByteString)
 -&gt; Maybe ByteString
 forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
@@ -271,7 +271,7 @@ forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
 forall k v. Ord k =&gt; k -&gt; Tree k v -&gt; Maybe v
 </span><span class="hs-identifier hs-var">AT.lookup</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">StoreKey -&gt; ByteString
 </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#makeKeyBytes"><span class="hs-identifier hs-var">makeKeyBytes</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679553405"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679557599"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-89"></span><span>          </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Genesis"><span class="hs-identifier hs-type">Genesis</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe ByteString -&gt; Sem r (Maybe ByteString)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Maybe ByteString
@@ -283,16 +283,16 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
 </span><span id="line-91"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Sem (ReadStore : r) a
-</span><a href="#local-6989586621679553407"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><a href="#local-6989586621679557601"><span class="hs-identifier hs-var">m</span></a></span><span>
 </span><span id="line-92"></span><span>
-</span><span id="line-93"></span><span id="local-6989586621679553486"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalTransaction"><span class="hs-identifier hs-type">evalTransaction</span></a></span><span>
-</span><span id="line-94"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553486"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-93"></span><span id="local-6989586621679557680"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalTransaction"><span class="hs-identifier hs-type">evalTransaction</span></a></span><span>
+</span><span id="line-94"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557680"><span class="hs-identifier hs-type">r</span></a></span><span>
 </span><span id="line-95"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span>
-</span><span id="line-96"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679553519"><span class="annot"><a href="#local-6989586621679553519"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Transaction"><span class="hs-identifier hs-type">Transaction</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679553486"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553519"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679553486"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553519"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-96"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679557713"><span class="annot"><a href="#local-6989586621679557713"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Transaction"><span class="hs-identifier hs-type">Transaction</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679557680"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557713"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679557680"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679557713"><span class="hs-identifier hs-type">a</span></a></span></span><span>
 </span><span id="line-97"></span><span id="evalTransaction"><span class="annot"><span class="annottext">evalTransaction :: DB -&gt; forall a. Sem (Transaction : r) a -&gt; Sem r a
-</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalTransaction"><span class="hs-identifier hs-var hs-var">evalTransaction</span></a></span></span><span> </span><span id="local-6989586621679553393"><span class="annot"><span class="annottext">db :: DB
-</span><a href="#local-6989586621679553393"><span class="hs-identifier hs-var">db</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679553391"><span id="local-6989586621679553392"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span id="local-6989586621679553390"><span class="annot"><span class="annottext">m :: Sem (Transaction : r) a
-</span><a href="#local-6989586621679553390"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalTransaction"><span class="hs-identifier hs-var hs-var">evalTransaction</span></a></span></span><span> </span><span id="local-6989586621679557587"><span class="annot"><span class="annottext">db :: DB
+</span><a href="#local-6989586621679557587"><span class="hs-identifier hs-var">db</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679557585"><span id="local-6989586621679557586"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span id="local-6989586621679557584"><span class="annot"><span class="annottext">m :: Sem (Transaction : r) a
+</span><a href="#local-6989586621679557584"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-98"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). Transaction m x -&gt; Sem r x)
 -&gt; Sem (Transaction : r) a -&gt; Sem r a
 forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
@@ -310,36 +310,36 @@ forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Sem r x) -&gt; IO () -&gt; Sem r x
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-103"></span><span>          </span><span id="local-6989586621679553387"><span class="annot"><span class="annottext">Tree ByteString ByteString
-</span><a href="#local-6989586621679553387"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; IO (Tree ByteString ByteString)
+</span><span id="line-103"></span><span>          </span><span id="local-6989586621679557581"><span class="annot"><span class="annottext">Tree ByteString ByteString
+</span><a href="#local-6989586621679557581"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; IO (Tree ByteString ByteString)
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getRecentCommit"><span class="hs-identifier hs-var">getRecentCommit</span></a></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553393"><span class="hs-identifier hs-var">db</span></a></span><span>
+</span><a href="#local-6989586621679557587"><span class="hs-identifier hs-var">db</span></a></span><span>
 </span><span id="line-104"></span><span>          </span><span class="annot"><span class="annottext">IORef (Tree ByteString ByteString)
 -&gt; Tree ByteString ByteString -&gt; IO ()
 forall a. IORef a -&gt; a -&gt; IO ()
 </span><span class="hs-identifier hs-var">writeIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553391"><span class="hs-identifier hs-var">dbLatest</span></a></span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString
-</span><a href="#local-6989586621679553387"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><a href="#local-6989586621679557585"><span class="hs-identifier hs-var">dbLatest</span></a></span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString
+</span><a href="#local-6989586621679557581"><span class="hs-identifier hs-var">c</span></a></span><span>
 </span><span id="line-105"></span><span>      </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Commit"><span class="hs-identifier hs-type">Commit</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO CommitResponse -&gt; Sem r x
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO CommitResponse -&gt; Sem r x) -&gt; IO CommitResponse -&gt; Sem r x
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-106"></span><span>        </span><span id="local-6989586621679553383"><span class="annot"><span class="annottext">Tree ByteString ByteString
-</span><a href="#local-6989586621679553383"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IORef (Tree ByteString ByteString)
+</span><span id="line-106"></span><span>        </span><span id="local-6989586621679557577"><span class="annot"><span class="annottext">Tree ByteString ByteString
+</span><a href="#local-6989586621679557577"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IORef (Tree ByteString ByteString)
 -&gt; IO (Tree ByteString ByteString)
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553391"><span class="hs-identifier hs-var">dbLatest</span></a></span><span>
-</span><span id="line-107"></span><span>        </span><span id="local-6989586621679553382"><span class="annot"><span class="annottext">Natural
-</span><a href="#local-6989586621679553382"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; Tree ByteString ByteString -&gt; IO Natural
+</span><a href="#local-6989586621679557585"><span class="hs-identifier hs-var">dbLatest</span></a></span><span>
+</span><span id="line-107"></span><span>        </span><span id="local-6989586621679557576"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679557576"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; Tree ByteString ByteString -&gt; IO Natural
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#makeCommit"><span class="hs-identifier hs-var">makeCommit</span></a></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553393"><span class="hs-identifier hs-var">db</span></a></span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString
-</span><a href="#local-6989586621679553383"><span class="hs-identifier hs-var">l</span></a></span><span>
-</span><span id="line-108"></span><span>        </span><span id="local-6989586621679553380"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679553380"><span class="hs-identifier hs-var">root</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; IO ByteString
+</span><a href="#local-6989586621679557587"><span class="hs-identifier hs-var">db</span></a></span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString
+</span><a href="#local-6989586621679557577"><span class="hs-identifier hs-var">l</span></a></span><span>
+</span><span id="line-108"></span><span>        </span><span id="local-6989586621679557574"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679557574"><span class="hs-identifier hs-var">root</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; IO ByteString
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getRootHash"><span class="hs-identifier hs-var">getRootHash</span></a></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553393"><span class="hs-identifier hs-var">db</span></a></span><span>
+</span><a href="#local-6989586621679557587"><span class="hs-identifier hs-var">db</span></a></span><span>
 </span><span id="line-109"></span><span>        </span><span class="annot"><span class="annottext">CommitResponse -&gt; IO CommitResponse
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(CommitResponse -&gt; IO CommitResponse)
@@ -348,12 +348,12 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">CommitResponse :: Base64String -&gt; Natural -&gt; CommitResponse
 </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#CommitResponse"><span class="hs-identifier hs-type hs-type">CommitResponse</span></a></span><span>
 </span><span id="line-110"></span><span>          </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">rootHash :: Base64String
-</span><a href="#local-6989586621679553376"><span class="hs-identifier hs-var">rootHash</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Base64String
+</span><a href="#local-6989586621679557570"><span class="hs-identifier hs-var">rootHash</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Base64String
 forall ba. ByteArrayAccess ba =&gt; ba -&gt; Base64String
 </span><span class="hs-identifier hs-var">Base64.fromBytes</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679553380"><span class="hs-identifier hs-var">root</span></a></span><span>
+</span><a href="#local-6989586621679557574"><span class="hs-identifier hs-var">root</span></a></span><span>
 </span><span id="line-111"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">newVersion :: Natural
-</span><a href="#local-6989586621679553374"><span class="hs-identifier hs-var">newVersion</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Natural
+</span><a href="#local-6989586621679557568"><span class="hs-identifier hs-var">newVersion</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Natural
 forall a. Num a =&gt; Integer -&gt; a
 </span><span class="hs-identifier hs-var">fromInteger</span></span><span> </span><span class="annot"><span class="annottext">(Integer -&gt; Natural) -&gt; (Natural -&gt; Integer) -&gt; Natural -&gt; Natural
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -362,19 +362,19 @@ forall a. Integral a =&gt; a -&gt; Integer
 </span><span class="hs-identifier hs-var">toInteger</span></span><span> </span><span class="annot"><span class="annottext">(Natural -&gt; Natural) -&gt; Natural -&gt; Natural
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Natural
-</span><a href="#local-6989586621679553382"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><a href="#local-6989586621679557576"><span class="hs-identifier hs-var">v</span></a></span><span>
 </span><span id="line-112"></span><span>          </span><span class="hs-special">}</span><span>
 </span><span id="line-113"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Sem (Transaction : r) a
-</span><a href="#local-6989586621679553390"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><a href="#local-6989586621679557584"><span class="hs-identifier hs-var">m</span></a></span><span>
 </span><span id="line-114"></span><span>
-</span><span id="line-115"></span><span id="local-6989586621679553492"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalCommitBlock"><span class="hs-identifier hs-type">evalCommitBlock</span></a></span><span>
-</span><span id="line-116"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553492"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-115"></span><span id="local-6989586621679557686"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalCommitBlock"><span class="hs-identifier hs-type">evalCommitBlock</span></a></span><span>
+</span><span id="line-116"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557686"><span class="hs-identifier hs-type">r</span></a></span><span>
 </span><span id="line-117"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span>
 </span><span id="line-118"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DBVersions"><span class="hs-identifier hs-type">DBVersions</span></a></span><span>
-</span><span id="line-119"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679553507"><span class="annot"><a href="#local-6989586621679553507"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#CommitBlock"><span class="hs-identifier hs-type">CommitBlock</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679553492"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553507"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679553492"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553507"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-119"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679557701"><span class="annot"><a href="#local-6989586621679557701"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#CommitBlock"><span class="hs-identifier hs-type">CommitBlock</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679557686"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557701"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679557686"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679557701"><span class="hs-identifier hs-type">a</span></a></span></span><span>
 </span><span id="line-120"></span><span id="evalCommitBlock"><span class="annot"><span class="annottext">evalCommitBlock :: DB -&gt; DBVersions -&gt; forall a. Sem (CommitBlock : r) a -&gt; Sem r a
-</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalCommitBlock"><span class="hs-identifier hs-var hs-var">evalCommitBlock</span></a></span></span><span> </span><span id="local-6989586621679553372"><span class="annot"><span class="annottext">db :: DB
-</span><a href="#local-6989586621679553372"><span class="hs-identifier hs-var">db</span></a></span></span><span> </span><span id="local-6989586621679553370"><span id="local-6989586621679553371"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DBVersions"><span class="hs-identifier hs-type">DBVersions</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalCommitBlock"><span class="hs-identifier hs-var hs-var">evalCommitBlock</span></a></span></span><span> </span><span id="local-6989586621679557566"><span class="annot"><span class="annottext">db :: DB
+</span><a href="#local-6989586621679557566"><span class="hs-identifier hs-var">db</span></a></span></span><span> </span><span id="local-6989586621679557564"><span id="local-6989586621679557565"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DBVersions"><span class="hs-identifier hs-type">DBVersions</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-121"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). CommitBlock m x -&gt; Sem r x)
 -&gt; Sem (CommitBlock : r) a -&gt; Sem r a
 forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
@@ -388,25 +388,25 @@ forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO Base64String -&gt; Sem r x) -&gt; IO Base64String -&gt; Sem r x
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-124"></span><span>        </span><span id="local-6989586621679553365"><span class="annot"><span class="annottext">Maybe Natural
-</span><a href="#local-6989586621679553365"><span class="hs-identifier hs-var">mv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; IO (Maybe Natural)
+</span><span id="line-124"></span><span>        </span><span id="local-6989586621679557559"><span class="annot"><span class="annottext">Maybe Natural
+</span><a href="#local-6989586621679557559"><span class="hs-identifier hs-var">mv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; IO (Maybe Natural)
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getVersion"><span class="hs-identifier hs-var">getVersion</span></a></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553372"><span class="hs-identifier hs-var">db</span></a></span><span>
+</span><a href="#local-6989586621679557566"><span class="hs-identifier hs-var">db</span></a></span><span>
 </span><span id="line-125"></span><span>        </span><span class="annot"><span class="annottext">IORef Version -&gt; Version -&gt; IO ()
 forall a. IORef a -&gt; a -&gt; IO ()
 </span><span class="hs-identifier hs-var">writeIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef Version
-</span><a href="#local-6989586621679553370"><span class="hs-identifier hs-var">committed</span></a></span><span> </span><span class="annot"><span class="annottext">(Version -&gt; IO ()) -&gt; Version -&gt; IO ()
+</span><a href="#local-6989586621679557564"><span class="hs-identifier hs-var">committed</span></a></span><span> </span><span class="annot"><span class="annottext">(Version -&gt; IO ()) -&gt; Version -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Version -&gt; (Natural -&gt; Version) -&gt; Maybe Natural -&gt; Version
 forall b a. b -&gt; (a -&gt; b) -&gt; Maybe a -&gt; b
 </span><span class="hs-identifier hs-var">maybe</span></span><span> </span><span class="annot"><span class="annottext">Version
 </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Genesis"><span class="hs-identifier hs-var">Genesis</span></a></span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Version
 </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Version"><span class="hs-identifier hs-var">Version</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Natural
-</span><a href="#local-6989586621679553365"><span class="hs-identifier hs-var">mv</span></a></span><span>
-</span><span id="line-126"></span><span>        </span><span id="local-6989586621679553362"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679553362"><span class="hs-identifier hs-var">root</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; IO ByteString
+</span><a href="#local-6989586621679557559"><span class="hs-identifier hs-var">mv</span></a></span><span>
+</span><span id="line-126"></span><span>        </span><span id="local-6989586621679557556"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679557556"><span class="hs-identifier hs-var">root</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; IO ByteString
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getRootHash"><span class="hs-identifier hs-var">getRootHash</span></a></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553372"><span class="hs-identifier hs-var">db</span></a></span><span>
+</span><a href="#local-6989586621679557566"><span class="hs-identifier hs-var">db</span></a></span><span>
 </span><span id="line-127"></span><span>        </span><span class="annot"><span class="annottext">Base64String -&gt; IO Base64String
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Base64String -&gt; IO Base64String)
@@ -417,7 +417,7 @@ forall ba. ByteArrayAccess ba =&gt; ba -&gt; Base64String
 </span><span class="hs-identifier hs-var">Base64.fromBytes</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO Base64String) -&gt; ByteString -&gt; IO Base64String
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679553362"><span class="hs-identifier hs-var">root</span></a></span><span>
+</span><a href="#local-6989586621679557556"><span class="hs-identifier hs-var">root</span></a></span><span>
 </span><span id="line-128"></span><span>    </span><span class="hs-special">)</span><span>
 </span><span id="line-129"></span><span>
 </span><span id="line-130"></span><span class="hs-keyword">data</span><span> </span><span id="DBVersions"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DBVersions"><span class="hs-identifier hs-var">DBVersions</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="DBVersions"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DBVersions"><span class="hs-identifier hs-var">DBVersions</span></a></span></span><span>
@@ -444,22 +444,22 @@ forall a. a -&gt; IO (IORef a)
 </span><span class="hs-identifier hs-var">newIORef</span></span><span> </span><span class="annot"><span class="annottext">Version
 </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Genesis"><span class="hs-identifier hs-var">Genesis</span></a></span><span>
 </span><span id="line-137"></span><span>
-</span><span id="line-138"></span><span id="local-6989586621679553361"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalStoreEffs"><span class="hs-identifier hs-type">evalStoreEffs</span></a></span><span>
-</span><span id="line-139"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DBVersions"><span class="hs-identifier hs-type">DBVersions</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679553361"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-140"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679553499"><span class="annot"><a href="#local-6989586621679553499"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span>
-</span><span id="line-141"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreEffs"><span class="hs-identifier hs-type">StoreEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553361"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679553499"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-142"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679553361"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679553499"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-138"></span><span id="local-6989586621679557555"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalStoreEffs"><span class="hs-identifier hs-type">evalStoreEffs</span></a></span><span>
+</span><span id="line-139"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DBVersions"><span class="hs-identifier hs-type">DBVersions</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621679557555"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-140"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679557693"><span class="annot"><a href="#local-6989586621679557693"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span>
+</span><span id="line-141"></span><span>     </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreEffs"><span class="hs-identifier hs-type">StoreEffs</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Effects.html#%3A%26"><span class="hs-operator hs-type">:&amp;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679557555"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557693"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-142"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679557555"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679557693"><span class="hs-identifier hs-type">a</span></a></span></span><span>
 </span><span id="line-143"></span><span id="evalStoreEffs"><span class="annot"><span class="annottext">evalStoreEffs :: forall a. Sem (StoreEffs :&amp; r) a -&gt; Sem r a
-</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalStoreEffs"><span class="hs-identifier hs-var hs-var">evalStoreEffs</span></a></span></span><span> </span><span id="local-6989586621679553359"><span class="annot"><span class="annottext">action :: Sem (StoreEffs :&amp; r) a
-</span><a href="#local-6989586621679553359"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-144"></span><span>  </span><span id="local-6989586621679553358"><span class="annot"><span class="annottext">vs :: DBVersions
-</span><a href="#local-6989586621679553358"><span class="hs-identifier hs-var">vs</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679553356"><span id="local-6989586621679553357"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DBVersions"><span class="hs-identifier hs-type">DBVersions</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem r DBVersions
+</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalStoreEffs"><span class="hs-identifier hs-var hs-var">evalStoreEffs</span></a></span></span><span> </span><span id="local-6989586621679557553"><span class="annot"><span class="annottext">action :: Sem (StoreEffs :&amp; r) a
+</span><a href="#local-6989586621679557553"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-144"></span><span>  </span><span id="local-6989586621679557552"><span class="annot"><span class="annottext">vs :: DBVersions
+</span><a href="#local-6989586621679557552"><span class="hs-identifier hs-var">vs</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679557550"><span id="local-6989586621679557551"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DBVersions"><span class="hs-identifier hs-type">DBVersions</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem r DBVersions
 forall i (r :: [(* -&gt; *) -&gt; * -&gt; *]).
 MemberWithError (Reader i) r =&gt;
 Sem r i
 </span><span class="hs-identifier hs-var">ask</span></span><span>
-</span><span id="line-145"></span><span>  </span><span id="local-6989586621679553355"><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553355"><span class="hs-identifier hs-var">db</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem r DB
+</span><span id="line-145"></span><span>  </span><span id="local-6989586621679557549"><span class="annot"><span class="annottext">DB
+</span><a href="#local-6989586621679557549"><span class="hs-identifier hs-var">db</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem r DB
 forall i (r :: [(* -&gt; *) -&gt; * -&gt; *]).
 MemberWithError (Reader i) r =&gt;
 Sem r i
@@ -469,8 +469,8 @@ forall (r :: [(* -&gt; *) -&gt; * -&gt; *]).
 Member (Embed IO) r =&gt;
 DB -&gt; DBVersions -&gt; forall a. Sem (CommitBlock : r) a -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalCommitBlock"><span class="hs-identifier hs-var">evalCommitBlock</span></a></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553355"><span class="hs-identifier hs-var">db</span></a></span><span> </span><span class="annot"><span class="annottext">DBVersions
-</span><a href="#local-6989586621679553358"><span class="hs-identifier hs-var">vs</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (CommitBlock : r) a -&gt; Sem r a)
+</span><a href="#local-6989586621679557549"><span class="hs-identifier hs-var">db</span></a></span><span> </span><span class="annot"><span class="annottext">DBVersions
+</span><a href="#local-6989586621679557552"><span class="hs-identifier hs-var">vs</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (CommitBlock : r) a -&gt; Sem r a)
 -&gt; (Sem
       (Tagged 'Consensus ReadStore
          : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
@@ -492,7 +492,7 @@ forall (r :: [(* -&gt; *) -&gt; * -&gt; *]).
 Member (Embed IO) r =&gt;
 DB -&gt; forall a. Sem (Transaction : r) a -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalTransaction"><span class="hs-identifier hs-var">evalTransaction</span></a></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553355"><span class="hs-identifier hs-var">db</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (Transaction : CommitBlock : r) a -&gt; Sem (CommitBlock : r) a)
+</span><a href="#local-6989586621679557549"><span class="hs-identifier hs-var">db</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (Transaction : CommitBlock : r) a -&gt; Sem (CommitBlock : r) a)
 -&gt; (Sem
       (Tagged 'Consensus ReadStore
          : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
@@ -515,7 +515,7 @@ forall (r :: [(* -&gt; *) -&gt; * -&gt; *]).
 Member (Embed IO) r =&gt;
 DB -&gt; forall a. Sem (WriteStore : r) a -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalWrite"><span class="hs-identifier hs-var">evalWrite</span></a></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553355"><span class="hs-identifier hs-var">db</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (WriteStore : Transaction : CommitBlock : r) a
+</span><a href="#local-6989586621679557549"><span class="hs-identifier hs-var">db</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem (WriteStore : Transaction : CommitBlock : r) a
  -&gt; Sem (Transaction : CommitBlock : r) a)
 -&gt; (Sem
       (Tagged 'Consensus ReadStore
@@ -568,8 +568,8 @@ forall (r :: [(* -&gt; *) -&gt; * -&gt; *]).
 Member (Embed IO) r =&gt;
 DB -&gt; IORef Version -&gt; forall a. Sem (ReadStore : r) a -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalRead"><span class="hs-identifier hs-var">evalRead</span></a></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553355"><span class="hs-identifier hs-var">db</span></a></span><span> </span><span class="annot"><span class="annottext">IORef Version
-</span><a href="#local-6989586621679553356"><span class="hs-identifier hs-var">committed</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem
+</span><a href="#local-6989586621679557549"><span class="hs-identifier hs-var">db</span></a></span><span> </span><span class="annot"><span class="annottext">IORef Version
+</span><a href="#local-6989586621679557550"><span class="hs-identifier hs-var">committed</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem
    (ReadStore
       : Tagged 'Consensus WriteStore : Transaction : CommitBlock : r)
    a
@@ -648,8 +648,8 @@ forall (r :: [(* -&gt; *) -&gt; * -&gt; *]).
 Member (Embed IO) r =&gt;
 DB -&gt; IORef Version -&gt; forall a. Sem (ReadStore : r) a -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#evalRead"><span class="hs-identifier hs-var">evalRead</span></a></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553355"><span class="hs-identifier hs-var">db</span></a></span><span> </span><span class="annot"><span class="annottext">IORef Version
-</span><a href="#local-6989586621679553357"><span class="hs-identifier hs-var">latest</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem
+</span><a href="#local-6989586621679557549"><span class="hs-identifier hs-var">db</span></a></span><span> </span><span class="annot"><span class="annottext">IORef Version
+</span><a href="#local-6989586621679557551"><span class="hs-identifier hs-var">latest</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem
    (ReadStore
       : Tagged 'QueryAndMempool ReadStore : Tagged 'Consensus WriteStore
       : Transaction : CommitBlock : r)
@@ -711,53 +711,53 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
      : Transaction : CommitBlock : r)
   a
 Sem (StoreEffs :&amp; r) a
-</span><a href="#local-6989586621679553359"><span class="hs-identifier hs-var">action</span></a></span><span>
+</span><a href="#local-6989586621679557553"><span class="hs-identifier hs-var">action</span></a></span><span>
 </span><span id="line-154"></span><span>
 </span><span id="line-155"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getRootHash"><span class="hs-identifier hs-type">getRootHash</span></a></span><span>
 </span><span id="line-156"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span>
 </span><span id="line-157"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span>
 </span><span id="line-158"></span><span id="getRootHash"><span class="annot"><span class="annottext">getRootHash :: DB -&gt; IO ByteString
-</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getRootHash"><span class="hs-identifier hs-var hs-var">getRootHash</span></a></span></span><span> </span><span id="local-6989586621679553354"><span class="annot"><span class="annottext">db :: DB
-</span><a href="#local-6989586621679553354"><span class="hs-identifier hs-var">db</span></a></span></span><span class="hs-glyph">@</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span id="local-6989586621679553353"><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
+</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getRootHash"><span class="hs-identifier hs-var hs-var">getRootHash</span></a></span></span><span> </span><span id="local-6989586621679557548"><span class="annot"><span class="annottext">db :: DB
+</span><a href="#local-6989586621679557548"><span class="hs-identifier hs-var">db</span></a></span></span><span class="hs-glyph">@</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span id="local-6989586621679557547"><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
 dbCommitted :: IORef (Tree Natural (Tree ByteString ByteString))
 dbCommitted :: DB -&gt; IORef (Tree Natural (Tree ByteString ByteString))
-</span><a href="#local-6989586621679553353"><span class="hs-identifier hs-var hs-var">dbCommitted</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-159"></span><span>  </span><span id="local-6989586621679553352"><span class="annot"><span class="annottext">Maybe Natural
-</span><a href="#local-6989586621679553352"><span class="hs-identifier hs-var">mcv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; IO (Maybe Natural)
+</span><a href="#local-6989586621679557547"><span class="hs-identifier hs-var hs-var">dbCommitted</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-159"></span><span>  </span><span id="local-6989586621679557546"><span class="annot"><span class="annottext">Maybe Natural
+</span><a href="#local-6989586621679557546"><span class="hs-identifier hs-var">mcv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; IO (Maybe Natural)
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getVersion"><span class="hs-identifier hs-var">getVersion</span></a></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553354"><span class="hs-identifier hs-var">db</span></a></span><span>
+</span><a href="#local-6989586621679557548"><span class="hs-identifier hs-var">db</span></a></span><span>
 </span><span id="line-160"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe Natural
-</span><a href="#local-6989586621679553352"><span class="hs-identifier hs-var">mcv</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679557546"><span class="hs-identifier hs-var">mcv</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-161"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; IO ByteString
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
-</span><span id="line-162"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679553351"><span class="annot"><span class="annottext">v :: Natural
-</span><a href="#local-6989586621679553351"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-163"></span><span>      </span><span id="local-6989586621679553350"><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553350"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
+</span><span id="line-162"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679557545"><span class="annot"><span class="annottext">v :: Natural
+</span><a href="#local-6989586621679557545"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-163"></span><span>      </span><span id="local-6989586621679557544"><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
+</span><a href="#local-6989586621679557544"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
 -&gt; IO (Tree Natural (Tree ByteString ByteString))
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
-</span><a href="#local-6989586621679553353"><span class="hs-identifier hs-var">dbCommitted</span></a></span><span>
+</span><a href="#local-6989586621679557547"><span class="hs-identifier hs-var">dbCommitted</span></a></span><span>
 </span><span id="line-164"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Natural
 -&gt; Tree Natural (Tree ByteString ByteString)
 -&gt; Maybe (Tree ByteString ByteString)
 forall k v. Ord k =&gt; k -&gt; Tree k v -&gt; Maybe v
 </span><span class="hs-identifier hs-var">AT.lookup</span></span><span> </span><span class="annot"><span class="annottext">Natural
-</span><a href="#local-6989586621679553351"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553350"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679557545"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
+</span><a href="#local-6989586621679557544"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-165"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; IO ByteString
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
-</span><span id="line-166"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679553349"><span class="annot"><span class="annottext">tree :: Tree ByteString ByteString
-</span><a href="#local-6989586621679553349"><span class="hs-identifier hs-var">tree</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
-</span><span id="line-167"></span><span>          </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#AuthTreeHash"><span class="hs-identifier hs-type">AuthTreeHash</span></a></span><span> </span><span id="local-6989586621679553348"><span class="annot"><span class="annottext">hash :: Digest SHA256
-</span><a href="#local-6989586621679553348"><span class="hs-identifier hs-var">hash</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString -&gt; AuthTreeHash
+</span><span id="line-166"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679557543"><span class="annot"><span class="annottext">tree :: Tree ByteString ByteString
+</span><a href="#local-6989586621679557543"><span class="hs-identifier hs-var">tree</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-167"></span><span>          </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#AuthTreeHash"><span class="hs-identifier hs-type">AuthTreeHash</span></a></span><span> </span><span id="local-6989586621679557542"><span class="annot"><span class="annottext">hash :: Digest SHA256
+</span><a href="#local-6989586621679557542"><span class="hs-identifier hs-var">hash</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString -&gt; AuthTreeHash
 forall h k v.
 (MerkleHash h, ByteArrayAccess k, ByteArrayAccess v) =&gt;
 Tree k v -&gt; h
 </span><span class="hs-identifier hs-var">AT.merkleHash</span></span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString
-</span><a href="#local-6989586621679553349"><span class="hs-identifier hs-var">tree</span></a></span><span>
+</span><a href="#local-6989586621679557543"><span class="hs-identifier hs-var">tree</span></a></span><span>
 </span><span id="line-168"></span><span>          </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; IO ByteString
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ByteString) -&gt; ByteString -&gt; IO ByteString
@@ -767,19 +767,19 @@ forall bin bout.
 (ByteArrayAccess bin, ByteArray bout) =&gt;
 bin -&gt; bout
 </span><span class="hs-identifier hs-var">convert</span></span><span> </span><span class="annot"><span class="annottext">Digest SHA256
-</span><a href="#local-6989586621679553348"><span class="hs-identifier hs-var">hash</span></a></span><span>
+</span><a href="#local-6989586621679557542"><span class="hs-identifier hs-var">hash</span></a></span><span>
 </span><span id="line-169"></span><span>
 </span><span id="line-170"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getVersion"><span class="hs-identifier hs-type">getVersion</span></a></span><span>
 </span><span id="line-171"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span>
 </span><span id="line-172"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span class="hs-special">)</span><span>
 </span><span id="line-173"></span><span id="getVersion"><span class="annot"><span class="annottext">getVersion :: DB -&gt; IO (Maybe Natural)
-</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getVersion"><span class="hs-identifier hs-var hs-var">getVersion</span></a></span></span><span> </span><span id="local-6989586621679553345"><span id="local-6989586621679553346"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-174"></span><span>  </span><span id="local-6989586621679553344"><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553344"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
+</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getVersion"><span class="hs-identifier hs-var hs-var">getVersion</span></a></span></span><span> </span><span id="local-6989586621679557539"><span id="local-6989586621679557540"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-174"></span><span>  </span><span id="local-6989586621679557538"><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
+</span><a href="#local-6989586621679557538"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
 -&gt; IO (Tree Natural (Tree ByteString ByteString))
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
-</span><a href="#local-6989586621679553346"><span class="hs-identifier hs-var">dbCommitted</span></a></span><span>
+</span><a href="#local-6989586621679557540"><span class="hs-identifier hs-var">dbCommitted</span></a></span><span>
 </span><span id="line-175"></span><span>  </span><span class="annot"><span class="annottext">Maybe Natural -&gt; IO (Maybe Natural)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Maybe Natural -&gt; IO (Maybe Natural))
@@ -787,7 +787,7 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span>
 </span><span id="line-176"></span><span>    </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553344"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
+</span><a href="#local-6989586621679557538"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
 -&gt; Tree Natural (Tree ByteString ByteString) -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
@@ -816,19 +816,19 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 -&gt; [(Natural, Tree ByteString ByteString)]
 forall k v. Tree k v -&gt; [(k, v)]
 </span><span class="hs-identifier hs-var">AT.toList</span></span><span> </span><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553344"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><a href="#local-6989586621679557538"><span class="hs-identifier hs-var">c</span></a></span><span>
 </span><span id="line-179"></span><span>
 </span><span id="line-180"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getRecentCommit"><span class="hs-identifier hs-type">getRecentCommit</span></a></span><span>
 </span><span id="line-181"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span>
 </span><span id="line-182"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">AT.Tree</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span class="hs-special">)</span><span>
 </span><span id="line-183"></span><span id="getRecentCommit"><span class="annot"><span class="annottext">getRecentCommit :: DB -&gt; IO (Tree ByteString ByteString)
-</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getRecentCommit"><span class="hs-identifier hs-var hs-var">getRecentCommit</span></a></span></span><span> </span><span id="local-6989586621679553340"><span id="local-6989586621679553341"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-184"></span><span>  </span><span id="local-6989586621679553339"><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553339"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
+</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getRecentCommit"><span class="hs-identifier hs-var hs-var">getRecentCommit</span></a></span></span><span> </span><span id="local-6989586621679557534"><span id="local-6989586621679557535"><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-184"></span><span>  </span><span id="local-6989586621679557533"><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
+</span><a href="#local-6989586621679557533"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
 -&gt; IO (Tree Natural (Tree ByteString ByteString))
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
-</span><a href="#local-6989586621679553341"><span class="hs-identifier hs-var">dbCommitted</span></a></span><span>
+</span><a href="#local-6989586621679557535"><span class="hs-identifier hs-var">dbCommitted</span></a></span><span>
 </span><span id="line-185"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">((Natural, Tree ByteString ByteString) -&gt; Down Natural)
 -&gt; [(Natural, Tree ByteString ByteString)]
 -&gt; [(Natural, Tree ByteString ByteString)]
@@ -851,14 +851,14 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 -&gt; [(Natural, Tree ByteString ByteString)]
 forall k v. Tree k v -&gt; [(k, v)]
 </span><span class="hs-identifier hs-var">AT.toList</span></span><span> </span><span class="annot"><span class="annottext">Tree Natural (Tree ByteString ByteString)
-</span><a href="#local-6989586621679553339"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679557533"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-186"></span><span>    </span><span class="hs-special">[</span><span class="hs-special">]</span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString -&gt; IO (Tree ByteString ByteString)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString
 forall k v. Tree k v
 </span><span class="hs-identifier hs-var">AT.empty</span></span><span>
-</span><span id="line-187"></span><span>    </span><span id="local-6989586621679553337"><span class="annot"><span class="annottext">a :: (Natural, Tree ByteString ByteString)
-</span><a href="#local-6989586621679553337"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString -&gt; IO (Tree ByteString ByteString)
+</span><span id="line-187"></span><span>    </span><span id="local-6989586621679557531"><span class="annot"><span class="annottext">a :: (Natural, Tree ByteString ByteString)
+</span><a href="#local-6989586621679557531"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString -&gt; IO (Tree ByteString ByteString)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Tree ByteString ByteString -&gt; IO (Tree ByteString ByteString))
 -&gt; Tree ByteString ByteString -&gt; IO (Tree ByteString ByteString)
@@ -866,37 +866,37 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">(Natural, Tree ByteString ByteString) -&gt; Tree ByteString ByteString
 forall a b. (a, b) -&gt; b
 </span><span class="hs-identifier hs-var">snd</span></span><span> </span><span class="annot"><span class="annottext">(Natural, Tree ByteString ByteString)
-</span><a href="#local-6989586621679553337"><span class="hs-identifier hs-var">a</span></a></span><span>
+</span><a href="#local-6989586621679557531"><span class="hs-identifier hs-var">a</span></a></span><span>
 </span><span id="line-188"></span><span>
 </span><span id="line-189"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#makeCommit"><span class="hs-identifier hs-type">makeCommit</span></a></span><span>
 </span><span id="line-190"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span>
 </span><span id="line-191"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">AT.Tree</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span>
 </span><span id="line-192"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span>
 </span><span id="line-193"></span><span id="makeCommit"><span class="annot"><span class="annottext">makeCommit :: DB -&gt; Tree ByteString ByteString -&gt; IO Natural
-</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#makeCommit"><span class="hs-identifier hs-var hs-var">makeCommit</span></a></span></span><span> </span><span id="local-6989586621679553336"><span class="annot"><span class="annottext">db :: DB
-</span><a href="#local-6989586621679553336"><span class="hs-identifier hs-var">db</span></a></span></span><span class="hs-glyph">@</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span id="local-6989586621679553335"><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
+</span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#makeCommit"><span class="hs-identifier hs-var hs-var">makeCommit</span></a></span></span><span> </span><span id="local-6989586621679557530"><span class="annot"><span class="annottext">db :: DB
+</span><a href="#local-6989586621679557530"><span class="hs-identifier hs-var">db</span></a></span></span><span class="hs-glyph">@</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#DB"><span class="hs-identifier hs-type">DB</span></a></span><span class="hs-special">{</span><span id="local-6989586621679557529"><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
 dbCommitted :: IORef (Tree Natural (Tree ByteString ByteString))
 dbCommitted :: DB -&gt; IORef (Tree Natural (Tree ByteString ByteString))
-</span><a href="#local-6989586621679553335"><span class="hs-identifier hs-var hs-var">dbCommitted</span></a></span></span><span class="hs-special">}</span><span> </span><span id="local-6989586621679553334"><span class="annot"><span class="annottext">commit :: Tree ByteString ByteString
-</span><a href="#local-6989586621679553334"><span class="hs-identifier hs-var">commit</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-194"></span><span>  </span><span id="local-6989586621679553333"><span class="annot"><span class="annottext">Maybe Natural
-</span><a href="#local-6989586621679553333"><span class="hs-identifier hs-var">mv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; IO (Maybe Natural)
+</span><a href="#local-6989586621679557529"><span class="hs-identifier hs-var hs-var">dbCommitted</span></a></span></span><span class="hs-special">}</span><span> </span><span id="local-6989586621679557528"><span class="annot"><span class="annottext">commit :: Tree ByteString ByteString
+</span><a href="#local-6989586621679557528"><span class="hs-identifier hs-var">commit</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-194"></span><span>  </span><span id="local-6989586621679557527"><span class="annot"><span class="annottext">Maybe Natural
+</span><a href="#local-6989586621679557527"><span class="hs-identifier hs-var">mv</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DB -&gt; IO (Maybe Natural)
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#getVersion"><span class="hs-identifier hs-var">getVersion</span></a></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679553336"><span class="hs-identifier hs-var">db</span></a></span><span>
-</span><span id="line-195"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679553332"><span class="annot"><span class="annottext">v :: Natural
-</span><a href="#local-6989586621679553332"><span class="hs-identifier hs-var hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; (Natural -&gt; Natural) -&gt; Maybe Natural -&gt; Natural
+</span><a href="#local-6989586621679557530"><span class="hs-identifier hs-var">db</span></a></span><span>
+</span><span id="line-195"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679557526"><span class="annot"><span class="annottext">v :: Natural
+</span><a href="#local-6989586621679557526"><span class="hs-identifier hs-var hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; (Natural -&gt; Natural) -&gt; Maybe Natural -&gt; Natural
 forall b a. b -&gt; (a -&gt; b) -&gt; Maybe a -&gt; b
 </span><span class="hs-identifier hs-var">maybe</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; Natural
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe Natural
-</span><a href="#local-6989586621679553333"><span class="hs-identifier hs-var">mv</span></a></span><span>
+</span><a href="#local-6989586621679557527"><span class="hs-identifier hs-var">mv</span></a></span><span>
 </span><span id="line-196"></span><span>  </span><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
 -&gt; (Tree Natural (Tree ByteString ByteString)
     -&gt; Tree Natural (Tree ByteString ByteString))
 -&gt; IO ()
 forall a. IORef a -&gt; (a -&gt; a) -&gt; IO ()
 </span><span class="hs-identifier hs-var">modifyIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Tree Natural (Tree ByteString ByteString))
-</span><a href="#local-6989586621679553335"><span class="hs-identifier hs-var">dbCommitted</span></a></span><span> </span><span class="annot"><span class="annottext">((Tree Natural (Tree ByteString ByteString)
+</span><a href="#local-6989586621679557529"><span class="hs-identifier hs-var">dbCommitted</span></a></span><span> </span><span class="annot"><span class="annottext">((Tree Natural (Tree ByteString ByteString)
   -&gt; Tree Natural (Tree ByteString ByteString))
  -&gt; IO ())
 -&gt; (Tree Natural (Tree ByteString ByteString)
@@ -909,10 +909,10 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 -&gt; Tree Natural (Tree ByteString ByteString)
 forall k v. Ord k =&gt; k -&gt; v -&gt; Tree k v -&gt; Tree k v
 </span><span class="hs-identifier hs-var">AT.insert</span></span><span> </span><span class="annot"><span class="annottext">Natural
-</span><a href="#local-6989586621679553332"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString
-</span><a href="#local-6989586621679553334"><span class="hs-identifier hs-var">commit</span></a></span><span>
+</span><a href="#local-6989586621679557526"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Tree ByteString ByteString
+</span><a href="#local-6989586621679557528"><span class="hs-identifier hs-var">commit</span></a></span><span>
 </span><span id="line-197"></span><span>  </span><span class="annot"><span class="annottext">Natural -&gt; IO Natural
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Natural
-</span><a href="#local-6989586621679553332"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><a href="#local-6989586621679557526"><span class="hs-identifier hs-var">v</span></a></span><span>
 </span><span id="line-198"></span></pre></body></html>
