@@ -49,20 +49,23 @@ instance HasPath (RoutingTx msg) where
     (\(RoutingTx tx) r -> RoutingTx tx {txRoute = r})
 
 data TransactionContext = TransactionContext
-  { gasRemaining :: IORef G.GasAmount
-  , storeCache   :: IORef Cache.Cache
-  , events       :: IORef [E.Event]
+  { gasRemaining  :: IORef G.GasAmount
+  , txRequiresGas :: Bool
+  , storeCache    :: IORef Cache.Cache
+  , events        :: IORef [E.Event]
   }
 
 newTransactionContext
-  :: RoutingTx msg
+  :: Bool
+  -> RoutingTx msg
   -> IO TransactionContext
-newTransactionContext (RoutingTx Tx{txGas}) = do
+newTransactionContext txRequiresGas (RoutingTx Tx{txGas}) = do
   initialGas <- newIORef $ G.GasAmount txGas
   initialCache <- newIORef Cache.emptyCache
   es <- newIORef []
   pure TransactionContext
     { gasRemaining = initialGas
+    , txRequiresGas
     , storeCache = initialCache
     , events = es
     }

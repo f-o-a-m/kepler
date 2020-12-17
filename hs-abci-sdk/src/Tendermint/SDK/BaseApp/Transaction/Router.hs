@@ -90,8 +90,8 @@ methodRouter
   -> R.Router env r (RoutingTx msg) (TxResult, Maybe Cache)
 methodRouter ps action =
   let route' env tx = do
-        ctx <- liftIO $ newTransactionContext tx
-        let action' = runTx ps ctx <$> action
+        ctx <- liftIO $ newTransactionContext True tx
+        let action' = fmap (\(rc,res) -> (res,fmap snd rc)) . runTx ps ctx <$> action
         R.runAction action' env tx (pure . R.Route)
   in R.leafRouter route'
 

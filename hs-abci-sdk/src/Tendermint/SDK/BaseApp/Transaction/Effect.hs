@@ -59,10 +59,15 @@ eval ps TransactionContext{..} = do
     rewrite (Tagged @Cache.Cache) .
     evalCachedWriteStore storeCache .
     rewrite (Tagged @Cache.Cache) .
-    State.runStateIORef gasRemaining .
-    G.eval .
-    raiseUnder @(State.State G.GasAmount) .
+    runGas .
     runOutputMonoidIORef events (pure @[])
+  where
+    runGas =
+      if txRequiresGas
+        then State.runStateIORef gasRemaining .
+               G.eval .
+               raiseUnder @(State.State G.GasAmount)
+        else G.doNothing
 
 evalReadOnly
   :: forall r.
@@ -85,7 +90,7 @@ runTx
   => Proxy scope
   -> TransactionContext
   -> Sem (TxEffs :& r) a
-  -> Sem r (TxResult, Maybe Cache.Cache)
+  -> Sem r (Maybe (a, Cache.Cache), TxResult)
 runTx ps ctx@TransactionContext{..} tx = do
   initialGas <- liftIO $ readIORef gasRemaining
   eRes <- eval ps ctx tx
@@ -95,13 +100,13 @@ runTx ps ctx@TransactionContext{..} tx = do
         def & txResultGasWanted .~ G.unGasAmount initialGas
             & txResultGasUsed .~ G.unGasAmount gasUsed
   case eRes of
-    Left e -> return (baseResponse & txResultAppError .~ e, Nothing)
+    Left e -> return (Nothing, baseResponse & txResultAppError .~ e)
     Right a -> do
         es <- liftIO $ readIORef events
         c <- liftIO $ readIORef storeCache
-        return ( baseResponse & txResultEvents .~ es
+        return ( Just (a,c)
+               , baseResponse & txResultEvents .~ es
                               & txResultData .~ fromBytes (encode a)
-               , Just c
                )
 
 evalCachedReadStore

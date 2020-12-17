@@ -11,6 +11,7 @@ import           Crypto.Hash.Algorithms                   (SHA256)
 import qualified Data.ByteArray.Base64String              as Base64
 import           Data.Default.Class                       (Default (..))
 import           Data.Proxy
+import           Data.Text
 import           Network.ABCI.Server.App                  (App (..),
                                                            MessageType (..),
                                                            Request (..),
@@ -22,6 +23,9 @@ import           Polysemy
 import           Polysemy.Error                           (catch)
 import qualified Tendermint.SDK.Application.Module        as M
 import qualified Tendermint.SDK.BaseApp                   as BA
+import           Tendermint.SDK.BaseApp.Block             (EndBlockResult,
+                                                           evalBeginBlockHandler,
+                                                           evalEndBlockHandler)
 import           Tendermint.SDK.BaseApp.Errors            (SDKError (..),
                                                            queryAppError,
                                                            throwSDKError,
@@ -72,17 +76,20 @@ defaultHandlers = Handlers
 
 
 data HandlersContext alg ms core = HandlersContext
-  { signatureAlgP :: Proxy alg
-  , modules       :: M.ModuleList ms (M.Effs ms core)
-  , anteHandler   :: BA.AnteHandler (M.Effs ms core)
-  , compileToCore :: forall a. Sem (BA.BaseAppEffs core) a -> Sem core a
-  }
+    { signatureAlgP :: Proxy alg
+    , modules       :: M.ModuleList ms (M.Effs ms core)
+    , beginBlocker  :: Req.BeginBlock -> Sem (M.Effs ms core) ()
+    , endBlocker    :: Req.EndBlock -> Sem (M.Effs ms core) EndBlockResult
+    , anteHandler   :: BA.AnteHandler (M.Effs ms core)
+    , compileToCore :: forall a . Sem (BA.BaseAppEffs core) a -> Sem core a
+    }
 
 -- Common function between checkTx and deliverTx
 makeHandlers
   :: forall alg ms core.
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
+  => Member (Embed IO) core
   => M.ToApplication ms (M.Effs ms core)
   => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms core) 'Store.QueryAndMempool
   => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs core) 'Store.QueryAndMempool
@@ -105,7 +112,7 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
 
       app :: M.Application (M.ApplicationC ms) (M.ApplicationD ms) (M.ApplicationQ ms)
                (T.TxEffs BA.:& BA.BaseAppEffs core) (Q.QueryEffs BA.:& BA.BaseAppEffs core)
-      app = M.makeApplication cProxy anteHandler modules
+      app = M.makeApplication cProxy anteHandler modules beginBlocker endBlocker
 
       txParser bs = case parseTx signatureAlgP bs of
         Left err -> throwSDKError $ ParseError err
@@ -165,11 +172,33 @@ makeHandlers (HandlersContext{..} :: HandlersContext alg ms core) =
         return . ResponseCommit $ def
           & Resp._commitData .~ Base64.fromBytes rootHash
 
+      beginBlock :: Handler 'MTBeginBlock (BA.BaseAppEffs core)
+      beginBlock (RequestBeginBlock bb) = do
+        res <- evalBeginBlockHandler $ M.applicationBeginBlocker app bb
+        case res of
+          Right bbr ->
+            return . ResponseBeginBlock $ bbr
+          Left e ->
+            return . ResponseException . Resp.Exception . pack $ "Fatal Error in handling of BeginBlock: " ++ show e
+
+      endBlock :: Handler 'MTEndBlock (BA.BaseAppEffs core)
+      endBlock (RequestEndBlock eb) = do
+        res <- evalEndBlockHandler $ M.applicationEndBlocker app eb
+        case res of
+          Right ebr ->
+            return . ResponseEndBlock $ ebr
+          Left e ->
+            return . ResponseException . Resp.Exception . pack $ "Fatal Error in handling of EndBlock: " ++ show e
+
+
+
   in defaultHandlers
-       { query = query
-       , checkTx = checkTx
-       , deliverTx = deliverTx
-       , commit = commit
+       { query
+       , checkTx
+       , deliverTx
+       , commit
+       , beginBlock
+       , endBlock
        }
 
 makeApp
@@ -177,6 +206,7 @@ makeApp
 
      RecoverableSignatureSchema alg
   => Message alg ~ Digest SHA256
+  => Member (Embed IO) core
   => M.ToApplication ms (M.Effs ms core)
   => T.HasTxRouter (M.ApplicationC ms) (M.Effs ms core) 'Store.QueryAndMempool
   => T.HasTxRouter (M.ApplicationC ms) (BA.BaseAppEffs core) 'Store.QueryAndMempool
