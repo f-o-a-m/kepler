@@ -69,7 +69,7 @@ getQueuedUpdatesF
   :: Members [ReadStore, Error AppError] r
   => Sem r (Map.Map PubKey_ Word64)
 getQueuedUpdatesF = L.foldl (\m ValidatorUpdate{..} ->
-  Map.alter (maybe (Just power) Just) key m) Map.empty updatesList
+  Map.alter (Just . fromMaybe power) key m) Map.empty updatesList
 
 getQueuedUpdateF
   :: Members [ReadStore, Error AppError] r
