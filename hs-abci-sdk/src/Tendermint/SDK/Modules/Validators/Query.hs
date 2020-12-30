@@ -1,6 +1,7 @@
 module Tendermint.SDK.Modules.Validators.Query where
 
 import qualified Data.Map.Strict                          as Map
+import qualified Data.Set                                 as Set
 import           Data.Word                                (Word64)
 import           Polysemy                                 (Members, Sem)
 import           Servant.API
@@ -37,7 +38,8 @@ getValidators
   :: Members Keeper.ValidatorsEffs r
   => Sem r (QueryResult (Map.Map PubKey_ Word64))
 getValidators = do
-  vs <- Keeper.getValidators
+  keyList <- fmap Set.toList Keeper.getValidatorsKeys
+  vs <- fmap Map.fromList $ mapM (\k -> fmap (\p -> (k, p)) (Keeper.getPowerOf k)) keyList
   pure $ QueryResult
     { queryResultData = vs
     , queryResultIndex = 0

@@ -1,6 +1,8 @@
 module Tendermint.SDK.Modules.Validators.EndBlock where
 
-import           Control.Monad                            (foldM)
+import           Control.Monad.State                      (MonadTrans (lift),
+                                                           execStateT, forM_,
+                                                           modify)
 import qualified Data.Map.Strict                          as Map
 import qualified Data.Set                                 as Set
 import qualified Network.ABCI.Types.Messages.FieldTypes   as ABCI
@@ -26,16 +28,16 @@ endBlock _ = do
   curValKeySet <- getValidatorsKeys
 
   -- update the Validators map and key set
-  newValKeySet <- foldM (\cvks (key, newPower) ->
+  newValKeySet <- flip execStateT curValKeySet $
+    forM_ (Map.toList updatesMap) $ \(key, newPower) ->
       if newPower == 0 then do
         -- delete from Validators map and key set
-        M.delete key validatorsMap
-        return (Set.delete key cvks)
+        lift $ M.delete key validatorsMap
+        modify $ Set.delete key
       else do
         -- update power in Validators map and ensure key is in key set
-        M.insert key newPower validatorsMap
-        return (Set.insert key cvks)
-    ) curValKeySet (Map.assocs updatesMap)
+        lift $ M.insert key newPower validatorsMap
+        modify $ Set.insert key
 
   -- store new set of validator keys
   V.putVar (KeySet newValKeySet) validatorsKeySet
@@ -47,4 +49,4 @@ endBlock _ = do
   pure $ EndBlockResult (map convertToValUp (Map.assocs updatesMap)) Nothing
   where
     convertToValUp (PubKey_ key, power) =
-      ABCI.ValidatorUpdate (Just key) (ABCI.WrappedVal (fromIntegral power))
+      ABCI.ValidatorUpdate key (ABCI.WrappedVal (fromIntegral power))

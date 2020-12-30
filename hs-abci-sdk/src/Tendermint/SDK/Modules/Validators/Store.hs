@@ -15,7 +15,7 @@ import           Tendermint.SDK.Modules.Validators.Types
 store :: Store ValidatorsNameSpace
 store = makeStore $ KeyRoot "validators"
 
-$(makeSubStore 'store "updatesList" [t|L.List ValidatorUpdate|] updatesListKey)
+$(makeSubStore 'store "updatesList" [t|L.List ValidatorUpdate_|] updatesListKey)
 
 $(makeSubStore 'store "validatorsMap" [t|M.Map PubKey_ Word64|] validatorsMapKey)
 
