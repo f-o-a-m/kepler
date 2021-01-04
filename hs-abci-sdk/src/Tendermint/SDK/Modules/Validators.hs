@@ -1,4 +1,13 @@
-module Tendermint.SDK.Modules.Validators (Validators, validatorsModule, endBlock) where
+module Tendermint.SDK.Modules.Validators
+  (
+    Validators
+  , validatorsModule
+
+  , module Tendermint.SDK.Modules.Validators.Keeper
+  , module Tendermint.SDK.Modules.Validators.Types
+
+  , endBlock
+  ) where
 
 
 import           Polysemy                                   (Members)

@@ -1,6 +1,11 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Tendermint.SDK.Modules.Validators.Store where
+module Tendermint.SDK.Modules.Validators.Store
+  (
+    updatesList
+  , validatorsMap
+  , validatorsKeySet
+  ) where
 
 import           Data.Word                               (Word64)
 import           Tendermint.SDK.BaseApp                  (KeyRoot (..), Store,

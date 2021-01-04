@@ -10,7 +10,7 @@ import           Data.Either                            (fromRight)
 import           Data.ProtoLens                         (decodeMessage,
                                                          encodeMessage)
 import           Data.Set                               (Set)
-import           Data.Text                              (pack)
+import           Data.String.Conversions                (cs)
 import           GHC.Generics                           (Generic)
 import           Network.ABCI.Types.Messages.FieldTypes (PubKey (PubKey),
                                                          ValidatorUpdate)
@@ -37,7 +37,7 @@ newtype ValidatorUpdate_ = ValidatorUpdate_ ValidatorUpdate deriving (Eq, Generi
 
 instance HasCodec ValidatorUpdate_ where
   encode (ValidatorUpdate_ vu) = encodeMessage $ (vu ^. _Wrapped')
-  decode bs = bimap pack (ValidatorUpdate_ . (^. _Unwrapped')) $ decodeMessage bs
+  decode bs = bimap cs (ValidatorUpdate_ . (^. _Unwrapped')) $ decodeMessage bs
 
 newtype PubKey_ = PubKey_ PubKey deriving (Eq, Ord, Generic)
 

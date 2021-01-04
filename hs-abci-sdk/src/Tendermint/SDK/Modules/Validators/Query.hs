@@ -1,4 +1,8 @@
-module Tendermint.SDK.Modules.Validators.Query where
+module Tendermint.SDK.Modules.Validators.Query
+  (
+    querier
+  , QueryApi
+  )where
 
 import qualified Data.Map.Strict                          as Map
 import qualified Data.Set                                 as Set
