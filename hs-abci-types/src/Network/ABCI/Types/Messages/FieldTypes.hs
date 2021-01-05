@@ -268,7 +268,7 @@ instance Wrapped PubKey where
           }
 
 data ValidatorUpdate = ValidatorUpdate
-  { validatorUpdatePubKey :: PubKey
+  { validatorUpdatePubKey :: Maybe PubKey
   -- ^ Public key of the validator
   , validatorUpdatePower  :: WrappedVal Int64
   -- ^ Voting power of the validator
@@ -286,11 +286,11 @@ instance Wrapped ValidatorUpdate where
     where
       t ValidatorUpdate{..} =
         defMessage
-          & PT.pubKey .~ validatorUpdatePubKey ^. _Wrapped'
+          & PT.maybe'pubKey .~ validatorUpdatePubKey ^? _Just . _Wrapped'
           & PT.power .~ unWrappedVal validatorUpdatePower
       f a =
         ValidatorUpdate
-          { validatorUpdatePubKey = a ^. PT.pubKey . _Unwrapped'
+          { validatorUpdatePubKey = a ^? PT.maybe'pubKey . _Just . _Unwrapped'
           , validatorUpdatePower = WrappedVal $ a ^. PT.power
           }
 

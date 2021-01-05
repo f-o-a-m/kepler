@@ -49,4 +49,4 @@ endBlock _ = do
   pure $ EndBlockResult (map convertToValUp (Map.assocs updatesMap)) Nothing
   where
     convertToValUp (PubKey_ key, power) =
-      ABCI.ValidatorUpdate key (ABCI.WrappedVal (fromIntegral power))
+      ABCI.ValidatorUpdate (Just key) (ABCI.WrappedVal (fromIntegral power))

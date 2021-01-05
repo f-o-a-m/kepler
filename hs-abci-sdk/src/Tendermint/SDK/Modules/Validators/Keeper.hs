@@ -3,7 +3,7 @@
 module Tendermint.SDK.Modules.Validators.Keeper where
 
 import qualified Data.Map.Strict                         as Map
-import           Data.Maybe                              (fromMaybe)
+import           Data.Maybe                              (fromJust, fromMaybe)
 import qualified Data.Set                                as Set
 import           Data.Word                               (Word64)
 import           Network.ABCI.Types.Messages.FieldTypes
@@ -57,9 +57,10 @@ getQueuedUpdatesF
   :: Members [ReadStore, Error AppError] r
   => Sem r (Map.Map PubKey_ Word64)
 getQueuedUpdatesF = L.foldl (\m (ValidatorUpdate_ ValidatorUpdate{..}) ->
-  Map.alter (Just . fromMaybe (toWord validatorUpdatePower)) (PubKey_ validatorUpdatePubKey) m) Map.empty updatesList
+  Map.alter (Just . fromMaybe (toWord validatorUpdatePower)) (toPK_ validatorUpdatePubKey) m) Map.empty updatesList
   where
     toWord (WrappedVal x) = fromIntegral x
+    toPK_ = PubKey_ . fromJust
 
 queueUpdateF
   :: Members [ReadStore, WriteStore, Error AppError] r
@@ -67,7 +68,7 @@ queueUpdateF
   -> Word64
   -> Sem r ()
 queueUpdateF (PubKey_ key) power =
-  L.append (ValidatorUpdate_(ValidatorUpdate key (wrapInt power))) updatesList
+  L.append (ValidatorUpdate_(ValidatorUpdate (Just key) (wrapInt power))) updatesList
   where
     wrapInt p = WrappedVal (fromIntegral p)
 
