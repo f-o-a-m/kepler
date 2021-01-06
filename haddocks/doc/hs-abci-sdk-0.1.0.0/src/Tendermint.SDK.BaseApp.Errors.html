@@ -23,14 +23,14 @@
 </span><span id="line-23"></span><span>
 </span><span id="line-24"></span><span class="hs-comment">-- | This type represents a common error response for the query, checkTx,</span><span>
 </span><span id="line-25"></span><span class="hs-comment">-- | and deliver tx abci-messages.</span><span>
-</span><span id="line-26"></span><span id="local-6989586621679556862"><span id="local-6989586621679556863"></span></span><span class="hs-keyword">data</span><span> </span><span id="AppError"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-var">AppError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="AppError"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-var">AppError</span></a></span></span><span>
+</span><span id="line-26"></span><span id="local-6989586621679569659"><span id="local-6989586621679569660"></span></span><span class="hs-keyword">data</span><span> </span><span id="AppError"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-var">AppError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="AppError"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-var">AppError</span></a></span></span><span>
 </span><span id="line-27"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="appErrorCode"><span class="annot"><span class="annottext">AppError -&gt; Word32
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCode"><span class="hs-identifier hs-var hs-var">appErrorCode</span></a></span></span><span>      </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word32</span></span><span>
 </span><span id="line-28"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="appErrorCodespace"><span class="annot"><span class="annottext">AppError -&gt; Text
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCodespace"><span class="hs-identifier hs-var hs-var">appErrorCodespace</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
 </span><span id="line-29"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="appErrorMessage"><span class="annot"><span class="annottext">AppError -&gt; Text
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorMessage"><span class="hs-identifier hs-var hs-var">appErrorMessage</span></a></span></span><span>   </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
-</span><span id="line-30"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679556854"><span id="local-6989586621679556856"><span class="annot"><span class="annottext">AppError -&gt; AppError -&gt; Bool
+</span><span id="line-30"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679569651"><span id="local-6989586621679569653"><span class="annot"><span class="annottext">AppError -&gt; AppError -&gt; Bool
 (AppError -&gt; AppError -&gt; Bool)
 -&gt; (AppError -&gt; AppError -&gt; Bool) -&gt; Eq AppError
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -38,7 +38,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: AppError -&gt; AppError -&gt; Bool
 == :: AppError -&gt; AppError -&gt; Bool
 $c== :: AppError -&gt; AppError -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679556847"><span id="local-6989586621679556849"><span id="local-6989586621679556851"><span class="annot"><span class="annottext">Int -&gt; AppError -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679569644"><span id="local-6989586621679569646"><span id="local-6989586621679569648"><span class="annot"><span class="annottext">Int -&gt; AppError -&gt; ShowS
 [AppError] -&gt; ShowS
 AppError -&gt; String
 (Int -&gt; AppError -&gt; ShowS)
@@ -61,10 +61,10 @@ $cto :: forall x. Rep AppError x -&gt; AppError
 $cfrom :: forall x. AppError -&gt; Rep AppError x
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
 </span><span id="line-31"></span><span>
-</span><span id="line-32"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679556835"><span id="local-6989586621679556837"><span id="local-6989586621679556839"><span class="annot"><span class="hs-identifier hs-type">Exception</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span></span></span></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679569632"><span id="local-6989586621679569634"><span id="local-6989586621679569636"><span class="annot"><span class="hs-identifier hs-type">Exception</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span></span></span></span><span>
 </span><span id="line-33"></span><span>
-</span><span id="line-34"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679556827"><span id="local-6989586621679556829"><span id="local-6989586621679556831"><span class="annot"><span class="hs-identifier hs-type">A.ToJSON</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-35"></span><span>  </span><span id="local-6989586621679556825"><span class="annot"><span class="annottext">toJSON :: AppError -&gt; Value
+</span><span id="line-34"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679569624"><span id="local-6989586621679569626"><span id="local-6989586621679569628"><span class="annot"><span class="hs-identifier hs-type">A.ToJSON</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-35"></span><span>  </span><span id="local-6989586621679569622"><span class="annot"><span class="annottext">toJSON :: AppError -&gt; Value
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Options -&gt; AppError -&gt; Value
 forall a.
 (Generic a, GToJSON Value Zero (Rep a)) =&gt;
@@ -74,8 +74,8 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Options
 </span><span class="hs-identifier hs-var">defaultABCIOptions</span></span><span> </span><span class="annot"><span class="hs-string">&quot;appError&quot;</span></span><span>
 </span><span id="line-36"></span><span>
-</span><span id="line-37"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679556820"><span class="annot"><span class="hs-identifier hs-type">A.FromJSON</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-38"></span><span>  </span><span id="local-6989586621679556818"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser AppError
+</span><span id="line-37"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679569617"><span class="annot"><span class="hs-identifier hs-type">A.FromJSON</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-38"></span><span>  </span><span id="local-6989586621679569615"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser AppError
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">parseJSON</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Options -&gt; Value -&gt; Parser AppError
 forall a.
 (Generic a, GFromJSON Zero (Rep a)) =&gt;
@@ -88,8 +88,8 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span id="line-39"></span><span>
 </span><span id="line-40"></span><span class="hs-comment">-- | Allows for custom application error types to be coerced into the</span><span>
 </span><span id="line-41"></span><span class="hs-comment">-- standard error resposne.</span><span>
-</span><span id="line-42"></span><span class="hs-keyword">class</span><span> </span><span id="IsAppError"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#IsAppError"><span class="hs-identifier hs-var">IsAppError</span></a></span></span><span> </span><span id="local-6989586621679556880"><span class="annot"><a href="#local-6989586621679556880"><span class="hs-identifier hs-type">e</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-43"></span><span>  </span><span id="makeAppError"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-type">makeAppError</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679556880"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span>
+</span><span id="line-42"></span><span class="hs-keyword">class</span><span> </span><span id="IsAppError"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#IsAppError"><span class="hs-identifier hs-var">IsAppError</span></a></span></span><span> </span><span id="local-6989586621679569677"><span class="annot"><a href="#local-6989586621679569677"><span class="hs-identifier hs-type">e</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-43"></span><span>  </span><span id="makeAppError"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-type">makeAppError</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679569677"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span>
 </span><span id="line-44"></span><span>
 </span><span id="line-45"></span><span class="hs-comment">-- | This lens is used to set the 'AppError' data into the appropriate</span><span>
 </span><span id="line-46"></span><span class="hs-comment">-- | response fields for the query abci-message.</span><span>
@@ -100,35 +100,35 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 -&gt; Lens Query Query AppError AppError
 forall s a b t. (s -&gt; a) -&gt; (s -&gt; b -&gt; t) -&gt; Lens s t a b
 </span><span class="hs-identifier hs-var">lens</span></span><span> </span><span class="annot"><span class="annottext">Query -&gt; AppError
-</span><a href="#local-6989586621679556814"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">Query -&gt; AppError -&gt; Query
-</span><a href="#local-6989586621679556813"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><a href="#local-6989586621679569611"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">Query -&gt; AppError -&gt; Query
+</span><a href="#local-6989586621679569610"><span class="hs-identifier hs-var">s</span></a></span><span>
 </span><span id="line-49"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-50"></span><span>    </span><span id="local-6989586621679556814"><span class="annot"><span class="annottext">g :: Query -&gt; AppError
-</span><a href="#local-6989586621679556814"><span class="hs-identifier hs-var hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679556804"><span id="local-6989586621679556805"><span id="local-6989586621679556806"><span id="local-6989586621679556807"><span id="local-6989586621679556808"><span id="local-6989586621679556809"><span id="local-6989586621679556810"><span id="local-6989586621679556811"><span id="local-6989586621679556812"><span class="annot"><span class="hs-identifier hs-type">Response.Query</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
+</span><span id="line-50"></span><span>    </span><span id="local-6989586621679569611"><span class="annot"><span class="annottext">g :: Query -&gt; AppError
+</span><a href="#local-6989586621679569611"><span class="hs-identifier hs-var hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679569601"><span id="local-6989586621679569602"><span id="local-6989586621679569603"><span id="local-6989586621679569604"><span id="local-6989586621679569605"><span id="local-6989586621679569606"><span id="local-6989586621679569607"><span id="local-6989586621679569608"><span id="local-6989586621679569609"><span class="annot"><span class="hs-identifier hs-type">Response.Query</span></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-51"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCode"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679556812"><span class="hs-identifier hs-var">queryCode</span></a></span><span>
+</span><a href="#local-6989586621679569609"><span class="hs-identifier hs-var">queryCode</span></a></span><span>
 </span><span id="line-52"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">appErrorCodespace :: Text
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCodespace"><span class="hs-identifier hs-var">appErrorCodespace</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556804"><span class="hs-identifier hs-var">queryCodespace</span></a></span><span>
+</span><a href="#local-6989586621679569601"><span class="hs-identifier hs-var">queryCodespace</span></a></span><span>
 </span><span id="line-53"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">appErrorMessage :: Text
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorMessage"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556811"><span class="hs-identifier hs-var">queryLog</span></a></span><span>
+</span><a href="#local-6989586621679569608"><span class="hs-identifier hs-var">queryLog</span></a></span><span>
 </span><span id="line-54"></span><span>      </span><span class="hs-special">}</span><span>
-</span><span id="line-55"></span><span>    </span><span id="local-6989586621679556813"><span class="annot"><span class="annottext">s :: Query -&gt; AppError -&gt; Query
-</span><a href="#local-6989586621679556813"><span class="hs-identifier hs-var hs-var">s</span></a></span></span><span> </span><span id="local-6989586621679556792"><span class="annot"><span class="annottext">query :: Query
-</span><a href="#local-6989586621679556792"><span class="hs-identifier hs-var">query</span></a></span></span><span> </span><span id="local-6989586621679556789"><span id="local-6989586621679556790"><span id="local-6989586621679556791"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Query
-</span><a href="#local-6989586621679556792"><span class="hs-identifier hs-var">query</span></a></span><span>
+</span><span id="line-55"></span><span>    </span><span id="local-6989586621679569610"><span class="annot"><span class="annottext">s :: Query -&gt; AppError -&gt; Query
+</span><a href="#local-6989586621679569610"><span class="hs-identifier hs-var hs-var">s</span></a></span></span><span> </span><span id="local-6989586621679569589"><span class="annot"><span class="annottext">query :: Query
+</span><a href="#local-6989586621679569589"><span class="hs-identifier hs-var">query</span></a></span></span><span> </span><span id="local-6989586621679569586"><span id="local-6989586621679569587"><span id="local-6989586621679569588"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Query
+</span><a href="#local-6989586621679569589"><span class="hs-identifier hs-var">query</span></a></span><span>
 </span><span id="line-56"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">queryCode :: Word32
 </span><span class="hs-identifier hs-var">Response.queryCode</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679556791"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span>
+</span><a href="#local-6989586621679569588"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span>
 </span><span id="line-57"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">queryCodespace :: Text
 </span><span class="hs-identifier hs-var">Response.queryCodespace</span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556790"><span class="hs-identifier hs-var">appErrorCodespace</span></a></span><span>
+</span><a href="#local-6989586621679569587"><span class="hs-identifier hs-var">appErrorCodespace</span></a></span><span>
 </span><span id="line-58"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">queryLog :: Text
 </span><span class="hs-identifier hs-var">Response.queryLog</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556789"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span>
+</span><a href="#local-6989586621679569586"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span>
 </span><span id="line-59"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-60"></span><span>
 </span><span id="line-61"></span><span class="hs-comment">-- | This lens is used to set the 'AppError' data into the appropriate</span><span>
@@ -140,35 +140,35 @@ forall s a b t. (s -&gt; a) -&gt; (s -&gt; b -&gt; t) -&gt; Lens s t a b
 -&gt; Lens TxResult TxResult AppError AppError
 forall s a b t. (s -&gt; a) -&gt; (s -&gt; b -&gt; t) -&gt; Lens s t a b
 </span><span class="hs-identifier hs-var">lens</span></span><span> </span><span class="annot"><span class="annottext">TxResult -&gt; AppError
-</span><a href="#local-6989586621679556788"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">TxResult -&gt; AppError -&gt; TxResult
-</span><a href="#local-6989586621679556787"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><a href="#local-6989586621679569585"><span class="hs-identifier hs-var">g</span></a></span><span> </span><span class="annot"><span class="annottext">TxResult -&gt; AppError -&gt; TxResult
+</span><a href="#local-6989586621679569584"><span class="hs-identifier hs-var">s</span></a></span><span>
 </span><span id="line-65"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-66"></span><span>    </span><span id="local-6989586621679556788"><span class="annot"><span class="annottext">g :: TxResult -&gt; AppError
-</span><a href="#local-6989586621679556788"><span class="hs-identifier hs-var hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679556779"><span id="local-6989586621679556780"><span id="local-6989586621679556781"><span id="local-6989586621679556782"><span id="local-6989586621679556783"><span id="local-6989586621679556784"><span id="local-6989586621679556785"><span id="local-6989586621679556786"><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
+</span><span id="line-66"></span><span>    </span><span id="local-6989586621679569585"><span class="annot"><span class="annottext">g :: TxResult -&gt; AppError
+</span><a href="#local-6989586621679569585"><span class="hs-identifier hs-var hs-var">g</span></a></span></span><span> </span><span id="local-6989586621679569576"><span id="local-6989586621679569577"><span id="local-6989586621679569578"><span id="local-6989586621679569579"><span id="local-6989586621679569580"><span id="local-6989586621679569581"><span id="local-6989586621679569582"><span id="local-6989586621679569583"><span class="annot"><a href="Tendermint.SDK.Types.TxResult.html#TxResult"><span class="hs-identifier hs-type">TxResult</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-67"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCode"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679556781"><span class="hs-identifier hs-var">_txResultCode</span></a></span><span>
+</span><a href="#local-6989586621679569578"><span class="hs-identifier hs-var">_txResultCode</span></a></span><span>
 </span><span id="line-68"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">appErrorCodespace :: Text
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCodespace"><span class="hs-identifier hs-var">appErrorCodespace</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556779"><span class="hs-identifier hs-var">_txResultCodespace</span></a></span><span>
+</span><a href="#local-6989586621679569576"><span class="hs-identifier hs-var">_txResultCodespace</span></a></span><span>
 </span><span id="line-69"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">appErrorMessage :: Text
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorMessage"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556780"><span class="hs-identifier hs-var">_txResultLog</span></a></span><span>
+</span><a href="#local-6989586621679569577"><span class="hs-identifier hs-var">_txResultLog</span></a></span><span>
 </span><span id="line-70"></span><span>      </span><span class="hs-special">}</span><span>
-</span><span id="line-71"></span><span>    </span><span id="local-6989586621679556787"><span class="annot"><span class="annottext">s :: TxResult -&gt; AppError -&gt; TxResult
-</span><a href="#local-6989586621679556787"><span class="hs-identifier hs-var hs-var">s</span></a></span></span><span> </span><span id="local-6989586621679556769"><span class="annot"><span class="annottext">txResult :: TxResult
-</span><a href="#local-6989586621679556769"><span class="hs-identifier hs-var">txResult</span></a></span></span><span> </span><span id="local-6989586621679556766"><span id="local-6989586621679556767"><span id="local-6989586621679556768"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TxResult
-</span><a href="#local-6989586621679556769"><span class="hs-identifier hs-var">txResult</span></a></span><span>
+</span><span id="line-71"></span><span>    </span><span id="local-6989586621679569584"><span class="annot"><span class="annottext">s :: TxResult -&gt; AppError -&gt; TxResult
+</span><a href="#local-6989586621679569584"><span class="hs-identifier hs-var hs-var">s</span></a></span></span><span> </span><span id="local-6989586621679569566"><span class="annot"><span class="annottext">txResult :: TxResult
+</span><a href="#local-6989586621679569566"><span class="hs-identifier hs-var">txResult</span></a></span></span><span> </span><span id="local-6989586621679569563"><span id="local-6989586621679569564"><span id="local-6989586621679569565"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TxResult
+</span><a href="#local-6989586621679569566"><span class="hs-identifier hs-var">txResult</span></a></span><span>
 </span><span id="line-72"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">_txResultCode :: Word32
 </span><a href="Tendermint.SDK.Types.TxResult.html#_txResultCode"><span class="hs-identifier hs-var">_txResultCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word32
-</span><a href="#local-6989586621679556768"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span>
+</span><a href="#local-6989586621679569565"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span>
 </span><span id="line-73"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultCodespace :: Text
 </span><a href="Tendermint.SDK.Types.TxResult.html#_txResultCodespace"><span class="hs-identifier hs-var">_txResultCodespace</span></a></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556767"><span class="hs-identifier hs-var">appErrorCodespace</span></a></span><span>
+</span><a href="#local-6989586621679569564"><span class="hs-identifier hs-var">appErrorCodespace</span></a></span><span>
 </span><span id="line-74"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_txResultLog :: Text
 </span><a href="Tendermint.SDK.Types.TxResult.html#_txResultLog"><span class="hs-identifier hs-var">_txResultLog</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556766"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span>
+</span><a href="#local-6989586621679569563"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span>
 </span><span id="line-75"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-76"></span><span>
 </span><span id="line-77"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
@@ -191,7 +191,7 @@ forall s a b t. (s -&gt; a) -&gt; (s -&gt; b -&gt; t) -&gt; Lens s t a b
 </span><span id="line-94"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="StoreError"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#StoreError"><span class="hs-identifier hs-var">StoreError</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
 </span><span id="line-95"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GrpcError"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#GrpcError"><span class="hs-identifier hs-var">GrpcError</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
 </span><span id="line-96"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnknownAccountError"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#UnknownAccountError"><span class="hs-identifier hs-var">UnknownAccountError</span></a></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span><span>
-</span><span id="line-97"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679556750"><span id="local-6989586621679556752"><span id="local-6989586621679556754"><span class="annot"><span class="annottext">Int -&gt; SDKError -&gt; ShowS
+</span><span id="line-97"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679569547"><span id="local-6989586621679569549"><span id="local-6989586621679569551"><span class="annot"><span class="annottext">Int -&gt; SDKError -&gt; ShowS
 [SDKError] -&gt; ShowS
 SDKError -&gt; String
 (Int -&gt; SDKError -&gt; ShowS)
@@ -208,10 +208,10 @@ $cshowsPrec :: Int -&gt; SDKError -&gt; ShowS
 </span><span id="line-98"></span><span>
 </span><span id="line-99"></span><span class="hs-comment">-- | As of right now it's not expected that one can recover from an 'SDKError',</span><span>
 </span><span id="line-100"></span><span class="hs-comment">-- | so we are throwing them as 'AppError's directly.</span><span>
-</span><span id="line-101"></span><span id="local-6989586621679556748"><span id="local-6989586621679556749"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#throwSDKError"><span class="hs-identifier hs-type">throwSDKError</span></a></span><span>
-</span><span id="line-102"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679556749"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-101"></span><span id="local-6989586621679569545"><span id="local-6989586621679569546"><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#throwSDKError"><span class="hs-identifier hs-type">throwSDKError</span></a></span><span>
+</span><span id="line-102"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679569546"><span class="hs-identifier hs-type">r</span></a></span><span>
 </span><span id="line-103"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#SDKError"><span class="hs-identifier hs-type">SDKError</span></a></span><span>
-</span><span id="line-104"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679556749"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679556748"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-104"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679569546"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679569545"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
 </span><span id="line-105"></span><span id="throwSDKError"><span class="annot"><span class="annottext">throwSDKError :: SDKError -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#throwSDKError"><span class="hs-identifier hs-var hs-var">throwSDKError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError -&gt; Sem r a
 forall e (r :: [Effect]) a.
@@ -225,9 +225,9 @@ forall e. IsAppError e =&gt; e -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span>
 </span><span id="line-106"></span><span>
 </span><span id="line-107"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#IsAppError"><span class="hs-identifier hs-type">IsAppError</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#SDKError"><span class="hs-identifier hs-type">SDKError</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-108"></span><span>  </span><span id="local-6989586621679556743"><span class="annot"><span class="annottext">makeAppError :: SDKError -&gt; AppError
-</span><a href="#local-6989586621679556743"><span class="hs-identifier hs-var hs-var hs-var hs-var">makeAppError</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#InternalError"><span class="hs-identifier hs-type">InternalError</span></a></span><span> </span><span id="local-6989586621679556742"><span class="annot"><span class="annottext">msg :: Text
-</span><a href="#local-6989586621679556742"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
+</span><span id="line-108"></span><span>  </span><span id="local-6989586621679569540"><span class="annot"><span class="annottext">makeAppError :: SDKError -&gt; AppError
+</span><a href="#local-6989586621679569540"><span class="hs-identifier hs-var hs-var hs-var hs-var">makeAppError</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#InternalError"><span class="hs-identifier hs-type">InternalError</span></a></span><span> </span><span id="local-6989586621679569539"><span class="annot"><span class="annottext">msg :: Text
+</span><a href="#local-6989586621679569539"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-109"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCode"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">1</span></span><span>
@@ -237,11 +237,11 @@ forall e. IsAppError e =&gt; e -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorMessage"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;Internal Error: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556742"><span class="hs-identifier hs-var">msg</span></a></span><span>
+</span><a href="#local-6989586621679569539"><span class="hs-identifier hs-var">msg</span></a></span><span>
 </span><span id="line-112"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-113"></span><span>
-</span><span id="line-114"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#ParseError"><span class="hs-identifier hs-type">ParseError</span></a></span><span> </span><span id="local-6989586621679556741"><span class="annot"><span class="annottext">msg :: Text
-</span><a href="#local-6989586621679556741"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
+</span><span id="line-114"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#ParseError"><span class="hs-identifier hs-type">ParseError</span></a></span><span> </span><span id="local-6989586621679569538"><span class="annot"><span class="annottext">msg :: Text
+</span><a href="#local-6989586621679569538"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-115"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCode"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">2</span></span><span>
@@ -249,11 +249,11 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCodespace"><span class="hs-identifier hs-var">appErrorCodespace</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;sdk&quot;</span></span><span>
 </span><span id="line-117"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">appErrorMessage :: Text
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorMessage"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556741"><span class="hs-identifier hs-var">msg</span></a></span><span>
+</span><a href="#local-6989586621679569538"><span class="hs-identifier hs-var">msg</span></a></span><span>
 </span><span id="line-118"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-119"></span><span>
-</span><span id="line-120"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#UnmatchedRoute"><span class="hs-identifier hs-type">UnmatchedRoute</span></a></span><span> </span><span id="local-6989586621679556740"><span class="annot"><span class="annottext">route :: Text
-</span><a href="#local-6989586621679556740"><span class="hs-identifier hs-var">route</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
+</span><span id="line-120"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#UnmatchedRoute"><span class="hs-identifier hs-type">UnmatchedRoute</span></a></span><span> </span><span id="local-6989586621679569537"><span class="annot"><span class="annottext">route :: Text
+</span><a href="#local-6989586621679569537"><span class="hs-identifier hs-var">route</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-121"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCode"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">3</span></span><span>
@@ -263,7 +263,7 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorMessage"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;Route not recognized: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556740"><span class="hs-identifier hs-var">route</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><a href="#local-6989586621679569537"><span class="hs-identifier hs-var">route</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;.&quot;</span></span><span>
 </span><span id="line-124"></span><span>    </span><span class="hs-special">}</span><span>
@@ -278,8 +278,8 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorMessage"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;Out of gas exception&quot;</span></span><span>
 </span><span id="line-130"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-131"></span><span>
-</span><span id="line-132"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#MessageValidation"><span class="hs-identifier hs-type">MessageValidation</span></a></span><span> </span><span id="local-6989586621679556739"><span class="annot"><span class="annottext">errors :: [Text]
-</span><a href="#local-6989586621679556739"><span class="hs-identifier hs-var">errors</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
+</span><span id="line-132"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#MessageValidation"><span class="hs-identifier hs-type">MessageValidation</span></a></span><span> </span><span id="local-6989586621679569536"><span class="annot"><span class="annottext">errors :: [Text]
+</span><a href="#local-6989586621679569536"><span class="hs-identifier hs-var">errors</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-133"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCode"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">5</span></span><span>
@@ -290,11 +290,11 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; [Text] -&gt; Text
 </span><span class="hs-identifier hs-var">intercalate</span></span><span> </span><span class="annot"><span class="hs-string">&quot;\n&quot;</span></span><span> </span><span class="annot"><span class="annottext">[Text]
-</span><a href="#local-6989586621679556739"><span class="hs-identifier hs-var">errors</span></a></span><span>
+</span><a href="#local-6989586621679569536"><span class="hs-identifier hs-var">errors</span></a></span><span>
 </span><span id="line-136"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-137"></span><span>
-</span><span id="line-138"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#SignatureRecoveryError"><span class="hs-identifier hs-type">SignatureRecoveryError</span></a></span><span> </span><span id="local-6989586621679556738"><span class="annot"><span class="annottext">msg :: Text
-</span><a href="#local-6989586621679556738"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
+</span><span id="line-138"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#SignatureRecoveryError"><span class="hs-identifier hs-type">SignatureRecoveryError</span></a></span><span> </span><span id="local-6989586621679569535"><span class="annot"><span class="annottext">msg :: Text
+</span><a href="#local-6989586621679569535"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-139"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCode"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">6</span></span><span>
@@ -304,12 +304,12 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorMessage"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;Signature Recovery Error: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556738"><span class="hs-identifier hs-var">msg</span></a></span><span>
+</span><a href="#local-6989586621679569535"><span class="hs-identifier hs-var">msg</span></a></span><span>
 </span><span id="line-142"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-143"></span><span>
-</span><span id="line-144"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#NonceException"><span class="hs-identifier hs-type">NonceException</span></a></span><span> </span><span id="local-6989586621679556737"><span class="annot"><span class="annottext">expected :: Word64
-</span><a href="#local-6989586621679556737"><span class="hs-identifier hs-var">expected</span></a></span></span><span> </span><span id="local-6989586621679556736"><span class="annot"><span class="annottext">found :: Word64
-</span><a href="#local-6989586621679556736"><span class="hs-identifier hs-var">found</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
+</span><span id="line-144"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#NonceException"><span class="hs-identifier hs-type">NonceException</span></a></span><span> </span><span id="local-6989586621679569534"><span class="annot"><span class="annottext">expected :: Word64
+</span><a href="#local-6989586621679569534"><span class="hs-identifier hs-var">expected</span></a></span></span><span> </span><span id="local-6989586621679569533"><span class="annot"><span class="annottext">found :: Word64
+</span><a href="#local-6989586621679569533"><span class="hs-identifier hs-var">found</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-145"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCode"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">7</span></span><span>
@@ -329,7 +329,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Integer
 forall a. Integral a =&gt; a -&gt; Integer
 </span><span class="hs-identifier hs-var">toInteger</span></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679556737"><span class="hs-identifier hs-var">expected</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><a href="#local-6989586621679569534"><span class="hs-identifier hs-var">expected</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span>
 </span><span id="line-148"></span><span>         </span><span class="annot"><span class="hs-string">&quot; but got &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
@@ -345,13 +345,13 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Integer
 forall a. Integral a =&gt; a -&gt; Integer
 </span><span class="hs-identifier hs-var">toInteger</span></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679556736"><span class="hs-identifier hs-var">found</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><a href="#local-6989586621679569533"><span class="hs-identifier hs-var">found</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;.&quot;</span></span><span>
 </span><span id="line-149"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-150"></span><span>
-</span><span id="line-151"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#StoreError"><span class="hs-identifier hs-type">StoreError</span></a></span><span> </span><span id="local-6989586621679556734"><span class="annot"><span class="annottext">msg :: Text
-</span><a href="#local-6989586621679556734"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
+</span><span id="line-151"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#StoreError"><span class="hs-identifier hs-type">StoreError</span></a></span><span> </span><span id="local-6989586621679569531"><span class="annot"><span class="annottext">msg :: Text
+</span><a href="#local-6989586621679569531"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-152"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCode"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">8</span></span><span>
@@ -361,11 +361,11 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorMessage"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;Store Error: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556734"><span class="hs-identifier hs-var">msg</span></a></span><span>
+</span><a href="#local-6989586621679569531"><span class="hs-identifier hs-var">msg</span></a></span><span>
 </span><span id="line-155"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-156"></span><span>
-</span><span id="line-157"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#GrpcError"><span class="hs-identifier hs-type">GrpcError</span></a></span><span> </span><span id="local-6989586621679556733"><span class="annot"><span class="annottext">msg :: Text
-</span><a href="#local-6989586621679556733"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
+</span><span id="line-157"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#GrpcError"><span class="hs-identifier hs-type">GrpcError</span></a></span><span> </span><span id="local-6989586621679569530"><span class="annot"><span class="annottext">msg :: Text
+</span><a href="#local-6989586621679569530"><span class="hs-identifier hs-var">msg</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-158"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCode"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">9</span></span><span>
@@ -375,11 +375,11 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorMessage"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;Grpc error: \n&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679556733"><span class="hs-identifier hs-var">msg</span></a></span><span>
+</span><a href="#local-6989586621679569530"><span class="hs-identifier hs-var">msg</span></a></span><span>
 </span><span id="line-161"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-162"></span><span>
-</span><span id="line-163"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#UnknownAccountError"><span class="hs-identifier hs-type">UnknownAccountError</span></a></span><span> </span><span id="local-6989586621679556732"><span class="annot"><span class="annottext">addr :: Address
-</span><a href="#local-6989586621679556732"><span class="hs-identifier hs-var">addr</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
+</span><span id="line-163"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#UnknownAccountError"><span class="hs-identifier hs-type">UnknownAccountError</span></a></span><span> </span><span id="local-6989586621679569529"><span class="annot"><span class="annottext">addr :: Address
+</span><a href="#local-6989586621679569529"><span class="hs-identifier hs-var">addr</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-164"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#appErrorCode"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">10</span></span><span>
@@ -397,6 +397,6 @@ forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">(Address -&gt; Text) -&gt; Address -&gt; Text
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679556732"><span class="hs-identifier hs-var">addr</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679569529"><span class="hs-identifier hs-var">addr</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-167"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-168"></span></pre></body></html>

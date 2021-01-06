@@ -24,14 +24,14 @@
 </span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#keysToDelete"><span class="hs-identifier hs-var hs-var">keysToDelete</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Set</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreKey"><span class="hs-identifier hs-type">StoreKey</span></a></span><span>
 </span><span id="line-24"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="stateCache"><span class="annot"><span class="annottext">Cache -&gt; Map StoreKey ByteString
 </span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#stateCache"><span class="hs-identifier hs-var hs-var">stateCache</span></a></span></span><span>   </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreKey"><span class="hs-identifier hs-type">StoreKey</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span>
-</span><span id="line-25"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679557333"><span id="local-6989586621679557335"><span class="annot"><span class="annottext">Cache -&gt; Cache -&gt; Bool
+</span><span id="line-25"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679570130"><span id="local-6989586621679570132"><span class="annot"><span class="annottext">Cache -&gt; Cache -&gt; Bool
 (Cache -&gt; Cache -&gt; Bool) -&gt; (Cache -&gt; Cache -&gt; Bool) -&gt; Eq Cache
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 /= :: Cache -&gt; Cache -&gt; Bool
 $c/= :: Cache -&gt; Cache -&gt; Bool
 == :: Cache -&gt; Cache -&gt; Bool
 $c== :: Cache -&gt; Cache -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679557326"><span id="local-6989586621679557328"><span id="local-6989586621679557330"><span class="annot"><span class="annottext">Int -&gt; Cache -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679570123"><span id="local-6989586621679570125"><span id="local-6989586621679570127"><span class="annot"><span class="annottext">Int -&gt; Cache -&gt; ShowS
 [Cache] -&gt; ShowS
 Cache -&gt; String
 (Int -&gt; Cache -&gt; ShowS)
@@ -61,27 +61,27 @@ forall k a. Map k a
 </span><span id="line-33"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span>
 </span><span id="line-34"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span>
 </span><span id="line-35"></span><span id="put"><span class="annot"><span class="annottext">put :: StoreKey -&gt; ByteString -&gt; Cache -&gt; Cache
-</span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#put"><span class="hs-identifier hs-var hs-var">put</span></a></span></span><span> </span><span id="local-6989586621679557322"><span class="annot"><span class="annottext">k :: StoreKey
-</span><a href="#local-6989586621679557322"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679557321"><span class="annot"><span class="annottext">v :: ByteString
-</span><a href="#local-6989586621679557321"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span id="local-6989586621679557319"><span id="local-6989586621679557320"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-36"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679557318"><span class="annot"><span class="annottext">keysToDelete' :: Set StoreKey
-</span><a href="#local-6989586621679557318"><span class="hs-identifier hs-var hs-var">keysToDelete'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; Set StoreKey -&gt; Set StoreKey
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#put"><span class="hs-identifier hs-var hs-var">put</span></a></span></span><span> </span><span id="local-6989586621679570119"><span class="annot"><span class="annottext">k :: StoreKey
+</span><a href="#local-6989586621679570119"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679570118"><span class="annot"><span class="annottext">v :: ByteString
+</span><a href="#local-6989586621679570118"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span id="local-6989586621679570116"><span id="local-6989586621679570117"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679570115"><span class="annot"><span class="annottext">keysToDelete' :: Set StoreKey
+</span><a href="#local-6989586621679570115"><span class="hs-identifier hs-var hs-var">keysToDelete'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; Set StoreKey -&gt; Set StoreKey
 forall a. Ord a =&gt; a -&gt; Set a -&gt; Set a
 </span><span class="hs-identifier hs-var">Set.delete</span></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679557322"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Set StoreKey
-</span><a href="#local-6989586621679557320"><span class="hs-identifier hs-var">keysToDelete</span></a></span><span>
-</span><span id="line-37"></span><span>      </span><span id="local-6989586621679557316"><span class="annot"><span class="annottext">stateCache' :: Map StoreKey ByteString
-</span><a href="#local-6989586621679557316"><span class="hs-identifier hs-var hs-var">stateCache'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StoreKey
+</span><a href="#local-6989586621679570119"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Set StoreKey
+</span><a href="#local-6989586621679570117"><span class="hs-identifier hs-var">keysToDelete</span></a></span><span>
+</span><span id="line-37"></span><span>      </span><span id="local-6989586621679570113"><span class="annot"><span class="annottext">stateCache' :: Map StoreKey ByteString
+</span><a href="#local-6989586621679570113"><span class="hs-identifier hs-var hs-var">stateCache'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StoreKey
 -&gt; ByteString -&gt; Map StoreKey ByteString -&gt; Map StoreKey ByteString
 forall k a. Ord k =&gt; k -&gt; a -&gt; Map k a -&gt; Map k a
 </span><span class="hs-identifier hs-var">Map.insert</span></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679557322"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679557321"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Map StoreKey ByteString
-</span><a href="#local-6989586621679557319"><span class="hs-identifier hs-var">stateCache</span></a></span><span>
+</span><a href="#local-6989586621679570119"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679570118"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Map StoreKey ByteString
+</span><a href="#local-6989586621679570116"><span class="hs-identifier hs-var">stateCache</span></a></span><span>
 </span><span id="line-38"></span><span>  </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Set StoreKey -&gt; Map StoreKey ByteString -&gt; Cache
 </span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-var">Cache</span></a></span><span> </span><span class="annot"><span class="annottext">Set StoreKey
-</span><a href="#local-6989586621679557318"><span class="hs-identifier hs-var">keysToDelete'</span></a></span><span> </span><span class="annot"><span class="annottext">Map StoreKey ByteString
-</span><a href="#local-6989586621679557316"><span class="hs-identifier hs-var">stateCache'</span></a></span><span>
+</span><a href="#local-6989586621679570115"><span class="hs-identifier hs-var">keysToDelete'</span></a></span><span> </span><span class="annot"><span class="annottext">Map StoreKey ByteString
+</span><a href="#local-6989586621679570113"><span class="hs-identifier hs-var">stateCache'</span></a></span><span>
 </span><span id="line-39"></span><span>
 </span><span id="line-40"></span><span class="hs-keyword">data</span><span> </span><span id="Deleted"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Deleted"><span class="hs-identifier hs-var">Deleted</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Deleted"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Deleted"><span class="hs-identifier hs-var">Deleted</span></a></span></span><span>
 </span><span id="line-41"></span><span>
@@ -90,13 +90,13 @@ forall k a. Ord k =&gt; k -&gt; a -&gt; Map k a -&gt; Map k a
 </span><span id="line-44"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span>
 </span><span id="line-45"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Deleted"><span class="hs-identifier hs-type">Deleted</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span class="hs-special">)</span><span>
 </span><span id="line-46"></span><span id="get"><span class="annot"><span class="annottext">get :: StoreKey -&gt; Cache -&gt; Either Deleted (Maybe ByteString)
-</span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#get"><span class="hs-identifier hs-var hs-var">get</span></a></span></span><span> </span><span id="local-6989586621679557313"><span class="annot"><span class="annottext">k :: StoreKey
-</span><a href="#local-6989586621679557313"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679557311"><span id="local-6989586621679557312"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#get"><span class="hs-identifier hs-var hs-var">get</span></a></span></span><span> </span><span id="local-6989586621679570110"><span class="annot"><span class="annottext">k :: StoreKey
+</span><a href="#local-6989586621679570110"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679570108"><span id="local-6989586621679570109"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-47"></span><span>  </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679557313"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; Set StoreKey -&gt; Bool
+</span><a href="#local-6989586621679570110"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; Set StoreKey -&gt; Bool
 forall a. Ord a =&gt; a -&gt; Set a -&gt; Bool
 </span><span class="hs-operator hs-var">`Set.member`</span></span><span> </span><span class="annot"><span class="annottext">Set StoreKey
-</span><a href="#local-6989586621679557312"><span class="hs-identifier hs-var">keysToDelete</span></a></span><span>
+</span><a href="#local-6989586621679570109"><span class="hs-identifier hs-var">keysToDelete</span></a></span><span>
 </span><span id="line-48"></span><span>    </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Deleted -&gt; Either Deleted (Maybe ByteString)
 forall a b. a -&gt; Either a b
 </span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">Deleted
@@ -109,39 +109,39 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; Map StoreKey ByteString -&gt; Maybe ByteString
 forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Map.lookup</span></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679557313"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Map StoreKey ByteString
-</span><a href="#local-6989586621679557311"><span class="hs-identifier hs-var">stateCache</span></a></span><span>
+</span><a href="#local-6989586621679570110"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Map StoreKey ByteString
+</span><a href="#local-6989586621679570108"><span class="hs-identifier hs-var">stateCache</span></a></span><span>
 </span><span id="line-50"></span><span>
 </span><span id="line-51"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#delete"><span class="hs-identifier hs-type">delete</span></a></span><span>
 </span><span id="line-52"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#StoreKey"><span class="hs-identifier hs-type">StoreKey</span></a></span><span>
 </span><span id="line-53"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span>
 </span><span id="line-54"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span>
 </span><span id="line-55"></span><span id="delete"><span class="annot"><span class="annottext">delete :: StoreKey -&gt; Cache -&gt; Cache
-</span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#delete"><span class="hs-identifier hs-var hs-var">delete</span></a></span></span><span> </span><span id="local-6989586621679557308"><span class="annot"><span class="annottext">k :: StoreKey
-</span><a href="#local-6989586621679557308"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679557306"><span id="local-6989586621679557307"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-56"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679557305"><span class="annot"><span class="annottext">keysToDelete' :: Set StoreKey
-</span><a href="#local-6989586621679557305"><span class="hs-identifier hs-var hs-var">keysToDelete'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; Set StoreKey -&gt; Set StoreKey
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#delete"><span class="hs-identifier hs-var hs-var">delete</span></a></span></span><span> </span><span id="local-6989586621679570105"><span class="annot"><span class="annottext">k :: StoreKey
+</span><a href="#local-6989586621679570105"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span id="local-6989586621679570103"><span id="local-6989586621679570104"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-56"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679570102"><span class="annot"><span class="annottext">keysToDelete' :: Set StoreKey
+</span><a href="#local-6989586621679570102"><span class="hs-identifier hs-var hs-var">keysToDelete'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; Set StoreKey -&gt; Set StoreKey
 forall a. Ord a =&gt; a -&gt; Set a -&gt; Set a
 </span><span class="hs-identifier hs-var">Set.insert</span></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679557308"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Set StoreKey
-</span><a href="#local-6989586621679557307"><span class="hs-identifier hs-var">keysToDelete</span></a></span><span>
-</span><span id="line-57"></span><span>      </span><span id="local-6989586621679557303"><span class="annot"><span class="annottext">stateCache' :: Map StoreKey ByteString
-</span><a href="#local-6989586621679557303"><span class="hs-identifier hs-var hs-var">stateCache'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; Map StoreKey ByteString -&gt; Map StoreKey ByteString
+</span><a href="#local-6989586621679570105"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Set StoreKey
+</span><a href="#local-6989586621679570104"><span class="hs-identifier hs-var">keysToDelete</span></a></span><span>
+</span><span id="line-57"></span><span>      </span><span id="local-6989586621679570100"><span class="annot"><span class="annottext">stateCache' :: Map StoreKey ByteString
+</span><a href="#local-6989586621679570100"><span class="hs-identifier hs-var hs-var">stateCache'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StoreKey -&gt; Map StoreKey ByteString -&gt; Map StoreKey ByteString
 forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Map k a
 </span><span class="hs-identifier hs-var">Map.delete</span></span><span> </span><span class="annot"><span class="annottext">StoreKey
-</span><a href="#local-6989586621679557308"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Map StoreKey ByteString
-</span><a href="#local-6989586621679557306"><span class="hs-identifier hs-var">stateCache</span></a></span><span>
+</span><a href="#local-6989586621679570105"><span class="hs-identifier hs-var">k</span></a></span><span> </span><span class="annot"><span class="annottext">Map StoreKey ByteString
+</span><a href="#local-6989586621679570103"><span class="hs-identifier hs-var">stateCache</span></a></span><span>
 </span><span id="line-58"></span><span>  </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Set StoreKey -&gt; Map StoreKey ByteString -&gt; Cache
 </span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-var">Cache</span></a></span><span> </span><span class="annot"><span class="annottext">Set StoreKey
-</span><a href="#local-6989586621679557305"><span class="hs-identifier hs-var">keysToDelete'</span></a></span><span> </span><span class="annot"><span class="annottext">Map StoreKey ByteString
-</span><a href="#local-6989586621679557303"><span class="hs-identifier hs-var">stateCache'</span></a></span><span>
+</span><a href="#local-6989586621679570102"><span class="hs-identifier hs-var">keysToDelete'</span></a></span><span> </span><span class="annot"><span class="annottext">Map StoreKey ByteString
+</span><a href="#local-6989586621679570100"><span class="hs-identifier hs-var">stateCache'</span></a></span><span>
 </span><span id="line-59"></span><span>
-</span><span id="line-60"></span><span id="local-6989586621679557301"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#writeCache"><span class="hs-identifier hs-type">writeCache</span></a></span><span>
-</span><span id="line-61"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Consensus"><span class="hs-identifier hs-type">Consensus</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#WriteStore"><span class="hs-identifier hs-type">WriteStore</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679557301"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-60"></span><span id="local-6989586621679570098"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#writeCache"><span class="hs-identifier hs-type">writeCache</span></a></span><span>
+</span><span id="line-61"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Tagged</span></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#Consensus"><span class="hs-identifier hs-type">Consensus</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#WriteStore"><span class="hs-identifier hs-type">WriteStore</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679570098"><span class="hs-identifier hs-type">r</span></a></span><span>
 </span><span id="line-62"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span>
-</span><span id="line-63"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679557301"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679570098"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
 </span><span id="line-64"></span><span id="writeCache"><span class="annot"><span class="annottext">writeCache :: Cache -&gt; Sem r ()
-</span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#writeCache"><span class="hs-identifier hs-var hs-var">writeCache</span></a></span></span><span> </span><span id="local-6989586621679557299"><span id="local-6989586621679557300"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#writeCache"><span class="hs-identifier hs-var hs-var">writeCache</span></a></span></span><span> </span><span id="local-6989586621679570096"><span id="local-6989586621679570097"><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Cache.html#Cache"><span class="hs-identifier hs-type">Cache</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-65"></span><span>  </span><span class="annot"><span class="annottext">((StoreKey, ByteString) -&gt; Sem r ())
 -&gt; [(StoreKey, ByteString)] -&gt; Sem r ()
 forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
@@ -169,7 +169,7 @@ StoreKey -&gt; ByteString -&gt; Sem r ()
 </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#storePut"><span class="hs-identifier hs-var">storePut</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map StoreKey ByteString -&gt; [(StoreKey, ByteString)]
 forall k a. Map k a -&gt; [(k, a)]
 </span><span class="hs-identifier hs-var">Map.toList</span></span><span> </span><span class="annot"><span class="annottext">Map StoreKey ByteString
-</span><a href="#local-6989586621679557299"><span class="hs-identifier hs-var">stateCache</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679570096"><span class="hs-identifier hs-var">stateCache</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-66"></span><span>  </span><span class="annot"><span class="annottext">(StoreKey -&gt; Sem r ()) -&gt; [StoreKey] -&gt; Sem r ()
 forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
 (Foldable t, Monad m) =&gt;
@@ -191,5 +191,5 @@ StoreKey -&gt; Sem r ()
 </span><a href="Tendermint.SDK.BaseApp.Store.RawStore.html#storeDelete"><span class="hs-identifier hs-var">storeDelete</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Set StoreKey -&gt; [StoreKey]
 forall a. Set a -&gt; [a]
 </span><span class="hs-identifier hs-var">Set.toList</span></span><span> </span><span class="annot"><span class="annottext">Set StoreKey
-</span><a href="#local-6989586621679557300"><span class="hs-identifier hs-var">keysToDelete</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679570097"><span class="hs-identifier hs-var">keysToDelete</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-67"></span></pre></body></html>

@@ -33,43 +33,43 @@
 </span><span id="line-25"></span><span>
 </span><span id="line-26"></span><span class="annot"><a href="Network.ABCI.Server.App.DecodeError.html#print"><span class="hs-identifier hs-type">print</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Network.ABCI.Server.App.DecodeError.html#DecodeError"><span class="hs-identifier hs-type">DecodeError</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
 </span><span id="line-27"></span><span id="print"><span class="annot"><span class="annottext">print :: DecodeError -&gt; String
-</span><a href="Network.ABCI.Server.App.DecodeError.html#print"><span class="hs-identifier hs-var hs-var">print</span></a></span></span><span> </span><span id="local-6989586621679202742"><span class="annot"><span class="annottext">e :: DecodeError
-</span><a href="#local-6989586621679202742"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Network.ABCI.Server.App.DecodeError.html#print"><span class="hs-identifier hs-var hs-var">print</span></a></span></span><span> </span><span id="local-6989586621679202763"><span class="annot"><span class="annottext">e :: DecodeError
+</span><a href="#local-6989586621679202763"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-28"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">DecodeError
-</span><a href="#local-6989586621679202742"><span class="hs-identifier hs-var">e</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-29"></span><span>    </span><span class="annot"><a href="Network.ABCI.Server.App.DecodeError.html#CanNotDecodeRequest"><span class="hs-identifier hs-type">CanNotDecodeRequest</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679202741"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679202763"><span class="hs-identifier hs-var">e</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><a href="Network.ABCI.Server.App.DecodeError.html#CanNotDecodeRequest"><span class="hs-identifier hs-type">CanNotDecodeRequest</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679202762"><span class="annot"><span class="annottext">ByteString
 canNotDecodeRequestRequest :: ByteString
 canNotDecodeRequestRequest :: DecodeError -&gt; ByteString
-</span><a href="#local-6989586621679202741"><span class="hs-identifier hs-var hs-var">canNotDecodeRequestRequest</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679202740"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679202762"><span class="hs-identifier hs-var hs-var">canNotDecodeRequestRequest</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679202761"><span class="annot"><span class="annottext">String
 canNotDecodeRequestError :: String
 canNotDecodeRequestError :: DecodeError -&gt; String
-</span><a href="#local-6989586621679202740"><span class="hs-identifier hs-var hs-var">canNotDecodeRequestError</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><a href="#local-6989586621679202761"><span class="hs-identifier hs-var hs-var">canNotDecodeRequestError</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-30"></span><span>      </span><span class="annot"><span class="hs-string">&quot;Got decoding error: &quot;</span></span><span>
 </span><span id="line-31"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679202740"><span class="hs-identifier hs-var">canNotDecodeRequestError</span></a></span><span>
+</span><a href="#local-6989586621679202761"><span class="hs-identifier hs-var">canNotDecodeRequestError</span></a></span><span>
 </span><span id="line-32"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot; for request: &quot;</span></span><span>
 </span><span id="line-33"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; String
-</span><a href="#local-6989586621679202739"><span class="hs-identifier hs-var">showBS</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679202741"><span class="hs-identifier hs-var">canNotDecodeRequestRequest</span></a></span><span>
-</span><span id="line-34"></span><span>    </span><span class="annot"><a href="Network.ABCI.Server.App.DecodeError.html#NoValueInRequest"><span class="hs-identifier hs-type">NoValueInRequest</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679202738"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679202760"><span class="hs-identifier hs-var">showBS</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679202762"><span class="hs-identifier hs-var">canNotDecodeRequestRequest</span></a></span><span>
+</span><span id="line-34"></span><span>    </span><span class="annot"><a href="Network.ABCI.Server.App.DecodeError.html#NoValueInRequest"><span class="hs-identifier hs-type">NoValueInRequest</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679202759"><span class="annot"><span class="annottext">ByteString
 noValueInRequestRequest :: ByteString
 noValueInRequestRequest :: DecodeError -&gt; ByteString
-</span><a href="#local-6989586621679202738"><span class="hs-identifier hs-var hs-var">noValueInRequestRequest</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679202737"><span class="annot"><span class="annottext">FieldSet
+</span><a href="#local-6989586621679202759"><span class="hs-identifier hs-var hs-var">noValueInRequestRequest</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679202758"><span class="annot"><span class="annottext">FieldSet
 noValueInRequestUnknownFields :: FieldSet
 noValueInRequestUnknownFields :: DecodeError -&gt; FieldSet
-</span><a href="#local-6989586621679202737"><span class="hs-identifier hs-var hs-var">noValueInRequestUnknownFields</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><a href="#local-6989586621679202758"><span class="hs-identifier hs-var hs-var">noValueInRequestUnknownFields</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-35"></span><span>      </span><span class="annot"><span class="hs-string">&quot;Got empty request: &quot;</span></span><span>
 </span><span id="line-36"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; String
-</span><a href="#local-6989586621679202739"><span class="hs-identifier hs-var">showBS</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679202738"><span class="hs-identifier hs-var">noValueInRequestRequest</span></a></span><span>
+</span><a href="#local-6989586621679202760"><span class="hs-identifier hs-var">showBS</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679202759"><span class="hs-identifier hs-var">noValueInRequestRequest</span></a></span><span>
 </span><span id="line-37"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot; with unknown fields: &quot;</span></span><span>
@@ -80,55 +80,55 @@ forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(TaggedValue -&gt; String) -&gt; FieldSet -&gt; [String]
 forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
 </span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">TaggedValue -&gt; String
-</span><a href="#local-6989586621679202735"><span class="hs-identifier hs-var">showFields</span></a></span><span> </span><span class="annot"><span class="annottext">FieldSet
-</span><a href="#local-6989586621679202737"><span class="hs-identifier hs-var">noValueInRequestUnknownFields</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-39"></span><span>    </span><span class="annot"><a href="Network.ABCI.Server.App.DecodeError.html#ProtoLensParseError"><span class="hs-identifier hs-type">ProtoLensParseError</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679202734"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679202756"><span class="hs-identifier hs-var">showFields</span></a></span><span> </span><span class="annot"><span class="annottext">FieldSet
+</span><a href="#local-6989586621679202758"><span class="hs-identifier hs-var">noValueInRequestUnknownFields</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><a href="Network.ABCI.Server.App.DecodeError.html#ProtoLensParseError"><span class="hs-identifier hs-type">ProtoLensParseError</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679202755"><span class="annot"><span class="annottext">ByteString
 protoLensParseErrorRequest :: ByteString
 protoLensParseErrorRequest :: DecodeError -&gt; ByteString
-</span><a href="#local-6989586621679202734"><span class="hs-identifier hs-var hs-var">protoLensParseErrorRequest</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679202733"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679202755"><span class="hs-identifier hs-var hs-var">protoLensParseErrorRequest</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679202754"><span class="annot"><span class="annottext">String
 protoLensParseErrorError :: String
 protoLensParseErrorError :: DecodeError -&gt; String
-</span><a href="#local-6989586621679202733"><span class="hs-identifier hs-var hs-var">protoLensParseErrorError</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><a href="#local-6989586621679202754"><span class="hs-identifier hs-var hs-var">protoLensParseErrorError</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-40"></span><span>      </span><span class="annot"><span class="hs-string">&quot;Got parse error while parsing length prefix: &quot;</span></span><span>
 </span><span id="line-41"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String
 forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679202733"><span class="hs-identifier hs-var">protoLensParseErrorError</span></a></span><span>
+</span><a href="#local-6989586621679202754"><span class="hs-identifier hs-var">protoLensParseErrorError</span></a></span><span>
 </span><span id="line-42"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot; for request: &quot;</span></span><span>
 </span><span id="line-43"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; String
-</span><a href="#local-6989586621679202739"><span class="hs-identifier hs-var">showBS</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679202734"><span class="hs-identifier hs-var">protoLensParseErrorRequest</span></a></span><span>
-</span><span id="line-44"></span><span>    </span><span class="annot"><a href="Network.ABCI.Server.App.DecodeError.html#InvalidPrefix"><span class="hs-identifier hs-type">InvalidPrefix</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679202732"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679202760"><span class="hs-identifier hs-var">showBS</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679202755"><span class="hs-identifier hs-var">protoLensParseErrorRequest</span></a></span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><a href="Network.ABCI.Server.App.DecodeError.html#InvalidPrefix"><span class="hs-identifier hs-type">InvalidPrefix</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621679202753"><span class="annot"><span class="annottext">ByteString
 invalidPrefixMsg :: ByteString
 invalidPrefixMsg :: DecodeError -&gt; ByteString
-</span><a href="#local-6989586621679202732"><span class="hs-identifier hs-var hs-var">invalidPrefixMsg</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679202731"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679202753"><span class="hs-identifier hs-var hs-var">invalidPrefixMsg</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679202752"><span class="annot"><span class="annottext">ByteString
 invalidPrefixPrefix :: ByteString
 invalidPrefixPrefix :: DecodeError -&gt; ByteString
-</span><a href="#local-6989586621679202731"><span class="hs-identifier hs-var hs-var">invalidPrefixPrefix</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><a href="#local-6989586621679202752"><span class="hs-identifier hs-var hs-var">invalidPrefixPrefix</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-45"></span><span>      </span><span class="annot"><span class="hs-string">&quot;Got Invalid length prefix: &quot;</span></span><span>
 </span><span id="line-46"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; String
-</span><a href="#local-6989586621679202739"><span class="hs-identifier hs-var">showBS</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679202731"><span class="hs-identifier hs-var">invalidPrefixPrefix</span></a></span><span>
+</span><a href="#local-6989586621679202760"><span class="hs-identifier hs-var">showBS</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679202752"><span class="hs-identifier hs-var">invalidPrefixPrefix</span></a></span><span>
 </span><span id="line-47"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot; for request: &quot;</span></span><span>
 </span><span id="line-48"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; String
-</span><a href="#local-6989586621679202739"><span class="hs-identifier hs-var">showBS</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679202732"><span class="hs-identifier hs-var">invalidPrefixMsg</span></a></span><span>
+</span><a href="#local-6989586621679202760"><span class="hs-identifier hs-var">showBS</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679202753"><span class="hs-identifier hs-var">invalidPrefixMsg</span></a></span><span>
 </span><span id="line-49"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-50"></span><span>    </span><span id="local-6989586621679202739"><span class="annot"><span class="annottext">showBS :: ByteString -&gt; String
-</span><a href="#local-6989586621679202739"><span class="hs-identifier hs-var hs-var">showBS</span></a></span></span><span> </span><span id="local-6989586621679202730"><span class="annot"><span class="annottext">v :: ByteString
-</span><a href="#local-6989586621679202730"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; String
+</span><span id="line-50"></span><span>    </span><span id="local-6989586621679202760"><span class="annot"><span class="annottext">showBS :: ByteString -&gt; String
+</span><a href="#local-6989586621679202760"><span class="hs-identifier hs-var hs-var">showBS</span></a></span></span><span> </span><span id="local-6989586621679202751"><span class="annot"><span class="annottext">v :: ByteString
+</span><a href="#local-6989586621679202751"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; String
 forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; String) -&gt; String -&gt; String
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -141,11 +141,11 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-identifier hs-var">BS16.encode</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; String) -&gt; ByteString -&gt; String
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679202730"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">)</span><span>
-</span><span id="line-51"></span><span>    </span><span id="local-6989586621679202735"><span class="annot"><span class="annottext">showFields :: TaggedValue -&gt; String
-</span><a href="#local-6989586621679202735"><span class="hs-identifier hs-var hs-var">showFields</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">PL.TaggedValue</span></span><span> </span><span id="local-6989586621679202726"><span class="annot"><span class="annottext">tag :: Tag
-</span><a href="#local-6989586621679202726"><span class="hs-identifier hs-var">tag</span></a></span></span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tag -&gt; String
+</span><a href="#local-6989586621679202751"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">)</span><span>
+</span><span id="line-51"></span><span>    </span><span id="local-6989586621679202756"><span class="annot"><span class="annottext">showFields :: TaggedValue -&gt; String
+</span><a href="#local-6989586621679202756"><span class="hs-identifier hs-var hs-var">showFields</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">PL.TaggedValue</span></span><span> </span><span id="local-6989586621679202747"><span class="annot"><span class="annottext">tag :: Tag
+</span><a href="#local-6989586621679202747"><span class="hs-identifier hs-var">tag</span></a></span></span><span> </span><span class="hs-identifier">_</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tag -&gt; String
 forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Tag
-</span><a href="#local-6989586621679202726"><span class="hs-identifier hs-var">tag</span></a></span><span>
+</span><a href="#local-6989586621679202747"><span class="hs-identifier hs-var">tag</span></a></span><span>
 </span><span id="line-52"></span></pre></body></html>

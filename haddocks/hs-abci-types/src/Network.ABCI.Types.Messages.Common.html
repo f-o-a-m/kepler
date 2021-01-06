@@ -14,12 +14,12 @@
 </span><span id="line-14"></span><span>
 </span><span id="line-15"></span><span class="annot"><a href="Network.ABCI.Types.Messages.Common.html#defaultABCIOptions"><span class="hs-identifier hs-type">defaultABCIOptions</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Options</span></span><span>
 </span><span id="line-16"></span><span id="defaultABCIOptions"><span class="annot"><span class="annottext">defaultABCIOptions :: String -&gt; Options
-</span><a href="Network.ABCI.Types.Messages.Common.html#defaultABCIOptions"><span class="hs-identifier hs-var hs-var">defaultABCIOptions</span></a></span></span><span> </span><span id="local-6989586621680207711"><span class="annot"><span class="annottext">prefix :: String
-</span><a href="#local-6989586621680207711"><span class="hs-identifier hs-var">prefix</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; (String -&gt; String) -&gt; Options
+</span><a href="Network.ABCI.Types.Messages.Common.html#defaultABCIOptions"><span class="hs-identifier hs-var hs-var">defaultABCIOptions</span></a></span></span><span> </span><span id="local-6989586621680208250"><span class="annot"><span class="annottext">prefix :: String
+</span><a href="#local-6989586621680208250"><span class="hs-identifier hs-var">prefix</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; (String -&gt; String) -&gt; Options
 </span><span class="hs-identifier hs-var">aesonDrop</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Int
 forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
 </span><span class="hs-identifier hs-var">length</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621680207711"><span class="hs-identifier hs-var">prefix</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String -&gt; String
+</span><a href="#local-6989586621680208250"><span class="hs-identifier hs-var">prefix</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String -&gt; String
 </span><span class="hs-identifier hs-var">snakeCase</span></span><span>
 </span><span id="line-17"></span><span>
 </span><span id="line-18"></span><span class="annot"><a href="Network.ABCI.Types.Messages.Common.html#makeABCILenses"><span class="hs-identifier hs-type">makeABCILenses</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Name</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">DecsQ</span></span><span>
@@ -38,8 +38,8 @@ Lens' LensRules FieldNamer
  -&gt; LensRules -&gt; Identity LensRules)
 -&gt; FieldNamer -&gt; LensRules -&gt; LensRules
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
-</span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621680207709"><span class="annot"><span class="annottext">name :: Name
-</span><a href="#local-6989586621680207709"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Name -&gt; DefName
+</span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621680208248"><span class="annot"><span class="annottext">name :: Name
+</span><a href="#local-6989586621680208248"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Name -&gt; DefName
 </span><span class="hs-identifier hs-var">TopName</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Name
 </span><span class="hs-identifier hs-var">mkName</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Name) -&gt; String -&gt; Name
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -47,5 +47,5 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a. a -&gt; [a] -&gt; [a]
 </span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
 </span><span class="hs-identifier hs-var">nameBase</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621680207709"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621680208248"><span class="hs-identifier hs-var">name</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
 </span><span id="line-21"></span></pre></body></html>

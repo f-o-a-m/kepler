@@ -17,9 +17,9 @@
 </span><span id="line-17"></span><span>
 </span><span id="line-18"></span><span class="hs-comment">-- | Represents a Hex string. Guarantees that all characters it contains</span><span>
 </span><span id="line-19"></span><span class="hs-comment">--   are valid hex characters.</span><span>
-</span><span id="line-20"></span><span id="local-6989586621680207625"><span id="local-6989586621680207626"></span></span><span class="hs-keyword">newtype</span><span> </span><span id="HexString"><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-var">HexString</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="HexString"><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-var">HexString</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="unHexString"><span class="annot"><span class="annottext">HexString -&gt; ByteString
+</span><span id="line-20"></span><span id="local-6989586621680208164"><span id="local-6989586621680208165"></span></span><span class="hs-keyword">newtype</span><span> </span><span id="HexString"><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-var">HexString</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="HexString"><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-var">HexString</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="unHexString"><span class="annot"><span class="annottext">HexString -&gt; ByteString
 </span><a href="Data.ByteArray.HexString.html#unHexString"><span class="hs-identifier hs-var hs-var">unHexString</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="hs-special">}</span><span>
-</span><span id="line-21"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621680207619"><span id="local-6989586621680207621"><span class="annot"><span class="annottext">HexString -&gt; HexString -&gt; Bool
+</span><span id="line-21"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621680208158"><span id="local-6989586621680208160"><span class="annot"><span class="annottext">HexString -&gt; HexString -&gt; Bool
 (HexString -&gt; HexString -&gt; Bool)
 -&gt; (HexString -&gt; HexString -&gt; Bool) -&gt; Eq HexString
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -27,7 +27,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: HexString -&gt; HexString -&gt; Bool
 == :: HexString -&gt; HexString -&gt; Bool
 $c== :: HexString -&gt; HexString -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207603"><span id="local-6989586621680207605"><span id="local-6989586621680207607"><span id="local-6989586621680207609"><span id="local-6989586621680207611"><span id="local-6989586621680207613"><span id="local-6989586621680207615"><span class="annot"><span class="annottext">Eq HexString
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680208142"><span id="local-6989586621680208144"><span id="local-6989586621680208146"><span id="local-6989586621680208148"><span id="local-6989586621680208150"><span id="local-6989586621680208152"><span id="local-6989586621680208154"><span class="annot"><span class="annottext">Eq HexString
 Eq HexString =&gt;
 (HexString -&gt; HexString -&gt; Ordering)
 -&gt; (HexString -&gt; HexString -&gt; Bool)
@@ -73,7 +73,7 @@ forall a.
 (forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
 $cto :: forall x. Rep HexString x -&gt; HexString
 $cfrom :: forall x. HexString -&gt; Rep HexString x
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207593"><span id="local-6989586621680207595"><span id="local-6989586621680207597"><span class="annot"><span class="annottext">b -&gt; HexString -&gt; HexString
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680208132"><span id="local-6989586621680208134"><span id="local-6989586621680208136"><span class="annot"><span class="annottext">b -&gt; HexString -&gt; HexString
 NonEmpty HexString -&gt; HexString
 HexString -&gt; HexString -&gt; HexString
 (HexString -&gt; HexString -&gt; HexString)
@@ -92,7 +92,7 @@ sconcat :: NonEmpty HexString -&gt; HexString
 $csconcat :: NonEmpty HexString -&gt; HexString
 &lt;&gt; :: HexString -&gt; HexString -&gt; HexString
 $c&lt;&gt; :: HexString -&gt; HexString -&gt; HexString
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Semigroup</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207585"><span id="local-6989586621680207587"><span id="local-6989586621680207589"><span class="annot"><span class="annottext">Semigroup HexString
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Semigroup</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680208124"><span id="local-6989586621680208126"><span id="local-6989586621680208128"><span class="annot"><span class="annottext">Semigroup HexString
 HexString
 Semigroup HexString =&gt;
 HexString
@@ -111,7 +111,7 @@ $cmappend :: HexString -&gt; HexString -&gt; HexString
 mempty :: HexString
 $cmempty :: HexString
 $cp1Monoid :: Semigroup HexString
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Monoid</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207578"><span id="local-6989586621680207580"><span id="local-6989586621680207582"><span class="annot"><span class="annottext">HexString -&gt; Int
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Monoid</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680208117"><span id="local-6989586621680208119"><span id="local-6989586621680208121"><span class="annot"><span class="annottext">HexString -&gt; Int
 HexString -&gt; Ptr p -&gt; IO ()
 HexString -&gt; (Ptr p -&gt; IO a) -&gt; IO a
 (HexString -&gt; Int)
@@ -131,7 +131,7 @@ withByteArray :: HexString -&gt; (Ptr p -&gt; IO a) -&gt; IO a
 $cwithByteArray :: forall p a. HexString -&gt; (Ptr p -&gt; IO a) -&gt; IO a
 length :: HexString -&gt; Int
 $clength :: HexString -&gt; Int
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">ByteArrayAccess</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207571"><span class="annot"><span class="annottext">Eq HexString
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">ByteArrayAccess</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680208110"><span class="annot"><span class="annottext">Eq HexString
 Ord HexString
 Monoid HexString
 ByteArrayAccess HexString
@@ -152,8 +152,8 @@ $cp2ByteArray :: Ord HexString
 $cp1ByteArray :: Eq HexString
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">ByteArray</span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-22"></span><span>
-</span><span id="line-23"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680207565"><span id="local-6989586621680207568"><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-24"></span><span>    </span><span id="local-6989586621680207563"><span class="annot"><span class="annottext">show :: HexString -&gt; String
+</span><span id="line-23"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680208104"><span id="local-6989586621680208107"><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-24"></span><span>    </span><span id="local-6989586621680208102"><span class="annot"><span class="annottext">show :: HexString -&gt; String
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">show</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;HexString &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ShowS -&gt; (HexString -&gt; String) -&gt; HexString -&gt; String
@@ -166,18 +166,18 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><a href="Data.ByteArray.HexString.html#format"><span class="hs-identifier hs-var">format</span></a></span><span>
 </span><span id="line-25"></span><span>
 </span><span id="line-26"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IsString</span></span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-27"></span><span>    </span><span id="local-6989586621680207557"><span class="annot"><span class="annottext">fromString :: String -&gt; HexString
+</span><span id="line-27"></span><span>    </span><span id="local-6989586621680208096"><span class="annot"><span class="annottext">fromString :: String -&gt; HexString
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromString</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; HexString
-</span><a href="#local-6989586621680207556"><span class="hs-identifier hs-var">hexString'</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; HexString)
+</span><a href="#local-6989586621680208095"><span class="hs-identifier hs-var">hexString'</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; HexString)
 -&gt; (String -&gt; ByteString) -&gt; String -&gt; HexString
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ByteString
 forall a. IsString a =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">fromString</span></span><span>
 </span><span id="line-28"></span><span>      </span><span class="hs-keyword">where</span><span>
-</span><span id="line-29"></span><span>        </span><span class="annot"><a href="#local-6989586621680207556"><span class="hs-identifier hs-type">hexString'</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span><span>
-</span><span id="line-30"></span><span>        </span><span id="local-6989586621680207556"><span class="annot"><span class="annottext">hexString' :: ByteString -&gt; HexString
-</span><a href="#local-6989586621680207556"><span class="hs-identifier hs-var hs-var">hexString'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; HexString)
+</span><span id="line-29"></span><span>        </span><span class="annot"><a href="#local-6989586621680208095"><span class="hs-identifier hs-type">hexString'</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span><span>
+</span><span id="line-30"></span><span>        </span><span id="local-6989586621680208095"><span class="annot"><span class="annottext">hexString' :: ByteString -&gt; HexString
+</span><a href="#local-6989586621680208095"><span class="hs-identifier hs-var hs-var">hexString'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; HexString)
 -&gt; (HexString -&gt; HexString) -&gt; Either String HexString -&gt; HexString
 forall a c b. (a -&gt; c) -&gt; (b -&gt; c) -&gt; Either a b -&gt; c
 </span><span class="hs-identifier hs-var">either</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; HexString
@@ -193,15 +193,15 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 forall ba. ByteArray ba =&gt; ba -&gt; Either String HexString
 </span><a href="Data.ByteArray.HexString.html#hexString"><span class="hs-identifier hs-var">hexString</span></a></span><span>
 </span><span id="line-31"></span><span>
-</span><span id="line-32"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680207549"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-33"></span><span>    </span><span id="local-6989586621680207547"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser HexString
+</span><span id="line-32"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680208088"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-33"></span><span>    </span><span id="local-6989586621680208086"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser HexString
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">parseJSON</span></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Null</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HexString -&gt; Parser HexString
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ByteString -&gt; HexString
 forall ba. ByteArrayAccess ba =&gt; ba -&gt; HexString
 </span><a href="Data.ByteArray.HexString.html#fromBytes"><span class="hs-identifier hs-var">fromBytes</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-34"></span><span>    </span><span class="annot"><span class="hs-identifier hs-var">parseJSON</span></span><span> </span><span id="local-6989586621680207543"><span class="annot"><span class="annottext">v :: Value
-</span><a href="#local-6989586621680207543"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; (Text -&gt; Parser HexString) -&gt; Value -&gt; Parser HexString
+</span><span id="line-34"></span><span>    </span><span class="annot"><span class="hs-identifier hs-var">parseJSON</span></span><span> </span><span id="local-6989586621680208082"><span class="annot"><span class="annottext">v :: Value
+</span><a href="#local-6989586621680208082"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; (Text -&gt; Parser HexString) -&gt; Value -&gt; Parser HexString
 forall a. String -&gt; (Text -&gt; Parser a) -&gt; Value -&gt; Parser a
 </span><span class="hs-identifier hs-var">withText</span></span><span> </span><span class="annot"><span class="hs-string">&quot;HexString&quot;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(String -&gt; Parser HexString)
 -&gt; (HexString -&gt; Parser HexString)
@@ -222,10 +222,10 @@ forall ba. ByteArray ba =&gt; ba -&gt; Either String HexString
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
 </span><span class="hs-identifier hs-var">encodeUtf8</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Value
-</span><a href="#local-6989586621680207543"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><a href="#local-6989586621680208082"><span class="hs-identifier hs-var">v</span></a></span><span>
 </span><span id="line-35"></span><span>
-</span><span id="line-36"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680207536"><span id="local-6989586621680207538"><span id="local-6989586621680207540"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-37"></span><span>    </span><span id="local-6989586621680207534"><span class="annot"><span class="annottext">toJSON :: HexString -&gt; Value
+</span><span id="line-36"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680208075"><span id="local-6989586621680208077"><span id="local-6989586621680208079"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-37"></span><span>    </span><span id="local-6989586621680208073"><span class="annot"><span class="annottext">toJSON :: HexString -&gt; Value
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Value
 </span><span class="hs-identifier hs-var">String</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Value) -&gt; (HexString -&gt; Text) -&gt; HexString -&gt; Value
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -235,10 +235,10 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span id="line-39"></span><span class="hs-comment">-- | Smart constructor which trims '0x' and validates length is even.</span><span>
 </span><span id="line-40"></span><span class="hs-comment">--   Works with any mixed casing of characters:</span><span>
 </span><span id="line-41"></span><span class="hs-comment">--   `hexString &quot;0xAA&quot; == hexString &quot;0xAa&quot; == hexString &quot;0xaA&quot; == hexString &quot;0xaa&quot;`</span><span>
-</span><span id="line-42"></span><span id="local-6989586621680207663"><span class="annot"><a href="Data.ByteArray.HexString.html#hexString"><span class="hs-identifier hs-type">hexString</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArray</span></span><span> </span><span class="annot"><a href="#local-6989586621680207663"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680207663"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span></span><span>
+</span><span id="line-42"></span><span id="local-6989586621680208202"><span class="annot"><a href="Data.ByteArray.HexString.html#hexString"><span class="hs-identifier hs-type">hexString</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArray</span></span><span> </span><span class="annot"><a href="#local-6989586621680208202"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680208202"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span></span><span>
 </span><span id="line-43"></span><span id="hexString"><span class="annot"><span class="annottext">hexString :: ba -&gt; Either String HexString
-</span><a href="Data.ByteArray.HexString.html#hexString"><span class="hs-identifier hs-var hs-var">hexString</span></a></span></span><span> </span><span id="local-6989586621680207530"><span class="annot"><span class="annottext">bs :: ba
-</span><a href="#local-6989586621680207530"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; HexString
+</span><a href="Data.ByteArray.HexString.html#hexString"><span class="hs-identifier hs-var hs-var">hexString</span></a></span></span><span> </span><span id="local-6989586621680208069"><span class="annot"><span class="annottext">bs :: ba
+</span><a href="#local-6989586621680208069"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; HexString
 </span><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-var">HexString</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; HexString)
 -&gt; Either String ByteString -&gt; Either String HexString
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
@@ -248,31 +248,31 @@ forall bin bout.
 Base -&gt; bin -&gt; Either String bout
 </span><span class="hs-identifier hs-var">convertFromBase</span></span><span> </span><span class="annot"><span class="annottext">Base
 </span><span class="hs-identifier hs-var">Base16</span></span><span> </span><span class="annot"><span class="annottext">ba
-</span><a href="#local-6989586621680207528"><span class="hs-identifier hs-var">bs'</span></a></span><span>
+</span><a href="#local-6989586621680208067"><span class="hs-identifier hs-var">bs'</span></a></span><span>
 </span><span id="line-44"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-45"></span><span>    </span><span id="local-6989586621680207527"><span class="annot"><span class="annottext">hexStart :: ba
-</span><a href="#local-6989586621680207527"><span class="hs-identifier hs-var hs-var">hexStart</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ba
+</span><span id="line-45"></span><span>    </span><span id="local-6989586621680208066"><span class="annot"><span class="annottext">hexStart :: ba
+</span><a href="#local-6989586621680208066"><span class="hs-identifier hs-var hs-var">hexStart</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ba
 forall bin bout.
 (ByteArrayAccess bin, ByteArray bout) =&gt;
 bin -&gt; bout
 </span><span class="hs-identifier hs-var">convert</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;0x&quot;</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span class="hs-special">)</span><span>
-</span><span id="line-46"></span><span>    </span><span id="local-6989586621680207528"><span class="annot"><span class="annottext">bs' :: ba
-</span><a href="#local-6989586621680207528"><span class="hs-identifier hs-var hs-var">bs'</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int -&gt; ba -&gt; ba
+</span><span id="line-46"></span><span>    </span><span id="local-6989586621680208067"><span class="annot"><span class="annottext">bs' :: ba
+</span><a href="#local-6989586621680208067"><span class="hs-identifier hs-var hs-var">bs'</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int -&gt; ba -&gt; ba
 forall bs. ByteArray bs =&gt; Int -&gt; bs -&gt; bs
 </span><span class="hs-identifier hs-var">BA.take</span></span><span> </span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">ba
-</span><a href="#local-6989586621680207530"><span class="hs-identifier hs-var">bs</span></a></span><span> </span><span class="annot"><span class="annottext">ba -&gt; ba -&gt; Bool
+</span><a href="#local-6989586621680208069"><span class="hs-identifier hs-var">bs</span></a></span><span> </span><span class="annot"><span class="annottext">ba -&gt; ba -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">ba
-</span><a href="#local-6989586621680207527"><span class="hs-identifier hs-var">hexStart</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; ba -&gt; ba
+</span><a href="#local-6989586621680208066"><span class="hs-identifier hs-var">hexStart</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; ba -&gt; ba
 forall bs. ByteArray bs =&gt; Int -&gt; bs -&gt; bs
 </span><span class="hs-identifier hs-var">BA.drop</span></span><span> </span><span class="annot"><span class="hs-number">2</span></span><span> </span><span class="annot"><span class="annottext">ba
-</span><a href="#local-6989586621680207530"><span class="hs-identifier hs-var">bs</span></a></span><span>
+</span><a href="#local-6989586621680208069"><span class="hs-identifier hs-var">bs</span></a></span><span>
 </span><span id="line-47"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
 </span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ba
-</span><a href="#local-6989586621680207530"><span class="hs-identifier hs-var">bs</span></a></span><span>
+</span><a href="#local-6989586621680208069"><span class="hs-identifier hs-var">bs</span></a></span><span>
 </span><span id="line-48"></span><span>
 </span><span id="line-49"></span><span class="hs-comment">-- | Reads a raw bytes and converts to hex representation.</span><span>
-</span><span id="line-50"></span><span id="local-6989586621680207656"><span class="annot"><a href="Data.ByteArray.HexString.html#fromBytes"><span class="hs-identifier hs-type">fromBytes</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArrayAccess</span></span><span> </span><span class="annot"><a href="#local-6989586621680207656"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680207656"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span></span><span>
+</span><span id="line-50"></span><span id="local-6989586621680208195"><span class="annot"><a href="Data.ByteArray.HexString.html#fromBytes"><span class="hs-identifier hs-type">fromBytes</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArrayAccess</span></span><span> </span><span class="annot"><a href="#local-6989586621680208195"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680208195"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span></span><span>
 </span><span id="line-51"></span><span id="fromBytes"><span class="annot"><span class="annottext">fromBytes :: ba -&gt; HexString
 </span><a href="Data.ByteArray.HexString.html#fromBytes"><span class="hs-identifier hs-var hs-var">fromBytes</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; HexString
 </span><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-var">HexString</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; HexString) -&gt; (ba -&gt; ByteString) -&gt; ba -&gt; HexString
@@ -284,7 +284,7 @@ bin -&gt; bout
 </span><span class="hs-identifier hs-var">convert</span></span><span>
 </span><span id="line-52"></span><span>
 </span><span id="line-53"></span><span class="hs-comment">-- | Access to the raw bytes of 'HexString'.</span><span>
-</span><span id="line-54"></span><span id="local-6989586621680207526"><span class="annot"><a href="Data.ByteArray.HexString.html#toBytes"><span class="hs-identifier hs-type">toBytes</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArray</span></span><span> </span><span class="annot"><a href="#local-6989586621680207526"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680207526"><span class="hs-identifier hs-type">ba</span></a></span></span><span>
+</span><span id="line-54"></span><span id="local-6989586621680208065"><span class="annot"><a href="Data.ByteArray.HexString.html#toBytes"><span class="hs-identifier hs-type">toBytes</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArray</span></span><span> </span><span class="annot"><a href="#local-6989586621680208065"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680208065"><span class="hs-identifier hs-type">ba</span></a></span></span><span>
 </span><span id="line-55"></span><span id="toBytes"><span class="annot"><span class="annottext">toBytes :: HexString -&gt; ba
 </span><a href="Data.ByteArray.HexString.html#toBytes"><span class="hs-identifier hs-var hs-var">toBytes</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ba
 forall bin bout.
@@ -316,10 +316,10 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span id="line-61"></span><span class="hs-comment">-- | Access to a 'Text' representation of the 'HexString'</span><span>
 </span><span id="line-62"></span><span class="annot"><a href="Data.ByteArray.HexString.html#format"><span class="hs-identifier hs-type">format</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Data.ByteArray.HexString.html#HexString"><span class="hs-identifier hs-type">HexString</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
 </span><span id="line-63"></span><span id="format"><span class="annot"><span class="annottext">format :: HexString -&gt; Text
-</span><a href="Data.ByteArray.HexString.html#format"><span class="hs-identifier hs-var hs-var">format</span></a></span></span><span> </span><span id="local-6989586621680207524"><span class="annot"><span class="annottext">a :: HexString
-</span><a href="#local-6989586621680207524"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;0x&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><a href="Data.ByteArray.HexString.html#format"><span class="hs-identifier hs-var hs-var">format</span></a></span></span><span> </span><span id="local-6989586621680208063"><span class="annot"><span class="annottext">a :: HexString
+</span><a href="#local-6989586621680208063"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;0x&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">HexString -&gt; Text
 </span><a href="Data.ByteArray.HexString.html#toText"><span class="hs-identifier hs-var">toText</span></a></span><span> </span><span class="annot"><span class="annottext">HexString
-</span><a href="#local-6989586621680207524"><span class="hs-identifier hs-var">a</span></a></span><span>
+</span><a href="#local-6989586621680208063"><span class="hs-identifier hs-var">a</span></a></span><span>
 </span><span id="line-64"></span></pre></body></html>

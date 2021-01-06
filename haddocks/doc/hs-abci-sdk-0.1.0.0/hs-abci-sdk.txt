@@ -189,13 +189,13 @@ module Tendermint.SDK.BaseApp.Logger
 data Logger m a
 [Log] :: Severity -> Text -> Logger m ()
 [AddContext] :: (Select x, ToJSON x) => x -> m a -> Logger m a
-log :: forall r_aEAs. MemberWithError Logger r_aEAs => Severity -> Text -> Sem r_aEAs ()
+log :: forall r_aEAt. MemberWithError Logger r_aEAt => Severity -> Text -> Sem r_aEAt ()
 
 -- | Class for selecting object keys for contextual logging
 class Select a
 select :: Select a => Verbosity -> a -> LogSelect
 select :: Select a => Verbosity -> a -> LogSelect
-addContext :: forall r_aEAv x_XDgl a_aDgm. (MemberWithError Logger r_aEAv, Select x_XDgl, ToJSON x_XDgl) => x_XDgl -> Sem r_aEAv a_aDgm -> Sem r_aEAv a_aDgm
+addContext :: forall r_aEAw x_XDgm a_aDgn. (MemberWithError Logger r_aEAw, Select x_XDgm, ToJSON x_XDgm) => x_XDgm -> Sem r_aEAw a_aDgn -> Sem r_aEAw a_aDgn
 data LogSelect
 All :: LogSelect
 Some :: [Text] -> LogSelect
@@ -252,8 +252,8 @@ data Metrics m a
 
 -- | Times an action and records it in a histogram
 [WithTimer] :: HistogramName -> m a -> Metrics m a
-withTimer :: forall r_aNv6 a_aNnf. MemberWithError Metrics r_aNv6 => HistogramName -> Sem r_aNv6 a_aNnf -> Sem r_aNv6 a_aNnf
-incCount :: forall r_aNv4. MemberWithError Metrics r_aNv4 => CountName -> Sem r_aNv4 ()
+withTimer :: forall r_aNv7 a_aNng. MemberWithError Metrics r_aNv7 => HistogramName -> Sem r_aNv7 a_aNng -> Sem r_aNv7 a_aNng
+incCount :: forall r_aNv5. MemberWithError Metrics r_aNv5 => CountName -> Sem r_aNv5 ()
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Metrics.HistogramName
 instance GHC.Classes.Eq Tendermint.SDK.BaseApp.Metrics.HistogramName
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Metrics.CountName
@@ -610,29 +610,29 @@ QueryAndMempool :: Scope
 data ReadStore m a
 [StoreGet] :: StoreKey -> ReadStore m (Maybe ByteString)
 [StoreProve] :: StoreKey -> ReadStore m (Maybe ByteString)
-storeGet :: forall r_a1gue. MemberWithError ReadStore r_a1gue => StoreKey -> Sem r_a1gue (Maybe ByteString)
+storeGet :: forall r_a1guz. MemberWithError ReadStore r_a1guz => StoreKey -> Sem r_a1guz (Maybe ByteString)
 get :: forall k r ns. IsKey k ns => HasCodec (Value k ns) => Members [ReadStore, Error AppError] r => Store ns -> k -> Sem r (Maybe (Value k ns))
 prove :: forall k ns r. IsKey k ns => Member ReadStore r => Store ns -> k -> Sem r (Maybe ByteString)
 data WriteStore m a
 [StorePut] :: StoreKey -> ByteString -> WriteStore m ()
 [StoreDelete] :: StoreKey -> WriteStore m ()
 put :: forall k r ns. IsKey k ns => HasCodec (Value k ns) => Member WriteStore r => Store ns -> k -> Value k ns -> Sem r ()
-storePut :: forall r_a1gxL. MemberWithError WriteStore r_a1gxL => StoreKey -> ByteString -> Sem r_a1gxL ()
+storePut :: forall r_a1gy6. MemberWithError WriteStore r_a1gy6 => StoreKey -> ByteString -> Sem r_a1gy6 ()
 delete :: forall k ns r. IsKey k ns => Member WriteStore r => Store ns -> k -> Sem r ()
-storeDelete :: forall r_a1gxO. MemberWithError WriteStore r_a1gxO => StoreKey -> Sem r_a1gxO ()
+storeDelete :: forall r_a1gy9. MemberWithError WriteStore r_a1gy9 => StoreKey -> Sem r_a1gy9 ()
 
 -- | Consensus Effects
 data CommitBlock m a
 [CommitBlock] :: CommitBlock m Base64String
-commitBlock :: forall r_a1gGy. MemberWithError CommitBlock r_a1gGy => Sem r_a1gGy Base64String
+commitBlock :: forall r_a1gGT. MemberWithError CommitBlock r_a1gGT => Sem r_a1gGT Base64String
 data Transaction m a
 [BeginTransaction] :: Transaction m ()
 [Rollback] :: Transaction m ()
 [Commit] :: Transaction m CommitResponse
-beginTransaction :: forall r_a1gL6. MemberWithError Transaction r_a1gL6 => Sem r_a1gL6 ()
+beginTransaction :: forall r_a1gLr. MemberWithError Transaction r_a1gLr => Sem r_a1gLr ()
 withSandbox :: forall r a. Members [Transaction, Resource, Error AppError] r => Sem r a -> Sem r a
 withTransaction :: forall r a. Members [Transaction, Resource, Error AppError] r => Sem r a -> Sem r (a, CommitResponse)
-commit :: forall r_a1gL8. MemberWithError Transaction r_a1gL8 => Sem r_a1gL8 CommitResponse
+commit :: forall r_a1gLt. MemberWithError Transaction r_a1gLt => Sem r_a1gLt CommitResponse
 
 -- | Keys
 class RawKey k
@@ -1028,7 +1028,7 @@ data GasMeter m a
 newtype GasAmount
 GasAmount :: Int64 -> GasAmount
 [unGasAmount] :: GasAmount -> Int64
-withGas :: forall r_a1N3G a_a1MTN. MemberWithError GasMeter r_a1N3G => GasAmount -> Sem r_a1N3G a_a1MTN -> Sem r_a1N3G a_a1MTN
+withGas :: forall r_a1N41 a_a1MU8. MemberWithError GasMeter r_a1N41 => GasAmount -> Sem r_a1N41 a_a1MU8 -> Sem r_a1N41 a_a1MU8
 eval :: Members [Error AppError, State GasAmount] r => Sem (GasMeter : r) a -> Sem r a
 doNothing :: forall r. forall a. Sem (GasMeter : r) a -> Sem r a
 instance GHC.Classes.Ord Tendermint.SDK.BaseApp.Gas.GasAmount
@@ -1277,15 +1277,15 @@ ContextEvent :: t -> ContextEvent t
 emit :: ToEvent e => Member (Output Event) r => e -> Sem r ()
 logEvent :: forall e r. (ToJSON e, ToEvent e, Select e) => Member Logger r => e -> Sem r ()
 data GasMeter m a
-withGas :: forall r_a1N3G a_a1MTN. MemberWithError GasMeter r_a1N3G => GasAmount -> Sem r_a1N3G a_a1MTN -> Sem r_a1N3G a_a1MTN
+withGas :: forall r_a1N41 a_a1MU8. MemberWithError GasMeter r_a1N41 => GasAmount -> Sem r_a1N41 a_a1MU8 -> Sem r_a1N41 a_a1MU8
 
 -- | Effect allowing for console logging.
 data Logger m a
-log :: forall r_aEAs. MemberWithError Logger r_aEAs => Severity -> Text -> Sem r_aEAs ()
+log :: forall r_aEAt. MemberWithError Logger r_aEAt => Severity -> Text -> Sem r_aEAt ()
 data LogSelect
 All :: LogSelect
 Some :: [Text] -> LogSelect
-addContext :: forall r_aEAv x_XDgl a_aDgm. (MemberWithError Logger r_aEAv, Select x_XDgl, ToJSON x_XDgl) => x_XDgl -> Sem r_aEAv a_aDgm -> Sem r_aEAv a_aDgm
+addContext :: forall r_aEAw x_XDgm a_aDgn. (MemberWithError Logger r_aEAw, Select x_XDgm, ToJSON x_XDgm) => x_XDgm -> Sem r_aEAw a_aDgn -> Sem r_aEAw a_aDgn
 data Severity
 Debug :: Severity
 Info :: Severity
@@ -1303,8 +1303,8 @@ V1 :: Verbosity
 V2 :: Verbosity
 V3 :: Verbosity
 data Metrics m a
-incCount :: forall r_aNv4. MemberWithError Metrics r_aNv4 => CountName -> Sem r_aNv4 ()
-withTimer :: forall r_aNv6 a_aNnf. MemberWithError Metrics r_aNv6 => HistogramName -> Sem r_aNv6 a_aNnf -> Sem r_aNv6 a_aNnf
+incCount :: forall r_aNv5. MemberWithError Metrics r_aNv5 => CountName -> Sem r_aNv5 ()
+withTimer :: forall r_aNv7 a_aNng. MemberWithError Metrics r_aNv7 => HistogramName -> Sem r_aNv7 a_aNng -> Sem r_aNv7 a_aNng
 data CountName
 CountName :: Text -> [(Text, Text)] -> CountName
 [countName] :: CountName -> Text
@@ -1409,9 +1409,9 @@ data Accounts m a
 [UpdateAccount] :: Address -> (Account -> Account) -> Accounts m ()
 [GetAccount] :: Address -> Accounts m (Maybe Account)
 type AuthEffs = '[Accounts, Error AuthError]
-createAccount :: forall r_a1XFG. MemberWithError Accounts r_a1XFG => Address -> Sem r_a1XFG Account
-updateAccount :: forall r_a1XFI. MemberWithError Accounts r_a1XFI => Address -> (Account -> Account) -> Sem r_a1XFI ()
-getAccount :: forall r_a1XFL. MemberWithError Accounts r_a1XFL => Address -> Sem r_a1XFL (Maybe Account)
+createAccount :: forall r_a211b. MemberWithError Accounts r_a211b => Address -> Sem r_a211b Account
+updateAccount :: forall r_a211d. MemberWithError Accounts r_a211d => Address -> (Account -> Account) -> Sem r_a211d ()
+getAccount :: forall r_a211g. MemberWithError Accounts r_a211g => Address -> Sem r_a211g (Maybe Account)
 eval :: Members [ReadStore, WriteStore, Error AppError] r => Sem (Accounts : (Error AuthError : r)) a -> Sem r a
 
 -- | Query API
@@ -1488,6 +1488,37 @@ baseAppAnteHandler :: Members AuthEffs r => Member (Error AppError) r => AnteHan
 createIOApp :: forall r. (forall a. Sem r a -> IO a) -> App (Sem r) -> App IO
 makeApp :: forall alg ms core. RecoverableSignatureSchema alg => Message alg ~ Digest SHA256 => Member (Embed IO) core => ToApplication ms (Effs ms core) => HasTxRouter (ApplicationC ms) (Effs ms core) 'QueryAndMempool => HasTxRouter (ApplicationC ms) (BaseAppEffs core) 'QueryAndMempool => HasTxRouter (ApplicationD ms) (Effs ms core) 'Consensus => HasTxRouter (ApplicationD ms) (BaseAppEffs core) 'Consensus => HasQueryRouter (ApplicationQ ms) (Effs ms core) => HasQueryRouter (ApplicationQ ms) (BaseAppEffs core) => Eval ms core => HandlersContext alg ms core -> App (Sem core)
 
+module Tendermint.SDK.Modules.Validators
+type Validators = Module ValidatorsName EmptyTxServer EmptyTxServer QueryApi ValidatorsEffs '[]
+validatorsModule :: Members (ModuleEffs Validators) r => Validators r
+data ValidatorsKeeper m a
+[GetValidatorsKeys] :: ValidatorsKeeper m (Set PubKey_)
+[GetPowerOf] :: PubKey_ -> ValidatorsKeeper m Word64
+[GetQueuedUpdates] :: ValidatorsKeeper m (Map PubKey_ Word64)
+[QueueUpdate] :: PubKey_ -> Word64 -> ValidatorsKeeper m ()
+queueUpdate :: forall r_a1VPK. MemberWithError ValidatorsKeeper r_a1VPK => PubKey_ -> Word64 -> Sem r_a1VPK ()
+getQueuedUpdates :: forall r_a1VPJ. MemberWithError ValidatorsKeeper r_a1VPJ => Sem r_a1VPJ (Map PubKey_ Word64)
+getPowerOf :: forall r_a1VPH. MemberWithError ValidatorsKeeper r_a1VPH => PubKey_ -> Sem r_a1VPH Word64
+getValidatorsKeys :: forall r_a1VPG. MemberWithError ValidatorsKeeper r_a1VPG => Sem r_a1VPG (Set PubKey_)
+type ValidatorsEffs = '[ValidatorsKeeper]
+eval :: Members [ReadStore, WriteStore, Error AppError] r => Sem (ValidatorsKeeper : r) a -> Sem r a
+getValidatorsKeysF :: Members [ReadStore, Error AppError] r => Sem r (Set PubKey_)
+getPowerOfF :: Members [ReadStore, Error AppError] r => PubKey_ -> Sem r Word64
+getQueuedUpdatesF :: Members [ReadStore, Error AppError] r => Sem r (Map PubKey_ Word64)
+queueUpdateF :: Members [ReadStore, WriteStore, Error AppError] r => PubKey_ -> Word64 -> Sem r ()
+data ValidatorsNameSpace
+type ValidatorsName = "validators"
+updatesListKey :: ByteString
+validatorsMapKey :: ByteString
+validatorsKeySetKey :: ByteString
+newtype ValidatorUpdate_
+ValidatorUpdate_ :: ValidatorUpdate -> ValidatorUpdate_
+newtype PubKey_
+PubKey_ :: PubKey -> PubKey_
+newtype KeySet
+KeySet :: Set PubKey_ -> KeySet
+endBlock :: Members BlockEffs r => Members ValidatorsEffs r => EndBlock -> Sem r EndBlockResult
+
 module Tendermint.SDK.Modules.Bank
 type Bank = Module BankName MessageApi MessageApi QueryApi BankEffs '[Auth]
 bankModule :: Members (ModuleEffs Bank) r => Bank r
@@ -1497,10 +1528,10 @@ data BankKeeper m a
 [Transfer] :: Address -> Coin -> Address -> BankKeeper m ()
 [Burn] :: Address -> Coin -> BankKeeper m ()
 [Mint] :: Address -> Coin -> BankKeeper m ()
-getBalance :: forall r_a23wC. MemberWithError BankKeeper r_a23wC => Address -> CoinId -> Sem r_a23wC Coin
-transfer :: forall r_a23wF. MemberWithError BankKeeper r_a23wF => Address -> Coin -> Address -> Sem r_a23wF ()
-burn :: forall r_a23wJ. MemberWithError BankKeeper r_a23wJ => Address -> Coin -> Sem r_a23wJ ()
-mint :: forall r_a23wM. MemberWithError BankKeeper r_a23wM => Address -> Coin -> Sem r_a23wM ()
+getBalance :: forall r_a26S7. MemberWithError BankKeeper r_a26S7 => Address -> CoinId -> Sem r_a26S7 Coin
+transfer :: forall r_a26Sa. MemberWithError BankKeeper r_a26Sa => Address -> Coin -> Address -> Sem r_a26Sa ()
+burn :: forall r_a26Se. MemberWithError BankKeeper r_a26Se => Address -> Coin -> Sem r_a26Se ()
+mint :: forall r_a26Sh. MemberWithError BankKeeper r_a26Sh => Address -> Coin -> Sem r_a26Sh ()
 eval :: Members [Logger, Output Event, Error AppError] r => Members AuthEffs r => forall a. Sem (BankKeeper : (Error BankError : r)) a -> Sem r a
 data TransferMsg
 TransferMsg :: Address -> Address -> CoinId -> Amount -> TransferMsg

@@ -17,17 +17,17 @@
 </span><span id="line-17"></span><span>
 </span><span id="line-18"></span><span class="hs-comment">-- | This class is used as a codec for all items stored in</span><span>
 </span><span id="line-19"></span><span class="hs-comment">-- | the database as well as incoming transaction messages.</span><span>
-</span><span id="line-20"></span><span class="hs-keyword">class</span><span> </span><span id="HasCodec"><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-var">HasCodec</span></a></span></span><span> </span><span id="local-6989586621679555606"><span class="annot"><a href="#local-6989586621679555606"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-21"></span><span>    </span><span id="encode"><span class="annot"><a href="Tendermint.SDK.Codec.html#encode"><span class="hs-identifier hs-type">encode</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679555606"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">BS.ByteString</span></span><span>
-</span><span id="line-22"></span><span>    </span><span id="decode"><span class="annot"><a href="Tendermint.SDK.Codec.html#decode"><span class="hs-identifier hs-type">decode</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">BS.ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="annot"><a href="#local-6989586621679555606"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">class</span><span> </span><span id="HasCodec"><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-var">HasCodec</span></a></span></span><span> </span><span id="local-6989586621679568403"><span class="annot"><a href="#local-6989586621679568403"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-21"></span><span>    </span><span id="encode"><span class="annot"><a href="Tendermint.SDK.Codec.html#encode"><span class="hs-identifier hs-type">encode</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679568403"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">BS.ByteString</span></span><span>
+</span><span id="line-22"></span><span>    </span><span id="decode"><span class="annot"><a href="Tendermint.SDK.Codec.html#decode"><span class="hs-identifier hs-type">decode</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">BS.ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="annot"><a href="#local-6989586621679568403"><span class="hs-identifier hs-type">a</span></a></span><span>
 </span><span id="line-23"></span><span>
 </span><span id="line-24"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-25"></span><span>  </span><span id="local-6989586621679555564"><span class="annot"><span class="annottext">encode :: () -&gt; ByteString
-</span><a href="#local-6989586621679555564"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; () -&gt; ByteString
+</span><span id="line-25"></span><span>  </span><span id="local-6989586621679568361"><span class="annot"><span class="annottext">encode :: () -&gt; ByteString
+</span><a href="#local-6989586621679568361"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; () -&gt; ByteString
 forall a b. a -&gt; b -&gt; a
 </span><span class="hs-identifier hs-var">const</span></span><span> </span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span>
-</span><span id="line-26"></span><span>  </span><span id="local-6989586621679555562"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text ()
-</span><a href="#local-6989586621679555562"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Either Text () -&gt; ByteString -&gt; Either Text ()
+</span><span id="line-26"></span><span>  </span><span id="local-6989586621679568359"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text ()
+</span><a href="#local-6989586621679568359"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Either Text () -&gt; ByteString -&gt; Either Text ()
 forall a b. a -&gt; b -&gt; a
 </span><span class="hs-identifier hs-var">const</span></span><span> </span><span class="annot"><span class="annottext">(Either Text () -&gt; ByteString -&gt; Either Text ())
 -&gt; Either Text () -&gt; ByteString -&gt; Either Text ()
@@ -38,15 +38,15 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span id="line-27"></span><span>
 </span><span id="line-28"></span><span>
 </span><span id="line-29"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word32</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-30"></span><span>  </span><span id="local-6989586621679555559"><span class="annot"><span class="annottext">encode :: Word32 -&gt; ByteString
-</span><a href="#local-6989586621679555559"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Builder -&gt; ByteString
+</span><span id="line-30"></span><span>  </span><span id="local-6989586621679568356"><span class="annot"><span class="annottext">encode :: Word32 -&gt; ByteString
+</span><a href="#local-6989586621679568356"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Builder -&gt; ByteString
 </span><span class="hs-identifier hs-var">PB.runBuilder</span></span><span> </span><span class="annot"><span class="annottext">(Builder -&gt; ByteString)
 -&gt; (Word32 -&gt; Builder) -&gt; Word32 -&gt; ByteString
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Builder
 </span><span class="hs-identifier hs-var">PB.putFixed32</span></span><span>
-</span><span id="line-31"></span><span>  </span><span id="local-6989586621679555555"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Word32
-</span><a href="#local-6989586621679555555"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; Either String Word32 -&gt; Either Text Word32
+</span><span id="line-31"></span><span>  </span><span id="local-6989586621679568352"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Word32
+</span><a href="#local-6989586621679568352"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; Either String Word32 -&gt; Either Text Word32
 forall (p :: * -&gt; * -&gt; *) a b c.
 Bifunctor p =&gt;
 (a -&gt; b) -&gt; p a c -&gt; p b c
@@ -63,8 +63,8 @@ forall a. Parser a -&gt; ByteString -&gt; Either String a
 </span><span class="hs-identifier hs-var">PB.getFixed32</span></span><span>
 </span><span id="line-32"></span><span>
 </span><span id="line-33"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int32</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-34"></span><span>  </span><span id="local-6989586621679555550"><span class="annot"><span class="annottext">encode :: Int32 -&gt; ByteString
-</span><a href="#local-6989586621679555550"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Builder -&gt; ByteString
+</span><span id="line-34"></span><span>  </span><span id="local-6989586621679568347"><span class="annot"><span class="annottext">encode :: Int32 -&gt; ByteString
+</span><a href="#local-6989586621679568347"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Builder -&gt; ByteString
 </span><span class="hs-identifier hs-var">PB.runBuilder</span></span><span> </span><span class="annot"><span class="annottext">(Builder -&gt; ByteString)
 -&gt; (Int32 -&gt; Builder) -&gt; Int32 -&gt; ByteString
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -73,8 +73,8 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Int32 -&gt; Word32
 </span><span class="hs-identifier hs-var">PB.signedInt32ToWord</span></span><span>
-</span><span id="line-35"></span><span>  </span><span id="local-6989586621679555548"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Int32
-</span><a href="#local-6989586621679555548"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; Either String Int32 -&gt; Either Text Int32
+</span><span id="line-35"></span><span>  </span><span id="local-6989586621679568345"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Int32
+</span><a href="#local-6989586621679568345"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; Either String Int32 -&gt; Either Text Int32
 forall (p :: * -&gt; * -&gt; *) a b c.
 Bifunctor p =&gt;
 (a -&gt; b) -&gt; p a c -&gt; p b c
@@ -94,15 +94,15 @@ forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">PB.getFixed32</span></span><span class="hs-special">)</span><span>
 </span><span id="line-36"></span><span>
 </span><span id="line-37"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-38"></span><span>  </span><span id="local-6989586621679555543"><span class="annot"><span class="annottext">encode :: Word64 -&gt; ByteString
-</span><a href="#local-6989586621679555543"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Builder -&gt; ByteString
+</span><span id="line-38"></span><span>  </span><span id="local-6989586621679568340"><span class="annot"><span class="annottext">encode :: Word64 -&gt; ByteString
+</span><a href="#local-6989586621679568340"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Builder -&gt; ByteString
 </span><span class="hs-identifier hs-var">PB.runBuilder</span></span><span> </span><span class="annot"><span class="annottext">(Builder -&gt; ByteString)
 -&gt; (Word64 -&gt; Builder) -&gt; Word64 -&gt; ByteString
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Builder
 </span><span class="hs-identifier hs-var">PB.putFixed64</span></span><span>
-</span><span id="line-39"></span><span>  </span><span id="local-6989586621679555541"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Word64
-</span><a href="#local-6989586621679555541"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; Either String Word64 -&gt; Either Text Word64
+</span><span id="line-39"></span><span>  </span><span id="local-6989586621679568338"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Word64
+</span><a href="#local-6989586621679568338"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; Either String Word64 -&gt; Either Text Word64
 forall (p :: * -&gt; * -&gt; *) a b c.
 Bifunctor p =&gt;
 (a -&gt; b) -&gt; p a c -&gt; p b c
@@ -119,8 +119,8 @@ forall a. Parser a -&gt; ByteString -&gt; Either String a
 </span><span class="hs-identifier hs-var">PB.getFixed64</span></span><span>
 </span><span id="line-40"></span><span>
 </span><span id="line-41"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int64</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-42"></span><span>  </span><span id="local-6989586621679555537"><span class="annot"><span class="annottext">encode :: Int64 -&gt; ByteString
-</span><a href="#local-6989586621679555537"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Builder -&gt; ByteString
+</span><span id="line-42"></span><span>  </span><span id="local-6989586621679568334"><span class="annot"><span class="annottext">encode :: Int64 -&gt; ByteString
+</span><a href="#local-6989586621679568334"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Builder -&gt; ByteString
 </span><span class="hs-identifier hs-var">PB.runBuilder</span></span><span> </span><span class="annot"><span class="annottext">(Builder -&gt; ByteString)
 -&gt; (Int64 -&gt; Builder) -&gt; Int64 -&gt; ByteString
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -129,8 +129,8 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Int64 -&gt; Word64
 </span><span class="hs-identifier hs-var">PB.signedInt64ToWord</span></span><span>
-</span><span id="line-43"></span><span>  </span><span id="local-6989586621679555535"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Int64
-</span><a href="#local-6989586621679555535"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; Either String Int64 -&gt; Either Text Int64
+</span><span id="line-43"></span><span>  </span><span id="local-6989586621679568332"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Int64
+</span><a href="#local-6989586621679568332"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; Either String Int64 -&gt; Either Text Int64
 forall (p :: * -&gt; * -&gt; *) a b c.
 Bifunctor p =&gt;
 (a -&gt; b) -&gt; p a c -&gt; p b c
@@ -150,12 +150,12 @@ forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">PB.getFixed64</span></span><span class="hs-special">)</span><span>
 </span><span id="line-44"></span><span>
 </span><span id="line-45"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-46"></span><span>  </span><span id="local-6989586621679555531"><span class="annot"><span class="annottext">encode :: String -&gt; ByteString
-</span><a href="#local-6989586621679555531"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; ByteString
+</span><span id="line-46"></span><span>  </span><span id="local-6989586621679568328"><span class="annot"><span class="annottext">encode :: String -&gt; ByteString
+</span><a href="#local-6989586621679568328"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; ByteString
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span>
-</span><span id="line-47"></span><span>  </span><span id="local-6989586621679555530"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text String
-</span><a href="#local-6989586621679555530"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Either Text String
+</span><span id="line-47"></span><span>  </span><span id="local-6989586621679568327"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text String
+</span><a href="#local-6989586621679568327"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Either Text String
 forall a b. b -&gt; Either a b
 </span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Either Text String)
 -&gt; (ByteString -&gt; String) -&gt; ByteString -&gt; Either Text String
@@ -165,12 +165,12 @@ forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span>
 </span><span id="line-48"></span><span>
 </span><span id="line-49"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-50"></span><span>  </span><span id="local-6989586621679555527"><span class="annot"><span class="annottext">encode :: Text -&gt; ByteString
-</span><a href="#local-6989586621679555527"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><span id="line-50"></span><span>  </span><span id="local-6989586621679568324"><span class="annot"><span class="annottext">encode :: Text -&gt; ByteString
+</span><a href="#local-6989586621679568324"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span>
-</span><span id="line-51"></span><span>  </span><span id="local-6989586621679555526"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Text
-</span><a href="#local-6989586621679555526"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Either Text Text
+</span><span id="line-51"></span><span>  </span><span id="local-6989586621679568323"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Text
+</span><a href="#local-6989586621679568323"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Either Text Text
 forall a b. b -&gt; Either a b
 </span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Either Text Text)
 -&gt; (ByteString -&gt; Text) -&gt; ByteString -&gt; Either Text Text
@@ -180,23 +180,23 @@ forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span>
 </span><span id="line-52"></span><span>
 </span><span id="line-53"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">BS.ByteString</span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-54"></span><span>  </span><span id="local-6989586621679555523"><span class="annot"><span class="annottext">encode :: ByteString -&gt; ByteString
-</span><a href="#local-6989586621679555523"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
+</span><span id="line-54"></span><span>  </span><span id="local-6989586621679568320"><span class="annot"><span class="annottext">encode :: ByteString -&gt; ByteString
+</span><a href="#local-6989586621679568320"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
 forall a. a -&gt; a
 </span><span class="hs-identifier hs-var">id</span></span><span>
-</span><span id="line-55"></span><span>  </span><span id="local-6989586621679555521"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text ByteString
-</span><a href="#local-6989586621679555521"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either Text ByteString
+</span><span id="line-55"></span><span>  </span><span id="local-6989586621679568318"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text ByteString
+</span><a href="#local-6989586621679568318"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either Text ByteString
 forall a b. b -&gt; Either a b
 </span><span class="hs-identifier hs-var">Right</span></span><span>
 </span><span id="line-56"></span><span>
 </span><span id="line-57"></span><span>
 </span><span id="line-58"></span><span class="annot"><a href="Tendermint.SDK.Codec.html#defaultSDKAesonOptions"><span class="hs-identifier hs-type">defaultSDKAesonOptions</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Options</span></span><span>
 </span><span id="line-59"></span><span id="defaultSDKAesonOptions"><span class="annot"><span class="annottext">defaultSDKAesonOptions :: String -&gt; Options
-</span><a href="Tendermint.SDK.Codec.html#defaultSDKAesonOptions"><span class="hs-identifier hs-var hs-var">defaultSDKAesonOptions</span></a></span></span><span> </span><span id="local-6989586621679555520"><span class="annot"><span class="annottext">prefix :: String
-</span><a href="#local-6989586621679555520"><span class="hs-identifier hs-var">prefix</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; (String -&gt; String) -&gt; Options
+</span><a href="Tendermint.SDK.Codec.html#defaultSDKAesonOptions"><span class="hs-identifier hs-var hs-var">defaultSDKAesonOptions</span></a></span></span><span> </span><span id="local-6989586621679568317"><span class="annot"><span class="annottext">prefix :: String
+</span><a href="#local-6989586621679568317"><span class="hs-identifier hs-var">prefix</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; (String -&gt; String) -&gt; Options
 </span><span class="hs-identifier hs-var">aesonDrop</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Int
 forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
 </span><span class="hs-identifier hs-var">length</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679555520"><span class="hs-identifier hs-var">prefix</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String -&gt; String
+</span><a href="#local-6989586621679568317"><span class="hs-identifier hs-var">prefix</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String -&gt; String
 </span><span class="hs-identifier hs-var">snakeCase</span></span><span>
 </span><span id="line-60"></span></pre></body></html>

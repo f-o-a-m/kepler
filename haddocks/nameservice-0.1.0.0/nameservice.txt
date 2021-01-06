@@ -192,11 +192,11 @@ data NameserviceKeeper m a
 [SetName] :: SetNameMsg -> NameserviceKeeper m ()
 [GetWhois] :: Name -> NameserviceKeeper m (Maybe Whois)
 nameserviceCoinId :: CoinId
-setName :: forall r_a16oC. MemberWithError NameserviceKeeper r_a16oC => SetNameMsg -> Sem r_a16oC ()
-deleteName :: forall r_a16oA. MemberWithError NameserviceKeeper r_a16oA => DeleteNameMsg -> Sem r_a16oA ()
-buyName :: forall r_a16oy. MemberWithError NameserviceKeeper r_a16oy => BuyNameMsg -> Sem r_a16oy ()
-faucetAccount :: forall r_a16ow. MemberWithError NameserviceKeeper r_a16ow => FaucetAccountMsg -> Sem r_a16ow ()
-getWhois :: forall r_a16oE. MemberWithError NameserviceKeeper r_a16oE => Name -> Sem r_a16oE (Maybe Whois)
+setName :: forall r_a16pv. MemberWithError NameserviceKeeper r_a16pv => SetNameMsg -> Sem r_a16pv ()
+deleteName :: forall r_a16pt. MemberWithError NameserviceKeeper r_a16pt => DeleteNameMsg -> Sem r_a16pt ()
+buyName :: forall r_a16pr. MemberWithError NameserviceKeeper r_a16pr => BuyNameMsg -> Sem r_a16pr ()
+faucetAccount :: forall r_a16pp. MemberWithError NameserviceKeeper r_a16pp => FaucetAccountMsg -> Sem r_a16pp ()
+getWhois :: forall r_a16px. MemberWithError NameserviceKeeper r_a16px => Name -> Sem r_a16px (Maybe Whois)
 eval :: Members TxEffs r => Members BankEffs r => Members BaseEffs r => forall a. Sem (NameserviceKeeper : (Error NameserviceError : r)) a -> Sem r a
 
 module Nameservice.Modules.Nameservice.Router

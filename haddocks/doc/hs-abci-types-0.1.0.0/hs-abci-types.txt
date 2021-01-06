@@ -2825,6 +2825,7 @@ instance GHC.Show.Show Network.ABCI.Types.Messages.FieldTypes.ValidatorUpdate
 instance GHC.Classes.Eq Network.ABCI.Types.Messages.FieldTypes.ValidatorUpdate
 instance GHC.Generics.Generic Network.ABCI.Types.Messages.FieldTypes.PubKey
 instance GHC.Show.Show Network.ABCI.Types.Messages.FieldTypes.PubKey
+instance GHC.Classes.Ord Network.ABCI.Types.Messages.FieldTypes.PubKey
 instance GHC.Classes.Eq Network.ABCI.Types.Messages.FieldTypes.PubKey
 instance GHC.Generics.Generic Network.ABCI.Types.Messages.FieldTypes.ConsensusParams
 instance GHC.Show.Show Network.ABCI.Types.Messages.FieldTypes.ConsensusParams

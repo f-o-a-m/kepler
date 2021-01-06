@@ -18,7 +18,7 @@
 </span><span id="line-18"></span><span class="hs-comment">--   are valid hex characters.</span><span>
 </span><span id="line-19"></span><span class="hs-keyword">newtype</span><span> </span><span id="Base64String"><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-var">Base64String</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Base64String"><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-var">Base64String</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="unBase64String"><span class="annot"><span class="annottext">Base64String -&gt; ByteString
 </span><a href="Data.ByteArray.Base64String.html#unBase64String"><span class="hs-identifier hs-var hs-var">unBase64String</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="hs-special">}</span><span>
-</span><span id="line-20"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621680207445"><span id="local-6989586621680207447"><span class="annot"><span class="annottext">Base64String -&gt; Base64String -&gt; Bool
+</span><span id="line-20"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621680207984"><span id="local-6989586621680207986"><span class="annot"><span class="annottext">Base64String -&gt; Base64String -&gt; Bool
 (Base64String -&gt; Base64String -&gt; Bool)
 -&gt; (Base64String -&gt; Base64String -&gt; Bool) -&gt; Eq Base64String
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -26,7 +26,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: Base64String -&gt; Base64String -&gt; Bool
 == :: Base64String -&gt; Base64String -&gt; Bool
 $c== :: Base64String -&gt; Base64String -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207429"><span id="local-6989586621680207431"><span id="local-6989586621680207433"><span id="local-6989586621680207435"><span id="local-6989586621680207437"><span id="local-6989586621680207439"><span id="local-6989586621680207441"><span class="annot"><span class="annottext">Eq Base64String
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207968"><span id="local-6989586621680207970"><span id="local-6989586621680207972"><span id="local-6989586621680207974"><span id="local-6989586621680207976"><span id="local-6989586621680207978"><span id="local-6989586621680207980"><span class="annot"><span class="annottext">Eq Base64String
 Eq Base64String =&gt;
 (Base64String -&gt; Base64String -&gt; Ordering)
 -&gt; (Base64String -&gt; Base64String -&gt; Bool)
@@ -64,7 +64,7 @@ $c&lt; :: Base64String -&gt; Base64String -&gt; Bool
 compare :: Base64String -&gt; Base64String -&gt; Ordering
 $ccompare :: Base64String -&gt; Base64String -&gt; Ordering
 $cp1Ord :: Eq Base64String
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207422"><span id="local-6989586621680207424"><span id="local-6989586621680207426"><span class="annot"><span class="annottext">b -&gt; Base64String -&gt; Base64String
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207961"><span id="local-6989586621680207963"><span id="local-6989586621680207965"><span class="annot"><span class="annottext">b -&gt; Base64String -&gt; Base64String
 NonEmpty Base64String -&gt; Base64String
 Base64String -&gt; Base64String -&gt; Base64String
 (Base64String -&gt; Base64String -&gt; Base64String)
@@ -83,7 +83,7 @@ sconcat :: NonEmpty Base64String -&gt; Base64String
 $csconcat :: NonEmpty Base64String -&gt; Base64String
 &lt;&gt; :: Base64String -&gt; Base64String -&gt; Base64String
 $c&lt;&gt; :: Base64String -&gt; Base64String -&gt; Base64String
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Semigroup</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207414"><span id="local-6989586621680207416"><span id="local-6989586621680207418"><span class="annot"><span class="annottext">Semigroup Base64String
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Semigroup</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207953"><span id="local-6989586621680207955"><span id="local-6989586621680207957"><span class="annot"><span class="annottext">Semigroup Base64String
 Base64String
 Semigroup Base64String =&gt;
 Base64String
@@ -102,7 +102,7 @@ $cmappend :: Base64String -&gt; Base64String -&gt; Base64String
 mempty :: Base64String
 $cmempty :: Base64String
 $cp1Monoid :: Semigroup Base64String
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Monoid</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207407"><span id="local-6989586621680207409"><span id="local-6989586621680207411"><span class="annot"><span class="annottext">Base64String -&gt; Int
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Monoid</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207946"><span id="local-6989586621680207948"><span id="local-6989586621680207950"><span class="annot"><span class="annottext">Base64String -&gt; Int
 Base64String -&gt; Ptr p -&gt; IO ()
 Base64String -&gt; (Ptr p -&gt; IO a) -&gt; IO a
 (Base64String -&gt; Int)
@@ -122,7 +122,7 @@ withByteArray :: Base64String -&gt; (Ptr p -&gt; IO a) -&gt; IO a
 $cwithByteArray :: forall p a. Base64String -&gt; (Ptr p -&gt; IO a) -&gt; IO a
 length :: Base64String -&gt; Int
 $clength :: Base64String -&gt; Int
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">ByteArrayAccess</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207400"><span class="annot"><span class="annottext">Eq Base64String
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">ByteArrayAccess</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680207939"><span class="annot"><span class="annottext">Eq Base64String
 Ord Base64String
 Monoid Base64String
 ByteArrayAccess Base64String
@@ -143,8 +143,8 @@ $cp2ByteArray :: Ord Base64String
 $cp1ByteArray :: Eq Base64String
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">ByteArray</span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-21"></span><span>
-</span><span id="line-22"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680207394"><span id="local-6989586621680207397"><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-23"></span><span>    </span><span id="local-6989586621680207392"><span class="annot"><span class="annottext">show :: Base64String -&gt; String
+</span><span id="line-22"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680207933"><span id="local-6989586621680207936"><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-23"></span><span>    </span><span id="local-6989586621680207931"><span class="annot"><span class="annottext">show :: Base64String -&gt; String
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">show</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;Base64String &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ShowS -&gt; (Base64String -&gt; String) -&gt; Base64String -&gt; String
@@ -158,18 +158,18 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><a href="Data.ByteArray.Base64String.html#format"><span class="hs-identifier hs-var">format</span></a></span><span>
 </span><span id="line-24"></span><span>
 </span><span id="line-25"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IsString</span></span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-26"></span><span>    </span><span id="local-6989586621680207386"><span class="annot"><span class="annottext">fromString :: String -&gt; Base64String
+</span><span id="line-26"></span><span>    </span><span id="local-6989586621680207925"><span class="annot"><span class="annottext">fromString :: String -&gt; Base64String
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromString</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Base64String
-</span><a href="#local-6989586621680207385"><span class="hs-identifier hs-var">base64String'</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Base64String)
+</span><a href="#local-6989586621680207924"><span class="hs-identifier hs-var">base64String'</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Base64String)
 -&gt; (String -&gt; ByteString) -&gt; String -&gt; Base64String
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ByteString
 forall a. IsString a =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">fromString</span></span><span>
 </span><span id="line-27"></span><span>      </span><span class="hs-keyword">where</span><span>
-</span><span id="line-28"></span><span>        </span><span class="annot"><a href="#local-6989586621680207385"><span class="hs-identifier hs-type">base64String'</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span><span>
-</span><span id="line-29"></span><span>        </span><span id="local-6989586621680207385"><span class="annot"><span class="annottext">base64String' :: ByteString -&gt; Base64String
-</span><a href="#local-6989586621680207385"><span class="hs-identifier hs-var hs-var">base64String'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Base64String)
+</span><span id="line-28"></span><span>        </span><span class="annot"><a href="#local-6989586621680207924"><span class="hs-identifier hs-type">base64String'</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span><span>
+</span><span id="line-29"></span><span>        </span><span id="local-6989586621680207924"><span class="annot"><span class="annottext">base64String' :: ByteString -&gt; Base64String
+</span><a href="#local-6989586621680207924"><span class="hs-identifier hs-var hs-var">base64String'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Base64String)
 -&gt; (Base64String -&gt; Base64String)
 -&gt; Either String Base64String
 -&gt; Base64String
@@ -187,15 +187,15 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 forall ba. ByteArray ba =&gt; ba -&gt; Either String Base64String
 </span><a href="Data.ByteArray.Base64String.html#base64String"><span class="hs-identifier hs-var">base64String</span></a></span><span>
 </span><span id="line-30"></span><span>
-</span><span id="line-31"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680207378"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-32"></span><span>    </span><span id="local-6989586621680207376"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser Base64String
+</span><span id="line-31"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680207917"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-32"></span><span>    </span><span id="local-6989586621680207915"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser Base64String
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">parseJSON</span></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Null</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Base64String -&gt; Parser Base64String
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ByteString -&gt; Base64String
 forall ba. ByteArrayAccess ba =&gt; ba -&gt; Base64String
 </span><a href="Data.ByteArray.Base64String.html#fromBytes"><span class="hs-identifier hs-var">fromBytes</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-string">&quot;&quot;</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
-</span><span id="line-33"></span><span>    </span><span class="annot"><span class="hs-identifier hs-var">parseJSON</span></span><span> </span><span id="local-6989586621680207372"><span class="annot"><span class="annottext">v :: Value
-</span><a href="#local-6989586621680207372"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
+</span><span id="line-33"></span><span>    </span><span class="annot"><span class="hs-identifier hs-var">parseJSON</span></span><span> </span><span id="local-6989586621680207911"><span class="annot"><span class="annottext">v :: Value
+</span><a href="#local-6989586621680207911"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
 -&gt; (Text -&gt; Parser Base64String) -&gt; Value -&gt; Parser Base64String
 forall a. String -&gt; (Text -&gt; Parser a) -&gt; Value -&gt; Parser a
 </span><span class="hs-identifier hs-var">withText</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Base64String&quot;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(String -&gt; Parser Base64String)
@@ -219,10 +219,10 @@ forall ba. ByteArray ba =&gt; ba -&gt; Either String Base64String
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
 </span><span class="hs-identifier hs-var">encodeUtf8</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Value
-</span><a href="#local-6989586621680207372"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><a href="#local-6989586621680207911"><span class="hs-identifier hs-var">v</span></a></span><span>
 </span><span id="line-34"></span><span>
-</span><span id="line-35"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680207365"><span id="local-6989586621680207367"><span id="local-6989586621680207369"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-36"></span><span>    </span><span id="local-6989586621680207363"><span class="annot"><span class="annottext">toJSON :: Base64String -&gt; Value
+</span><span id="line-35"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680207904"><span id="local-6989586621680207906"><span id="local-6989586621680207908"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-36"></span><span>    </span><span id="local-6989586621680207902"><span class="annot"><span class="annottext">toJSON :: Base64String -&gt; Value
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Value
 </span><span class="hs-identifier hs-var">String</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Value) -&gt; (Base64String -&gt; Text) -&gt; Base64String -&gt; Value
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -231,10 +231,10 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span id="line-37"></span><span>
 </span><span id="line-38"></span><span class="hs-comment">-- | Smart constructor that works with any mixed casing of characters:</span><span>
 </span><span id="line-39"></span><span class="hs-comment">--   `Base64String &quot;AA&quot; == Base64String &quot;0xAa&quot; == Base64String &quot;0xaA&quot; == Base64String &quot;aa&quot;`</span><span>
-</span><span id="line-40"></span><span id="local-6989586621680207484"><span class="annot"><a href="Data.ByteArray.Base64String.html#base64String"><span class="hs-identifier hs-type">base64String</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArray</span></span><span> </span><span class="annot"><a href="#local-6989586621680207484"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680207484"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span></span><span>
+</span><span id="line-40"></span><span id="local-6989586621680208023"><span class="annot"><a href="Data.ByteArray.Base64String.html#base64String"><span class="hs-identifier hs-type">base64String</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArray</span></span><span> </span><span class="annot"><a href="#local-6989586621680208023"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680208023"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span></span><span>
 </span><span id="line-41"></span><span id="base64String"><span class="annot"><span class="annottext">base64String :: ba -&gt; Either String Base64String
-</span><a href="Data.ByteArray.Base64String.html#base64String"><span class="hs-identifier hs-var hs-var">base64String</span></a></span></span><span> </span><span id="local-6989586621680207359"><span class="annot"><span class="annottext">bs :: ba
-</span><a href="#local-6989586621680207359"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Base64String
+</span><a href="Data.ByteArray.Base64String.html#base64String"><span class="hs-identifier hs-var hs-var">base64String</span></a></span></span><span> </span><span id="local-6989586621680207898"><span class="annot"><span class="annottext">bs :: ba
+</span><a href="#local-6989586621680207898"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Base64String
 </span><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-var">Base64String</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Base64String)
 -&gt; Either String ByteString -&gt; Either String Base64String
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
@@ -244,10 +244,10 @@ forall bin bout.
 Base -&gt; bin -&gt; Either String bout
 </span><span class="hs-identifier hs-var">convertFromBase</span></span><span> </span><span class="annot"><span class="annottext">Base
 </span><span class="hs-identifier hs-var">Base64</span></span><span> </span><span class="annot"><span class="annottext">ba
-</span><a href="#local-6989586621680207359"><span class="hs-identifier hs-var">bs</span></a></span><span>
+</span><a href="#local-6989586621680207898"><span class="hs-identifier hs-var">bs</span></a></span><span>
 </span><span id="line-42"></span><span>
 </span><span id="line-43"></span><span class="hs-comment">-- | Reads a raw bytes and converts to hex representation.</span><span>
-</span><span id="line-44"></span><span id="local-6989586621680207477"><span class="annot"><a href="Data.ByteArray.Base64String.html#fromBytes"><span class="hs-identifier hs-type">fromBytes</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArrayAccess</span></span><span> </span><span class="annot"><a href="#local-6989586621680207477"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680207477"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span></span><span>
+</span><span id="line-44"></span><span id="local-6989586621680208016"><span class="annot"><a href="Data.ByteArray.Base64String.html#fromBytes"><span class="hs-identifier hs-type">fromBytes</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArrayAccess</span></span><span> </span><span class="annot"><a href="#local-6989586621680208016"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680208016"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span></span><span>
 </span><span id="line-45"></span><span id="fromBytes"><span class="annot"><span class="annottext">fromBytes :: ba -&gt; Base64String
 </span><a href="Data.ByteArray.Base64String.html#fromBytes"><span class="hs-identifier hs-var hs-var">fromBytes</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Base64String
 </span><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-var">Base64String</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Base64String)
@@ -260,7 +260,7 @@ bin -&gt; bout
 </span><span class="hs-identifier hs-var">convert</span></span><span>
 </span><span id="line-46"></span><span>
 </span><span id="line-47"></span><span class="hs-comment">-- | Access to the raw bytes of 'Base64String'.</span><span>
-</span><span id="line-48"></span><span id="local-6989586621680207357"><span class="annot"><a href="Data.ByteArray.Base64String.html#toBytes"><span class="hs-identifier hs-type">toBytes</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArray</span></span><span> </span><span class="annot"><a href="#local-6989586621680207357"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680207357"><span class="hs-identifier hs-type">ba</span></a></span></span><span>
+</span><span id="line-48"></span><span id="local-6989586621680207896"><span class="annot"><a href="Data.ByteArray.Base64String.html#toBytes"><span class="hs-identifier hs-type">toBytes</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteArray</span></span><span> </span><span class="annot"><a href="#local-6989586621680207896"><span class="hs-identifier hs-type">ba</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Data.ByteArray.Base64String.html#Base64String"><span class="hs-identifier hs-type">Base64String</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680207896"><span class="hs-identifier hs-type">ba</span></a></span></span><span>
 </span><span id="line-49"></span><span id="toBytes"><span class="annot"><span class="annottext">toBytes :: Base64String -&gt; ba
 </span><a href="Data.ByteArray.Base64String.html#toBytes"><span class="hs-identifier hs-var hs-var">toBytes</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ba
 forall bin bout.

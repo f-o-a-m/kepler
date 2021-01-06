@@ -26,100 +26,100 @@
 </span><span id="line-26"></span><span class="hs-comment">-- | Metrics logger middleware for ABCI server already within the KatipContext.</span><span>
 </span><span id="line-27"></span><span class="hs-comment">-- Great for `App m` with a `KatipContext` instance.</span><span>
 </span><span id="line-28"></span><span>
-</span><span id="line-29"></span><span id="local-6989586621679121266"><span class="annot"><a href="Network.ABCI.Server.Middleware.Metrics.html#mkMetricsMiddleware"><span class="hs-identifier hs-type">mkMetricsMiddleware</span></a></span><span>
-</span><span id="line-30"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadIO</span></span><span> </span><span class="annot"><a href="#local-6989586621679121266"><span class="hs-identifier hs-type">m</span></a></span><span>
+</span><span id="line-29"></span><span id="local-6989586621679121287"><span class="annot"><a href="Network.ABCI.Server.Middleware.Metrics.html#mkMetricsMiddleware"><span class="hs-identifier hs-type">mkMetricsMiddleware</span></a></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadIO</span></span><span> </span><span class="annot"><a href="#local-6989586621679121287"><span class="hs-identifier hs-type">m</span></a></span><span>
 </span><span id="line-31"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Histogram.UpperBound</span></span><span class="hs-special">]</span><span>
 </span><span id="line-32"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Registry.Registry</span></span><span>
-</span><span id="line-33"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Middleware</span></span><span> </span><span class="annot"><a href="#local-6989586621679121266"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Middleware</span></span><span> </span><span class="annot"><a href="#local-6989586621679121287"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span></span><span>
 </span><span id="line-34"></span><span id="mkMetricsMiddleware"><span class="annot"><span class="annottext">mkMetricsMiddleware :: [UpperBound] -&gt; Registry -&gt; IO (Middleware m)
-</span><a href="Network.ABCI.Server.Middleware.Metrics.html#mkMetricsMiddleware"><span class="hs-identifier hs-var hs-var">mkMetricsMiddleware</span></a></span></span><span> </span><span id="local-6989586621679121265"><span class="annot"><span class="annottext">buckets :: [UpperBound]
-</span><a href="#local-6989586621679121265"><span class="hs-identifier hs-var">buckets</span></a></span></span><span> </span><span id="local-6989586621679121264"><span class="annot"><span class="annottext">registry :: Registry
-</span><a href="#local-6989586621679121264"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-35"></span><span>  </span><span id="local-6989586621679121260"><span id="local-6989586621679121261"><span id="local-6989586621679121262"><span id="local-6989586621679121263"><span class="annot"><a href="Network.ABCI.Server.Middleware.Metrics.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[UpperBound] -&gt; Registry -&gt; IO Config
+</span><a href="Network.ABCI.Server.Middleware.Metrics.html#mkMetricsMiddleware"><span class="hs-identifier hs-var hs-var">mkMetricsMiddleware</span></a></span></span><span> </span><span id="local-6989586621679121286"><span class="annot"><span class="annottext">buckets :: [UpperBound]
+</span><a href="#local-6989586621679121286"><span class="hs-identifier hs-var">buckets</span></a></span></span><span> </span><span id="local-6989586621679121285"><span class="annot"><span class="annottext">registry :: Registry
+</span><a href="#local-6989586621679121285"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-35"></span><span>  </span><span id="local-6989586621679121281"><span id="local-6989586621679121282"><span id="local-6989586621679121283"><span id="local-6989586621679121284"><span class="annot"><a href="Network.ABCI.Server.Middleware.Metrics.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[UpperBound] -&gt; Registry -&gt; IO Config
 </span><a href="Network.ABCI.Server.Middleware.Metrics.html#makeConfig"><span class="hs-identifier hs-var">makeConfig</span></a></span><span> </span><span class="annot"><span class="annottext">[UpperBound]
-</span><a href="#local-6989586621679121265"><span class="hs-identifier hs-var">buckets</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
-</span><a href="#local-6989586621679121264"><span class="hs-identifier hs-var">registry</span></a></span><span>
+</span><a href="#local-6989586621679121286"><span class="hs-identifier hs-var">buckets</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
+</span><a href="#local-6989586621679121285"><span class="hs-identifier hs-var">registry</span></a></span><span>
 </span><span id="line-36"></span><span>  </span><span class="annot"><span class="annottext">Middleware m -&gt; IO (Middleware m)
 forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
 </span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(Middleware m -&gt; IO (Middleware m))
 -&gt; Middleware m -&gt; IO (Middleware m)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">App</span></span><span> </span><span id="local-6989586621679121252"><span class="annot"><span class="annottext">app :: forall (t :: MessageType). Request t -&gt; m (Response t)
-</span><a href="#local-6989586621679121252"><span class="hs-identifier hs-var">app</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(forall (t :: MessageType). Request t -&gt; m (Response t)) -&gt; App m
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">App</span></span><span> </span><span id="local-6989586621679121273"><span class="annot"><span class="annottext">app :: forall (t :: MessageType). Request t -&gt; m (Response t)
+</span><a href="#local-6989586621679121273"><span class="hs-identifier hs-var">app</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(forall (t :: MessageType). Request t -&gt; m (Response t)) -&gt; App m
 forall (m :: * -&gt; *).
 (forall (t :: MessageType). Request t -&gt; m (Response t)) -&gt; App m
 </span><span class="hs-identifier hs-var">App</span></span><span> </span><span class="annot"><span class="annottext">((forall (t :: MessageType). Request t -&gt; m (Response t)) -&gt; App m)
 -&gt; (forall (t :: MessageType). Request t -&gt; m (Response t))
 -&gt; App m
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span> </span><span id="local-6989586621679121251"><span class="annot"><span class="annottext">req :: Request t
-</span><a href="#local-6989586621679121251"><span class="hs-identifier hs-var">req</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-37"></span><span>       </span><span id="local-6989586621679121250"><span class="annot"><span class="annottext">UTCTime
-</span><a href="#local-6989586621679121250"><span class="hs-identifier hs-var">startTime</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO UTCTime -&gt; m UTCTime
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span> </span><span id="local-6989586621679121272"><span class="annot"><span class="annottext">req :: Request t
+</span><a href="#local-6989586621679121272"><span class="hs-identifier hs-var">req</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-37"></span><span>       </span><span id="local-6989586621679121271"><span class="annot"><span class="annottext">UTCTime
+</span><a href="#local-6989586621679121271"><span class="hs-identifier hs-var">startTime</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO UTCTime -&gt; m UTCTime
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">IO UTCTime
 </span><span class="hs-identifier hs-var">getCurrentTime</span></span><span>
-</span><span id="line-38"></span><span>       </span><span id="local-6989586621679121249"><span class="annot"><span class="annottext">Response t
-</span><a href="#local-6989586621679121249"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Request t -&gt; m (Response t)
+</span><span id="line-38"></span><span>       </span><span id="local-6989586621679121270"><span class="annot"><span class="annottext">Response t
+</span><a href="#local-6989586621679121270"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Request t -&gt; m (Response t)
 forall (t :: MessageType). Request t -&gt; m (Response t)
-</span><a href="#local-6989586621679121252"><span class="hs-identifier hs-var">app</span></a></span><span> </span><span class="annot"><span class="annottext">Request t
-</span><a href="#local-6989586621679121251"><span class="hs-identifier hs-var">req</span></a></span><span>
-</span><span id="line-39"></span><span>       </span><span id="local-6989586621679121248"><span class="annot"><span class="annottext">UTCTime
-</span><a href="#local-6989586621679121248"><span class="hs-identifier hs-var">endTime</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO UTCTime -&gt; m UTCTime
+</span><a href="#local-6989586621679121273"><span class="hs-identifier hs-var">app</span></a></span><span> </span><span class="annot"><span class="annottext">Request t
+</span><a href="#local-6989586621679121272"><span class="hs-identifier hs-var">req</span></a></span><span>
+</span><span id="line-39"></span><span>       </span><span id="local-6989586621679121269"><span class="annot"><span class="annottext">UTCTime
+</span><a href="#local-6989586621679121269"><span class="hs-identifier hs-var">endTime</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO UTCTime -&gt; m UTCTime
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">IO UTCTime
 </span><span class="hs-identifier hs-var">getCurrentTime</span></span><span>
-</span><span id="line-40"></span><span>       </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121247"><span class="annot"><span class="annottext">msgType :: MessageType
-</span><a href="#local-6989586621679121247"><span class="hs-identifier hs-var hs-var">msgType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Request t -&gt; MessageType
+</span><span id="line-40"></span><span>       </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121268"><span class="annot"><span class="annottext">msgType :: MessageType
+</span><a href="#local-6989586621679121268"><span class="hs-identifier hs-var hs-var">msgType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Request t -&gt; MessageType
 forall (t :: MessageType). Request t -&gt; MessageType
 </span><span class="hs-identifier hs-var">demoteRequestType</span></span><span> </span><span class="annot"><span class="annottext">Request t
-</span><a href="#local-6989586621679121251"><span class="hs-identifier hs-var">req</span></a></span><span>
-</span><span id="line-41"></span><span>           </span><span id="local-6989586621679121246"><span class="annot"><span class="annottext">duration :: UpperBound
-</span><a href="#local-6989586621679121246"><span class="hs-identifier hs-var hs-var">duration</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">NominalDiffTime -&gt; UpperBound
+</span><a href="#local-6989586621679121272"><span class="hs-identifier hs-var">req</span></a></span><span>
+</span><span id="line-41"></span><span>           </span><span id="local-6989586621679121267"><span class="annot"><span class="annottext">duration :: UpperBound
+</span><a href="#local-6989586621679121267"><span class="hs-identifier hs-var hs-var">duration</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">NominalDiffTime -&gt; UpperBound
 forall a b. (Real a, Fractional b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">realToFrac</span></span><span> </span><span class="annot"><span class="annottext">(NominalDiffTime -&gt; UpperBound) -&gt; NominalDiffTime -&gt; UpperBound
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">UTCTime -&gt; UTCTime -&gt; NominalDiffTime
 </span><span class="hs-identifier hs-var">diffUTCTime</span></span><span> </span><span class="annot"><span class="annottext">UTCTime
-</span><a href="#local-6989586621679121248"><span class="hs-identifier hs-var">endTime</span></a></span><span> </span><span class="annot"><span class="annottext">UTCTime
-</span><a href="#local-6989586621679121250"><span class="hs-identifier hs-var">startTime</span></a></span><span>
+</span><a href="#local-6989586621679121269"><span class="hs-identifier hs-var">endTime</span></a></span><span> </span><span class="annot"><span class="annottext">UTCTime
+</span><a href="#local-6989586621679121271"><span class="hs-identifier hs-var">startTime</span></a></span><span>
 </span><span id="line-42"></span><span>       </span><span class="annot"><span class="annottext">IO () -&gt; m ()
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; m ()) -&gt; IO () -&gt; m ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-43"></span><span>         </span><span class="annot"><span class="annottext">IORef (Map MessageType Counter) -&gt; MessageType -&gt; IO ()
-</span><a href="#local-6989586621679121245"><span class="hs-identifier hs-var">incRequestCounter</span></a></span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Counter)
-</span><a href="#local-6989586621679121261"><span class="hs-identifier hs-var">cfgCounterMap</span></a></span><span> </span><span class="annot"><span class="annottext">MessageType
-</span><a href="#local-6989586621679121247"><span class="hs-identifier hs-var">msgType</span></a></span><span>
+</span><a href="#local-6989586621679121266"><span class="hs-identifier hs-var">incRequestCounter</span></a></span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Counter)
+</span><a href="#local-6989586621679121282"><span class="hs-identifier hs-var">cfgCounterMap</span></a></span><span> </span><span class="annot"><span class="annottext">MessageType
+</span><a href="#local-6989586621679121268"><span class="hs-identifier hs-var">msgType</span></a></span><span>
 </span><span id="line-44"></span><span>         </span><span class="annot"><span class="annottext">IORef (Map MessageType Histogram)
 -&gt; MessageType -&gt; UpperBound -&gt; IO ()
-</span><a href="#local-6989586621679121244"><span class="hs-identifier hs-var">addToHistogram</span></a></span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Histogram)
-</span><a href="#local-6989586621679121260"><span class="hs-identifier hs-var">cfgHistogramMap</span></a></span><span> </span><span class="annot"><span class="annottext">MessageType
-</span><a href="#local-6989586621679121247"><span class="hs-identifier hs-var">msgType</span></a></span><span> </span><span class="annot"><span class="annottext">UpperBound
-</span><a href="#local-6989586621679121246"><span class="hs-identifier hs-var">duration</span></a></span><span>
+</span><a href="#local-6989586621679121265"><span class="hs-identifier hs-var">addToHistogram</span></a></span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Histogram)
+</span><a href="#local-6989586621679121281"><span class="hs-identifier hs-var">cfgHistogramMap</span></a></span><span> </span><span class="annot"><span class="annottext">MessageType
+</span><a href="#local-6989586621679121268"><span class="hs-identifier hs-var">msgType</span></a></span><span> </span><span class="annot"><span class="annottext">UpperBound
+</span><a href="#local-6989586621679121267"><span class="hs-identifier hs-var">duration</span></a></span><span>
 </span><span id="line-45"></span><span>       </span><span class="annot"><span class="annottext">Response t -&gt; m (Response t)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Response t
-</span><a href="#local-6989586621679121249"><span class="hs-identifier hs-var">res</span></a></span><span>
+</span><a href="#local-6989586621679121270"><span class="hs-identifier hs-var">res</span></a></span><span>
 </span><span id="line-46"></span><span>  </span><span class="hs-keyword">where</span><span>
 </span><span id="line-47"></span><span>
-</span><span id="line-48"></span><span>    </span><span id="local-6989586621679121245"><span class="annot"><span class="annottext">incRequestCounter :: IORef (Map MessageType Counter) -&gt; MessageType -&gt; IO ()
-</span><a href="#local-6989586621679121245"><span class="hs-identifier hs-var hs-var">incRequestCounter</span></a></span></span><span> </span><span id="local-6989586621679121243"><span class="annot"><span class="annottext">counterMapRef :: IORef (Map MessageType Counter)
-</span><a href="#local-6989586621679121243"><span class="hs-identifier hs-var">counterMapRef</span></a></span></span><span> </span><span id="local-6989586621679121242"><span class="annot"><span class="annottext">msgType :: MessageType
-</span><a href="#local-6989586621679121242"><span class="hs-identifier hs-var">msgType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-49"></span><span>      </span><span id="local-6989586621679121241"><span class="annot"><span class="annottext">Counter
-</span><a href="#local-6989586621679121241"><span class="hs-identifier hs-var">counter</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-50"></span><span>        </span><span id="local-6989586621679121240"><span class="annot"><span class="annottext">Map MessageType Counter
-</span><a href="#local-6989586621679121240"><span class="hs-identifier hs-var">counterMap</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Counter) -&gt; IO (Map MessageType Counter)
+</span><span id="line-48"></span><span>    </span><span id="local-6989586621679121266"><span class="annot"><span class="annottext">incRequestCounter :: IORef (Map MessageType Counter) -&gt; MessageType -&gt; IO ()
+</span><a href="#local-6989586621679121266"><span class="hs-identifier hs-var hs-var">incRequestCounter</span></a></span></span><span> </span><span id="local-6989586621679121264"><span class="annot"><span class="annottext">counterMapRef :: IORef (Map MessageType Counter)
+</span><a href="#local-6989586621679121264"><span class="hs-identifier hs-var">counterMapRef</span></a></span></span><span> </span><span id="local-6989586621679121263"><span class="annot"><span class="annottext">msgType :: MessageType
+</span><a href="#local-6989586621679121263"><span class="hs-identifier hs-var">msgType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-49"></span><span>      </span><span id="local-6989586621679121262"><span class="annot"><span class="annottext">Counter
+</span><a href="#local-6989586621679121262"><span class="hs-identifier hs-var">counter</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-50"></span><span>        </span><span id="local-6989586621679121261"><span class="annot"><span class="annottext">Map MessageType Counter
+</span><a href="#local-6989586621679121261"><span class="hs-identifier hs-var">counterMap</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Counter) -&gt; IO (Map MessageType Counter)
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">Ref.readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Counter)
-</span><a href="#local-6989586621679121243"><span class="hs-identifier hs-var">counterMapRef</span></a></span><span>
+</span><a href="#local-6989586621679121264"><span class="hs-identifier hs-var">counterMapRef</span></a></span><span>
 </span><span id="line-51"></span><span>        </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">MessageType -&gt; Map MessageType Counter -&gt; Maybe Counter
 forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Map.lookup</span></span><span> </span><span class="annot"><span class="annottext">MessageType
-</span><a href="#local-6989586621679121242"><span class="hs-identifier hs-var">msgType</span></a></span><span> </span><span class="annot"><span class="annottext">Map MessageType Counter
-</span><a href="#local-6989586621679121240"><span class="hs-identifier hs-var">counterMap</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679121263"><span class="hs-identifier hs-var">msgType</span></a></span><span> </span><span class="annot"><span class="annottext">Map MessageType Counter
+</span><a href="#local-6989586621679121261"><span class="hs-identifier hs-var">counterMap</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-52"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; IO Counter
 forall a. HasCallStack =&gt; [Char] -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">([Char] -&gt; IO Counter) -&gt; [Char] -&gt; IO Counter
@@ -128,34 +128,34 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">MessageType -&gt; [Char]
 </span><span class="hs-identifier hs-var">msgTypeKey</span></span><span> </span><span class="annot"><span class="annottext">MessageType
-</span><a href="#local-6989586621679121242"><span class="hs-identifier hs-var">msgType</span></a></span><span>
-</span><span id="line-53"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679121236"><span class="annot"><span class="annottext">c :: Counter
-</span><a href="#local-6989586621679121236"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Counter -&gt; IO Counter
+</span><a href="#local-6989586621679121263"><span class="hs-identifier hs-var">msgType</span></a></span><span>
+</span><span id="line-53"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679121257"><span class="annot"><span class="annottext">c :: Counter
+</span><a href="#local-6989586621679121257"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Counter -&gt; IO Counter
 forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
 </span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">Counter
-</span><a href="#local-6989586621679121236"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><a href="#local-6989586621679121257"><span class="hs-identifier hs-var">c</span></a></span><span>
 </span><span id="line-54"></span><span>      </span><span class="annot"><span class="annottext">Counter -&gt; IO ()
 </span><span class="hs-identifier hs-var">Counter.inc</span></span><span> </span><span class="annot"><span class="annottext">Counter
-</span><a href="#local-6989586621679121241"><span class="hs-identifier hs-var">counter</span></a></span><span>
+</span><a href="#local-6989586621679121262"><span class="hs-identifier hs-var">counter</span></a></span><span>
 </span><span id="line-55"></span><span>
-</span><span id="line-56"></span><span>    </span><span id="local-6989586621679121244"><span class="annot"><span class="annottext">addToHistogram :: IORef (Map MessageType Histogram)
+</span><span id="line-56"></span><span>    </span><span id="local-6989586621679121265"><span class="annot"><span class="annottext">addToHistogram :: IORef (Map MessageType Histogram)
 -&gt; MessageType -&gt; UpperBound -&gt; IO ()
-</span><a href="#local-6989586621679121244"><span class="hs-identifier hs-var hs-var">addToHistogram</span></a></span></span><span> </span><span id="local-6989586621679121234"><span class="annot"><span class="annottext">histogramMapRef :: IORef (Map MessageType Histogram)
-</span><a href="#local-6989586621679121234"><span class="hs-identifier hs-var">histogramMapRef</span></a></span></span><span> </span><span id="local-6989586621679121233"><span class="annot"><span class="annottext">msgType :: MessageType
-</span><a href="#local-6989586621679121233"><span class="hs-identifier hs-var">msgType</span></a></span></span><span> </span><span id="local-6989586621679121232"><span class="annot"><span class="annottext">duration :: UpperBound
-</span><a href="#local-6989586621679121232"><span class="hs-identifier hs-var">duration</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-57"></span><span>      </span><span id="local-6989586621679121231"><span class="annot"><span class="annottext">Histogram
-</span><a href="#local-6989586621679121231"><span class="hs-identifier hs-var">histogram</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-58"></span><span>        </span><span id="local-6989586621679121230"><span class="annot"><span class="annottext">Map MessageType Histogram
-</span><a href="#local-6989586621679121230"><span class="hs-identifier hs-var">histMap</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Histogram) -&gt; IO (Map MessageType Histogram)
+</span><a href="#local-6989586621679121265"><span class="hs-identifier hs-var hs-var">addToHistogram</span></a></span></span><span> </span><span id="local-6989586621679121255"><span class="annot"><span class="annottext">histogramMapRef :: IORef (Map MessageType Histogram)
+</span><a href="#local-6989586621679121255"><span class="hs-identifier hs-var">histogramMapRef</span></a></span></span><span> </span><span id="local-6989586621679121254"><span class="annot"><span class="annottext">msgType :: MessageType
+</span><a href="#local-6989586621679121254"><span class="hs-identifier hs-var">msgType</span></a></span></span><span> </span><span id="local-6989586621679121253"><span class="annot"><span class="annottext">duration :: UpperBound
+</span><a href="#local-6989586621679121253"><span class="hs-identifier hs-var">duration</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-57"></span><span>      </span><span id="local-6989586621679121252"><span class="annot"><span class="annottext">Histogram
+</span><a href="#local-6989586621679121252"><span class="hs-identifier hs-var">histogram</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-58"></span><span>        </span><span id="local-6989586621679121251"><span class="annot"><span class="annottext">Map MessageType Histogram
+</span><a href="#local-6989586621679121251"><span class="hs-identifier hs-var">histMap</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Histogram) -&gt; IO (Map MessageType Histogram)
 forall a. IORef a -&gt; IO a
 </span><span class="hs-identifier hs-var">Ref.readIORef</span></span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Histogram)
-</span><a href="#local-6989586621679121234"><span class="hs-identifier hs-var">histogramMapRef</span></a></span><span>
+</span><a href="#local-6989586621679121255"><span class="hs-identifier hs-var">histogramMapRef</span></a></span><span>
 </span><span id="line-59"></span><span>        </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">MessageType -&gt; Map MessageType Histogram -&gt; Maybe Histogram
 forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Map.lookup</span></span><span> </span><span class="annot"><span class="annottext">MessageType
-</span><a href="#local-6989586621679121233"><span class="hs-identifier hs-var">msgType</span></a></span><span> </span><span class="annot"><span class="annottext">Map MessageType Histogram
-</span><a href="#local-6989586621679121230"><span class="hs-identifier hs-var">histMap</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679121254"><span class="hs-identifier hs-var">msgType</span></a></span><span> </span><span class="annot"><span class="annottext">Map MessageType Histogram
+</span><a href="#local-6989586621679121251"><span class="hs-identifier hs-var">histMap</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-60"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; IO Histogram
 forall a. HasCallStack =&gt; [Char] -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">([Char] -&gt; IO Histogram) -&gt; [Char] -&gt; IO Histogram
@@ -164,16 +164,16 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">MessageType -&gt; [Char]
 </span><span class="hs-identifier hs-var">msgTypeKey</span></span><span> </span><span class="annot"><span class="annottext">MessageType
-</span><a href="#local-6989586621679121233"><span class="hs-identifier hs-var">msgType</span></a></span><span>
-</span><span id="line-61"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679121229"><span class="annot"><span class="annottext">c :: Histogram
-</span><a href="#local-6989586621679121229"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Histogram -&gt; IO Histogram
+</span><a href="#local-6989586621679121254"><span class="hs-identifier hs-var">msgType</span></a></span><span>
+</span><span id="line-61"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679121250"><span class="annot"><span class="annottext">c :: Histogram
+</span><a href="#local-6989586621679121250"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Histogram -&gt; IO Histogram
 forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
 </span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">Histogram
-</span><a href="#local-6989586621679121229"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><a href="#local-6989586621679121250"><span class="hs-identifier hs-var">c</span></a></span><span>
 </span><span id="line-62"></span><span>      </span><span class="annot"><span class="annottext">UpperBound -&gt; Histogram -&gt; IO ()
 </span><span class="hs-identifier hs-var">Histogram.observe</span></span><span> </span><span class="annot"><span class="annottext">UpperBound
-</span><a href="#local-6989586621679121232"><span class="hs-identifier hs-var">duration</span></a></span><span> </span><span class="annot"><span class="annottext">Histogram
-</span><a href="#local-6989586621679121231"><span class="hs-identifier hs-var">histogram</span></a></span><span>
+</span><a href="#local-6989586621679121253"><span class="hs-identifier hs-var">duration</span></a></span><span> </span><span class="annot"><span class="annottext">Histogram
+</span><a href="#local-6989586621679121252"><span class="hs-identifier hs-var">histogram</span></a></span><span>
 </span><span id="line-63"></span><span>
 </span><span id="line-64"></span><span class="hs-keyword">data</span><span> </span><span id="Config"><span class="annot"><a href="Network.ABCI.Server.Middleware.Metrics.html#Config"><span class="hs-identifier hs-var">Config</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Config"><span class="annot"><a href="Network.ABCI.Server.Middleware.Metrics.html#Config"><span class="hs-identifier hs-var">Config</span></a></span></span><span>
 </span><span id="line-65"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="cfgRegistry"><span class="annot"><span class="annottext">Config -&gt; Registry
@@ -191,23 +191,23 @@ forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
 </span><span id="line-73"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Registry.Registry</span></span><span>
 </span><span id="line-74"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Network.ABCI.Server.Middleware.Metrics.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span>
 </span><span id="line-75"></span><span id="makeConfig"><span class="annot"><span class="annottext">makeConfig :: [UpperBound] -&gt; Registry -&gt; IO Config
-</span><a href="Network.ABCI.Server.Middleware.Metrics.html#makeConfig"><span class="hs-identifier hs-var hs-var">makeConfig</span></a></span></span><span> </span><span id="local-6989586621679121227"><span class="annot"><span class="annottext">bounds :: [UpperBound]
-</span><a href="#local-6989586621679121227"><span class="hs-identifier hs-var">bounds</span></a></span></span><span> </span><span id="local-6989586621679121226"><span class="annot"><span class="annottext">registry :: Registry
-</span><a href="#local-6989586621679121226"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-76"></span><span>  </span><span id="local-6989586621679121225"><span class="annot"><span class="annottext">IORef (Map MessageType Counter)
-</span><a href="#local-6989586621679121225"><span class="hs-identifier hs-var">counterMap</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Map MessageType Counter -&gt; IO (IORef (Map MessageType Counter))
+</span><a href="Network.ABCI.Server.Middleware.Metrics.html#makeConfig"><span class="hs-identifier hs-var hs-var">makeConfig</span></a></span></span><span> </span><span id="local-6989586621679121248"><span class="annot"><span class="annottext">bounds :: [UpperBound]
+</span><a href="#local-6989586621679121248"><span class="hs-identifier hs-var">bounds</span></a></span></span><span> </span><span id="local-6989586621679121247"><span class="annot"><span class="annottext">registry :: Registry
+</span><a href="#local-6989586621679121247"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-76"></span><span>  </span><span id="local-6989586621679121246"><span class="annot"><span class="annottext">IORef (Map MessageType Counter)
+</span><a href="#local-6989586621679121246"><span class="hs-identifier hs-var">counterMap</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Map MessageType Counter -&gt; IO (IORef (Map MessageType Counter))
 forall a. a -&gt; IO (IORef a)
 </span><span class="hs-identifier hs-var">Ref.newIORef</span></span><span> </span><span class="annot"><span class="annottext">Map MessageType Counter
 forall k a. Map k a
 </span><span class="hs-identifier hs-var">Map.empty</span></span><span>
-</span><span id="line-77"></span><span>  </span><span id="local-6989586621679121222"><span class="annot"><span class="annottext">IORef (Map MessageType Histogram)
-</span><a href="#local-6989586621679121222"><span class="hs-identifier hs-var">histMap</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Map MessageType Histogram -&gt; IO (IORef (Map MessageType Histogram))
+</span><span id="line-77"></span><span>  </span><span id="local-6989586621679121243"><span class="annot"><span class="annottext">IORef (Map MessageType Histogram)
+</span><a href="#local-6989586621679121243"><span class="hs-identifier hs-var">histMap</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Map MessageType Histogram -&gt; IO (IORef (Map MessageType Histogram))
 forall a. a -&gt; IO (IORef a)
 </span><span class="hs-identifier hs-var">Ref.newIORef</span></span><span> </span><span class="annot"><span class="annottext">Map MessageType Histogram
 forall k a. Map k a
 </span><span class="hs-identifier hs-var">Map.empty</span></span><span>
-</span><span id="line-78"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121221"><span class="annot"><span class="annottext">cfg :: Config
-</span><a href="#local-6989586621679121221"><span class="hs-identifier hs-var hs-var">cfg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Config :: Registry
+</span><span id="line-78"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121242"><span class="annot"><span class="annottext">cfg :: Config
+</span><a href="#local-6989586621679121242"><span class="hs-identifier hs-var hs-var">cfg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Config :: Registry
 -&gt; [UpperBound]
 -&gt; IORef (Map MessageType Counter)
 -&gt; IORef (Map MessageType Histogram)
@@ -215,55 +215,55 @@ forall k a. Map k a
 </span><a href="Network.ABCI.Server.Middleware.Metrics.html#Config"><span class="hs-identifier hs-type hs-type">Config</span></a></span><span>
 </span><span id="line-79"></span><span>        </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">cfgRegistry :: Registry
 </span><a href="Network.ABCI.Server.Middleware.Metrics.html#cfgRegistry"><span class="hs-identifier hs-var">cfgRegistry</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Registry
-</span><a href="#local-6989586621679121226"><span class="hs-identifier hs-var">registry</span></a></span><span>
+</span><a href="#local-6989586621679121247"><span class="hs-identifier hs-var">registry</span></a></span><span>
 </span><span id="line-80"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">cfgHistogramBuckets :: [UpperBound]
 </span><a href="Network.ABCI.Server.Middleware.Metrics.html#cfgHistogramBuckets"><span class="hs-identifier hs-var">cfgHistogramBuckets</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[UpperBound]
-</span><a href="#local-6989586621679121227"><span class="hs-identifier hs-var">bounds</span></a></span><span>
+</span><a href="#local-6989586621679121248"><span class="hs-identifier hs-var">bounds</span></a></span><span>
 </span><span id="line-81"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">cfgCounterMap :: IORef (Map MessageType Counter)
 </span><a href="Network.ABCI.Server.Middleware.Metrics.html#cfgCounterMap"><span class="hs-identifier hs-var">cfgCounterMap</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Counter)
-</span><a href="#local-6989586621679121225"><span class="hs-identifier hs-var">counterMap</span></a></span><span>
+</span><a href="#local-6989586621679121246"><span class="hs-identifier hs-var">counterMap</span></a></span><span>
 </span><span id="line-82"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">cfgHistogramMap :: IORef (Map MessageType Histogram)
 </span><a href="Network.ABCI.Server.Middleware.Metrics.html#cfgHistogramMap"><span class="hs-identifier hs-var">cfgHistogramMap</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Histogram)
-</span><a href="#local-6989586621679121222"><span class="hs-identifier hs-var">histMap</span></a></span><span>
+</span><a href="#local-6989586621679121243"><span class="hs-identifier hs-var">histMap</span></a></span><span>
 </span><span id="line-83"></span><span>        </span><span class="hs-special">}</span><span>
 </span><span id="line-84"></span><span>  </span><span class="annot"><span class="annottext">Config -&gt; IO ()
 </span><a href="Network.ABCI.Server.Middleware.Metrics.html#registerMetrics"><span class="hs-identifier hs-var">registerMetrics</span></a></span><span> </span><span class="annot"><span class="annottext">Config
-</span><a href="#local-6989586621679121221"><span class="hs-identifier hs-var">cfg</span></a></span><span>
+</span><a href="#local-6989586621679121242"><span class="hs-identifier hs-var">cfg</span></a></span><span>
 </span><span id="line-85"></span><span>  </span><span class="annot"><span class="annottext">Config -&gt; IO Config
 forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
 </span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">Config
-</span><a href="#local-6989586621679121221"><span class="hs-identifier hs-var">cfg</span></a></span><span>
+</span><a href="#local-6989586621679121242"><span class="hs-identifier hs-var">cfg</span></a></span><span>
 </span><span id="line-86"></span><span>
 </span><span id="line-87"></span><span class="annot"><a href="Network.ABCI.Server.Middleware.Metrics.html#registerMetrics"><span class="hs-identifier hs-type">registerMetrics</span></a></span><span>
 </span><span id="line-88"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Network.ABCI.Server.Middleware.Metrics.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span>
 </span><span id="line-89"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-90"></span><span id="registerMetrics"><span class="annot"><span class="annottext">registerMetrics :: Config -&gt; IO ()
-</span><a href="Network.ABCI.Server.Middleware.Metrics.html#registerMetrics"><span class="hs-identifier hs-var hs-var">registerMetrics</span></a></span></span><span> </span><span id="local-6989586621679121215"><span id="local-6989586621679121216"><span id="local-6989586621679121217"><span id="local-6989586621679121218"><span class="annot"><a href="Network.ABCI.Server.Middleware.Metrics.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="Network.ABCI.Server.Middleware.Metrics.html#registerMetrics"><span class="hs-identifier hs-var hs-var">registerMetrics</span></a></span></span><span> </span><span id="local-6989586621679121236"><span id="local-6989586621679121237"><span id="local-6989586621679121238"><span id="local-6989586621679121239"><span class="annot"><a href="Network.ABCI.Server.Middleware.Metrics.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-91"></span><span>  </span><span class="annot"><span class="annottext">[UpperBound]
 -&gt; Registry -&gt; IORef (Map MessageType Histogram) -&gt; IO ()
-</span><a href="#local-6989586621679121214"><span class="hs-identifier hs-var">registerHistograms</span></a></span><span> </span><span class="annot"><span class="annottext">[UpperBound]
-</span><a href="#local-6989586621679121217"><span class="hs-identifier hs-var">cfgHistogramBuckets</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
-</span><a href="#local-6989586621679121218"><span class="hs-identifier hs-var">cfgRegistry</span></a></span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Histogram)
-</span><a href="#local-6989586621679121215"><span class="hs-identifier hs-var">cfgHistogramMap</span></a></span><span>
+</span><a href="#local-6989586621679121235"><span class="hs-identifier hs-var">registerHistograms</span></a></span><span> </span><span class="annot"><span class="annottext">[UpperBound]
+</span><a href="#local-6989586621679121238"><span class="hs-identifier hs-var">cfgHistogramBuckets</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
+</span><a href="#local-6989586621679121239"><span class="hs-identifier hs-var">cfgRegistry</span></a></span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Histogram)
+</span><a href="#local-6989586621679121236"><span class="hs-identifier hs-var">cfgHistogramMap</span></a></span><span>
 </span><span id="line-92"></span><span>  </span><span class="annot"><span class="annottext">Registry -&gt; IORef (Map MessageType Counter) -&gt; IO ()
-</span><a href="#local-6989586621679121213"><span class="hs-identifier hs-var">registerCounters</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
-</span><a href="#local-6989586621679121218"><span class="hs-identifier hs-var">cfgRegistry</span></a></span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Counter)
-</span><a href="#local-6989586621679121216"><span class="hs-identifier hs-var">cfgCounterMap</span></a></span><span>
+</span><a href="#local-6989586621679121234"><span class="hs-identifier hs-var">registerCounters</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
+</span><a href="#local-6989586621679121239"><span class="hs-identifier hs-var">cfgRegistry</span></a></span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Counter)
+</span><a href="#local-6989586621679121237"><span class="hs-identifier hs-var">cfgCounterMap</span></a></span><span>
 </span><span id="line-93"></span><span>  </span><span class="hs-keyword">where</span><span>
 </span><span id="line-94"></span><span>
-</span><span id="line-95"></span><span>    </span><span class="annot"><a href="#local-6989586621679121214"><span class="hs-identifier hs-type">registerHistograms</span></a></span><span>
+</span><span id="line-95"></span><span>    </span><span class="annot"><a href="#local-6989586621679121235"><span class="hs-identifier hs-type">registerHistograms</span></a></span><span>
 </span><span id="line-96"></span><span>      </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Histogram.UpperBound</span></span><span class="hs-special">]</span><span>
 </span><span id="line-97"></span><span>      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Registry.Registry</span></span><span>
 </span><span id="line-98"></span><span>      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ref.IORef</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">MessageType</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Histogram.Histogram</span></span><span class="hs-special">)</span><span>
 </span><span id="line-99"></span><span>      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-100"></span><span>    </span><span id="local-6989586621679121214"><span class="annot"><span class="annottext">registerHistograms :: [UpperBound]
+</span><span id="line-100"></span><span>    </span><span id="local-6989586621679121235"><span class="annot"><span class="annottext">registerHistograms :: [UpperBound]
 -&gt; Registry -&gt; IORef (Map MessageType Histogram) -&gt; IO ()
-</span><a href="#local-6989586621679121214"><span class="hs-identifier hs-var hs-var">registerHistograms</span></a></span></span><span> </span><span id="local-6989586621679121212"><span class="annot"><span class="annottext">buckets :: [UpperBound]
-</span><a href="#local-6989586621679121212"><span class="hs-identifier hs-var">buckets</span></a></span></span><span> </span><span id="local-6989586621679121211"><span class="annot"><span class="annottext">registry :: Registry
-</span><a href="#local-6989586621679121211"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span id="local-6989586621679121210"><span class="annot"><span class="annottext">histRef :: IORef (Map MessageType Histogram)
-</span><a href="#local-6989586621679121210"><span class="hs-identifier hs-var">histRef</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-101"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121209"><span class="annot"><span class="annottext">histName :: Name
-</span><a href="#local-6989586621679121209"><span class="hs-identifier hs-var hs-var">histName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;abci_request_duration_seconds&quot;</span></span><span>
+</span><a href="#local-6989586621679121235"><span class="hs-identifier hs-var hs-var">registerHistograms</span></a></span></span><span> </span><span id="local-6989586621679121233"><span class="annot"><span class="annottext">buckets :: [UpperBound]
+</span><a href="#local-6989586621679121233"><span class="hs-identifier hs-var">buckets</span></a></span></span><span> </span><span id="local-6989586621679121232"><span class="annot"><span class="annottext">registry :: Registry
+</span><a href="#local-6989586621679121232"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span id="local-6989586621679121231"><span class="annot"><span class="annottext">histRef :: IORef (Map MessageType Histogram)
+</span><a href="#local-6989586621679121231"><span class="hs-identifier hs-var">histRef</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-101"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121230"><span class="annot"><span class="annottext">histName :: Name
+</span><a href="#local-6989586621679121230"><span class="hs-identifier hs-var hs-var">histName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;abci_request_duration_seconds&quot;</span></span><span>
 </span><span id="line-102"></span><span>      </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[MessageType] -&gt; (MessageType -&gt; IO ()) -&gt; IO ()
 forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
 (Foldable t, Monad m) =&gt;
@@ -273,10 +273,10 @@ t a -&gt; (a -&gt; m b) -&gt; m ()
 </span><span class="hs-identifier hs-var">MTCommit</span></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">((MessageType -&gt; IO ()) -&gt; IO ())
 -&gt; (MessageType -&gt; IO ()) -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679121206"><span class="annot"><span class="annottext">messageType :: MessageType
-</span><a href="#local-6989586621679121206"><span class="hs-identifier hs-var">messageType</span></a></span></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-103"></span><span>           </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121205"><span class="annot"><span class="annottext">labels :: Labels
-</span><a href="#local-6989586621679121205"><span class="hs-identifier hs-var hs-var">labels</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Map Text Text -&gt; Labels
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679121227"><span class="annot"><span class="annottext">messageType :: MessageType
+</span><a href="#local-6989586621679121227"><span class="hs-identifier hs-var">messageType</span></a></span></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-103"></span><span>           </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121226"><span class="annot"><span class="annottext">labels :: Labels
+</span><a href="#local-6989586621679121226"><span class="hs-identifier hs-var hs-var">labels</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Map Text Text -&gt; Labels
 </span><span class="hs-identifier hs-var">MetricId.Labels</span></span><span> </span><span class="annot"><span class="annottext">(Map Text Text -&gt; Labels)
 -&gt; ([(Text, Text)] -&gt; Map Text Text) -&gt; [(Text, Text)] -&gt; Labels
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -291,40 +291,40 @@ forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">MessageType -&gt; [Char]
 </span><span class="hs-identifier hs-var">msgTypeKey</span></span><span> </span><span class="annot"><span class="annottext">MessageType
-</span><a href="#local-6989586621679121206"><span class="hs-identifier hs-var">messageType</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679121227"><span class="hs-identifier hs-var">messageType</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-105"></span><span>                 </span><span class="hs-special">]</span><span>
-</span><span id="line-106"></span><span>           </span><span id="local-6989586621679121201"><span class="annot"><span class="annottext">Histogram
-</span><a href="#local-6989586621679121201"><span class="hs-identifier hs-var">hist</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Labels -&gt; [UpperBound] -&gt; Registry -&gt; IO Histogram
+</span><span id="line-106"></span><span>           </span><span id="local-6989586621679121222"><span class="annot"><span class="annottext">Histogram
+</span><a href="#local-6989586621679121222"><span class="hs-identifier hs-var">hist</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Labels -&gt; [UpperBound] -&gt; Registry -&gt; IO Histogram
 </span><span class="hs-identifier hs-var">Registry.registerHistogram</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679121209"><span class="hs-identifier hs-var">histName</span></a></span><span> </span><span class="annot"><span class="annottext">Labels
-</span><a href="#local-6989586621679121205"><span class="hs-identifier hs-var">labels</span></a></span><span> </span><span class="annot"><span class="annottext">[UpperBound]
-</span><a href="#local-6989586621679121212"><span class="hs-identifier hs-var">buckets</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
-</span><a href="#local-6989586621679121211"><span class="hs-identifier hs-var">registry</span></a></span><span>
+</span><a href="#local-6989586621679121230"><span class="hs-identifier hs-var">histName</span></a></span><span> </span><span class="annot"><span class="annottext">Labels
+</span><a href="#local-6989586621679121226"><span class="hs-identifier hs-var">labels</span></a></span><span> </span><span class="annot"><span class="annottext">[UpperBound]
+</span><a href="#local-6989586621679121233"><span class="hs-identifier hs-var">buckets</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
+</span><a href="#local-6989586621679121232"><span class="hs-identifier hs-var">registry</span></a></span><span>
 </span><span id="line-107"></span><span>           </span><span class="annot"><span class="annottext">IORef (Map MessageType Histogram)
 -&gt; (Map MessageType Histogram -&gt; Map MessageType Histogram)
 -&gt; IO ()
 forall a. IORef a -&gt; (a -&gt; a) -&gt; IO ()
 </span><span class="hs-identifier hs-var">Ref.modifyIORef'</span></span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Histogram)
-</span><a href="#local-6989586621679121210"><span class="hs-identifier hs-var">histRef</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MessageType
+</span><a href="#local-6989586621679121231"><span class="hs-identifier hs-var">histRef</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MessageType
 -&gt; Histogram
 -&gt; Map MessageType Histogram
 -&gt; Map MessageType Histogram
 forall k a. Ord k =&gt; k -&gt; a -&gt; Map k a -&gt; Map k a
 </span><span class="hs-identifier hs-var">Map.insert</span></span><span> </span><span class="annot"><span class="annottext">MessageType
-</span><a href="#local-6989586621679121206"><span class="hs-identifier hs-var">messageType</span></a></span><span> </span><span class="annot"><span class="annottext">Histogram
-</span><a href="#local-6989586621679121201"><span class="hs-identifier hs-var">hist</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679121227"><span class="hs-identifier hs-var">messageType</span></a></span><span> </span><span class="annot"><span class="annottext">Histogram
+</span><a href="#local-6989586621679121222"><span class="hs-identifier hs-var">hist</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-108"></span><span>
 </span><span id="line-109"></span><span>
-</span><span id="line-110"></span><span>    </span><span class="annot"><a href="#local-6989586621679121213"><span class="hs-identifier hs-type">registerCounters</span></a></span><span>
+</span><span id="line-110"></span><span>    </span><span class="annot"><a href="#local-6989586621679121234"><span class="hs-identifier hs-type">registerCounters</span></a></span><span>
 </span><span id="line-111"></span><span>      </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Registry.Registry</span></span><span>
 </span><span id="line-112"></span><span>      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Ref.IORef</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Map.Map</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">MessageType</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Counter.Counter</span></span><span class="hs-special">)</span><span>
 </span><span id="line-113"></span><span>      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-114"></span><span>    </span><span id="local-6989586621679121213"><span class="annot"><span class="annottext">registerCounters :: Registry -&gt; IORef (Map MessageType Counter) -&gt; IO ()
-</span><a href="#local-6989586621679121213"><span class="hs-identifier hs-var hs-var">registerCounters</span></a></span></span><span> </span><span id="local-6989586621679121197"><span class="annot"><span class="annottext">registry :: Registry
-</span><a href="#local-6989586621679121197"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span id="local-6989586621679121196"><span class="annot"><span class="annottext">counterRef :: IORef (Map MessageType Counter)
-</span><a href="#local-6989586621679121196"><span class="hs-identifier hs-var">counterRef</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-115"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121195"><span class="annot"><span class="annottext">counterName :: Name
-</span><a href="#local-6989586621679121195"><span class="hs-identifier hs-var hs-var">counterName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;abci_request_total&quot;</span></span><span>
+</span><span id="line-114"></span><span>    </span><span id="local-6989586621679121234"><span class="annot"><span class="annottext">registerCounters :: Registry -&gt; IORef (Map MessageType Counter) -&gt; IO ()
+</span><a href="#local-6989586621679121234"><span class="hs-identifier hs-var hs-var">registerCounters</span></a></span></span><span> </span><span id="local-6989586621679121218"><span class="annot"><span class="annottext">registry :: Registry
+</span><a href="#local-6989586621679121218"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span id="local-6989586621679121217"><span class="annot"><span class="annottext">counterRef :: IORef (Map MessageType Counter)
+</span><a href="#local-6989586621679121217"><span class="hs-identifier hs-var">counterRef</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-115"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121216"><span class="annot"><span class="annottext">counterName :: Name
+</span><a href="#local-6989586621679121216"><span class="hs-identifier hs-var hs-var">counterName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;abci_request_total&quot;</span></span><span>
 </span><span id="line-116"></span><span>      </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">[MessageType] -&gt; (MessageType -&gt; IO ()) -&gt; IO ()
 forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
 (Foldable t, Monad m) =&gt;
@@ -334,10 +334,10 @@ t a -&gt; (a -&gt; m b) -&gt; m ()
 </span><span class="hs-identifier hs-var">MTCommit</span></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">((MessageType -&gt; IO ()) -&gt; IO ())
 -&gt; (MessageType -&gt; IO ()) -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679121194"><span class="annot"><span class="annottext">messageType :: MessageType
-</span><a href="#local-6989586621679121194"><span class="hs-identifier hs-var">messageType</span></a></span></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-117"></span><span>           </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121193"><span class="annot"><span class="annottext">labels :: Labels
-</span><a href="#local-6989586621679121193"><span class="hs-identifier hs-var hs-var">labels</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Map Text Text -&gt; Labels
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679121215"><span class="annot"><span class="annottext">messageType :: MessageType
+</span><a href="#local-6989586621679121215"><span class="hs-identifier hs-var">messageType</span></a></span></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-117"></span><span>           </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679121214"><span class="annot"><span class="annottext">labels :: Labels
+</span><a href="#local-6989586621679121214"><span class="hs-identifier hs-var hs-var">labels</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Map Text Text -&gt; Labels
 </span><span class="hs-identifier hs-var">MetricId.Labels</span></span><span> </span><span class="annot"><span class="annottext">(Map Text Text -&gt; Labels)
 -&gt; ([(Text, Text)] -&gt; Map Text Text) -&gt; [(Text, Text)] -&gt; Labels
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -352,24 +352,24 @@ forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">MessageType -&gt; [Char]
 </span><span class="hs-identifier hs-var">msgTypeKey</span></span><span> </span><span class="annot"><span class="annottext">MessageType
-</span><a href="#local-6989586621679121194"><span class="hs-identifier hs-var">messageType</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679121215"><span class="hs-identifier hs-var">messageType</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-119"></span><span>                 </span><span class="hs-special">]</span><span>
-</span><span id="line-120"></span><span>           </span><span id="local-6989586621679121192"><span class="annot"><span class="annottext">Counter
-</span><a href="#local-6989586621679121192"><span class="hs-identifier hs-var">counter</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Labels -&gt; Registry -&gt; IO Counter
+</span><span id="line-120"></span><span>           </span><span id="local-6989586621679121213"><span class="annot"><span class="annottext">Counter
+</span><a href="#local-6989586621679121213"><span class="hs-identifier hs-var">counter</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Labels -&gt; Registry -&gt; IO Counter
 </span><span class="hs-identifier hs-var">Registry.registerCounter</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679121195"><span class="hs-identifier hs-var">counterName</span></a></span><span> </span><span class="annot"><span class="annottext">Labels
-</span><a href="#local-6989586621679121193"><span class="hs-identifier hs-var">labels</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
-</span><a href="#local-6989586621679121197"><span class="hs-identifier hs-var">registry</span></a></span><span>
+</span><a href="#local-6989586621679121216"><span class="hs-identifier hs-var">counterName</span></a></span><span> </span><span class="annot"><span class="annottext">Labels
+</span><a href="#local-6989586621679121214"><span class="hs-identifier hs-var">labels</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
+</span><a href="#local-6989586621679121218"><span class="hs-identifier hs-var">registry</span></a></span><span>
 </span><span id="line-121"></span><span>           </span><span class="annot"><span class="annottext">IORef (Map MessageType Counter)
 -&gt; (Map MessageType Counter -&gt; Map MessageType Counter) -&gt; IO ()
 forall a. IORef a -&gt; (a -&gt; a) -&gt; IO ()
 </span><span class="hs-identifier hs-var">Ref.modifyIORef'</span></span><span> </span><span class="annot"><span class="annottext">IORef (Map MessageType Counter)
-</span><a href="#local-6989586621679121196"><span class="hs-identifier hs-var">counterRef</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MessageType
+</span><a href="#local-6989586621679121217"><span class="hs-identifier hs-var">counterRef</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MessageType
 -&gt; Counter -&gt; Map MessageType Counter -&gt; Map MessageType Counter
 forall k a. Ord k =&gt; k -&gt; a -&gt; Map k a -&gt; Map k a
 </span><span class="hs-identifier hs-var">Map.insert</span></span><span> </span><span class="annot"><span class="annottext">MessageType
-</span><a href="#local-6989586621679121194"><span class="hs-identifier hs-var">messageType</span></a></span><span> </span><span class="annot"><span class="annottext">Counter
-</span><a href="#local-6989586621679121192"><span class="hs-identifier hs-var">counter</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679121215"><span class="hs-identifier hs-var">messageType</span></a></span><span> </span><span class="annot"><span class="annottext">Counter
+</span><a href="#local-6989586621679121213"><span class="hs-identifier hs-var">counter</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-122"></span><span>
 </span><span id="line-123"></span><span class="hs-comment">-- buckets with upper bounds [0.005, 0.01, 0.015 ... 5.0]</span><span>
 </span><span id="line-124"></span><span class="hs-comment">-- measured in seconds</span><span>

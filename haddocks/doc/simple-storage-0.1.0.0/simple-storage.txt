@@ -76,8 +76,8 @@ type SimpleStorageEffs = '[SimpleStorageKeeper]
 data SimpleStorageKeeper m a
 [UpdateCount] :: Count -> SimpleStorageKeeper m ()
 [GetCount] :: SimpleStorageKeeper m (Maybe Count)
-updateCount :: forall r_aVp4. MemberWithError SimpleStorageKeeper r_aVp4 => Count -> Sem r_aVp4 ()
-getCount :: forall r_aVp6. MemberWithError SimpleStorageKeeper r_aVp6 => Sem r_aVp6 (Maybe Count)
+updateCount :: forall r_aVpX. MemberWithError SimpleStorageKeeper r_aVpX => Count -> Sem r_aVpX ()
+getCount :: forall r_aVpZ. MemberWithError SimpleStorageKeeper r_aVpZ => Sem r_aVpZ (Maybe Count)
 eval :: forall r. Members TxEffs r => Members BaseEffs r => forall a. Sem (SimpleStorageKeeper : r) a -> Sem r a
 countVar :: Var Count
 instance Tendermint.SDK.BaseApp.Store.RawStore.RawKey SimpleStorage.Modules.SimpleStorage.Keeper.CountVarKey
@@ -99,8 +99,8 @@ data SimpleStorageKeeper m a
 [UpdateCount] :: Count -> SimpleStorageKeeper m ()
 [GetCount] :: SimpleStorageKeeper m (Maybe Count)
 type SimpleStorageEffs = '[SimpleStorageKeeper]
-updateCount :: forall r_aVp4. MemberWithError SimpleStorageKeeper r_aVp4 => Count -> Sem r_aVp4 ()
-getCount :: forall r_aVp6. MemberWithError SimpleStorageKeeper r_aVp6 => Sem r_aVp6 (Maybe Count)
+updateCount :: forall r_aVpX. MemberWithError SimpleStorageKeeper r_aVpX => Count -> Sem r_aVpX ()
+getCount :: forall r_aVpZ. MemberWithError SimpleStorageKeeper r_aVpZ => Sem r_aVpZ (Maybe Count)
 eval :: forall r. Members TxEffs r => Members BaseEffs r => forall a. Sem (SimpleStorageKeeper : r) a -> Sem r a
 
 module SimpleStorage.Application

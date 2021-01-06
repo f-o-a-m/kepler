@@ -28,12 +28,12 @@
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#requestParams"><span class="hs-identifier hs-var hs-var">requestParams</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Value</span></span><span>
 </span><span id="line-26"></span><span>  </span><span class="hs-special">}</span><span>
 </span><span id="line-27"></span><span>
-</span><span id="line-28"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219760"><span id="local-6989586621679219762"><span id="local-6989586621679219764"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Request"><span class="hs-identifier hs-type">Request</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-29"></span><span>  </span><span id="local-6989586621679219758"><span class="annot"><span class="annottext">toJSON :: Request -&gt; Value
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Request"><span class="hs-identifier hs-type">Request</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#MethodName"><span class="hs-identifier hs-type">MethodName</span></a></span><span> </span><span id="local-6989586621679219755"><span class="annot"><span class="annottext">method :: Text
-</span><a href="#local-6989586621679219755"><span class="hs-identifier hs-var">method</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679219754"><span class="annot"><span class="annottext">rid :: Int
-</span><a href="#local-6989586621679219754"><span class="hs-identifier hs-var">rid</span></a></span></span><span> </span><span id="local-6989586621679219753"><span class="annot"><span class="annottext">params :: Value
-</span><a href="#local-6989586621679219753"><span class="hs-identifier hs-var">params</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
+</span><span id="line-28"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219781"><span id="local-6989586621679219783"><span id="local-6989586621679219785"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Request"><span class="hs-identifier hs-type">Request</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-29"></span><span>  </span><span id="local-6989586621679219779"><span class="annot"><span class="annottext">toJSON :: Request -&gt; Value
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Request"><span class="hs-identifier hs-type">Request</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#MethodName"><span class="hs-identifier hs-type">MethodName</span></a></span><span> </span><span id="local-6989586621679219776"><span class="annot"><span class="annottext">method :: Text
+</span><a href="#local-6989586621679219776"><span class="hs-identifier hs-var">method</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679219775"><span class="annot"><span class="annottext">rid :: Int
+</span><a href="#local-6989586621679219775"><span class="hs-identifier hs-var">rid</span></a></span></span><span> </span><span id="local-6989586621679219774"><span class="annot"><span class="annottext">params :: Value
+</span><a href="#local-6989586621679219774"><span class="hs-identifier hs-var">params</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
 </span><span class="hs-identifier hs-var">Aeson.object</span></span><span>
 </span><span id="line-30"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="hs-string">&quot;jsonrpc&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Value -&gt; Pair
 forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
@@ -42,15 +42,15 @@ forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><span id="line-31"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;method&quot;</span></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Pair
 forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679219755"><span class="hs-identifier hs-var">method</span></a></span><span>
+</span><a href="#local-6989586621679219776"><span class="hs-identifier hs-var">method</span></a></span><span>
 </span><span id="line-32"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;params&quot;</span></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; Value -&gt; Pair
 forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">Value
-</span><a href="#local-6989586621679219753"><span class="hs-identifier hs-var">params</span></a></span><span>
+</span><a href="#local-6989586621679219774"><span class="hs-identifier hs-var">params</span></a></span><span>
 </span><span id="line-33"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;id&quot;</span></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; Int -&gt; Pair
 forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679219754"><span class="hs-identifier hs-var">rid</span></a></span><span>
+</span><a href="#local-6989586621679219775"><span class="hs-identifier hs-var">rid</span></a></span><span>
 </span><span id="line-34"></span><span>    </span><span class="hs-special">]</span><span>
 </span><span id="line-35"></span><span>
 </span><span id="line-36"></span><span class="hs-comment">-- | JSON-RPC response.</span><span>
@@ -59,7 +59,7 @@ forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#responseId"><span class="hs-identifier hs-var hs-var">responseId</span></a></span></span><span>     </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
 </span><span id="line-39"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="responseResult"><span class="annot"><span class="annottext">Response -&gt; Either RpcError Value
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#responseResult"><span class="hs-identifier hs-var hs-var">responseResult</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-type">RpcError</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Value</span></span><span class="hs-special">)</span><span>
-</span><span id="line-40"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679219744"><span id="local-6989586621679219746"><span class="annot"><span class="annottext">Response -&gt; Response -&gt; Bool
+</span><span id="line-40"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679219765"><span id="local-6989586621679219767"><span class="annot"><span class="annottext">Response -&gt; Response -&gt; Bool
 (Response -&gt; Response -&gt; Bool)
 -&gt; (Response -&gt; Response -&gt; Bool) -&gt; Eq Response
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -67,7 +67,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: Response -&gt; Response -&gt; Bool
 == :: Response -&gt; Response -&gt; Bool
 $c== :: Response -&gt; Response -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679219737"><span id="local-6989586621679219739"><span id="local-6989586621679219741"><span class="annot"><span class="annottext">Int -&gt; Response -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679219758"><span id="local-6989586621679219760"><span id="local-6989586621679219762"><span class="annot"><span class="annottext">Int -&gt; Response -&gt; ShowS
 [Response] -&gt; ShowS
 Response -&gt; String
 (Int -&gt; Response -&gt; ShowS)
@@ -82,21 +82,21 @@ showsPrec :: Int -&gt; Response -&gt; ShowS
 $cshowsPrec :: Int -&gt; Response -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-41"></span><span>
-</span><span id="line-42"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219733"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Response"><span class="hs-identifier hs-type">Response</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-43"></span><span>  </span><span id="local-6989586621679219731"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser Response
+</span><span id="line-42"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219754"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Response"><span class="hs-identifier hs-type">Response</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-43"></span><span>  </span><span id="local-6989586621679219752"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser Response
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">parseJSON</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; (Object -&gt; Parser Response) -&gt; Value -&gt; Parser Response
 forall a. String -&gt; (Object -&gt; Parser a) -&gt; Value -&gt; Parser a
 </span><span class="hs-identifier hs-var">Aeson.withObject</span></span><span> </span><span class="annot"><span class="hs-string">&quot;JSON-RPC response object&quot;</span></span><span> </span><span class="annot"><span class="annottext">((Object -&gt; Parser Response) -&gt; Value -&gt; Parser Response)
 -&gt; (Object -&gt; Parser Response) -&gt; Value -&gt; Parser Response
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679219728"><span class="annot"><span class="annottext">v :: Object
-</span><a href="#local-6989586621679219728"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679219749"><span class="annot"><span class="annottext">v :: Object
+</span><a href="#local-6989586621679219749"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-44"></span><span>    </span><span class="annot"><span class="annottext">Int -&gt; Either RpcError Value -&gt; Response
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#Response"><span class="hs-identifier hs-var">Response</span></a></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Either RpcError Value -&gt; Response)
 -&gt; Parser Int -&gt; Parser (Either RpcError Value -&gt; Response)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Object
-</span><a href="#local-6989586621679219728"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Object -&gt; Text -&gt; Parser Int
+</span><a href="#local-6989586621679219749"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Object -&gt; Text -&gt; Parser Int
 forall a. FromJSON a =&gt; Object -&gt; Text -&gt; Parser a
 </span><span class="hs-operator hs-var">.:</span></span><span> </span><span class="annot"><span class="hs-string">&quot;id&quot;</span></span><span>
 </span><span id="line-45"></span><span>             </span><span class="annot"><span class="annottext">Parser (Either RpcError Value -&gt; Response)
@@ -108,7 +108,7 @@ forall a b. b -&gt; Either a b
 -&gt; Parser Value -&gt; Parser (Either RpcError Value)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Object
-</span><a href="#local-6989586621679219728"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Object -&gt; Text -&gt; Parser Value
+</span><a href="#local-6989586621679219749"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Object -&gt; Text -&gt; Parser Value
 forall a. FromJSON a =&gt; Object -&gt; Text -&gt; Parser a
 </span><span class="hs-operator hs-var">.:</span></span><span> </span><span class="annot"><span class="hs-string">&quot;result&quot;</span></span><span> </span><span class="annot"><span class="annottext">Parser (Either RpcError Value)
 -&gt; Parser (Either RpcError Value) -&gt; Parser (Either RpcError Value)
@@ -119,16 +119,16 @@ forall a b. a -&gt; Either a b
 -&gt; Parser RpcError -&gt; Parser (Either RpcError Value)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Object
-</span><a href="#local-6989586621679219728"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Object -&gt; Text -&gt; Parser RpcError
+</span><a href="#local-6989586621679219749"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Object -&gt; Text -&gt; Parser RpcError
 forall a. FromJSON a =&gt; Object -&gt; Text -&gt; Parser a
 </span><span class="hs-operator hs-var">.:</span></span><span> </span><span class="annot"><span class="hs-string">&quot;error&quot;</span></span><span class="hs-special">)</span><span>
 </span><span id="line-46"></span><span>
 </span><span id="line-47"></span><span class="hs-comment">-- this instance is usefule for logging</span><span>
-</span><span id="line-48"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219720"><span id="local-6989586621679219722"><span id="local-6989586621679219724"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Response"><span class="hs-identifier hs-type">Response</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-49"></span><span>  </span><span id="local-6989586621679219719"><span class="annot"><span class="annottext">toJSON :: Response -&gt; Value
-</span><a href="#local-6989586621679219719"><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Response"><span class="hs-identifier hs-type">Response</span></a></span><span> </span><span id="local-6989586621679219718"><span class="annot"><span class="annottext">rid :: Int
-</span><a href="#local-6989586621679219718"><span class="hs-identifier hs-var">rid</span></a></span></span><span> </span><span id="local-6989586621679219717"><span class="annot"><span class="annottext">res :: Either RpcError Value
-</span><a href="#local-6989586621679219717"><span class="hs-identifier hs-var">res</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
+</span><span id="line-48"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219741"><span id="local-6989586621679219743"><span id="local-6989586621679219745"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Response"><span class="hs-identifier hs-type">Response</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-49"></span><span>  </span><span id="local-6989586621679219740"><span class="annot"><span class="annottext">toJSON :: Response -&gt; Value
+</span><a href="#local-6989586621679219740"><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Response"><span class="hs-identifier hs-type">Response</span></a></span><span> </span><span id="local-6989586621679219739"><span class="annot"><span class="annottext">rid :: Int
+</span><a href="#local-6989586621679219739"><span class="hs-identifier hs-var">rid</span></a></span></span><span> </span><span id="local-6989586621679219738"><span class="annot"><span class="annottext">res :: Either RpcError Value
+</span><a href="#local-6989586621679219738"><span class="hs-identifier hs-var">res</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
 </span><span class="hs-identifier hs-var">Aeson.object</span></span><span>
 </span><span id="line-50"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="hs-string">&quot;jsonrpc&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Value -&gt; Pair
 forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
@@ -137,19 +137,19 @@ forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><span id="line-51"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;id&quot;</span></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; Int -&gt; Pair
 forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679219718"><span class="hs-identifier hs-var">rid</span></a></span><span>
+</span><a href="#local-6989586621679219739"><span class="hs-identifier hs-var">rid</span></a></span><span>
 </span><span id="line-52"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either RpcError Value
-</span><a href="#local-6989586621679219717"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-53"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679219716"><span class="annot"><span class="annottext">e :: RpcError
-</span><a href="#local-6989586621679219716"><span class="hs-identifier hs-var">e</span></a></span></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-string">&quot;error&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; RpcError -&gt; Pair
+</span><a href="#local-6989586621679219738"><span class="hs-identifier hs-var">res</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-53"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679219737"><span class="annot"><span class="annottext">e :: RpcError
+</span><a href="#local-6989586621679219737"><span class="hs-identifier hs-var">e</span></a></span></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-string">&quot;error&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; RpcError -&gt; Pair
 forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">RpcError
-</span><a href="#local-6989586621679219716"><span class="hs-identifier hs-var">e</span></a></span><span>
-</span><span id="line-54"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679219715"><span class="annot"><span class="annottext">r :: Value
-</span><a href="#local-6989586621679219715"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-string">&quot;result&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Value -&gt; Pair
+</span><a href="#local-6989586621679219737"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-54"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679219736"><span class="annot"><span class="annottext">r :: Value
+</span><a href="#local-6989586621679219736"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-string">&quot;result&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Value -&gt; Pair
 forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">Value
-</span><a href="#local-6989586621679219715"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><a href="#local-6989586621679219736"><span class="hs-identifier hs-var">r</span></a></span><span>
 </span><span id="line-55"></span><span>    </span><span class="hs-special">]</span><span>
 </span><span id="line-56"></span><span>
 </span><span id="line-57"></span><span class="hs-comment">-- | JSON-RPC error message</span><span>
@@ -160,7 +160,7 @@ forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#errMessage"><span class="hs-identifier hs-var hs-var">errMessage</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
 </span><span id="line-61"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="errData"><span class="annot"><span class="annottext">RpcError -&gt; Maybe Value
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#errData"><span class="hs-identifier hs-var hs-var">errData</span></a></span></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Value</span></span><span class="hs-special">)</span><span>
-</span><span id="line-62"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679219707"><span id="local-6989586621679219709"><span class="annot"><span class="annottext">RpcError -&gt; RpcError -&gt; Bool
+</span><span id="line-62"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679219728"><span id="local-6989586621679219730"><span class="annot"><span class="annottext">RpcError -&gt; RpcError -&gt; Bool
 (RpcError -&gt; RpcError -&gt; Bool)
 -&gt; (RpcError -&gt; RpcError -&gt; Bool) -&gt; Eq RpcError
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -170,24 +170,24 @@ $c/= :: RpcError -&gt; RpcError -&gt; Bool
 $c== :: RpcError -&gt; RpcError -&gt; Bool
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span>
 </span><span id="line-63"></span><span>
-</span><span id="line-64"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219702"><span id="local-6989586621679219705"><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-type">RpcError</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-65"></span><span>  </span><span id="local-6989586621679219701"><span class="annot"><span class="annottext">show :: RpcError -&gt; String
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">show</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-type">RpcError</span></a></span><span> </span><span id="local-6989586621679219699"><span class="annot"><span class="annottext">code :: Int
-</span><a href="#local-6989586621679219699"><span class="hs-identifier hs-var">code</span></a></span></span><span> </span><span id="local-6989586621679219698"><span class="annot"><span class="annottext">msg :: Text
-</span><a href="#local-6989586621679219698"><span class="hs-identifier hs-var">msg</span></a></span></span><span> </span><span id="local-6989586621679219697"><span class="annot"><span class="annottext">dat :: Maybe Value
-</span><a href="#local-6989586621679219697"><span class="hs-identifier hs-var">dat</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-64"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219723"><span id="local-6989586621679219726"><span class="annot"><span class="hs-identifier hs-type">Show</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-type">RpcError</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-65"></span><span>  </span><span id="local-6989586621679219722"><span class="annot"><span class="annottext">show :: RpcError -&gt; String
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">show</span></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-type">RpcError</span></a></span><span> </span><span id="local-6989586621679219720"><span class="annot"><span class="annottext">code :: Int
+</span><a href="#local-6989586621679219720"><span class="hs-identifier hs-var">code</span></a></span></span><span> </span><span id="local-6989586621679219719"><span class="annot"><span class="annottext">msg :: Text
+</span><a href="#local-6989586621679219719"><span class="hs-identifier hs-var">msg</span></a></span></span><span> </span><span id="local-6989586621679219718"><span class="annot"><span class="annottext">dat :: Maybe Value
+</span><a href="#local-6989586621679219718"><span class="hs-identifier hs-var">dat</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-66"></span><span>      </span><span class="annot"><span class="hs-string">&quot;JSON-RPC error &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; String
 forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679219699"><span class="hs-identifier hs-var">code</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
+</span><a href="#local-6989586621679219720"><span class="hs-identifier hs-var">code</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="hs-string">&quot;: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; String
 </span><span class="hs-identifier hs-var">unpack</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679219698"><span class="hs-identifier hs-var">msg</span></a></span><span>
+</span><a href="#local-6989586621679219719"><span class="hs-identifier hs-var">msg</span></a></span><span>
 </span><span id="line-67"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ShowS
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="hs-string">&quot;. Data: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; ShowS
@@ -195,66 +195,66 @@ forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">Maybe Value -&gt; String
 forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">Maybe Value
-</span><a href="#local-6989586621679219697"><span class="hs-identifier hs-var">dat</span></a></span><span>
+</span><a href="#local-6989586621679219718"><span class="hs-identifier hs-var">dat</span></a></span><span>
 </span><span id="line-68"></span><span>
-</span><span id="line-69"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219694"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-type">RpcError</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-70"></span><span>  </span><span id="local-6989586621679219693"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser RpcError
-</span><a href="#local-6989586621679219693"><span class="hs-identifier hs-var hs-var hs-var hs-var">parseJSON</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; (Object -&gt; Parser RpcError) -&gt; Value -&gt; Parser RpcError
+</span><span id="line-69"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219715"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-type">RpcError</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-70"></span><span>  </span><span id="local-6989586621679219714"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser RpcError
+</span><a href="#local-6989586621679219714"><span class="hs-identifier hs-var hs-var hs-var hs-var">parseJSON</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; (Object -&gt; Parser RpcError) -&gt; Value -&gt; Parser RpcError
 forall a. String -&gt; (Object -&gt; Parser a) -&gt; Value -&gt; Parser a
 </span><span class="hs-identifier hs-var">Aeson.withObject</span></span><span> </span><span class="annot"><span class="hs-string">&quot;JSON-RPC error object&quot;</span></span><span> </span><span class="annot"><span class="annottext">((Object -&gt; Parser RpcError) -&gt; Value -&gt; Parser RpcError)
 -&gt; (Object -&gt; Parser RpcError) -&gt; Value -&gt; Parser RpcError
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679219692"><span class="annot"><span class="annottext">v :: Object
-</span><a href="#local-6989586621679219692"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Text -&gt; Maybe Value -&gt; RpcError
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679219713"><span class="annot"><span class="annottext">v :: Object
+</span><a href="#local-6989586621679219713"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Text -&gt; Maybe Value -&gt; RpcError
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-var">RpcError</span></a></span><span>
 </span><span id="line-71"></span><span>    </span><span class="annot"><span class="annottext">(Int -&gt; Text -&gt; Maybe Value -&gt; RpcError)
 -&gt; Parser Int -&gt; Parser (Text -&gt; Maybe Value -&gt; RpcError)
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">Object
-</span><a href="#local-6989586621679219692"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Object -&gt; Text -&gt; Parser Int
+</span><a href="#local-6989586621679219713"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Object -&gt; Text -&gt; Parser Int
 forall a. FromJSON a =&gt; Object -&gt; Text -&gt; Parser a
 </span><span class="hs-operator hs-var">.:</span></span><span> </span><span class="annot"><span class="hs-string">&quot;code&quot;</span></span><span>
 </span><span id="line-72"></span><span>    </span><span class="annot"><span class="annottext">Parser (Text -&gt; Maybe Value -&gt; RpcError)
 -&gt; Parser Text -&gt; Parser (Maybe Value -&gt; RpcError)
 forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">Object
-</span><a href="#local-6989586621679219692"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Object -&gt; Text -&gt; Parser Text
+</span><a href="#local-6989586621679219713"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Object -&gt; Text -&gt; Parser Text
 forall a. FromJSON a =&gt; Object -&gt; Text -&gt; Parser a
 </span><span class="hs-operator hs-var">.:</span></span><span> </span><span class="annot"><span class="hs-string">&quot;message&quot;</span></span><span>
 </span><span id="line-73"></span><span>    </span><span class="annot"><span class="annottext">Parser (Maybe Value -&gt; RpcError)
 -&gt; Parser (Maybe Value) -&gt; Parser RpcError
 forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;*&gt;</span></span><span> </span><span class="annot"><span class="annottext">Object
-</span><a href="#local-6989586621679219692"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Object -&gt; Text -&gt; Parser (Maybe Value)
+</span><a href="#local-6989586621679219713"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">Object -&gt; Text -&gt; Parser (Maybe Value)
 forall a. FromJSON a =&gt; Object -&gt; Text -&gt; Parser (Maybe a)
 </span><span class="hs-operator hs-var">.:?</span></span><span> </span><span class="annot"><span class="hs-string">&quot;data&quot;</span></span><span>
 </span><span id="line-74"></span><span>
-</span><span id="line-75"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219685"><span id="local-6989586621679219687"><span id="local-6989586621679219689"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-type">RpcError</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-76"></span><span>  </span><span id="local-6989586621679219684"><span class="annot"><span class="annottext">toJSON :: RpcError -&gt; Value
-</span><a href="#local-6989586621679219684"><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-type">RpcError</span></a></span><span> </span><span id="local-6989586621679219683"><span class="annot"><span class="annottext">code :: Int
-</span><a href="#local-6989586621679219683"><span class="hs-identifier hs-var">code</span></a></span></span><span> </span><span id="local-6989586621679219682"><span class="annot"><span class="annottext">msg :: Text
-</span><a href="#local-6989586621679219682"><span class="hs-identifier hs-var">msg</span></a></span></span><span> </span><span id="local-6989586621679219681"><span class="annot"><span class="annottext">_data :: Maybe Value
-</span><a href="#local-6989586621679219681"><span class="hs-identifier hs-var">_data</span></a></span></span><span class="hs-special">)</span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
+</span><span id="line-75"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219706"><span id="local-6989586621679219708"><span id="local-6989586621679219710"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-type">RpcError</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-76"></span><span>  </span><span id="local-6989586621679219705"><span class="annot"><span class="annottext">toJSON :: RpcError -&gt; Value
+</span><a href="#local-6989586621679219705"><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-type">RpcError</span></a></span><span> </span><span id="local-6989586621679219704"><span class="annot"><span class="annottext">code :: Int
+</span><a href="#local-6989586621679219704"><span class="hs-identifier hs-var">code</span></a></span></span><span> </span><span id="local-6989586621679219703"><span class="annot"><span class="annottext">msg :: Text
+</span><a href="#local-6989586621679219703"><span class="hs-identifier hs-var">msg</span></a></span></span><span> </span><span id="local-6989586621679219702"><span class="annot"><span class="annottext">_data :: Maybe Value
+</span><a href="#local-6989586621679219702"><span class="hs-identifier hs-var">_data</span></a></span></span><span class="hs-special">)</span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
 </span><span class="hs-identifier hs-var">Aeson.object</span></span><span>
 </span><span id="line-77"></span><span>   </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="hs-string">&quot;code&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Int -&gt; Pair
 forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679219683"><span class="hs-identifier hs-var">code</span></a></span><span>
+</span><a href="#local-6989586621679219704"><span class="hs-identifier hs-var">code</span></a></span><span>
 </span><span id="line-78"></span><span>   </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;message&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Pair
 forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679219682"><span class="hs-identifier hs-var">msg</span></a></span><span>
+</span><a href="#local-6989586621679219703"><span class="hs-identifier hs-var">msg</span></a></span><span>
 </span><span id="line-79"></span><span>   </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-string">&quot;data&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Maybe Value -&gt; Pair
 forall kv v. (KeyValue kv, ToJSON v) =&gt; Text -&gt; v -&gt; kv
 </span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">Maybe Value
-</span><a href="#local-6989586621679219681"><span class="hs-identifier hs-var">_data</span></a></span><span>
+</span><a href="#local-6989586621679219702"><span class="hs-identifier hs-var">_data</span></a></span><span>
 </span><span id="line-80"></span><span>   </span><span class="hs-special">]</span><span>
 </span><span id="line-81"></span><span>
 </span><span id="line-82"></span><span>
 </span><span id="line-83"></span><span class="hs-keyword">data</span><span> </span><span id="JsonRpcException"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#JsonRpcException"><span class="hs-identifier hs-var">JsonRpcException</span></a></span></span><span>
 </span><span id="line-84"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="ParsingException"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#ParsingException"><span class="hs-identifier hs-var">ParsingException</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
 </span><span id="line-85"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="CallException"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#CallException"><span class="hs-identifier hs-var">CallException</span></a></span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#RpcError"><span class="hs-identifier hs-type">RpcError</span></a></span><span>
-</span><span id="line-86"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679219675"><span id="local-6989586621679219677"><span class="annot"><span class="annottext">JsonRpcException -&gt; JsonRpcException -&gt; Bool
+</span><span id="line-86"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679219696"><span id="local-6989586621679219698"><span class="annot"><span class="annottext">JsonRpcException -&gt; JsonRpcException -&gt; Bool
 (JsonRpcException -&gt; JsonRpcException -&gt; Bool)
 -&gt; (JsonRpcException -&gt; JsonRpcException -&gt; Bool)
 -&gt; Eq JsonRpcException
@@ -263,7 +263,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: JsonRpcException -&gt; JsonRpcException -&gt; Bool
 == :: JsonRpcException -&gt; JsonRpcException -&gt; Bool
 $c== :: JsonRpcException -&gt; JsonRpcException -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679219669"><span id="local-6989586621679219671"><span id="local-6989586621679219673"><span class="annot"><span class="annottext">Int -&gt; JsonRpcException -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679219690"><span id="local-6989586621679219692"><span id="local-6989586621679219694"><span class="annot"><span class="annottext">Int -&gt; JsonRpcException -&gt; ShowS
 [JsonRpcException] -&gt; ShowS
 JsonRpcException -&gt; String
 (Int -&gt; JsonRpcException -&gt; ShowS)
@@ -280,11 +280,11 @@ showsPrec :: Int -&gt; JsonRpcException -&gt; ShowS
 $cshowsPrec :: Int -&gt; JsonRpcException -&gt; ShowS
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-87"></span><span>
-</span><span id="line-88"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219661"><span id="local-6989586621679219663"><span id="local-6989586621679219665"><span class="annot"><span class="hs-identifier hs-type">Exception</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#JsonRpcException"><span class="hs-identifier hs-type">JsonRpcException</span></a></span></span></span></span><span>
+</span><span id="line-88"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679219682"><span id="local-6989586621679219684"><span id="local-6989586621679219686"><span class="annot"><span class="hs-identifier hs-type">Exception</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#JsonRpcException"><span class="hs-identifier hs-type">JsonRpcException</span></a></span></span></span></span><span>
 </span><span id="line-89"></span><span>
 </span><span id="line-90"></span><span>
 </span><span id="line-91"></span><span class="hs-comment">-- | Name of called method.</span><span>
-</span><span id="line-92"></span><span class="hs-keyword">newtype</span><span> </span><span id="MethodName"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#MethodName"><span class="hs-identifier hs-var">MethodName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="MethodName"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#MethodName"><span class="hs-identifier hs-var">MethodName</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679219656"><span id="local-6989586621679219658"><span class="annot"><span class="annottext">MethodName -&gt; MethodName -&gt; Bool
+</span><span id="line-92"></span><span class="hs-keyword">newtype</span><span> </span><span id="MethodName"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#MethodName"><span class="hs-identifier hs-var">MethodName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="MethodName"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#MethodName"><span class="hs-identifier hs-var">MethodName</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679219677"><span id="local-6989586621679219679"><span class="annot"><span class="annottext">MethodName -&gt; MethodName -&gt; Bool
 (MethodName -&gt; MethodName -&gt; Bool)
 -&gt; (MethodName -&gt; MethodName -&gt; Bool) -&gt; Eq MethodName
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -292,7 +292,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: MethodName -&gt; MethodName -&gt; Bool
 == :: MethodName -&gt; MethodName -&gt; Bool
 $c== :: MethodName -&gt; MethodName -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679219650"><span id="local-6989586621679219652"><span id="local-6989586621679219654"><span class="annot"><span class="annottext">Int -&gt; MethodName -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679219671"><span id="local-6989586621679219673"><span id="local-6989586621679219675"><span class="annot"><span class="annottext">Int -&gt; MethodName -&gt; ShowS
 [MethodName] -&gt; ShowS
 MethodName -&gt; String
 (Int -&gt; MethodName -&gt; ShowS)
@@ -307,7 +307,7 @@ show :: MethodName -&gt; String
 $cshow :: MethodName -&gt; String
 showsPrec :: Int -&gt; MethodName -&gt; ShowS
 $cshowsPrec :: Int -&gt; MethodName -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679219642"><span id="local-6989586621679219644"><span id="local-6989586621679219646"><span id="local-6989586621679219648"><span class="annot"><span class="annottext">[MethodName] -&gt; Encoding
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679219663"><span id="local-6989586621679219665"><span id="local-6989586621679219667"><span id="local-6989586621679219669"><span class="annot"><span class="annottext">[MethodName] -&gt; Encoding
 [MethodName] -&gt; Value
 MethodName -&gt; Encoding
 MethodName -&gt; Value
@@ -330,7 +330,7 @@ toEncoding :: MethodName -&gt; Encoding
 $ctoEncoding :: MethodName -&gt; Encoding
 toJSON :: MethodName -&gt; Value
 $ctoJSON :: MethodName -&gt; Value
-</span><a href="#local-6989586621679219642"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">ToJSON</span></a></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679219663"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">ToJSON</span></a></span></span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-93"></span><span>
 </span><span id="line-94"></span><span>
 </span><span id="line-95"></span><span class="hs-comment">-- | JSON-RPC client config</span><span>
@@ -355,153 +355,153 @@ $ctoJSON :: MethodName -&gt; Value
 </span><span id="line-108"></span><span>  </span><span class="hs-comment">-- ^ Whether to use TLS or not</span><span>
 </span><span id="line-109"></span><span>  </span><span class="hs-special">}</span><span>
 </span><span id="line-110"></span><span>
-</span><span id="line-111"></span><span id="local-6989586621679219633"><span id="local-6989586621679219634"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#remoteWS"><span class="hs-identifier hs-type">remoteWS</span></a></span><span> </span><span class="hs-glyph">::</span><span>
-</span><span id="line-112"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="#local-6989586621679219634"><span class="hs-identifier hs-type">output</span></a></span><span>
-</span><span id="line-113"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="#local-6989586621679219633"><span class="hs-identifier hs-type">input</span></a></span><span>
+</span><span id="line-111"></span><span id="local-6989586621679219654"><span id="local-6989586621679219655"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#remoteWS"><span class="hs-identifier hs-type">remoteWS</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-112"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="#local-6989586621679219655"><span class="hs-identifier hs-type">output</span></a></span><span>
+</span><span id="line-113"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="#local-6989586621679219654"><span class="hs-identifier hs-type">input</span></a></span><span>
 </span><span id="line-114"></span><span>  </span><span class="hs-special">)</span><span>
 </span><span id="line-115"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span>
 </span><span id="line-116"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#MethodName"><span class="hs-identifier hs-type">MethodName</span></a></span><span>
-</span><span id="line-117"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679219633"><span class="hs-identifier hs-type">input</span></a></span><span>
-</span><span id="line-118"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679219634"><span class="hs-identifier hs-type">output</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-117"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679219654"><span class="hs-identifier hs-type">input</span></a></span><span>
+</span><span id="line-118"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679219655"><span class="hs-identifier hs-type">output</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-119"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
 </span><span id="line-120"></span><span id="remoteWS"><span class="annot"><span class="annottext">remoteWS :: Config -&gt; MethodName -&gt; input -&gt; (output -&gt; IO ()) -&gt; IO ()
-</span><a href="Network.Tendermint.Client.Internal.RPCClient.html#remoteWS"><span class="hs-identifier hs-var hs-var">remoteWS</span></a></span></span><span> </span><span id="local-6989586621679219626"><span id="local-6989586621679219627"><span id="local-6989586621679219628"><span id="local-6989586621679219629"><span id="local-6989586621679219630"><span id="local-6989586621679219631"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span><span> </span><span id="local-6989586621679219625"><span class="annot"><span class="annottext">method :: MethodName
-</span><a href="#local-6989586621679219625"><span class="hs-identifier hs-var">method</span></a></span></span><span> </span><span id="local-6989586621679219624"><span class="annot"><span class="annottext">input :: input
-</span><a href="#local-6989586621679219624"><span class="hs-identifier hs-var">input</span></a></span></span><span> </span><span id="local-6989586621679219623"><span class="annot"><span class="annottext">handler :: output -&gt; IO ()
-</span><a href="#local-6989586621679219623"><span class="hs-identifier hs-var">handler</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-121"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679219622"><span class="annot"><span class="annottext">host :: String
-</span><a href="#local-6989586621679219622"><span class="hs-identifier hs-var hs-var">host</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; String
+</span><a href="Network.Tendermint.Client.Internal.RPCClient.html#remoteWS"><span class="hs-identifier hs-var hs-var">remoteWS</span></a></span></span><span> </span><span id="local-6989586621679219647"><span id="local-6989586621679219648"><span id="local-6989586621679219649"><span id="local-6989586621679219650"><span id="local-6989586621679219651"><span id="local-6989586621679219652"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span><span> </span><span id="local-6989586621679219646"><span class="annot"><span class="annottext">method :: MethodName
+</span><a href="#local-6989586621679219646"><span class="hs-identifier hs-var">method</span></a></span></span><span> </span><span id="local-6989586621679219645"><span class="annot"><span class="annottext">input :: input
+</span><a href="#local-6989586621679219645"><span class="hs-identifier hs-var">input</span></a></span></span><span> </span><span id="local-6989586621679219644"><span class="annot"><span class="annottext">handler :: output -&gt; IO ()
+</span><a href="#local-6989586621679219644"><span class="hs-identifier hs-var">handler</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-121"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679219643"><span class="annot"><span class="annottext">host :: String
+</span><a href="#local-6989586621679219643"><span class="hs-identifier hs-var hs-var">host</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; String
 </span><span class="hs-identifier hs-var">BS.unpack</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679219628"><span class="hs-identifier hs-var">cHost</span></a></span><span>
-</span><span id="line-122"></span><span>      </span><span id="local-6989586621679219620"><span class="annot"><span class="annottext">port :: Int
-</span><a href="#local-6989586621679219620"><span class="hs-identifier hs-var hs-var">port</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int
+</span><a href="#local-6989586621679219649"><span class="hs-identifier hs-var">cHost</span></a></span><span>
+</span><span id="line-122"></span><span>      </span><span id="local-6989586621679219641"><span class="annot"><span class="annottext">port :: Int
+</span><a href="#local-6989586621679219641"><span class="hs-identifier hs-var hs-var">port</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; Int
 forall a. Num a =&gt; Integer -&gt; a
 </span><span class="hs-identifier hs-var">fromInteger</span></span><span> </span><span class="annot"><span class="annottext">(Integer -&gt; Int) -&gt; Integer -&gt; Int
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Integer
 forall a. Integral a =&gt; a -&gt; Integer
 </span><span class="hs-identifier hs-var">toInteger</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679219627"><span class="hs-identifier hs-var">cPort</span></a></span><span>
-</span><span id="line-123"></span><span>      </span><span id="local-6989586621679219619"><span class="annot"><span class="annottext">tlsPort :: PortNumber
-</span><a href="#local-6989586621679219619"><span class="hs-identifier hs-var hs-var">tlsPort</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; PortNumber
+</span><a href="#local-6989586621679219648"><span class="hs-identifier hs-var">cPort</span></a></span><span>
+</span><span id="line-123"></span><span>      </span><span id="local-6989586621679219640"><span class="annot"><span class="annottext">tlsPort :: PortNumber
+</span><a href="#local-6989586621679219640"><span class="hs-identifier hs-var hs-var">tlsPort</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Integer -&gt; PortNumber
 forall a. Num a =&gt; Integer -&gt; a
 </span><span class="hs-identifier hs-var">fromInteger</span></span><span> </span><span class="annot"><span class="annottext">(Integer -&gt; PortNumber) -&gt; Integer -&gt; PortNumber
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Integer
 forall a. Integral a =&gt; a -&gt; Integer
 </span><span class="hs-identifier hs-var">toInteger</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679219620"><span class="hs-identifier hs-var">port</span></a></span><span>
-</span><span id="line-124"></span><span>      </span><span id="local-6989586621679219618"><span class="annot"><span class="annottext">path :: String
-</span><a href="#local-6989586621679219618"><span class="hs-identifier hs-var hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;/websocket&quot;</span></span><span>
+</span><a href="#local-6989586621679219641"><span class="hs-identifier hs-var">port</span></a></span><span>
+</span><span id="line-124"></span><span>      </span><span id="local-6989586621679219639"><span class="annot"><span class="annottext">path :: String
+</span><a href="#local-6989586621679219639"><span class="hs-identifier hs-var hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;/websocket&quot;</span></span><span>
 </span><span id="line-125"></span><span>  </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Bool
-</span><a href="#local-6989586621679219626"><span class="hs-identifier hs-var">tlsEnabled</span></a></span><span>
+</span><a href="#local-6989586621679219647"><span class="hs-identifier hs-var">tlsEnabled</span></a></span><span>
 </span><span id="line-126"></span><span>    </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">String -&gt; PortNumber -&gt; String -&gt; ClientApp () -&gt; IO ()
 forall a. String -&gt; PortNumber -&gt; String -&gt; ClientApp a -&gt; IO a
 </span><span class="hs-identifier hs-var">runSecureClient</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679219622"><span class="hs-identifier hs-var">host</span></a></span><span> </span><span class="annot"><span class="annottext">PortNumber
-</span><a href="#local-6989586621679219619"><span class="hs-identifier hs-var">tlsPort</span></a></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679219618"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">ClientApp ()
-</span><a href="#local-6989586621679219617"><span class="hs-identifier hs-var">ws</span></a></span><span>
+</span><a href="#local-6989586621679219643"><span class="hs-identifier hs-var">host</span></a></span><span> </span><span class="annot"><span class="annottext">PortNumber
+</span><a href="#local-6989586621679219640"><span class="hs-identifier hs-var">tlsPort</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679219639"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">ClientApp ()
+</span><a href="#local-6989586621679219638"><span class="hs-identifier hs-var">ws</span></a></span><span>
 </span><span id="line-127"></span><span>    </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">String -&gt; Int -&gt; String -&gt; ClientApp () -&gt; IO ()
 forall a. String -&gt; Int -&gt; String -&gt; ClientApp a -&gt; IO a
 </span><span class="hs-identifier hs-var">WS.runClient</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679219622"><span class="hs-identifier hs-var">host</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679219620"><span class="hs-identifier hs-var">port</span></a></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679219618"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">ClientApp ()
-</span><a href="#local-6989586621679219617"><span class="hs-identifier hs-var">ws</span></a></span><span>
+</span><a href="#local-6989586621679219643"><span class="hs-identifier hs-var">host</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679219641"><span class="hs-identifier hs-var">port</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679219639"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">ClientApp ()
+</span><a href="#local-6989586621679219638"><span class="hs-identifier hs-var">ws</span></a></span><span>
 </span><span id="line-128"></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-129"></span><span>  </span><span id="local-6989586621679219617"><span class="annot"><span class="annottext">ws :: ClientApp ()
-</span><a href="#local-6989586621679219617"><span class="hs-identifier hs-var hs-var">ws</span></a></span></span><span> </span><span id="local-6989586621679219615"><span class="annot"><span class="annottext">c :: Connection
-</span><a href="#local-6989586621679219615"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-130"></span><span>    </span><span id="local-6989586621679219614"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679219614"><span class="hs-identifier hs-var">rid</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
+</span><span id="line-129"></span><span>  </span><span id="local-6989586621679219638"><span class="annot"><span class="annottext">ws :: ClientApp ()
+</span><a href="#local-6989586621679219638"><span class="hs-identifier hs-var hs-var">ws</span></a></span></span><span> </span><span id="local-6989586621679219636"><span class="annot"><span class="annottext">c :: Connection
+</span><a href="#local-6989586621679219636"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-130"></span><span>    </span><span id="local-6989586621679219635"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679219635"><span class="hs-identifier hs-var">rid</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">abs</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Int) -&gt; IO Int -&gt; IO Int
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">IO Int
 forall a. Random a =&gt; IO a
 </span><span class="hs-identifier hs-var">randomIO</span></span><span>
-</span><span id="line-131"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679219612"><span class="annot"><span class="annottext">rpcParams :: Value
-</span><a href="#local-6989586621679219612"><span class="hs-identifier hs-var hs-var">rpcParams</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">input -&gt; Value
+</span><span id="line-131"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679219633"><span class="annot"><span class="annottext">rpcParams :: Value
+</span><a href="#local-6989586621679219633"><span class="hs-identifier hs-var hs-var">rpcParams</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">input -&gt; Value
 forall a. ToJSON a =&gt; a -&gt; Value
 </span><span class="hs-identifier hs-var">Aeson.toJSON</span></span><span> </span><span class="annot"><span class="annottext">input
-</span><a href="#local-6989586621679219624"><span class="hs-identifier hs-var">input</span></a></span><span>
-</span><span id="line-132"></span><span>        </span><span id="local-6989586621679219611"><span class="annot"><span class="annottext">rpcRequest :: Request
-</span><a href="#local-6989586621679219611"><span class="hs-identifier hs-var hs-var">rpcRequest</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MethodName -&gt; Int -&gt; Value -&gt; Request
+</span><a href="#local-6989586621679219645"><span class="hs-identifier hs-var">input</span></a></span><span>
+</span><span id="line-132"></span><span>        </span><span id="local-6989586621679219632"><span class="annot"><span class="annottext">rpcRequest :: Request
+</span><a href="#local-6989586621679219632"><span class="hs-identifier hs-var hs-var">rpcRequest</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MethodName -&gt; Int -&gt; Value -&gt; Request
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#Request"><span class="hs-identifier hs-var">Request</span></a></span><span> </span><span class="annot"><span class="annottext">MethodName
-</span><a href="#local-6989586621679219625"><span class="hs-identifier hs-var">method</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679219614"><span class="hs-identifier hs-var">rid</span></a></span><span> </span><span class="annot"><span class="annottext">Value
-</span><a href="#local-6989586621679219612"><span class="hs-identifier hs-var">rpcParams</span></a></span><span>
-</span><span id="line-133"></span><span>        </span><span id="local-6989586621679219610"><span class="annot"><span class="annottext">msg :: DataMessage
-</span><a href="#local-6989586621679219610"><span class="hs-identifier hs-var hs-var">msg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; DataMessage
+</span><a href="#local-6989586621679219646"><span class="hs-identifier hs-var">method</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679219635"><span class="hs-identifier hs-var">rid</span></a></span><span> </span><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621679219633"><span class="hs-identifier hs-var">rpcParams</span></a></span><span>
+</span><span id="line-133"></span><span>        </span><span id="local-6989586621679219631"><span class="annot"><span class="annottext">msg :: DataMessage
+</span><a href="#local-6989586621679219631"><span class="hs-identifier hs-var hs-var">msg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; DataMessage
 </span><span class="hs-identifier hs-var">WS.Binary</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; DataMessage) -&gt; ByteString -&gt; DataMessage
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Request -&gt; ByteString
 forall a. ToJSON a =&gt; a -&gt; ByteString
 </span><span class="hs-identifier hs-var">Aeson.encode</span></span><span> </span><span class="annot"><span class="annottext">Request
-</span><a href="#local-6989586621679219611"><span class="hs-identifier hs-var">rpcRequest</span></a></span><span>
+</span><a href="#local-6989586621679219632"><span class="hs-identifier hs-var">rpcRequest</span></a></span><span>
 </span><span id="line-134"></span><span>    </span><span class="annot"><span class="annottext">Connection -&gt; DataMessage -&gt; IO ()
 </span><span class="hs-identifier hs-var">WS.sendDataMessage</span></span><span> </span><span class="annot"><span class="annottext">Connection
-</span><a href="#local-6989586621679219615"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">DataMessage
-</span><a href="#local-6989586621679219610"><span class="hs-identifier hs-var">msg</span></a></span><span>
+</span><a href="#local-6989586621679219636"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">DataMessage
+</span><a href="#local-6989586621679219631"><span class="hs-identifier hs-var">msg</span></a></span><span>
 </span><span id="line-135"></span><span>    </span><span class="annot"><span class="annottext">IO () -&gt; IO ()
 forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">forever</span></span><span>  </span><span class="annot"><span class="annottext">(IO () -&gt; IO ()) -&gt; IO () -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-136"></span><span>        </span><span id="local-6989586621679219606"><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679219606"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Connection -&gt; IO ByteString
+</span><span id="line-136"></span><span>        </span><span id="local-6989586621679219627"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679219627"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Connection -&gt; IO ByteString
 forall a. WebSocketsData a =&gt; Connection -&gt; IO a
 </span><span class="hs-identifier hs-var">WS.receiveData</span></span><span> </span><span class="annot"><span class="annottext">Connection
-</span><a href="#local-6989586621679219615"><span class="hs-identifier hs-var">c</span></a></span><span>
-</span><span id="line-137"></span><span>        </span><span id="local-6989586621679219604"><span class="annot"><span class="annottext">output
-</span><a href="#local-6989586621679219604"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; IO output
+</span><a href="#local-6989586621679219636"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><span id="line-137"></span><span>        </span><span id="local-6989586621679219625"><span class="annot"><span class="annottext">output
+</span><a href="#local-6989586621679219625"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; IO output
 forall a (m :: * -&gt; *).
 (FromJSON a, MonadThrow m) =&gt;
 ByteString -&gt; m a
-</span><a href="#local-6989586621679219603"><span class="hs-identifier hs-var">decodeRPCResponse</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679219606"><span class="hs-identifier hs-var">bs</span></a></span><span>
+</span><a href="#local-6989586621679219624"><span class="hs-identifier hs-var">decodeRPCResponse</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679219627"><span class="hs-identifier hs-var">bs</span></a></span><span>
 </span><span id="line-138"></span><span>        </span><span class="annot"><span class="annottext">output -&gt; IO ()
-</span><a href="#local-6989586621679219623"><span class="hs-identifier hs-var">handler</span></a></span><span> </span><span class="annot"><span class="annottext">output
-</span><a href="#local-6989586621679219604"><span class="hs-identifier hs-var">message</span></a></span><span>
-</span><span id="line-139"></span><span>  </span><span id="local-6989586621679219603"><span class="annot"><span class="annottext">decodeRPCResponse :: ByteString -&gt; m a
-</span><a href="#local-6989586621679219603"><span class="hs-identifier hs-var hs-var">decodeRPCResponse</span></a></span></span><span> </span><span id="local-6989586621679219602"><span class="annot"><span class="annottext">bs :: ByteString
-</span><a href="#local-6989586621679219602"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either String a
+</span><a href="#local-6989586621679219644"><span class="hs-identifier hs-var">handler</span></a></span><span> </span><span class="annot"><span class="annottext">output
+</span><a href="#local-6989586621679219625"><span class="hs-identifier hs-var">message</span></a></span><span>
+</span><span id="line-139"></span><span>  </span><span id="local-6989586621679219624"><span class="annot"><span class="annottext">decodeRPCResponse :: ByteString -&gt; m a
+</span><a href="#local-6989586621679219624"><span class="hs-identifier hs-var hs-var">decodeRPCResponse</span></a></span></span><span> </span><span id="local-6989586621679219623"><span class="annot"><span class="annottext">bs :: ByteString
+</span><a href="#local-6989586621679219623"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either String a
 forall a. FromJSON a =&gt; ByteString -&gt; Either String a
 </span><span class="hs-identifier hs-var">Aeson.eitherDecodeStrict</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679219602"><span class="hs-identifier hs-var">bs</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-140"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679219600"><span class="annot"><span class="annottext">err :: String
-</span><a href="#local-6989586621679219600"><span class="hs-identifier hs-var">err</span></a></span></span><span>       </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">JsonRpcException -&gt; m a
+</span><a href="#local-6989586621679219623"><span class="hs-identifier hs-var">bs</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-140"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679219621"><span class="annot"><span class="annottext">err :: String
+</span><a href="#local-6989586621679219621"><span class="hs-identifier hs-var">err</span></a></span></span><span>       </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">JsonRpcException -&gt; m a
 forall (m :: * -&gt; *) e a. (MonadThrow m, Exception e) =&gt; e -&gt; m a
 </span><span class="hs-identifier hs-var">throwM</span></span><span> </span><span class="annot"><span class="annottext">(JsonRpcException -&gt; m a) -&gt; JsonRpcException -&gt; m a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; JsonRpcException
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#ParsingException"><span class="hs-identifier hs-var">ParsingException</span></a></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679219600"><span class="hs-identifier hs-var">err</span></a></span><span>
-</span><span id="line-141"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679219599"><span class="annot"><span class="annottext">response :: a
-</span><a href="#local-6989586621679219599"><span class="hs-identifier hs-var">response</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; m a
+</span><a href="#local-6989586621679219621"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-141"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679219620"><span class="annot"><span class="annottext">response :: a
+</span><a href="#local-6989586621679219620"><span class="hs-identifier hs-var">response</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; m a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679219599"><span class="hs-identifier hs-var">response</span></a></span><span>
+</span><a href="#local-6989586621679219620"><span class="hs-identifier hs-var">response</span></a></span><span>
 </span><span id="line-142"></span><span>
 </span><span id="line-143"></span><span>
 </span><span id="line-144"></span><span>
-</span><span id="line-145"></span><span id="local-6989586621679219596"><span id="local-6989586621679219597"><span id="local-6989586621679219598"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#remote"><span class="hs-identifier hs-type">remote</span></a></span><span> </span><span class="hs-glyph">::</span><span>
-</span><span id="line-146"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadIO</span></span><span> </span><span class="annot"><a href="#local-6989586621679219598"><span class="hs-identifier hs-type">m</span></a></span><span>
-</span><span id="line-147"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadReader</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679219598"><span class="hs-identifier hs-type">m</span></a></span><span>
-</span><span id="line-148"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="#local-6989586621679219597"><span class="hs-identifier hs-type">output</span></a></span><span>
-</span><span id="line-149"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="#local-6989586621679219596"><span class="hs-identifier hs-type">input</span></a></span><span>
+</span><span id="line-145"></span><span id="local-6989586621679219617"><span id="local-6989586621679219618"><span id="local-6989586621679219619"><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#remote"><span class="hs-identifier hs-type">remote</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-146"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadIO</span></span><span> </span><span class="annot"><a href="#local-6989586621679219619"><span class="hs-identifier hs-type">m</span></a></span><span>
+</span><span id="line-147"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadReader</span></span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679219619"><span class="hs-identifier hs-type">m</span></a></span><span>
+</span><span id="line-148"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="#local-6989586621679219618"><span class="hs-identifier hs-type">output</span></a></span><span>
+</span><span id="line-149"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="#local-6989586621679219617"><span class="hs-identifier hs-type">input</span></a></span><span>
 </span><span id="line-150"></span><span>  </span><span class="hs-special">)</span><span>
 </span><span id="line-151"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#MethodName"><span class="hs-identifier hs-type">MethodName</span></a></span><span>
-</span><span id="line-152"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679219596"><span class="hs-identifier hs-type">input</span></a></span><span>
-</span><span id="line-153"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679219598"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679219597"><span class="hs-identifier hs-type">output</span></a></span></span></span></span><span>
+</span><span id="line-152"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679219617"><span class="hs-identifier hs-type">input</span></a></span><span>
+</span><span id="line-153"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679219619"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679219618"><span class="hs-identifier hs-type">output</span></a></span></span></span></span><span>
 </span><span id="line-154"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#remote"><span class="hs-pragma hs-type">remote</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
 </span><span id="line-155"></span><span id="remote"><span class="annot"><span class="annottext">remote :: MethodName -&gt; input -&gt; m output
-</span><a href="Network.Tendermint.Client.Internal.RPCClient.html#remote"><span class="hs-identifier hs-var hs-var">remote</span></a></span></span><span> </span><span id="local-6989586621679219594"><span class="annot"><span class="annottext">method :: MethodName
-</span><a href="#local-6989586621679219594"><span class="hs-identifier hs-var">method</span></a></span></span><span> </span><span id="local-6989586621679219593"><span class="annot"><span class="annottext">input :: input
-</span><a href="#local-6989586621679219593"><span class="hs-identifier hs-var">input</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-156"></span><span>  </span><span id="local-6989586621679219592"><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679219592"><span class="hs-identifier hs-var">rid</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
+</span><a href="Network.Tendermint.Client.Internal.RPCClient.html#remote"><span class="hs-identifier hs-var hs-var">remote</span></a></span></span><span> </span><span id="local-6989586621679219615"><span class="annot"><span class="annottext">method :: MethodName
+</span><a href="#local-6989586621679219615"><span class="hs-identifier hs-var">method</span></a></span></span><span> </span><span id="local-6989586621679219614"><span class="annot"><span class="annottext">input :: input
+</span><a href="#local-6989586621679219614"><span class="hs-identifier hs-var">input</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-156"></span><span>  </span><span id="local-6989586621679219613"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679219613"><span class="hs-identifier hs-var">rid</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
 forall a. Num a =&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">abs</span></span><span> </span><span class="annot"><span class="annottext">(Int -&gt; Int) -&gt; m Int -&gt; m Int
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
@@ -510,25 +510,25 @@ forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">IO Int
 forall a. Random a =&gt; IO a
 </span><span class="hs-identifier hs-var">randomIO</span></span><span>
-</span><span id="line-157"></span><span>  </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span> </span><span id="local-6989586621679219591"><span class="annot"><span class="annottext">baseHTTPRequest :: Request
-</span><a href="#local-6989586621679219591"><span class="hs-identifier hs-var">baseHTTPRequest</span></a></span></span><span> </span><span id="local-6989586621679219590"><span class="annot"><span class="annottext">withReq :: Request -&gt; IO ()
-</span><a href="#local-6989586621679219590"><span class="hs-identifier hs-var">withReq</span></a></span></span><span> </span><span id="local-6989586621679219589"><span class="annot"><span class="annottext">withResp :: Response -&gt; IO ()
-</span><a href="#local-6989586621679219589"><span class="hs-identifier hs-var">withResp</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">m Config
+</span><span id="line-157"></span><span>  </span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Config"><span class="hs-identifier hs-type">Config</span></a></span><span> </span><span id="local-6989586621679219612"><span class="annot"><span class="annottext">baseHTTPRequest :: Request
+</span><a href="#local-6989586621679219612"><span class="hs-identifier hs-var">baseHTTPRequest</span></a></span></span><span> </span><span id="local-6989586621679219611"><span class="annot"><span class="annottext">withReq :: Request -&gt; IO ()
+</span><a href="#local-6989586621679219611"><span class="hs-identifier hs-var">withReq</span></a></span></span><span> </span><span id="local-6989586621679219610"><span class="annot"><span class="annottext">withResp :: Response -&gt; IO ()
+</span><a href="#local-6989586621679219610"><span class="hs-identifier hs-var">withResp</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">m Config
 forall r (m :: * -&gt; *). MonadReader r m =&gt; m r
 </span><span class="hs-identifier hs-var">ask</span></span><span>
-</span><span id="line-158"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679219588"><span class="annot"><span class="annottext">req :: Request
-</span><a href="#local-6989586621679219588"><span class="hs-identifier hs-var hs-var">req</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MethodName -&gt; Int -&gt; Value -&gt; Request
+</span><span id="line-158"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679219609"><span class="annot"><span class="annottext">req :: Request
+</span><a href="#local-6989586621679219609"><span class="hs-identifier hs-var hs-var">req</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MethodName -&gt; Int -&gt; Value -&gt; Request
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#Request"><span class="hs-identifier hs-var">Request</span></a></span><span> </span><span class="annot"><span class="annottext">MethodName
-</span><a href="#local-6989586621679219594"><span class="hs-identifier hs-var">method</span></a></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679219592"><span class="hs-identifier hs-var">rid</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">input -&gt; Value
+</span><a href="#local-6989586621679219615"><span class="hs-identifier hs-var">method</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679219613"><span class="hs-identifier hs-var">rid</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">input -&gt; Value
 forall a. ToJSON a =&gt; a -&gt; Value
 </span><span class="hs-identifier hs-var">toJSON</span></span><span> </span><span class="annot"><span class="annottext">input
-</span><a href="#local-6989586621679219593"><span class="hs-identifier hs-var">input</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-159"></span><span>      </span><span id="local-6989586621679219587"><span class="annot"><span class="annottext">httpReq :: Request
-</span><a href="#local-6989586621679219587"><span class="hs-identifier hs-var hs-var">httpReq</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Request -&gt; Request -&gt; Request
+</span><a href="#local-6989586621679219614"><span class="hs-identifier hs-var">input</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-159"></span><span>      </span><span id="local-6989586621679219608"><span class="annot"><span class="annottext">httpReq :: Request
+</span><a href="#local-6989586621679219608"><span class="hs-identifier hs-var hs-var">httpReq</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Request -&gt; Request -&gt; Request
 forall a. ToJSON a =&gt; a -&gt; Request -&gt; Request
 </span><span class="hs-identifier hs-var">HTTP.setRequestBodyJSON</span></span><span> </span><span class="annot"><span class="annottext">Request
-</span><a href="#local-6989586621679219588"><span class="hs-identifier hs-var">req</span></a></span><span>
+</span><a href="#local-6989586621679219609"><span class="hs-identifier hs-var">req</span></a></span><span>
 </span><span id="line-160"></span><span>              </span><span class="annot"><span class="annottext">(Request -&gt; Request) -&gt; Request -&gt; Request
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">RequestHeaders -&gt; Request -&gt; Request
@@ -540,91 +540,91 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span id="line-162"></span><span>              </span><span class="annot"><span class="annottext">(Request -&gt; Request) -&gt; Request -&gt; Request
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Request
-</span><a href="#local-6989586621679219591"><span class="hs-identifier hs-var">baseHTTPRequest</span></a></span><span>
+</span><a href="#local-6989586621679219612"><span class="hs-identifier hs-var">baseHTTPRequest</span></a></span><span>
 </span><span id="line-163"></span><span>  </span><span class="annot"><span class="annottext">IO output -&gt; m output
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO output -&gt; m output) -&gt; IO output -&gt; m output
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-164"></span><span>    </span><span class="annot"><span class="annottext">Request -&gt; IO ()
-</span><a href="#local-6989586621679219590"><span class="hs-identifier hs-var">withReq</span></a></span><span> </span><span class="annot"><span class="annottext">Request
-</span><a href="#local-6989586621679219588"><span class="hs-identifier hs-var">req</span></a></span><span>
-</span><span id="line-165"></span><span>    </span><span id="local-6989586621679219583"><span class="annot"><span class="annottext">Response ByteString
-</span><a href="#local-6989586621679219583"><span class="hs-identifier hs-var">resp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Request -&gt; IO (Response ByteString)
+</span><a href="#local-6989586621679219611"><span class="hs-identifier hs-var">withReq</span></a></span><span> </span><span class="annot"><span class="annottext">Request
+</span><a href="#local-6989586621679219609"><span class="hs-identifier hs-var">req</span></a></span><span>
+</span><span id="line-165"></span><span>    </span><span id="local-6989586621679219604"><span class="annot"><span class="annottext">Response ByteString
+</span><a href="#local-6989586621679219604"><span class="hs-identifier hs-var">resp</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Request -&gt; IO (Response ByteString)
 forall (m :: * -&gt; *).
 MonadIO m =&gt;
 Request -&gt; m (Response ByteString)
 </span><span class="hs-identifier hs-var">HTTP.httpBS</span></span><span> </span><span class="annot"><span class="annottext">Request
-</span><a href="#local-6989586621679219587"><span class="hs-identifier hs-var">httpReq</span></a></span><span>
-</span><span id="line-166"></span><span>    </span><span id="local-6989586621679219581"><span class="annot"><span class="annottext">Response
-</span><a href="#local-6989586621679219581"><span class="hs-identifier hs-var">rpcResponse</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; IO Response
+</span><a href="#local-6989586621679219608"><span class="hs-identifier hs-var">httpReq</span></a></span><span>
+</span><span id="line-166"></span><span>    </span><span id="local-6989586621679219602"><span class="annot"><span class="annottext">Response
+</span><a href="#local-6989586621679219602"><span class="hs-identifier hs-var">rpcResponse</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; IO Response
 forall a (m :: * -&gt; *).
 (FromJSON a, MonadThrow m) =&gt;
 ByteString -&gt; m a
-</span><a href="#local-6989586621679219580"><span class="hs-identifier hs-var">decodeRPCResponse</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO Response) -&gt; ByteString -&gt; IO Response
+</span><a href="#local-6989586621679219601"><span class="hs-identifier hs-var">decodeRPCResponse</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO Response) -&gt; ByteString -&gt; IO Response
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Response ByteString -&gt; ByteString
 forall a. Response a -&gt; a
 </span><span class="hs-identifier hs-var">HTTP.getResponseBody</span></span><span> </span><span class="annot"><span class="annottext">Response ByteString
-</span><a href="#local-6989586621679219583"><span class="hs-identifier hs-var">resp</span></a></span><span>
+</span><a href="#local-6989586621679219604"><span class="hs-identifier hs-var">resp</span></a></span><span>
 </span><span id="line-167"></span><span>    </span><span class="annot"><span class="annottext">Response -&gt; IO ()
-</span><a href="#local-6989586621679219589"><span class="hs-identifier hs-var">withResp</span></a></span><span> </span><span class="annot"><span class="annottext">Response
-</span><a href="#local-6989586621679219581"><span class="hs-identifier hs-var">rpcResponse</span></a></span><span>
+</span><a href="#local-6989586621679219610"><span class="hs-identifier hs-var">withResp</span></a></span><span> </span><span class="annot"><span class="annottext">Response
+</span><a href="#local-6989586621679219602"><span class="hs-identifier hs-var">rpcResponse</span></a></span><span>
 </span><span id="line-168"></span><span>    </span><span class="annot"><span class="annottext">Response -&gt; IO output
 forall (m :: * -&gt; *) a.
 (MonadThrow m, FromJSON a) =&gt;
 Response -&gt; m a
-</span><a href="#local-6989586621679219578"><span class="hs-identifier hs-var">extractResult</span></a></span><span> </span><span class="annot"><span class="annottext">Response
-</span><a href="#local-6989586621679219581"><span class="hs-identifier hs-var">rpcResponse</span></a></span><span>
+</span><a href="#local-6989586621679219599"><span class="hs-identifier hs-var">extractResult</span></a></span><span> </span><span class="annot"><span class="annottext">Response
+</span><a href="#local-6989586621679219602"><span class="hs-identifier hs-var">rpcResponse</span></a></span><span>
 </span><span id="line-169"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-170"></span><span>    </span><span id="local-6989586621679219580"><span class="annot"><span class="annottext">decodeRPCResponse :: ByteString -&gt; m a
-</span><a href="#local-6989586621679219580"><span class="hs-identifier hs-var hs-var">decodeRPCResponse</span></a></span></span><span> </span><span id="local-6989586621679219577"><span class="annot"><span class="annottext">bs :: ByteString
-</span><a href="#local-6989586621679219577"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either String a
+</span><span id="line-170"></span><span>    </span><span id="local-6989586621679219601"><span class="annot"><span class="annottext">decodeRPCResponse :: ByteString -&gt; m a
+</span><a href="#local-6989586621679219601"><span class="hs-identifier hs-var hs-var">decodeRPCResponse</span></a></span></span><span> </span><span id="local-6989586621679219598"><span class="annot"><span class="annottext">bs :: ByteString
+</span><a href="#local-6989586621679219598"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either String a
 forall a. FromJSON a =&gt; ByteString -&gt; Either String a
 </span><span class="hs-identifier hs-var">Aeson.eitherDecodeStrict</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679219577"><span class="hs-identifier hs-var">bs</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-171"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679219576"><span class="annot"><span class="annottext">err :: String
-</span><a href="#local-6989586621679219576"><span class="hs-identifier hs-var">err</span></a></span></span><span>       </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">JsonRpcException -&gt; m a
+</span><a href="#local-6989586621679219598"><span class="hs-identifier hs-var">bs</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-171"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679219597"><span class="annot"><span class="annottext">err :: String
+</span><a href="#local-6989586621679219597"><span class="hs-identifier hs-var">err</span></a></span></span><span>       </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">JsonRpcException -&gt; m a
 forall (m :: * -&gt; *) e a. (MonadThrow m, Exception e) =&gt; e -&gt; m a
 </span><span class="hs-identifier hs-var">throwM</span></span><span> </span><span class="annot"><span class="annottext">(JsonRpcException -&gt; m a) -&gt; JsonRpcException -&gt; m a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; JsonRpcException
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#ParsingException"><span class="hs-identifier hs-var">ParsingException</span></a></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679219576"><span class="hs-identifier hs-var">err</span></a></span><span>
-</span><span id="line-172"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679219575"><span class="annot"><span class="annottext">response :: a
-</span><a href="#local-6989586621679219575"><span class="hs-identifier hs-var">response</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; m a
+</span><a href="#local-6989586621679219597"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-172"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679219596"><span class="annot"><span class="annottext">response :: a
+</span><a href="#local-6989586621679219596"><span class="hs-identifier hs-var">response</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; m a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679219575"><span class="hs-identifier hs-var">response</span></a></span><span>
-</span><span id="line-173"></span><span>    </span><span id="local-6989586621679219578"><span class="annot"><span class="annottext">extractResult :: Response -&gt; m a
-</span><a href="#local-6989586621679219578"><span class="hs-identifier hs-var hs-var">extractResult</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Response"><span class="hs-identifier hs-type">Response</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679219574"><span class="annot"><span class="annottext">resp :: Either RpcError Value
-</span><a href="#local-6989586621679219574"><span class="hs-identifier hs-var">resp</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either RpcError Value
-</span><a href="#local-6989586621679219574"><span class="hs-identifier hs-var">resp</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-174"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679219573"><span class="annot"><span class="annottext">rpcError :: RpcError
-</span><a href="#local-6989586621679219573"><span class="hs-identifier hs-var">rpcError</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">JsonRpcException -&gt; m a
+</span><a href="#local-6989586621679219596"><span class="hs-identifier hs-var">response</span></a></span><span>
+</span><span id="line-173"></span><span>    </span><span id="local-6989586621679219599"><span class="annot"><span class="annottext">extractResult :: Response -&gt; m a
+</span><a href="#local-6989586621679219599"><span class="hs-identifier hs-var hs-var">extractResult</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Network.Tendermint.Client.Internal.RPCClient.html#Response"><span class="hs-identifier hs-type">Response</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679219595"><span class="annot"><span class="annottext">resp :: Either RpcError Value
+</span><a href="#local-6989586621679219595"><span class="hs-identifier hs-var">resp</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Either RpcError Value
+</span><a href="#local-6989586621679219595"><span class="hs-identifier hs-var">resp</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-174"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679219594"><span class="annot"><span class="annottext">rpcError :: RpcError
+</span><a href="#local-6989586621679219594"><span class="hs-identifier hs-var">rpcError</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">JsonRpcException -&gt; m a
 forall (m :: * -&gt; *) e a. (MonadThrow m, Exception e) =&gt; e -&gt; m a
 </span><span class="hs-identifier hs-var">throwM</span></span><span> </span><span class="annot"><span class="annottext">(JsonRpcException -&gt; m a) -&gt; JsonRpcException -&gt; m a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">RpcError -&gt; JsonRpcException
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#CallException"><span class="hs-identifier hs-var">CallException</span></a></span><span> </span><span class="annot"><span class="annottext">RpcError
-</span><a href="#local-6989586621679219573"><span class="hs-identifier hs-var">rpcError</span></a></span><span>
-</span><span id="line-175"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679219572"><span class="annot"><span class="annottext">resultValue :: Value
-</span><a href="#local-6989586621679219572"><span class="hs-identifier hs-var">resultValue</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><a href="#local-6989586621679219594"><span class="hs-identifier hs-var">rpcError</span></a></span><span>
+</span><span id="line-175"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679219593"><span class="annot"><span class="annottext">resultValue :: Value
+</span><a href="#local-6989586621679219593"><span class="hs-identifier hs-var">resultValue</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-176"></span><span>        </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Value -&gt; Result a
 forall a. FromJSON a =&gt; Value -&gt; Result a
 </span><span class="hs-identifier hs-var">fromJSON</span></span><span> </span><span class="annot"><span class="annottext">Value
-</span><a href="#local-6989586621679219572"><span class="hs-identifier hs-var">resultValue</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-177"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span id="local-6989586621679219570"><span class="annot"><span class="annottext">err :: String
-</span><a href="#local-6989586621679219570"><span class="hs-identifier hs-var">err</span></a></span></span><span>      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">JsonRpcException -&gt; m a
+</span><a href="#local-6989586621679219593"><span class="hs-identifier hs-var">resultValue</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-177"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span id="local-6989586621679219591"><span class="annot"><span class="annottext">err :: String
+</span><a href="#local-6989586621679219591"><span class="hs-identifier hs-var">err</span></a></span></span><span>      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">JsonRpcException -&gt; m a
 forall (m :: * -&gt; *) e a. (MonadThrow m, Exception e) =&gt; e -&gt; m a
 </span><span class="hs-identifier hs-var">throwM</span></span><span> </span><span class="annot"><span class="annottext">(JsonRpcException -&gt; m a) -&gt; JsonRpcException -&gt; m a
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; JsonRpcException
 </span><a href="Network.Tendermint.Client.Internal.RPCClient.html#ParsingException"><span class="hs-identifier hs-var">ParsingException</span></a></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679219570"><span class="hs-identifier hs-var">err</span></a></span><span>
-</span><span id="line-178"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Success</span></span><span> </span><span id="local-6989586621679219568"><span class="annot"><span class="annottext">result :: a
-</span><a href="#local-6989586621679219568"><span class="hs-identifier hs-var">result</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; m a
+</span><a href="#local-6989586621679219591"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-178"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Success</span></span><span> </span><span id="local-6989586621679219589"><span class="annot"><span class="annottext">result :: a
+</span><a href="#local-6989586621679219589"><span class="hs-identifier hs-var">result</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; m a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679219568"><span class="hs-identifier hs-var">result</span></a></span><span>
+</span><a href="#local-6989586621679219589"><span class="hs-identifier hs-var">result</span></a></span><span>
 </span><span id="line-179"></span></pre></body></html>

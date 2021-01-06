@@ -30,19 +30,19 @@ forall a. IsString a =&gt; String -&gt; a
 </span><span id="line-23"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Network.ABCI.Server.App.html#App"><span class="hs-identifier hs-type">App</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span>
 </span><span id="line-24"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-25"></span><span id="serveAppWith"><span class="annot"><span class="annottext">serveAppWith :: ServerSettings -&gt; (AppData -&gt; IO ()) -&gt; App IO -&gt; IO ()
-</span><a href="Network.ABCI.Server.html#serveAppWith"><span class="hs-identifier hs-var hs-var">serveAppWith</span></a></span></span><span> </span><span id="local-6989586621679203417"><span class="annot"><span class="annottext">cfg :: ServerSettings
-</span><a href="#local-6989586621679203417"><span class="hs-identifier hs-var">cfg</span></a></span></span><span> </span><span id="local-6989586621679203416"><span class="annot"><span class="annottext">onAquire :: AppData -&gt; IO ()
-</span><a href="#local-6989586621679203416"><span class="hs-identifier hs-var">onAquire</span></a></span></span><span> </span><span id="local-6989586621679203415"><span class="annot"><span class="annottext">app :: App IO
-</span><a href="#local-6989586621679203415"><span class="hs-identifier hs-var">app</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ServerSettings -&gt; (AppData -&gt; IO ()) -&gt; IO ()
+</span><a href="Network.ABCI.Server.html#serveAppWith"><span class="hs-identifier hs-var hs-var">serveAppWith</span></a></span></span><span> </span><span id="local-6989586621679203438"><span class="annot"><span class="annottext">cfg :: ServerSettings
+</span><a href="#local-6989586621679203438"><span class="hs-identifier hs-var">cfg</span></a></span></span><span> </span><span id="local-6989586621679203437"><span class="annot"><span class="annottext">onAquire :: AppData -&gt; IO ()
+</span><a href="#local-6989586621679203437"><span class="hs-identifier hs-var">onAquire</span></a></span></span><span> </span><span id="local-6989586621679203436"><span class="annot"><span class="annottext">app :: App IO
+</span><a href="#local-6989586621679203436"><span class="hs-identifier hs-var">app</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ServerSettings -&gt; (AppData -&gt; IO ()) -&gt; IO ()
 forall a. ServerSettings -&gt; (AppData -&gt; IO ()) -&gt; IO a
 </span><span class="hs-identifier hs-var">runTCPServer</span></span><span> </span><span class="annot"><span class="annottext">ServerSettings
-</span><a href="#local-6989586621679203417"><span class="hs-identifier hs-var">cfg</span></a></span><span> </span><span class="annot"><span class="annottext">((AppData -&gt; IO ()) -&gt; IO ()) -&gt; (AppData -&gt; IO ()) -&gt; IO ()
+</span><a href="#local-6989586621679203438"><span class="hs-identifier hs-var">cfg</span></a></span><span> </span><span class="annot"><span class="annottext">((AppData -&gt; IO ()) -&gt; IO ()) -&gt; (AppData -&gt; IO ()) -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679203414"><span class="annot"><span class="annottext">appData :: AppData
-</span><a href="#local-6989586621679203414"><span class="hs-identifier hs-var">appData</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679203435"><span class="annot"><span class="annottext">appData :: AppData
+</span><a href="#local-6989586621679203435"><span class="hs-identifier hs-var">appData</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-26"></span><span>  </span><span class="annot"><span class="annottext">AppData -&gt; IO ()
-</span><a href="#local-6989586621679203416"><span class="hs-identifier hs-var">onAquire</span></a></span><span> </span><span class="annot"><span class="annottext">AppData
-</span><a href="#local-6989586621679203414"><span class="hs-identifier hs-var">appData</span></a></span><span>
+</span><a href="#local-6989586621679203437"><span class="hs-identifier hs-var">onAquire</span></a></span><span> </span><span class="annot"><span class="annottext">AppData
+</span><a href="#local-6989586621679203435"><span class="hs-identifier hs-var">appData</span></a></span><span>
 </span><span id="line-27"></span><span>  </span><span class="annot"><span class="annottext">ConduitT () Void IO () -&gt; IO ()
 forall (m :: * -&gt; *) r. Monad m =&gt; ConduitT () Void m r -&gt; m r
 </span><span class="hs-identifier hs-var">runConduit</span></span><span> </span><span class="annot"><span class="annottext">(ConduitT () Void IO () -&gt; IO ())
@@ -53,7 +53,7 @@ forall ad (m :: * -&gt; *) i.
 (HasReadWrite ad, MonadIO m) =&gt;
 ad -&gt; ConduitT i ByteString m ()
 </span><span class="hs-identifier hs-var">appSource</span></span><span> </span><span class="annot"><span class="annottext">AppData
-</span><a href="#local-6989586621679203414"><span class="hs-identifier hs-var">appData</span></a></span><span>
+</span><a href="#local-6989586621679203435"><span class="hs-identifier hs-var">appData</span></a></span><span>
 </span><span id="line-28"></span><span>    </span><span class="annot"><span class="annottext">ConduitT () ByteString IO ()
 -&gt; ConduitM ByteString Void IO () -&gt; ConduitT () Void IO ()
 forall (m :: * -&gt; *) a b c r.
@@ -75,7 +75,7 @@ forall (m :: * -&gt; *).
 Applicative m =&gt;
 App m -&gt; LPByteStrings -&gt; m LPByteStrings
 </span><a href="Network.ABCI.Server.App.html#runApp"><span class="hs-identifier hs-var">App.runApp</span></a></span><span> </span><span class="annot"><span class="annottext">App IO
-</span><a href="#local-6989586621679203415"><span class="hs-identifier hs-var">app</span></a></span><span> </span><span class="annot"><span class="annottext">(LPByteStrings -&gt; IO LPByteStrings)
+</span><a href="#local-6989586621679203436"><span class="hs-identifier hs-var">app</span></a></span><span> </span><span class="annot"><span class="annottext">(LPByteStrings -&gt; IO LPByteStrings)
 -&gt; (ByteString -&gt; LPByteStrings) -&gt; ByteString -&gt; IO LPByteStrings
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; LPByteStrings
@@ -90,7 +90,7 @@ forall ad (m :: * -&gt; *) o.
 (HasReadWrite ad, MonadIO m) =&gt;
 ad -&gt; ConduitT ByteString o m ()
 </span><span class="hs-identifier hs-var">appSink</span></span><span> </span><span class="annot"><span class="annottext">AppData
-</span><a href="#local-6989586621679203414"><span class="hs-identifier hs-var">appData</span></a></span><span>
+</span><a href="#local-6989586621679203435"><span class="hs-identifier hs-var">appData</span></a></span><span>
 </span><span id="line-30"></span><span>
 </span><span id="line-31"></span><span>
 </span><span id="line-32"></span><span class="hs-comment">-- | Serve an ABCI application with default local 'ServerSettings'</span><span>

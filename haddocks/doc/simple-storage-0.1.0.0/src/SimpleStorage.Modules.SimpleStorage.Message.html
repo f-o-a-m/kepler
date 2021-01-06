@@ -21,12 +21,12 @@
 </span><span id="line-21"></span><span>                                                      </span><span class="annot"><span class="hs-identifier">ValidateMessage</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-22"></span><span>
 </span><span id="line-23"></span><span>
-</span><span id="line-24"></span><span id="local-6989586621679293105"><span id="local-6989586621679293106"></span></span><span class="hs-keyword">data</span><span> </span><span id="UpdateCountTx"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Message.html#UpdateCountTx"><span class="hs-identifier hs-var">UpdateCountTx</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="UpdateCountTx"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Message.html#UpdateCountTx"><span class="hs-identifier hs-var">UpdateCountTx</span></a></span></span><span>
+</span><span id="line-24"></span><span id="local-6989586621679293160"><span id="local-6989586621679293161"></span></span><span class="hs-keyword">data</span><span> </span><span id="UpdateCountTx"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Message.html#UpdateCountTx"><span class="hs-identifier hs-var">UpdateCountTx</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="UpdateCountTx"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Message.html#UpdateCountTx"><span class="hs-identifier hs-var">UpdateCountTx</span></a></span></span><span>
 </span><span id="line-25"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="updateCountTxUsername"><span class="annot"><span class="annottext">UpdateCountTx -&gt; Text
 </span><a href="SimpleStorage.Modules.SimpleStorage.Message.html#updateCountTxUsername"><span class="hs-identifier hs-var hs-var">updateCountTxUsername</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
 </span><span id="line-26"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="updateCountTxCount"><span class="annot"><span class="annottext">UpdateCountTx -&gt; Int32
 </span><a href="SimpleStorage.Modules.SimpleStorage.Message.html#updateCountTxCount"><span class="hs-identifier hs-var hs-var">updateCountTxCount</span></a></span></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int32</span></span><span>
-</span><span id="line-27"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679293096"><span id="local-6989586621679293098"><span id="local-6989586621679293100"><span class="annot"><span class="annottext">Int -&gt; UpdateCountTx -&gt; ShowS
+</span><span id="line-27"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679293151"><span id="local-6989586621679293153"><span id="local-6989586621679293155"><span class="annot"><span class="annottext">Int -&gt; UpdateCountTx -&gt; ShowS
 [UpdateCountTx] -&gt; ShowS
 UpdateCountTx -&gt; String
 (Int -&gt; UpdateCountTx -&gt; ShowS)
@@ -41,7 +41,7 @@ show :: UpdateCountTx -&gt; String
 $cshow :: UpdateCountTx -&gt; String
 showsPrec :: Int -&gt; UpdateCountTx -&gt; ShowS
 $cshowsPrec :: Int -&gt; UpdateCountTx -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293091"><span id="local-6989586621679293093"><span class="annot"><span class="annottext">UpdateCountTx -&gt; UpdateCountTx -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293146"><span id="local-6989586621679293148"><span class="annot"><span class="annottext">UpdateCountTx -&gt; UpdateCountTx -&gt; Bool
 (UpdateCountTx -&gt; UpdateCountTx -&gt; Bool)
 -&gt; (UpdateCountTx -&gt; UpdateCountTx -&gt; Bool) -&gt; Eq UpdateCountTx
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -61,11 +61,11 @@ $cfrom :: forall x. UpdateCountTx -&gt; Rep UpdateCountTx x
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
 </span><span id="line-28"></span><span>
 </span><span id="line-29"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasMessageType</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Message.html#UpdateCountTx"><span class="hs-identifier hs-type">UpdateCountTx</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-30"></span><span>  </span><span id="local-6989586621679293084"><span class="annot"><span class="annottext">messageType :: Proxy UpdateCountTx -&gt; Text
+</span><span id="line-30"></span><span>  </span><span id="local-6989586621679293139"><span class="annot"><span class="annottext">messageType :: Proxy UpdateCountTx -&gt; Text
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">messageType</span></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;update_count&quot;</span></span><span>
 </span><span id="line-31"></span><span>
 </span><span id="line-32"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ValidateMessage</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Message.html#UpdateCountTx"><span class="hs-identifier hs-type">UpdateCountTx</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-33"></span><span>  </span><span id="local-6989586621679293080"><span class="annot"><span class="annottext">validateMessage :: Msg UpdateCountTx -&gt; Validation [MessageSemanticError] ()
+</span><span id="line-33"></span><span>  </span><span id="local-6989586621679293135"><span class="annot"><span class="annottext">validateMessage :: Msg UpdateCountTx -&gt; Validation [MessageSemanticError] ()
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">validateMessage</span></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">() -&gt; Validation [MessageSemanticError] ()
 forall err a. a -&gt; Validation err a
 </span><span class="hs-identifier hs-var">Success</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
@@ -73,7 +73,7 @@ forall err a. a -&gt; Validation err a
 </span><span id="line-35"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Wrapped</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Message.html#UpdateCountTx"><span class="hs-identifier hs-type">UpdateCountTx</span></a></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-36"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Unwrapped"><span class="annot"><span class="hs-identifier hs-var">Unwrapped</span></span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Message.html#UpdateCountTx"><span class="hs-identifier hs-type">UpdateCountTx</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Proto.SimpleStorage.Messages.html#UpdateCount"><span class="hs-identifier hs-type">M.UpdateCount</span></a></span><span>
 </span><span id="line-37"></span><span>
-</span><span id="line-38"></span><span>  </span><span id="local-6989586621679293075"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped UpdateCountTx) (f (Unwrapped UpdateCountTx))
+</span><span id="line-38"></span><span>  </span><span id="local-6989586621679293130"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped UpdateCountTx) (f (Unwrapped UpdateCountTx))
 -&gt; p UpdateCountTx (f UpdateCountTx)
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">_Wrapped'</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(UpdateCountTx -&gt; UpdateCount)
 -&gt; (UpdateCount -&gt; UpdateCountTx)
@@ -84,14 +84,14 @@ forall b.
 (Message b, HasField b &quot;count&quot; Int32,
  HasField b &quot;username&quot; Text) =&gt;
 UpdateCountTx -&gt; b
-</span><a href="#local-6989586621679293073"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">UpdateCount -&gt; UpdateCountTx
+</span><a href="#local-6989586621679293128"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">UpdateCount -&gt; UpdateCountTx
 forall s.
 (HasField s &quot;count&quot; Int32, HasField s &quot;username&quot; Text) =&gt;
 s -&gt; UpdateCountTx
-</span><a href="#local-6989586621679293072"><span class="hs-identifier hs-var">f</span></a></span><span>
+</span><a href="#local-6989586621679293127"><span class="hs-identifier hs-var">f</span></a></span><span>
 </span><span id="line-39"></span><span>    </span><span class="hs-keyword">where</span><span>
-</span><span id="line-40"></span><span>      </span><span id="local-6989586621679293073"><span class="annot"><span class="annottext">t :: UpdateCountTx -&gt; b
-</span><a href="#local-6989586621679293073"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679293070"><span id="local-6989586621679293071"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Message.html#UpdateCountTx"><span class="hs-identifier hs-type">UpdateCountTx</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-40"></span><span>      </span><span id="local-6989586621679293128"><span class="annot"><span class="annottext">t :: UpdateCountTx -&gt; b
+</span><a href="#local-6989586621679293128"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679293125"><span id="local-6989586621679293126"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Message.html#UpdateCountTx"><span class="hs-identifier hs-type">UpdateCountTx</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-41"></span><span>        </span><span class="annot"><span class="annottext">b
 forall msg. Message msg =&gt; msg
 </span><span class="hs-identifier hs-var">defMessage</span></span><span>
@@ -104,7 +104,7 @@ LensLike' f s a
 </span><a href="Proto.SimpleStorage.Messages_Fields.html#username"><span class="hs-identifier hs-var">M.username</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Text -&gt; Text -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679293071"><span class="hs-identifier hs-var">updateCountTxUsername</span></a></span><span>
+</span><a href="#local-6989586621679293126"><span class="hs-identifier hs-var">updateCountTxUsername</span></a></span><span>
 </span><span id="line-43"></span><span>          </span><span class="annot"><span class="annottext">b -&gt; (b -&gt; b) -&gt; b
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Int32
@@ -114,14 +114,14 @@ LensLike' f s a
 </span><a href="Proto.SimpleStorage.Messages_Fields.html#count"><span class="hs-identifier hs-var">M.count</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Int32 -&gt; Int32 -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Int32
-</span><a href="#local-6989586621679293070"><span class="hs-identifier hs-var">updateCountTxCount</span></a></span><span>
-</span><span id="line-44"></span><span>      </span><span id="local-6989586621679293072"><span class="annot"><span class="annottext">f :: s -&gt; UpdateCountTx
-</span><a href="#local-6989586621679293072"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679293066"><span class="annot"><span class="annottext">msg :: s
-</span><a href="#local-6989586621679293066"><span class="hs-identifier hs-var">msg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="#local-6989586621679293125"><span class="hs-identifier hs-var">updateCountTxCount</span></a></span><span>
+</span><span id="line-44"></span><span>      </span><span id="local-6989586621679293127"><span class="annot"><span class="annottext">f :: s -&gt; UpdateCountTx
+</span><a href="#local-6989586621679293127"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679293121"><span class="annot"><span class="annottext">msg :: s
+</span><a href="#local-6989586621679293121"><span class="hs-identifier hs-var">msg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-45"></span><span>        </span><span class="annot"><span class="annottext">UpdateCountTx :: Text -&gt; Int32 -&gt; UpdateCountTx
 </span><a href="SimpleStorage.Modules.SimpleStorage.Message.html#UpdateCountTx"><span class="hs-identifier hs-type hs-type">UpdateCountTx</span></a></span><span> </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">updateCountTxUsername :: Text
 </span><a href="SimpleStorage.Modules.SimpleStorage.Message.html#updateCountTxUsername"><span class="hs-identifier hs-var">updateCountTxUsername</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679293066"><span class="hs-identifier hs-var">msg</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Text s Text -&gt; Text
+</span><a href="#local-6989586621679293121"><span class="hs-identifier hs-var">msg</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Text s Text -&gt; Text
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Text s Text
 forall (f :: * -&gt; *) s a.
@@ -130,7 +130,7 @@ LensLike' f s a
 </span><a href="Proto.SimpleStorage.Messages_Fields.html#username"><span class="hs-identifier hs-var">M.username</span></a></span><span>
 </span><span id="line-46"></span><span>                      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">updateCountTxCount :: Int32
 </span><a href="SimpleStorage.Modules.SimpleStorage.Message.html#updateCountTxCount"><span class="hs-identifier hs-var">updateCountTxCount</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679293066"><span class="hs-identifier hs-var">msg</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Int32 s Int32 -&gt; Int32
+</span><a href="#local-6989586621679293121"><span class="hs-identifier hs-var">msg</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Int32 s Int32 -&gt; Int32
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Int32 s Int32
 forall (f :: * -&gt; *) s a.
@@ -140,7 +140,7 @@ LensLike' f s a
 </span><span id="line-47"></span><span>                      </span><span class="hs-special">}</span><span>
 </span><span id="line-48"></span><span>
 </span><span id="line-49"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCodec</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Message.html#UpdateCountTx"><span class="hs-identifier hs-type">UpdateCountTx</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-50"></span><span>  </span><span id="local-6989586621679293061"><span class="annot"><span class="annottext">encode :: UpdateCountTx -&gt; ByteString
+</span><span id="line-50"></span><span>  </span><span id="local-6989586621679293116"><span class="annot"><span class="annottext">encode :: UpdateCountTx -&gt; ByteString
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">UpdateCount -&gt; ByteString
 forall msg. Message msg =&gt; msg -&gt; ByteString
 </span><span class="hs-identifier hs-var">P.encodeMessage</span></span><span> </span><span class="annot"><span class="annottext">(UpdateCount -&gt; ByteString)
@@ -152,7 +152,7 @@ forall s (m :: * -&gt; *) a. MonadReader s m =&gt; Getting a s a -&gt; m a
 </span><span class="hs-identifier hs-var">view</span></span><span> </span><span class="annot"><span class="annottext">Getting UpdateCount UpdateCountTx UpdateCount
 forall s. Wrapped s =&gt; Iso' s (Unwrapped s)
 </span><span class="hs-identifier hs-var">_Wrapped'</span></span><span>
-</span><span id="line-51"></span><span>  </span><span id="local-6989586621679293057"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text UpdateCountTx
+</span><span id="line-51"></span><span>  </span><span id="local-6989586621679293112"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text UpdateCountTx
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text)
 -&gt; (UpdateCount -&gt; UpdateCountTx)
 -&gt; Either String UpdateCount
