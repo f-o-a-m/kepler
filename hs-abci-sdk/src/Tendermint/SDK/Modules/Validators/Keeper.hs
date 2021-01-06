@@ -3,7 +3,7 @@
 module Tendermint.SDK.Modules.Validators.Keeper where
 
 import qualified Data.Map.Strict                         as Map
-import           Data.Maybe                              (fromJust, fromMaybe)
+import           Data.Maybe                              (fromMaybe)
 import qualified Data.Set                                as Set
 import           Data.Word                               (Word64)
 import           Network.ABCI.Types.Messages.FieldTypes
@@ -60,7 +60,7 @@ getQueuedUpdatesF = L.foldl (\m (ValidatorUpdate_ ValidatorUpdate{..}) ->
   Map.alter (Just . fromMaybe (toWord validatorUpdatePower)) (toPK_ validatorUpdatePubKey) m) Map.empty updatesList
   where
     toWord (WrappedVal x) = fromIntegral x
-    toPK_ = PubKey_ . fromJust
+    toPK_ = PubKey_ . fromMaybe (error "Bad ValidatorUpdate with Nothing PubKey found in queued updates")
 
 queueUpdateF
   :: Members [ReadStore, WriteStore, Error AppError] r
