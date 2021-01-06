@@ -245,7 +245,7 @@ data PubKey = PubKey
   -- ^ Type of the public key.
   , pubKeyData :: Base64String
   -- ^ Public key data.
-  } deriving (Eq, Show, Generic)
+  } deriving (Eq, Ord, Show, Generic)
 
 instance ToJSON PubKey where
   toJSON = genericToJSON $ defaultABCIOptions "pubKey"

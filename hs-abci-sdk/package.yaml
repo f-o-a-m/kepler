@@ -135,6 +135,7 @@ library:
   - Tendermint.SDK.Crypto
   - Tendermint.SDK.Modules.Auth
   - Tendermint.SDK.Modules.Bank
+  - Tendermint.SDK.Modules.Validators
   - Tendermint.SDK.Types.Address
   - Tendermint.SDK.Types.Effects
   - Tendermint.SDK.Types.Message
