@@ -56,7 +56,7 @@ instance A.FromJSON PubKey_
 instance A.FromJSONKey PubKey_
 
 instance HasCodec (Map PubKey_ Word64) where
-  encode = toStrict . A.encode
+  encode = cs . A.encode
   decode s =
     let ms :: Maybe (Map PubKey_ Word64) = A.decodeStrict s
      in case ms of
