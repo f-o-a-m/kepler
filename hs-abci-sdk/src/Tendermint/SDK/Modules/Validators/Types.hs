@@ -7,14 +7,16 @@ import           Data.Bifunctor                         (Bifunctor (bimap, secon
 import           Data.ByteString                        (ByteString)
 import           Data.ByteString.Lazy                   (toStrict)
 import           Data.Either                            (fromRight)
+import           Data.Map                               (Map)
 import           Data.ProtoLens                         (decodeMessage,
                                                          encodeMessage)
 import           Data.Set                               (Set)
 import           Data.String.Conversions                (cs)
+import           Data.Word                              (Word64)
 import           GHC.Generics                           (Generic)
 import           Network.ABCI.Types.Messages.FieldTypes (PubKey (PubKey),
                                                          ValidatorUpdate)
-import           Tendermint.SDK.BaseApp                 (RawKey (..))
+import           Tendermint.SDK.BaseApp                 (QueryData, RawKey (..))
 import           Tendermint.SDK.Codec                   (HasCodec (..))
 
 
@@ -49,7 +51,19 @@ instance RawKey PubKey_ where
 
 
 instance A.ToJSON PubKey_
+instance A.ToJSONKey PubKey_
 instance A.FromJSON PubKey_
+instance A.FromJSONKey PubKey_
+
+instance HasCodec (Map PubKey_ Word64) where
+  encode = cs . A.encode
+  decode s =
+    let ms :: Maybe (Map PubKey_ Word64) = A.decodeStrict s
+     in case ms of
+          Just m  -> Right m
+          Nothing -> Left "failure to decode Map of Validators"
+
+instance QueryData PubKey_
 
 newtype KeySet = KeySet (Set PubKey_) deriving Generic
 instance A.ToJSON KeySet
