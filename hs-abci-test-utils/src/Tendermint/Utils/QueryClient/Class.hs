@@ -20,8 +20,8 @@ import           Servant.API
 import           Servant.API.Modifiers
 import           Tendermint.SDK.BaseApp.Errors          (queryAppError)
 import           Tendermint.SDK.BaseApp.Query.Store     (StoreLeaf)
-import           Tendermint.SDK.BaseApp.Query.Types     (Leaf, QA,
-                                                         QueryArgs (..),
+import           Tendermint.SDK.BaseApp.Query.Types     (EmptyQueryServer, Leaf,
+                                                         QA, QueryArgs (..),
                                                          QueryData (..),
                                                          QueryResult (..))
 import qualified Tendermint.SDK.BaseApp.Store.Array     as A
@@ -152,7 +152,7 @@ instance (QueryData k, HasCodec v, RunQueryClient m) => HasQueryClient m (StoreL
 -- | Singleton type representing a client for an empty API.
 data EmptyQueryClient = EmptyQueryClient deriving (Eq, Show, Bounded, Enum)
 
-instance HasQueryClient m EmptyQueryClient where
-  type ClientQ m EmptyQueryClient = EmptyQueryClient
+instance HasQueryClient m EmptyQueryServer where
+  type ClientQ m EmptyQueryServer = EmptyQueryClient
 
   genClientQ _ _ _ = EmptyQueryClient
