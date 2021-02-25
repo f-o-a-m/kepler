@@ -5,6 +5,7 @@ module Tendermint.SDK.BaseApp.Store.Array
   , makeArray
   , makeFullStoreKey
   , append
+  , length
   , modifyAtIndex
   , deleteWhen
   , (!!)
