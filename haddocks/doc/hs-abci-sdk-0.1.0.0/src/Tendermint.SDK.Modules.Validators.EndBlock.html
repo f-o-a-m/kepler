@@ -18,29 +18,29 @@
 </span><span id="line-18"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.Modules.Validators.Types.html"><span class="hs-identifier">Tendermint.SDK.Modules.Validators.Types</span></a></span><span>
 </span><span id="line-19"></span><span>
 </span><span id="line-20"></span><span>
-</span><span id="line-21"></span><span id="local-6989586621679575608"><span class="annot"><a href="Tendermint.SDK.Modules.Validators.EndBlock.html#endBlock"><span class="hs-identifier hs-type">endBlock</span></a></span><span>
-</span><span id="line-22"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Block.html#BlockEffs"><span class="hs-identifier hs-type">BlockEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679575608"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-23"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Validators.Keeper.html#ValidatorsEffs"><span class="hs-identifier hs-type">ValidatorsEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679575608"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-21"></span><span id="local-6989586621679576264"><span class="annot"><a href="Tendermint.SDK.Modules.Validators.EndBlock.html#endBlock"><span class="hs-identifier hs-type">endBlock</span></a></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Block.html#BlockEffs"><span class="hs-identifier hs-type">BlockEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679576264"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Validators.Keeper.html#ValidatorsEffs"><span class="hs-identifier hs-type">ValidatorsEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679576264"><span class="hs-identifier hs-type">r</span></a></span><span>
 </span><span id="line-24"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Request.EndBlock</span></span><span>
-</span><span id="line-25"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679575608"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Block.html#EndBlockResult"><span class="hs-identifier hs-type">EndBlockResult</span></a></span></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679576264"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Block.html#EndBlockResult"><span class="hs-identifier hs-type">EndBlockResult</span></a></span></span><span>
 </span><span id="line-26"></span><span id="endBlock"><span class="annot"><span class="annottext">endBlock :: EndBlock -&gt; Sem r EndBlockResult
 </span><a href="Tendermint.SDK.Modules.Validators.EndBlock.html#endBlock"><span class="hs-identifier hs-var hs-var">endBlock</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-27"></span><span>  </span><span id="local-6989586621679575605"><span class="annot"><span class="annottext">Map PubKey_ Word64
-</span><a href="#local-6989586621679575605"><span class="hs-identifier hs-var">updatesMap</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem r (Map PubKey_ Word64)
+</span><span id="line-27"></span><span>  </span><span id="local-6989586621679576261"><span class="annot"><span class="annottext">Map PubKey_ Word64
+</span><a href="#local-6989586621679576261"><span class="hs-identifier hs-var">updatesMap</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem r (Map PubKey_ Word64)
 forall (r :: [Effect]).
 MemberWithError ValidatorsKeeper r =&gt;
 Sem r (Map PubKey_ Word64)
 </span><a href="Tendermint.SDK.Modules.Validators.Keeper.html#getQueuedUpdates"><span class="hs-identifier hs-var">getQueuedUpdates</span></a></span><span>
-</span><span id="line-28"></span><span>  </span><span id="local-6989586621679575603"><span class="annot"><span class="annottext">Set PubKey_
-</span><a href="#local-6989586621679575603"><span class="hs-identifier hs-var">curValKeySet</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem r (Set PubKey_)
+</span><span id="line-28"></span><span>  </span><span id="local-6989586621679576259"><span class="annot"><span class="annottext">Set PubKey_
+</span><a href="#local-6989586621679576259"><span class="hs-identifier hs-var">curValKeySet</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem r (Set PubKey_)
 forall (r :: [Effect]).
 MemberWithError ValidatorsKeeper r =&gt;
 Sem r (Set PubKey_)
 </span><a href="Tendermint.SDK.Modules.Validators.Keeper.html#getValidatorsKeys"><span class="hs-identifier hs-var">getValidatorsKeys</span></a></span><span>
 </span><span id="line-29"></span><span>
 </span><span id="line-30"></span><span>  </span><span class="hs-comment">-- update the Validators map and key set</span><span>
-</span><span id="line-31"></span><span>  </span><span id="local-6989586621679575601"><span class="annot"><span class="annottext">Set PubKey_
-</span><a href="#local-6989586621679575601"><span class="hs-identifier hs-var">newValKeySet</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(StateT (Set PubKey_) (Sem r) ()
+</span><span id="line-31"></span><span>  </span><span id="local-6989586621679576257"><span class="annot"><span class="annottext">Set PubKey_
+</span><a href="#local-6989586621679576257"><span class="hs-identifier hs-var">newValKeySet</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(StateT (Set PubKey_) (Sem r) ()
  -&gt; Set PubKey_ -&gt; Sem r (Set PubKey_))
 -&gt; Set PubKey_
 -&gt; StateT (Set PubKey_) (Sem r) ()
@@ -50,7 +50,7 @@ forall a b c. (a -&gt; b -&gt; c) -&gt; b -&gt; a -&gt; c
 -&gt; Set PubKey_ -&gt; Sem r (Set PubKey_)
 forall (m :: * -&gt; *) s a. Monad m =&gt; StateT s m a -&gt; s -&gt; m s
 </span><span class="hs-identifier hs-var">execStateT</span></span><span> </span><span class="annot"><span class="annottext">Set PubKey_
-</span><a href="#local-6989586621679575603"><span class="hs-identifier hs-var">curValKeySet</span></a></span><span> </span><span class="annot"><span class="annottext">(StateT (Set PubKey_) (Sem r) () -&gt; Sem r (Set PubKey_))
+</span><a href="#local-6989586621679576259"><span class="hs-identifier hs-var">curValKeySet</span></a></span><span> </span><span class="annot"><span class="annottext">(StateT (Set PubKey_) (Sem r) () -&gt; Sem r (Set PubKey_))
 -&gt; StateT (Set PubKey_) (Sem r) () -&gt; Sem r (Set PubKey_)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span>
@@ -63,16 +63,16 @@ t a -&gt; (a -&gt; m b) -&gt; m ()
 </span><span class="hs-identifier hs-var">forM_</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map PubKey_ Word64 -&gt; [(PubKey_, Word64)]
 forall k a. Map k a -&gt; [(k, a)]
 </span><span class="hs-identifier hs-var">Map.toList</span></span><span> </span><span class="annot"><span class="annottext">Map PubKey_ Word64
-</span><a href="#local-6989586621679575605"><span class="hs-identifier hs-var">updatesMap</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(((PubKey_, Word64) -&gt; StateT (Set PubKey_) (Sem r) ())
+</span><a href="#local-6989586621679576261"><span class="hs-identifier hs-var">updatesMap</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(((PubKey_, Word64) -&gt; StateT (Set PubKey_) (Sem r) ())
  -&gt; StateT (Set PubKey_) (Sem r) ())
 -&gt; ((PubKey_, Word64) -&gt; StateT (Set PubKey_) (Sem r) ())
 -&gt; StateT (Set PubKey_) (Sem r) ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-special">(</span><span id="local-6989586621679575598"><span class="annot"><span class="annottext">key :: PubKey_
-</span><a href="#local-6989586621679575598"><span class="hs-identifier hs-var">key</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679575597"><span class="annot"><span class="annottext">newPower :: Word64
-</span><a href="#local-6989586621679575597"><span class="hs-identifier hs-var">newPower</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-special">(</span><span id="local-6989586621679576254"><span class="annot"><span class="annottext">key :: PubKey_
+</span><a href="#local-6989586621679576254"><span class="hs-identifier hs-var">key</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576253"><span class="annot"><span class="annottext">newPower :: Word64
+</span><a href="#local-6989586621679576253"><span class="hs-identifier hs-var">newPower</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-33"></span><span>      </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679575597"><span class="hs-identifier hs-var">newPower</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
+</span><a href="#local-6989586621679576253"><span class="hs-identifier hs-var">newPower</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-number">0</span></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-34"></span><span>        </span><span class="hs-comment">-- delete from Validators map and key set</span><span>
@@ -88,7 +88,7 @@ forall (r :: [Effect]) k v.
 (Member WriteStore r, RawKey k) =&gt;
 k -&gt; Map k v -&gt; Sem r ()
 </span><a href="Tendermint.SDK.BaseApp.Store.Map.html#delete"><span class="hs-identifier hs-var">M.delete</span></a></span><span> </span><span class="annot"><span class="annottext">PubKey_
-</span><a href="#local-6989586621679575598"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">Map PubKey_ Word64
+</span><a href="#local-6989586621679576254"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">Map PubKey_ Word64
 </span><a href="Tendermint.SDK.Modules.Validators.Store.html#validatorsMap"><span class="hs-identifier hs-var">validatorsMap</span></a></span><span>
 </span><span id="line-36"></span><span>        </span><span class="annot"><span class="annottext">(Set PubKey_ -&gt; Set PubKey_) -&gt; StateT (Set PubKey_) (Sem r) ()
 forall s (m :: * -&gt; *). MonadState s m =&gt; (s -&gt; s) -&gt; m ()
@@ -98,7 +98,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">PubKey_ -&gt; Set PubKey_ -&gt; Set PubKey_
 forall a. Ord a =&gt; a -&gt; Set a -&gt; Set a
 </span><span class="hs-identifier hs-var">Set.delete</span></span><span> </span><span class="annot"><span class="annottext">PubKey_
-</span><a href="#local-6989586621679575598"><span class="hs-identifier hs-var">key</span></a></span><span>
+</span><a href="#local-6989586621679576254"><span class="hs-identifier hs-var">key</span></a></span><span>
 </span><span id="line-37"></span><span>      </span><span class="hs-keyword">else</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-38"></span><span>        </span><span class="hs-comment">-- update power in Validators map and ensure key is in key set</span><span>
 </span><span id="line-39"></span><span>        </span><span class="annot"><span class="annottext">Sem r () -&gt; StateT (Set PubKey_) (Sem r) ()
@@ -113,8 +113,8 @@ forall (r :: [Effect]) k v.
 (Member WriteStore r, RawKey k, HasCodec v) =&gt;
 k -&gt; v -&gt; Map k v -&gt; Sem r ()
 </span><a href="Tendermint.SDK.BaseApp.Store.Map.html#insert"><span class="hs-identifier hs-var">M.insert</span></a></span><span> </span><span class="annot"><span class="annottext">PubKey_
-</span><a href="#local-6989586621679575598"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679575597"><span class="hs-identifier hs-var">newPower</span></a></span><span> </span><span class="annot"><span class="annottext">Map PubKey_ Word64
+</span><a href="#local-6989586621679576254"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679576253"><span class="hs-identifier hs-var">newPower</span></a></span><span> </span><span class="annot"><span class="annottext">Map PubKey_ Word64
 </span><a href="Tendermint.SDK.Modules.Validators.Store.html#validatorsMap"><span class="hs-identifier hs-var">validatorsMap</span></a></span><span>
 </span><span id="line-40"></span><span>        </span><span class="annot"><span class="annottext">(Set PubKey_ -&gt; Set PubKey_) -&gt; StateT (Set PubKey_) (Sem r) ()
 forall s (m :: * -&gt; *). MonadState s m =&gt; (s -&gt; s) -&gt; m ()
@@ -124,7 +124,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">PubKey_ -&gt; Set PubKey_ -&gt; Set PubKey_
 forall a. Ord a =&gt; a -&gt; Set a -&gt; Set a
 </span><span class="hs-identifier hs-var">Set.insert</span></span><span> </span><span class="annot"><span class="annottext">PubKey_
-</span><a href="#local-6989586621679575598"><span class="hs-identifier hs-var">key</span></a></span><span>
+</span><a href="#local-6989586621679576254"><span class="hs-identifier hs-var">key</span></a></span><span>
 </span><span id="line-41"></span><span>
 </span><span id="line-42"></span><span>  </span><span class="hs-comment">-- store new set of validator keys</span><span>
 </span><span id="line-43"></span><span>  </span><span class="annot"><span class="annottext">KeySet -&gt; Var KeySet -&gt; Sem r ()
@@ -133,7 +133,7 @@ forall (r :: [Effect]) a.
 a -&gt; Var a -&gt; Sem r ()
 </span><a href="Tendermint.SDK.BaseApp.Store.Var.html#putVar"><span class="hs-identifier hs-var">V.putVar</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Set PubKey_ -&gt; KeySet
 </span><a href="Tendermint.SDK.Modules.Validators.Types.html#KeySet"><span class="hs-identifier hs-var">KeySet</span></a></span><span> </span><span class="annot"><span class="annottext">Set PubKey_
-</span><a href="#local-6989586621679575601"><span class="hs-identifier hs-var">newValKeySet</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Var KeySet
+</span><a href="#local-6989586621679576257"><span class="hs-identifier hs-var">newValKeySet</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Var KeySet
 </span><a href="Tendermint.SDK.Modules.Validators.Store.html#validatorsKeySet"><span class="hs-identifier hs-var">validatorsKeySet</span></a></span><span>
 </span><span id="line-44"></span><span>
 </span><span id="line-45"></span><span>  </span><span class="hs-comment">-- reset the updatesList to empty</span><span>
@@ -159,25 +159,25 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
 </span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">(PubKey_, Word64) -&gt; ValidatorUpdate
 forall a. Integral a =&gt; (PubKey_, a) -&gt; ValidatorUpdate
-</span><a href="#local-6989586621679575584"><span class="hs-identifier hs-var">convertToValUp</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map PubKey_ Word64 -&gt; [(PubKey_, Word64)]
+</span><a href="#local-6989586621679576240"><span class="hs-identifier hs-var">convertToValUp</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Map PubKey_ Word64 -&gt; [(PubKey_, Word64)]
 forall k a. Map k a -&gt; [(k, a)]
 </span><span class="hs-identifier hs-var">Map.assocs</span></span><span> </span><span class="annot"><span class="annottext">Map PubKey_ Word64
-</span><a href="#local-6989586621679575605"><span class="hs-identifier hs-var">updatesMap</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ConsensusParams
+</span><a href="#local-6989586621679576261"><span class="hs-identifier hs-var">updatesMap</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ConsensusParams
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span>
 </span><span id="line-50"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-51"></span><span>    </span><span id="local-6989586621679575584"><span class="annot"><span class="annottext">convertToValUp :: (PubKey_, a) -&gt; ValidatorUpdate
-</span><a href="#local-6989586621679575584"><span class="hs-identifier hs-var hs-var">convertToValUp</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Modules.Validators.Types.html#PubKey_"><span class="hs-identifier hs-type">PubKey_</span></a></span><span> </span><span id="local-6989586621679575581"><span class="annot"><span class="annottext">key :: PubKey
-</span><a href="#local-6989586621679575581"><span class="hs-identifier hs-var">key</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679575580"><span class="annot"><span class="annottext">power :: a
-</span><a href="#local-6989586621679575580"><span class="hs-identifier hs-var">power</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-51"></span><span>    </span><span id="local-6989586621679576240"><span class="annot"><span class="annottext">convertToValUp :: (PubKey_, a) -&gt; ValidatorUpdate
+</span><a href="#local-6989586621679576240"><span class="hs-identifier hs-var hs-var">convertToValUp</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Modules.Validators.Types.html#PubKey_"><span class="hs-identifier hs-type">PubKey_</span></a></span><span> </span><span id="local-6989586621679576237"><span class="annot"><span class="annottext">key :: PubKey
+</span><a href="#local-6989586621679576237"><span class="hs-identifier hs-var">key</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576236"><span class="annot"><span class="annottext">power :: a
+</span><a href="#local-6989586621679576236"><span class="hs-identifier hs-var">power</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-52"></span><span>      </span><span class="annot"><span class="annottext">Maybe PubKey -&gt; WrappedVal Int64 -&gt; ValidatorUpdate
 </span><span class="hs-identifier hs-var">ABCI.ValidatorUpdate</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PubKey -&gt; Maybe PubKey
 forall a. a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">PubKey
-</span><a href="#local-6989586621679575581"><span class="hs-identifier hs-var">key</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int64 -&gt; WrappedVal Int64
+</span><a href="#local-6989586621679576237"><span class="hs-identifier hs-var">key</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int64 -&gt; WrappedVal Int64
 forall a. a -&gt; WrappedVal a
 </span><span class="hs-identifier hs-var">ABCI.WrappedVal</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Int64
 forall a b. (Integral a, Num b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679575580"><span class="hs-identifier hs-var">power</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679576236"><span class="hs-identifier hs-var">power</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-53"></span></pre></body></html>

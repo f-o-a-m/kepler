@@ -16,7 +16,7 @@
 </span><span id="line-16"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html"><span class="hs-identifier">Tendermint.SDK.Types.Message</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#HasMessageType"><span class="hs-identifier">HasMessageType</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
 </span><span id="line-17"></span><span>                                               </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#ValidateMessage"><span class="hs-identifier">ValidateMessage</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-18"></span><span>
-</span><span id="line-19"></span><span id="local-6989586621679576915"><span id="local-6989586621679576916"></span></span><span class="hs-keyword">data</span><span> </span><span id="TransferMsg"><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#TransferMsg"><span class="hs-identifier hs-var">TransferMsg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="TransferMsg"><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#TransferMsg"><span class="hs-identifier hs-var">TransferMsg</span></a></span></span><span>
+</span><span id="line-19"></span><span id="local-6989586621679577571"><span id="local-6989586621679577572"></span></span><span class="hs-keyword">data</span><span> </span><span id="TransferMsg"><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#TransferMsg"><span class="hs-identifier hs-var">TransferMsg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="TransferMsg"><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#TransferMsg"><span class="hs-identifier hs-var">TransferMsg</span></a></span></span><span>
 </span><span id="line-20"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="transferTo"><span class="annot"><span class="annottext">TransferMsg -&gt; Address
 </span><a href="Tendermint.SDK.Modules.Bank.Messages.html#transferTo"><span class="hs-identifier hs-var hs-var">transferTo</span></a></span></span><span>     </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span><span>
 </span><span id="line-21"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="transferFrom"><span class="annot"><span class="annottext">TransferMsg -&gt; Address
@@ -25,7 +25,7 @@
 </span><a href="Tendermint.SDK.Modules.Bank.Messages.html#transferCoinId"><span class="hs-identifier hs-var hs-var">transferCoinId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span><span>
 </span><span id="line-23"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="transferAmount"><span class="annot"><span class="annottext">TransferMsg -&gt; Amount
 </span><a href="Tendermint.SDK.Modules.Bank.Messages.html#transferAmount"><span class="hs-identifier hs-var hs-var">transferAmount</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-type">Amount</span></a></span><span>
-</span><span id="line-24"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679576906"><span id="local-6989586621679576908"><span class="annot"><span class="annottext">TransferMsg -&gt; TransferMsg -&gt; Bool
+</span><span id="line-24"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679577562"><span id="local-6989586621679577564"><span class="annot"><span class="annottext">TransferMsg -&gt; TransferMsg -&gt; Bool
 (TransferMsg -&gt; TransferMsg -&gt; Bool)
 -&gt; (TransferMsg -&gt; TransferMsg -&gt; Bool) -&gt; Eq TransferMsg
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -33,7 +33,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: TransferMsg -&gt; TransferMsg -&gt; Bool
 == :: TransferMsg -&gt; TransferMsg -&gt; Bool
 $c== :: TransferMsg -&gt; TransferMsg -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576899"><span id="local-6989586621679576901"><span id="local-6989586621679576903"><span class="annot"><span class="annottext">Int -&gt; TransferMsg -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679577555"><span id="local-6989586621679577557"><span id="local-6989586621679577559"><span class="annot"><span class="annottext">Int -&gt; TransferMsg -&gt; ShowS
 [TransferMsg] -&gt; ShowS
 TransferMsg -&gt; String
 (Int -&gt; TransferMsg -&gt; ShowS)
@@ -62,7 +62,7 @@ $cfrom :: forall x. TransferMsg -&gt; Rep TransferMsg x
 </span><span id="line-26"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Wrapped</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#TransferMsg"><span class="hs-identifier hs-type">TransferMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-27"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Unwrapped"><span class="annot"><span class="hs-identifier hs-var">Unwrapped</span></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#TransferMsg"><span class="hs-identifier hs-type">TransferMsg</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Proto.Modules.Bank.html#Transfer"><span class="hs-identifier hs-type">B.Transfer</span></a></span><span>
 </span><span id="line-28"></span><span>
-</span><span id="line-29"></span><span>  </span><span id="local-6989586621679576892"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped TransferMsg) (f (Unwrapped TransferMsg))
+</span><span id="line-29"></span><span>  </span><span id="local-6989586621679577548"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped TransferMsg) (f (Unwrapped TransferMsg))
 -&gt; p TransferMsg (f TransferMsg)
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">_Wrapped'</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(TransferMsg -&gt; Transfer)
 -&gt; (Transfer -&gt; TransferMsg)
@@ -73,15 +73,15 @@ forall b.
 (Message b, HasField b &quot;amount&quot; Word64, HasField b &quot;cid&quot; Text,
  HasField b &quot;from&quot; ByteString, HasField b &quot;to&quot; ByteString) =&gt;
 TransferMsg -&gt; b
-</span><a href="#local-6989586621679576890"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Transfer -&gt; TransferMsg
+</span><a href="#local-6989586621679577546"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Transfer -&gt; TransferMsg
 forall s.
 (HasField s &quot;amount&quot; Word64, HasField s &quot;cid&quot; Text,
  HasField s &quot;from&quot; ByteString, HasField s &quot;to&quot; ByteString) =&gt;
 s -&gt; TransferMsg
-</span><a href="#local-6989586621679576889"><span class="hs-identifier hs-var">f</span></a></span><span>
+</span><a href="#local-6989586621679577545"><span class="hs-identifier hs-var">f</span></a></span><span>
 </span><span id="line-30"></span><span>   </span><span class="hs-keyword">where</span><span>
-</span><span id="line-31"></span><span>    </span><span id="local-6989586621679576890"><span class="annot"><span class="annottext">t :: TransferMsg -&gt; b
-</span><a href="#local-6989586621679576890"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679576885"><span id="local-6989586621679576886"><span id="local-6989586621679576887"><span id="local-6989586621679576888"><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#TransferMsg"><span class="hs-identifier hs-type">TransferMsg</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-31"></span><span>    </span><span id="local-6989586621679577546"><span class="annot"><span class="annottext">t :: TransferMsg -&gt; b
+</span><a href="#local-6989586621679577546"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679577541"><span id="local-6989586621679577542"><span id="local-6989586621679577543"><span id="local-6989586621679577544"><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#TransferMsg"><span class="hs-identifier hs-type">TransferMsg</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-32"></span><span>      </span><span class="annot"><span class="annottext">b
 forall msg. Message msg =&gt; msg
 </span><span class="hs-identifier hs-var">P.defMessage</span></span><span>
@@ -95,7 +95,7 @@ LensLike' f s a
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Address -&gt; ByteString
 </span><a href="Tendermint.SDK.Types.Address.html#addressToBytes"><span class="hs-identifier hs-var">addressToBytes</span></a></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679576888"><span class="hs-identifier hs-var">transferTo</span></a></span><span>
+</span><a href="#local-6989586621679577544"><span class="hs-identifier hs-var">transferTo</span></a></span><span>
 </span><span id="line-34"></span><span>        </span><span class="annot"><span class="annottext">b -&gt; (b -&gt; b) -&gt; b
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b ByteString
@@ -106,7 +106,7 @@ LensLike' f s a
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Address -&gt; ByteString
 </span><a href="Tendermint.SDK.Types.Address.html#addressToBytes"><span class="hs-identifier hs-var">addressToBytes</span></a></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679576887"><span class="hs-identifier hs-var">transferFrom</span></a></span><span>
+</span><a href="#local-6989586621679577543"><span class="hs-identifier hs-var">transferFrom</span></a></span><span>
 </span><span id="line-35"></span><span>        </span><span class="annot"><span class="annottext">b -&gt; (b -&gt; b) -&gt; b
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Text
@@ -117,7 +117,7 @@ LensLike' f s a
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">CoinId -&gt; Text
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#unCoinId"><span class="hs-identifier hs-var hs-var">unCoinId</span></a></span><span> </span><span class="annot"><span class="annottext">CoinId
-</span><a href="#local-6989586621679576886"><span class="hs-identifier hs-var">transferCoinId</span></a></span><span>
+</span><a href="#local-6989586621679577542"><span class="hs-identifier hs-var">transferCoinId</span></a></span><span>
 </span><span id="line-36"></span><span>        </span><span class="annot"><span class="annottext">b -&gt; (b -&gt; b) -&gt; b
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Word64
@@ -128,17 +128,17 @@ LensLike' f s a
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Amount -&gt; Word64
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#unAmount"><span class="hs-identifier hs-var hs-var">unAmount</span></a></span><span> </span><span class="annot"><span class="annottext">Amount
-</span><a href="#local-6989586621679576885"><span class="hs-identifier hs-var">transferAmount</span></a></span><span>
-</span><span id="line-37"></span><span>    </span><span id="local-6989586621679576889"><span class="annot"><span class="annottext">f :: s -&gt; TransferMsg
-</span><a href="#local-6989586621679576889"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679576877"><span class="annot"><span class="annottext">message :: s
-</span><a href="#local-6989586621679576877"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TransferMsg :: Address -&gt; Address -&gt; CoinId -&gt; Amount -&gt; TransferMsg
+</span><a href="#local-6989586621679577541"><span class="hs-identifier hs-var">transferAmount</span></a></span><span>
+</span><span id="line-37"></span><span>    </span><span id="local-6989586621679577545"><span class="annot"><span class="annottext">f :: s -&gt; TransferMsg
+</span><a href="#local-6989586621679577545"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679577533"><span class="annot"><span class="annottext">message :: s
+</span><a href="#local-6989586621679577533"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TransferMsg :: Address -&gt; Address -&gt; CoinId -&gt; Amount -&gt; TransferMsg
 </span><a href="Tendermint.SDK.Modules.Bank.Messages.html#TransferMsg"><span class="hs-identifier hs-type hs-type">TransferMsg</span></a></span><span>
 </span><span id="line-38"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">transferTo :: Address
 </span><a href="Tendermint.SDK.Modules.Bank.Messages.html#transferTo"><span class="hs-identifier hs-var">transferTo</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Address
 </span><a href="Tendermint.SDK.Types.Address.html#addressFromBytes"><span class="hs-identifier hs-var">addressFromBytes</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Address) -&gt; ByteString -&gt; Address
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576877"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting ByteString s ByteString -&gt; ByteString
+</span><a href="#local-6989586621679577533"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting ByteString s ByteString -&gt; ByteString
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting ByteString s ByteString
 forall (f :: * -&gt; *) s a.
@@ -150,7 +150,7 @@ LensLike' f s a
 </span><a href="Tendermint.SDK.Types.Address.html#addressFromBytes"><span class="hs-identifier hs-var">addressFromBytes</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Address) -&gt; ByteString -&gt; Address
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576877"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting ByteString s ByteString -&gt; ByteString
+</span><a href="#local-6989586621679577533"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting ByteString s ByteString -&gt; ByteString
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting ByteString s ByteString
 forall (f :: * -&gt; *) s a.
@@ -162,7 +162,7 @@ LensLike' f s a
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-var">CoinId</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; CoinId) -&gt; Text -&gt; CoinId
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576877"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Text s Text -&gt; Text
+</span><a href="#local-6989586621679577533"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Text s Text -&gt; Text
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Text s Text
 forall (f :: * -&gt; *) s a.
@@ -174,7 +174,7 @@ LensLike' f s a
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-var">Amount</span></a></span><span> </span><span class="annot"><span class="annottext">(Word64 -&gt; Amount) -&gt; Word64 -&gt; Amount
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576877"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Word64 s Word64 -&gt; Word64
+</span><a href="#local-6989586621679577533"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Word64 s Word64 -&gt; Word64
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Word64 s Word64
 forall (f :: * -&gt; *) s a.
@@ -184,11 +184,11 @@ LensLike' f s a
 </span><span id="line-42"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-43"></span><span>
 </span><span id="line-44"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#HasMessageType"><span class="hs-identifier hs-type">HasMessageType</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#TransferMsg"><span class="hs-identifier hs-type">TransferMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-45"></span><span>  </span><span id="local-6989586621679576871"><span class="annot"><span class="annottext">messageType :: Proxy TransferMsg -&gt; Text
+</span><span id="line-45"></span><span>  </span><span id="local-6989586621679577527"><span class="annot"><span class="annottext">messageType :: Proxy TransferMsg -&gt; Text
 </span><a href="Tendermint.SDK.Types.Message.html#messageType"><span class="hs-identifier hs-var hs-var hs-var hs-var">messageType</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;TransferMsg&quot;</span></span><span>
 </span><span id="line-46"></span><span>
 </span><span id="line-47"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#TransferMsg"><span class="hs-identifier hs-type">TransferMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-48"></span><span>  </span><span id="local-6989586621679576866"><span class="annot"><span class="annottext">encode :: TransferMsg -&gt; ByteString
+</span><span id="line-48"></span><span>  </span><span id="local-6989586621679577522"><span class="annot"><span class="annottext">encode :: TransferMsg -&gt; ByteString
 </span><a href="Tendermint.SDK.Codec.html#encode"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Transfer -&gt; ByteString
 forall msg. Message msg =&gt; msg -&gt; ByteString
 </span><span class="hs-identifier hs-var">P.encodeMessage</span></span><span> </span><span class="annot"><span class="annottext">(Transfer -&gt; ByteString)
@@ -199,7 +199,7 @@ forall s (m :: * -&gt; *) a. MonadReader s m =&gt; Getting a s a -&gt; m a
 </span><span class="hs-identifier hs-var">view</span></span><span> </span><span class="annot"><span class="annottext">Getting Transfer TransferMsg Transfer
 forall s. Wrapped s =&gt; Iso' s (Unwrapped s)
 </span><span class="hs-identifier hs-var">_Wrapped'</span></span><span>
-</span><span id="line-49"></span><span>  </span><span id="local-6989586621679576862"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text TransferMsg
+</span><span id="line-49"></span><span>  </span><span id="local-6989586621679577518"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text TransferMsg
 </span><a href="Tendermint.SDK.Codec.html#decode"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text)
 -&gt; (Transfer -&gt; TransferMsg)
 -&gt; Either String Transfer
@@ -232,21 +232,21 @@ forall msg. Message msg =&gt; ByteString -&gt; Either String msg
 </span><span class="hs-identifier hs-var">P.decodeMessage</span></span><span>
 </span><span id="line-50"></span><span>
 </span><span id="line-51"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#ValidateMessage"><span class="hs-identifier hs-type">ValidateMessage</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#TransferMsg"><span class="hs-identifier hs-type">TransferMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-52"></span><span>  </span><span id="local-6989586621679576857"><span class="annot"><span class="annottext">validateMessage :: Msg TransferMsg -&gt; Validation [MessageSemanticError] ()
+</span><span id="line-52"></span><span>  </span><span id="local-6989586621679577513"><span class="annot"><span class="annottext">validateMessage :: Msg TransferMsg -&gt; Validation [MessageSemanticError] ()
 </span><a href="Tendermint.SDK.Types.Message.html#validateMessage"><span class="hs-identifier hs-var hs-var hs-var hs-var">validateMessage</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">() -&gt; Validation [MessageSemanticError] ()
 forall err a. a -&gt; Validation err a
 </span><span class="hs-identifier hs-var">Success</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-53"></span><span>
 </span><span id="line-54"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-55"></span><span>
-</span><span id="line-56"></span><span id="local-6989586621679576853"><span id="local-6989586621679576854"></span></span><span class="hs-keyword">data</span><span> </span><span id="BurnMsg"><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#BurnMsg"><span class="hs-identifier hs-var">BurnMsg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="BurnMsg"><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#BurnMsg"><span class="hs-identifier hs-var">BurnMsg</span></a></span></span><span>
+</span><span id="line-56"></span><span id="local-6989586621679577509"><span id="local-6989586621679577510"></span></span><span class="hs-keyword">data</span><span> </span><span id="BurnMsg"><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#BurnMsg"><span class="hs-identifier hs-var">BurnMsg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="BurnMsg"><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#BurnMsg"><span class="hs-identifier hs-var">BurnMsg</span></a></span></span><span>
 </span><span id="line-57"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="burnAddress"><span class="annot"><span class="annottext">BurnMsg -&gt; Address
 </span><a href="Tendermint.SDK.Modules.Bank.Messages.html#burnAddress"><span class="hs-identifier hs-var hs-var">burnAddress</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span><span>
 </span><span id="line-58"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="burnCoinId"><span class="annot"><span class="annottext">BurnMsg -&gt; CoinId
 </span><a href="Tendermint.SDK.Modules.Bank.Messages.html#burnCoinId"><span class="hs-identifier hs-var hs-var">burnCoinId</span></a></span></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span><span>
 </span><span id="line-59"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="burnAmount"><span class="annot"><span class="annottext">BurnMsg -&gt; Amount
 </span><a href="Tendermint.SDK.Modules.Bank.Messages.html#burnAmount"><span class="hs-identifier hs-var hs-var">burnAmount</span></a></span></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-type">Amount</span></a></span><span>
-</span><span id="line-60"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679576845"><span id="local-6989586621679576847"><span class="annot"><span class="annottext">BurnMsg -&gt; BurnMsg -&gt; Bool
+</span><span id="line-60"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679577501"><span id="local-6989586621679577503"><span class="annot"><span class="annottext">BurnMsg -&gt; BurnMsg -&gt; Bool
 (BurnMsg -&gt; BurnMsg -&gt; Bool)
 -&gt; (BurnMsg -&gt; BurnMsg -&gt; Bool) -&gt; Eq BurnMsg
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -254,7 +254,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: BurnMsg -&gt; BurnMsg -&gt; Bool
 == :: BurnMsg -&gt; BurnMsg -&gt; Bool
 $c== :: BurnMsg -&gt; BurnMsg -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576839"><span id="local-6989586621679576841"><span id="local-6989586621679576843"><span class="annot"><span class="annottext">Int -&gt; BurnMsg -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679577495"><span id="local-6989586621679577497"><span id="local-6989586621679577499"><span class="annot"><span class="annottext">Int -&gt; BurnMsg -&gt; ShowS
 [BurnMsg] -&gt; ShowS
 BurnMsg -&gt; String
 (Int -&gt; BurnMsg -&gt; ShowS)
@@ -280,9 +280,9 @@ $cfrom :: forall x. BurnMsg -&gt; Rep BurnMsg x
 </span><span id="line-62"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Wrapped</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#BurnMsg"><span class="hs-identifier hs-type">BurnMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-63"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Unwrapped"><span class="annot"><span class="hs-identifier hs-var">Unwrapped</span></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#BurnMsg"><span class="hs-identifier hs-type">BurnMsg</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Proto.Modules.Bank.html#Burn"><span class="hs-identifier hs-type">B.Burn</span></a></span><span>
 </span><span id="line-64"></span><span>
-</span><span id="line-65"></span><span>  </span><span id="local-6989586621679576835"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped BurnMsg) (f (Unwrapped BurnMsg))
+</span><span id="line-65"></span><span>  </span><span id="local-6989586621679577491"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped BurnMsg) (f (Unwrapped BurnMsg))
 -&gt; p BurnMsg (f BurnMsg)
-</span><a href="#local-6989586621679576835"><span class="hs-identifier hs-var hs-var hs-var hs-var">_Wrapped'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(BurnMsg -&gt; Burn)
+</span><a href="#local-6989586621679577491"><span class="hs-identifier hs-var hs-var hs-var hs-var">_Wrapped'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(BurnMsg -&gt; Burn)
 -&gt; (Burn -&gt; BurnMsg) -&gt; Iso BurnMsg BurnMsg Burn Burn
 forall s a b t. (s -&gt; a) -&gt; (b -&gt; t) -&gt; Iso s t a b
 </span><span class="hs-identifier hs-var">iso</span></span><span> </span><span class="annot"><span class="annottext">BurnMsg -&gt; Burn
@@ -290,15 +290,15 @@ forall b.
 (Message b, HasField b &quot;address&quot; ByteString,
  HasField b &quot;amount&quot; Word64, HasField b &quot;cid&quot; Text) =&gt;
 BurnMsg -&gt; b
-</span><a href="#local-6989586621679576834"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Burn -&gt; BurnMsg
+</span><a href="#local-6989586621679577490"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Burn -&gt; BurnMsg
 forall s.
 (HasField s &quot;address&quot; ByteString, HasField s &quot;amount&quot; Word64,
  HasField s &quot;cid&quot; Text) =&gt;
 s -&gt; BurnMsg
-</span><a href="#local-6989586621679576833"><span class="hs-identifier hs-var">f</span></a></span><span>
+</span><a href="#local-6989586621679577489"><span class="hs-identifier hs-var">f</span></a></span><span>
 </span><span id="line-66"></span><span>   </span><span class="hs-keyword">where</span><span>
-</span><span id="line-67"></span><span>    </span><span id="local-6989586621679576834"><span class="annot"><span class="annottext">t :: BurnMsg -&gt; b
-</span><a href="#local-6989586621679576834"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679576830"><span id="local-6989586621679576831"><span id="local-6989586621679576832"><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#BurnMsg"><span class="hs-identifier hs-type">BurnMsg</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-67"></span><span>    </span><span id="local-6989586621679577490"><span class="annot"><span class="annottext">t :: BurnMsg -&gt; b
+</span><a href="#local-6989586621679577490"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679577486"><span id="local-6989586621679577487"><span id="local-6989586621679577488"><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#BurnMsg"><span class="hs-identifier hs-type">BurnMsg</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-68"></span><span>      </span><span class="annot"><span class="annottext">b
 forall msg. Message msg =&gt; msg
 </span><span class="hs-identifier hs-var">P.defMessage</span></span><span>
@@ -312,7 +312,7 @@ LensLike' f s a
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Address -&gt; ByteString
 </span><a href="Tendermint.SDK.Types.Address.html#addressToBytes"><span class="hs-identifier hs-var">addressToBytes</span></a></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679576832"><span class="hs-identifier hs-var">burnAddress</span></a></span><span>
+</span><a href="#local-6989586621679577488"><span class="hs-identifier hs-var">burnAddress</span></a></span><span>
 </span><span id="line-70"></span><span>        </span><span class="annot"><span class="annottext">b -&gt; (b -&gt; b) -&gt; b
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Text
@@ -323,7 +323,7 @@ LensLike' f s a
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">CoinId -&gt; Text
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#unCoinId"><span class="hs-identifier hs-var hs-var">unCoinId</span></a></span><span> </span><span class="annot"><span class="annottext">CoinId
-</span><a href="#local-6989586621679576831"><span class="hs-identifier hs-var">burnCoinId</span></a></span><span>
+</span><a href="#local-6989586621679577487"><span class="hs-identifier hs-var">burnCoinId</span></a></span><span>
 </span><span id="line-71"></span><span>        </span><span class="annot"><span class="annottext">b -&gt; (b -&gt; b) -&gt; b
 forall a b. a -&gt; (a -&gt; b) -&gt; b
 </span><span class="hs-operator hs-var">&amp;</span></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Word64
@@ -334,17 +334,17 @@ LensLike' f s a
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Amount -&gt; Word64
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#unAmount"><span class="hs-identifier hs-var hs-var">unAmount</span></a></span><span> </span><span class="annot"><span class="annottext">Amount
-</span><a href="#local-6989586621679576830"><span class="hs-identifier hs-var">burnAmount</span></a></span><span>
-</span><span id="line-72"></span><span>    </span><span id="local-6989586621679576833"><span class="annot"><span class="annottext">f :: s -&gt; BurnMsg
-</span><a href="#local-6989586621679576833"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679576828"><span class="annot"><span class="annottext">message :: s
-</span><a href="#local-6989586621679576828"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BurnMsg :: Address -&gt; CoinId -&gt; Amount -&gt; BurnMsg
+</span><a href="#local-6989586621679577486"><span class="hs-identifier hs-var">burnAmount</span></a></span><span>
+</span><span id="line-72"></span><span>    </span><span id="local-6989586621679577489"><span class="annot"><span class="annottext">f :: s -&gt; BurnMsg
+</span><a href="#local-6989586621679577489"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679577484"><span class="annot"><span class="annottext">message :: s
+</span><a href="#local-6989586621679577484"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">BurnMsg :: Address -&gt; CoinId -&gt; Amount -&gt; BurnMsg
 </span><a href="Tendermint.SDK.Modules.Bank.Messages.html#BurnMsg"><span class="hs-identifier hs-type hs-type">BurnMsg</span></a></span><span>
 </span><span id="line-73"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">burnAddress :: Address
 </span><a href="Tendermint.SDK.Modules.Bank.Messages.html#burnAddress"><span class="hs-identifier hs-var">burnAddress</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Address
 </span><a href="Tendermint.SDK.Types.Address.html#addressFromBytes"><span class="hs-identifier hs-var">addressFromBytes</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Address) -&gt; ByteString -&gt; Address
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576828"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting ByteString s ByteString -&gt; ByteString
+</span><a href="#local-6989586621679577484"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting ByteString s ByteString -&gt; ByteString
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting ByteString s ByteString
 forall (f :: * -&gt; *) s a.
@@ -356,7 +356,7 @@ LensLike' f s a
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-var">CoinId</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; CoinId) -&gt; Text -&gt; CoinId
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576828"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Text s Text -&gt; Text
+</span><a href="#local-6989586621679577484"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Text s Text -&gt; Text
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Text s Text
 forall (f :: * -&gt; *) s a.
@@ -368,7 +368,7 @@ LensLike' f s a
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-var">Amount</span></a></span><span> </span><span class="annot"><span class="annottext">(Word64 -&gt; Amount) -&gt; Word64 -&gt; Amount
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576828"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Word64 s Word64 -&gt; Word64
+</span><a href="#local-6989586621679577484"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Word64 s Word64 -&gt; Word64
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Word64 s Word64
 forall (f :: * -&gt; *) s a.
@@ -378,12 +378,12 @@ LensLike' f s a
 </span><span id="line-76"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-77"></span><span>
 </span><span id="line-78"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#HasMessageType"><span class="hs-identifier hs-type">HasMessageType</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#BurnMsg"><span class="hs-identifier hs-type">BurnMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-79"></span><span>  </span><span id="local-6989586621679576825"><span class="annot"><span class="annottext">messageType :: Proxy BurnMsg -&gt; Text
-</span><a href="#local-6989586621679576825"><span class="hs-identifier hs-var hs-var hs-var hs-var">messageType</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;BurnMsg&quot;</span></span><span>
+</span><span id="line-79"></span><span>  </span><span id="local-6989586621679577481"><span class="annot"><span class="annottext">messageType :: Proxy BurnMsg -&gt; Text
+</span><a href="#local-6989586621679577481"><span class="hs-identifier hs-var hs-var hs-var hs-var">messageType</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;BurnMsg&quot;</span></span><span>
 </span><span id="line-80"></span><span>
 </span><span id="line-81"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#BurnMsg"><span class="hs-identifier hs-type">BurnMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-82"></span><span>  </span><span id="local-6989586621679576822"><span class="annot"><span class="annottext">encode :: BurnMsg -&gt; ByteString
-</span><a href="#local-6989586621679576822"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Burn -&gt; ByteString
+</span><span id="line-82"></span><span>  </span><span id="local-6989586621679577478"><span class="annot"><span class="annottext">encode :: BurnMsg -&gt; ByteString
+</span><a href="#local-6989586621679577478"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Burn -&gt; ByteString
 forall msg. Message msg =&gt; msg -&gt; ByteString
 </span><span class="hs-identifier hs-var">P.encodeMessage</span></span><span> </span><span class="annot"><span class="annottext">(Burn -&gt; ByteString) -&gt; (BurnMsg -&gt; Burn) -&gt; BurnMsg -&gt; ByteString
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -392,8 +392,8 @@ forall s (m :: * -&gt; *) a. MonadReader s m =&gt; Getting a s a -&gt; m a
 </span><span class="hs-identifier hs-var">view</span></span><span> </span><span class="annot"><span class="annottext">Getting Burn BurnMsg Burn
 forall s. Wrapped s =&gt; Iso' s (Unwrapped s)
 </span><span class="hs-identifier hs-var">_Wrapped'</span></span><span>
-</span><span id="line-83"></span><span>  </span><span id="local-6989586621679576821"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text BurnMsg
-</span><a href="#local-6989586621679576821"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text)
+</span><span id="line-83"></span><span>  </span><span id="local-6989586621679577477"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text BurnMsg
+</span><a href="#local-6989586621679577477"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text)
 -&gt; (Burn -&gt; BurnMsg) -&gt; Either String Burn -&gt; Either Text BurnMsg
 forall (p :: * -&gt; * -&gt; *) a b c d.
 Bifunctor p =&gt;
@@ -419,8 +419,8 @@ forall msg. Message msg =&gt; ByteString -&gt; Either String msg
 </span><span class="hs-identifier hs-var">P.decodeMessage</span></span><span>
 </span><span id="line-84"></span><span>
 </span><span id="line-85"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#ValidateMessage"><span class="hs-identifier hs-type">ValidateMessage</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Bank.Messages.html#BurnMsg"><span class="hs-identifier hs-type">BurnMsg</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-86"></span><span>  </span><span id="local-6989586621679576819"><span class="annot"><span class="annottext">validateMessage :: Msg BurnMsg -&gt; Validation [MessageSemanticError] ()
-</span><a href="#local-6989586621679576819"><span class="hs-identifier hs-var hs-var hs-var hs-var">validateMessage</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">() -&gt; Validation [MessageSemanticError] ()
+</span><span id="line-86"></span><span>  </span><span id="local-6989586621679577475"><span class="annot"><span class="annottext">validateMessage :: Msg BurnMsg -&gt; Validation [MessageSemanticError] ()
+</span><a href="#local-6989586621679577475"><span class="hs-identifier hs-var hs-var hs-var hs-var">validateMessage</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">() -&gt; Validation [MessageSemanticError] ()
 forall err a. a -&gt; Validation err a
 </span><span class="hs-identifier hs-var">Success</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-87"></span></pre></body></html>

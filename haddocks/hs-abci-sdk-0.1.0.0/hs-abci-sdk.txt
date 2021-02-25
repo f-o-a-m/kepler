@@ -1409,9 +1409,9 @@ data Accounts m a
 [UpdateAccount] :: Address -> (Account -> Account) -> Accounts m ()
 [GetAccount] :: Address -> Accounts m (Maybe Account)
 type AuthEffs = '[Accounts, Error AuthError]
-createAccount :: forall r_a211b. MemberWithError Accounts r_a211b => Address -> Sem r_a211b Account
-updateAccount :: forall r_a211d. MemberWithError Accounts r_a211d => Address -> (Account -> Account) -> Sem r_a211d ()
-getAccount :: forall r_a211g. MemberWithError Accounts r_a211g => Address -> Sem r_a211g (Maybe Account)
+createAccount :: forall r_a21bE. MemberWithError Accounts r_a21bE => Address -> Sem r_a21bE Account
+updateAccount :: forall r_a21bG. MemberWithError Accounts r_a21bG => Address -> (Account -> Account) -> Sem r_a21bG ()
+getAccount :: forall r_a21bJ. MemberWithError Accounts r_a21bJ => Address -> Sem r_a21bJ (Maybe Account)
 eval :: Members [ReadStore, WriteStore, Error AppError] r => Sem (Accounts : (Error AuthError : r)) a -> Sem r a
 
 -- | Query API
@@ -1496,10 +1496,10 @@ data ValidatorsKeeper m a
 [GetPowerOf] :: PubKey_ -> ValidatorsKeeper m Word64
 [GetQueuedUpdates] :: ValidatorsKeeper m (Map PubKey_ Word64)
 [QueueUpdate] :: PubKey_ -> Word64 -> ValidatorsKeeper m ()
-queueUpdate :: forall r_a1VPK. MemberWithError ValidatorsKeeper r_a1VPK => PubKey_ -> Word64 -> Sem r_a1VPK ()
-getQueuedUpdates :: forall r_a1VPJ. MemberWithError ValidatorsKeeper r_a1VPJ => Sem r_a1VPJ (Map PubKey_ Word64)
-getPowerOf :: forall r_a1VPH. MemberWithError ValidatorsKeeper r_a1VPH => PubKey_ -> Sem r_a1VPH Word64
-getValidatorsKeys :: forall r_a1VPG. MemberWithError ValidatorsKeeper r_a1VPG => Sem r_a1VPG (Set PubKey_)
+queueUpdate :: forall r_a1W0d. MemberWithError ValidatorsKeeper r_a1W0d => PubKey_ -> Word64 -> Sem r_a1W0d ()
+getQueuedUpdates :: forall r_a1W0c. MemberWithError ValidatorsKeeper r_a1W0c => Sem r_a1W0c (Map PubKey_ Word64)
+getPowerOf :: forall r_a1W0a. MemberWithError ValidatorsKeeper r_a1W0a => PubKey_ -> Sem r_a1W0a Word64
+getValidatorsKeys :: forall r_a1W09. MemberWithError ValidatorsKeeper r_a1W09 => Sem r_a1W09 (Set PubKey_)
 type ValidatorsEffs = '[ValidatorsKeeper]
 eval :: Members [ReadStore, WriteStore, Error AppError] r => Sem (ValidatorsKeeper : r) a -> Sem r a
 getValidatorsKeysF :: Members [ReadStore, Error AppError] r => Sem r (Set PubKey_)
@@ -1528,10 +1528,10 @@ data BankKeeper m a
 [Transfer] :: Address -> Coin -> Address -> BankKeeper m ()
 [Burn] :: Address -> Coin -> BankKeeper m ()
 [Mint] :: Address -> Coin -> BankKeeper m ()
-getBalance :: forall r_a26S7. MemberWithError BankKeeper r_a26S7 => Address -> CoinId -> Sem r_a26S7 Coin
-transfer :: forall r_a26Sa. MemberWithError BankKeeper r_a26Sa => Address -> Coin -> Address -> Sem r_a26Sa ()
-burn :: forall r_a26Se. MemberWithError BankKeeper r_a26Se => Address -> Coin -> Sem r_a26Se ()
-mint :: forall r_a26Sh. MemberWithError BankKeeper r_a26Sh => Address -> Coin -> Sem r_a26Sh ()
+getBalance :: forall r_a272A. MemberWithError BankKeeper r_a272A => Address -> CoinId -> Sem r_a272A Coin
+transfer :: forall r_a272D. MemberWithError BankKeeper r_a272D => Address -> Coin -> Address -> Sem r_a272D ()
+burn :: forall r_a272H. MemberWithError BankKeeper r_a272H => Address -> Coin -> Sem r_a272H ()
+mint :: forall r_a272K. MemberWithError BankKeeper r_a272K => Address -> Coin -> Sem r_a272K ()
 eval :: Members [Logger, Output Event, Error AppError] r => Members AuthEffs r => forall a. Sem (BankKeeper : (Error BankError : r)) a -> Sem r a
 data TransferMsg
 TransferMsg :: Address -> Address -> CoinId -> Amount -> TransferMsg

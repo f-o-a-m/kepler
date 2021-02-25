@@ -61,7 +61,7 @@
 </span><span id="line-61"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-62"></span><span>
 </span><span id="line-63"></span><span class="hs-comment">-- | Core metrics state</span><span>
-</span><span id="line-64"></span><span class="hs-keyword">type</span><span> </span><span id="MetricsMap"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsMap"><span class="hs-identifier hs-var">MetricsMap</span></a></span></span><span> </span><span id="local-6989586621679568173"><span class="annot"><a href="#local-6989586621679568173"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MetricId.Labels</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568173"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-64"></span><span class="hs-keyword">type</span><span> </span><span id="MetricsMap"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsMap"><span class="hs-identifier hs-var">MetricsMap</span></a></span></span><span> </span><span id="local-6989586621679568798"><span class="annot"><a href="#local-6989586621679568798"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Map</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MetricId.Labels</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568798"><span class="hs-identifier hs-type">a</span></a></span><span>
 </span><span id="line-65"></span><span>
 </span><span id="line-66"></span><span class="hs-keyword">data</span><span> </span><span id="MetricsState"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-var">MetricsState</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="MetricsState"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-var">MetricsState</span></a></span></span><span>
 </span><span id="line-67"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="_metricsRegistry"><span class="annot"><span class="annottext">MetricsState -&gt; Registry
@@ -84,13 +84,13 @@
 </span><span id="line-78"></span><span>  </span><span class="hs-special">}</span><span>
 </span><span id="line-79"></span><span>
 </span><span id="line-80"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IsString</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type">MetricIdentifier</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-81"></span><span>  </span><span id="local-6989586621679568162"><span class="annot"><span class="annottext">fromString :: String -&gt; MetricIdentifier
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromString</span></span></span><span> </span><span id="local-6989586621679568161"><span class="annot"><span class="annottext">s :: String
-</span><a href="#local-6989586621679568161"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Labels -&gt; [Double] -&gt; MetricIdentifier
+</span><span id="line-81"></span><span>  </span><span id="local-6989586621679568787"><span class="annot"><span class="annottext">fromString :: String -&gt; MetricIdentifier
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromString</span></span></span><span> </span><span id="local-6989586621679568786"><span class="annot"><span class="annottext">s :: String
+</span><a href="#local-6989586621679568786"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Labels -&gt; [Double] -&gt; MetricIdentifier
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-var">MetricIdentifier</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Text
 forall a. IsString a =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">fromString</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679568161"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Labels
+</span><a href="#local-6989586621679568786"><span class="hs-identifier hs-var">s</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Labels
 forall a. Monoid a =&gt; a
 </span><span class="hs-identifier hs-var">mempty</span></span><span> </span><span class="annot"><span class="annottext">[Double]
 forall a. Monoid a =&gt; a
@@ -100,17 +100,17 @@ forall a. Monoid a =&gt; a
 </span><span id="line-84"></span><span id="fixMetricName"><span class="annot"><span class="annottext">fixMetricName :: Text -&gt; Text
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#fixMetricName"><span class="hs-identifier hs-var hs-var">fixMetricName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Char -&gt; Char) -&gt; Text -&gt; Text
 </span><span class="hs-identifier hs-var">Text.map</span></span><span> </span><span class="annot"><span class="annottext">Char -&gt; Char
-</span><a href="#local-6989586621679568158"><span class="hs-identifier hs-var">fixer</span></a></span><span>
-</span><span id="line-85"></span><span>  </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679568158"><span class="annot"><span class="annottext">fixer :: Char -&gt; Char
-</span><a href="#local-6989586621679568158"><span class="hs-identifier hs-var hs-var">fixer</span></a></span></span><span> </span><span id="local-6989586621679568157"><span class="annot"><span class="annottext">c :: Char
-</span><a href="#local-6989586621679568157"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Char
-</span><a href="#local-6989586621679568157"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Char -&gt; String -&gt; Bool
+</span><a href="#local-6989586621679568783"><span class="hs-identifier hs-var">fixer</span></a></span><span>
+</span><span id="line-85"></span><span>  </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679568783"><span class="annot"><span class="annottext">fixer :: Char -&gt; Char
+</span><a href="#local-6989586621679568783"><span class="hs-identifier hs-var hs-var">fixer</span></a></span></span><span> </span><span id="local-6989586621679568782"><span class="annot"><span class="annottext">c :: Char
+</span><a href="#local-6989586621679568782"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679568782"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">Char -&gt; String -&gt; Bool
 forall (t :: * -&gt; *) a. (Foldable t, Eq a) =&gt; a -&gt; t a -&gt; Bool
 </span><span class="hs-operator hs-var">`elem`</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679568155"><span class="hs-identifier hs-var">validChars</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Char
-</span><a href="#local-6989586621679568157"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="hs-char">'_'</span></span><span>
-</span><span id="line-86"></span><span>        </span><span id="local-6989586621679568155"><span class="annot"><span class="annottext">validChars :: String
-</span><a href="#local-6989586621679568155"><span class="hs-identifier hs-var hs-var">validChars</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-char">'a'</span></span><span class="hs-glyph">..</span><span class="annot"><span class="hs-char">'z'</span></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><a href="#local-6989586621679568780"><span class="hs-identifier hs-var">validChars</span></a></span><span> </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Char
+</span><a href="#local-6989586621679568782"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="hs-char">'_'</span></span><span>
+</span><span id="line-86"></span><span>        </span><span id="local-6989586621679568780"><span class="annot"><span class="annottext">validChars :: String
+</span><a href="#local-6989586621679568780"><span class="hs-identifier hs-var hs-var">validChars</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-char">'a'</span></span><span class="hs-glyph">..</span><span class="annot"><span class="hs-char">'z'</span></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. [a] -&gt; [a] -&gt; [a]
 </span><span class="hs-operator hs-var">++</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-char">'A'</span></span><span class="hs-glyph">..</span><span class="annot"><span class="hs-char">'Z'</span></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. [a] -&gt; [a] -&gt; [a]
@@ -122,69 +122,69 @@ forall a. [a] -&gt; [a] -&gt; [a]
 </span><span id="line-89"></span><span>
 </span><span id="line-90"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#countToIdentifier"><span class="hs-identifier hs-type">countToIdentifier</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier hs-type">CountName</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type">MetricIdentifier</span></a></span><span>
 </span><span id="line-91"></span><span id="countToIdentifier"><span class="annot"><span class="annottext">countToIdentifier :: CountName -&gt; MetricIdentifier
-</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#countToIdentifier"><span class="hs-identifier hs-var hs-var">countToIdentifier</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier hs-type">CountName</span></a></span><span> </span><span id="local-6989586621679568153"><span class="annot"><span class="annottext">name :: Text
-</span><a href="#local-6989586621679568153"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679568152"><span class="annot"><span class="annottext">labels :: [(Text, Text)]
-</span><a href="#local-6989586621679568152"><span class="hs-identifier hs-var">labels</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MetricIdentifier :: Text -&gt; Labels -&gt; [Double] -&gt; MetricIdentifier
+</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#countToIdentifier"><span class="hs-identifier hs-var hs-var">countToIdentifier</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#CountName"><span class="hs-identifier hs-type">CountName</span></a></span><span> </span><span id="local-6989586621679568778"><span class="annot"><span class="annottext">name :: Text
+</span><a href="#local-6989586621679568778"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679568777"><span class="annot"><span class="annottext">labels :: [(Text, Text)]
+</span><a href="#local-6989586621679568777"><span class="hs-identifier hs-var">labels</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MetricIdentifier :: Text -&gt; Labels -&gt; [Double] -&gt; MetricIdentifier
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type hs-type">MetricIdentifier</span></a></span><span>
 </span><span id="line-92"></span><span>  </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">metricIdName :: Text
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdName"><span class="hs-identifier hs-var">metricIdName</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#fixMetricName"><span class="hs-identifier hs-var">fixMetricName</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679568153"><span class="hs-identifier hs-var">name</span></a></span><span>
+</span><a href="#local-6989586621679568778"><span class="hs-identifier hs-var">name</span></a></span><span>
 </span><span id="line-93"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">metricIdLabels :: Labels
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdLabels"><span class="hs-identifier hs-var">metricIdLabels</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(Text, Text)] -&gt; Labels
 </span><span class="hs-identifier hs-var">MetricId.fromList</span></span><span> </span><span class="annot"><span class="annottext">[(Text, Text)]
-</span><a href="#local-6989586621679568152"><span class="hs-identifier hs-var">labels</span></a></span><span>
+</span><a href="#local-6989586621679568777"><span class="hs-identifier hs-var">labels</span></a></span><span>
 </span><span id="line-94"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">metricIdHistoBuckets :: [Double]
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdHistoBuckets"><span class="hs-identifier hs-var">metricIdHistoBuckets</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
 </span><span id="line-95"></span><span>  </span><span class="hs-special">}</span><span>
 </span><span id="line-96"></span><span>
 </span><span id="line-97"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#histogramToIdentifier"><span class="hs-identifier hs-type">histogramToIdentifier</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-type">HistogramName</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type">MetricIdentifier</span></a></span><span>
 </span><span id="line-98"></span><span id="histogramToIdentifier"><span class="annot"><span class="annottext">histogramToIdentifier :: HistogramName -&gt; MetricIdentifier
-</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#histogramToIdentifier"><span class="hs-identifier hs-var hs-var">histogramToIdentifier</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-type">HistogramName</span></a></span><span> </span><span id="local-6989586621679568148"><span class="annot"><span class="annottext">name :: Text
-</span><a href="#local-6989586621679568148"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679568147"><span class="annot"><span class="annottext">labels :: [(Text, Text)]
-</span><a href="#local-6989586621679568147"><span class="hs-identifier hs-var">labels</span></a></span></span><span> </span><span id="local-6989586621679568146"><span class="annot"><span class="annottext">buckets :: [Double]
-</span><a href="#local-6989586621679568146"><span class="hs-identifier hs-var">buckets</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MetricIdentifier :: Text -&gt; Labels -&gt; [Double] -&gt; MetricIdentifier
+</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#histogramToIdentifier"><span class="hs-identifier hs-var hs-var">histogramToIdentifier</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-type">HistogramName</span></a></span><span> </span><span id="local-6989586621679568773"><span class="annot"><span class="annottext">name :: Text
+</span><a href="#local-6989586621679568773"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679568772"><span class="annot"><span class="annottext">labels :: [(Text, Text)]
+</span><a href="#local-6989586621679568772"><span class="hs-identifier hs-var">labels</span></a></span></span><span> </span><span id="local-6989586621679568771"><span class="annot"><span class="annottext">buckets :: [Double]
+</span><a href="#local-6989586621679568771"><span class="hs-identifier hs-var">buckets</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MetricIdentifier :: Text -&gt; Labels -&gt; [Double] -&gt; MetricIdentifier
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type hs-type">MetricIdentifier</span></a></span><span>
 </span><span id="line-99"></span><span>  </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">metricIdName :: Text
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdName"><span class="hs-identifier hs-var">metricIdName</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#fixMetricName"><span class="hs-identifier hs-var">fixMetricName</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679568148"><span class="hs-identifier hs-var">name</span></a></span><span>
+</span><a href="#local-6989586621679568773"><span class="hs-identifier hs-var">name</span></a></span><span>
 </span><span id="line-100"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">metricIdLabels :: Labels
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdLabels"><span class="hs-identifier hs-var">metricIdLabels</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[(Text, Text)] -&gt; Labels
 </span><span class="hs-identifier hs-var">MetricId.fromList</span></span><span> </span><span class="annot"><span class="annottext">[(Text, Text)]
-</span><a href="#local-6989586621679568147"><span class="hs-identifier hs-var">labels</span></a></span><span>
+</span><a href="#local-6989586621679568772"><span class="hs-identifier hs-var">labels</span></a></span><span>
 </span><span id="line-101"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">metricIdHistoBuckets :: [Double]
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdHistoBuckets"><span class="hs-identifier hs-var">metricIdHistoBuckets</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Double]
-</span><a href="#local-6989586621679568146"><span class="hs-identifier hs-var">buckets</span></a></span><span>
+</span><a href="#local-6989586621679568771"><span class="hs-identifier hs-var">buckets</span></a></span><span>
 </span><span id="line-102"></span><span>  </span><span class="hs-special">}</span><span>
 </span><span id="line-103"></span><span>
 </span><span id="line-104"></span><span class="hs-comment">-- | Prometheus registry index key</span><span>
 </span><span id="line-105"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#mkPrometheusMetricId"><span class="hs-identifier hs-type">mkPrometheusMetricId</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type">MetricIdentifier</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MetricId.MetricId</span></span><span>
 </span><span id="line-106"></span><span id="mkPrometheusMetricId"><span class="annot"><span class="annottext">mkPrometheusMetricId :: MetricIdentifier -&gt; MetricId
-</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#mkPrometheusMetricId"><span class="hs-identifier hs-var hs-var">mkPrometheusMetricId</span></a></span></span><span> </span><span id="local-6989586621679568143"><span id="local-6989586621679568144"><span id="local-6989586621679568145"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type">MetricIdentifier</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#mkPrometheusMetricId"><span class="hs-identifier hs-var hs-var">mkPrometheusMetricId</span></a></span></span><span> </span><span id="local-6989586621679568768"><span id="local-6989586621679568769"><span id="local-6989586621679568770"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type">MetricIdentifier</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-107"></span><span>  </span><span class="annot"><span class="annottext">Name -&gt; Labels -&gt; MetricId
 </span><span class="hs-identifier hs-var">MetricId.MetricId</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Name
 </span><span class="hs-identifier hs-var">MetricId.Name</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679568145"><span class="hs-identifier hs-var">metricIdName</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Labels
-</span><a href="#local-6989586621679568144"><span class="hs-identifier hs-var">metricIdLabels</span></a></span><span>
+</span><a href="#local-6989586621679568770"><span class="hs-identifier hs-var">metricIdName</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Labels
+</span><a href="#local-6989586621679568769"><span class="hs-identifier hs-var">metricIdLabels</span></a></span><span>
 </span><span id="line-108"></span><span>
 </span><span id="line-109"></span><span class="hs-comment">-- | Index key for storing metrics</span><span>
 </span><span id="line-110"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdStorable"><span class="hs-identifier hs-type">metricIdStorable</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type">MetricIdentifier</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MetricId.Labels</span></span><span class="hs-special">)</span><span>
 </span><span id="line-111"></span><span id="metricIdStorable"><span class="annot"><span class="annottext">metricIdStorable :: MetricIdentifier -&gt; (Text, Labels)
-</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdStorable"><span class="hs-identifier hs-var hs-var">metricIdStorable</span></a></span></span><span> </span><span id="local-6989586621679568140"><span class="annot"><span class="annottext">c :: MetricIdentifier
-</span><a href="#local-6989586621679568140"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Text
+</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdStorable"><span class="hs-identifier hs-var hs-var">metricIdStorable</span></a></span></span><span> </span><span id="local-6989586621679568765"><span class="annot"><span class="annottext">c :: MetricIdentifier
+</span><a href="#local-6989586621679568765"><span class="hs-identifier hs-var">c</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Text
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#fixMetricName"><span class="hs-identifier hs-var">fixMetricName</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Text) -&gt; Text -&gt; Text
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">MetricIdentifier -&gt; Text
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdName"><span class="hs-identifier hs-var hs-var">metricIdName</span></a></span><span> </span><span class="annot"><span class="annottext">MetricIdentifier
-</span><a href="#local-6989586621679568140"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Labels -&gt; Labels
-</span><a href="#local-6989586621679568139"><span class="hs-identifier hs-var">fixMetricLabels</span></a></span><span> </span><span class="annot"><span class="annottext">(Labels -&gt; Labels) -&gt; Labels -&gt; Labels
+</span><a href="#local-6989586621679568765"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Labels -&gt; Labels
+</span><a href="#local-6989586621679568764"><span class="hs-identifier hs-var">fixMetricLabels</span></a></span><span> </span><span class="annot"><span class="annottext">(Labels -&gt; Labels) -&gt; Labels -&gt; Labels
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">MetricIdentifier -&gt; Labels
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdLabels"><span class="hs-identifier hs-var hs-var">metricIdLabels</span></a></span><span> </span><span class="annot"><span class="annottext">MetricIdentifier
-</span><a href="#local-6989586621679568140"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-112"></span><span>  </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679568139"><span class="annot"><span class="annottext">fixMetricLabels :: Labels -&gt; Labels
-</span><a href="#local-6989586621679568139"><span class="hs-identifier hs-var hs-var">fixMetricLabels</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="#local-6989586621679568765"><span class="hs-identifier hs-var">c</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-112"></span><span>  </span><span class="hs-keyword">where</span><span> </span><span id="local-6989586621679568764"><span class="annot"><span class="annottext">fixMetricLabels :: Labels -&gt; Labels
+</span><a href="#local-6989586621679568764"><span class="hs-identifier hs-var hs-var">fixMetricLabels</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-113"></span><span>          </span><span class="annot"><span class="annottext">[(Text, Text)] -&gt; Labels
 </span><span class="hs-identifier hs-var">MetricId.fromList</span></span><span> </span><span class="annot"><span class="annottext">([(Text, Text)] -&gt; Labels)
 -&gt; (Labels -&gt; [(Text, Text)]) -&gt; Labels -&gt; Labels
@@ -230,20 +230,20 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span id="line-136"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#emptyState"><span class="hs-identifier hs-type">emptyState</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-type">MetricsState</span></a></span><span>
 </span><span id="line-137"></span><span id="emptyState"><span class="annot"><span class="annottext">emptyState :: IO MetricsState
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#emptyState"><span class="hs-identifier hs-var hs-var">emptyState</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-138"></span><span>  </span><span id="local-6989586621679568131"><span class="annot"><span class="annottext">MVar (MetricsMap Counter)
-</span><a href="#local-6989586621679568131"><span class="hs-identifier hs-var">counters</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">MetricsMap Counter -&gt; IO (MVar (MetricsMap Counter))
+</span><span id="line-138"></span><span>  </span><span id="local-6989586621679568756"><span class="annot"><span class="annottext">MVar (MetricsMap Counter)
+</span><a href="#local-6989586621679568756"><span class="hs-identifier hs-var">counters</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">MetricsMap Counter -&gt; IO (MVar (MetricsMap Counter))
 forall a. a -&gt; IO (MVar a)
 </span><span class="hs-identifier hs-var">newMVar</span></span><span> </span><span class="annot"><span class="annottext">MetricsMap Counter
 forall k a. Map k a
 </span><span class="hs-identifier hs-var">Map.empty</span></span><span>
-</span><span id="line-139"></span><span>  </span><span id="local-6989586621679568129"><span class="annot"><span class="annottext">MVar (MetricsMap Histogram)
-</span><a href="#local-6989586621679568129"><span class="hs-identifier hs-var">histos</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">MetricsMap Histogram -&gt; IO (MVar (MetricsMap Histogram))
+</span><span id="line-139"></span><span>  </span><span id="local-6989586621679568754"><span class="annot"><span class="annottext">MVar (MetricsMap Histogram)
+</span><a href="#local-6989586621679568754"><span class="hs-identifier hs-var">histos</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">MetricsMap Histogram -&gt; IO (MVar (MetricsMap Histogram))
 forall a. a -&gt; IO (MVar a)
 </span><span class="hs-identifier hs-var">newMVar</span></span><span> </span><span class="annot"><span class="annottext">MetricsMap Histogram
 forall k a. Map k a
 </span><span class="hs-identifier hs-var">Map.empty</span></span><span>
-</span><span id="line-140"></span><span>  </span><span id="local-6989586621679568128"><span class="annot"><span class="annottext">Registry
-</span><a href="#local-6989586621679568128"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Registry
+</span><span id="line-140"></span><span>  </span><span id="local-6989586621679568753"><span class="annot"><span class="annottext">Registry
+</span><a href="#local-6989586621679568753"><span class="hs-identifier hs-var">registry</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Registry
 </span><span class="hs-identifier hs-var">Registry.new</span></span><span>
 </span><span id="line-141"></span><span>  </span><span class="annot"><span class="annottext">MetricsState -&gt; IO MetricsState
 forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
@@ -255,31 +255,31 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 -&gt; MVar (MetricsMap Histogram)
 -&gt; MetricsState
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-var">MetricsState</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
-</span><a href="#local-6989586621679568128"><span class="hs-identifier hs-var">registry</span></a></span><span> </span><span class="annot"><span class="annottext">MVar (MetricsMap Counter)
-</span><a href="#local-6989586621679568131"><span class="hs-identifier hs-var">counters</span></a></span><span> </span><span class="annot"><span class="annottext">MVar (MetricsMap Histogram)
-</span><a href="#local-6989586621679568129"><span class="hs-identifier hs-var">histos</span></a></span><span>
+</span><a href="#local-6989586621679568753"><span class="hs-identifier hs-var">registry</span></a></span><span> </span><span class="annot"><span class="annottext">MVar (MetricsMap Counter)
+</span><a href="#local-6989586621679568756"><span class="hs-identifier hs-var">counters</span></a></span><span> </span><span class="annot"><span class="annottext">MVar (MetricsMap Histogram)
+</span><a href="#local-6989586621679568754"><span class="hs-identifier hs-var">histos</span></a></span><span>
 </span><span id="line-142"></span><span>
-</span><span id="line-143"></span><span id="local-6989586621679568126"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#forkMetricsServer"><span class="hs-identifier hs-type">forkMetricsServer</span></a></span><span>
-</span><span id="line-144"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadIO</span></span><span> </span><span class="annot"><a href="#local-6989586621679568126"><span class="hs-identifier hs-type">m</span></a></span><span>
+</span><span id="line-143"></span><span id="local-6989586621679568751"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#forkMetricsServer"><span class="hs-identifier hs-type">forkMetricsServer</span></a></span><span>
+</span><span id="line-144"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadIO</span></span><span> </span><span class="annot"><a href="#local-6989586621679568751"><span class="hs-identifier hs-type">m</span></a></span><span>
 </span><span id="line-145"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-type">PrometheusEnv</span></a></span><span>
-</span><span id="line-146"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679568126"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ThreadId</span></span></span><span>
+</span><span id="line-146"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679568751"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ThreadId</span></span></span><span>
 </span><span id="line-147"></span><span id="forkMetricsServer"><span class="annot"><span class="annottext">forkMetricsServer :: PrometheusEnv -&gt; m ThreadId
-</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#forkMetricsServer"><span class="hs-identifier hs-var hs-var">forkMetricsServer</span></a></span></span><span> </span><span id="local-6989586621679568125"><span class="annot"><span class="annottext">metCfg :: PrometheusEnv
-</span><a href="#local-6989586621679568125"><span class="hs-identifier hs-var">metCfg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO ThreadId -&gt; m ThreadId
+</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#forkMetricsServer"><span class="hs-identifier hs-var hs-var">forkMetricsServer</span></a></span></span><span> </span><span id="local-6989586621679568750"><span class="annot"><span class="annottext">metCfg :: PrometheusEnv
+</span><a href="#local-6989586621679568750"><span class="hs-identifier hs-var">metCfg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO ThreadId -&gt; m ThreadId
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO ThreadId -&gt; m ThreadId) -&gt; IO ThreadId -&gt; m ThreadId
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span>
-</span><span id="line-148"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679568123"><span id="local-6989586621679568124"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-type">PrometheusEnv</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PrometheusEnv
-</span><a href="#local-6989586621679568125"><span class="hs-identifier hs-var">metCfg</span></a></span><span>
-</span><span id="line-149"></span><span>      </span><span id="local-6989586621679568122"><span class="annot"><span class="annottext">port :: Int
-</span><a href="#local-6989586621679568122"><span class="hs-identifier hs-var hs-var">port</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MetricsScrapingConfig -&gt; Int
+</span><span id="line-148"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679568748"><span id="local-6989586621679568749"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-type">PrometheusEnv</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PrometheusEnv
+</span><a href="#local-6989586621679568750"><span class="hs-identifier hs-var">metCfg</span></a></span><span>
+</span><span id="line-149"></span><span>      </span><span id="local-6989586621679568747"><span class="annot"><span class="annottext">port :: Int
+</span><a href="#local-6989586621679568747"><span class="hs-identifier hs-var hs-var">port</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MetricsScrapingConfig -&gt; Int
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#_prometheusPort"><span class="hs-identifier hs-var hs-var">_prometheusPort</span></a></span><span> </span><span class="annot"><span class="annottext">(MetricsScrapingConfig -&gt; Int) -&gt; MetricsScrapingConfig -&gt; Int
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">MetricsScrapingConfig
-</span><a href="#local-6989586621679568123"><span class="hs-identifier hs-var">_envMetricsScrapingConfig</span></a></span><span>
-</span><span id="line-150"></span><span>      </span><span id="local-6989586621679568119"><span id="local-6989586621679568120"><span id="local-6989586621679568121"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-type">MetricsState</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MetricsState
-</span><a href="#local-6989586621679568124"><span class="hs-identifier hs-var">_envMetricsState</span></a></span><span>
+</span><a href="#local-6989586621679568748"><span class="hs-identifier hs-var">_envMetricsScrapingConfig</span></a></span><span>
+</span><span id="line-150"></span><span>      </span><span id="local-6989586621679568744"><span id="local-6989586621679568745"><span id="local-6989586621679568746"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-type">MetricsState</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MetricsState
+</span><a href="#local-6989586621679568749"><span class="hs-identifier hs-var">_envMetricsState</span></a></span><span>
 </span><span id="line-151"></span><span>  </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; IO ThreadId
 </span><span class="hs-identifier hs-var">forkIO</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; IO ThreadId) -&gt; IO () -&gt; IO ThreadId
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -288,48 +288,48 @@ forall (m :: * -&gt; *).
 MonadIO m =&gt;
 Int -&gt; Path -&gt; IO RegistrySample -&gt; m ()
 </span><span class="hs-identifier hs-var">Http.serveHttpTextMetrics</span></span><span> </span><span class="annot"><span class="annottext">Int
-</span><a href="#local-6989586621679568122"><span class="hs-identifier hs-var">port</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-string">&quot;metrics&quot;</span></span><span class="hs-special">]</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Registry -&gt; IO RegistrySample
+</span><a href="#local-6989586621679568747"><span class="hs-identifier hs-var">port</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-string">&quot;metrics&quot;</span></span><span class="hs-special">]</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Registry -&gt; IO RegistrySample
 </span><span class="hs-identifier hs-var">Registry.sample</span></span><span> </span><span class="annot"><span class="annottext">Registry
-</span><a href="#local-6989586621679568121"><span class="hs-identifier hs-var">_metricsRegistry</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679568746"><span class="hs-identifier hs-var">_metricsRegistry</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-152"></span><span>
 </span><span id="line-153"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-154"></span><span class="hs-comment">-- eval</span><span>
 </span><span id="line-155"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-156"></span><span>
-</span><span id="line-157"></span><span id="local-6989586621679568115"><span id="local-6989586621679568116"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalWithMetrics"><span class="hs-identifier hs-type">evalWithMetrics</span></a></span><span>
-</span><span id="line-158"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568116"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-159"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-type">PrometheusEnv</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568116"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-160"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679568116"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568115"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-161"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679568116"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679568115"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-157"></span><span id="local-6989586621679568740"><span id="local-6989586621679568741"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalWithMetrics"><span class="hs-identifier hs-type">evalWithMetrics</span></a></span><span>
+</span><span id="line-158"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568741"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-159"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Reader</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#PrometheusEnv"><span class="hs-identifier hs-type">PrometheusEnv</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568741"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-160"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679568741"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568740"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-161"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679568741"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679568740"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
 </span><span id="line-162"></span><span id="evalWithMetrics"><span class="annot"><span class="annottext">evalWithMetrics :: Sem (Metrics : r) a -&gt; Sem r a
-</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalWithMetrics"><span class="hs-identifier hs-var hs-var">evalWithMetrics</span></a></span></span><span> </span><span id="local-6989586621679568114"><span class="annot"><span class="annottext">action :: Sem (Metrics : r) a
-</span><a href="#local-6989586621679568114"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-163"></span><span>  </span><span id="local-6989586621679568113"><span class="annot"><span class="annottext">Maybe PrometheusEnv
-</span><a href="#local-6989586621679568113"><span class="hs-identifier hs-var">mCfg</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem r (Maybe PrometheusEnv)
+</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalWithMetrics"><span class="hs-identifier hs-var hs-var">evalWithMetrics</span></a></span></span><span> </span><span id="local-6989586621679568739"><span class="annot"><span class="annottext">action :: Sem (Metrics : r) a
+</span><a href="#local-6989586621679568739"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-163"></span><span>  </span><span id="local-6989586621679568738"><span class="annot"><span class="annottext">Maybe PrometheusEnv
+</span><a href="#local-6989586621679568738"><span class="hs-identifier hs-var">mCfg</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Sem r (Maybe PrometheusEnv)
 forall i (r :: [(* -&gt; *) -&gt; * -&gt; *]).
 MemberWithError (Reader i) r =&gt;
 Sem r i
 </span><span class="hs-identifier hs-var">ask</span></span><span>
 </span><span id="line-164"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe PrometheusEnv
-</span><a href="#local-6989586621679568113"><span class="hs-identifier hs-var">mCfg</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679568738"><span class="hs-identifier hs-var">mCfg</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-165"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Sem (Metrics : r) a -&gt; Sem r a
 forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Sem (Metrics : r) a -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalNothing"><span class="hs-identifier hs-var">evalNothing</span></a></span><span> </span><span class="annot"><span class="annottext">Sem (Metrics : r) a
-</span><a href="#local-6989586621679568114"><span class="hs-identifier hs-var">action</span></a></span><span>
-</span><span id="line-166"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679568112"><span class="annot"><span class="annottext">cfg :: PrometheusEnv
-</span><a href="#local-6989586621679568112"><span class="hs-identifier hs-var">cfg</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">MetricsState -&gt; Sem (Metrics : r) a -&gt; Sem r a
+</span><a href="#local-6989586621679568739"><span class="hs-identifier hs-var">action</span></a></span><span>
+</span><span id="line-166"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679568737"><span class="annot"><span class="annottext">cfg :: PrometheusEnv
+</span><a href="#local-6989586621679568737"><span class="hs-identifier hs-var">cfg</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">MetricsState -&gt; Sem (Metrics : r) a -&gt; Sem r a
 forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Member (Embed IO) r =&gt;
 MetricsState -&gt; Sem (Metrics : r) a -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalMetrics"><span class="hs-identifier hs-var">evalMetrics</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PrometheusEnv -&gt; MetricsState
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#_envMetricsState"><span class="hs-identifier hs-var hs-var">_envMetricsState</span></a></span><span> </span><span class="annot"><span class="annottext">PrometheusEnv
-</span><a href="#local-6989586621679568112"><span class="hs-identifier hs-var">cfg</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Sem (Metrics : r) a
-</span><a href="#local-6989586621679568114"><span class="hs-identifier hs-var">action</span></a></span><span>
+</span><a href="#local-6989586621679568737"><span class="hs-identifier hs-var">cfg</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Sem (Metrics : r) a
+</span><a href="#local-6989586621679568739"><span class="hs-identifier hs-var">action</span></a></span><span>
 </span><span id="line-167"></span><span>
-</span><span id="line-168"></span><span id="local-6989586621679568250"><span id="local-6989586621679568251"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalNothing"><span class="hs-identifier hs-type">evalNothing</span></a></span><span>
-</span><span id="line-169"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679568251"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568250"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-170"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679568251"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679568250"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-168"></span><span id="local-6989586621679568875"><span id="local-6989586621679568876"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalNothing"><span class="hs-identifier hs-type">evalNothing</span></a></span><span>
+</span><span id="line-169"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679568876"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568875"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-170"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679568876"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679568875"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
 </span><span id="line-171"></span><span id="evalNothing"><span class="annot"><span class="annottext">evalNothing :: Sem (Metrics : r) a -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalNothing"><span class="hs-identifier hs-var hs-var">evalNothing</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-172"></span><span>  </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). Metrics m x -&gt; Tactical Metrics m r x)
@@ -343,15 +343,15 @@ forall a (e :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *)
        (r :: [(* -&gt; *) -&gt; * -&gt; *]).
 a -&gt; Tactical e m r a
 </span><span class="hs-identifier hs-var">pureT</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
-</span><span id="line-174"></span><span>    </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#WithTimer"><span class="hs-identifier hs-type">WithTimer</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679568109"><span class="annot"><a href="#local-6989586621679568109"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-175"></span><span>      </span><span id="local-6989586621679568108"><span class="annot"><span class="annottext">Sem (Metrics : r) (f x)
-</span><a href="#local-6989586621679568108"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">m x
+</span><span id="line-174"></span><span>    </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#WithTimer"><span class="hs-identifier hs-type">WithTimer</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679568734"><span class="annot"><a href="#local-6989586621679568734"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-175"></span><span>      </span><span id="local-6989586621679568733"><span class="annot"><span class="annottext">Sem (Metrics : r) (f x)
+</span><a href="#local-6989586621679568733"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">m x
 -&gt; Sem (Tactics f m (Metrics : r) : r) (Sem (Metrics : r) (f x))
 forall (m :: * -&gt; *) a (e :: (* -&gt; *) -&gt; * -&gt; *) (f :: * -&gt; *)
        (r :: [(* -&gt; *) -&gt; * -&gt; *]).
 m a -&gt; Sem (WithTactics e f m r) (Sem (e : r) (f a))
 </span><span class="hs-identifier hs-var">runT</span></span><span> </span><span class="annot"><span class="annottext">m x
-</span><a href="#local-6989586621679568109"><span class="hs-identifier hs-var">action</span></a></span><span>
+</span><a href="#local-6989586621679568734"><span class="hs-identifier hs-var">action</span></a></span><span>
 </span><span id="line-176"></span><span>      </span><span class="annot"><span class="annottext">Sem r (f x) -&gt; Sem (Tactics f m (Metrics : r) : r) (f x)
 forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Sem r a -&gt; Sem (e : r) a
@@ -362,38 +362,38 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Sem (Metrics : r) a -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalNothing"><span class="hs-identifier hs-var">evalNothing</span></a></span><span> </span><span class="annot"><span class="annottext">Sem (Metrics : r) (f x)
-</span><a href="#local-6989586621679568108"><span class="hs-identifier hs-var">a</span></a></span><span>
+</span><a href="#local-6989586621679568733"><span class="hs-identifier hs-var">a</span></a></span><span>
 </span><span id="line-177"></span><span>    </span><span class="hs-special">)</span><span>
 </span><span id="line-178"></span><span>
 </span><span id="line-179"></span><span class="hs-comment">-- | Increments existing count, if it doesn't exist, creates a new</span><span>
 </span><span id="line-180"></span><span class="hs-comment">-- | counter and increments it.</span><span>
-</span><span id="line-181"></span><span id="local-6989586621679568246"><span id="local-6989586621679568248"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalMetrics"><span class="hs-identifier hs-type">evalMetrics</span></a></span><span>
-</span><span id="line-182"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568248"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-181"></span><span id="local-6989586621679568871"><span id="local-6989586621679568873"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalMetrics"><span class="hs-identifier hs-type">evalMetrics</span></a></span><span>
+</span><span id="line-182"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Embed</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568873"><span class="hs-identifier hs-type">r</span></a></span><span>
 </span><span id="line-183"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-type">MetricsState</span></a></span><span>
-</span><span id="line-184"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679568248"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568246"><span class="hs-identifier hs-type">a</span></a></span><span>
-</span><span id="line-185"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679568248"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679568246"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-184"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#Metrics"><span class="hs-identifier hs-type">Metrics</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-glyph">:</span><span> </span><span class="annot"><a href="#local-6989586621679568873"><span class="hs-identifier hs-type">r</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679568871"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-185"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="#local-6989586621679568873"><span class="hs-identifier hs-type">r</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679568871"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
 </span><span id="line-186"></span><span id="evalMetrics"><span class="annot"><span class="annottext">evalMetrics :: MetricsState -&gt; Sem (Metrics : r) a -&gt; Sem r a
-</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalMetrics"><span class="hs-identifier hs-var hs-var">evalMetrics</span></a></span></span><span> </span><span id="local-6989586621679568107"><span class="annot"><span class="annottext">state :: MetricsState
-</span><a href="#local-6989586621679568107"><span class="hs-identifier hs-var">state</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679568104"><span id="local-6989586621679568105"><span id="local-6989586621679568106"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-type">MetricsState</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalMetrics"><span class="hs-identifier hs-var hs-var">evalMetrics</span></a></span></span><span> </span><span id="local-6989586621679568732"><span class="annot"><span class="annottext">state :: MetricsState
+</span><a href="#local-6989586621679568732"><span class="hs-identifier hs-var">state</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679568729"><span id="local-6989586621679568730"><span id="local-6989586621679568731"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-type">MetricsState</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-187"></span><span> </span><span class="annot"><span class="annottext">(forall x (m :: * -&gt; *). Metrics m x -&gt; Tactical Metrics m r x)
 -&gt; Sem (Metrics : r) a -&gt; Sem r a
 forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 (forall x (m :: * -&gt; *). e m x -&gt; Tactical e m r x)
 -&gt; Sem (e : r) a -&gt; Sem r a
 </span><span class="hs-identifier hs-var">interpretH</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
-</span><span id="line-188"></span><span>    </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#IncCount"><span class="hs-identifier hs-type">IncCount</span></a></span><span> </span><span id="local-6989586621679568103"><span class="annot"><a href="#local-6989586621679568103"><span class="hs-identifier hs-var">ctrName</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-189"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679568102"><span class="annot"><span class="annottext">c :: MetricIdentifier
-</span><a href="#local-6989586621679568102"><span class="hs-identifier hs-var">c</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679568099"><span id="local-6989586621679568100"><span id="local-6989586621679568101"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type">MetricIdentifier</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">CountName -&gt; MetricIdentifier
+</span><span id="line-188"></span><span>    </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#IncCount"><span class="hs-identifier hs-type">IncCount</span></a></span><span> </span><span id="local-6989586621679568728"><span class="annot"><a href="#local-6989586621679568728"><span class="hs-identifier hs-var">ctrName</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-189"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679568727"><span class="annot"><span class="annottext">c :: MetricIdentifier
+</span><a href="#local-6989586621679568727"><span class="hs-identifier hs-var">c</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679568724"><span id="local-6989586621679568725"><span id="local-6989586621679568726"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type">MetricIdentifier</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">CountName -&gt; MetricIdentifier
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#countToIdentifier"><span class="hs-identifier hs-var">countToIdentifier</span></a></span><span> </span><span class="annot"><span class="annottext">CountName
-</span><a href="#local-6989586621679568103"><span class="hs-identifier hs-var">ctrName</span></a></span><span>
-</span><span id="line-190"></span><span>          </span><span id="local-6989586621679568098"><span class="annot"><span class="annottext">cid :: (Text, Labels)
-</span><a href="#local-6989586621679568098"><span class="hs-identifier hs-var hs-var">cid</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MetricIdentifier -&gt; (Text, Labels)
+</span><a href="#local-6989586621679568728"><span class="hs-identifier hs-var">ctrName</span></a></span><span>
+</span><span id="line-190"></span><span>          </span><span id="local-6989586621679568723"><span class="annot"><span class="annottext">cid :: (Text, Labels)
+</span><a href="#local-6989586621679568723"><span class="hs-identifier hs-var hs-var">cid</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MetricIdentifier -&gt; (Text, Labels)
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdStorable"><span class="hs-identifier hs-var">metricIdStorable</span></a></span><span> </span><span class="annot"><span class="annottext">MetricIdentifier
-</span><a href="#local-6989586621679568102"><span class="hs-identifier hs-var">c</span></a></span><span>
-</span><span id="line-191"></span><span>          </span><span id="local-6989586621679568097"><span class="annot"><span class="annottext">cMetricIdName :: Name
-</span><a href="#local-6989586621679568097"><span class="hs-identifier hs-var hs-var">cMetricIdName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Name
+</span><a href="#local-6989586621679568727"><span class="hs-identifier hs-var">c</span></a></span><span>
+</span><span id="line-191"></span><span>          </span><span id="local-6989586621679568722"><span class="annot"><span class="annottext">cMetricIdName :: Name
+</span><a href="#local-6989586621679568722"><span class="hs-identifier hs-var hs-var">cMetricIdName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Name
 </span><span class="hs-identifier hs-var">MetricId.Name</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679568101"><span class="hs-identifier hs-var">metricIdName</span></a></span><span>
+</span><a href="#local-6989586621679568726"><span class="hs-identifier hs-var">metricIdName</span></a></span><span>
 </span><span id="line-192"></span><span>      </span><span class="annot"><span class="annottext">IO () -&gt; Sem (WithTactics Metrics f m r) ()
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Sem (WithTactics Metrics f m r) ())
@@ -403,60 +403,60 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 -&gt; (MetricsMap Counter -&gt; IO (MetricsMap Counter)) -&gt; IO ()
 forall a. MVar a -&gt; (a -&gt; IO a) -&gt; IO ()
 </span><span class="hs-identifier hs-var">modifyMVar_</span></span><span> </span><span class="annot"><span class="annottext">MVar (MetricsMap Counter)
-</span><a href="#local-6989586621679568105"><span class="hs-identifier hs-var">_metricsCounters</span></a></span><span> </span><span class="annot"><span class="annottext">((MetricsMap Counter -&gt; IO (MetricsMap Counter)) -&gt; IO ())
+</span><a href="#local-6989586621679568730"><span class="hs-identifier hs-var">_metricsCounters</span></a></span><span> </span><span class="annot"><span class="annottext">((MetricsMap Counter -&gt; IO (MetricsMap Counter)) -&gt; IO ())
 -&gt; (MetricsMap Counter -&gt; IO (MetricsMap Counter)) -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679568096"><span class="annot"><span class="annottext">counterMap :: MetricsMap Counter
-</span><a href="#local-6989586621679568096"><span class="hs-identifier hs-var">counterMap</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679568721"><span class="annot"><span class="annottext">counterMap :: MetricsMap Counter
+</span><a href="#local-6989586621679568721"><span class="hs-identifier hs-var">counterMap</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-193"></span><span>        </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">(Text, Labels) -&gt; MetricsMap Counter -&gt; Maybe Counter
 forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Map.lookup</span></span><span> </span><span class="annot"><span class="annottext">(Text, Labels)
-</span><a href="#local-6989586621679568098"><span class="hs-identifier hs-var">cid</span></a></span><span> </span><span class="annot"><span class="annottext">MetricsMap Counter
-</span><a href="#local-6989586621679568096"><span class="hs-identifier hs-var">counterMap</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679568723"><span class="hs-identifier hs-var">cid</span></a></span><span> </span><span class="annot"><span class="annottext">MetricsMap Counter
+</span><a href="#local-6989586621679568721"><span class="hs-identifier hs-var">counterMap</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-194"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-195"></span><span>            </span><span id="local-6989586621679568094"><span class="annot"><span class="annottext">Counter
-</span><a href="#local-6989586621679568094"><span class="hs-identifier hs-var">newCtr</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Counter -&gt; IO Counter
+</span><span id="line-195"></span><span>            </span><span id="local-6989586621679568719"><span class="annot"><span class="annottext">Counter
+</span><a href="#local-6989586621679568719"><span class="hs-identifier hs-var">newCtr</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Counter -&gt; IO Counter
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO Counter -&gt; IO Counter) -&gt; IO Counter -&gt; IO Counter
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span>
 </span><span id="line-196"></span><span>              </span><span class="annot"><span class="annottext">Name -&gt; Labels -&gt; Registry -&gt; IO Counter
 </span><span class="hs-identifier hs-var">Registry.registerCounter</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679568097"><span class="hs-identifier hs-var">cMetricIdName</span></a></span><span> </span><span class="annot"><span class="annottext">Labels
-</span><a href="#local-6989586621679568100"><span class="hs-identifier hs-var">metricIdLabels</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
-</span><a href="#local-6989586621679568106"><span class="hs-identifier hs-var">_metricsRegistry</span></a></span><span>
-</span><span id="line-197"></span><span>            </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679568092"><span class="annot"><span class="annottext">newCounterMap :: MetricsMap Counter
-</span><a href="#local-6989586621679568092"><span class="hs-identifier hs-var hs-var">newCounterMap</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Text, Labels)
+</span><a href="#local-6989586621679568722"><span class="hs-identifier hs-var">cMetricIdName</span></a></span><span> </span><span class="annot"><span class="annottext">Labels
+</span><a href="#local-6989586621679568725"><span class="hs-identifier hs-var">metricIdLabels</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
+</span><a href="#local-6989586621679568731"><span class="hs-identifier hs-var">_metricsRegistry</span></a></span><span>
+</span><span id="line-197"></span><span>            </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679568717"><span class="annot"><span class="annottext">newCounterMap :: MetricsMap Counter
+</span><a href="#local-6989586621679568717"><span class="hs-identifier hs-var hs-var">newCounterMap</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Text, Labels)
 -&gt; Counter -&gt; MetricsMap Counter -&gt; MetricsMap Counter
 forall k a. Ord k =&gt; k -&gt; a -&gt; Map k a -&gt; Map k a
 </span><span class="hs-identifier hs-var">insert</span></span><span> </span><span class="annot"><span class="annottext">(Text, Labels)
-</span><a href="#local-6989586621679568098"><span class="hs-identifier hs-var">cid</span></a></span><span> </span><span class="annot"><span class="annottext">Counter
-</span><a href="#local-6989586621679568094"><span class="hs-identifier hs-var">newCtr</span></a></span><span> </span><span class="annot"><span class="annottext">MetricsMap Counter
-</span><a href="#local-6989586621679568096"><span class="hs-identifier hs-var">counterMap</span></a></span><span>
+</span><a href="#local-6989586621679568723"><span class="hs-identifier hs-var">cid</span></a></span><span> </span><span class="annot"><span class="annottext">Counter
+</span><a href="#local-6989586621679568719"><span class="hs-identifier hs-var">newCtr</span></a></span><span> </span><span class="annot"><span class="annottext">MetricsMap Counter
+</span><a href="#local-6989586621679568721"><span class="hs-identifier hs-var">counterMap</span></a></span><span>
 </span><span id="line-198"></span><span>            </span><span class="annot"><span class="annottext">IO () -&gt; IO ()
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; IO ()) -&gt; IO () -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Counter -&gt; IO ()
 </span><span class="hs-identifier hs-var">Counter.inc</span></span><span> </span><span class="annot"><span class="annottext">Counter
-</span><a href="#local-6989586621679568094"><span class="hs-identifier hs-var">newCtr</span></a></span><span>
+</span><a href="#local-6989586621679568719"><span class="hs-identifier hs-var">newCtr</span></a></span><span>
 </span><span id="line-199"></span><span>            </span><span class="annot"><span class="annottext">MetricsMap Counter -&gt; IO (MetricsMap Counter)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">MetricsMap Counter
-</span><a href="#local-6989586621679568092"><span class="hs-identifier hs-var">newCounterMap</span></a></span><span>
-</span><span id="line-200"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679568090"><span class="annot"><span class="annottext">ctr :: Counter
-</span><a href="#local-6989586621679568090"><span class="hs-identifier hs-var">ctr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="#local-6989586621679568717"><span class="hs-identifier hs-var">newCounterMap</span></a></span><span>
+</span><span id="line-200"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679568715"><span class="annot"><span class="annottext">ctr :: Counter
+</span><a href="#local-6989586621679568715"><span class="hs-identifier hs-var">ctr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-201"></span><span>            </span><span class="annot"><span class="annottext">IO () -&gt; IO ()
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; IO ()) -&gt; IO () -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Counter -&gt; IO ()
 </span><span class="hs-identifier hs-var">Counter.inc</span></span><span> </span><span class="annot"><span class="annottext">Counter
-</span><a href="#local-6989586621679568090"><span class="hs-identifier hs-var">ctr</span></a></span><span>
+</span><a href="#local-6989586621679568715"><span class="hs-identifier hs-var">ctr</span></a></span><span>
 </span><span id="line-202"></span><span>            </span><span class="annot"><span class="annottext">MetricsMap Counter -&gt; IO (MetricsMap Counter)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">MetricsMap Counter
-</span><a href="#local-6989586621679568096"><span class="hs-identifier hs-var">counterMap</span></a></span><span>
+</span><a href="#local-6989586621679568721"><span class="hs-identifier hs-var">counterMap</span></a></span><span>
 </span><span id="line-203"></span><span>      </span><span class="annot"><span class="annottext">() -&gt; Tactical Metrics m r ()
 forall a (e :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *)
        (r :: [(* -&gt; *) -&gt; * -&gt; *]).
@@ -465,46 +465,46 @@ a -&gt; Tactical e m r a
 </span><span id="line-204"></span><span>
 </span><span id="line-205"></span><span>    </span><span class="hs-comment">-- Updates a histogram with the time it takes to do an action</span><span>
 </span><span id="line-206"></span><span>    </span><span class="hs-comment">-- If histogram doesn't exist, creates a new one and observes it.</span><span>
-</span><span id="line-207"></span><span>    </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#WithTimer"><span class="hs-identifier hs-type">WithTimer</span></a></span><span> </span><span id="local-6989586621679568089"><span class="annot"><a href="#local-6989586621679568089"><span class="hs-identifier hs-var">histName</span></a></span></span><span> </span><span id="local-6989586621679568088"><span class="annot"><a href="#local-6989586621679568088"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-208"></span><span>      </span><span id="local-6989586621679568087"><span class="annot"><span class="annottext">UTCTime
-</span><a href="#local-6989586621679568087"><span class="hs-identifier hs-var">start</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO UTCTime -&gt; Sem (WithTactics Metrics f m r) UTCTime
+</span><span id="line-207"></span><span>    </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#WithTimer"><span class="hs-identifier hs-type">WithTimer</span></a></span><span> </span><span id="local-6989586621679568714"><span class="annot"><a href="#local-6989586621679568714"><span class="hs-identifier hs-var">histName</span></a></span></span><span> </span><span id="local-6989586621679568713"><span class="annot"><a href="#local-6989586621679568713"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-208"></span><span>      </span><span id="local-6989586621679568712"><span class="annot"><span class="annottext">UTCTime
+</span><a href="#local-6989586621679568712"><span class="hs-identifier hs-var">start</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO UTCTime -&gt; Sem (WithTactics Metrics f m r) UTCTime
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO UTCTime -&gt; Sem (WithTactics Metrics f m r) UTCTime)
 -&gt; IO UTCTime -&gt; Sem (WithTactics Metrics f m r) UTCTime
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">IO UTCTime
 </span><span class="hs-identifier hs-var">getCurrentTime</span></span><span>
-</span><span id="line-209"></span><span>      </span><span id="local-6989586621679568086"><span class="annot"><span class="annottext">Sem (Metrics : r) (f x)
-</span><a href="#local-6989586621679568086"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">m x -&gt; Sem (WithTactics Metrics f m r) (Sem (Metrics : r) (f x))
+</span><span id="line-209"></span><span>      </span><span id="local-6989586621679568711"><span class="annot"><span class="annottext">Sem (Metrics : r) (f x)
+</span><a href="#local-6989586621679568711"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">m x -&gt; Sem (WithTactics Metrics f m r) (Sem (Metrics : r) (f x))
 forall (m :: * -&gt; *) a (e :: (* -&gt; *) -&gt; * -&gt; *) (f :: * -&gt; *)
        (r :: [(* -&gt; *) -&gt; * -&gt; *]).
 m a -&gt; Sem (WithTactics e f m r) (Sem (e : r) (f a))
 </span><span class="hs-identifier hs-var">runT</span></span><span> </span><span class="annot"><span class="annottext">m x
-</span><a href="#local-6989586621679568088"><span class="hs-identifier hs-var">action</span></a></span><span>
-</span><span id="line-210"></span><span>      </span><span id="local-6989586621679568085"><span class="annot"><span class="annottext">UTCTime
-</span><a href="#local-6989586621679568085"><span class="hs-identifier hs-var">end</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO UTCTime -&gt; Sem (WithTactics Metrics f m r) UTCTime
+</span><a href="#local-6989586621679568713"><span class="hs-identifier hs-var">action</span></a></span><span>
+</span><span id="line-210"></span><span>      </span><span id="local-6989586621679568710"><span class="annot"><span class="annottext">UTCTime
+</span><a href="#local-6989586621679568710"><span class="hs-identifier hs-var">end</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO UTCTime -&gt; Sem (WithTactics Metrics f m r) UTCTime
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO UTCTime -&gt; Sem (WithTactics Metrics f m r) UTCTime)
 -&gt; IO UTCTime -&gt; Sem (WithTactics Metrics f m r) UTCTime
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">IO UTCTime
 </span><span class="hs-identifier hs-var">getCurrentTime</span></span><span>
-</span><span id="line-211"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679568084"><span class="annot"><span class="annottext">time :: Double
-</span><a href="#local-6989586621679568084"><span class="hs-identifier hs-var hs-var">time</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">NominalDiffTime -&gt; Double
+</span><span id="line-211"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679568709"><span class="annot"><span class="annottext">time :: Double
+</span><a href="#local-6989586621679568709"><span class="hs-identifier hs-var hs-var">time</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">NominalDiffTime -&gt; Double
 forall a b. (Real a, Fractional b) =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">realToFrac</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">UTCTime
-</span><a href="#local-6989586621679568085"><span class="hs-identifier hs-var">end</span></a></span><span> </span><span class="annot"><span class="annottext">UTCTime -&gt; UTCTime -&gt; NominalDiffTime
+</span><a href="#local-6989586621679568710"><span class="hs-identifier hs-var">end</span></a></span><span> </span><span class="annot"><span class="annottext">UTCTime -&gt; UTCTime -&gt; NominalDiffTime
 </span><span class="hs-operator hs-var">`diffUTCTime`</span></span><span> </span><span class="annot"><span class="annottext">UTCTime
-</span><a href="#local-6989586621679568087"><span class="hs-identifier hs-var">start</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679568712"><span class="hs-identifier hs-var">start</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-212"></span><span>      </span><span class="annot"><span class="annottext">MetricsState
 -&gt; HistogramName -&gt; Double -&gt; Sem (WithTactics Metrics f m r) ()
 forall (m :: * -&gt; *).
 MonadIO m =&gt;
 MetricsState -&gt; HistogramName -&gt; Double -&gt; m ()
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#observeHistogram"><span class="hs-identifier hs-var">observeHistogram</span></a></span><span> </span><span class="annot"><span class="annottext">MetricsState
-</span><a href="#local-6989586621679568107"><span class="hs-identifier hs-var">state</span></a></span><span> </span><span class="annot"><span class="annottext">HistogramName
-</span><a href="#local-6989586621679568089"><span class="hs-identifier hs-var">histName</span></a></span><span> </span><span class="annot"><span class="annottext">Double
-</span><a href="#local-6989586621679568084"><span class="hs-identifier hs-var">time</span></a></span><span>
+</span><a href="#local-6989586621679568732"><span class="hs-identifier hs-var">state</span></a></span><span> </span><span class="annot"><span class="annottext">HistogramName
+</span><a href="#local-6989586621679568714"><span class="hs-identifier hs-var">histName</span></a></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679568709"><span class="hs-identifier hs-var">time</span></a></span><span>
 </span><span id="line-213"></span><span>      </span><span class="annot"><span class="annottext">Sem r (f x) -&gt; Sem (WithTactics Metrics f m r) (f x)
 forall (e :: (* -&gt; *) -&gt; * -&gt; *) (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Sem r a -&gt; Sem (e : r) a
@@ -516,82 +516,82 @@ forall (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 Member (Embed IO) r =&gt;
 MetricsState -&gt; Sem (Metrics : r) a -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#evalMetrics"><span class="hs-identifier hs-var">evalMetrics</span></a></span><span> </span><span class="annot"><span class="annottext">MetricsState
-</span><a href="#local-6989586621679568107"><span class="hs-identifier hs-var">state</span></a></span><span> </span><span class="annot"><span class="annottext">Sem (Metrics : r) (f x)
-</span><a href="#local-6989586621679568086"><span class="hs-identifier hs-var">a</span></a></span><span>
+</span><a href="#local-6989586621679568732"><span class="hs-identifier hs-var">state</span></a></span><span> </span><span class="annot"><span class="annottext">Sem (Metrics : r) (f x)
+</span><a href="#local-6989586621679568711"><span class="hs-identifier hs-var">a</span></a></span><span>
 </span><span id="line-214"></span><span>    </span><span class="hs-special">)</span><span>
 </span><span id="line-215"></span><span>
 </span><span id="line-216"></span><span class="hs-comment">-- | Updates a histogram with an observed value</span><span>
-</span><span id="line-217"></span><span id="local-6989586621679568204"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#observeHistogram"><span class="hs-identifier hs-type">observeHistogram</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadIO</span></span><span> </span><span class="annot"><a href="#local-6989586621679568204"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-type">MetricsState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-type">HistogramName</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679568204"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-217"></span><span id="local-6989586621679568829"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#observeHistogram"><span class="hs-identifier hs-type">observeHistogram</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadIO</span></span><span> </span><span class="annot"><a href="#local-6989586621679568829"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-type">MetricsState</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.html#HistogramName"><span class="hs-identifier hs-type">HistogramName</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679568829"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
 </span><span id="line-218"></span><span id="observeHistogram"><span class="annot"><span class="annottext">observeHistogram :: MetricsState -&gt; HistogramName -&gt; Double -&gt; m ()
-</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#observeHistogram"><span class="hs-identifier hs-var hs-var">observeHistogram</span></a></span></span><span> </span><span id="local-6989586621679568080"><span id="local-6989586621679568081"><span id="local-6989586621679568082"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-type">MetricsState</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span id="local-6989586621679568079"><span class="annot"><span class="annottext">histName :: HistogramName
-</span><a href="#local-6989586621679568079"><span class="hs-identifier hs-var">histName</span></a></span></span><span> </span><span id="local-6989586621679568078"><span class="annot"><span class="annottext">val :: Double
-</span><a href="#local-6989586621679568078"><span class="hs-identifier hs-var">val</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; m ()
+</span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#observeHistogram"><span class="hs-identifier hs-var hs-var">observeHistogram</span></a></span></span><span> </span><span id="local-6989586621679568705"><span id="local-6989586621679568706"><span id="local-6989586621679568707"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricsState"><span class="hs-identifier hs-type">MetricsState</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span id="local-6989586621679568704"><span class="annot"><span class="annottext">histName :: HistogramName
+</span><a href="#local-6989586621679568704"><span class="hs-identifier hs-var">histName</span></a></span></span><span> </span><span id="local-6989586621679568703"><span class="annot"><span class="annottext">val :: Double
+</span><a href="#local-6989586621679568703"><span class="hs-identifier hs-var">val</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; m ()
 forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
 </span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; m ()) -&gt; IO () -&gt; m ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-219"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679568077"><span class="annot"><span class="annottext">h :: MetricIdentifier
-</span><a href="#local-6989586621679568077"><span class="hs-identifier hs-var">h</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679568074"><span id="local-6989586621679568075"><span id="local-6989586621679568076"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type">MetricIdentifier</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HistogramName -&gt; MetricIdentifier
+</span><span id="line-219"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679568702"><span class="annot"><span class="annottext">h :: MetricIdentifier
+</span><a href="#local-6989586621679568702"><span class="hs-identifier hs-var">h</span></a></span></span><span class="hs-glyph">@</span><span id="local-6989586621679568699"><span id="local-6989586621679568700"><span id="local-6989586621679568701"><span class="annot"><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#MetricIdentifier"><span class="hs-identifier hs-type">MetricIdentifier</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HistogramName -&gt; MetricIdentifier
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#histogramToIdentifier"><span class="hs-identifier hs-var">histogramToIdentifier</span></a></span><span> </span><span class="annot"><span class="annottext">HistogramName
-</span><a href="#local-6989586621679568079"><span class="hs-identifier hs-var">histName</span></a></span><span>
-</span><span id="line-220"></span><span>      </span><span id="local-6989586621679568073"><span class="annot"><span class="annottext">hid :: (Text, Labels)
-</span><a href="#local-6989586621679568073"><span class="hs-identifier hs-var hs-var">hid</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MetricIdentifier -&gt; (Text, Labels)
+</span><a href="#local-6989586621679568704"><span class="hs-identifier hs-var">histName</span></a></span><span>
+</span><span id="line-220"></span><span>      </span><span id="local-6989586621679568698"><span class="annot"><span class="annottext">hid :: (Text, Labels)
+</span><a href="#local-6989586621679568698"><span class="hs-identifier hs-var hs-var">hid</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MetricIdentifier -&gt; (Text, Labels)
 </span><a href="Tendermint.SDK.BaseApp.Metrics.Prometheus.html#metricIdStorable"><span class="hs-identifier hs-var">metricIdStorable</span></a></span><span> </span><span class="annot"><span class="annottext">MetricIdentifier
-</span><a href="#local-6989586621679568077"><span class="hs-identifier hs-var">h</span></a></span><span>
-</span><span id="line-221"></span><span>      </span><span id="local-6989586621679568072"><span class="annot"><span class="annottext">hMetricIdName :: Name
-</span><a href="#local-6989586621679568072"><span class="hs-identifier hs-var hs-var">hMetricIdName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Name
+</span><a href="#local-6989586621679568702"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-221"></span><span>      </span><span id="local-6989586621679568697"><span class="annot"><span class="annottext">hMetricIdName :: Name
+</span><a href="#local-6989586621679568697"><span class="hs-identifier hs-var hs-var">hMetricIdName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Name
 </span><span class="hs-identifier hs-var">MetricId.Name</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679568076"><span class="hs-identifier hs-var">metricIdName</span></a></span><span>
+</span><a href="#local-6989586621679568701"><span class="hs-identifier hs-var">metricIdName</span></a></span><span>
 </span><span id="line-222"></span><span>  </span><span class="annot"><span class="annottext">MVar (MetricsMap Histogram)
 -&gt; (MetricsMap Histogram -&gt; IO (MetricsMap Histogram)) -&gt; IO ()
 forall a. MVar a -&gt; (a -&gt; IO a) -&gt; IO ()
 </span><span class="hs-identifier hs-var">modifyMVar_</span></span><span> </span><span class="annot"><span class="annottext">MVar (MetricsMap Histogram)
-</span><a href="#local-6989586621679568080"><span class="hs-identifier hs-var">_metricsHistograms</span></a></span><span> </span><span class="annot"><span class="annottext">((MetricsMap Histogram -&gt; IO (MetricsMap Histogram)) -&gt; IO ())
+</span><a href="#local-6989586621679568705"><span class="hs-identifier hs-var">_metricsHistograms</span></a></span><span> </span><span class="annot"><span class="annottext">((MetricsMap Histogram -&gt; IO (MetricsMap Histogram)) -&gt; IO ())
 -&gt; (MetricsMap Histogram -&gt; IO (MetricsMap Histogram)) -&gt; IO ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679568071"><span class="annot"><span class="annottext">histMap :: MetricsMap Histogram
-</span><a href="#local-6989586621679568071"><span class="hs-identifier hs-var">histMap</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679568696"><span class="annot"><span class="annottext">histMap :: MetricsMap Histogram
+</span><a href="#local-6989586621679568696"><span class="hs-identifier hs-var">histMap</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-223"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">(Text, Labels) -&gt; MetricsMap Histogram -&gt; Maybe Histogram
 forall k a. Ord k =&gt; k -&gt; Map k a -&gt; Maybe a
 </span><span class="hs-identifier hs-var">Map.lookup</span></span><span> </span><span class="annot"><span class="annottext">(Text, Labels)
-</span><a href="#local-6989586621679568073"><span class="hs-identifier hs-var">hid</span></a></span><span> </span><span class="annot"><span class="annottext">MetricsMap Histogram
-</span><a href="#local-6989586621679568071"><span class="hs-identifier hs-var">histMap</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679568698"><span class="hs-identifier hs-var">hid</span></a></span><span> </span><span class="annot"><span class="annottext">MetricsMap Histogram
+</span><a href="#local-6989586621679568696"><span class="hs-identifier hs-var">histMap</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-224"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-225"></span><span>        </span><span id="local-6989586621679568070"><span class="annot"><span class="annottext">Histogram
-</span><a href="#local-6989586621679568070"><span class="hs-identifier hs-var">newHist</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-225"></span><span>        </span><span id="local-6989586621679568695"><span class="annot"><span class="annottext">Histogram
+</span><a href="#local-6989586621679568695"><span class="hs-identifier hs-var">newHist</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
 </span><span id="line-226"></span><span>          </span><span class="annot"><span class="annottext">Name -&gt; Labels -&gt; [Double] -&gt; Registry -&gt; IO Histogram
 </span><span class="hs-identifier hs-var">Registry.registerHistogram</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679568072"><span class="hs-identifier hs-var">hMetricIdName</span></a></span><span> </span><span class="annot"><span class="annottext">Labels
-</span><a href="#local-6989586621679568075"><span class="hs-identifier hs-var">metricIdLabels</span></a></span><span> </span><span class="annot"><span class="annottext">[Double]
-</span><a href="#local-6989586621679568074"><span class="hs-identifier hs-var">metricIdHistoBuckets</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
-</span><a href="#local-6989586621679568082"><span class="hs-identifier hs-var">_metricsRegistry</span></a></span><span>
-</span><span id="line-227"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679568068"><span class="annot"><span class="annottext">newHistMap :: MetricsMap Histogram
-</span><a href="#local-6989586621679568068"><span class="hs-identifier hs-var hs-var">newHistMap</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Text, Labels)
+</span><a href="#local-6989586621679568697"><span class="hs-identifier hs-var">hMetricIdName</span></a></span><span> </span><span class="annot"><span class="annottext">Labels
+</span><a href="#local-6989586621679568700"><span class="hs-identifier hs-var">metricIdLabels</span></a></span><span> </span><span class="annot"><span class="annottext">[Double]
+</span><a href="#local-6989586621679568699"><span class="hs-identifier hs-var">metricIdHistoBuckets</span></a></span><span> </span><span class="annot"><span class="annottext">Registry
+</span><a href="#local-6989586621679568707"><span class="hs-identifier hs-var">_metricsRegistry</span></a></span><span>
+</span><span id="line-227"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679568693"><span class="annot"><span class="annottext">newHistMap :: MetricsMap Histogram
+</span><a href="#local-6989586621679568693"><span class="hs-identifier hs-var hs-var">newHistMap</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Text, Labels)
 -&gt; Histogram -&gt; MetricsMap Histogram -&gt; MetricsMap Histogram
 forall k a. Ord k =&gt; k -&gt; a -&gt; Map k a -&gt; Map k a
 </span><span class="hs-identifier hs-var">insert</span></span><span> </span><span class="annot"><span class="annottext">(Text, Labels)
-</span><a href="#local-6989586621679568073"><span class="hs-identifier hs-var">hid</span></a></span><span> </span><span class="annot"><span class="annottext">Histogram
-</span><a href="#local-6989586621679568070"><span class="hs-identifier hs-var">newHist</span></a></span><span> </span><span class="annot"><span class="annottext">MetricsMap Histogram
-</span><a href="#local-6989586621679568071"><span class="hs-identifier hs-var">histMap</span></a></span><span>
+</span><a href="#local-6989586621679568698"><span class="hs-identifier hs-var">hid</span></a></span><span> </span><span class="annot"><span class="annottext">Histogram
+</span><a href="#local-6989586621679568695"><span class="hs-identifier hs-var">newHist</span></a></span><span> </span><span class="annot"><span class="annottext">MetricsMap Histogram
+</span><a href="#local-6989586621679568696"><span class="hs-identifier hs-var">histMap</span></a></span><span>
 </span><span id="line-228"></span><span>        </span><span class="annot"><span class="annottext">Double -&gt; Histogram -&gt; IO ()
 </span><span class="hs-identifier hs-var">Histogram.observe</span></span><span> </span><span class="annot"><span class="annottext">Double
-</span><a href="#local-6989586621679568078"><span class="hs-identifier hs-var">val</span></a></span><span> </span><span class="annot"><span class="annottext">Histogram
-</span><a href="#local-6989586621679568070"><span class="hs-identifier hs-var">newHist</span></a></span><span>
+</span><a href="#local-6989586621679568703"><span class="hs-identifier hs-var">val</span></a></span><span> </span><span class="annot"><span class="annottext">Histogram
+</span><a href="#local-6989586621679568695"><span class="hs-identifier hs-var">newHist</span></a></span><span>
 </span><span id="line-229"></span><span>        </span><span class="annot"><span class="annottext">MetricsMap Histogram -&gt; IO (MetricsMap Histogram)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(MetricsMap Histogram -&gt; IO (MetricsMap Histogram))
 -&gt; MetricsMap Histogram -&gt; IO (MetricsMap Histogram)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">MetricsMap Histogram
-</span><a href="#local-6989586621679568068"><span class="hs-identifier hs-var">newHistMap</span></a></span><span>
-</span><span id="line-230"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679568066"><span class="annot"><span class="annottext">hist :: Histogram
-</span><a href="#local-6989586621679568066"><span class="hs-identifier hs-var">hist</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="#local-6989586621679568693"><span class="hs-identifier hs-var">newHistMap</span></a></span><span>
+</span><span id="line-230"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679568691"><span class="annot"><span class="annottext">hist :: Histogram
+</span><a href="#local-6989586621679568691"><span class="hs-identifier hs-var">hist</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-231"></span><span>        </span><span class="annot"><span class="annottext">Double -&gt; Histogram -&gt; IO ()
 </span><span class="hs-identifier hs-var">Histogram.observe</span></span><span> </span><span class="annot"><span class="annottext">Double
-</span><a href="#local-6989586621679568078"><span class="hs-identifier hs-var">val</span></a></span><span> </span><span class="annot"><span class="annottext">Histogram
-</span><a href="#local-6989586621679568066"><span class="hs-identifier hs-var">hist</span></a></span><span>
+</span><a href="#local-6989586621679568703"><span class="hs-identifier hs-var">val</span></a></span><span> </span><span class="annot"><span class="annottext">Histogram
+</span><a href="#local-6989586621679568691"><span class="hs-identifier hs-var">hist</span></a></span><span>
 </span><span id="line-232"></span><span>        </span><span class="annot"><span class="annottext">MetricsMap Histogram -&gt; IO (MetricsMap Histogram)
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">MetricsMap Histogram
-</span><a href="#local-6989586621679568071"><span class="hs-identifier hs-var">histMap</span></a></span><span>
+</span><a href="#local-6989586621679568696"><span class="hs-identifier hs-var">histMap</span></a></span><span>
 </span><span id="line-233"></span></pre></body></html>

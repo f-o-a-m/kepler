@@ -50,7 +50,7 @@ instance GHC.Enum.Enum Tendermint.Utils.QueryClient.Class.EmptyQueryClient
 instance GHC.Enum.Bounded Tendermint.Utils.QueryClient.Class.EmptyQueryClient
 instance GHC.Show.Show Tendermint.Utils.QueryClient.Class.EmptyQueryClient
 instance GHC.Classes.Eq Tendermint.Utils.QueryClient.Class.EmptyQueryClient
-instance Tendermint.Utils.QueryClient.Class.HasQueryClient m Tendermint.Utils.QueryClient.Class.EmptyQueryClient
+instance Tendermint.Utils.QueryClient.Class.HasQueryClient m Tendermint.SDK.BaseApp.Query.Types.EmptyQueryServer
 instance (Tendermint.Utils.QueryClient.Class.HasQueryClient m a, Tendermint.Utils.QueryClient.Class.HasQueryClient m b) => Tendermint.Utils.QueryClient.Class.HasQueryClient m (a Servant.API.Alternative.:<|> b)
 instance (GHC.TypeLits.KnownSymbol path, Tendermint.Utils.QueryClient.Class.HasQueryClient m a) => Tendermint.Utils.QueryClient.Class.HasQueryClient m (path Servant.API.Sub.:> a)
 instance (GHC.TypeLits.KnownSymbol sym, Web.Internal.HttpApiData.ToHttpApiData a, Tendermint.Utils.QueryClient.Class.HasQueryClient m api, Data.Singletons.Bool.SBoolI (Servant.API.Modifiers.FoldRequired mods)) => Tendermint.Utils.QueryClient.Class.HasQueryClient m (Servant.API.QueryParam.QueryParam' mods sym a Servant.API.Sub.:> api)

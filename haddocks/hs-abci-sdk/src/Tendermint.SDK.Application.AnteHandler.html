@@ -18,9 +18,9 @@
 </span><span id="line-18"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html"><span class="hs-identifier">Tendermint.SDK.Types.Transaction</span></a></span><span>   </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier">Tx</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
 </span><span id="line-19"></span><span>
 </span><span id="line-20"></span><span>
-</span><span id="line-21"></span><span id="local-6989586621679577397"><span class="annot"><a href="Tendermint.SDK.Application.AnteHandler.html#createAccountAnteHandler"><span class="hs-identifier hs-type">createAccountAnteHandler</span></a></span><span>
-</span><span id="line-22"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Keeper.html#AuthEffs"><span class="hs-identifier hs-type">A.AuthEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679577397"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-23"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.AnteHandler.html#AnteHandler"><span class="hs-identifier hs-type">AnteHandler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679577397"><span class="hs-identifier hs-type">r</span></a></span></span><span>
+</span><span id="line-21"></span><span id="local-6989586621679578053"><span class="annot"><a href="Tendermint.SDK.Application.AnteHandler.html#createAccountAnteHandler"><span class="hs-identifier hs-type">createAccountAnteHandler</span></a></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Keeper.html#AuthEffs"><span class="hs-identifier hs-type">A.AuthEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679578053"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.AnteHandler.html#AnteHandler"><span class="hs-identifier hs-type">AnteHandler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679578053"><span class="hs-identifier hs-type">r</span></a></span></span><span>
 </span><span id="line-24"></span><span id="createAccountAnteHandler"><span class="annot"><span class="annottext">createAccountAnteHandler :: AnteHandler r
 </span><a href="Tendermint.SDK.Application.AnteHandler.html#createAccountAnteHandler"><span class="hs-identifier hs-var hs-var">createAccountAnteHandler</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((RoutingTx msg -&gt; Sem r a) -&gt; RoutingTx msg -&gt; Sem r a)
 -&gt; Endo (RoutingTx msg -&gt; Sem r a)
@@ -31,23 +31,23 @@ forall a. (a -&gt; a) -&gt; Endo a
 -&gt; Endo (RoutingTx msg -&gt; Sem r a)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span>
-</span><span id="line-25"></span><span>  </span><span class="hs-glyph">\</span><span id="local-6989586621679577388"><span class="annot"><span class="annottext">txApplication :: RoutingTx msg -&gt; Sem r a
-</span><a href="#local-6989586621679577388"><span class="hs-identifier hs-var">txApplication</span></a></span></span><span> </span><span id="local-6989586621679577387"><span class="annot"><span class="annottext">tx :: RoutingTx msg
-</span><a href="#local-6989586621679577387"><span class="hs-identifier hs-var">tx</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a></span><span> </span><span id="local-6989586621679577379"><span id="local-6989586621679577380"><span id="local-6989586621679577381"><span id="local-6989586621679577382"><span id="local-6989586621679577383"><span id="local-6989586621679577384"><span id="local-6989586621679577385"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-type">Tx</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-26"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#Msg"><span class="hs-identifier hs-type">Msg</span></a></span><span class="hs-special">{</span><span id="local-6989586621679577369"><span class="annot"><span class="annottext">Address
+</span><span id="line-25"></span><span>  </span><span class="hs-glyph">\</span><span id="local-6989586621679578044"><span class="annot"><span class="annottext">txApplication :: RoutingTx msg -&gt; Sem r a
+</span><a href="#local-6989586621679578044"><span class="hs-identifier hs-var">txApplication</span></a></span></span><span> </span><span id="local-6989586621679578043"><span class="annot"><span class="annottext">tx :: RoutingTx msg
+</span><a href="#local-6989586621679578043"><span class="hs-identifier hs-var">tx</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a></span><span> </span><span id="local-6989586621679578035"><span id="local-6989586621679578036"><span id="local-6989586621679578037"><span id="local-6989586621679578038"><span id="local-6989586621679578039"><span id="local-6989586621679578040"><span id="local-6989586621679578041"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-type">Tx</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-26"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#Msg"><span class="hs-identifier hs-type">Msg</span></a></span><span class="hs-special">{</span><span id="local-6989586621679578025"><span class="annot"><span class="annottext">Address
 msgAuthor :: forall msg. Msg msg -&gt; Address
 msgAuthor :: Address
 </span><a href="Tendermint.SDK.Types.Message.html#msgAuthor"><span class="hs-identifier hs-var hs-var">msgAuthor</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Msg msg
-</span><a href="#local-6989586621679577385"><span class="hs-identifier hs-var">txMsg</span></a></span><span>
-</span><span id="line-27"></span><span>    </span><span id="local-6989586621679577367"><span class="annot"><span class="annottext">Maybe Account
-</span><a href="#local-6989586621679577367"><span class="hs-identifier hs-var">mAcnt</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Address -&gt; Sem r (Maybe Account)
+</span><a href="#local-6989586621679578041"><span class="hs-identifier hs-var">txMsg</span></a></span><span>
+</span><span id="line-27"></span><span>    </span><span id="local-6989586621679578023"><span class="annot"><span class="annottext">Maybe Account
+</span><a href="#local-6989586621679578023"><span class="hs-identifier hs-var">mAcnt</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Address -&gt; Sem r (Maybe Account)
 forall (r :: [Effect]).
 MemberWithError Accounts r =&gt;
 Address -&gt; Sem r (Maybe Account)
 </span><a href="Tendermint.SDK.Modules.Auth.Keeper.html#getAccount"><span class="hs-identifier hs-var">A.getAccount</span></a></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679577369"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span>
+</span><a href="#local-6989586621679578025"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span>
 </span><span id="line-28"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe Account
-</span><a href="#local-6989586621679577367"><span class="hs-identifier hs-var">mAcnt</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679578023"><span class="hs-identifier hs-var">mAcnt</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-29"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Sem r Account -&gt; Sem r ()
 forall (f :: * -&gt; *) a. Functor f =&gt; f a -&gt; f ()
 </span><span class="hs-identifier hs-var">void</span></span><span> </span><span class="annot"><span class="annottext">(Sem r Account -&gt; Sem r ()) -&gt; Sem r Account -&gt; Sem r ()
@@ -57,22 +57,22 @@ forall (r :: [Effect]).
 MemberWithError Accounts r =&gt;
 Address -&gt; Sem r Account
 </span><a href="Tendermint.SDK.Modules.Auth.Keeper.html#createAccount"><span class="hs-identifier hs-var">A.createAccount</span></a></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679577369"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span>
+</span><a href="#local-6989586621679578025"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span>
 </span><span id="line-30"></span><span>      </span><span class="hs-identifier">_</span><span>       </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; Sem r ()
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
 </span><span id="line-31"></span><span>    </span><span class="annot"><span class="annottext">RoutingTx msg -&gt; Sem r a
-</span><a href="#local-6989586621679577388"><span class="hs-identifier hs-var">txApplication</span></a></span><span> </span><span class="annot"><span class="annottext">RoutingTx msg
-</span><a href="#local-6989586621679577387"><span class="hs-identifier hs-var">tx</span></a></span><span> </span><span class="annot"><span class="annottext">Sem r a -&gt; (a -&gt; Sem r a) -&gt; Sem r a
+</span><a href="#local-6989586621679578044"><span class="hs-identifier hs-var">txApplication</span></a></span><span> </span><span class="annot"><span class="annottext">RoutingTx msg
+</span><a href="#local-6989586621679578043"><span class="hs-identifier hs-var">tx</span></a></span><span> </span><span class="annot"><span class="annottext">Sem r a -&gt; (a -&gt; Sem r a) -&gt; Sem r a
 forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
 </span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="annot"><span class="annottext">a -&gt; Sem r a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span>
 </span><span id="line-32"></span><span>
-</span><span id="line-33"></span><span id="local-6989586621679577395"><span class="annot"><a href="Tendermint.SDK.Application.AnteHandler.html#nonceAnteHandler"><span class="hs-identifier hs-type">nonceAnteHandler</span></a></span><span>
-</span><span id="line-34"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Keeper.html#AuthEffs"><span class="hs-identifier hs-type">A.AuthEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679577395"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-35"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679577395"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-36"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.AnteHandler.html#AnteHandler"><span class="hs-identifier hs-type">AnteHandler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679577395"><span class="hs-identifier hs-type">r</span></a></span></span><span>
+</span><span id="line-33"></span><span id="local-6989586621679578051"><span class="annot"><a href="Tendermint.SDK.Application.AnteHandler.html#nonceAnteHandler"><span class="hs-identifier hs-type">nonceAnteHandler</span></a></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Keeper.html#AuthEffs"><span class="hs-identifier hs-type">A.AuthEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679578051"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679578051"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.AnteHandler.html#AnteHandler"><span class="hs-identifier hs-type">AnteHandler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679578051"><span class="hs-identifier hs-type">r</span></a></span></span><span>
 </span><span id="line-37"></span><span id="nonceAnteHandler"><span class="annot"><span class="annottext">nonceAnteHandler :: AnteHandler r
 </span><a href="Tendermint.SDK.Application.AnteHandler.html#nonceAnteHandler"><span class="hs-identifier hs-var hs-var">nonceAnteHandler</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((RoutingTx msg -&gt; Sem r a) -&gt; RoutingTx msg -&gt; Sem r a)
 -&gt; Endo (RoutingTx msg -&gt; Sem r a)
@@ -83,39 +83,39 @@ forall a. (a -&gt; a) -&gt; Endo a
 -&gt; Endo (RoutingTx msg -&gt; Sem r a)
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span>
-</span><span id="line-38"></span><span>  </span><span class="hs-glyph">\</span><span id="local-6989586621679577363"><span class="annot"><span class="annottext">txApplication :: RoutingTx msg -&gt; Sem r a
-</span><a href="#local-6989586621679577363"><span class="hs-identifier hs-var">txApplication</span></a></span></span><span> </span><span id="local-6989586621679577362"><span class="annot"><span class="annottext">tx :: RoutingTx msg
-</span><a href="#local-6989586621679577362"><span class="hs-identifier hs-var">tx</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a></span><span> </span><span id="local-6989586621679577355"><span id="local-6989586621679577356"><span id="local-6989586621679577357"><span id="local-6989586621679577358"><span id="local-6989586621679577359"><span id="local-6989586621679577360"><span id="local-6989586621679577361"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-type">Tx</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-39"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#Msg"><span class="hs-identifier hs-type">Msg</span></a></span><span class="hs-special">{</span><span id="local-6989586621679577354"><span class="annot"><span class="annottext">Address
+</span><span id="line-38"></span><span>  </span><span class="hs-glyph">\</span><span id="local-6989586621679578019"><span class="annot"><span class="annottext">txApplication :: RoutingTx msg -&gt; Sem r a
+</span><a href="#local-6989586621679578019"><span class="hs-identifier hs-var">txApplication</span></a></span></span><span> </span><span id="local-6989586621679578018"><span class="annot"><span class="annottext">tx :: RoutingTx msg
+</span><a href="#local-6989586621679578018"><span class="hs-identifier hs-var">tx</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.Types.html#RoutingTx"><span class="hs-identifier hs-type">RoutingTx</span></a></span><span> </span><span id="local-6989586621679578011"><span id="local-6989586621679578012"><span id="local-6989586621679578013"><span id="local-6989586621679578014"><span id="local-6989586621679578015"><span id="local-6989586621679578016"><span id="local-6989586621679578017"><span class="annot"><a href="Tendermint.SDK.Types.Transaction.html#Tx"><span class="hs-identifier hs-type">Tx</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span></span></span></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-39"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Message.html#Msg"><span class="hs-identifier hs-type">Msg</span></a></span><span class="hs-special">{</span><span id="local-6989586621679578010"><span class="annot"><span class="annottext">Address
 msgAuthor :: Address
 msgAuthor :: forall msg. Msg msg -&gt; Address
-</span><a href="#local-6989586621679577354"><span class="hs-identifier hs-var hs-var">msgAuthor</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Msg msg
-</span><a href="#local-6989586621679577361"><span class="hs-identifier hs-var">txMsg</span></a></span><span>
-</span><span id="line-40"></span><span>    </span><span id="local-6989586621679577353"><span class="annot"><span class="annottext">Maybe Account
-</span><a href="#local-6989586621679577353"><span class="hs-identifier hs-var">preMAcnt</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Address -&gt; Sem r (Maybe Account)
+</span><a href="#local-6989586621679578010"><span class="hs-identifier hs-var hs-var">msgAuthor</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Msg msg
+</span><a href="#local-6989586621679578017"><span class="hs-identifier hs-var">txMsg</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span id="local-6989586621679578009"><span class="annot"><span class="annottext">Maybe Account
+</span><a href="#local-6989586621679578009"><span class="hs-identifier hs-var">preMAcnt</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Address -&gt; Sem r (Maybe Account)
 forall (r :: [Effect]).
 MemberWithError Accounts r =&gt;
 Address -&gt; Sem r (Maybe Account)
 </span><a href="Tendermint.SDK.Modules.Auth.Keeper.html#getAccount"><span class="hs-identifier hs-var">A.getAccount</span></a></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679577354"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span>
+</span><a href="#local-6989586621679578010"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span>
 </span><span id="line-41"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe Account
-</span><a href="#local-6989586621679577353"><span class="hs-identifier hs-var">preMAcnt</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-42"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-type">A.Account</span></a></span><span class="hs-special">{</span><span id="local-6989586621679577351"><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679578009"><span class="hs-identifier hs-var">preMAcnt</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-42"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-type">A.Account</span></a></span><span class="hs-special">{</span><span id="local-6989586621679578007"><span class="annot"><span class="annottext">Word64
 accountNonce :: Account -&gt; Word64
 accountNonce :: Word64
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#accountNonce"><span class="hs-identifier hs-var hs-var">accountNonce</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-43"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679577349"><span class="annot"><span class="annottext">expectedNonce :: Word64
-</span><a href="#local-6989586621679577349"><span class="hs-identifier hs-var hs-var">expectedNonce</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679577351"><span class="hs-identifier hs-var">accountNonce</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+</span><span id="line-43"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679578005"><span class="annot"><span class="annottext">expectedNonce :: Word64
+</span><a href="#local-6989586621679578005"><span class="hs-identifier hs-var hs-var">expectedNonce</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679578007"><span class="hs-identifier hs-var">accountNonce</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span>
 </span><span id="line-44"></span><span>        </span><span class="annot"><span class="annottext">Bool -&gt; Sem r () -&gt; Sem r ()
 forall (f :: * -&gt; *). Applicative f =&gt; Bool -&gt; f () -&gt; f ()
 </span><span class="hs-identifier hs-var">unless</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679577355"><span class="hs-identifier hs-var">txNonce</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
+</span><a href="#local-6989586621679578011"><span class="hs-identifier hs-var">txNonce</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679577349"><span class="hs-identifier hs-var">expectedNonce</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Sem r () -&gt; Sem r ()) -&gt; Sem r () -&gt; Sem r ()
+</span><a href="#local-6989586621679578005"><span class="hs-identifier hs-var">expectedNonce</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Sem r () -&gt; Sem r ()) -&gt; Sem r () -&gt; Sem r ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span>
 </span><span id="line-45"></span><span>          </span><span class="annot"><span class="annottext">SDKError -&gt; Sem r ()
@@ -124,46 +124,46 @@ Member (Error AppError) r =&gt;
 SDKError -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#throwSDKError"><span class="hs-identifier hs-var">throwSDKError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; SDKError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#NonceException"><span class="hs-identifier hs-var">NonceException</span></a></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679577349"><span class="hs-identifier hs-var">expectedNonce</span></a></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679577355"><span class="hs-identifier hs-var">txNonce</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679578005"><span class="hs-identifier hs-var">expectedNonce</span></a></span><span> </span><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679578011"><span class="hs-identifier hs-var">txNonce</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-46"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">SDKError -&gt; Sem r ()
 forall (r :: [Effect]) a.
 Member (Error AppError) r =&gt;
 SDKError -&gt; Sem r a
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#throwSDKError"><span class="hs-identifier hs-var">throwSDKError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Address -&gt; SDKError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#UnknownAccountError"><span class="hs-identifier hs-var">UnknownAccountError</span></a></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679577354"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-47"></span><span>    </span><span id="local-6989586621679577345"><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679577345"><span class="hs-identifier hs-var">result</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">RoutingTx msg -&gt; Sem r a
-</span><a href="#local-6989586621679577363"><span class="hs-identifier hs-var">txApplication</span></a></span><span> </span><span class="annot"><span class="annottext">RoutingTx msg
-</span><a href="#local-6989586621679577362"><span class="hs-identifier hs-var">tx</span></a></span><span>
-</span><span id="line-48"></span><span>    </span><span id="local-6989586621679577344"><span class="annot"><span class="annottext">Maybe Account
-</span><a href="#local-6989586621679577344"><span class="hs-identifier hs-var">postMAcnt</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Address -&gt; Sem r (Maybe Account)
+</span><a href="#local-6989586621679578010"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-47"></span><span>    </span><span id="local-6989586621679578001"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679578001"><span class="hs-identifier hs-var">result</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">RoutingTx msg -&gt; Sem r a
+</span><a href="#local-6989586621679578019"><span class="hs-identifier hs-var">txApplication</span></a></span><span> </span><span class="annot"><span class="annottext">RoutingTx msg
+</span><a href="#local-6989586621679578018"><span class="hs-identifier hs-var">tx</span></a></span><span>
+</span><span id="line-48"></span><span>    </span><span id="local-6989586621679578000"><span class="annot"><span class="annottext">Maybe Account
+</span><a href="#local-6989586621679578000"><span class="hs-identifier hs-var">postMAcnt</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Address -&gt; Sem r (Maybe Account)
 forall (r :: [Effect]).
 MemberWithError Accounts r =&gt;
 Address -&gt; Sem r (Maybe Account)
 </span><a href="Tendermint.SDK.Modules.Auth.Keeper.html#getAccount"><span class="hs-identifier hs-var">A.getAccount</span></a></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679577354"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span>
+</span><a href="#local-6989586621679578010"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span>
 </span><span id="line-49"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe Account
-</span><a href="#local-6989586621679577344"><span class="hs-identifier hs-var">postMAcnt</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-50"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-type">A.Account</span></a></span><span class="hs-special">{</span><span id="local-6989586621679577343"><span class="annot"><span class="annottext">Word64
+</span><a href="#local-6989586621679578000"><span class="hs-identifier hs-var">postMAcnt</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-50"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-type">A.Account</span></a></span><span class="hs-special">{</span><span id="local-6989586621679577999"><span class="annot"><span class="annottext">Word64
 accountNonce :: Word64
 accountNonce :: Account -&gt; Word64
-</span><a href="#local-6989586621679577343"><span class="hs-identifier hs-var hs-var">accountNonce</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><a href="#local-6989586621679577999"><span class="hs-identifier hs-var hs-var">accountNonce</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
 </span><span id="line-51"></span><span>        </span><span class="annot"><span class="annottext">Address -&gt; (Account -&gt; Account) -&gt; Sem r ()
 forall (r :: [Effect]).
 MemberWithError Accounts r =&gt;
 Address -&gt; (Account -&gt; Account) -&gt; Sem r ()
 </span><a href="Tendermint.SDK.Modules.Auth.Keeper.html#updateAccount"><span class="hs-identifier hs-var">A.updateAccount</span></a></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679577354"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span> </span><span class="annot"><span class="annottext">((Account -&gt; Account) -&gt; Sem r ())
+</span><a href="#local-6989586621679578010"><span class="hs-identifier hs-var">msgAuthor</span></a></span><span> </span><span class="annot"><span class="annottext">((Account -&gt; Account) -&gt; Sem r ())
 -&gt; (Account -&gt; Account) -&gt; Sem r ()
 forall a b. (a -&gt; b) -&gt; a -&gt; b
-</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679577341"><span class="annot"><span class="annottext">a :: Account
-</span><a href="#local-6989586621679577341"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679577997"><span class="annot"><span class="annottext">a :: Account
+</span><a href="#local-6989586621679577997"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-52"></span><span>          </span><span class="annot"><span class="annottext">Account
-</span><a href="#local-6989586621679577341"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">accountNonce :: Word64
+</span><a href="#local-6989586621679577997"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">accountNonce :: Word64
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#accountNonce"><span class="hs-identifier hs-var">A.accountNonce</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679577343"><span class="hs-identifier hs-var">accountNonce</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
+</span><a href="#local-6989586621679577999"><span class="hs-identifier hs-var">accountNonce</span></a></span><span> </span><span class="annot"><span class="annottext">Word64 -&gt; Word64 -&gt; Word64
 forall a. Num a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="hs-number">1</span></span><span class="hs-special">}</span><span>
 </span><span id="line-53"></span><span>      </span><span class="hs-comment">-- @NOTE: no-op when no nonce is availble to update</span><span>
@@ -173,12 +173,12 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span id="line-55"></span><span>    </span><span class="annot"><span class="annottext">a -&gt; Sem r a
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">a
-</span><a href="#local-6989586621679577345"><span class="hs-identifier hs-var">result</span></a></span><span>
+</span><a href="#local-6989586621679578001"><span class="hs-identifier hs-var">result</span></a></span><span>
 </span><span id="line-56"></span><span>
-</span><span id="line-57"></span><span id="local-6989586621679577340"><span class="annot"><a href="Tendermint.SDK.Application.AnteHandler.html#baseAppAnteHandler"><span class="hs-identifier hs-type">baseAppAnteHandler</span></a></span><span>
-</span><span id="line-58"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Keeper.html#AuthEffs"><span class="hs-identifier hs-type">A.AuthEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679577340"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-59"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679577340"><span class="hs-identifier hs-type">r</span></a></span><span>
-</span><span id="line-60"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.AnteHandler.html#AnteHandler"><span class="hs-identifier hs-type">AnteHandler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679577340"><span class="hs-identifier hs-type">r</span></a></span></span><span>
+</span><span id="line-57"></span><span id="local-6989586621679577996"><span class="annot"><a href="Tendermint.SDK.Application.AnteHandler.html#baseAppAnteHandler"><span class="hs-identifier hs-type">baseAppAnteHandler</span></a></span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Members</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Keeper.html#AuthEffs"><span class="hs-identifier hs-type">A.AuthEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679577996"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-59"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Member</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679577996"><span class="hs-identifier hs-type">r</span></a></span><span>
+</span><span id="line-60"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Transaction.AnteHandler.html#AnteHandler"><span class="hs-identifier hs-type">AnteHandler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679577996"><span class="hs-identifier hs-type">r</span></a></span></span><span>
 </span><span id="line-61"></span><span id="baseAppAnteHandler"><span class="annot"><span class="annottext">baseAppAnteHandler :: AnteHandler r
 </span><a href="Tendermint.SDK.Application.AnteHandler.html#baseAppAnteHandler"><span class="hs-identifier hs-var hs-var">baseAppAnteHandler</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Endo (RoutingTx msg -&gt; Sem r a)]
 -&gt; Endo (RoutingTx msg -&gt; Sem r a)
