@@ -33,80 +33,80 @@
 </span><span id="line-33"></span><span>  </span><span class="hs-comment">-- ^ key</span><span>
 </span><span id="line-34"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Q</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Dec</span></span><span class="hs-special">]</span><span>
 </span><span id="line-35"></span><span id="makeSubStore"><span class="annot"><span class="annottext">makeSubStore :: Name -&gt; String -&gt; TypeQ -&gt; ByteString -&gt; Q [Dec]
-</span><a href="Tendermint.SDK.BaseApp.Store.TH.html#makeSubStore"><span class="hs-identifier hs-var hs-var">makeSubStore</span></a></span></span><span> </span><span id="local-6989586621679572545"><span class="annot"><span class="annottext">storeName :: Name
-</span><a href="#local-6989586621679572545"><span class="hs-identifier hs-var">storeName</span></a></span></span><span> </span><span id="local-6989586621679572544"><span class="annot"><span class="annottext">substoreName :: String
-</span><a href="#local-6989586621679572544"><span class="hs-identifier hs-var">substoreName</span></a></span></span><span> </span><span id="local-6989586621679572543"><span class="annot"><span class="annottext">t :: TypeQ
-</span><a href="#local-6989586621679572543"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679572542"><span class="annot"><span class="annottext">key :: ByteString
-</span><a href="#local-6989586621679572542"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-36"></span><span>    </span><span id="local-6989586621679572541"><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572541"><span class="hs-identifier hs-var">namespaceName</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Q Name
-</span><a href="#local-6989586621679572540"><span class="hs-identifier hs-var">getStoreNamespace</span></a></span><span>
-</span><span id="line-37"></span><span>    </span><span id="local-6989586621679572539"><span class="annot"><span class="annottext">KeyType
-</span><a href="#local-6989586621679572539"><span class="hs-identifier hs-var">keyType</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Type -&gt; KeyType
+</span><a href="Tendermint.SDK.BaseApp.Store.TH.html#makeSubStore"><span class="hs-identifier hs-var hs-var">makeSubStore</span></a></span></span><span> </span><span id="local-6989586621679572577"><span class="annot"><span class="annottext">storeName :: Name
+</span><a href="#local-6989586621679572577"><span class="hs-identifier hs-var">storeName</span></a></span></span><span> </span><span id="local-6989586621679572576"><span class="annot"><span class="annottext">substoreName :: String
+</span><a href="#local-6989586621679572576"><span class="hs-identifier hs-var">substoreName</span></a></span></span><span> </span><span id="local-6989586621679572575"><span class="annot"><span class="annottext">t :: TypeQ
+</span><a href="#local-6989586621679572575"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679572574"><span class="annot"><span class="annottext">key :: ByteString
+</span><a href="#local-6989586621679572574"><span class="hs-identifier hs-var">key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-36"></span><span>    </span><span id="local-6989586621679572573"><span class="annot"><span class="annottext">Name
+</span><a href="#local-6989586621679572573"><span class="hs-identifier hs-var">namespaceName</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Q Name
+</span><a href="#local-6989586621679572572"><span class="hs-identifier hs-var">getStoreNamespace</span></a></span><span>
+</span><span id="line-37"></span><span>    </span><span id="local-6989586621679572571"><span class="annot"><span class="annottext">KeyType
+</span><a href="#local-6989586621679572571"><span class="hs-identifier hs-var">keyType</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Type -&gt; KeyType
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#parseKeyType"><span class="hs-identifier hs-var">parseKeyType</span></a></span><span> </span><span class="annot"><span class="annottext">(Type -&gt; KeyType) -&gt; TypeQ -&gt; Q KeyType
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">TypeQ
-</span><a href="#local-6989586621679572543"><span class="hs-identifier hs-var">t</span></a></span><span>
-</span><span id="line-38"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679572536"><span class="annot"><span class="annottext">keyTypeName :: Name
-</span><a href="#local-6989586621679572536"><span class="hs-identifier hs-var hs-var">keyTypeName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">KeyType -&gt; Name
+</span><a href="#local-6989586621679572575"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-38"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679572568"><span class="annot"><span class="annottext">keyTypeName :: Name
+</span><a href="#local-6989586621679572568"><span class="hs-identifier hs-var hs-var">keyTypeName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">KeyType -&gt; Name
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkKeyName"><span class="hs-identifier hs-var">mkKeyName</span></a></span><span> </span><span class="annot"><span class="annottext">KeyType
-</span><a href="#local-6989586621679572539"><span class="hs-identifier hs-var">keyType</span></a></span><span>
-</span><span id="line-39"></span><span>    </span><span id="local-6989586621679572534"><span class="annot"><span class="annottext">Dec
-</span><a href="#local-6989586621679572534"><span class="hs-identifier hs-var">dataDecl</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Q Dec
+</span><a href="#local-6989586621679572571"><span class="hs-identifier hs-var">keyType</span></a></span><span>
+</span><span id="line-39"></span><span>    </span><span id="local-6989586621679572566"><span class="annot"><span class="annottext">Dec
+</span><a href="#local-6989586621679572566"><span class="hs-identifier hs-var">dataDecl</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Q Dec
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkDataDecl"><span class="hs-identifier hs-var">mkDataDecl</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572536"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span>
-</span><span id="line-40"></span><span>    </span><span id="local-6989586621679572532"><span class="annot"><span class="annottext">Dec
-</span><a href="#local-6989586621679572532"><span class="hs-identifier hs-var">rawKeyInst</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Name -&gt; Q Dec
+</span><a href="#local-6989586621679572568"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span id="local-6989586621679572564"><span class="annot"><span class="annottext">Dec
+</span><a href="#local-6989586621679572564"><span class="hs-identifier hs-var">rawKeyInst</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Name -&gt; Q Dec
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkRawKeyInstance"><span class="hs-identifier hs-var">mkRawKeyInstance</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679572542"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572536"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span>
-</span><span id="line-41"></span><span>    </span><span id="local-6989586621679572530"><span class="annot"><span class="annottext">Dec
-</span><a href="#local-6989586621679572530"><span class="hs-identifier hs-var">isKeyInst</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Name -&gt; TypeQ -&gt; Q Dec
+</span><a href="#local-6989586621679572574"><span class="hs-identifier hs-var">key</span></a></span><span> </span><span class="annot"><span class="annottext">Name
+</span><a href="#local-6989586621679572568"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span>
+</span><span id="line-41"></span><span>    </span><span id="local-6989586621679572562"><span class="annot"><span class="annottext">Dec
+</span><a href="#local-6989586621679572562"><span class="hs-identifier hs-var">isKeyInst</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Name -&gt; TypeQ -&gt; Q Dec
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkIsKeyInstance"><span class="hs-identifier hs-var">mkIsKeyInstance</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572541"><span class="hs-identifier hs-var">namespaceName</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572536"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ
-</span><a href="#local-6989586621679572543"><span class="hs-identifier hs-var">t</span></a></span><span>
-</span><span id="line-42"></span><span>    </span><span id="local-6989586621679572528"><span class="annot"><span class="annottext">[Dec]
-</span><a href="#local-6989586621679572528"><span class="hs-identifier hs-var">storeDecl</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String -&gt; TypeQ -&gt; Q [Dec]
+</span><a href="#local-6989586621679572573"><span class="hs-identifier hs-var">namespaceName</span></a></span><span> </span><span class="annot"><span class="annottext">Name
+</span><a href="#local-6989586621679572568"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ
+</span><a href="#local-6989586621679572575"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-42"></span><span>    </span><span id="local-6989586621679572560"><span class="annot"><span class="annottext">[Dec]
+</span><a href="#local-6989586621679572560"><span class="hs-identifier hs-var">storeDecl</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String -&gt; TypeQ -&gt; Q [Dec]
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkSubStoreDecl"><span class="hs-identifier hs-var">mkSubStoreDecl</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572545"><span class="hs-identifier hs-var">storeName</span></a></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679572544"><span class="hs-identifier hs-var">substoreName</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ
-</span><a href="#local-6989586621679572543"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><a href="#local-6989586621679572577"><span class="hs-identifier hs-var">storeName</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679572576"><span class="hs-identifier hs-var">substoreName</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ
+</span><a href="#local-6989586621679572575"><span class="hs-identifier hs-var">t</span></a></span><span>
 </span><span id="line-43"></span><span>    </span><span class="annot"><span class="annottext">[Dec] -&gt; Q [Dec]
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">([Dec] -&gt; Q [Dec]) -&gt; [Dec] -&gt; Q [Dec]
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Dec
-</span><a href="#local-6989586621679572534"><span class="hs-identifier hs-var">dataDecl</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Dec
-</span><a href="#local-6989586621679572532"><span class="hs-identifier hs-var">rawKeyInst</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Dec
-</span><a href="#local-6989586621679572530"><span class="hs-identifier hs-var">isKeyInst</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[Dec] -&gt; [Dec] -&gt; [Dec]
+</span><a href="#local-6989586621679572566"><span class="hs-identifier hs-var">dataDecl</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Dec
+</span><a href="#local-6989586621679572564"><span class="hs-identifier hs-var">rawKeyInst</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Dec
+</span><a href="#local-6989586621679572562"><span class="hs-identifier hs-var">isKeyInst</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[Dec] -&gt; [Dec] -&gt; [Dec]
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">[Dec]
-</span><a href="#local-6989586621679572528"><span class="hs-identifier hs-var">storeDecl</span></a></span><span>
+</span><a href="#local-6989586621679572560"><span class="hs-identifier hs-var">storeDecl</span></a></span><span>
 </span><span id="line-44"></span><span>  </span><span class="hs-keyword">where</span><span>
-</span><span id="line-45"></span><span>    </span><span id="local-6989586621679572540"><span class="annot"><span class="annottext">getStoreNamespace :: Q Name
-</span><a href="#local-6989586621679572540"><span class="hs-identifier hs-var hs-var">getStoreNamespace</span></a></span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-46"></span><span>      </span><span id="local-6989586621679572526"><span class="annot"><span class="annottext">Info
-</span><a href="#local-6989586621679572526"><span class="hs-identifier hs-var">info</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Q Info
+</span><span id="line-45"></span><span>    </span><span id="local-6989586621679572572"><span class="annot"><span class="annottext">getStoreNamespace :: Q Name
+</span><a href="#local-6989586621679572572"><span class="hs-identifier hs-var hs-var">getStoreNamespace</span></a></span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-46"></span><span>      </span><span id="local-6989586621679572558"><span class="annot"><span class="annottext">Info
+</span><a href="#local-6989586621679572558"><span class="hs-identifier hs-var">info</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Q Info
 </span><span class="hs-identifier hs-var">reify</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572545"><span class="hs-identifier hs-var">storeName</span></a></span><span>
+</span><a href="#local-6989586621679572577"><span class="hs-identifier hs-var">storeName</span></a></span><span>
 </span><span id="line-47"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Info
-</span><a href="#local-6989586621679572526"><span class="hs-identifier hs-var">info</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-48"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">VarI</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679572523"><span class="annot"><span class="annottext">_t :: Type
-</span><a href="#local-6989586621679572523"><span class="hs-identifier hs-var">_t</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Type
-</span><a href="#local-6989586621679572523"><span class="hs-identifier hs-var">_t</span></a></span><span> </span><span class="hs-keyword">of</span><span>
-</span><span id="line-49"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">AppT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572520"><span class="annot"><span class="annottext">n :: Name
-</span><a href="#local-6989586621679572520"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572519"><span class="annot"><span class="annottext">m :: Name
-</span><a href="#local-6989586621679572519"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><a href="#local-6989586621679572558"><span class="hs-identifier hs-var">info</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-48"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">VarI</span></span><span> </span><span class="hs-identifier">_</span><span> </span><span id="local-6989586621679572555"><span class="annot"><span class="annottext">_t :: Type
+</span><a href="#local-6989586621679572555"><span class="hs-identifier hs-var">_t</span></a></span></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Type
+</span><a href="#local-6989586621679572555"><span class="hs-identifier hs-var">_t</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-49"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">AppT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572552"><span class="annot"><span class="annottext">n :: Name
+</span><a href="#local-6989586621679572552"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572551"><span class="annot"><span class="annottext">m :: Name
+</span><a href="#local-6989586621679572551"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
 </span><span id="line-50"></span><span>            </span><span class="hs-keyword">if</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
 </span><span class="hs-identifier hs-var">nameBase</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572520"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Bool
+</span><a href="#local-6989586621679572552"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Bool
 forall a. Eq a =&gt; a -&gt; a -&gt; Bool
 </span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Store&quot;</span></span><span>
 </span><span id="line-51"></span><span>              </span><span class="hs-keyword">then</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Q Name
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572519"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><a href="#local-6989586621679572551"><span class="hs-identifier hs-var">m</span></a></span><span>
 </span><span id="line-52"></span><span>              </span><span class="hs-keyword">else</span><span> </span><span class="annot"><span class="annottext">String -&gt; Q Name
 forall a. HasCallStack =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Unable to find Store Namespace, make sure store is of type (Store ns)&quot;</span></span><span>
@@ -126,50 +126,50 @@ forall a. HasCallStack =&gt; String -&gt; a
 </span><span id="line-62"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#parseKeyType"><span class="hs-identifier hs-type">parseKeyType</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#KeyType"><span class="hs-identifier hs-type">KeyType</span></a></span><span>
 </span><span id="line-63"></span><span id="parseKeyType"><span class="annot"><span class="annottext">parseKeyType :: Type -&gt; KeyType
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#parseKeyType"><span class="hs-identifier hs-var hs-var">parseKeyType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
-</span><span id="line-64"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">AppT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572512"><span class="annot"><span class="annottext">n :: Name
-</span><a href="#local-6989586621679572512"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572511"><span class="annot"><span class="annottext">m :: Name
-</span><a href="#local-6989586621679572511"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
+</span><span id="line-64"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">AppT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572544"><span class="annot"><span class="annottext">n :: Name
+</span><a href="#local-6989586621679572544"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572543"><span class="annot"><span class="annottext">m :: Name
+</span><a href="#local-6989586621679572543"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
 </span><span class="hs-identifier hs-var">nameBase</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572512"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679572544"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-65"></span><span>    </span><span class="hs-string">&quot;Var&quot;</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Name -&gt; KeyType
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#Var"><span class="hs-identifier hs-var">Var</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572511"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><a href="#local-6989586621679572543"><span class="hs-identifier hs-var">m</span></a></span><span>
 </span><span id="line-66"></span><span>    </span><span class="hs-string">&quot;List&quot;</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Name -&gt; KeyType
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#List"><span class="hs-identifier hs-var">List</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572511"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><a href="#local-6989586621679572543"><span class="hs-identifier hs-var">m</span></a></span><span>
 </span><span id="line-67"></span><span>    </span><span class="hs-string">&quot;Array&quot;</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Name -&gt; KeyType
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#Array"><span class="hs-identifier hs-var">Array</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572511"><span class="hs-identifier hs-var">m</span></a></span><span>
-</span><span id="line-68"></span><span>    </span><span id="local-6989586621679572510"><span class="annot"><span class="annottext">a :: String
-</span><a href="#local-6989586621679572510"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; KeyType
+</span><a href="#local-6989586621679572543"><span class="hs-identifier hs-var">m</span></a></span><span>
+</span><span id="line-68"></span><span>    </span><span id="local-6989586621679572542"><span class="annot"><span class="annottext">a :: String
+</span><a href="#local-6989586621679572542"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; KeyType
 forall a. HasCallStack =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; KeyType) -&gt; String -&gt; KeyType
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Unrecognized KeyType &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679572510"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><a href="#local-6989586621679572542"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;, expected Var, List, Array, Map.&quot;</span></span><span>
-</span><span id="line-69"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">AppT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">AppT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572509"><span class="annot"><span class="annottext">n :: Name
-</span><a href="#local-6989586621679572509"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572508"><span class="annot"><span class="annottext">m :: Name
-</span><a href="#local-6989586621679572508"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572507"><span class="annot"><span class="annottext">o :: Name
-</span><a href="#local-6989586621679572507"><span class="hs-identifier hs-var">o</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
+</span><span id="line-69"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">AppT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">AppT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572541"><span class="annot"><span class="annottext">n :: Name
+</span><a href="#local-6989586621679572541"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572540"><span class="annot"><span class="annottext">m :: Name
+</span><a href="#local-6989586621679572540"><span class="hs-identifier hs-var">m</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ConT</span></span><span> </span><span id="local-6989586621679572539"><span class="annot"><span class="annottext">o :: Name
+</span><a href="#local-6989586621679572539"><span class="hs-identifier hs-var">o</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
 </span><span class="hs-identifier hs-var">nameBase</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572509"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679572541"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-70"></span><span>    </span><span class="hs-string">&quot;Map&quot;</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Name -&gt; Name -&gt; KeyType
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#Map"><span class="hs-identifier hs-var">Map</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572508"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572507"><span class="hs-identifier hs-var">o</span></a></span><span>
-</span><span id="line-71"></span><span>    </span><span id="local-6989586621679572506"><span class="annot"><span class="annottext">a :: String
-</span><a href="#local-6989586621679572506"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; KeyType
+</span><a href="#local-6989586621679572540"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">Name
+</span><a href="#local-6989586621679572539"><span class="hs-identifier hs-var">o</span></a></span><span>
+</span><span id="line-71"></span><span>    </span><span id="local-6989586621679572538"><span class="annot"><span class="annottext">a :: String
+</span><a href="#local-6989586621679572538"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; KeyType
 forall a. HasCallStack =&gt; String -&gt; a
 </span><span class="hs-identifier hs-var">error</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; KeyType) -&gt; String -&gt; KeyType
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Unrecognized KeyType &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679572506"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><a href="#local-6989586621679572538"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;, expected Var, List, Array, Map.&quot;</span></span><span>
 </span><span id="line-72"></span><span>  </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; KeyType
@@ -184,41 +184,41 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">mkName</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Name) -&gt; (KeyType -&gt; String) -&gt; KeyType -&gt; Name
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
-</span><span id="line-76"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#Var"><span class="hs-identifier hs-type">Var</span></a></span><span> </span><span id="local-6989586621679572504"><span class="annot"><span class="annottext">n :: Name
-</span><a href="#local-6989586621679572504"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
+</span><span id="line-76"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#Var"><span class="hs-identifier hs-type">Var</span></a></span><span> </span><span id="local-6989586621679572536"><span class="annot"><span class="annottext">n :: Name
+</span><a href="#local-6989586621679572536"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
 </span><span class="hs-identifier hs-var">nameBase</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572504"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><a href="#local-6989586621679572536"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;VarKey&quot;</span></span><span>
-</span><span id="line-77"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#Array"><span class="hs-identifier hs-type">Array</span></a></span><span> </span><span id="local-6989586621679572503"><span class="annot"><span class="annottext">n :: Name
-</span><a href="#local-6989586621679572503"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
+</span><span id="line-77"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#Array"><span class="hs-identifier hs-type">Array</span></a></span><span> </span><span id="local-6989586621679572535"><span class="annot"><span class="annottext">n :: Name
+</span><a href="#local-6989586621679572535"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
 </span><span class="hs-identifier hs-var">nameBase</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572503"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><a href="#local-6989586621679572535"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;ArrayKey&quot;</span></span><span>
-</span><span id="line-78"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#List"><span class="hs-identifier hs-type">List</span></a></span><span> </span><span id="local-6989586621679572502"><span class="annot"><span class="annottext">n :: Name
-</span><a href="#local-6989586621679572502"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
+</span><span id="line-78"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#List"><span class="hs-identifier hs-type">List</span></a></span><span> </span><span id="local-6989586621679572534"><span class="annot"><span class="annottext">n :: Name
+</span><a href="#local-6989586621679572534"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
 </span><span class="hs-identifier hs-var">nameBase</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572502"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><a href="#local-6989586621679572534"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;ListKey&quot;</span></span><span>
-</span><span id="line-79"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#Map"><span class="hs-identifier hs-type">Map</span></a></span><span> </span><span id="local-6989586621679572501"><span class="annot"><span class="annottext">n :: Name
-</span><a href="#local-6989586621679572501"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679572500"><span class="annot"><span class="annottext">m :: Name
-</span><a href="#local-6989586621679572500"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
+</span><span id="line-79"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#Map"><span class="hs-identifier hs-type">Map</span></a></span><span> </span><span id="local-6989586621679572533"><span class="annot"><span class="annottext">n :: Name
+</span><a href="#local-6989586621679572533"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679572532"><span class="annot"><span class="annottext">m :: Name
+</span><a href="#local-6989586621679572532"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
 </span><span class="hs-identifier hs-var">nameBase</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572501"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><a href="#local-6989586621679572533"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; String
 </span><span class="hs-identifier hs-var">nameBase</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572500"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+</span><a href="#local-6989586621679572532"><span class="hs-identifier hs-var">m</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;MapKey&quot;</span></span><span>
 </span><span id="line-80"></span><span>
 </span><span id="line-81"></span><span>
 </span><span id="line-82"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkDataDecl"><span class="hs-identifier hs-type">mkDataDecl</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Name</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Q</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Dec</span></span><span>
 </span><span id="line-83"></span><span id="mkDataDecl"><span class="annot"><span class="annottext">mkDataDecl :: Name -&gt; Q Dec
-</span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkDataDecl"><span class="hs-identifier hs-var hs-var">mkDataDecl</span></a></span></span><span> </span><span id="local-6989586621679572499"><span class="annot"><span class="annottext">keyTypeName :: Name
-</span><a href="#local-6989586621679572499"><span class="hs-identifier hs-var">keyTypeName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkDataDecl"><span class="hs-identifier hs-var hs-var">mkDataDecl</span></a></span></span><span> </span><span id="local-6989586621679572531"><span class="annot"><span class="annottext">keyTypeName :: Name
+</span><a href="#local-6989586621679572531"><span class="hs-identifier hs-var">keyTypeName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-84"></span><span>  </span><span class="annot"><span class="annottext">CxtQ
 -&gt; Name
 -&gt; [TyVarBndr]
@@ -229,26 +229,26 @@ forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-identifier hs-var">dataD</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Type] -&gt; CxtQ
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572499"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">Maybe Type
+</span><a href="#local-6989586621679572531"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">Maybe Type
 forall a. Maybe a
 </span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Name -&gt; [BangTypeQ] -&gt; ConQ
 </span><span class="hs-identifier hs-var">normalC</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572499"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">]</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679572531"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">]</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
 </span><span id="line-85"></span><span>
 </span><span id="line-86"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkRawKeyInstance"><span class="hs-identifier hs-type">mkRawKeyInstance</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Name</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Q</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Dec</span></span><span>
 </span><span id="line-87"></span><span id="mkRawKeyInstance"><span class="annot"><span class="annottext">mkRawKeyInstance :: ByteString -&gt; Name -&gt; Q Dec
-</span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkRawKeyInstance"><span class="hs-identifier hs-var hs-var">mkRawKeyInstance</span></a></span></span><span> </span><span id="local-6989586621679572497"><span class="annot"><span class="annottext">keyBytes :: ByteString
-</span><a href="#local-6989586621679572497"><span class="hs-identifier hs-var">keyBytes</span></a></span></span><span> </span><span id="local-6989586621679572496"><span class="annot"><span class="annottext">keyTypeName :: Name
-</span><a href="#local-6989586621679572496"><span class="hs-identifier hs-var">keyTypeName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
-</span><span id="line-88"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679572495"><span class="annot"><span class="annottext">keyBytesStr :: String
-</span><a href="#local-6989586621679572495"><span class="hs-identifier hs-var hs-var">keyBytesStr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; String
+</span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkRawKeyInstance"><span class="hs-identifier hs-var hs-var">mkRawKeyInstance</span></a></span></span><span> </span><span id="local-6989586621679572529"><span class="annot"><span class="annottext">keyBytes :: ByteString
+</span><a href="#local-6989586621679572529"><span class="hs-identifier hs-var">keyBytes</span></a></span></span><span> </span><span id="local-6989586621679572528"><span class="annot"><span class="annottext">keyTypeName :: Name
+</span><a href="#local-6989586621679572528"><span class="hs-identifier hs-var">keyTypeName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679572527"><span class="annot"><span class="annottext">keyBytesStr :: String
+</span><a href="#local-6989586621679572527"><span class="hs-identifier hs-var hs-var">keyBytesStr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; String
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span> </span><span class="annot"><span class="annottext">ByteString
-</span><a href="#local-6989586621679572497"><span class="hs-identifier hs-var">keyBytes</span></a></span><span>
-</span><span id="line-89"></span><span>      </span><span id="local-6989586621679572494"><span class="annot"><span class="annottext">genRawKeyClause :: Q Clause
-</span><a href="#local-6989586621679572494"><span class="hs-identifier hs-var hs-var">genRawKeyClause</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-90"></span><span>        </span><span id="local-6989586621679572493"><span class="annot"><span class="annottext">Exp
-</span><a href="#local-6989586621679572493"><span class="hs-identifier hs-var">body</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[|</span><span> </span><span class="hs-identifier">iso</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">const</span><span> </span><span class="hs-operator">$</span><span> </span><span class="hs-identifier">cs</span><span> </span><span class="hs-glyph">@</span><span class="hs-identifier">String</span><span> </span><span class="hs-glyph">@</span><span class="hs-identifier">ByteString</span><span> </span><span class="hs-special">$(</span><span class="hs-identifier">litE</span><span> </span><span class="hs-operator">$</span><span> </span><span class="hs-identifier">StringL</span><span> </span><span class="hs-identifier">keyBytesStr</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">const</span><span> </span><span class="hs-special">$(</span><span class="hs-identifier">conE</span><span> </span><span class="hs-identifier">keyTypeName</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">|]</span><span>
+</span><a href="#local-6989586621679572529"><span class="hs-identifier hs-var">keyBytes</span></a></span><span>
+</span><span id="line-89"></span><span>      </span><span id="local-6989586621679572526"><span class="annot"><span class="annottext">genRawKeyClause :: Q Clause
+</span><a href="#local-6989586621679572526"><span class="hs-identifier hs-var hs-var">genRawKeyClause</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-90"></span><span>        </span><span id="local-6989586621679572525"><span class="annot"><span class="annottext">Exp
+</span><a href="#local-6989586621679572525"><span class="hs-identifier hs-var">body</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-special">[|</span><span> </span><span class="hs-identifier">iso</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">const</span><span> </span><span class="hs-operator">$</span><span> </span><span class="hs-identifier">cs</span><span> </span><span class="hs-glyph">@</span><span class="hs-identifier">String</span><span> </span><span class="hs-glyph">@</span><span class="hs-identifier">ByteString</span><span> </span><span class="hs-special">$(</span><span class="hs-identifier">litE</span><span> </span><span class="hs-operator">$</span><span> </span><span class="hs-identifier">StringL</span><span> </span><span class="hs-identifier">keyBytesStr</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">const</span><span> </span><span class="hs-special">$(</span><span class="hs-identifier">conE</span><span> </span><span class="hs-identifier">keyTypeName</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">|]</span><span>
 </span><span id="line-91"></span><span>        </span><span class="annot"><span class="annottext">Clause -&gt; Q Clause
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">(Clause -&gt; Q Clause) -&gt; Clause -&gt; Q Clause
@@ -256,7 +256,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[Pat] -&gt; Body -&gt; [Dec] -&gt; Clause
 </span><span class="hs-identifier hs-var">Clause</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Exp -&gt; Body
 </span><span class="hs-identifier hs-var">NormalB</span></span><span> </span><span class="annot"><span class="annottext">Exp
-</span><a href="#local-6989586621679572493"><span class="hs-identifier hs-var">body</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679572525"><span class="hs-identifier hs-var">body</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
 </span><span id="line-92"></span><span>  </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">CxtQ -&gt; TypeQ -&gt; [Q Dec] -&gt; Q Dec
 </span><span class="hs-identifier hs-var">instanceD</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Type] -&gt; CxtQ
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
@@ -264,9 +264,9 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">conT</span></span><span> </span><span class="hs-special">''</span><span class="hs-identifier">RawKey</span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ -&gt; TypeQ
 </span><span class="hs-operator hs-var">`appT`</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; TypeQ
 </span><span class="hs-identifier hs-var">conT</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572496"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Name -&gt; [Q Clause] -&gt; Q Dec
+</span><a href="#local-6989586621679572528"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Name -&gt; [Q Clause] -&gt; Q Dec
 </span><span class="hs-identifier hs-var">funD</span></span><span> </span><span class="hs-special">'</span><span class="hs-identifier">rawKey</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Q Clause
-</span><a href="#local-6989586621679572494"><span class="hs-identifier hs-var">genRawKeyClause</span></a></span><span class="hs-special">]</span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679572526"><span class="hs-identifier hs-var">genRawKeyClause</span></a></span><span class="hs-special">]</span><span class="hs-special">]</span><span>
 </span><span id="line-93"></span><span>
 </span><span id="line-94"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkIsKeyInstance"><span class="hs-identifier hs-type">mkIsKeyInstance</span></a></span><span>
 </span><span id="line-95"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Name</span></span><span>
@@ -277,10 +277,10 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span id="line-100"></span><span>  </span><span class="hs-comment">-- store type</span><span>
 </span><span id="line-101"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Q</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Dec</span></span><span>
 </span><span id="line-102"></span><span id="mkIsKeyInstance"><span class="annot"><span class="annottext">mkIsKeyInstance :: Name -&gt; Name -&gt; TypeQ -&gt; Q Dec
-</span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkIsKeyInstance"><span class="hs-identifier hs-var hs-var">mkIsKeyInstance</span></a></span></span><span> </span><span id="local-6989586621679572489"><span class="annot"><span class="annottext">namespaceName :: Name
-</span><a href="#local-6989586621679572489"><span class="hs-identifier hs-var">namespaceName</span></a></span></span><span> </span><span id="local-6989586621679572488"><span class="annot"><span class="annottext">keyTypeName :: Name
-</span><a href="#local-6989586621679572488"><span class="hs-identifier hs-var">keyTypeName</span></a></span></span><span> </span><span id="local-6989586621679572487"><span class="annot"><span class="annottext">t :: TypeQ
-</span><a href="#local-6989586621679572487"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkIsKeyInstance"><span class="hs-identifier hs-var hs-var">mkIsKeyInstance</span></a></span></span><span> </span><span id="local-6989586621679572521"><span class="annot"><span class="annottext">namespaceName :: Name
+</span><a href="#local-6989586621679572521"><span class="hs-identifier hs-var">namespaceName</span></a></span></span><span> </span><span id="local-6989586621679572520"><span class="annot"><span class="annottext">keyTypeName :: Name
+</span><a href="#local-6989586621679572520"><span class="hs-identifier hs-var">keyTypeName</span></a></span></span><span> </span><span id="local-6989586621679572519"><span class="annot"><span class="annottext">t :: TypeQ
+</span><a href="#local-6989586621679572519"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-103"></span><span>  </span><span class="annot"><span class="annottext">CxtQ -&gt; TypeQ -&gt; [Q Dec] -&gt; Q Dec
 </span><span class="hs-identifier hs-var">instanceD</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Type] -&gt; CxtQ
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
@@ -288,10 +288,10 @@ forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">conT</span></span><span> </span><span class="hs-special">''</span><span class="hs-identifier">IsKey</span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ -&gt; TypeQ
 </span><span class="hs-operator hs-var">`appT`</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; TypeQ
 </span><span class="hs-identifier hs-var">conT</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572488"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ -&gt; TypeQ
+</span><a href="#local-6989586621679572520"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ -&gt; TypeQ
 </span><span class="hs-operator hs-var">`appT`</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; TypeQ
 </span><span class="hs-identifier hs-var">conT</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572489"><span class="hs-identifier hs-var">namespaceName</span></a></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679572521"><span class="hs-identifier hs-var">namespaceName</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-104"></span><span>    </span><span class="hs-special">[</span><span class="annot"><span class="annottext">TySynEqnQ -&gt; Q Dec
 </span><span class="hs-identifier hs-var">tySynInstD</span></span><span> </span><span class="annot"><span class="annottext">(TySynEqnQ -&gt; Q Dec) -&gt; TySynEqnQ -&gt; Q Dec
 forall a b. (a -&gt; b) -&gt; a -&gt; b
@@ -302,11 +302,11 @@ forall a. Maybe a
 </span><span class="hs-identifier hs-var">conT</span></span><span> </span><span class="hs-special">''</span><span class="hs-identifier">Value</span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ -&gt; TypeQ
 </span><span class="hs-operator hs-var">`appT`</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; TypeQ
 </span><span class="hs-identifier hs-var">conT</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572488"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ -&gt; TypeQ
+</span><a href="#local-6989586621679572520"><span class="hs-identifier hs-var">keyTypeName</span></a></span><span> </span><span class="annot"><span class="annottext">TypeQ -&gt; TypeQ -&gt; TypeQ
 </span><span class="hs-operator hs-var">`appT`</span></span><span> </span><span class="annot"><span class="annottext">Name -&gt; TypeQ
 </span><span class="hs-identifier hs-var">conT</span></span><span> </span><span class="annot"><span class="annottext">Name
-</span><a href="#local-6989586621679572489"><span class="hs-identifier hs-var">namespaceName</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TypeQ
-</span><a href="#local-6989586621679572487"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679572521"><span class="hs-identifier hs-var">namespaceName</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TypeQ
+</span><a href="#local-6989586621679572519"><span class="hs-identifier hs-var">t</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-105"></span><span>
 </span><span id="line-106"></span><span>
 </span><span id="line-107"></span><span>
@@ -316,47 +316,47 @@ forall a. Maybe a
 </span><span id="line-111"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">TypeQ</span></span><span>
 </span><span id="line-112"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Q</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Dec</span></span><span class="hs-special">]</span><span>
 </span><span id="line-113"></span><span id="mkSubStoreDecl"><span class="annot"><span class="annottext">mkSubStoreDecl :: Name -&gt; String -&gt; TypeQ -&gt; Q [Dec]
-</span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkSubStoreDecl"><span class="hs-identifier hs-var hs-var">mkSubStoreDecl</span></a></span></span><span> </span><span id="local-6989586621679572485"><span class="annot"><span class="annottext">store :: Name
-</span><a href="#local-6989586621679572485"><span class="hs-identifier hs-var">store</span></a></span></span><span> </span><span id="local-6989586621679572484"><span class="annot"><span class="annottext">substoreName :: String
-</span><a href="#local-6989586621679572484"><span class="hs-identifier hs-var">substoreName</span></a></span></span><span> </span><span id="local-6989586621679572483"><span class="annot"><span class="annottext">t :: TypeQ
-</span><a href="#local-6989586621679572483"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-114"></span><span>  </span><span id="local-6989586621679572482"><span class="annot"><span class="annottext">KeyType
-</span><a href="#local-6989586621679572482"><span class="hs-identifier hs-var">kt</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Type -&gt; KeyType
+</span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkSubStoreDecl"><span class="hs-identifier hs-var hs-var">mkSubStoreDecl</span></a></span></span><span> </span><span id="local-6989586621679572517"><span class="annot"><span class="annottext">store :: Name
+</span><a href="#local-6989586621679572517"><span class="hs-identifier hs-var">store</span></a></span></span><span> </span><span id="local-6989586621679572516"><span class="annot"><span class="annottext">substoreName :: String
+</span><a href="#local-6989586621679572516"><span class="hs-identifier hs-var">substoreName</span></a></span></span><span> </span><span id="local-6989586621679572515"><span class="annot"><span class="annottext">t :: TypeQ
+</span><a href="#local-6989586621679572515"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-114"></span><span>  </span><span id="local-6989586621679572514"><span class="annot"><span class="annottext">KeyType
+</span><a href="#local-6989586621679572514"><span class="hs-identifier hs-var">kt</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Type -&gt; KeyType
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#parseKeyType"><span class="hs-identifier hs-var">parseKeyType</span></a></span><span> </span><span class="annot"><span class="annottext">(Type -&gt; KeyType) -&gt; TypeQ -&gt; Q KeyType
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">TypeQ
-</span><a href="#local-6989586621679572483"><span class="hs-identifier hs-var">t</span></a></span><span>
-</span><span id="line-115"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679572481"><span class="annot"><span class="annottext">keyName :: Name
-</span><a href="#local-6989586621679572481"><span class="hs-identifier hs-var hs-var">keyName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">KeyType -&gt; Name
+</span><a href="#local-6989586621679572515"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-115"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679572513"><span class="annot"><span class="annottext">keyName :: Name
+</span><a href="#local-6989586621679572513"><span class="hs-identifier hs-var hs-var">keyName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">KeyType -&gt; Name
 </span><a href="Tendermint.SDK.BaseApp.Store.TH.html#mkKeyName"><span class="hs-identifier hs-var">mkKeyName</span></a></span><span> </span><span class="annot"><span class="annottext">KeyType
-</span><a href="#local-6989586621679572482"><span class="hs-identifier hs-var">kt</span></a></span><span>
-</span><span id="line-116"></span><span>      </span><span id="local-6989586621679572480"><span class="annot"><span class="annottext">storeBody :: ExpQ
-</span><a href="#local-6989586621679572480"><span class="hs-identifier hs-var hs-var">storeBody</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">KeyType
-</span><a href="#local-6989586621679572482"><span class="hs-identifier hs-var">kt</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><a href="#local-6989586621679572514"><span class="hs-identifier hs-var">kt</span></a></span><span>
+</span><span id="line-116"></span><span>      </span><span id="local-6989586621679572512"><span class="annot"><span class="annottext">storeBody :: ExpQ
+</span><a href="#local-6989586621679572512"><span class="hs-identifier hs-var hs-var">storeBody</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">KeyType
+</span><a href="#local-6989586621679572514"><span class="hs-identifier hs-var">kt</span></a></span><span> </span><span class="hs-keyword">of</span><span>
 </span><span id="line-117"></span><span>        </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#Var"><span class="hs-identifier hs-type">Var</span></a></span><span> </span><span class="hs-identifier">_</span><span>   </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[|</span><span> </span><span class="hs-identifier">makeVar</span><span> </span><span class="hs-special">$(</span><span class="hs-identifier">conE</span><span> </span><span class="hs-identifier">keyName</span><span class="hs-special">)</span><span> </span><span class="hs-special">$(</span><span class="hs-identifier">varE</span><span> </span><span class="hs-identifier">store</span><span class="hs-special">)</span><span> </span><span class="hs-special">|]</span><span>
 </span><span id="line-118"></span><span>        </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#List"><span class="hs-identifier hs-type">List</span></a></span><span> </span><span class="hs-identifier">_</span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[|</span><span> </span><span class="hs-identifier">makeList</span><span> </span><span class="hs-special">$(</span><span class="hs-identifier">conE</span><span> </span><span class="hs-identifier">keyName</span><span class="hs-special">)</span><span> </span><span class="hs-special">$(</span><span class="hs-identifier">varE</span><span> </span><span class="hs-identifier">store</span><span class="hs-special">)</span><span> </span><span class="hs-special">|]</span><span>
 </span><span id="line-119"></span><span>        </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#Array"><span class="hs-identifier hs-type">Array</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[|</span><span> </span><span class="hs-identifier">makeArray</span><span> </span><span class="hs-special">$(</span><span class="hs-identifier">conE</span><span> </span><span class="hs-identifier">keyName</span><span class="hs-special">)</span><span> </span><span class="hs-special">$(</span><span class="hs-identifier">varE</span><span> </span><span class="hs-identifier">store</span><span class="hs-special">)</span><span> </span><span class="hs-special">|]</span><span>
 </span><span id="line-120"></span><span>        </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Store.TH.html#Map"><span class="hs-identifier hs-type">Map</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[|</span><span> </span><span class="hs-identifier">makeMap</span><span> </span><span class="hs-special">$(</span><span class="hs-identifier">conE</span><span> </span><span class="hs-identifier">keyName</span><span class="hs-special">)</span><span> </span><span class="hs-special">$(</span><span class="hs-identifier">varE</span><span> </span><span class="hs-identifier">store</span><span class="hs-special">)</span><span> </span><span class="hs-special">|]</span><span>
-</span><span id="line-121"></span><span>  </span><span id="local-6989586621679572479"><span class="annot"><span class="annottext">Dec
-</span><a href="#local-6989586621679572479"><span class="hs-identifier hs-var">sig</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; TypeQ -&gt; Q Dec
+</span><span id="line-121"></span><span>  </span><span id="local-6989586621679572511"><span class="annot"><span class="annottext">Dec
+</span><a href="#local-6989586621679572511"><span class="hs-identifier hs-var">sig</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Name -&gt; TypeQ -&gt; Q Dec
 </span><span class="hs-identifier hs-var">sigD</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Name
 </span><span class="hs-identifier hs-var">mkName</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679572484"><span class="hs-identifier hs-var">substoreName</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TypeQ
-</span><a href="#local-6989586621679572483"><span class="hs-identifier hs-var">t</span></a></span><span>
-</span><span id="line-122"></span><span>  </span><span id="local-6989586621679572478"><span class="annot"><span class="annottext">Dec
-</span><a href="#local-6989586621679572478"><span class="hs-identifier hs-var">val</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">PatQ -&gt; BodyQ -&gt; [Q Dec] -&gt; Q Dec
+</span><a href="#local-6989586621679572516"><span class="hs-identifier hs-var">substoreName</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TypeQ
+</span><a href="#local-6989586621679572515"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-122"></span><span>  </span><span id="local-6989586621679572510"><span class="annot"><span class="annottext">Dec
+</span><a href="#local-6989586621679572510"><span class="hs-identifier hs-var">val</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">PatQ -&gt; BodyQ -&gt; [Q Dec] -&gt; Q Dec
 </span><span class="hs-identifier hs-var">valD</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Name -&gt; PatQ
 </span><span class="hs-identifier hs-var">varP</span></span><span> </span><span class="annot"><span class="annottext">(Name -&gt; PatQ) -&gt; Name -&gt; PatQ
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Name
 </span><span class="hs-identifier hs-var">mkName</span></span><span> </span><span class="annot"><span class="annottext">String
-</span><a href="#local-6989586621679572484"><span class="hs-identifier hs-var">substoreName</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ExpQ -&gt; BodyQ
+</span><a href="#local-6989586621679572516"><span class="hs-identifier hs-var">substoreName</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ExpQ -&gt; BodyQ
 </span><span class="hs-identifier hs-var">normalB</span></span><span> </span><span class="annot"><span class="annottext">ExpQ
-</span><a href="#local-6989586621679572480"><span class="hs-identifier hs-var">storeBody</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679572512"><span class="hs-identifier hs-var">storeBody</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
 </span><span id="line-123"></span><span>  </span><span class="annot"><span class="annottext">[Dec] -&gt; Q [Dec]
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
 </span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Dec
-</span><a href="#local-6989586621679572479"><span class="hs-identifier hs-var">sig</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">Dec
-</span><a href="#local-6989586621679572478"><span class="hs-identifier hs-var">val</span></a></span><span class="hs-special">]</span><span>
+</span><a href="#local-6989586621679572511"><span class="hs-identifier hs-var">sig</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">Dec
+</span><a href="#local-6989586621679572510"><span class="hs-identifier hs-var">val</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-124"></span><span>
 </span><span id="line-125"></span></pre></body></html>

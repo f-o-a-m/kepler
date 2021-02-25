@@ -38,15 +38,15 @@
 </span><span id="line-38"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="AccountNotFound"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#AccountNotFound"><span class="hs-identifier hs-var">AccountNotFound</span></a></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Types.Address.html#Address"><span class="hs-identifier hs-type">Address</span></a></span><span>
 </span><span id="line-39"></span><span>
 </span><span id="line-40"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#IsAppError"><span class="hs-identifier hs-type">IsAppError</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#AuthError"><span class="hs-identifier hs-type">AuthError</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-41"></span><span>  </span><span id="local-6989586621679576565"><span class="annot"><span class="annottext">makeAppError :: AuthError -&gt; AppError
-</span><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var hs-var hs-var hs-var">makeAppError</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#AccountAlreadyExists"><span class="hs-identifier hs-type">AccountAlreadyExists</span></a></span><span> </span><span id="local-6989586621679576563"><span class="annot"><span class="annottext">addr :: Address
-</span><a href="#local-6989586621679576563"><span class="hs-identifier hs-var">addr</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-41"></span><span>  </span><span id="local-6989586621679576597"><span class="annot"><span class="annottext">makeAppError :: AuthError -&gt; AppError
+</span><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var hs-var hs-var hs-var">makeAppError</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#AccountAlreadyExists"><span class="hs-identifier hs-type">AccountAlreadyExists</span></a></span><span> </span><span id="local-6989586621679576595"><span class="annot"><span class="annottext">addr :: Address
+</span><a href="#local-6989586621679576595"><span class="hs-identifier hs-var">addr</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-42"></span><span>    </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-43"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
-</span><a href="#local-6989586621679576560"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">1</span></span><span>
+</span><a href="#local-6989586621679576592"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">1</span></span><span>
 </span><span id="line-44"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">appErrorCodespace :: Text
-</span><a href="#local-6989586621679576559"><span class="hs-identifier hs-var">appErrorCodespace</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><a href="#local-6989586621679576591"><span class="hs-identifier hs-var">appErrorCodespace</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy AuthName -&gt; String
 forall (n :: Symbol) (proxy :: Symbol -&gt; *).
@@ -58,7 +58,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall k (t :: k). Proxy t
 </span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#AuthName"><span class="hs-identifier hs-type">AuthName</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-45"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">appErrorMessage :: Text
-</span><a href="#local-6989586621679576557"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;Account already exists &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><a href="#local-6989586621679576589"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;Account already exists &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Text
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
@@ -69,19 +69,19 @@ forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">(Address -&gt; Text) -&gt; Address -&gt; Text
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679576563"><span class="hs-identifier hs-var">addr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><a href="#local-6989586621679576595"><span class="hs-identifier hs-var">addr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;.&quot;</span></span><span>
 </span><span id="line-46"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-47"></span><span>
-</span><span id="line-48"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#AccountNotFound"><span class="hs-identifier hs-type">AccountNotFound</span></a></span><span> </span><span id="local-6989586621679576554"><span class="annot"><span class="annottext">addr :: Address
-</span><a href="#local-6989586621679576554"><span class="hs-identifier hs-var">addr</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-48"></span><span>  </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#makeAppError"><span class="hs-identifier hs-var">makeAppError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#AccountNotFound"><span class="hs-identifier hs-type">AccountNotFound</span></a></span><span> </span><span id="local-6989586621679576586"><span class="annot"><span class="annottext">addr :: Address
+</span><a href="#local-6989586621679576586"><span class="hs-identifier hs-var">addr</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-49"></span><span>    </span><span class="annot"><span class="annottext">AppError :: Word32 -&gt; Text -&gt; Text -&gt; AppError
 </span><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type hs-type">AppError</span></a></span><span>
 </span><span id="line-50"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">appErrorCode :: Word32
-</span><a href="#local-6989586621679576560"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">2</span></span><span>
+</span><a href="#local-6989586621679576592"><span class="hs-identifier hs-var">appErrorCode</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-number">2</span></span><span>
 </span><span id="line-51"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">appErrorCodespace :: Text
-</span><a href="#local-6989586621679576559"><span class="hs-identifier hs-var">appErrorCodespace</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><a href="#local-6989586621679576591"><span class="hs-identifier hs-var">appErrorCodespace</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
 </span><span class="hs-identifier hs-var">cs</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy AuthName -&gt; String
 forall (n :: Symbol) (proxy :: Symbol -&gt; *).
@@ -93,7 +93,7 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 forall k (t :: k). Proxy t
 </span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#AuthName"><span class="hs-identifier hs-type">AuthName</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-52"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">appErrorMessage :: Text
-</span><a href="#local-6989586621679576557"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;Account not found for address &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><a href="#local-6989586621679576589"><span class="hs-identifier hs-var">appErrorMessage</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;Account not found for address &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Text
 forall a b. ConvertibleStrings a b =&gt; a -&gt; b
@@ -104,15 +104,15 @@ forall a. Show a =&gt; a -&gt; String
 </span><span class="hs-identifier hs-var">show</span></span><span> </span><span class="annot"><span class="annottext">(Address -&gt; Text) -&gt; Address -&gt; Text
 forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Address
-</span><a href="#local-6989586621679576554"><span class="hs-identifier hs-var">addr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+</span><a href="#local-6989586621679576586"><span class="hs-identifier hs-var">addr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
 forall a. Semigroup a =&gt; a -&gt; a -&gt; a
 </span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="hs-string">&quot;.&quot;</span></span><span>
 </span><span id="line-53"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-54"></span><span>
 </span><span id="line-55"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-56"></span><span>
-</span><span id="line-57"></span><span id="local-6989586621679576552"><span id="local-6989586621679576553"></span></span><span class="hs-keyword">newtype</span><span> </span><span id="CoinId"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-var">CoinId</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="CoinId"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-var">CoinId</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="unCoinId"><span class="annot"><span class="annottext">CoinId -&gt; Text
-</span><a href="Tendermint.SDK.Modules.Auth.Types.html#unCoinId"><span class="hs-identifier hs-var hs-var">unCoinId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679576546"><span id="local-6989586621679576548"><span class="annot"><span class="annottext">CoinId -&gt; CoinId -&gt; Bool
+</span><span id="line-57"></span><span id="local-6989586621679576584"><span id="local-6989586621679576585"></span></span><span class="hs-keyword">newtype</span><span> </span><span id="CoinId"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-var">CoinId</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="CoinId"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-var">CoinId</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="unCoinId"><span class="annot"><span class="annottext">CoinId -&gt; Text
+</span><a href="Tendermint.SDK.Modules.Auth.Types.html#unCoinId"><span class="hs-identifier hs-var hs-var">unCoinId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679576578"><span id="local-6989586621679576580"><span class="annot"><span class="annottext">CoinId -&gt; CoinId -&gt; Bool
 (CoinId -&gt; CoinId -&gt; Bool)
 -&gt; (CoinId -&gt; CoinId -&gt; Bool) -&gt; Eq CoinId
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -120,7 +120,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: CoinId -&gt; CoinId -&gt; Bool
 == :: CoinId -&gt; CoinId -&gt; Bool
 $c== :: CoinId -&gt; CoinId -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576539"><span id="local-6989586621679576541"><span id="local-6989586621679576543"><span class="annot"><span class="annottext">Int -&gt; CoinId -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576571"><span id="local-6989586621679576573"><span id="local-6989586621679576575"><span class="annot"><span class="annottext">Int -&gt; CoinId -&gt; ShowS
 [CoinId] -&gt; ShowS
 CoinId -&gt; String
 (Int -&gt; CoinId -&gt; ShowS)
@@ -146,18 +146,18 @@ $cfrom :: forall x. CoinId -&gt; Rep CoinId x
 </span><span id="line-59"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Wrapped</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-60"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Unwrapped"><span class="annot"><span class="hs-identifier hs-var">Unwrapped</span></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Proto.Modules.Auth.html#CoinId"><span class="hs-identifier hs-type">A.CoinId</span></a></span><span>
 </span><span id="line-61"></span><span>
-</span><span id="line-62"></span><span>  </span><span id="local-6989586621679576532"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped CoinId) (f (Unwrapped CoinId)) -&gt; p CoinId (f CoinId)
+</span><span id="line-62"></span><span>  </span><span id="local-6989586621679576564"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped CoinId) (f (Unwrapped CoinId)) -&gt; p CoinId (f CoinId)
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">_Wrapped'</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(CoinId -&gt; CoinId)
 -&gt; (CoinId -&gt; CoinId) -&gt; Iso CoinId CoinId CoinId CoinId
 forall s a b t. (s -&gt; a) -&gt; (b -&gt; t) -&gt; Iso s t a b
 </span><span class="hs-identifier hs-var">iso</span></span><span> </span><span class="annot"><span class="annottext">CoinId -&gt; CoinId
 forall b. (Message b, HasField b &quot;id&quot; Text) =&gt; CoinId -&gt; b
-</span><a href="#local-6989586621679576530"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">CoinId -&gt; CoinId
+</span><a href="#local-6989586621679576562"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">CoinId -&gt; CoinId
 forall s. HasField s &quot;id&quot; Text =&gt; s -&gt; CoinId
-</span><a href="#local-6989586621679576529"><span class="hs-identifier hs-var">f</span></a></span><span>
+</span><a href="#local-6989586621679576561"><span class="hs-identifier hs-var">f</span></a></span><span>
 </span><span id="line-63"></span><span>   </span><span class="hs-keyword">where</span><span>
-</span><span id="line-64"></span><span>    </span><span id="local-6989586621679576530"><span class="annot"><span class="annottext">t :: CoinId -&gt; b
-</span><a href="#local-6989586621679576530"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679576528"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-64"></span><span>    </span><span id="local-6989586621679576562"><span class="annot"><span class="annottext">t :: CoinId -&gt; b
+</span><a href="#local-6989586621679576562"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679576560"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-65"></span><span>      </span><span class="annot"><span class="annottext">b
 forall msg. Message msg =&gt; msg
 </span><span class="hs-identifier hs-var">P.defMessage</span></span><span>
@@ -170,14 +170,14 @@ LensLike' f s a
 </span><a href="Proto.Modules.Auth_Fields.html#id"><span class="hs-identifier hs-var">A.id</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Text -&gt; Text -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679576528"><span class="hs-identifier hs-var">unCoinId</span></a></span><span>
-</span><span id="line-67"></span><span>    </span><span id="local-6989586621679576529"><span class="annot"><span class="annottext">f :: s -&gt; CoinId
-</span><a href="#local-6989586621679576529"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679576525"><span class="annot"><span class="annottext">message :: s
-</span><a href="#local-6989586621679576525"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">CoinId :: Text -&gt; CoinId
+</span><a href="#local-6989586621679576560"><span class="hs-identifier hs-var">unCoinId</span></a></span><span>
+</span><span id="line-67"></span><span>    </span><span id="local-6989586621679576561"><span class="annot"><span class="annottext">f :: s -&gt; CoinId
+</span><a href="#local-6989586621679576561"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679576557"><span class="annot"><span class="annottext">message :: s
+</span><a href="#local-6989586621679576557"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">CoinId :: Text -&gt; CoinId
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type hs-type">CoinId</span></a></span><span>
 </span><span id="line-68"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">unCoinId :: Text
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#unCoinId"><span class="hs-identifier hs-var">unCoinId</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576525"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Text s Text -&gt; Text
+</span><a href="#local-6989586621679576557"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Text s Text -&gt; Text
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Text s Text
 forall (f :: * -&gt; *) s a.
@@ -187,7 +187,7 @@ LensLike' f s a
 </span><span id="line-69"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-70"></span><span>
 </span><span id="line-71"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-72"></span><span>  </span><span id="local-6989586621679576520"><span class="annot"><span class="annottext">encode :: CoinId -&gt; ByteString
+</span><span id="line-72"></span><span>  </span><span id="local-6989586621679576552"><span class="annot"><span class="annottext">encode :: CoinId -&gt; ByteString
 </span><a href="Tendermint.SDK.Codec.html#encode"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">CoinId -&gt; ByteString
 forall msg. Message msg =&gt; msg -&gt; ByteString
 </span><span class="hs-identifier hs-var">P.encodeMessage</span></span><span> </span><span class="annot"><span class="annottext">(CoinId -&gt; ByteString)
@@ -198,7 +198,7 @@ forall s (m :: * -&gt; *) a. MonadReader s m =&gt; Getting a s a -&gt; m a
 </span><span class="hs-identifier hs-var">view</span></span><span> </span><span class="annot"><span class="annottext">Getting CoinId CoinId CoinId
 forall s. Wrapped s =&gt; Iso' s (Unwrapped s)
 </span><span class="hs-identifier hs-var">_Wrapped'</span></span><span>
-</span><span id="line-73"></span><span>  </span><span id="local-6989586621679576517"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text CoinId
+</span><span id="line-73"></span><span>  </span><span id="local-6989586621679576549"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text CoinId
 </span><a href="Tendermint.SDK.Codec.html#decode"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text)
 -&gt; (CoinId -&gt; CoinId) -&gt; Either String CoinId -&gt; Either Text CoinId
 forall (p :: * -&gt; * -&gt; *) a b c d.
@@ -226,34 +226,34 @@ forall msg. Message msg =&gt; ByteString -&gt; Either String msg
 </span><span class="hs-identifier hs-var">P.decodeMessage</span></span><span>
 </span><span id="line-74"></span><span>
 </span><span id="line-75"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IsString</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-76"></span><span>  </span><span id="local-6989586621679576512"><span class="annot"><span class="annottext">fromString :: String -&gt; CoinId
+</span><span id="line-76"></span><span>  </span><span id="local-6989586621679576544"><span class="annot"><span class="annottext">fromString :: String -&gt; CoinId
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">fromString</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; CoinId
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-var">CoinId</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; CoinId) -&gt; (String -&gt; Text) -&gt; String -&gt; CoinId
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 </span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
 </span><span class="hs-identifier hs-var">pack</span></span><span>
-</span><span id="line-77"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679576505"><span id="local-6989586621679576507"><span id="local-6989586621679576509"><span class="annot"><span class="hs-identifier hs-type">JSON.ToJSON</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-78"></span><span>  </span><span id="local-6989586621679576503"><span class="annot"><span class="annottext">toJSON :: CoinId -&gt; Value
+</span><span id="line-77"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679576537"><span id="local-6989586621679576539"><span id="local-6989586621679576541"><span class="annot"><span class="hs-identifier hs-type">JSON.ToJSON</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-78"></span><span>  </span><span id="local-6989586621679576535"><span class="annot"><span class="annottext">toJSON :: CoinId -&gt; Value
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Options -&gt; CoinId -&gt; Value
 forall a.
 (Generic a, GToJSON Value Zero (Rep a)) =&gt;
 Options -&gt; a -&gt; Value
 </span><span class="hs-identifier hs-var">JSON.genericToJSON</span></span><span> </span><span class="annot"><span class="annottext">Options
 </span><span class="hs-identifier hs-var">JSON.defaultOptions</span></span><span>
-</span><span id="line-79"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679576497"><span class="annot"><span class="hs-identifier hs-type">JSON.FromJSON</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-80"></span><span>  </span><span id="local-6989586621679576495"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser CoinId
+</span><span id="line-79"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679576529"><span class="annot"><span class="hs-identifier hs-type">JSON.FromJSON</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-80"></span><span>  </span><span id="local-6989586621679576527"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser CoinId
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">parseJSON</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Options -&gt; Value -&gt; Parser CoinId
 forall a.
 (Generic a, GFromJSON Zero (Rep a)) =&gt;
 Options -&gt; Value -&gt; Parser a
 </span><span class="hs-identifier hs-var">JSON.genericParseJSON</span></span><span> </span><span class="annot"><span class="annottext">Options
 </span><span class="hs-identifier hs-var">JSON.defaultOptions</span></span><span>
-</span><span id="line-81"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679576487"><span id="local-6989586621679576489"><span id="local-6989586621679576491"><span class="annot"><span class="hs-identifier hs-type">ToHttpApiData</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-82"></span><span>  </span><span id="local-6989586621679576484"><span class="annot"><span class="annottext">toQueryParam :: CoinId -&gt; Text
+</span><span id="line-81"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679576519"><span id="local-6989586621679576521"><span id="local-6989586621679576523"><span class="annot"><span class="hs-identifier hs-type">ToHttpApiData</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-82"></span><span>  </span><span id="local-6989586621679576516"><span class="annot"><span class="annottext">toQueryParam :: CoinId -&gt; Text
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">toQueryParam</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">CoinId -&gt; Text
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#unCoinId"><span class="hs-identifier hs-var hs-var">unCoinId</span></a></span><span>
-</span><span id="line-83"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679576479"><span id="local-6989586621679576481"><span class="annot"><span class="hs-identifier hs-type">FromHttpApiData</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-84"></span><span>  </span><span id="local-6989586621679576476"><span class="annot"><span class="annottext">parseQueryParam :: Text -&gt; Either Text CoinId
+</span><span id="line-83"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679576511"><span id="local-6989586621679576513"><span class="annot"><span class="hs-identifier hs-type">FromHttpApiData</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-84"></span><span>  </span><span id="local-6989586621679576508"><span class="annot"><span class="annottext">parseQueryParam :: Text -&gt; Either Text CoinId
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">parseQueryParam</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Text -&gt; CoinId) -&gt; Either Text Text -&gt; Either Text CoinId
 forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
 </span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; CoinId
@@ -266,9 +266,9 @@ forall a. FromHttpApiData a =&gt; Text -&gt; Either Text a
 </span><span id="line-85"></span><span>
 </span><span id="line-86"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-87"></span><span>
-</span><span id="line-88"></span><span id="local-6989586621679576473"><span id="local-6989586621679576474"></span></span><span class="hs-keyword">newtype</span><span> </span><span id="Amount"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-var">Amount</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Amount"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-var">Amount</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="unAmount"><span class="annot"><span class="annottext">Amount -&gt; Word64
+</span><span id="line-88"></span><span id="local-6989586621679576505"><span id="local-6989586621679576506"></span></span><span class="hs-keyword">newtype</span><span> </span><span id="Amount"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-var">Amount</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Amount"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-var">Amount</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="unAmount"><span class="annot"><span class="annottext">Amount -&gt; Word64
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#unAmount"><span class="hs-identifier hs-var hs-var">unAmount</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span> </span><span class="hs-special">}</span><span>
-</span><span id="line-89"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679576467"><span id="local-6989586621679576469"><span class="annot"><span class="annottext">Amount -&gt; Amount -&gt; Bool
+</span><span id="line-89"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679576499"><span id="local-6989586621679576501"><span class="annot"><span class="annottext">Amount -&gt; Amount -&gt; Bool
 (Amount -&gt; Amount -&gt; Bool)
 -&gt; (Amount -&gt; Amount -&gt; Bool) -&gt; Eq Amount
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
@@ -276,7 +276,7 @@ forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 $c/= :: Amount -&gt; Amount -&gt; Bool
 == :: Amount -&gt; Amount -&gt; Bool
 $c== :: Amount -&gt; Amount -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576461"><span id="local-6989586621679576463"><span id="local-6989586621679576465"><span class="annot"><span class="annottext">Int -&gt; Amount -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576493"><span id="local-6989586621679576495"><span id="local-6989586621679576497"><span class="annot"><span class="annottext">Int -&gt; Amount -&gt; ShowS
 [Amount] -&gt; ShowS
 Amount -&gt; String
 (Int -&gt; Amount -&gt; ShowS)
@@ -289,7 +289,7 @@ show :: Amount -&gt; String
 $cshow :: Amount -&gt; String
 showsPrec :: Int -&gt; Amount -&gt; ShowS
 $cshowsPrec :: Int -&gt; Amount -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576447"><span id="local-6989586621679576449"><span id="local-6989586621679576451"><span id="local-6989586621679576453"><span id="local-6989586621679576455"><span id="local-6989586621679576457"><span id="local-6989586621679576459"><span class="annot"><span class="annottext">Integer -&gt; Amount
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576479"><span id="local-6989586621679576481"><span id="local-6989586621679576483"><span id="local-6989586621679576485"><span id="local-6989586621679576487"><span id="local-6989586621679576489"><span id="local-6989586621679576491"><span class="annot"><span class="annottext">Integer -&gt; Amount
 Amount -&gt; Amount
 Amount -&gt; Amount -&gt; Amount
 (Amount -&gt; Amount -&gt; Amount)
@@ -331,7 +331,7 @@ forall a.
 (forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
 $cto :: forall x. Rep Amount x -&gt; Amount
 $cfrom :: forall x. Amount -&gt; Rep Amount x
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576429"><span id="local-6989586621679576431"><span id="local-6989586621679576433"><span id="local-6989586621679576435"><span id="local-6989586621679576437"><span id="local-6989586621679576439"><span id="local-6989586621679576441"><span class="annot"><span class="annottext">Eq Amount
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576461"><span id="local-6989586621679576463"><span id="local-6989586621679576465"><span id="local-6989586621679576467"><span id="local-6989586621679576469"><span id="local-6989586621679576471"><span id="local-6989586621679576473"><span class="annot"><span class="annottext">Eq Amount
 Eq Amount =&gt;
 (Amount -&gt; Amount -&gt; Ordering)
 -&gt; (Amount -&gt; Amount -&gt; Bool)
@@ -369,7 +369,7 @@ $c&lt; :: Amount -&gt; Amount -&gt; Bool
 compare :: Amount -&gt; Amount -&gt; Ordering
 $ccompare :: Amount -&gt; Amount -&gt; Ordering
 $cp1Ord :: Eq Amount
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576420"><span id="local-6989586621679576422"><span id="local-6989586621679576424"><span id="local-6989586621679576426"><span class="annot"><span class="annottext">[Amount] -&gt; Encoding
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576452"><span id="local-6989586621679576454"><span id="local-6989586621679576456"><span id="local-6989586621679576458"><span class="annot"><span class="annottext">[Amount] -&gt; Encoding
 [Amount] -&gt; Value
 Amount -&gt; Encoding
 Amount -&gt; Value
@@ -392,7 +392,7 @@ toEncoding :: Amount -&gt; Encoding
 $ctoEncoding :: Amount -&gt; Encoding
 toJSON :: Amount -&gt; Value
 $ctoJSON :: Amount -&gt; Value
-</span><a href="#local-6989586621679576420"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">JSON.ToJSON</span></a></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576416"><span id="local-6989586621679576418"><span class="annot"><span class="annottext">Value -&gt; Parser [Amount]
+</span><a href="#local-6989586621679576452"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">JSON.ToJSON</span></a></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576448"><span id="local-6989586621679576450"><span class="annot"><span class="annottext">Value -&gt; Parser [Amount]
 Value -&gt; Parser Amount
 (Value -&gt; Parser Amount)
 -&gt; (Value -&gt; Parser [Amount]) -&gt; FromJSON Amount
@@ -402,23 +402,23 @@ parseJSONList :: Value -&gt; Parser [Amount]
 $cparseJSONList :: Value -&gt; Parser [Amount]
 parseJSON :: Value -&gt; Parser Amount
 $cparseJSON :: Value -&gt; Parser Amount
-</span><a href="#local-6989586621679576416"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">JSON.FromJSON</span></a></span></span></span><span class="hs-special">)</span><span>
+</span><a href="#local-6989586621679576448"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">JSON.FromJSON</span></a></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-90"></span><span>
 </span><span id="line-91"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Wrapped</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-type">Amount</span></a></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-92"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Unwrapped"><span class="annot"><span class="hs-identifier hs-var">Unwrapped</span></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-type">Amount</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Proto.Modules.Auth.html#Amount"><span class="hs-identifier hs-type">A.Amount</span></a></span><span>
 </span><span id="line-93"></span><span>
-</span><span id="line-94"></span><span>  </span><span id="local-6989586621679576414"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped Amount) (f (Unwrapped Amount)) -&gt; p Amount (f Amount)
-</span><a href="#local-6989586621679576414"><span class="hs-identifier hs-var hs-var hs-var hs-var">_Wrapped'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Amount -&gt; Amount)
+</span><span id="line-94"></span><span>  </span><span id="local-6989586621679576446"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped Amount) (f (Unwrapped Amount)) -&gt; p Amount (f Amount)
+</span><a href="#local-6989586621679576446"><span class="hs-identifier hs-var hs-var hs-var hs-var">_Wrapped'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Amount -&gt; Amount)
 -&gt; (Amount -&gt; Amount) -&gt; Iso Amount Amount Amount Amount
 forall s a b t. (s -&gt; a) -&gt; (b -&gt; t) -&gt; Iso s t a b
 </span><span class="hs-identifier hs-var">iso</span></span><span> </span><span class="annot"><span class="annottext">Amount -&gt; Amount
 forall b. (Message b, HasField b &quot;amount&quot; Word64) =&gt; Amount -&gt; b
-</span><a href="#local-6989586621679576413"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Amount -&gt; Amount
+</span><a href="#local-6989586621679576445"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Amount -&gt; Amount
 forall s. HasField s &quot;amount&quot; Word64 =&gt; s -&gt; Amount
-</span><a href="#local-6989586621679576412"><span class="hs-identifier hs-var">f</span></a></span><span>
+</span><a href="#local-6989586621679576444"><span class="hs-identifier hs-var">f</span></a></span><span>
 </span><span id="line-95"></span><span>   </span><span class="hs-keyword">where</span><span>
-</span><span id="line-96"></span><span>    </span><span id="local-6989586621679576413"><span class="annot"><span class="annottext">t :: Amount -&gt; b
-</span><a href="#local-6989586621679576413"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679576411"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-type">Amount</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-96"></span><span>    </span><span id="local-6989586621679576445"><span class="annot"><span class="annottext">t :: Amount -&gt; b
+</span><a href="#local-6989586621679576445"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679576443"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-type">Amount</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-97"></span><span>      </span><span class="annot"><span class="annottext">b
 forall msg. Message msg =&gt; msg
 </span><span class="hs-identifier hs-var">P.defMessage</span></span><span>
@@ -431,14 +431,14 @@ LensLike' f s a
 </span><a href="Proto.Modules.Auth_Fields.html#amount"><span class="hs-identifier hs-var">A.amount</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Word64 -&gt; Word64 -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679576411"><span class="hs-identifier hs-var">unAmount</span></a></span><span>
-</span><span id="line-99"></span><span>    </span><span id="local-6989586621679576412"><span class="annot"><span class="annottext">f :: s -&gt; Amount
-</span><a href="#local-6989586621679576412"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679576409"><span class="annot"><span class="annottext">message :: s
-</span><a href="#local-6989586621679576409"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Amount :: Word64 -&gt; Amount
+</span><a href="#local-6989586621679576443"><span class="hs-identifier hs-var">unAmount</span></a></span><span>
+</span><span id="line-99"></span><span>    </span><span id="local-6989586621679576444"><span class="annot"><span class="annottext">f :: s -&gt; Amount
+</span><a href="#local-6989586621679576444"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679576441"><span class="annot"><span class="annottext">message :: s
+</span><a href="#local-6989586621679576441"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Amount :: Word64 -&gt; Amount
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-type hs-type">Amount</span></a></span><span>
 </span><span id="line-100"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">unAmount :: Word64
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#unAmount"><span class="hs-identifier hs-var">unAmount</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576409"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Word64 s Word64 -&gt; Word64
+</span><a href="#local-6989586621679576441"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Word64 s Word64 -&gt; Word64
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Word64 s Word64
 forall (f :: * -&gt; *) s a.
@@ -448,8 +448,8 @@ LensLike' f s a
 </span><span id="line-101"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-102"></span><span>
 </span><span id="line-103"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-type">Amount</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-104"></span><span>  </span><span id="local-6989586621679576405"><span class="annot"><span class="annottext">encode :: Amount -&gt; ByteString
-</span><a href="#local-6989586621679576405"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Amount -&gt; ByteString
+</span><span id="line-104"></span><span>  </span><span id="local-6989586621679576437"><span class="annot"><span class="annottext">encode :: Amount -&gt; ByteString
+</span><a href="#local-6989586621679576437"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Amount -&gt; ByteString
 forall msg. Message msg =&gt; msg -&gt; ByteString
 </span><span class="hs-identifier hs-var">P.encodeMessage</span></span><span> </span><span class="annot"><span class="annottext">(Amount -&gt; ByteString)
 -&gt; (Amount -&gt; Amount) -&gt; Amount -&gt; ByteString
@@ -459,8 +459,8 @@ forall s (m :: * -&gt; *) a. MonadReader s m =&gt; Getting a s a -&gt; m a
 </span><span class="hs-identifier hs-var">view</span></span><span> </span><span class="annot"><span class="annottext">Getting Amount Amount Amount
 forall s. Wrapped s =&gt; Iso' s (Unwrapped s)
 </span><span class="hs-identifier hs-var">_Wrapped'</span></span><span>
-</span><span id="line-105"></span><span>  </span><span id="local-6989586621679576404"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Amount
-</span><a href="#local-6989586621679576404"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text)
+</span><span id="line-105"></span><span>  </span><span id="local-6989586621679576436"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Amount
+</span><a href="#local-6989586621679576436"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text)
 -&gt; (Amount -&gt; Amount) -&gt; Either String Amount -&gt; Either Text Amount
 forall (p :: * -&gt; * -&gt; *) a b c d.
 Bifunctor p =&gt;
@@ -488,19 +488,19 @@ forall msg. Message msg =&gt; ByteString -&gt; Either String msg
 </span><span id="line-106"></span><span>
 </span><span id="line-107"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-108"></span><span>
-</span><span id="line-109"></span><span id="local-6989586621679576402"><span id="local-6989586621679576403"></span></span><span class="hs-keyword">data</span><span> </span><span id="Coin"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Coin"><span class="hs-identifier hs-var">Coin</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Coin"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Coin"><span class="hs-identifier hs-var">Coin</span></a></span></span><span>
+</span><span id="line-109"></span><span id="local-6989586621679576434"><span id="local-6989586621679576435"></span></span><span class="hs-keyword">data</span><span> </span><span id="Coin"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Coin"><span class="hs-identifier hs-var">Coin</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Coin"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Coin"><span class="hs-identifier hs-var">Coin</span></a></span></span><span>
 </span><span id="line-110"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="coinId"><span class="annot"><span class="annottext">Coin -&gt; CoinId
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#coinId"><span class="hs-identifier hs-var hs-var">coinId</span></a></span></span><span>     </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#CoinId"><span class="hs-identifier hs-type">CoinId</span></a></span><span>
 </span><span id="line-111"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="coinAmount"><span class="annot"><span class="annottext">Coin -&gt; Amount
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#coinAmount"><span class="hs-identifier hs-var hs-var">coinAmount</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Amount"><span class="hs-identifier hs-type">Amount</span></a></span><span>
-</span><span id="line-112"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679576395"><span id="local-6989586621679576397"><span class="annot"><span class="annottext">Coin -&gt; Coin -&gt; Bool
+</span><span id="line-112"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679576427"><span id="local-6989586621679576429"><span class="annot"><span class="annottext">Coin -&gt; Coin -&gt; Bool
 (Coin -&gt; Coin -&gt; Bool) -&gt; (Coin -&gt; Coin -&gt; Bool) -&gt; Eq Coin
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 /= :: Coin -&gt; Coin -&gt; Bool
 $c/= :: Coin -&gt; Coin -&gt; Bool
 == :: Coin -&gt; Coin -&gt; Bool
 $c== :: Coin -&gt; Coin -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576389"><span id="local-6989586621679576391"><span id="local-6989586621679576393"><span class="annot"><span class="annottext">Int -&gt; Coin -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679576421"><span id="local-6989586621679576423"><span id="local-6989586621679576425"><span class="annot"><span class="annottext">Int -&gt; Coin -&gt; ShowS
 [Coin] -&gt; ShowS
 Coin -&gt; String
 (Int -&gt; Coin -&gt; ShowS)
@@ -526,21 +526,21 @@ $cfrom :: forall x. Coin -&gt; Rep Coin x
 </span><span id="line-114"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Wrapped</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Coin"><span class="hs-identifier hs-type">Coin</span></a></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-115"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Unwrapped"><span class="annot"><span class="hs-identifier hs-var">Unwrapped</span></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Coin"><span class="hs-identifier hs-type">Coin</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Proto.Modules.Auth.html#Coin"><span class="hs-identifier hs-type">A.Coin</span></a></span><span>
 </span><span id="line-116"></span><span>
-</span><span id="line-117"></span><span>  </span><span id="local-6989586621679576385"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped Coin) (f (Unwrapped Coin)) -&gt; p Coin (f Coin)
-</span><a href="#local-6989586621679576385"><span class="hs-identifier hs-var hs-var hs-var hs-var">_Wrapped'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Coin -&gt; Coin) -&gt; (Coin -&gt; Coin) -&gt; Iso Coin Coin Coin Coin
+</span><span id="line-117"></span><span>  </span><span id="local-6989586621679576417"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped Coin) (f (Unwrapped Coin)) -&gt; p Coin (f Coin)
+</span><a href="#local-6989586621679576417"><span class="hs-identifier hs-var hs-var hs-var hs-var">_Wrapped'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Coin -&gt; Coin) -&gt; (Coin -&gt; Coin) -&gt; Iso Coin Coin Coin Coin
 forall s a b t. (s -&gt; a) -&gt; (b -&gt; t) -&gt; Iso s t a b
 </span><span class="hs-identifier hs-var">iso</span></span><span> </span><span class="annot"><span class="annottext">Coin -&gt; Coin
 forall b.
 (Message b, HasField b &quot;amount&quot; Amount, HasField b &quot;id&quot; CoinId) =&gt;
 Coin -&gt; b
-</span><a href="#local-6989586621679576384"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Coin -&gt; Coin
+</span><a href="#local-6989586621679576416"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Coin -&gt; Coin
 forall s.
 (HasField s &quot;amount&quot; Amount, HasField s &quot;id&quot; CoinId) =&gt;
 s -&gt; Coin
-</span><a href="#local-6989586621679576383"><span class="hs-identifier hs-var">f</span></a></span><span>
+</span><a href="#local-6989586621679576415"><span class="hs-identifier hs-var">f</span></a></span><span>
 </span><span id="line-118"></span><span>   </span><span class="hs-keyword">where</span><span>
-</span><span id="line-119"></span><span>    </span><span id="local-6989586621679576384"><span class="annot"><span class="annottext">t :: Coin -&gt; b
-</span><a href="#local-6989586621679576384"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679576381"><span id="local-6989586621679576382"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Coin"><span class="hs-identifier hs-type">Coin</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-119"></span><span>    </span><span id="local-6989586621679576416"><span class="annot"><span class="annottext">t :: Coin -&gt; b
+</span><a href="#local-6989586621679576416"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679576413"><span id="local-6989586621679576414"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Coin"><span class="hs-identifier hs-type">Coin</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-120"></span><span>      </span><span class="annot"><span class="annottext">b
 forall msg. Message msg =&gt; msg
 </span><span class="hs-identifier hs-var">P.defMessage</span></span><span>
@@ -553,7 +553,7 @@ LensLike' f s a
 </span><a href="Proto.Modules.Auth_Fields.html#id"><span class="hs-identifier hs-var">A.id</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b CoinId -&gt; CoinId -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">CoinId
-</span><a href="#local-6989586621679576382"><span class="hs-identifier hs-var">coinId</span></a></span><span> </span><span class="annot"><span class="annottext">CoinId -&gt; Getting CoinId CoinId CoinId -&gt; CoinId
+</span><a href="#local-6989586621679576414"><span class="hs-identifier hs-var">coinId</span></a></span><span> </span><span class="annot"><span class="annottext">CoinId -&gt; Getting CoinId CoinId CoinId -&gt; CoinId
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting CoinId CoinId CoinId
 forall s. Wrapped s =&gt; Iso' s (Unwrapped s)
@@ -567,18 +567,18 @@ LensLike' f s a
 </span><a href="Proto.Modules.Auth_Fields.html#amount"><span class="hs-identifier hs-var">A.amount</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Amount -&gt; Amount -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Amount
-</span><a href="#local-6989586621679576381"><span class="hs-identifier hs-var">coinAmount</span></a></span><span> </span><span class="annot"><span class="annottext">Amount -&gt; Getting Amount Amount Amount -&gt; Amount
+</span><a href="#local-6989586621679576413"><span class="hs-identifier hs-var">coinAmount</span></a></span><span> </span><span class="annot"><span class="annottext">Amount -&gt; Getting Amount Amount Amount -&gt; Amount
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Amount Amount Amount
 forall s. Wrapped s =&gt; Iso' s (Unwrapped s)
 </span><span class="hs-identifier hs-var">_Wrapped'</span></span><span>
-</span><span id="line-123"></span><span>    </span><span id="local-6989586621679576383"><span class="annot"><span class="annottext">f :: s -&gt; Coin
-</span><a href="#local-6989586621679576383"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679576380"><span class="annot"><span class="annottext">message :: s
-</span><a href="#local-6989586621679576380"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Coin :: CoinId -&gt; Amount -&gt; Coin
+</span><span id="line-123"></span><span>    </span><span id="local-6989586621679576415"><span class="annot"><span class="annottext">f :: s -&gt; Coin
+</span><a href="#local-6989586621679576415"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679576412"><span class="annot"><span class="annottext">message :: s
+</span><a href="#local-6989586621679576412"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Coin :: CoinId -&gt; Amount -&gt; Coin
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#Coin"><span class="hs-identifier hs-type hs-type">Coin</span></a></span><span>
 </span><span id="line-124"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">coinId :: CoinId
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#coinId"><span class="hs-identifier hs-var">coinId</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576380"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting CoinId s CoinId -&gt; CoinId
+</span><a href="#local-6989586621679576412"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting CoinId s CoinId -&gt; CoinId
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">LensLike' (Const CoinId) s CoinId
 forall (f :: * -&gt; *) s a.
@@ -592,7 +592,7 @@ forall s. Wrapped s =&gt; Iso' (Unwrapped s) s
 </span><span class="hs-identifier hs-var">_Unwrapped'</span></span><span>
 </span><span id="line-125"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">coinAmount :: Amount
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#coinAmount"><span class="hs-identifier hs-var">coinAmount</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576380"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Amount s Amount -&gt; Amount
+</span><a href="#local-6989586621679576412"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Amount s Amount -&gt; Amount
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">LensLike' (Const Amount) s Amount
 forall (f :: * -&gt; *) s a.
@@ -607,8 +607,8 @@ forall s. Wrapped s =&gt; Iso' (Unwrapped s) s
 </span><span id="line-126"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-127"></span><span>
 </span><span id="line-128"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Coin"><span class="hs-identifier hs-type">Coin</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-129"></span><span>  </span><span id="local-6989586621679576376"><span class="annot"><span class="annottext">encode :: Coin -&gt; ByteString
-</span><a href="#local-6989586621679576376"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Coin -&gt; ByteString
+</span><span id="line-129"></span><span>  </span><span id="local-6989586621679576408"><span class="annot"><span class="annottext">encode :: Coin -&gt; ByteString
+</span><a href="#local-6989586621679576408"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Coin -&gt; ByteString
 forall msg. Message msg =&gt; msg -&gt; ByteString
 </span><span class="hs-identifier hs-var">P.encodeMessage</span></span><span> </span><span class="annot"><span class="annottext">(Coin -&gt; ByteString) -&gt; (Coin -&gt; Coin) -&gt; Coin -&gt; ByteString
 forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
@@ -617,8 +617,8 @@ forall s (m :: * -&gt; *) a. MonadReader s m =&gt; Getting a s a -&gt; m a
 </span><span class="hs-identifier hs-var">view</span></span><span> </span><span class="annot"><span class="annottext">Getting Coin Coin Coin
 forall s. Wrapped s =&gt; Iso' s (Unwrapped s)
 </span><span class="hs-identifier hs-var">_Wrapped'</span></span><span>
-</span><span id="line-130"></span><span>  </span><span id="local-6989586621679576375"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Coin
-</span><a href="#local-6989586621679576375"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text)
+</span><span id="line-130"></span><span>  </span><span id="local-6989586621679576407"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Coin
+</span><a href="#local-6989586621679576407"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text)
 -&gt; (Coin -&gt; Coin) -&gt; Either String Coin -&gt; Either Text Coin
 forall (p :: * -&gt; * -&gt; *) a b c d.
 Bifunctor p =&gt;
@@ -650,12 +650,12 @@ forall msg. Message msg =&gt; ByteString -&gt; Either String msg
 </span><span id="line-134"></span><span>
 </span><span id="line-135"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-136"></span><span>
-</span><span id="line-137"></span><span id="local-6989586621679576372"><span id="local-6989586621679576373"></span></span><span class="hs-keyword">data</span><span> </span><span id="Account"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-var">Account</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Account"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-var">Account</span></a></span></span><span>
+</span><span id="line-137"></span><span id="local-6989586621679576404"><span id="local-6989586621679576405"></span></span><span class="hs-keyword">data</span><span> </span><span id="Account"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-var">Account</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Account"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-var">Account</span></a></span></span><span>
 </span><span id="line-138"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="accountCoins"><span class="annot"><span class="annottext">Account -&gt; [Coin]
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#accountCoins"><span class="hs-identifier hs-var hs-var">accountCoins</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Coin"><span class="hs-identifier hs-type">Coin</span></a></span><span class="hs-special">]</span><span>
 </span><span id="line-139"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="accountNonce"><span class="annot"><span class="annottext">Account -&gt; Word64
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#accountNonce"><span class="hs-identifier hs-var hs-var">accountNonce</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word64</span></span><span>
-</span><span id="line-140"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679576363"><span id="local-6989586621679576365"><span id="local-6989586621679576367"><span class="annot"><span class="annottext">Int -&gt; Account -&gt; ShowS
+</span><span id="line-140"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679576395"><span id="local-6989586621679576397"><span id="local-6989586621679576399"><span class="annot"><span class="annottext">Int -&gt; Account -&gt; ShowS
 [Account] -&gt; ShowS
 Account -&gt; String
 (Int -&gt; Account -&gt; ShowS)
@@ -681,9 +681,9 @@ $cfrom :: forall x. Account -&gt; Rep Account x
 </span><span id="line-142"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Wrapped</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-type">Account</span></a></span><span> </span><span class="hs-keyword">where</span><span>
 </span><span id="line-143"></span><span>  </span><span class="hs-keyword">type</span><span> </span><span id="Unwrapped"><span class="annot"><span class="hs-identifier hs-var">Unwrapped</span></span></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-type">Account</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="Proto.Modules.Auth.html#Account"><span class="hs-identifier hs-type">A.Account</span></a></span><span>
 </span><span id="line-144"></span><span>
-</span><span id="line-145"></span><span>  </span><span id="local-6989586621679576359"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped Account) (f (Unwrapped Account))
+</span><span id="line-145"></span><span>  </span><span id="local-6989586621679576391"><span class="annot"><span class="annottext">_Wrapped' :: p (Unwrapped Account) (f (Unwrapped Account))
 -&gt; p Account (f Account)
-</span><a href="#local-6989586621679576359"><span class="hs-identifier hs-var hs-var hs-var hs-var">_Wrapped'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Account -&gt; Account)
+</span><a href="#local-6989586621679576391"><span class="hs-identifier hs-var hs-var hs-var hs-var">_Wrapped'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Account -&gt; Account)
 -&gt; (Account -&gt; Account) -&gt; Iso Account Account Account Account
 forall s a b t. (s -&gt; a) -&gt; (b -&gt; t) -&gt; Iso s t a b
 </span><span class="hs-identifier hs-var">iso</span></span><span> </span><span class="annot"><span class="annottext">Account -&gt; Account
@@ -691,15 +691,15 @@ forall b.
 (Message b, HasField b &quot;coins&quot; [Coin],
  HasField b &quot;nonce&quot; Word64) =&gt;
 Account -&gt; b
-</span><a href="#local-6989586621679576358"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Account -&gt; Account
+</span><a href="#local-6989586621679576390"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Account -&gt; Account
 forall (t :: * -&gt; *) s.
 (Traversable t, HasField s &quot;coins&quot; (t Coin),
  HasField s &quot;nonce&quot; Word64) =&gt;
 s -&gt; Account
-</span><a href="#local-6989586621679576357"><span class="hs-identifier hs-var">f</span></a></span><span>
+</span><a href="#local-6989586621679576389"><span class="hs-identifier hs-var">f</span></a></span><span>
 </span><span id="line-146"></span><span>   </span><span class="hs-keyword">where</span><span>
-</span><span id="line-147"></span><span>    </span><span id="local-6989586621679576358"><span class="annot"><span class="annottext">t :: Account -&gt; b
-</span><a href="#local-6989586621679576358"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679576355"><span id="local-6989586621679576356"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-type">Account</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-147"></span><span>    </span><span id="local-6989586621679576390"><span class="annot"><span class="annottext">t :: Account -&gt; b
+</span><a href="#local-6989586621679576390"><span class="hs-identifier hs-var hs-var">t</span></a></span></span><span> </span><span id="local-6989586621679576387"><span id="local-6989586621679576388"><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-type">Account</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-148"></span><span>      </span><span class="annot"><span class="annottext">b
 forall msg. Message msg =&gt; msg
 </span><span class="hs-identifier hs-var">P.defMessage</span></span><span>
@@ -712,7 +712,7 @@ LensLike' f s a
 </span><a href="Proto.Modules.Auth_Fields.html#coins"><span class="hs-identifier hs-var">A.coins</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b [Coin] -&gt; [Coin] -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">[Coin]
-</span><a href="#local-6989586621679576356"><span class="hs-identifier hs-var">accountCoins</span></a></span><span> </span><span class="annot"><span class="annottext">[Coin] -&gt; Getting (Endo [Coin]) [Coin] Coin -&gt; [Coin]
+</span><a href="#local-6989586621679576388"><span class="hs-identifier hs-var">accountCoins</span></a></span><span> </span><span class="annot"><span class="annottext">[Coin] -&gt; Getting (Endo [Coin]) [Coin] Coin -&gt; [Coin]
 forall s a. s -&gt; Getting (Endo [a]) s a -&gt; [a]
 </span><span class="hs-operator hs-var">^..</span></span><span> </span><span class="annot"><span class="annottext">(Coin -&gt; Const (Endo [Coin]) Coin)
 -&gt; [Coin] -&gt; Const (Endo [Coin]) [Coin]
@@ -738,14 +738,14 @@ LensLike' f s a
 </span><a href="Proto.Modules.Auth_Fields.html#nonce"><span class="hs-identifier hs-var">A.nonce</span></a></span><span> </span><span class="annot"><span class="annottext">LensLike' Identity b Word64 -&gt; Word64 -&gt; b -&gt; b
 forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
 </span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Word64
-</span><a href="#local-6989586621679576355"><span class="hs-identifier hs-var">accountNonce</span></a></span><span>
-</span><span id="line-151"></span><span>    </span><span id="local-6989586621679576357"><span class="annot"><span class="annottext">f :: s -&gt; Account
-</span><a href="#local-6989586621679576357"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679576351"><span class="annot"><span class="annottext">message :: s
-</span><a href="#local-6989586621679576351"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Account :: [Coin] -&gt; Word64 -&gt; Account
+</span><a href="#local-6989586621679576387"><span class="hs-identifier hs-var">accountNonce</span></a></span><span>
+</span><span id="line-151"></span><span>    </span><span id="local-6989586621679576389"><span class="annot"><span class="annottext">f :: s -&gt; Account
+</span><a href="#local-6989586621679576389"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679576383"><span class="annot"><span class="annottext">message :: s
+</span><a href="#local-6989586621679576383"><span class="hs-identifier hs-var">message</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Account :: [Coin] -&gt; Word64 -&gt; Account
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-type hs-type">Account</span></a></span><span>
 </span><span id="line-152"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">accountCoins :: [Coin]
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#accountCoins"><span class="hs-identifier hs-var">accountCoins</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576351"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting (Endo [Coin]) s Coin -&gt; [Coin]
+</span><a href="#local-6989586621679576383"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting (Endo [Coin]) s Coin -&gt; [Coin]
 forall s a. s -&gt; Getting (Endo [a]) s a -&gt; [a]
 </span><span class="hs-operator hs-var">^..</span></span><span> </span><span class="annot"><span class="annottext">LensLike' (Const (Endo [Coin])) s (t Coin)
 forall (f :: * -&gt; *) s a.
@@ -775,7 +775,7 @@ forall s. Wrapped s =&gt; Iso' (Unwrapped s) s
 </span><span class="hs-identifier hs-var">_Unwrapped'</span></span><span>
 </span><span id="line-153"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">accountNonce :: Word64
 </span><a href="Tendermint.SDK.Modules.Auth.Types.html#accountNonce"><span class="hs-identifier hs-var">accountNonce</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">s
-</span><a href="#local-6989586621679576351"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Word64 s Word64 -&gt; Word64
+</span><a href="#local-6989586621679576383"><span class="hs-identifier hs-var">message</span></a></span><span> </span><span class="annot"><span class="annottext">s -&gt; Getting Word64 s Word64 -&gt; Word64
 forall s a. s -&gt; Getting a s a -&gt; a
 </span><span class="hs-operator hs-var">^.</span></span><span> </span><span class="annot"><span class="annottext">Getting Word64 s Word64
 forall (f :: * -&gt; *) s a.
@@ -785,8 +785,8 @@ LensLike' f s a
 </span><span id="line-154"></span><span>      </span><span class="hs-special">}</span><span>
 </span><span id="line-155"></span><span>
 </span><span id="line-156"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Tendermint.SDK.Codec.html#HasCodec"><span class="hs-identifier hs-type">HasCodec</span></a></span><span> </span><span class="annot"><a href="Tendermint.SDK.Modules.Auth.Types.html#Account"><span class="hs-identifier hs-type">Account</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-157"></span><span>  </span><span id="local-6989586621679576347"><span class="annot"><span class="annottext">encode :: Account -&gt; ByteString
-</span><a href="#local-6989586621679576347"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Account -&gt; ByteString
+</span><span id="line-157"></span><span>  </span><span id="local-6989586621679576379"><span class="annot"><span class="annottext">encode :: Account -&gt; ByteString
+</span><a href="#local-6989586621679576379"><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Account -&gt; ByteString
 forall msg. Message msg =&gt; msg -&gt; ByteString
 </span><span class="hs-identifier hs-var">P.encodeMessage</span></span><span> </span><span class="annot"><span class="annottext">(Account -&gt; ByteString)
 -&gt; (Account -&gt; Account) -&gt; Account -&gt; ByteString
@@ -796,8 +796,8 @@ forall s (m :: * -&gt; *) a. MonadReader s m =&gt; Getting a s a -&gt; m a
 </span><span class="hs-identifier hs-var">view</span></span><span> </span><span class="annot"><span class="annottext">Getting Account Account Account
 forall s. Wrapped s =&gt; Iso' s (Unwrapped s)
 </span><span class="hs-identifier hs-var">_Wrapped'</span></span><span>
-</span><span id="line-158"></span><span>  </span><span id="local-6989586621679576346"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Account
-</span><a href="#local-6989586621679576346"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text)
+</span><span id="line-158"></span><span>  </span><span id="local-6989586621679576378"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Account
+</span><a href="#local-6989586621679576378"><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text)
 -&gt; (Account -&gt; Account)
 -&gt; Either String Account
 -&gt; Either Text Account

@@ -48,17 +48,17 @@
 </span><span id="line-45"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#InitialLogNamespace"><span class="hs-identifier hs-type">KL.InitialLogNamespace</span></a></span><span>
 </span><span id="line-46"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#PureContext"><span class="hs-identifier hs-type">PureContext</span></a></span><span>
 </span><span id="line-47"></span><span id="makePureContext"><span class="annot"><span class="annottext">makePureContext :: InitialLogNamespace -&gt; IO PureContext
-</span><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#makePureContext"><span class="hs-identifier hs-var hs-var">makePureContext</span></a></span></span><span> </span><span id="local-6989586621679575218"><span id="local-6989586621679575219"><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#InitialLogNamespace"><span class="hs-identifier hs-type">KL.InitialLogNamespace</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-48"></span><span>  </span><span id="local-6989586621679575214"><span class="annot"><span class="annottext">LogConfig
-</span><a href="#local-6989586621679575214"><span class="hs-identifier hs-var">logCfg</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; IO LogConfig
-</span><a href="#local-6989586621679575213"><span class="hs-identifier hs-var">mkLogConfig</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679575219"><span class="hs-identifier hs-var">_initialLogEnvironment</span></a></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679575218"><span class="hs-identifier hs-var">_initialLogProcessName</span></a></span><span>
-</span><span id="line-49"></span><span>  </span><span id="local-6989586621679575212"><span class="annot"><span class="annottext">DBVersions
-</span><a href="#local-6989586621679575212"><span class="hs-identifier hs-var">versions</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO DBVersions
+</span><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#makePureContext"><span class="hs-identifier hs-var hs-var">makePureContext</span></a></span></span><span> </span><span id="local-6989586621679575250"><span id="local-6989586621679575251"><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#InitialLogNamespace"><span class="hs-identifier hs-type">KL.InitialLogNamespace</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-48"></span><span>  </span><span id="local-6989586621679575246"><span class="annot"><span class="annottext">LogConfig
+</span><a href="#local-6989586621679575246"><span class="hs-identifier hs-var">logCfg</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; IO LogConfig
+</span><a href="#local-6989586621679575245"><span class="hs-identifier hs-var">mkLogConfig</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679575251"><span class="hs-identifier hs-var">_initialLogEnvironment</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679575250"><span class="hs-identifier hs-var">_initialLogProcessName</span></a></span><span>
+</span><span id="line-49"></span><span>  </span><span id="local-6989586621679575244"><span class="annot"><span class="annottext">DBVersions
+</span><a href="#local-6989586621679575244"><span class="hs-identifier hs-var">versions</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO DBVersions
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#initDBVersions"><span class="hs-identifier hs-var">Memory.initDBVersions</span></a></span><span>
-</span><span id="line-50"></span><span>  </span><span id="local-6989586621679575210"><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679575210"><span class="hs-identifier hs-var">db</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO DB
+</span><span id="line-50"></span><span>  </span><span id="local-6989586621679575242"><span class="annot"><span class="annottext">DB
+</span><a href="#local-6989586621679575242"><span class="hs-identifier hs-var">db</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO DB
 </span><a href="Tendermint.SDK.BaseApp.Store.MemoryStore.html#initDB"><span class="hs-identifier hs-var">Memory.initDB</span></a></span><span>
 </span><span id="line-51"></span><span>  </span><span class="annot"><span class="annottext">PureContext -&gt; IO PureContext
 forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
@@ -68,30 +68,30 @@ forall a b. (a -&gt; b) -&gt; a -&gt; b
 </span><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#PureContext"><span class="hs-identifier hs-type hs-type">PureContext</span></a></span><span>
 </span><span id="line-52"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">_pureContextLogConfig :: LogConfig
 </span><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#_pureContextLogConfig"><span class="hs-identifier hs-var">_pureContextLogConfig</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LogConfig
-</span><a href="#local-6989586621679575214"><span class="hs-identifier hs-var">logCfg</span></a></span><span>
+</span><a href="#local-6989586621679575246"><span class="hs-identifier hs-var">logCfg</span></a></span><span>
 </span><span id="line-53"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_pureContextVersions :: DBVersions
 </span><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#_pureContextVersions"><span class="hs-identifier hs-var">_pureContextVersions</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DBVersions
-</span><a href="#local-6989586621679575212"><span class="hs-identifier hs-var">versions</span></a></span><span>
+</span><a href="#local-6989586621679575244"><span class="hs-identifier hs-var">versions</span></a></span><span>
 </span><span id="line-54"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_pureContextDB :: DB
 </span><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#_pureContextDB"><span class="hs-identifier hs-var">_pureContextDB</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679575210"><span class="hs-identifier hs-var">db</span></a></span><span>
+</span><a href="#local-6989586621679575242"><span class="hs-identifier hs-var">db</span></a></span><span>
 </span><span id="line-55"></span><span>    </span><span class="hs-special">}</span><span>
 </span><span id="line-56"></span><span>    </span><span class="hs-keyword">where</span><span>
-</span><span id="line-57"></span><span>      </span><span class="annot"><a href="#local-6989586621679575213"><span class="hs-identifier hs-type">mkLogConfig</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type">KL.LogConfig</span></a></span><span>
-</span><span id="line-58"></span><span>      </span><span id="local-6989586621679575213"><span class="annot"><span class="annottext">mkLogConfig :: Text -&gt; Text -&gt; IO LogConfig
-</span><a href="#local-6989586621679575213"><span class="hs-identifier hs-var hs-var">mkLogConfig</span></a></span></span><span> </span><span id="local-6989586621679575207"><span class="annot"><span class="annottext">env :: Text
-</span><a href="#local-6989586621679575207"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679575206"><span class="annot"><span class="annottext">pName :: Text
-</span><a href="#local-6989586621679575206"><span class="hs-identifier hs-var">pName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
-</span><span id="line-59"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679575205"><span class="annot"><span class="annottext">mkLogEnv :: IO LogEnv
-</span><a href="#local-6989586621679575205"><span class="hs-identifier hs-var hs-var">mkLogEnv</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Namespace -&gt; Environment -&gt; IO LogEnv
+</span><span id="line-57"></span><span>      </span><span class="annot"><a href="#local-6989586621679575245"><span class="hs-identifier hs-type">mkLogConfig</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#LogConfig"><span class="hs-identifier hs-type">KL.LogConfig</span></a></span><span>
+</span><span id="line-58"></span><span>      </span><span id="local-6989586621679575245"><span class="annot"><span class="annottext">mkLogConfig :: Text -&gt; Text -&gt; IO LogConfig
+</span><a href="#local-6989586621679575245"><span class="hs-identifier hs-var hs-var">mkLogConfig</span></a></span></span><span> </span><span id="local-6989586621679575239"><span class="annot"><span class="annottext">env :: Text
+</span><a href="#local-6989586621679575239"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621679575238"><span class="annot"><span class="annottext">pName :: Text
+</span><a href="#local-6989586621679575238"><span class="hs-identifier hs-var">pName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-59"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679575237"><span class="annot"><span class="annottext">mkLogEnv :: IO LogEnv
+</span><a href="#local-6989586621679575237"><span class="hs-identifier hs-var hs-var">mkLogEnv</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Namespace -&gt; Environment -&gt; IO LogEnv
 </span><span class="hs-identifier hs-var">K.initLogEnv</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Text] -&gt; Namespace
 </span><span class="hs-identifier hs-var">K.Namespace</span></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679575206"><span class="hs-identifier hs-var">pName</span></a></span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Environment
+</span><a href="#local-6989586621679575238"><span class="hs-identifier hs-var">pName</span></a></span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Environment
 </span><span class="hs-identifier hs-var">K.Environment</span></span><span> </span><span class="annot"><span class="annottext">Text
-</span><a href="#local-6989586621679575207"><span class="hs-identifier hs-var">env</span></a></span><span class="hs-special">)</span><span>
-</span><span id="line-60"></span><span>        </span><span id="local-6989586621679575201"><span class="annot"><span class="annottext">LogEnv
-</span><a href="#local-6989586621679575201"><span class="hs-identifier hs-var">le</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO LogEnv
-</span><a href="#local-6989586621679575205"><span class="hs-identifier hs-var">mkLogEnv</span></a></span><span>
+</span><a href="#local-6989586621679575239"><span class="hs-identifier hs-var">env</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-60"></span><span>        </span><span id="local-6989586621679575233"><span class="annot"><span class="annottext">LogEnv
+</span><a href="#local-6989586621679575233"><span class="hs-identifier hs-var">le</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO LogEnv
+</span><a href="#local-6989586621679575237"><span class="hs-identifier hs-var">mkLogEnv</span></a></span><span>
 </span><span id="line-61"></span><span>        </span><span class="annot"><span class="annottext">LogConfig -&gt; IO LogConfig
 forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
 </span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">(LogConfig -&gt; IO LogConfig) -&gt; LogConfig -&gt; IO LogConfig
@@ -108,16 +108,16 @@ forall a. Monoid a =&gt; a
 </span><span class="hs-identifier hs-var">mempty</span></span><span>
 </span><span id="line-64"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">_logEnv :: LogEnv
 </span><a href="Tendermint.SDK.BaseApp.Logger.Katip.html#_logEnv"><span class="hs-identifier hs-var">_logEnv</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LogEnv
-</span><a href="#local-6989586621679575201"><span class="hs-identifier hs-var">le</span></a></span><span>
+</span><a href="#local-6989586621679575233"><span class="hs-identifier hs-var">le</span></a></span><span>
 </span><span id="line-65"></span><span>          </span><span class="hs-special">}</span><span>
 </span><span id="line-66"></span><span>
 </span><span id="line-67"></span><span class="hs-comment">-- | The standard interpeter for 'PureCoreEffs'.</span><span>
 </span><span id="line-68"></span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#runPureCoreEffs"><span class="hs-identifier hs-type">runPureCoreEffs</span></a></span><span>
 </span><span id="line-69"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#PureContext"><span class="hs-identifier hs-type">PureContext</span></a></span><span>
-</span><span id="line-70"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679575250"><span class="annot"><a href="#local-6989586621679575250"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#PureCoreEffs"><span class="hs-identifier hs-type">PureCoreEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679575250"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679575250"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679575282"><span class="annot"><a href="#local-6989586621679575282"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Sem</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#PureCoreEffs"><span class="hs-identifier hs-type">PureCoreEffs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679575282"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><a href="Tendermint.SDK.BaseApp.Errors.html#AppError"><span class="hs-identifier hs-type">AppError</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679575282"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span>
 </span><span id="line-71"></span><span id="runPureCoreEffs"><span class="annot"><span class="annottext">runPureCoreEffs :: PureContext
 -&gt; forall a. Sem PureCoreEffs a -&gt; IO (Either AppError a)
-</span><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#runPureCoreEffs"><span class="hs-identifier hs-var hs-var">runPureCoreEffs</span></a></span></span><span> </span><span id="local-6989586621679575193"><span id="local-6989586621679575194"><span id="local-6989586621679575195"><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#PureContext"><span class="hs-identifier hs-type">PureContext</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#runPureCoreEffs"><span class="hs-identifier hs-var hs-var">runPureCoreEffs</span></a></span></span><span> </span><span id="local-6989586621679575225"><span id="local-6989586621679575226"><span id="local-6989586621679575227"><span class="annot"><a href="Tendermint.SDK.BaseApp.Effects.PureCoreEffs.html#PureContext"><span class="hs-identifier hs-type">PureContext</span></a></span><span class="hs-special">{</span><span class="hs-glyph">..</span><span class="hs-special">}</span></span></span></span><span> </span><span class="hs-glyph">=</span><span>
 </span><span id="line-72"></span><span>  </span><span class="annot"><span class="annottext">Sem '[Embed IO] (Either AppError a) -&gt; IO (Either AppError a)
 forall (m :: * -&gt; *) a. Monad m =&gt; Sem '[Embed m] a -&gt; m a
 </span><span class="hs-identifier hs-var">runM</span></span><span> </span><span class="annot"><span class="annottext">(Sem '[Embed IO] (Either AppError a) -&gt; IO (Either AppError a))
@@ -143,7 +143,7 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 forall i (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 i -&gt; Sem (Reader i : r) a -&gt; Sem r a
 </span><span class="hs-identifier hs-var">runReader</span></span><span> </span><span class="annot"><span class="annottext">DB
-</span><a href="#local-6989586621679575194"><span class="hs-identifier hs-var">_pureContextDB</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem '[Reader DB, Error AppError, Embed IO] a
+</span><a href="#local-6989586621679575226"><span class="hs-identifier hs-var">_pureContextDB</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem '[Reader DB, Error AppError, Embed IO] a
  -&gt; Sem '[Error AppError, Embed IO] a)
 -&gt; (Sem PureCoreEffs a
     -&gt; Sem '[Reader DB, Error AppError, Embed IO] a)
@@ -157,7 +157,7 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 forall i (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 i -&gt; Sem (Reader i : r) a -&gt; Sem r a
 </span><span class="hs-identifier hs-var">runReader</span></span><span> </span><span class="annot"><span class="annottext">DBVersions
-</span><a href="#local-6989586621679575193"><span class="hs-identifier hs-var">_pureContextVersions</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem '[Reader DBVersions, Reader DB, Error AppError, Embed IO] a
+</span><a href="#local-6989586621679575225"><span class="hs-identifier hs-var">_pureContextVersions</span></a></span><span> </span><span class="annot"><span class="annottext">(Sem '[Reader DBVersions, Reader DB, Error AppError, Embed IO] a
  -&gt; Sem '[Reader DB, Error AppError, Embed IO] a)
 -&gt; (Sem PureCoreEffs a
     -&gt; Sem '[Reader DBVersions, Reader DB, Error AppError, Embed IO] a)
@@ -171,5 +171,5 @@ forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
 forall i (r :: [(* -&gt; *) -&gt; * -&gt; *]) a.
 i -&gt; Sem (Reader i : r) a -&gt; Sem r a
 </span><span class="hs-identifier hs-var">runReader</span></span><span> </span><span class="annot"><span class="annottext">LogConfig
-</span><a href="#local-6989586621679575195"><span class="hs-identifier hs-var">_pureContextLogConfig</span></a></span><span>
+</span><a href="#local-6989586621679575227"><span class="hs-identifier hs-var">_pureContextLogConfig</span></a></span><span>
 </span><span id="line-77"></span></pre></body></html>

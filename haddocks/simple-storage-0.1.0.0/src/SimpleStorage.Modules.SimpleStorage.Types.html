@@ -12,14 +12,14 @@
 </span><span id="line-12"></span><span>
 </span><span id="line-13"></span><span class="hs-keyword">type</span><span> </span><span id="SimpleStorageName"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#SimpleStorageName"><span class="hs-identifier hs-var">SimpleStorageName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-string">&quot;simple_storage&quot;</span></span><span>
 </span><span id="line-14"></span><span>
-</span><span id="line-15"></span><span class="hs-keyword">newtype</span><span> </span><span id="Count"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier hs-var">Count</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Count"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier hs-var">Count</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int32</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679293324"><span id="local-6989586621679293326"><span class="annot"><span class="annottext">Count -&gt; Count -&gt; Bool
+</span><span id="line-15"></span><span class="hs-keyword">newtype</span><span> </span><span id="Count"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier hs-var">Count</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Count"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier hs-var">Count</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int32</span></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679293330"><span id="local-6989586621679293332"><span class="annot"><span class="annottext">Count -&gt; Count -&gt; Bool
 (Count -&gt; Count -&gt; Bool) -&gt; (Count -&gt; Count -&gt; Bool) -&gt; Eq Count
 forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
 /= :: Count -&gt; Count -&gt; Bool
 $c/= :: Count -&gt; Count -&gt; Bool
 == :: Count -&gt; Count -&gt; Bool
 $c== :: Count -&gt; Count -&gt; Bool
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293317"><span id="local-6989586621679293319"><span id="local-6989586621679293321"><span class="annot"><span class="annottext">Int -&gt; Count -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293323"><span id="local-6989586621679293325"><span id="local-6989586621679293327"><span class="annot"><span class="annottext">Int -&gt; Count -&gt; ShowS
 [Count] -&gt; ShowS
 Count -&gt; String
 (Int -&gt; Count -&gt; ShowS)
@@ -32,7 +32,7 @@ show :: Count -&gt; String
 $cshow :: Count -&gt; String
 showsPrec :: Int -&gt; Count -&gt; ShowS
 $cshowsPrec :: Int -&gt; Count -&gt; ShowS
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293308"><span id="local-6989586621679293310"><span id="local-6989586621679293312"><span id="local-6989586621679293314"><span class="annot"><span class="annottext">[Count] -&gt; Value
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293314"><span id="local-6989586621679293316"><span id="local-6989586621679293318"><span id="local-6989586621679293320"><span class="annot"><span class="annottext">[Count] -&gt; Value
 [Count] -&gt; Encoding
 Count -&gt; Value
 Count -&gt; Encoding
@@ -55,7 +55,7 @@ toEncoding :: Count -&gt; Encoding
 $ctoEncoding :: Count -&gt; Encoding
 toJSON :: Count -&gt; Value
 $ctoJSON :: Count -&gt; Value
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">A.ToJSON</span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293303"><span id="local-6989586621679293305"><span class="annot"><span class="annottext">Value -&gt; Parser [Count]
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">A.ToJSON</span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293309"><span id="local-6989586621679293311"><span class="annot"><span class="annottext">Value -&gt; Parser [Count]
 Value -&gt; Parser Count
 (Value -&gt; Parser Count)
 -&gt; (Value -&gt; Parser [Count]) -&gt; FromJSON Count
@@ -65,7 +65,7 @@ parseJSONList :: Value -&gt; Parser [Count]
 $cparseJSONList :: Value -&gt; Parser [Count]
 parseJSON :: Value -&gt; Parser Count
 $cparseJSON :: Value -&gt; Parser Count
-</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">A.FromJSON</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293298"><span id="local-6989586621679293300"><span class="annot"><span class="annottext">Get Count
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">A.FromJSON</span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679293304"><span id="local-6989586621679293306"><span class="annot"><span class="annottext">Get Count
 Putter Count
 Putter Count -&gt; Get Count -&gt; Serialize Count
 forall t. Putter t -&gt; Get t -&gt; Serialize t
@@ -76,11 +76,11 @@ $cput :: Putter Count
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Serialize.Serialize</span></span></span></span><span class="hs-special">)</span><span>
 </span><span id="line-16"></span><span>
 </span><span id="line-17"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCodec</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier hs-type">Count</span></a></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-18"></span><span>    </span><span id="local-6989586621679293293"><span class="annot"><span class="annottext">encode :: Count -&gt; ByteString
+</span><span id="line-18"></span><span>    </span><span id="local-6989586621679293299"><span class="annot"><span class="annottext">encode :: Count -&gt; ByteString
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">encode</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Count -&gt; ByteString
 forall a. Serialize a =&gt; a -&gt; ByteString
 </span><span class="hs-identifier hs-var">Serialize.encode</span></span><span>
-</span><span id="line-19"></span><span>    </span><span id="local-6989586621679293290"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Count
+</span><span id="line-19"></span><span>    </span><span id="local-6989586621679293296"><span class="annot"><span class="annottext">decode :: ByteString -&gt; Either Text Count
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">decode</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; Either String Count -&gt; Either Text Count
 forall (p :: * -&gt; * -&gt; *) a b c.
 Bifunctor p =&gt;
@@ -100,7 +100,7 @@ forall a. Serialize a =&gt; ByteString -&gt; Either String a
 </span><span id="line-22"></span><span class="hs-comment">-- Events</span><span>
 </span><span id="line-23"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
 </span><span id="line-24"></span><span>
-</span><span id="line-25"></span><span id="local-6989586621679293285"><span id="local-6989586621679293286"></span></span><span class="hs-keyword">data</span><span> </span><span id="CountSet"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-var">CountSet</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="CountSet"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-var">CountSet</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="newCount"><span class="annot"><span class="annottext">CountSet -&gt; Count
+</span><span id="line-25"></span><span id="local-6989586621679293291"><span id="local-6989586621679293292"></span></span><span class="hs-keyword">data</span><span> </span><span id="CountSet"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-var">CountSet</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="CountSet"><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-var">CountSet</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="newCount"><span class="annot"><span class="annottext">CountSet -&gt; Count
 </span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#newCount"><span class="hs-identifier hs-var hs-var">newCount</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#Count"><span class="hs-identifier hs-type">Count</span></a></span><span> </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="annottext">(forall x. CountSet -&gt; Rep CountSet x)
 -&gt; (forall x. Rep CountSet x -&gt; CountSet) -&gt; Generic CountSet
 forall x. Rep CountSet x -&gt; CountSet
@@ -116,8 +116,8 @@ $cfrom :: forall x. CountSet -&gt; Rep CountSet x
 </span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#countSetOptions"><span class="hs-identifier hs-var hs-var">countSetOptions</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Options
 </span><span class="hs-identifier hs-var">A.defaultOptions</span></span><span>
 </span><span id="line-29"></span><span>
-</span><span id="line-30"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679293271"><span id="local-6989586621679293273"><span id="local-6989586621679293275"><span class="annot"><span class="hs-identifier hs-type">A.ToJSON</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-31"></span><span>  </span><span id="local-6989586621679293270"><span class="annot"><span class="annottext">toJSON :: CountSet -&gt; Value
+</span><span id="line-30"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679293277"><span id="local-6989586621679293279"><span id="local-6989586621679293281"><span class="annot"><span class="hs-identifier hs-type">A.ToJSON</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-31"></span><span>  </span><span id="local-6989586621679293276"><span class="annot"><span class="annottext">toJSON :: CountSet -&gt; Value
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Options -&gt; CountSet -&gt; Value
 forall a.
 (Generic a, GToJSON Value Zero (Rep a)) =&gt;
@@ -125,8 +125,8 @@ Options -&gt; a -&gt; Value
 </span><span class="hs-identifier hs-var">A.genericToJSON</span></span><span> </span><span class="annot"><span class="annottext">Options
 </span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#countSetOptions"><span class="hs-identifier hs-var">countSetOptions</span></a></span><span>
 </span><span id="line-32"></span><span>
-</span><span id="line-33"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679293265"><span class="annot"><span class="hs-identifier hs-type">A.FromJSON</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
-</span><span id="line-34"></span><span>  </span><span id="local-6989586621679293264"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser CountSet
+</span><span id="line-33"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679293271"><span class="annot"><span class="hs-identifier hs-type">A.FromJSON</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-34"></span><span>  </span><span id="local-6989586621679293270"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser CountSet
 </span><span class="hs-identifier hs-var hs-var hs-var hs-var">parseJSON</span></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Options -&gt; Value -&gt; Parser CountSet
 forall a.
 (Generic a, GFromJSON Zero (Rep a)) =&gt;
@@ -134,8 +134,8 @@ Options -&gt; Value -&gt; Parser a
 </span><span class="hs-identifier hs-var">A.genericParseJSON</span></span><span> </span><span class="annot"><span class="annottext">Options
 </span><a href="SimpleStorage.Modules.SimpleStorage.Types.html#countSetOptions"><span class="hs-identifier hs-var">countSetOptions</span></a></span><span>
 </span><span id="line-35"></span><span>
-</span><span id="line-36"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679293260"><span class="annot"><span class="hs-identifier hs-type">BaseApp.ToEvent</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a></span></span><span>
+</span><span id="line-36"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679293266"><span class="annot"><span class="hs-identifier hs-type">BaseApp.ToEvent</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a></span></span><span>
 </span><span id="line-37"></span><span>
-</span><span id="line-38"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679293257"><span class="annot"><span class="hs-identifier hs-type">BaseApp.Select</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a></span></span><span>
+</span><span id="line-38"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679293263"><span class="annot"><span class="hs-identifier hs-type">BaseApp.Select</span></span><span> </span><span class="annot"><a href="SimpleStorage.Modules.SimpleStorage.Types.html#CountSet"><span class="hs-identifier hs-type">CountSet</span></a></span></span><span>
 </span><span id="line-39"></span><span>
 </span><span id="line-40"></span></pre></body></html>
