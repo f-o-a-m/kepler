@@ -110,13 +110,13 @@ block = RPC.remote (RPC.MethodName "block")
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/blocks.go#L72
 data RequestBlock = RequestBlock
-  { requestBlockHeightPtr :: Maybe (FieldTypes.WrappedVal Int64)
+  { requestBlockHeight :: Maybe (FieldTypes.WrappedVal Int64)
   } deriving (Eq, Show, Generic)
 instance ToJSON RequestBlock where
   toJSON = genericToJSON $ defaultRPCOptions "requestBlock"
 
 instance Default RequestBlock where
-  def = RequestBlock { requestBlockHeightPtr = Nothing }
+  def = RequestBlock { requestBlockHeight = Nothing }
 
 -- https://github.com/tendermint/tendermint/blob/v0.32.2/rpc/core/types/responses.go#L28
 data ResultBlock = ResultBlock
