@@ -1,7 +1,5 @@
 # kepler
 
-[![Build Status](https://travis-ci.com/f-o-a-m/kepler.svg?branch=master)](https://travis-ci.com/f-o-a-m/kepler)
-
 ## Docs
 Although the documentation for this project is hosted on github as well, always use the [hosted docs](https://kepler.dev/) for the best experience.
 
